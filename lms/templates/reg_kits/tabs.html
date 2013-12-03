@@ -1,0 +1,202 @@
+<%page args="active_page=None" />
+<%namespace name='static' file='../static_content.html'/>
+<%static:js group='main_vendor'/>
+<script type="text/javascript" src="/static/js/vendor/jquery.leanModal.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/validator.js" charset="utf-8"></script>
+<style type="text/css" media="screen">
+  *{font-size:12px;font-family:'open sans';color:#000}
+  a{color:#009}
+  #form-table{border:none;}
+  #form-table td{border:none;padding:10px 10px;}
+  #form-table td.label{text-align:right;}
+  #form-table td.required:after{
+    content:"*";
+    color:#f00;
+  }
+  body{
+    margin-top:20px;
+  }
+  table.datalist td{padding:5px;}
+  table.datalist th{
+    padding:5px;background:#1781A8;color:#fff;font-weight:normal;
+  }
+  table.datalist,table.datalist td,table.datalist th{
+    border-color:#000;
+  }
+  div.nav a{
+    font-size:14px;
+    background:#ddd;
+    color:#555;
+    padding:5px 10px;
+    text-decoration:none;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  div.nav{
+    margin-bottom:10px;
+    text-align:left;
+  }
+  table.datalist tr th:first-child{
+    width:20px;
+  }
+  #message{
+    background:#fc0;border:1px solid #f00;display:none;padding:5px;
+  }
+  input[type=submit],input[type=button]{
+    padding:2px 15px;
+    font-size:10px;
+    vertical-align:middle;
+  }
+  select{
+    vertical-align:bottom;
+  }
+  div.filter{
+  padding-bottom:0px;
+  height:auto;
+  }
+  div.container{max-width:1500px}
+#lean_overlay {
+  background-image: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
+  background-color: transparent;
+  background-repeat: repeat;
+  background-size: auto auto;
+  background-attachment: scroll;
+  background-clip: border-box;
+  position: fixed;
+  z-index:100;
+  top: 0px;
+  left: 0px;
+  height:100%;
+  width:100%;
+  display: none;
+  opacity: 0.5; 
+}
+ .modal{
+background-attachment: scroll;
+background-color: rgba(0, 0, 0, 0.6);
+background-image: none;
+background-origin: padding-box;
+background-position: 0% 0%;
+background-repeat: repeat;
+background-size: auto auto;
+box-shadow: rgba(0, 0, 0, 0.5) 0px 15px 80px 15px;
+color: rgb(255, 255, 255);
+display: block;
+font-family: "open sans";
+font-size: 14px;
+font-style: normal;
+line-height: 10px;
+margin-left: -249px;
+opacity: 1;
+padding:8px 8px 8px 8px;
+position: absolute;
+top: 120px;
+width: 480px;
+z-index: 11000;
+-moz-border-bottom-colors: none;
+-moz-border-left-colors: none;
+-moz-border-right-colors: none;
+-moz-border-top-colors: none;
+display:none;
+  }
+div.inner-wapper{
+  background-color: rgb(245, 245, 245);
+  padding:5px;
+}
+h2{
+  color:#999;
+}
+.close-modal{
+  position: absolute;
+  right: 15px;
+  top: 0px;
+  color:#555;
+  cursor:pointer;
+}
+.close-modal p{
+  font-size:20px;
+}
+</style>
+<script type="text/javascript" src="/static/js/vendor/jquery.form.js" charset="utf-8"></script>
+<div style="text-align:center;">
+  <div style="margin:auto;"  class="container">
+    <div class="nav">
+      %for tab in ["district","cohort","transaction","school","user"]:
+      %if tab==active_page:
+      <a href="/reg_kits/${tab}">${tab.capitalize()}</a>
+      %else:
+      <a href="/reg_kits/${tab}" style="background:#0af;color:#fff;">${tab.capitalize()}</a>
+      %endif
+      %endfor
+    </div>
+  </div>
+</div>
+<script>
+function getFormData(form,flds){
+  var data={}
+  $.each(flds,function(i,n){
+    data[n]=$(form[n]).val();
+  })
+  return data;
+}
+function infoAndWait(box,info,seconds,go){
+  var w=seconds;
+  $(box).show()
+  function count(){
+    $(box).html(info + ". <b>" + w + "</b>");
+    setTimeout(function(){
+      if(w < 1){
+        window.location.href=go;
+      }else{
+        w--;
+        count()
+      }
+    },1000);                             
+  }
+  count();
+}
+function dropDistrict(form,state_id,callback){
+  $.get('/reg_kits/drop_districts',{state_id:state_id},function(r){
+      r=$.parseJSON(r)
+      var html="";
+      var drop=form.find("select[name=district_id]");
+      drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+      for(k in r){
+        d=r[k];
+        html+="<option value='" + d.id+"'>" + d.name + " - " + d.code + "</option>";
+      }
+      drop.append(html)
+      if(callback instanceof Function)callback.apply(drop[0]);
+  });
+}
+function dropSchool(form,state_id,district_id,callback){
+  $.get('/reg_kits/drop_schools',{state_id:state_id,district_id:district_id},function(r){
+    r=$.parseJSON(r)
+    var html="";
+    var drop=form.find("select[name=school_id]")
+    drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+    for(k in r){
+      d=r[k];
+      html+="<option value='" + d.id+"'>" + d.name + "</option>"
+    }
+    drop.append(html)
+    if(callback instanceof Function)callback.apply(drop[0]);
+  });
+}
+function dropCohort(form,state_id,district_id,callback){
+  $.get('/reg_kits/drop_cohorts',{state_id:state_id,district_id:district_id},function(r){
+    r=$.parseJSON(r)
+    var html="";
+    var drop=form.find("select[name=cohort_id]")         
+    drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+    for(k in r){
+      d=r[k];
+      html+="<option value='" + d.id+"'>" + d.code + "</option>"
+    }
+    drop.append(html)
+    if(callback instanceof Function)callback.apply(drop[0]);
+  });
+}             
+</script>

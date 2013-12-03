@@ -1,0 +1,242 @@
+section.poll_compare{
+/*	@media print{
+		display:block;
+		width:auto;
+		padding:0;
+	}*/
+	width:810px;
+	display:table;
+	/*overflow:auto;*/
+
+	/*div {
+		display:block;
+		float:left;
+		clear:left;
+	}
+*/
+	div.poll_compare_table {
+		/*
+			Out Layer div #5B9BD5
+		*/
+		border-top:1px #d4d4d4 solid;
+		border-bottom:1px #d4d4d4 solid;
+		border-right:1px #d4d4d4 solid;
+		border-left:1px #d4d4d4 solid;
+		width:810px;
+
+		font-size:12px;
+		font-family:'Open Sans', sans-serif;
+		/*background:#d4d4d4;*/
+		margin:0px auto;
+		vertical-align: bottom;
+
+		ul {
+			/*
+				Row of table
+			*/
+			float:left;
+			clear:left;
+			margin:0px;
+			padding:0px;
+			width:100%;
+			list-style-type:none;
+			vertical-align: middle;
+		}
+
+		ul li {
+			/*
+				Cell of table
+			*/
+			border-right:1px #d4d4d4 solid;
+			border-bottom:1px #d4d4d4 solid;
+			background:#FFF;
+			/*display:block;*/
+			float:left;
+			width:80px;
+			margin:0px;
+			
+			/*vertical middle alignment*/
+			vertical-align:middle;
+			display: -moz-inline-stack;
+			display: inline-block;
+		}
+
+		ul li div{
+			/*vertical middle alignment*/
+			vertical-align:middle;
+			display: -moz-inline-stack;
+			display: inline-block;	
+		}
+
+		.left{
+			/*
+				Left Column
+			*/
+			/*auto wrapping*/
+			height:auto;
+			line-height:auto;
+			width:263px;
+			word-wrap:break-word;
+			/*auto wrapping*/
+
+			/*width:auto;*/
+			text-align:left;
+			border-left:1px #d4d4d4 solid;
+
+			background-color: #ccc;
+			-webkit-box-shadow: inset 0 1px rgba(255,255,255,.75);
+			-moz-box-shadow: inset 0 1px rgba(255,255,255,.75);
+			box-shadow: inset 0 1px rgba(255,255,255,.75);
+			background-image: -webkit-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: -moz-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: -o-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			color:#2160a1;
+			font-weight:bold;
+			font-size:14px;
+			padding-left: 5px;
+			margin:0px;
+
+			/*vertical middle alignment*/
+			vertical-align:middle;
+			display: -moz-inline-stack;
+			display: inline-block;
+		}
+
+		.title123{
+			/*
+				Top Row
+			*/
+			background-color: #ccc;
+			-webkit-box-shadow: inset 0 1px rgba(255,255,255,.75);
+			-moz-box-shadow: inset 0 1px rgba(255,255,255,.75);
+			box-shadow: inset 0 1px rgba(255,255,255,.75);
+			background-image: -webkit-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: -moz-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: -o-linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			background-image: linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			color:#2160a1;
+			font-weight:bold;
+			font-size:12px;
+
+			/*width:auto;*/
+			/*height:40px;   */
+		  	/*line-height:40px;   */
+		  	/*overflow:hidden;*/
+		  	text-align:center;
+		  	/*padding-left:5px;*/
+
+		  	/*auto wrapping*/
+			height:60px;
+			/*line-height:30px;*/
+			width:80px;
+			word-wrap:break-word;
+			/*auto wrapping*/
+		}
+
+		.row_left{
+			width:263px;
+			margin:0px;
+
+			/*vertical middle alignment*/
+			vertical-align:middle;
+			display: -moz-inline-stack;
+			display: inline-block;
+		}
+
+		.row_right{
+			/*
+				Left of row
+			*/
+			/*height:20px;*/
+			/*auto wrapping*/
+			height:auto;
+			line-height:auto;
+			width:auto;
+			word-wrap:break-word;
+			/*auto wrapping*/
+		}
+
+		.set_blue { 
+			background:#3F48CC;
+		}
+
+		.set_green {
+			background:#22B14C;
+		}
+	}
+
+
+	div.poll_compare_table_footer{
+		/*
+			Out Layer div
+		*/
+		border-top:0px #d4d4d4 solid;
+		border-left:1px #d4d4d4 solid;
+		border-bottom:1px #d4d4d4 solid;
+		border-right:1px #d4d4d4 solid;
+
+		font-size:12px;
+		font-family:'Open Sans', sans-serif;
+		/*background:#d4d4d4;*/
+		vertical-align: bottom;
+
+		ul {
+			/*
+				Row of table
+			*/
+			float:left;
+			clear:left;
+			margin:0px;
+			padding:0px;
+			/*width:100%;*/
+			list-style-type:none;
+			vertical-align: bottom;
+			height:18px;
+		}
+
+		ul li {
+			/*
+				Cell of table
+			*/
+			float:left;
+			display:inline-block;
+			margin:0px;
+			width:100px;
+			padding:0px;
+
+			background:#FFF;
+			margin:0px auto;
+			height:18px;
+			line-height:18px;
+			vertical-align:middle;
+		}
+
+		.poll_compare_wrapper
+		{
+			margin:10px;
+			padding:10px;
+		}
+
+		.set_blue_footer { 
+			background:#3F48CC;
+		}
+
+		.set_green_footer {
+			background:#22B14C;
+		}
+
+		.left_footer{
+			width:40px;
+			padding-left:3px;
+		}
+
+		.right_footer{
+			width:200px;
+			padding-left:3px;
+			
+			font-size:12px;
+			font-family:'Open Sans', sans-serif;
+		}
+	}
+}

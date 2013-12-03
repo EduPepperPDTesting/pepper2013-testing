@@ -1,0 +1,60 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
+
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<style type="text/css" media="screen">
+  #page-nav,#page-footer{
+  width:960px;
+  }
+</style>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
+
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+  section.content-wrapper{background:transparent !important;}
+</style>
+<div style="border-bottom:1px solid #666;">
+	<div class="main" style="width:960px;">
+	  <div id="_container" class="" style="width:960px;">
+	  <div class="pace">
+		<div class="library_tit">Resource Library: </div>
+			<span class="session">Mathematics:</span> 
+			<ul class="session_li">
+				<li><a href="/courses/WestEd/002/002/16926d517abf47ebb9de96f796683b8e/">Intro to CCSS for Mathematical Practice (6-8)</a></li>
+				<li><a href="#">Intro to CCSS for Mathematical Practice (K-5)</a></li>
+				<li><a href="#">Intro to CCSS for Mathematical Practice (9-12)</a></li>
+			</ul>
+	  
+			<span class="session">English Language Arts:</span> 
+			<ul class="session_li">
+				<li><a href="/courses/ginger/cs3/2013_winter/9faf8b012a17400ea4cc6869a41a88b7/">Balancing Informational & Literary Texts (K-5)</a></li>
+				<li><a href="#">Building Academic Vocabulary (6-8)</a></li>
+				<li><a href="#">Building Academic Vocabulary (9-12)</a></li>
+			</ul>
+			
+			<span class="session">Additional Resources for Teachers and Students:</span> 
+	   <ul class="session_li">
+			<li><a href="#">Think aloud prompt- description…description…description</a></li>
+			<li><a href="#"> Text Complexity Worksheet- description…description…description</a></li>
+			<li><a href="#"> Using Literary Text Video- description…description…description</a></li>
+		  </ul>
+				 <span class="session">Informational Library Administrators, Teachers, and Parents:</span> 
+	   <ul class="session_li">
+			<li><a href="#">Information for Administrators</a></li>
+			<li><a href="#">Information for Teachers </a></li>
+			<li><a href="#"> Information for Parents</a></li>
+		  </ul>
+
+		</div></div>
+	</div>
+</div>
+<br style="clear:both;"/>

@@ -1,0 +1,278 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+   from django.core.urlresolvers import reverse
+   from courseware.courses import course_image_url, get_course_about_section
+   from courseware.access import has_access
+   from certificates.models import CertificateStatuses
+   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+   from xmodule.modulestore.django import modulestore
+   import json
+   from student.models import State,District,Transaction
+%>
+<body>
+<%include file="tabs.html" args="active_page='cohort'" />
+%if ui=='list':
+<div style="text-align:center;">
+  <div style="margin:auto;" class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+    
+      <div class="filter">
+        <form id="form_filter" method="get">
+          State:
+          <select name="state_id" autocomplate="off">
+            <option value="">All</option>
+            %for item in State.objects.all():
+            %if request.GET.get('state_id')== "%s" % item.id:
+            <option value="${item.id}" selected>${item.name}</option>
+            %else:
+            <option value="${item.id}">${item.name}</option>
+            %endif
+            %endfor          
+          </select>
+          District:
+          <select id="" name="district_id" autocomplate="off">
+            <option value="">All</option>
+          </select>
+          <input type="submit" name="" value="filter" />
+        </form>
+      </div>      
+      <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
+        <tr>
+          <th></th>
+          <th>Cohort ID</th>
+          <th>Licences</th>
+          <th>Terms Months</th>
+          <th>Subscription Start Date</th>
+          <th>User</th>
+        </tr>
+        %for item in cohorts:
+        <tr>
+          <td><input type="checkbox" name="id" value="${item.id}" /></td>
+          <td><a href="${reverse('cohort_form',args=[item.id])}">${item.code}</a></td>
+          <td>${item.licences}</td>
+          <td>${item.term_months}</td>
+          <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
+          <td style="text-align:center;">
+            <a href="#import_user" rel="leanModal" class="import" cohort_id="${item.id}">Import User</a> |
+            <a href="${reverse('user')}?cohort_id=${item.id}">Show Users</a>
+          </td>
+        </tr>
+        %endfor          
+      </table>
+      <div style="padding:5px;text-align:right;">
+        Total:${cohorts.paginator.count} -
+        Page: ${cohorts.number}/${cohorts.paginator.num_pages}
+        %if cohorts.has_previous():
+        - <a href="${reverse('cohort')}?page=${pager_params}&${cohorts.previous_page_number()}">prev</a>
+        %endif
+        %if cohorts.has_next():
+        - <a href="${reverse('cohort')}?page=${pager_params}&${cohorts.next_page_number()}">next</a>
+        %endif        
+        <input type="button" onclick="window.location='${reverse('cohort_form')}'" value="Add New Cohort" />
+        <input type="button" name="delete" value="Delete Selected" />
+      </div>
+
+    </div>  
+  </div>
+</div>
+<section id="import_user" class="modal">
+  <div class="inner-wrapper" style="background-color: rgb(245, 245, 245);padding:20px;">
+    <header>
+      <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import User')}</h2>
+    </header>
+    <form id="form_import" method="post" style="margin:0;">
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+      <input type="hidden" name="cohort_id" value="">
+      <div class="message" style="padding:10px"></div>
+      <fieldset style="margin:0px;">
+        <div class="input-group" style="margin:0px;padding:20px;">
+          <label style="display:block;margin:0;color:#000;" >
+            <input type="file" id="file" name="file" value="" />
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit" style="padding-top:5px;">
+        <input type="submit" class="btnx" id="submit" value="Upload" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="text/javascript">
+var form=$("#form_filter");
+// delete cohorts
+$("input[type=button][name=delete]").click(function(){
+  var ids=[];
+  $("input[type=checkbox][name=id]:checked").each(function(){
+    ids.push(this.value)
+  });
+  if(!ids.length)return alert("Nothing selected.")
+  if(!confirm("Really delete?")) return;
+  $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
+    r=$.parseJSON(r)
+    if(r.success)
+      window.location.href=window.location.href
+    else
+      alert(r.error)
+  })
+})
+// drop events
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id);
+});
+// init drops
+var state_id="${request.GET.get('state_id') or ''}"
+var district_id="${request.GET.get('district_id') or ''}"
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+});
+// import user
+$("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
+$(".import").click(function(){
+   $("#form_import .message").html("")
+   $("#form_import input[name=cohort_id]").val($(this).attr("cohort_id"))
+});
+$("#form_import").submit(function(){
+
+  $("#form_import .message").html("")
+  $(this).ajaxSubmit({
+      type:'post',
+      url:'${reverse('import_user_submit')}',
+      success:function(r, status){
+        r=$.parseJSON(r)
+        if(!r.success)
+          $("#form_import .message").html(r.error)
+        else
+          $("#form_import .message").html("Importing success.");
+      },
+      error:function(r){
+        $("#form_import .message").html("Server error.");
+      }
+    });
+  return false;
+});
+</script>
+%endif
+%if ui=='form':
+<div style="text-align:center;">
+  <div style="margin:auto;" class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+      <div id="message" class="submit-notify"></div>
+      %if cohort.id:
+      <h2>Edit Cohort</h2>
+      %else:
+      <h2>Add New Cohort</h2>
+      %endif
+      <form method="post" id="form" action="${reverse('cohort_submit')}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <input type="hidden" name="id" value="${cohort.id or ''}" />
+        <table width="100%;" cellspacing="" cellpadding="" border="0" id="form-table">
+          <tr>
+            <td class="label required" style="width:200px;">Cohort ID</td>
+            <td>
+              <input type="" name="code" value="${cohort.code}" chkMsg="Cohort ID cant't be empty." chkType="Require"/>
+              <span style="color:#999;">No whitespaces.</span>
+            </td>
+          </tr>
+          <tbody style="background:#eee;">
+            <tr>
+              <td class="label">State</td>
+              <td>
+                <select id="state_id" name="state_id" autocomplate="off">
+                  <option value=""></option>
+                  %for item in State.objects.all():
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td class="label required">District</td>
+              <td>
+                <select id="district_id" name="district_id" autocomplate="off" chkMsg="District cant't be empty." chkType="Require">
+                  <option value=""></option>
+                  %for item in District.objects.all():
+                  <option value="${item.id}">${item.code}</option>
+                  %endfor
+                </select>
+              </td>
+            </tr>
+          </tbody>
+          <tr>
+            <td class="label required">Licences</td>
+            <td>
+              <input type="" name="licences" value="${cohort.licences or ''}" chkMsg="Licences must be a number." chkType="Number"/>
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Term Months</td>
+            <td>
+             <input type="" name="term_months" value="${cohort.term_months}" chkMsg="Term Months must be a number." chkType="Number"/> 
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Start Date</td>
+            <td>
+             %if cohort.start_date:
+              <input id="start_date" name="start_date" value="${'{d:%Y-%m-%d}'.format(d=cohort.start_date)}" chkMsg="Start Date is invalid." chkType="Date"/>
+              %else:
+              <input id="start_date" name="start_date" value="" chkMsg="Start Date is invalid." chkType="Date"/>
+              %endif
+             <span style="color:#999;">Format: YYYY-MM-DD.</span>
+            </td>
+          </tr>
+          <tr>
+            <td></td><td><input type="submit" value="Submit"/></td>
+          </tr>
+        </table>
+      </form>
+    </div>  
+  </div>
+</div>
+<script>
+//submit form
+$("#form").submit(function(){
+  if(!new FormValidator().check(this))return false;
+  var flds=["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
+  var data=getFormData(this,flds);
+  $("#message").html("Submiting");
+  $.post('${reverse("cohort_submit")}',data,
+    function(r) {
+      r=$.parseJSON(r)
+      if (r.success) {
+        //$(this).resetForm()
+        infoAndWait($("#message"),"Submit success",3,"${reverse('cohort')}");
+      } else {
+        $("#message").show()
+        $("#message").html(r.error);
+      }
+    }
+  );
+  return false;
+});
+// drop events
+var form=$("#form");
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id);
+});
+// init
+%if cohort.district_id:
+var district_id="${cohort.district.id}"
+var state_id="${cohort.district.state.id}"
+%else:
+var district_id=""
+var state_id=""
+%endif
+form.find("select[name=state_id]").val(state_id)
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+})
+</script>
+%endif
+</body>

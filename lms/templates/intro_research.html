@@ -1,0 +1,171 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+<%! from time import strftime %>
+
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
+
+<style type="text/css" media="screen">
+	/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
+
+  #page-nav,#page-footer{
+  width:960px;
+  }
+  ul.left {
+  list-style:none;
+  }
+  ul.left li{
+  margin-top:30px;font-size:16px;
+  }
+  ul.left a{
+  color:#666;
+  }  
+</style>
+<div style="text-align:center;background:#f5f5f5">
+  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+  <!--@date:2013-11-02-->
+  <div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.png);">
+  <!--@end-->
+
+    <!--@begin:use html text to replace the text on the picture-->
+    <!--@date:2013-11-02-->
+    <section class="_banner_aboutus_title_font">RESEARCH & PEDAGOGY</section>
+    <!--@end-->
+	</div>
+  
+  <div style="width:960px;margin:auto;background:#fff;">
+    <div style="float:left;width:217px;height:1720px;background:#E6F4FB;text-align:left;">
+      <ul class="left">
+        <li><a href="/about_pepper" >ABOUT PEPPER</a></li>
+        <li><a href="/research_pedagogy" style="color:#3461ad;">RESEARCH & PEDAGOGY</a></li>
+        <li><a href="/our_team">OUR TEAM</a></li>
+        <li><a href="/faq">FAQ</a></li>
+		<li><a href="/contact">CONTACT US</a></li>
+
+		<!--@begin:add new url-->
+        <!--@date:2013-11-02-->
+        <li><a href="/press">PRESS</a></li>
+        <!--@end-->
+      </ul>
+    </div>
+    <div style="float:left;width:743px;height:1720px;text-align:left;">
+
+      <!--@begin:add code(class="_body_content_font") to modify font style; new content-->
+      <!--@date:2013-11-02-->
+      <div class="_body_content_font" style="padding:20px;">
+			<h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">RESEARCH & PEDAGOGY</h2>
+			<hr />
+			<p>More than just convenient, Pepper courses are built on extensive research into effective professional development.</p>
+			<p>Pepper draws on an extensive online library of educational resources from Doing What Works, a collection of open education resources supported by Practice Guides from the U.S. Department of Education's Institute for Education Sciences.</p>
+			<p>WestEd developed Doing What Works for the U.S. Department of Education in partnership with American Institutes for Research and RMC Research Corporation.</p>
+			<p>Pepper augments Doing What Works resources with other instructional items such as surveys, checklists, and assessment tools.</p>
+			<p>All of these elements come together through WestEd's research-based knowledge of professional development and 45 years of experience in developing educators across the nation.</p>
+			<p>In addition, PCG Education continues to help states and districts overcome the challenges of Common Core adoption and has published many resources to help our nation's educators.</p>
+			<br/>
+			
+			<div style="border-bottom:1px dotted #aaa;float:left;padding-bottom:10px;padding-top:10px;">
+				<div style="float:left;width:147px;">
+					<img src="static/images/pcg_logo.png"/>
+				</div>
+				<div style="float:right;width:540px;">
+					<section>
+                    	 <span><a target="_blank" href="http://www.publicconsultinggroup.com/education/library/white_papers/Common_Core_white_paper_.pdf">Making a Difference in Student Achievement Using the Common Core State Standards for English Language Arts:  What School and District Leaders Need to Know</a></span>				
+                         <br/>
+                         <span>White Paper</span><span> &#8226; November 2011</span>
+                          <br/>
+                         <span style="font-weight:bold;">Authors: Cheryl Leibling, Ph.D., and Julie Meltzer, Ph.D.</span>
+                         <br/><br/>
+                         <span>
+                         	Forty-five states, several US territories, and the District of Columbia have adopted the new Common Core State Standards for English Language Arts & Literacy in 
+History/Social Studies, Science, and Technical Subjects (CCSS-ELA).  The standards are widely touted as providing a clear, rigorous pathway that will prepare 
+students to be college and career ready.  States, districts and schools are poised to align curriculum, instruction, and assessment.  CCSS-ELA are complex, with 
+implications for instruction and assessment in not only English Language Arts, but also History/Social Studies, science and technical subjects.
+                         </span>
+                         <br/>
+                        <section style="text-align:right !important;"><a target="_blank" href="http://www.publicconsultinggroup.com/education/library/white_papers/Common_Core_white_paper_.pdf">MORE</a></section>
+                    </section>      
+				</div>
+			</div>
+            
+			<br/>
+            
+      <div style="border-bottom:1px dotted #aaa;float:left;padding-bottom:10px;padding-top:10px;">
+				<div style="float:left;width:147px;">
+					<img src="static/images/wested_logo.png"/>
+				</div>
+				<div style="float:right;width:540px;">
+					<section>
+                    	 <span><a target="_blank" href="http://www.wested.org/resources/common-core-and-low-performing-students/">Making a Difference in Student Achievement Using the Common Core State Standards for English Language Arts:  What School and District Leaders Need to Know</a></span>				
+                         <br/>
+                         <span>Article</span><span> &#8226; 2012</span>
+                         <br/><br/>
+                         <span>
+                         	Common Core State Standards (CCSS), adopted by 45 states so far, provide an opportunity to change education practices so as to turn around the performance of 
+student groups most in need of improvement.
+                         </span>
+						 <br/><br/>
+                          <span>
+                         	And such turnaround is more important today than it's ever been. Throughout the nation, almost every subgroup of students performs poorly on measures such as the 
+National Assessment of Educational Progress, and students with disabilities are typically the lowest-scoring subgroup.
+                         </span>
+						 <br/><br/>
+                          <span>English learners don't fare much better. The gaps between these groups and higher-performing peers are huge.</span>
+							 <br/><br/>
+                          <span>This article describes:</span>
+                          <ul style="margin:3px;">
+                          	<li>Integrating and aligning standards</li>
+                            <li>Combining flexibility with high expectations for all</li>
+                            <li>Embedding literacy learning in all subjects</li>
+                            <li>Putting the ideas into practice</li>
+                          </ul>
+                        <section style="text-align:right !important;"><a target="_blank" href="http://www.wested.org/resources/common-core-and-low-performing-students/">MORE</a></section>
+                    </section>      
+				</div>
+			</div>
+			
+			<br/>
+            
+            <div style="float:left;padding-bottom:10px;padding-top:10px;">
+				<div style="float:left;width:147px;">
+					<img src="static/images/pcg_logo.png"/>
+				</div>
+				<div style="float:right;width:540px;">
+					<section>
+                    	 <span><a target="_blank" href="http://www.publicconsultinggroup.com/education/library/white_papers/PCG_UDL_Whitepaper.pdf">Universal Design For Learning and The Common Core ELA Standards: Rigorous Reading and Writing Instruction for All</a></span>				
+                         <br/>
+                         <span>White Paper</span><span> &#8226; August 2013</span>
+                          <br/>
+                         <span style="font-weight:bold;">Authors: Barbara Flanagan, Cheryl Liebling, and Julie Meltzer</span>
+                         <br/><br/>
+                         <span>
+                         	The Common Core State Standards (CCSS) for ELA & Literacy make 
+explicit the knowledge and skills that students need to be college 
+and career ready as readers, writers, researchers, presenters and 
+thinkers. The challenge for teachers and administrators is how to 
+support all students to work toward and meet more demanding 
+academic expectations. The Universal Design for Learning (UDL) 
+Framework conceptualizes a means of meeting this challenge. 
+If UDL "habits of design" are incorporated into CCSS English 
+Language Arts (ELA) & Literacy curriculum and instructional 
+practices, we can collectively prepare students to be ready for the 
+rigor of college and careers.
+                         </span>
+                         <br/>
+                        <section style="text-align:right !important;"><a target="_blank" href="http://www.publicconsultinggroup.com/education/library/white_papers/PCG_UDL_Whitepaper.pdf">MORE</a></section>
+                    </section>  
+              <!--@end-->          
+				</div>
+			</div>
+		</div>
+    </div>
+    <br style="clear:both"/>
+  </div>
+</div>

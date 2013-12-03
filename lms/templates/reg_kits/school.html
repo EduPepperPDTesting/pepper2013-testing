@@ -1,0 +1,200 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+   from django.core.urlresolvers import reverse
+   from courseware.courses import course_image_url, get_course_about_section
+   from courseware.access import has_access
+   from certificates.models import CertificateStatuses
+   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+   from xmodule.modulestore.django import modulestore
+   import json
+   from student.models import District,State
+   %>
+<body>
+<%include file="tabs.html" args="active_page='school'" />
+%if ui=='list':
+<div style="text-align:center;">
+  <div style="margin:auto;"  class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+      <div class="filter">
+        <form id="form_filter" method="get">
+          State:
+          <select name="state_id" autocomplate="off">
+            <option value="">All</option>
+            %for item in State.objects.all():
+            %if request.GET.get('state_id')== "%s" % item.id:
+            <option value="${item.id}" selected>${item.name}</option>
+            %else:
+            <option value="${item.id}">${item.name}</option>
+            %endif            
+            %endfor
+          </select>
+          District:
+          <select id="" name="district_id" autocomplate="off">
+            <option value="">All</option>
+          </select>
+          <input type="submit" name="" value="filter" />
+        </form>
+      </div>
+      <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
+        <tr>
+          <th></th>
+          <th>School ID</th>
+          <th>School Name</th>
+          <th>District</th>
+          <th>Users</th>
+        </tr>
+        %for item in schools:
+        <tr>
+          <td><input type="checkbox" name="id" value="${item.id}"/></td>
+          <td>${item.id}</td>
+          <td><a href="${reverse('school_form',args=[item.id])}">${item.name}</a></td>
+          <td>${District.objects.get(id=item.district_id).name} - ${District.objects.get(id=item.district_id).code}</td>
+          <td align="center"><a href="${reverse('user')}?school_id=${item.id}">Show Users</a></td>
+        </tr>
+        %endfor          
+      </table>
+      <div style="padding:5px;text-align:right;">
+        Total:${schools.paginator.count} -
+        Page: ${schools.number}/${schools.paginator.num_pages}
+        %if schools.has_previous():
+        - <a href="${reverse('school')}?${pager_params}&page=${schools.previous_page_number()}">prev</a>
+        %endif
+        %if schools.has_next():
+        - <a href="${reverse('school')}?${pager_params}&page=${schools.next_page_number()}">next</a>
+        %endif        
+        <input type="button" onclick="window.location='${reverse('school_form')}'" value="Add New School" />
+        <input type="button" name="delete" value="Delete Selected" />
+      </div>
+    </div>  
+  </div>
+</div>
+<script type="text/javascript">
+var form=$("#form_filter");
+// delete school
+$("input[type=button][name=delete]").click(function(){
+  var ids=[];
+  $("input[type=checkbox][name=id]:checked").each(function(){
+    ids.push(this.value)
+  });
+  if(!ids.length)return alert("Nothing selected.")
+  if(!confirm("Really delete?")) return;
+  $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
+    r=$.parseJSON(r)
+    if(r.success)
+      window.location.href=window.location.href
+    else
+      alert(r.error)
+  })
+})
+// drop events
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id);
+});
+// init drops
+var state_id="${request.GET.get('state_id') or ''}"
+var district_id="${request.GET.get('district_id') or ''}"
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+});
+</script>
+%endif
+%if ui=='form':
+<div style="text-align:center;">
+  <div style="margin:auto;" class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+      <div id="message" class="submit-notify"></div>
+      %if school.id:
+      <h2>Edit School</h2>
+      %else:
+      <h2>Add New School</h2>
+      %endif
+      <form method="post" id="form" action="${reverse('school_submit')}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <input type="hidden" name="id" value="${school.id or ''}" />
+        <table width="100%;" cellspacing="" cellpadding="" border="0" id="form-table">
+          <tr>
+            <td class="label required">Name</td>
+            <td>
+              <input type="" name="name" value="${school.name}" chkMsg="Name cant't be empty." chkType="Require"/>
+            </td>
+          </tr>
+          <tbody style="background:#eee;">
+            <tr>
+              <td class="label">State</td>
+              <td>
+                <select id="state_id" name="state_id" autocomplate="off">
+                  <option value=""></option>
+                  %for item in State.objects.all():
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td class="label required">District</td>
+              <td>
+                <select id="district_id" name="district_id" autocomplate="off" chkMsg="District cant't be empty." chkType="Require">
+                  <option value=""></option>
+                  %for item in District.objects.all():
+                  %if item.id==school.district_id:
+                  <option value="${item.id}">${item.id}</option>
+                  %else:
+                  <option value="${item.id}" selected>${item.name} - ${item.id}</option>
+                  %endif                
+                  %endfor
+                </select>
+              </td>
+            </tr>
+          </tbody>
+          <tr>
+            <td></td><td><input type="submit" value="Submit"/></td>
+          </tr>
+        </table>
+      </form>
+    </div>  
+  </div>
+</div>
+<script>
+var form=$("#form");
+// submit form
+form.submit(function(){
+  if(!new FormValidator().check(this))return false;
+  var flds=["id","name","district_id","csrfmiddlewaretoken"];
+  var data=getFormData(this,flds);
+  $("#message").html("Submiting");
+  $.post('${reverse("school_submit")}',data,
+    function(r){
+      var r = $.parseJSON(r);
+      if (r.success) {
+        //$(this).resetForm()
+        infoAndWait($("#message"),"Submit success",3,"${reverse('school')}");
+      } else {
+        $("#message").show()
+        $("#message").html(r.error);
+      }
+    }
+  );
+  return false;
+});
+// drop events
+var form=$("#form");
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id);
+});
+// init
+%if school.district_id:
+  var district_id="${school.district.id}"
+  var state_id="${school.district.state.id}"
+%else:
+  var district_id=""
+  var state_id=""
+%endif
+form.find("select[name=state_id]").val(state_id)
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+})
+</script>
+%endif
+</body>

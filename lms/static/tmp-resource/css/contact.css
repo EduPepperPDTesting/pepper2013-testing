@@ -1,0 +1,43 @@
+/*--------connect us---------*/
+.connect_us { width:500px;}
+.red { color:#F00;}
+.connect_input {height: 28px;
+width: 361px;
+border: 1px solid rgb(174, 174, 174);
+padding-left: 10px;}
+.connect_us_select { 
+    cursor: pointer;
+    border-radius: 0px 0px 0px 0px;
+    -moz-appearance: button;
+    -moz-padding-end: 3px;
+    -moz-padding-start: 3px;
+    -moz-user-select: none;
+    background-position: right center;
+    background-repeat: no-repeat;
+    border: 1px solid rgb(174, 174, 174);
+    margin: 0px;
+    overflow: hidden;
+    padding-bottom: 6px;
+    padding-top: 6px; padding-right:5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 361px;
+    height: 33px;
+}
+connect_us_textarea {height: 233px !important;
+width:361px !important;}
+
+.connect_us_table td { height:60px; }
+.connect_us_table { margin-top:30px;}
+.banner_images { margin:0px auto !important;}
+
+.post-icon { display: block;
+float: left;
+width: 16px;
+height: 17px;
+margin: 8px 7px 0px 0px;
+font-size: 16px;
+vertical-align: middle;
+color: rgb(255, 255, 255);
+background: url(../images/new-post-icon.png) no-repeat scroll 0% 0% transparent;
+}

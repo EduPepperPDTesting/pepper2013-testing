@@ -1,0 +1,206 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+   from django.core.urlresolvers import reverse
+   from courseware.courses import course_image_url, get_course_about_section
+   from courseware.access import has_access
+   from certificates.models import CertificateStatuses
+   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+   from xmodule.modulestore.django import modulestore
+   import json
+   from student.models import State,District
+%>
+<body>
+  <%include file="tabs.html" args="active_page='district'" />
+  %if ui=='list':
+  <div style="text-align:center;">
+    <div style="margin:auto;"  class="container">
+      <div style="background:#ddd;padding:20px;text-align:left;">
+        <div class="filter">
+          <form id="form_filter" method="get">
+            State:
+            <select name="state_id" autocomplate="off">
+              <option value="">All</option>
+              %for item in State.objects.all():
+              %if request.GET.get('state_id')== "%s" % item.id:
+              <option value="${item.id}" selected>${item.name}</option>
+              %else:
+              <option value="${item.id}">${item.name}</option>
+              %endif
+              %endfor
+            </select>
+            <input type="submit" value="filter" />
+          </form>
+        </div>
+        <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
+          <tr>
+            <th></th>
+            <th>District Id</th>
+            <th>District Name</th>
+            <th>State</th>
+            <th>Import School</th>          
+          </tr>
+          % for  item in districts:
+          <tr>
+            <td><input type="checkbox" name="id" value="${item.id}" /></td>
+            <td>${item.code}</td>
+            <td><a href="${reverse('district_form',args=[item.id])}">${item.name}</a></td>
+            <td>${item.state.name}</td>
+            <td style="text-align:center">
+              <a href="#import_school" rel="leanModal" class="import" district_id="${item.id}">Import School</a> |
+              <a href="${reverse('school')}?district_id=${item.id}">Show Schools</a>
+            </td>
+          </tr>
+          % endfor          
+        </table>
+        <div style="padding:5px;text-align:right;">
+          Total:${districts.paginator.count} -
+          Page:${districts.number}/${districts.paginator.num_pages}
+          %if districts.has_previous():
+          - <a href="${reverse('district')}?${pager_params}&page=${district.previous_page_number()}">prev</a>
+          %endif
+          %if districts.has_next():
+          - <a href="${reverse('district')}?${pager_params}&page=${district.next_page_number()}">next</a>
+          %endif
+          <input type="button" onclick="window.location='${reverse('district_form')}'" value="Add New District" />
+          <input type="button" name="delete" value="Delete Selected" />
+        </div>
+      </div>  
+    </div>
+  </div>
+  <section id="import_school" class="modal">
+    <div class="inner-wrapper" style="background-color: rgb(245, 245, 245);padding:20px;">
+      <header>
+        <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import School')}</h2>
+      </header>
+      <form id="form_import" method="post" style="margin:0;color:#000;">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <input type="hidden" name="district_id" value="">
+        <div class="message" style="padding:10px;"></div>
+        <fieldset style="margin:0px;">
+          <div class="input-group" style="margin:0px;padding:20px;">
+            <label style="display:block;margin:0;color:#000;" >
+              <input type="file" id="file" name="file" value="" />
+            </label>
+          </div>
+        </fieldset>
+        <div class="submit" style="padding-top:5px;">
+          <input type="submit" class="btnx" id="submit" value="Upload" />
+        </div>          
+      </form>
+      <div class="close-modal">
+        <div class="inner">
+          <p>&#10005;</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script type="text/javascript">
+// delete districts
+$("input[type=button][name=delete]").click(function(){
+  var ids=[];
+  $("input[type=checkbox][name=id]:checked").each(function(){
+    ids.push(this.value)
+  });
+  if(!ids.length)return alert("Nothing selected.")
+  if(!confirm("Really delete?")) return;
+  $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
+    r=$.parseJSON(r)
+    if(r.success){
+      window.location.href=window.location.href
+    }else
+      alert(r.error)
+  })
+})
+// school import 
+$("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
+$(".import").click(function(){
+   $("#form_import .message").html("")
+   $("#form_import input[name=district_id]").val($(this).attr("district_id"))
+});
+$("#form_import").submit(function(){
+  $(this).ajaxSubmit({
+      type:'post',
+      url:'${reverse('import_school_submit')}',
+      success:function(r, status){
+        r=$.parseJSON(r)
+        if(!r.success)
+          $("#form_import .message").html(r.error)
+        else
+          $("#form_import .message").html("Importing success.");
+      },
+      error:function(json){
+        $("#form_import .message").html("Server error.");
+      }
+    });
+  return false;
+});
+</script>
+  %endif
+  %if ui=='form':
+  <div style="text-align:center;">
+    <div style="margin:auto;" class="container">
+      <div style="background:#ddd;padding:20px;text-align:left;">
+        <div id="message" class="submit-notify"></div>
+        %if district.id:
+        <h2>Edit district</h2>
+        %else:
+        <h2>Add New District</h2>
+        %endif
+        <form method="post" id="form" action="${reverse('district_submit')}">
+          <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+          <input type="hidden" name="id" value="${district.id or ''}">
+          <table id="form-table" width="" cellspacing="" cellpadding="" border="0">
+            <tr>
+              <td class="label required">District ID</td>
+              <td>
+                <input type="" name="code" value="${district.code}" chkMsg="District ID cant't be empty." chkType="Require"/>
+                <span style="color:#999;">No whitespaces.</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="label required">District Name</td>
+              <td><input style="width:500px;" name="name" value="${district.name}" chkMsg="District Name cant't be empty." chkType="Require"/></td>
+            </tr>
+            <tr>
+              <td class="label required">State</td><td>
+                <select name="state_id" autocomplate="off" chkMsg="State must be selected." chkType="Require">
+                  <option value=""></option>
+                  %for item in State.objects.all():
+                  %if district and item.id== district.state_id:
+                  <option value="${item.id}" selected>${item.name}</option>
+                  %else:
+                  <option value="${item.id}">${item.name}</option>
+                  %endif
+                  %endfor
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td></td><td><input type="submit" value="Submit"/></td>
+            </tr>
+          </table>
+        </form>
+      </div>  
+    </div>
+  </div>
+  <script>
+    $("#form").submit(function(){
+      if(!new FormValidator().check(this))return false;
+      var flds=["id","code","name","state_id","csrfmiddlewaretoken"]
+      var data=getFormData(this,flds);
+      $("#message").html("Submiting");
+      $.post('${reverse("district_submit")}',data,
+      function(r) {
+        r=$.parseJSON(r)
+        if (r.success) {
+          infoAndWait($("#message"),"Submit success",3,"${reverse('district')}");
+        } else {
+          $("#message").show()
+          $("#message").html(r.error);
+        }
+      });
+      return false;
+    });
+  </script>
+  %endif
+</body>

@@ -1,0 +1,199 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%namespace name='static' file='static_content.html'/>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from prop_dict.models import schools,districts,subject_areas,grade_levels,years_in_educations
+  from prop_dict.models import get_district,get_school,get_grade_level,get_subject_area,get_years_in_education
+  import json
+%>
+
+<%static:js group='main_vendor'/>
+<%static:js group='application'/>
+
+<!-- create table student_contract( -->
+<!-- `id` int not null auto_increment, -->
+<!-- `name` varchar(255), -->
+<!-- `district_id` int, -->
+<!-- `term_months` int, -->
+<!-- `licenses` int, -->
+<!-- `status` varchar(20), -->
+<!-- primary key(`id`) -->
+<!-- )  ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 ; -->
+
+<style type="text/css" media="screen">
+  #form-table{border:none;}
+  #form-table td{border:none;padding-top:20px;}
+  #form-table td.label{text-align:right;}
+</style>
+
+<script type="text/javascript" src="/static/js/vendor/jquery.form.js" charset="utf-8"></script>
+<div style="text-align:center;">
+  <div style="width:960px;margin:auto;">
+    <div style="float:left;width:300px;background:#ddd;height:700px;text-align:left;">
+      <ul>
+        <a href="${reverse("contract_create")}">Add New Contract</a><br>
+        <a href="${reverse("contract_import_user")}">Import User</a><br/><br/>
+        % for  c in contracts:
+        <li>
+          <a href="${reverse("contract_modify",args=[c.id])}">${c.name}</a> id: ${c.id}
+        </li>
+        % endfor
+      </ul>
+    </div>
+    
+    %if import_from:
+    <form id="form_import" method="post" style="float:right;width:660px;text-align:left;">
+      <input type="hidden" name="contract_id" id="contract_id" value="" />
+      <div style="margin:50px;">
+        <h2>Import User</h2>
+        <table id="form-table">
+          <tr>
+            <td class="label">Contract Name</td>
+            <td><input type="file" id="file" name="file" value="" /></td>
+          </tr>
+          <tr>
+            <td class="label"></td>
+            <td><input type="submit" value="Submit" /></td>
+          </tr>
+        </table>
+      </div>
+    </form>
+    %endif
+
+
+    %if contract_from:
+    <form id="form_contract" method="post" style="float:right;width:660px;text-align:left;">
+      <input type="hidden" name="contract_id" id="contract_id" value="" />
+      <div style="margin:50px;">
+      %if contract:
+      <h2>Modify Contract 	</h2>
+      %else:
+      <h2>Add Contract 	</h2>
+      %endif
+      <div id="message" style="background:#ff6;"></div>
+      <table id="form-table">
+        <tr>
+          <td class="label">Contract Name</td>
+          <td><input id="name" name="name" value="" /></td>
+        </tr>
+        <tr>
+          <td class="label">District</td>
+          <td>
+            <select id="district_id" name="district_id" autocomplate="off">
+              <option value=""></option>
+              %for item in districts():
+              <option value="${item['id']}">${item['name']}</option>
+              %endfor
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td class="label">Term</td>
+          <td>
+            <select id="term_months" name="term_months" autocomplate="off">
+              <option value="6">6</option>
+              <option value="12">12</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td class="label">Number of licenses</td>
+          <td>
+            <input id="licenses" name="licenses" value="" />
+          </td>
+        </tr>
+        <tr>
+          <td class="label"></td>
+          <td><input type="submit" value="Submit" /></td>
+        </tr>
+      </table>
+      </div>
+    </form>
+
+    %endif
+  </div>  
+</div>
+
+<script type="text/javascript">
+  var submit_count_down=3;
+  var contract=null;
+
+  %if contract:
+  contract=${json.dumps(contract)}
+  $("#contract_id").val(contract.id)
+  $("#name").val(contract.name)
+  $("#district_id").val(contract.district_id)
+  $("#term_months").val(contract.term_months)
+  $("#licenses").val(contract.licenses)
+  %endif
+
+
+  $("#form_import").submit(function(){
+  $(this).ajaxSubmit(
+  {
+  type:'post',
+  url:'${reverse('contract_import_user_submit')}',
+  success:function(json, status){
+  alert(json.message)
+  $("#message").html("success");
+  },
+  error:function(json){
+  alert("Server error.")
+  }
+  });
+  return false;
+  });
+
+
+  
+
+  $("#form_contract").submit(function(){
+  var contract_id=$(this.contract_id).val()
+  var name=$(this.name).val()
+  var district_id=$(this.district_id).val()
+  var term_months=$(this.term_months).val()
+  var licenses=$(this.licenses).val()
+
+  $("#message").html("Submiting");
+
+  $.post(
+  '${reverse("contract_submit")}',
+  
+  {
+  "contract_id":contract_id,
+  "name" : name,
+  "district_id":district_id,
+  "term_months":term_months,
+  "licenses":licenses},
+  
+  function(data) {
+  if (data.success) {
+
+  $(this).resetForm()
+
+  
+  function count(){
+  setTimeout(function(){
+  if(submit_count_down<1)
+  window.location.href="${reverse("contract_index")}"
+  $("#message").html("Submit success. Now go back ... " + submit_count_down);
+  submit_count_down--
+  count()
+  },1000);
+  }
+  count();
+  } else {
+  $("#message").html(data.error);
+  }
+  }
+  );
+  return false;
+  });
+</script>
+

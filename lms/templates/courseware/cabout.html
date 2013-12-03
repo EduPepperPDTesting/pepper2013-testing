@@ -1,0 +1,202 @@
+<%!
+from django.utils.translation import ugettext as _ 
+from django.core.urlresolvers import reverse 
+from time import strftime
+from courseware.courses import course_image_url, get_course_about_section
+from student.models import CourseEnrollment
+%>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+
+
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
+
+<style type="text/css" media="screen">
+  /*@begin:hide button user*/
+  /*@date:2013-11-02*/
+  #btn-logged-user{display:none;}
+  /*@end*/
+  
+  #page-nav,#page-footer{
+  width:960px;
+  }
+  
+  a.btnx:hover {
+  background:#6e8194;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  color:#fff;
+  }
+  a.btnx {
+  text-decoration:none;
+  background-color:#556370;
+  text-decoration: none;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 7px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: #949494 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+
+<div style="background:#f5f5f5;">
+  <div style="width:960px;margin:auto;background:#fff;">
+	<!--@begin:modify the layout style-->
+	<!--@date:2013-11-02-->
+    <div style="font-weight:300 !important;font-size:25px;color:#3461ad;padding:30px 0 0 0px;padding-left:10px;">COURSE DETAIL</div>
+    <hr />
+   
+	<div style="padding-left:10px;padding-right:10px;">
+		<div style="width:608px;height:211px;border:0px solid;float:left;">
+		  <img src="${course_image_url(course)}"  style="width:100%;height:100%;" alt="" />
+		</div>
+		<div style="float:right;">
+			<img src="/static/images/p5-2.png" alt="" />
+		</div>
+		<div style="float:right;padding-top:10px;">
+				
+				<!--@begin:add course description(overview)-->
+				<!--@date:2013-11-02-->
+				<div style="float:left;width:600px;padding-right:10px;">
+					${get_course_about_section(course, "overview")}
+				</div>
+				<!--@end-->
+				
+				<div style="float:right;width:321px;background:#eee;">
+				  <div style="width:281px;background:#fff;margin:10px 10px 0 10px;padding:10px;">
+					<table cellpadding="10" border="0" style="width:100%;font-size:14px;">
+						<tr style="border-bottom:1px solid #ccc;">
+							<td align="left" width="120">Course code:</td>
+							<th align="right">${course.display_number_with_default | h}</th>
+						</tr>
+						<tr style="border-bottom:1px solid #ccc;">
+							<td align="left">Course Release:</td>
+							<th align="right">${_("{start_date}").format(start_date=course.start_date_text)}</th>
+						</tr>
+						<tr>
+							<td align="left">Estimated effort:</td>
+							<!--@begin:use code(${get_course_about_section(course, "effort")}) relpace the static html code-->
+							<!--@date:2013-11-02-->
+							<th align="right">${get_course_about_section(course, "effort")}</th>
+							<!--@end-->
+						</tr>
+					</table>
+				  </div>
+				  <div style="background:#E1E1E1;margin:0 10px 10px 10px;line-height:20px;">
+					<p style="padding:10px 20px;"><b>Suggested Prerequisites:</b>
+						<br>
+						<!--@begin:according to the course id to show the Suggested...-->
+						<!--@date:2013-11-02-->
+						% if course.display_number_with_default == "MA101x":
+							<span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
+						% endif
+            % if course.display_number_with_default == "MA102x":
+              <span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
+            % endif
+            % if course.display_number_with_default == "MA103x":
+              <span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
+            % endif
+						% if course.display_number_with_default == "ELA101x":
+							<span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
+						% endif
+            % if course.display_number_with_default == "ELA102x":
+              <span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
+            % endif
+            % if course.display_number_with_default == "ELA103x":
+              <span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
+            % endif
+						<!--@end-->
+					</p>
+				  </div>
+				  <!--@begin:according to different situation(login/choose the course) to show the button-->
+				  <!--@date:2013-11-02-->
+				  % if user.is_authenticated():
+
+				  % if CourseEnrollment.is_enrolled(request.user, course.id):
+				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
+
+				  % else:
+
+				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('about_course', args=[course.id])}" class="register btnx _del_line">Sign Up & Start Course</a>
+
+				   % endif
+				  % endif
+				  <!--@end-->
+				</div>
+			</div>
+				<br style="clear:both;"/>
+		</div>
+		<!--@end-->
+	</div>
+</div>
+<form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+  <fieldset class="enroll_fieldset">
+    <input name="course_id" type="hidden" value="${course.id}">
+    <input name="enrollment_action" type="hidden" value="enroll">
+  </fieldset>
+</form>
+<script type="text/javascript">
+  (function() {
+  $(".register").click(function(event) {
+  $("#class_enroll_form").submit();
+  event.preventDefault();
+  });
+  ## making the conditional around this entire JS block for sanity
+  %if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+  $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+  if(xhr.status == 200) {
+  location.href = "${reverse('dashboard')}";
+  } else if (xhr.status == 403) {
+  location.href = "${reverse('course-specific-register', args=[course.id])}?course_id=${course.id}&enrollment_action=enroll";
+  } else if (xhr.status == 400) { //This means the user did not have permission
+  $('#register_error').html('This course has restricted enrollment.  Sorry, you do not have permission to enroll.<br />' +
+  'You may need to log out and re-login with a university account, such as WebAuth'
+  ).css("display", "block");
+  } else {
+  $('#register_error').html(
+  (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
+  ).css("display", "block");
+  }
+  });
+  %else:
+  $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+  if(xhr.status == 200) {
+  location.href = "${reverse('dashboard')}";
+  } else if (xhr.status == 403) {
+  location.href = "${reverse('register_user')}?course_id=${course.id}&enrollment_action=enroll";
+  } else {
+  $('#register_error').html(
+  (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
+  ).css("display", "block");
+  }
+  });
+  %endif
+  })(this)
+</script>

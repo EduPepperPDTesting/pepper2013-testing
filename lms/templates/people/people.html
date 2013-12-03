@@ -1,0 +1,299 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
+<%! import json%>
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+</style>
+
+<%namespace name='static' file='/static_content.html'/>
+<%inherit file="/main.html" />
+
+<%block name="title">
+%if course:
+<title>${_("{course_number} Courseware").format(course_number=course.display_number_with_default) | h}</title>
+%endif
+</%block>
+
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
+
+<%block name="headextra">
+%if course:
+  <%static:css group='course'/>
+  <%include file="../discussion/_js_head_dependencies.html" />
+  % if show_chat:
+    <link rel="stylesheet" href="${static.url('css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css')}" />
+    ## It'd be better to have this in a place like lms/css/vendor/candy,
+    ## but the candy_res/ folder contains images and other junk, and it
+    ## all needs to stay together for the Candy.js plugin to work.
+    <link rel="stylesheet" href="${static.url('candy_res/candy_full.css')}" />
+  % endif
+%endif
+</%block>
+
+<style>
+/* Button 1 */
+.btn-1 {
+	border: 3px solid #ccc;
+	color: #fff;
+	background-image: -webkit-linear-gradient(bottom, #199700, #79d664);
+	background-image: -moz-linear-gradient(bottom, #199700, #79d664);
+	background-image: -o-linear-gradient(bottom, #199700, #79d664);
+	background-image: linear-gradient(to top, #199700, #79d664);
+}
+/* Button 1a */
+.btn-1a:hover, .btn-1a:active {
+	color: #0e83cd;
+	background-image: -webkit-linear-gradient(bottom, #f93, #e0862c, #f93);
+	background-image: -moz-linear-gradient(bottom, #f93, #e0862c, #f93);
+	background-image: -o-linear-gradient(bottom, #f93, #e0862c, #f93);
+	background-image: linear-gradient(to top, #f93, #e0862c, #f93);
+}
+</style>
+
+%if False:
+  %for u in page.object_list :
+  ${u.name} ---  ${u.email} <br>
+  %endfor
+%endif
+
+%if course:
+  <%include file="/courseware/course_navigation.html" args="active_page='people'" />
+%endif
+
+<section class="container">
+  %if course:
+    <div class="course-wrapper">
+    <section class="course-index" style="width:280px !important;">
+  %else:
+    <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
+    <section class="course-index">
+  %endif
+      <div class="sub_tit">
+        <a class="view_active" href="#">Search</a>
+        %if course:
+          <a class="view_normal" href="${reverse('my_people', args=[course.id])}">View My Network</a>
+        %else:
+          <a class="view_normal" href="${reverse('my_people')}">View My Network</a>
+        %endif
+      <span class="line_blue"></span> 
+    </div>
+    <div class="filter">Search By</div>
+      <div class="filters">
+        <input type="" name="" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
+      </div>
+      <div class="filters">
+        <input type="" name="" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+      </div>
+      <div class="filters">
+        <input type="" name="" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+      </div>
+ <script type="text/javascript">
+            var json_district=${json.dumps(settings.PEPPERPD_PROFILE_DISTRICTS)};
+            function reload_school_dropdown(district_id){
+            var drop=document.getElementById("school_id");
+            $(drop).find("option").filter(function(){return $.trim(this.value)!=''}).remove();
+            if(district_id=='') return;
+            $.each(json_district[district_id].school,function(i,school){
+            var code=district_id+"-"+i
+            $(drop).append("<option value='"+code+"'>"+school+"</option>");
+            })
+            }
+          </script>
+ 
+      %if not course:
+      <div class="filters">
+        <select  onchange="reload_school_dropdown($(this).val())">
+          <option value="">Courses</option>
+          <option>User's Guide to Pepper </option>
+          <option>Balancing Informational & Literary Texts (K-5) </option>
+          <option>Building Academic Vocabulary (6-8) </option>
+          <option>Building Academic Vocabulary (9-12) </option>
+          <option>Intro to CCSS for Mathematical Practice (K-5) </option>
+          <option>Intro to CCSS for Mathematical Practice (6-8) </option>
+          <option>Intro to CCSS for Mathematical Practice (9-12) </option>
+        </select>
+      </div>
+      %endif  
+
+      <div class="filters">
+        <select  onchange="reload_school_dropdown($(this).val())">
+          <option value="">District</option>
+          %for i,item in enumerate(settings.PEPPERPD_PROFILE_DISTRICTS):
+          <option value="${i}">${item['name']}</option>
+          %endfor           
+        </select>
+      </div>
+      <div class="filters">
+        <select  id="school_id">
+          <option value="">--</option>
+        </select>
+      </div>
+      <div class="filters">
+        <select  >
+          <option value="">Major Subject Area</option>
+          %for i,n in enumerate(settings.PEPPERPD_MAJOR_SUBJECT_AREA):
+          <option value="${i}">${n}</option>
+          %endfor
+        </select>
+      </div>
+      <div class="filters">
+        <select  >
+          <option value="">Grade Level</option>
+          %for i,n in enumerate(settings.PEPPERPD_GRADE_LEVEL):
+          <option value="${i}">${n}</option>
+          %endfor          
+        </select>
+      </div>
+      <div class="filters">
+        <select  >
+          <option value="">Years in Education</option>
+          %for i,n in enumerate(settings.PEPPERPD_YEARS_IN_EDUCATION):
+          <option value="${i}">${n}</option>
+          %endfor            
+        </select>
+      </div>
+      <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
+        *Leave fields blank to search for all people
+      </div>
+      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
+      </div>
+      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-clear" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+       </a>
+      </div>
+    </section>
+    
+
+    
+  <!--right content of page------------------------------------------------------------------------------------------------>
+  %if course:
+    <section>
+  %else:
+    <section class="course-content">
+  %endif
+      <div class="people_tit">People</div>
+    
+      <!--hide this div after press btn'search'-----------------------------------------------------------> 
+      <div id="" class="people_default">
+        <div style="width:341px;height:126px;margin:0 auto;">
+          <img src="/static/images/ppd-people-logo.png"/>
+        </div>
+        <section style="padding-left:100px;padding-right:100px;padding-top:20px;padding-bottom:10px;line-height:33px;font-size:25px;">
+          Welcome to your People network! Search and use the filters to the left to find peers. Click on a user's name to access their dashboard and begin collaborating on course portfolios. You can also bookmark peers, mentor, and coaches that you want to add to your Pepper team.
+        </section>
+         <div style="height:76px;padding-left:710px;">
+          <img src="/static/images/ppd-people-arrow.png"/>
+        </div>
+
+        <div id="" style="height:130px;padding-left:90px;border-bottom:1px solid #ccc;">
+          <span class="head_photo"><img src="/static/tmp-resource/image/heads/man_head.png" width="110" height="110" border="0" /></span>
+          <span class="name_container"><span class="full_name">Mark Winter</span> 
+          <span class="name_text">Mwinter</span> 
+          <span class="name_text">ABC Unified School District</span> 
+          <span class="name_text">7 Years in Education</span></span>
+          <div class="btn_container">
+            <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+          </div>
+        </div>
+        <div style="height:130px;padding-left:90px;margin-top:20px;">
+          <span class="head_photo"><img src="/static/tmp-resource/image/heads/Sally.png" width="110" height="110" border="0" /></span>
+          <span class="name_container">
+            <span class="full_name">Sally June</span> 
+            <span class="name_text">SJune21</span> 
+            <span class="name_text">123 Unified School District</span> 
+            <span class="name_text">15 Years in Education</span>
+          </span>
+          <div class="btn_container">
+            <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a><a class="ico_del"></a>
+          </div>
+        </div>  
+      </div>
+      
+      <!--show these content bellow after press btn'search'-----------------------------------------------------------> 
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/man_head.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">Mark Winter</span> 
+        <span class="name_text">Mwinter</span> 
+        <span class="name_text">ABC Unified School District</span> 
+        <span class="name_text">7 Years in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+      </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Sally.png" width="110" height="110" border="0" /></span>
+        <span class="name_container">
+          <span class="full_name">Sally June</span> 
+          <span class="name_text">SJune21</span> 
+          <span class="name_text">123 Unified School District</span> 
+          <span class="name_text">15 Years in Education</span>
+        </span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a><a class="ico_del"></a>
+        </div>
+      </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Cynthia.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">Cynthia Autumn</span> 
+        <span class="name_text">AutumnC</span> 
+        <span class="name_text">Impressive Unified School District</span> 
+        <span class="name_text">1 Year in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+        </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/John.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">John Acre</span> 
+        <span class="name_text">JJAcre</span> 
+        <span class="name_text">County School District</span> 
+        <span class="name_text">25 Years in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+      </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Steven.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">Steven Spring</span> 
+        <span class="name_text">SpringS</span> 
+        <span class="name_text">123 Unified School District</span> 
+        <span class="name_text">7 Years in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+      </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Kendra.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">Kendra Reader</span> 
+        <span class="name_text">Read123</span> 
+        <span class="name_text">Impressive  Unified School District</span> 
+        <span class="name_text">3 Years in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+      </div>
+      <div class="people_content" style="display:none;">
+        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Maria.png" width="110" height="110" border="0" /></span>
+        <span class="name_container"><span class="full_name">Maria Note</span> 
+        <span class="name_text">MNote34</span> 
+        <span class="name_text">County School District</span> 
+        <span class="name_text">12 Years in Education</span></span>
+        <div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+        </div>
+      </div>
+      <div class="page" style="display:none;">
+        <a href="#" class="up_page"></a><a href="#">1</a><a href="#">2</a><a href="#" class="page_active">3</a><a href="#">4</a><a href="#">5</a><a href="#">6</a><a href="#" class="next_page"></a>
+      </div>
+    </section>
+  </div>
+</section>
+
+<div style="height:20px; width:100%; clear:both;"></div>

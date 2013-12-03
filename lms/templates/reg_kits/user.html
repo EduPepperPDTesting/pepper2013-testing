@@ -1,0 +1,316 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+   from django.core.urlresolvers import reverse
+   from courseware.courses import course_image_url, get_course_about_section
+   from courseware.access import has_access
+   from certificates.models import CertificateStatuses
+   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+   from xmodule.modulestore.django import modulestore
+   import json
+   from student.models import State,District,Transaction,Cohort,School
+%>
+<body>
+  <%include file="tabs.html" args="active_page='user'" />
+  %if ui=='list':
+  <div style="text-align:center;">
+    <div style="margin:auto;" class="container">
+      <div style="background:#ddd;padding:20px;text-align:left;">
+        <div class="filter">
+          <form id="form_filter" method="get">
+            State:
+            <select name="state_id" autocomplate="off">
+              <option value="">All</option>
+              %for item in State.objects.all():
+              %if request.GET.get('state_id')== "%s" % item.id:
+              <option value="${item.id}" selected>${item.name}</option>
+              %else:
+              <option value="${item.id}">${item.name}</option>
+              %endif 
+              %endfor
+            </select>
+            District:
+            <select id="" name="district_id" autocomplate="off">
+              <option value="">All</option>
+            </select>
+            Cohort:
+            <select id="" name="cohort_id" autocomplate="off">
+              <option value="">All</option>
+            </select>
+            School:
+            <select id="" name="school_id" autocomplate="off">
+              <option value="">All</option>
+            </select>
+            Status:
+            <select id="" name="subscription_status" autocomplate="off">
+              <option value="">All</option>
+              <option value="Imported">Imported</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Registered">Registered</option>
+            </select>
+            Days After Invited:
+            <input type="" size="3" name="invite_days_min" value="" /> to 
+            <input type="" size="3" name="invite_days_max" value="" />
+            <input type="submit" name="" value="filter" />            
+          </form>
+        </div>
+        <div style="padding-bottom:10px;">
+          <a href="" onclick="send_invite_email();return false;">Send inviting email to</a>: ${invite_count} users (haven't invited)
+          <div style="display:inline-block;border:1px solid;width:300px;height:5px;">
+            <div style="background:#0c0;width:0px;height:100%" id="progress"></div>
+          </div>
+          <span id="progress-label"></span>
+        </div>
+        <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
+          <tr>
+            <th></th>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>State</th>
+            <th>District</th>
+            <th>Cohort</th>
+            <th>School</th>
+            <th>Invite Date</th>
+            <th>Days After Invited</th>
+            <th>Activate Date</th>
+            <th>Status</th>
+          </tr>
+          % for item in users:
+          <tr>
+            <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
+            <td>${item.user_id}</td>
+            <td>${item.name}</td>
+            <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
+            <td>${item.cohort.district.state.name}</td>     
+            <td>${item.cohort.district.name}</td>
+            <td>${item.cohort.code}</td>
+            %if item.school_id:
+            <td>${item.school.name}</td>
+            %else:
+            <td></td>
+            %endif
+            <td align="center">${item.invite_date}</td>
+            <td align="center">${item.days_after_invite}</td>
+            <td align="center">${item.activate_date}</td>
+            <td align="center">${item.subscription_status}</td>
+          </tr>
+          % endfor       
+        </table>
+        <div style="padding:5px;text-align:right;">
+          Total:${users.paginator.count} - 
+          Page: ${users.number}/${users.paginator.num_pages}
+          %if users.has_previous():
+          - <a href="${reverse('user')}?${pager_params}&page=${users.previous_page_number()}">prev</a>
+          %endif
+          %if users.has_next():
+          - <a href="${reverse('user')}?${pager_params}&page=${users.next_page_number()}">next</a>
+          %endif
+          <input type="button" name="delete" value="Delete Selected" />
+        </div>
+      </div>  
+    </div>
+  </div>
+<script type="text/javascript">
+var form=$("#form_filter");
+// delete users
+$("input[type=button][name=delete]").click(function(){
+  var ids=[];
+  $("input[type=checkbox][name=id]:checked").each(function(){
+    ids.push(this.value)
+  });
+  if(!ids.length)return alert("Nothing selected.")
+  if(!confirm("Really delete?")) return;
+  $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
+    r=$.parseJSON(r)
+    if(r.success)
+      window.location.href=window.location.href
+    else
+      alert(r.error)
+  })
+})
+// drop events
+form.find("select[name=state_id]").change(function(a){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id,district_id);
+  dropSchool(form,state_id,district_id,school_id);
+  dropCohort(form,state_id,district_id,cohort_id);
+});
+form.find("select[name=district_id]").change(function(){
+  var state_id='';
+  var district_id=$(this).val();
+  dropSchool(form,state_id,district_id,school_id);
+  dropCohort(form,state_id,district_id,cohort_id);
+});
+// init drops
+var state_id="${request.GET.get('state_id') or ''}"
+var cohort_id="${request.GET.get('cohort_id') or ''}"
+var district_id="${request.GET.get('district_id') or ''}"
+var school_id="${request.GET.get('school_id') or ''}"
+var subscription_status="${request.GET.get('subscription_status') or ''}"
+
+var invite_days_min="${request.GET.get('invite_days_min') or ''}"
+var invite_days_max="${request.GET.get('invite_days_max') or ''}"
+
+form.find("input[name=invite_days_min]").val(invite_days_min)
+form.find("input[name=invite_days_max]").val(invite_days_max)
+
+form.find("select[name=subscription_status]").val(subscription_status)
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+});
+dropCohort(form,state_id,district_id,function(){
+  $(this).val(cohort_id)
+});
+dropSchool(form,state_id,district_id,function(){
+  $(this).val(school_id)
+});
+// send invite email
+function send_invite_email(){
+  var total=${invite_count};
+  if(total<1)return alert("User count is 0.")
+  var flds=["cohort_id","district_id","state_id","school_id","subscription_status"]
+  var data=getFormData(form[0],flds);
+  data.count=1
+  var done=0;
+  (function run(){
+    $.get("${reverse('send_invite_email')}",data,function(r){
+      r=$.parseJSON(r);
+      if(!r.success){
+        alert(r.error)
+        return;
+      }
+      done+=r.sent;
+      if((r.remain+done)!=total){
+        alert("Total count changed, please refersh the page.")
+        return;
+      }
+      $("#progress").css("width",(done/total*100)+"%")
+      $("#progress-label").html(done+"/"+total)
+      if(total>done) run()
+    });
+  })();
+}
+</script>
+%endif
+%if ui=='form':
+<div style="text-align:center;">
+  <div style="margin:auto;" class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+      <div id="message" class="submit-notify"></div>
+      %if profile.id:
+      <h2>Modify user</h2>
+      %else:
+      <h2>Create user</h2>
+      %endif
+      <form method="post" id="form" action="${reverse('user_submit')}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <input type="hidden" name="id" value="${user.id or ''}" />
+        <table width="100%;" cellspacing="" cellpadding="" border="0" id="form-table">
+          <tbody style="background:#eee;">
+            <tr>
+              <td class="label">State</td>
+              <td>
+                <select id="district_id" name="state_id" autocomplate="off">
+                  <option value=""></option>
+                  %for item in State.objects.all():
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td class="label">District</td>
+              <td>
+                <select id="district_id" name="district_id" autocomplate="off">
+                  <option value=""></option>
+                </select>
+              </td>
+            </tr>
+           <tr>
+              <td class="label required">Cohort</td>
+              <td>
+                <select id="cohort_id" name="cohort_id" autocomplate="off" chkMsg="Cohort can't be empty." chkType="Require">
+                  <option value=""></option>
+                </select>
+              </td>
+           </tr>
+          </tbody>
+          <tr>
+            <td class="label required">Status</td>
+            <td>
+              <select id="" name="subscription_status" autocomplate="off" chkMsg="Status is invalid." chkType="Require">
+                <option value=""></option>
+                <option value="Imported">Imported</option>
+                <option value="Unregistered">Unregistered</option>
+                <option value="Registered">Registered</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Email</td>
+            <td>
+              <input type="" name="email" value="${profile.user.email}" chkMsg="Email is invalid." chkType="Email"/>
+            </td>
+          </tr>
+          <tr>
+            <td></td><td><input type="submit" value="Submit"/></td>
+          </tr>
+        </table>
+      </form>
+    </div>  
+  </div>
+</div>
+<script>
+var form=$("#form");
+// submit form
+form.submit(function(){
+  if(!new FormValidator().check(this))return false;
+  var flds=["id","email","subscription_status","cohort_id","csrfmiddlewaretoken"]
+  var data=getFormData(this,flds);
+  $("#message").html("Submiting");
+  $.post('${reverse("user_submit")}',data,
+  function(r) {
+    var r = $.parseJSON(r);
+    if (r.success) {
+      //$(this).resetForm()
+      infoAndWait($("#message"),"Submit success",3,"${reverse('user')}");
+    } else {
+       $("#message").show()
+       $("#message").html(r.error);
+    }
+  });
+  return false;
+});  
+// drop events
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id,function(){
+    dropCohort(form,state_id);
+  });
+})
+form.find("select[name=district_id]").change(function(){
+  var district_id=$(this).val();
+  dropCohort(form,'',district_id,cohort_id);
+})
+// init form
+%if profile.id:
+  var cohort_id="${profile.cohort.id}"
+  var district_id="${profile.cohort.district.id}"
+  var state_id="${profile.cohort.district.state.id}"
+  var subscription_status="${profile.subscription_status}"
+%else:
+  var cohort_id=""
+  var district_id=""
+  var state_id=""
+%endif
+form.find("select[name=state_id]").val(state_id)
+form.find("select[name=subscription_status]").val(subscription_status)
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+})
+dropCohort(form,state_id,district_id,function(){
+  $(this).val(cohort_id)
+})
+</script>
+%endif
+</body>

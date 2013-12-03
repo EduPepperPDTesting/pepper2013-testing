@@ -1,0 +1,211 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+<%! from time import strftime %>
+
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
+
+<!--@begin:add jq code to control hide content show/hide-->
+<!--@date:2013-11-02-->
+<script>
+jQuery(function($){
+	$("._downmenu_pp_title").click(function(){
+		$("._downmenu_pp_body").each(function(i,t){
+			$(t).slideUp("slow");
+			$(t).prev('._downmenu_pp_title').removeClass("_downmenu_pp_title_downImg");
+			$(t).prev('._downmenu_pp_title').addClass("_downmenu_pp_title_leftImg");
+		});
+		if($(this).next("._downmenu_pp_body").css("display")=='none'){
+			$(this).next("._downmenu_pp_body").slideDown();
+			$(this).removeClass("_downmenu_pp_title_leftImg");
+			$(this).addClass("_downmenu_pp_title_downImg");
+		}else{
+			$(this).next("._downmenu_pp_body").slideUp();
+			$(this).removeClass("_downmenu_pp_title_downImg");
+			$(this).addClass("_downmenu_pp_title_leftImg");
+		}
+		
+	});
+});
+</script>
+<!--@end-->
+
+<style type="text/css" media="screen">
+	/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
+
+  #page-nav,#page-footer{
+  width:960px;
+  }
+  
+  ul.left {
+  list-style:none;
+  }
+  
+  ul.left li{
+  margin-top:30px;font-size:16px;
+  }
+  
+  ul.left a{
+  color:#666;
+  }
+
+  #faq_ul li{
+  color:#666;
+  line-height:30px;
+  list-style:none;
+  padding-left:30px;
+  background:url(static/images/li-arrow.png) no-repeat;
+  margin:0px;
+  font-size:14px;
+  }
+</style>
+<div style="text-align:center;background:#f5f5f5">
+	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+	<!--@date:2013-11-02-->
+	<div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.png);">
+	<!--@end-->
+
+		<!--@begin:use html text to replace the text on the picture-->
+		<!--@date:2013-11-02-->
+		<section class="_banner_aboutus_title_font">FAQ</section>
+		<!--@end-->
+	</div>
+  
+  <div style="width:960px;margin:auto;background:#fff;">
+    <div style="float:left;width:217px;height:1010px;background:#E6F4FB;text-align:left;">
+      <ul class="left">
+        <li><a href="/about_pepper">ABOUT PEPPER</a></li>
+        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
+        <li><a href="/our_team">OUR TEAM</a></li>
+        <li><a href="/faq" style="color:#3461ad;">FAQ</a></li>
+		<li><a href="/contact">CONTACT US</a></li>
+
+		<!--@begin:add new url-->
+		<!--@date:2013-11-02-->
+		<li><a href="/press">PRESS</a></li>
+		<!--@end-->
+      </ul>
+    </div>
+    <div style="float:left;width:743px;height:1010px;text-align:left;">
+      <div style="padding:20px;">
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">WHAT YOU WANT TO KNOW</h2>
+        <hr />
+
+        <!--@begin:add code(class="_...") to modify font style and control hide content to show/hide; add some css code-->
+		<!--@date:2013-11-02-->
+        <p class="_body_content_font" style="text-align:24px;">
+          Our support goal is to provide you great self-service tools that insure your success. Still need help after reading these? Submit a question through our <a href="/_contact" class="_blue">Help Center</a>. Are you a member? Post your question(s) in your course specific discussion forum.
+
+			<p><h2 class="_body_content_title_font">PEPPER BASICS</h2>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> How do I sign up to take a course?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Once you are a member of Pepper you can then sign up for the course(s) of your choice. If you are not currently a member of Pepper, please contact us to learn more at pepper@pcgus.com.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if I have technical trouble with registration, login, or course access?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Many problems with registration, login, or access to Pepper courses are caused by simple browser issues. Here are some things to try:</span>
+						<ul>
+							<li>Clear your browser's cache</li>
+							<li>Switch to a current version of Chrome, Firefox or Internet Explorer 10</li>
+							<li>Check your browser settings to ensure both JavaScript and cookies are enabled</li>
+						</ul>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What happens after I sign up to be a member of Pepper?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>You will receive an activation email. Follow the prompts in that email to activate your account. You will need to log in each time you access your course(s). Once you start a course, it's time to hit the virtual books. Click "view course" on your dashboard. You will have access the lectures, homework, tutorials, etc.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> When will there be more courses on other subjects?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>We are continually reviewing and creating courses to add to the Pepper platform. Please check the website for future course announcements, in addition as a member we will send you an email when new courses are available.</span>
+					</div>
+				</div>
+			</p>
+			
+			<p><h2 class="_body_content_title_font">THE COURSES</h2>
+			  <div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> Can I take more than one course at a time?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Yes! You may take multiple Pepper courses. We recommend checking the requirements on each course description page to balance your available study hours and the demands of the intended courses.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> How do I log in to take a course?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Click on the Log In button on the pepperpd.com home page and type in your email address and Pepper password. This will take you to your dashboard, with access to each of your active courses.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> Getting help and support.</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>You have a vibrant, national community of fellow online learners available 24-7 to help with the course as well as support from us who monitor the course. Take a look at the course's Discussion Forum where you can review questions, answers and comments from fellow online learners, as well as post a question.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> Will the same courses be offered again in the future?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>All existing Pepper courses will remain available to all members in the course catalog, and more courses added on a regular basis.</span>
+					</div>
+				</div>
+			</p>
+			
+			<p><h2 class="_body_content_title_font">ACCOUNT QUESTIONS</h2>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if my user name is taken?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Please try a different username - for example, try adding a random number to the end.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if I am having login problems (password/email unrecognized)?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Please make sure that you have a current version of Firefox, Chrome, or Internet Explorer 10 with cookies and JavaScript enabled. Also, try clearing your browser's cache.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if I forget my password?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>You'll find a "Forgot password?" link under the Password field on the Login screen. Click this link and enter your email address. We'll send a message that will allow you to reset your password.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if I did not receive an confirmation email?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>If you did not receive an confirmation email it may be because:</span>
+						<ul>
+							<li>There was a typo in your email address.</li>
+							<li>Your spam filter may have caught the activation email. Please check your spam folder.</li>
+							<li>You may be using an older browser. We recommend downloading the current version of Firefox, Chrome, or Internet Explorer 10.</li>
+							<li>JavaScript is disabled in your browser. Please check your browser settings and confirm that JavaScript is enabled.</li>
+						</ul>
+						<span>If you continue to have problems activating your account, please <a href="/_contact" class="_blue">contact us</a>.</span>
+					</div>
+				</div>
+				<div class="_downmenu_pp">
+					<div id="div_twolines" class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> What if I have problems with the display (e.g., there are tools missing from the course display, or I am unable to view video)?</div>
+					<div class="_downmenu_pp_body _body_content_font" style="padding-left:20px;">
+						<span>Please check your browser and settings - JavaScript must be enabled. We recommend downloading and using the current version of either Firefox, Chrome, or Internet Explorer 10.</span>
+					</div>
+				</div>
+				<!--@end-->
+			</p>
+		</p>
+      </div>
+    </div>
+    <br style="clear:both"/>
+  </div>
+</div>

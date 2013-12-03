@@ -1,0 +1,57 @@
+/* -------------------------------------------------------------------
+// markItUp!
+// By Jay Salvat - http://markitup.jaysalvat.com/
+// ------------------------------------------------------------------*/
+.wiki .markItUpButton1 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/h1.eb2d1b1e1e4f.png"); 
+}
+.wiki .markItUpButton2 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/h2.b28528ee22ba.png"); 
+}
+.wiki .markItUpButton3 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/h3.fc804ff01e33.png"); 
+}
+.wiki .markItUpButton4 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/h4.fb629d0b73d5.png"); 
+}
+.wiki .markItUpButton5 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/h5.ec6f3cbaafa8.png"); 
+}
+
+.wiki .markItUpButton6 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/bold.d60427ad6f59.png");
+}
+.wiki .markItUpButton7 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/italic.fca8af7918d7.png");
+}
+.wiki .markItUpButton8 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/stroke.cf25f036aa3d.png");
+}
+
+.wiki .markItUpButton9 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/list-bullet.2130eaaf40e8.png");
+}
+.wiki .markItUpButton10 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/list-numeric.88f7aa99a1ad.png");
+}
+
+.wiki .markItUpButton11 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/picture.d2040c34ba1f.png"); 
+}
+.wiki .markItUpButton12 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/link.a5dc8319bff0.png");
+}
+.wiki .markItUpButton13 a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/url.6bc744e7a29d.png");
+}
+
+.wiki .markItUpButton14 a	{
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/quotes.05d28091baa2.png");
+}
+.wiki .markItUpButton15 a	{
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/code.13ad2158a488.png");
+}
+
+.wiki .preview a {
+  background-image:url("/static/xmodule_js/common_static/js/vendor/markitup/sets/wiki/images/preview.c9b528b9541e.png");
+}

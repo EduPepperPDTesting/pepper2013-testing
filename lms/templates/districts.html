@@ -1,0 +1,87 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+<%! from time import strftime %>
+
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
+
+<style type="text/css" media="screen">
+	/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
+
+  #main-div *{text-align:left;}
+  div.block{
+  background:#E6F4FB;width:172px;height:300px;float:left;padding:10px;
+  }
+  #page-nav,#page-footer{width:960px;}
+  #tb-list td{
+  background:#E6F4FB;
+  width:172px;
+  height:150px;
+  border:10px solid #fff;
+  }
+</style>
+<div id="main-div" style="background:#f5f5f5;">
+	<!--@begin:use (background:url..) replace <img src=...>-->
+	<!--@date:2013-11-02-->
+	<div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-districts-banner.png);">
+	<!--@end-->
+
+		<!--@begin:use html text to replace the text on the picture-->
+		<!--@date:2013-11-02-->
+		<div style="width:580px;float:left">
+			<div class="_banner_districts_title_font">
+				BUILDING A COMMON 
+				<br/>
+				CONVERSATION
+				<div class="_banner_districts_title_content_font">
+					The educators that comprise the Pepper network are among
+					<br/>
+					the best in the nation. They are dedicated to quality education 
+					<br/>
+					and to promoting excellence and achievement for all learners. 
+				</div>
+			</div>
+		</div>
+		<!--@end-->
+	</div>
+
+	<div style="width:960px;margin:auto;background:#fff;">
+		<table width="100%" id="tb-list" cellpadding="" border="0">
+		  <tr>
+			<td style="border-left:none;"></td><td></td><td></td><td style="border-right:none;"></td>
+		  </tr>
+		  <tr>
+			<td style="border-left:none;"></td><td></td><td></td><td style="border-right:none;"></td>
+		  </tr>
+		  <tr>
+			<td style="border-left:none;"></td><td></td><td></td><td style="border-right:none;"></td>
+		  </tr>
+		  <tr>
+			<td style="border-left:none;"></td><td></td><td></td><td style="border-right:none;"></td>
+		  </tr>
+		</table>
+		<div style="margin:37px;border:0px solid;display:none;">
+		  <div class="block" style="">
+			ccc
+		  </div>
+		  <div class="block" style="margin-left:38px;">
+			ddd
+		  </div>
+		  <div class="block" style="margin-left:38px;">
+			eee
+		  </div>
+		  <div class="block" style="margin-left:38px;">
+			fff
+		  </div>
+		  <br style="clear:both;"/>
+		</div>
+	</div>
+</div>

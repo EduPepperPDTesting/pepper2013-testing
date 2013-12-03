@@ -1,0 +1,30 @@
+<section
+    id="poll_compare_${element_id}"
+    class="${element_class}"
+    data-ajax-url="${ajax_url}"
+>
+<div class="${element_class}_div" id="${element_id}_json" style="display:none;">${poll_compares}</div>
+<div class="poll_compare_table">
+	<ul>
+		<li class="title123 left">&nbsp;&nbsp;</li>
+		<li class="title123">${answers.get('answer1',None) if answers is not None else u''}</li>
+		<li class="title123">${answers.get('answer2',None) if answers is not None else u''}</li>
+		<li class="title123">${answers.get('answer3',None) if answers is not None else u''}</li>
+		<li class="title123">${answers.get('answer4',None) if answers is not None else u''}</li>
+		<li class="title123">${answers.get('answer5',None) if answers is not None else u''}</li>
+	</ul>
+</div>
+<div class="poll_compare_table_footer">
+	<div class="poll_compare_wrapper">
+		<ul>
+			<li class="set_blue_footer left_footer">&nbsp;</li>
+			<li class="right_footer">PRE-ASSESSMENT RESPONSE</li>
+		</ul>
+		<ul style="margin-top:5px">
+			<li class="set_green_footer left_footer">&nbsp;</li>
+			<li class="right_footer">POST-ASSESSMENT RESPONSE</li>
+		</ul>
+	</div>
+</div>
+</section>
+

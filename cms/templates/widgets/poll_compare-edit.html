@@ -1,0 +1,16 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<div class="wrapper-comp-editor" id="editor-tab" data-base-asset-url="${base_asset_url}">
+    <section class="poll_compare-editor editor">
+      <ul class="editor-tabs">
+        <li><a href="#" class="visual-tab tab current" data-tab="visual">${_("Visual")}</a></li>
+        <li><a href="#" class="html-tab tab" data-tab="advanced">${_("xml")}</a></li>
+      </ul>
+
+      <div class="row">
+        <textarea class="tiny-mce">${test | h}</textarea>
+        <textarea name="" class="edit-box">${test | h}</textarea>
+      </div>
+    </section>
+</div>
+<%include file="metadata-edit.html" />

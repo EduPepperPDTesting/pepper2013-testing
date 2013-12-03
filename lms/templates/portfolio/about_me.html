@@ -1,0 +1,55 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
+
+<%inherit file="../main.html" />
+
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+</style>
+
+<div style="text-align:center;">
+	<div style="width:1200px;margin:auto;">
+		<%include file="/courseware/course_navigation.html" args="active_page='portfolio'" />
+	</div>
+</div>
+
+<%namespace name='static' file='/static_content.html'/>
+
+<%block name="headextra">
+  <%static:css group='course'/>
+  <%include file="../discussion/_js_head_dependencies.html" />
+  % if show_chat:
+    <link rel="stylesheet" href="${static.url('css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css')}" />
+    ## It'd be better to have this in a place like lms/css/vendor/candy,
+    ## but the candy_res/ folder contains images and other junk, and it
+    ## all needs to stay together for the Candy.js plugin to work.
+    <link rel="stylesheet" href="${static.url('candy_res/candy_full.css')}" />
+  % endif
+</%block>
+  
+
+<div class="main" style="margin-top:20px">
+	<div class="container2">
+		<section class="course-index">
+			<div class="sub_tit" style="width:auto;"><span class="user_name">${ user.username }</span></div>
+			<a class="sub_menu xz" href="${reverse('portfolio_about_me',args=[course.id])}">About Me</a> 
+			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id])}">My Coursework</a>
+			<a class="sub_menu" href="${reverse('portfolio_my_discussions',args=[course.id])}">My Discussions</a> 
+		</section>
+		
+		<section class="course-content">
+			<img src="/static/tmp-resource/image/Pepper_about_me.png" style="padding-top:10px;padding-left:17px;"/>
+		</section>
+	</div>
+</div>
+<br style="clear:both;">
+<br style="clear:both;">

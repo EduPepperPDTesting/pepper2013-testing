@@ -1,0 +1,244 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%namespace name='static' file='../static_content.html'/>
+<%!
+   from django.core.urlresolvers import reverse
+   from courseware.courses import course_image_url, get_course_about_section
+   from courseware.access import has_access
+   from certificates.models import CertificateStatuses
+   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+   from xmodule.modulestore.django import modulestore
+   from student.models import State,District,Cohort
+   import json
+   %>
+<body>
+<%include file="tabs.html" args="active_page='transaction'" />
+<div style="text-align:center;">
+  <div style="margin:auto;" class="container">
+    <div style="background:#ddd;padding:20px;text-align:left;">
+      %if ui=='list':
+      <div class="filter">
+        <form id="form_filter" method="get">
+          State:
+          <select name="state_id" autocomplate="off">
+            <option value="">All</option>
+            %for item in State.objects.all():
+            %if request.GET.get('state_id')== "%s" % item.id:
+            <option value="${item.id}" selected>${item.name}</option>
+            %else:
+            <option value="${item.id}">${item.name}</option>
+            %endif
+            %endfor
+          </select>
+          District:
+          <select id="" name="district_id" autocomplate="off">
+            <option value="">All</option>
+          </select>
+          <input type="submit" name="" value="filter" />
+        </form>
+      </div>
+      <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
+        <tr>
+          <th></th>
+          <th>Transaction ID</th>
+          <th>Owner</th>
+          <th>Subscription Type</th>
+          <th>Start Date</th>
+          <th>Term Months</th>
+        </tr>
+        % for item in transactions:
+        <tr>
+          <td><input type="checkbox" name="id" value="${item.id}" /></td>
+          <td><a href="${reverse('transaction_modify',args=[item.id])}">${item.code}</a></td>
+          <td>${item.owner.code}</td>
+          <td>${item.subscription_type}</td>
+          <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
+          <td>${item.term_months}</td>
+        </tr>
+        % endfor
+      </table>
+      <div style="padding:5px;text-align:right;">
+        Total:${transactions.paginator.count} -
+        Page: ${transactions.number}/${transactions.paginator.num_pages}
+        %if transactions.has_previous():
+        - <a href="${reverse('transaction')}?${pager_params}&page=${transactions.previous_page_number()}">prev</a>
+        %endif
+        %if transactions.has_next():
+        - <a href="${reverse('transaction')}?${pager_params}&page=${transactions.next_page_number()}">next</a>
+        %endif
+        <input type="button" onclick="window.location='${reverse("transaction_form")}'" value="Add New Transaction" />
+        <input type="button" name="delete" value="Delete Selected" />
+      </div>
+<script type="text/javascript">
+var form=$("#form_filter");
+// delete transactions
+$("input[type=button][name=delete]").click(function(){
+  var ids=[];
+  $("input[type=checkbox][name=id]:checked").each(function(){
+    ids.push(this.value)
+  });
+  if(!ids.length)return alert("Nothing selected.")
+  if(!confirm("Really delete?")) return;
+  $.get("${reverse('transaction_delete')}",{ids:ids.join(",")},function(r){
+    r=$.parseJSON(r)
+    if(r.success)
+      window.location.href=window.location.href
+    else
+      alert(r.error)
+  })
+})
+// drop events
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id);
+});
+// init drops
+var state_id="${request.GET.get('state_id') or ''}"
+var district_id="${request.GET.get('district_id') or ''}"
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+});
+</script>
+      %endif
+      %if ui=='form':
+      <form id="form" method="post" style="text-align:left;">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <input type="hidden" name="id" value="${transaction.id or ''}"/>
+        %if transaction:
+        <h2>Modify Transaction</h2>
+        %else:
+        <h2>Add Transaction</h2>
+        %endif
+        <div id="message"></div>
+        <table id="form-table" width="100%">
+          <tr>
+            <td class="label required" style="width:200px;">ID</td>
+            <td>
+              <input name="code" value="${transaction.code}" chkMsg="Transaction ID cant't be empty." chkType="Require"/>
+              <span style="color:#999;">No whitespaces.</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Subscription Type</td>
+            <td>
+              <select id="subscription_type" name="subscription_type" autocomplate="off" chkMsg="Subscription Type cant't be empty." chkType="Require">
+                <option></option>
+                %for item in ["cohort"]:
+                %if item == transaction.subscription_type:
+                <option selected>${item}</option>
+                %else:
+                <option>${item}</option>
+                %endif
+                %endfor                
+              </select>
+            </td>
+          </tr>
+          <tbody style="background:#eee;">
+          <tr>
+            <td class="label">State</td>
+            <td>
+              <select id="state_id" name="state_id" autocomplate="off">
+                <option value=""></option>
+                %for item in State.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="label">District</td>
+            <td>
+              <select id="district_id" name="district_id" autocomplate="off">
+                <option value=""></option>
+    
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Cohort</td>
+            <td>
+              <select id="cohort_id" name="cohort_id" autocomplate="off" chkMsg="Cohort cant't be empty." chkType="Require">
+                <option value=""></option>
+              </select>
+            </td>
+          </tr>          
+          </tbody>
+          <tr>
+            <td class="label required">Subscription Start Date</td>
+            <td>
+              %if transaction.start_date:
+              <input id="start_date" name="start_date" value="${'{d:%Y-%m-%d}'.format(d=transaction.start_date)}" chkMsg="Start Date is invalid." chkType="Date"/>
+              %else:
+              <input id="start_date" name="start_date" value="" chkMsg="Start Date is invalid." chkType="Date"/>
+              %endif
+              <span style="color:#999;">Format: YYYY-MM-DD.</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="label required">Term</td>
+            <td>
+              <input id="term_months" name="term_months" value="${transaction.term_months or ''}" chkMsg="Term cant't be empty." chkType="Require"/>
+            </td>
+          </tr>
+          <tr>
+            <td class="label"></td>
+            <td><input type="submit" value="Submit" /></td>
+          </tr>
+        </table>
+      </form>
+<script type="text/javascript">
+var form=$("#form");
+// submit form
+form.submit(function(){
+  if(!new FormValidator().check(this))return false;
+  var flds=["id","code","subscription_type","cohort_id","start_date","term_months","csrfmiddlewaretoken"]
+  var data=getFormData(this,flds);
+  $("#message").html("Submiting");
+  $.post('${reverse("transaction_submit")}', data,
+    function(r) {
+      r=$.parseJSON(r)
+      if (r.success) {
+        $(this).resetForm()
+        infoAndWait($("#message"),"Submit success",3,"${reverse('transaction')}");
+      } else {
+        $("#message").show()
+        $("#message").html(r.error);
+      }
+    }
+  );
+  return false;
+});
+// drop events
+form.find("select[name=state_id]").change(function(){
+  var state_id=$(this).val();
+  dropDistrict(form,state_id,function(){
+    dropCohort(form,state_id);
+  });
+})
+form.find("select[name=district_id]").change(function(){
+  var district_id=$(this).val();
+  dropCohort(form,'',district_id,cohort_id);
+})
+// init
+%if cohort:
+var cohort_id="${cohort.id}"
+var district_id="${cohort.district.id}"
+var state_id="${cohort.district.state.id}"
+%else:
+var cohort_id=""
+var district_id=""
+var state_id=""
+%endif
+
+form.find("select[name=state_id]").val(state_id)
+dropDistrict(form,state_id,function(){
+  $(this).val(district_id)
+})
+dropCohort(form,state_id,district_id,function(){
+  $(this).val(cohort_id)
+})
+</script>
+      %endif
+    </div>  
+  </div>
+</div>
+</body>
