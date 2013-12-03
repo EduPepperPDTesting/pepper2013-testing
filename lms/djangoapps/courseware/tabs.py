@@ -58,7 +58,10 @@ TabImpl = namedtuple('TabImpl', 'validator generator')
 
 def _courseware(tab, user, course, active_page):
     link = reverse('courseware', args=[course.id])
-    return [CourseTab('Courseware', link, active_page == "courseware")]
+#@begin:Change the static tag of Courseware to My Course
+#@date:2013-11-02        
+    return [CourseTab('My Course', link, active_page == "courseware")]
+#@end    
 
 
 def _course_info(tab, user, course, active_page):
@@ -227,14 +230,16 @@ def null_validator(d):
 VALID_TAB_TYPES = {
     'courseware': TabImpl(null_validator, _courseware),
     'course_info': TabImpl(need_name, _course_info),
+
     'wiki': TabImpl(need_name, _wiki),
     'discussion': TabImpl(need_name, _discussion),
+    'progress': TabImpl(need_name, _progress),
+    
     'external_discussion': TabImpl(key_checker(['link']), _external_discussion),
     'external_link': TabImpl(key_checker(['name', 'link']), _external_link),
     'textbooks': TabImpl(null_validator, _textbooks),
     'pdf_textbooks': TabImpl(null_validator, _pdf_textbooks),
     'html_textbooks': TabImpl(null_validator, _html_textbooks),
-    'progress': TabImpl(need_name, _progress),
     'static_tab': TabImpl(key_checker(['name', 'url_slug']), _static_tab),
     'peer_grading': TabImpl(null_validator, _peer_grading),
     'staff_grading': TabImpl(null_validator, _staff_grading),
@@ -292,20 +297,54 @@ def get_course_tabs(user, course, active_page):
     # shouldn't) know about the details of what tabs are supported, etc.
     validate_tabs(course)
 
+
     tabs = []
-    for tab in course.tabs:
+#@begin:Change the static tags in the courses
+#@date:2013-11-02        
+    for tab in course.tabs[:]:
         # expect handlers to return lists--handles things that are turned off
         # via feature flags, and things like 'textbook' which might generate
         # multiple tabs.
+        if tab['type']=='discussion':
+            tab['name']='Course Discussion'
+        if tab['type']=='progress':
+            tab['name']='My Progress'
+        if tab['type']=='wiki':
+            continue
+        if tab['type']=='course_info':
+            continue
+
+        if tab['type']=='open_ended':
+            continue
+#@end    
+
+        
+            
         gen = VALID_TAB_TYPES[tab['type']].generator
         tabs.extend(gen(tab, user, course, active_page))
 
     # Instructor tab is special--automatically added if user is staff for the course
-    if has_access(user, course, 'staff'):
-        tabs.append(CourseTab('Instructor',
-                              reverse('instructor_dashboard', args=[course.id]),
-                              active_page == 'instructor'))
+    # if has_access(user, course, 'staff'):
+    #     tabs.append(CourseTab('Instructor',
+    #                           reverse('instructor_dashboard', args=[course.id]),
+    #                           active_page == 'instructor'))
 
+
+#@begin:Add new static tags in courses
+#@date:2013-11-02 
+    tabs.append(CourseTab('People',
+                          reverse('people', args=[course.id]),
+                          active_page == 'people'))
+
+    # tabs.append(CourseTab('Resource Library',
+    #                       reverse('resource_library', args=[course.id]),
+    #                       active_page == 'resource_library'))
+
+    tabs.append(CourseTab('My Course Portfolio',
+                          reverse('portfolio_about_me', args=[course.id]),
+                          active_page == 'portfolio'))
+
+#@end    
     return tabs
 
 
@@ -338,6 +377,13 @@ def get_default_tabs(user, course, active_page):
     tabs.extend(_courseware({''}, user, course, active_page))
     tabs.extend(_course_info({'name': 'Course Info'}, user, course, active_page))
 
+
+#@begin:Change the static tag of Progress to the front of Discussion
+#@date:2013-11-02 
+    if user.is_authenticated() and not course.hide_progress_tab:
+        tabs.extend(_progress({'name': 'Progress'}, user, course, active_page))
+#@end
+
     if hasattr(course, 'syllabus_present') and course.syllabus_present:
         link = reverse('syllabus', args=[course.id])
         tabs.append(CourseTab('Syllabus', link, active_page == 'syllabus'))
@@ -346,13 +392,14 @@ def get_default_tabs(user, course, active_page):
 
     discussion_link = get_discussion_link(course)
     if discussion_link:
-        tabs.append(CourseTab('Discussion', discussion_link, active_page == 'discussion'))
-
+#@begin:Change the static tag to Discussion
+#@date:2013-11-02        
+        tabs.append(CourseTab('Course Discussion', discussion_link, active_page == 'discussion'))
+#@end
     tabs.extend(_wiki({'name': 'Wiki', 'type': 'wiki'}, user, course, active_page))
-
-    if user.is_authenticated() and not course.hide_progress_tab:
-        tabs.extend(_progress({'name': 'Progress'}, user, course, active_page))
-
+#@begin:Delete the static tag of Progress
+#@date:2013-11-02        
+#@end
     if has_access(user, course, 'staff'):
         link = reverse('instructor_dashboard', args=[course.id])
         tabs.append(CourseTab('Instructor', link, active_page == 'instructor'))

@@ -1,64 +1,192 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
-<%namespace name='static' file='../static_content.html'/>
+<%! from time import strftime %>
 
+<%namespace name='static' file='../static_content.html'/>
 <%inherit file="../main.html" />
 
-<%block name="title"><title>${_("About {edX}").format(edX="edX")}</title></%block>
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
 
-<section class="container about">
-  <nav>
-    <a href="${reverse('about_edx')}" class="active">${_("Vision")}</a>
-    <a href="${reverse('faq_edx')}">${_("Faq")}</a>
-    <a href="${reverse('press')}">${_("Press")}</a>
-    <a href="${reverse('contact')}">${_("Contact")}</a>
-  </nav>
+<!--@begin:add jq code to control hide content show/hide-->
+<!--@date:2013-11-02-->
+<script>
+jQuery(function($){
+	$("._downmenu_pp_title").click(function(){
+		$("._downmenu_pp_body").each(function(i,t){
+			$(t).slideUp("slow");
+			$(t).prev('._downmenu_pp_title').removeClass("_downmenu_pp_title_downImg");
+			$(t).prev('._downmenu_pp_title').addClass("_downmenu_pp_title_leftImg");
+		});
+		if($(this).next("._downmenu_pp_body").css("display")=='none'){
+			$(this).next("._downmenu_pp_body").slideDown();
+			$(this).removeClass("_downmenu_pp_title_leftImg");
+			$(this).addClass("_downmenu_pp_title_downImg");
+		}else{
+			$(this).next("._downmenu_pp_body").slideUp();
+			$(this).removeClass("_downmenu_pp_title_downImg");
+			$(this).addClass("_downmenu_pp_title_leftImg");
+		}
+	});
+});
+</script>
+<!--@end-->
 
-  <section class="vision">
-    ## <div class="our-mission">
-    ##   <div class="logo">
-    ##     <img src="${static.url('images/edx-logo-large-bw.png')}">
-    ##   </div>
-    ##   <h2 class="mission-quote">&ldquo;${_('The mission of <span class="edx">{edX}</span> is to enhance human fulfillment worldwide through online ## learning, transforming education in quality, efficiency and scale through technology and research, for the benefit of campus-based ## students and the worldwide community of online learners.').format(edX="edX")}&rdquo;</h2>
-    ## </div>
+<style type="text/css" media="screen">
+	/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
 
-    <section class="message left">
-      <div class="photo">
-        <img src="${static.url('images/about_1.jpg')}">
+  #page-nav,#page-footer{
+  width:960px;
+  }
+  ul.left {
+  list-style:none;
+  }
+  ul.left li{
+  margin-top:30px;font-size:16px;
+  }
+  ul.left a{
+  color:#666;
+  }  
+</style>
+<div style="text-align:center;background:#f5f5f5">
+	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+	<!--@date:2013-11-02-->
+	<div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.png);">
+	<!--@end-->
+
+		<!--@begin:use html text to replace the text on the picture-->
+		<!--@date:2013-11-02-->
+		<section class="_banner_aboutus_title_font">ABOUT PEPPER</section>
+		<!--@end-->
+	</div>
+  		
+  <div style="width:960px;margin:auto;background:#fff;">
+    <div style="float:left;width:217px;height:1610px;background:#E6F4FB;text-align:left;">
+      <ul class="left">
+        <li><a href="/about_pepper" style="color:#3461ad;">ABOUT PEPPER</a></li>
+        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
+        <li><a href="/our_team">OUR TEAM</a></li>
+        <li><a href="/faq">FAQ</a></li>
+		<li><a href="/contact">CONTACT US</a></li>
+
+		<!--@begin:add new url-->
+		<!--@date:2013-11-02-->
+		<li><a href="/press">PRESS</a></li>
+		<!--@end-->
+      </ul>
+    </div>
+    <div style="float:left;width:743px;height:1610px;text-align:left;">
+      <div style="padding:20px;">
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">OUR STORY</h2>
+        <hr />
+        <!--@begin:add code(class="_...") to modify font style and control hide content to show/hide; add some css code-->
+		<!--@date:2013-11-02-->
+        <p class="_body_content_font">
+          Common Core State Standards (CCSS) will touch the lives of nearly every teacher and student. For the first time in our history, a 
+clear and unified set of expectations will guide classroom instruction to ensure that all students are ready for college and careers. 
+Educators everywhere are diligently preparing to implement these standards and aligned assessments by the beginning of the 2014-15 
+school year, seeking the best possible resources to guide them in the process.
+		</p>
+		
+		<p><h2 class="_body_content_title_font">Pepper Team</h2></p>
+		<section class="_body_content_font">
+			PCG works closely with over 4,000 districts across the country listened and took note as educators articulated their Common Core needs. Teachers shared with us their excitement about a project-based, performance-oriented set of standards and accompanying assessments that encourage them to teach in new ways that active student thinking and intellectual engagement. They also expressed a need for guidance and assistance to effectively implement the Common Core.
+		</section>
+		<br/>
+		<section class="_body_content_font">
+			WestEd, with over four decades of experience translating education research into practice, brings a wide range of subject matter 
+expertise to the Common Core conversation, especially in the key curricular areas of English Language Arts and Mathematics. As one of 
+the nation's leading educational research, development and service organizations, WestEd knows how to translate education research 
+into high quality professional learning. Through close contact with their clients, WestEd works to deeply understand the needs of 
+schools, districts, states and policy makers, and delivers trusted content to address the nation's most pressing educational challenges.
+		</section>
+		<br/>
+		<section class="_body_content_font">
+			EDU2000 has more than 20 years creating online educational resources in mathematics and science and has managed large technology platform implementations in multiple states. 
+		</section>
+		<br/>
+		<section class="_body_content_font">
+			When PCG, WestEd and EDU2000 sat down to combine their perspectives, they envisioned resources to address common themes expressed by 
+every educator: resources that can be accessed online 24/7; resources to help every teacher become a CCSS specialist; and resources 
+that allow ALL teachers to reflect and track their learning and share Common Core thoughts with colleagues.
+		</section>
+		<br/>
+		<section class="_body_content_font">
+			As the backbone of these resources our team selected edX, a Harvard/MIT developed learning management system, to use as the delivery platform for the new program.
+		</section>
+		<br/>
+		<section class="_body_content_font">
+			The result of this dynamic collaboration:  Pepper, an online collection of the highest quality common core courses available to educators.
+		</section>
+		
+		<p><h2 class="_body_content_title_font">Pepper Power</h2></p>
+		<section class="_body_content_font">
+			With the launch of Pepper, districts now have a powerful solution to their Common Core needs, a perfect supplement to existing local efforts. Pepper makes a difference in how and when teachers learn, through a manageable online community that helps them navigate the new Common Core standards and assessments.
+		</section>
+		<br/>
+		<div class="_downmenu_pp">
+			<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> Why <i>Teachers</i> love Pepper</div>
+			<div class="_downmenu_pp_body _body_content_font">
+				<ul>
+					<li>All teachers can enhance their mastery of Common Core at a time, place and pace of their own choosing without having to align their own busy schedules with those of district mentors and designated specialists.</li>
+					<li>Pepper course content is immediately applicable in the classroom, helping teachers to progress towards Common Core mastery.</li>
+					<li>Pepper Common Core courses offer something for every core teacher: Math and ELA/Literacy at elementary, middle school, and high school levels.</li>
+					<li>Courses are online, self-paced, available 24/7 to accommodate every teacher's unique schedule.</li>
+					<li>Accountability is built into the Pepper platform, helping teachers track their thoughts and questions through reflection and journaling about their Common Core needs and practices, as well as sharing them with supervisors and colleagues.</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="_downmenu_pp">
+			<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> Why <i>Administrators</i> love Pepper</div>
+			<div class="_downmenu_pp_body _body_content_font">
+				<ul>
+					<li>Principals and curriculum directors can provide quality Common Core professional learning to EVERY member of their staff using Pepper's self-paced course content.</li>
+					<li>For less than the cost of sending a few teachers to face-to-face training, administrators can purchase annual Pepper accounts for all teachers.</li>
+					<li>School leaders can build a consistent foundation of Common Core concepts through a shared conversation among teachers within the Pepper online environment.</li>
+					<li>Pepper provides leaders with a Common Core solution that not only supplements their existing programs, but also helps them unify and combine an array of district efforts.</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="_downmenu_pp">
+			<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> How <i>Students</i> benefit from Pepper</div>
+			<div class="_downmenu_pp_body _body_content_font">
+				<ul>
+					<li>Through the Pepper courses and community, teachers are able to make teaching and learning more relevant, effective, and appropriate to the needs of students.</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="_downmenu_pp">
+			<div class="_downmenu_pp_title _downmenu_pp_title_leftImg _body_content_font"> How <i>Parents</i> benefit from Pepper</div>
+			<div class="_downmenu_pp_body _body_content_font">
+				<ul>
+					<li>Parents want to know how Common Core will affect their children's current and future education. Teachers using Pepper allay parents' concerns and implement Common Core strategies to ensure student success.</li>
+					<li>Teachers using Pepper can provide parents with resources and strategies to help prepare their children for the new Common Core shifts and next-generation assessments.</li>
+				</ul>
+			</div>
+		</div>
+		
+		<p><h2 class="_body_content_title_font">Pepper Community</h2></p>
+		<section class="_body_content_font">
+			By entering the Pepper community, teachers and administrators will join a vibrant and growing network of educators dedicated to 
+effective implementation of the Common Core.  With access to high quality WestEd professional learning resources, and a collaborative 
+group of colleagues across the nation, educators will engage in a common conversation around Common Core concepts and implementation.
+		</section>
+		<br/>
+		<br/>
+		<p class="_body_content_font">
+			If you have specific questions about Pepper, please feel free to reach out to us at <a href="mailto:pepper@pcgus.com" class="_blue">pepper@pcgus.com</a>.
+		</p>
+		<!--@end-->
       </div>
-      <article>
-      <h2>${_('About {span_start}{edX}{span_end}'.format(span_start='<span class="edx">', span_end='</span>', edX="edX"))}</h2>
-        <p>${_("{EdX} is a not-for-profit enterprise of its founding partners {harvard_university} and the {massachusetts_institute_of_technology} that features learning designed specifically for interactive study via the web. Based on a long history of collaboration and their shared educational missions, the founders are creating a new online-learning experience with online courses that reflect their disciplinary breadth.  Along with offering online courses, the institutions will use {edX} to research how students learn and how technology can transform learning&ndash;both on-campus and worldwide. Anant Agarwal, former Director of {MIT}'s Computer Science and Artificial Intelligence Laboratory, serves as the first president of {edX}. {EdX}'s goals combine the desire to reach out to students of all ages, means, and nations, and to deliver these teachings from a faculty who reflect the diversity of its audience. {EdX} is based in Cambridge, Massachusetts and is governed by {MIT} and {Harvard}.").format(edX="edX", EdX="EdX", harvard_university="Harvard University", Harvard="Harvard", MIT="MIT", massachusetts_institute_of_technology="Massachusetts Institute of Technology")}</p>
-      </article>
-      <hr class="fade-right-hr-divider">
-    </section>
-
-    <section class="message left">
-      <div class="photo">
-        <img src="${static.url('images/university/harvard/about-harvard.jpg')}">
-      </div>
-      <article>
-        <h2>${_("{harvard_university}").format(harvard_university="Harvard University")}</h2>
-        <p>${_("{harvard_university} is devoted to excellence in teaching, learning, and research, and to developing leaders in many disciplines who make a difference globally. {Harvard} faculty are engaged with teaching and research to push the boundaries of human knowledge.  The University has twelve degree-granting Schools in addition to the {radcliffe_institute_for_advanced_study}.").format(harvard_university="Harvard University", Harvard="Harvard", radcliffe_institute_for_advanced_study="Radcliffe Institute for Advanced Study")}</p>
-        <p>${_("Established in 1636, {Harvard} is the oldest institution of higher education in the United States. The University, which is based in Cambridge and Boston, Massachusetts, has an enrollment of over 20,000 degree candidates, including undergraduate, graduate, and professional students. {Harvard} has more than 360,000 alumni around the world.").format(Harvard="Harvard")}</p>
-      </article>
-      <hr class="fade-left-hr-divider">
-    </section>
-
-    <section class="message left">
-      <div class="photo">
-        <img src="${static.url('images/university/mit/about-mit.jpg')}">
-      </div>
-      <article>
-        <h2>${_("{massachusetts_institute_of_technology}").format(massachusetts_institute_of_technology="Massachusetts Institute of Technology")}</h2>
-        <p>${_("The {massachusetts_institute_of_technology} &mdash; a coeducational, privately endowed research university founded in 1861 &mdash; is dedicated to advancing knowledge and educating students in science, technology, and other areas of scholarship that will best serve the nation and the world in the 21st century. The Institute has close to 1,000 faculty and 10,000 undergraduate and graduate students. It is organized into five Schools: Architecture and Urban Planning; Engineering; Humanities, Arts, and Social Sciences; {Sloan} School of Management; and Science.").format(massachusetts_institute_of_technology="Massachusetts Institute of Technology", Sloan="Sloan")}</p>
-        <p>${_("{MIT}'s commitment to innovation has led to a host of scientific breakthroughs and technological advances. Achievements of the Institute's faculty and graduates have included the first chemical synthesis of penicillin and vitamin A, the development of inertial guidance systems, modern technologies for artificial limbs, and the magnetic core memory that made possible the development of digital computers. 78 alumni, faculty, researchers and staff have won Nobel Prizes.").format(MIT="MIT")}</p>
-        <p>${_("Current areas of research and education include neuroscience and the study of the brain and mind, bioengineering, cancer, energy, the environment and sustainable development, information sciences and technology, new media, financial technology, and entrepreneurship.")}</p>
-      </article>
-    </section>
-
-    <section class="partners">
-    </section>
-  </section>
-</section>
-
+    </div>
+    <br style="clear:both"/>
+  </div>
+</div>

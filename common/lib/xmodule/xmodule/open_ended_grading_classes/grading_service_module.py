@@ -39,7 +39,7 @@ class GradingService(object):
         response = self.session.post(self.login_url,
                                      {'username': self.username,
                                       'password': self.password, })
-
+       
         response.raise_for_status()
 
         return response.json

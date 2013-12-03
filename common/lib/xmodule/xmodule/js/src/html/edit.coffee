@@ -24,6 +24,7 @@ class @HTMLEditingDescriptor
       theme : "advanced",
       skin: 'studio',
       schema: "html5",
+      plugins : "table",
       # Necessary to preserve relative URLs to our images.
       convert_urls : false,
       # TODO: we should share this CSS with studio (and LMS)
@@ -42,12 +43,26 @@ class @HTMLEditingDescriptor
       # Disable visual aid on borderless table.
       visual:false,
       # We may want to add "styleselect" when we collect all styles used throughout the LMS
-      theme_advanced_buttons1 : "formatselect,bold,italic,underline,|,bullist,numlist,outdent,indent,|,blockquote,wrapAsCode,|,link,unlink",
+      #@begin:CMS tinyMCE config
+      #@date:2013-11-02
+      theme_advanced_buttons1 : "styleselect,fontselect,fontsizeselect,bold,italic,underline,|,bullist,numlist,|,justifyleft,justifycenter,justifyright",
+      theme_advanced_buttons2 : "tablecontrols,|,removeformat,|,link,unlink,|,forecolor,backcolor",
+      theme_advanced_buttons3 : "hr,|,outdent,indent,|,blockquote,wrapAsCode",
       theme_advanced_toolbar_location : "top",
       theme_advanced_toolbar_align : "left",
       theme_advanced_statusbar_location : "none",
       theme_advanced_resizing : true,
       theme_advanced_blockformats : "p,pre,h1,h2,h3",
+      style_formats : [
+        {title : 'Page Title (Header 1)', inline : 'b',styles : {color :'#366092',fontSize:'24pt',fontFamily:'Arial'}},
+        {title : 'Sub Title (Header 2)', inline : 'b',styles : {color :'#343434',fontSize:'18pt',fontFamily:'Arial'}},
+        {title : 'Body Font', inline : 'span',styles : {color :'#000000',fontSize:'14pt',fontFamily:'Arial'}},
+        {title : 'Heading 3', inline : 'span',styles : {color :'#000000',fontSize:'16pt',fontFamily:'Arial',fontStyle:'italic'}},
+        {title : 'Red Underline', inline : 'span', styles : {borderBottom:'1px solid #ff0000',textDecoration:'none'}},
+        {title : 'Red text', inline : 'span', styles : {color : '#ff0000'}},
+        {title : 'Bold text', inline : 'b'},
+        {title : 'Red header', block : 'h1', styles : {color : '#ff0000'}}
+      ],
       width: '100%',
       height: '400px',
       setup : @setupTinyMCE,
@@ -55,7 +70,7 @@ class @HTMLEditingDescriptor
       # The tinyMCE callback passes in the editor as a paramter.
       init_instance_callback: @initInstanceCallback
     })
-
+    #@end
     @showingVisualEditor = true
     # Doing these find operations within onSwitchEditor leads to sporadic failures on Chrome (version 20 and older).
     $element = $(element)

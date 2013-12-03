@@ -4,6 +4,7 @@ section.poll_question {
     width: auto;
     padding: 0;
 
+
     canvas, img {
       page-break-inside: avoid;
     }
@@ -39,23 +40,30 @@ section.poll_question {
   }
 
   .poll_answer {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    /*display: inline;*/
+  	width: auto;
+    clear:left;
+    float:left;
+
+    vertical-align:center;
 
     &.short {
-        clear: both;
+        clear: left;
     }
+
 
     .question {
       height: auto;
-      clear: both;
+      clear: none;
       min-height: 30px;
-
-      &.short {
-        clear: none;
-        width: 30%;
-        display: inline;
-        float: left;
-      }
+      float:center;
+      
+  	  &.short {
+          clear: none;
+          /*display: inline;*/
+          float: left;
+        }
 
       .button {
         -webkit-appearance: none;
@@ -93,6 +101,7 @@ section.poll_question {
 
         /* display: inline-block; */
         display: inline;
+        /*display:inline;*/
         float: left;
 
         font-family: 'Open Sans', Verdana, Geneva, sans-serif;
@@ -136,17 +145,22 @@ section.poll_question {
 
       .text {
         display: inline;
+        /*width: 100%;*/
+        width:auto;
         float: left;
-        width: 80%;
         text-align: left;
         min-height: 30px;
-        margin-left: 20px;
+        margin-left: 7px;
         height: auto;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
         cursor: pointer;
+        clear:none;
+        /*font-size: 9px;*/
 
         &.short {
-          width: 100px;
+          /*width: 100%;*/
+          width:auto;
+
         }
       }
     }
@@ -160,12 +174,12 @@ section.poll_question {
         margin-top: 0;
         clear: none;
         display: inline;
-        float: right;
-        width: 70%;
+        float: left;
+        width: 20%;
       }
 
       .bar {
-        width: 75%;
+        width: 20%;
         height: 20px;
         border: 1px solid black;
         display: inline;
@@ -173,7 +187,7 @@ section.poll_question {
         margin-right: 10px;
 
         &.short {
-          width: 65%;
+          width: 20%;
           height: 20px;
           margin-top: 3px;
         }
@@ -195,7 +209,7 @@ section.poll_question {
         text-align: right;
 
         &.short {
-          width: 120px;
+          width: 20px;
           height: auto;
         }
       }

@@ -278,7 +278,7 @@ def get_module_for_descriptor_internal(user, descriptor, field_data_cache, cours
         s3_interface = {
             'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', ''),
             'secret_access_key': getattr(settings, 'AWS_SECRET_ACCESS_KEY', ''),
-            'storage_bucket_name': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'openended')
+            'storage_bucket_name': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', '')
         }
 
     def inner_get_module(descriptor):
@@ -502,6 +502,34 @@ def xqueue_callback(request, course_id, userid, mod_id, dispatch):
 
     return HttpResponse("")
 
+#@begin:process poll_compare request
+#@data:2013-11-20
+def modx_dispatch_pollCompate(request=None,course_id=None,user=None,data=None):
+    if user is None:
+        raise Http404("Invalid user")
+    if course_id is None:
+        raise Http404("Invalid course_id")    
+    if data is None:
+        raise Http404("Invalid data")
+    if request is None:
+        raise Http404("Invalid request")
+
+    data = json.loads(data['data'])
+
+    for key in data:
+        if data[key].get('from_loc',None) is None:
+            continue
+        from_loc = data[key]['from_loc']
+        to_loc = data[key]['to_loc']
+        from_instance = find_target_student_module(request=request, user_id=user.id, course_id=course_id, mod_id=from_loc)
+        to_instance = find_target_student_module(request=request, user_id=user.id, course_id=course_id, mod_id=to_loc)
+        data[key]['student_answers']['from_loc'] = from_instance.student_answers
+        data[key]['student_answers']['to_loc'] = to_instance.student_answers
+    
+    dispatch_return = json.dumps(data)
+
+    return HttpResponse(dispatch_return)
+#@end
 
 def modx_dispatch(request, dispatch, location, course_id):
     ''' Generic view for extensions. This is where AJAX calls go.
@@ -539,6 +567,14 @@ def modx_dispatch(request, dispatch, location, course_id):
         return HttpResponse(json.dumps({'success': error_msg}))
     for key in files:  # Merge files into to data dictionary
         data[key] = files.getlist(key)
+
+    #@begin:dispatch poll_compare request
+    #@data:2013-11-20
+    data_data = request.POST.get('data',None)
+    if not data_data is None:
+        data['data'] = request.POST.get('data',None)
+        return modx_dispatch_pollCompate(request=request,course_id=course_id,user=request.user,data=data)
+    #@end
 
     try:
         descriptor = modulestore().get_instance(course_id, location)

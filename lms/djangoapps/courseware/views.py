@@ -329,7 +329,11 @@ def index(request, course_id, chapter=None, section=None,
             'content': '',
             'staff_access': staff_access,
             'masquerade': masq,
-            'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa')
+            'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa'),
+#@begin:Inform the template that it is in homepage
+#@date:2013-11-02        
+            'is_index':'True'
+#@end                        
             }
 
         # Only show the chat if it's enabled by the course and in the
@@ -608,6 +612,36 @@ def course_about(request, course_id):
 
 @ensure_csrf_cookie
 @cache_if_anonymous
+#@begin:View of the course
+#@date:2013-11-02        
+def cabout(request, course_id):
+    
+    if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE', False):
+        raise Http404
+
+    course = get_course_with_access(request.user, course_id, 'see_exists')
+    registered = registered_for_course(course, request.user)
+
+    if has_access(request.user, course, 'load'):
+        course_target = reverse('info', args=[course.id])
+    else:
+        course_target = reverse('about_course', args=[course.id])
+
+    show_courseware_link = (has_access(request.user, course, 'load') or
+                            settings.MITX_FEATURES.get('ENABLE_LMS_MIGRATION'))
+
+    return render_to_response('courseware/cabout.html',
+                              {
+                               'course': course,
+                               'registered': registered,
+                               'course_target': course_target,
+                               'show_courseware_link': show_courseware_link})
+
+
+#@end
+
+@ensure_csrf_cookie
+@cache_if_anonymous
 def mktg_course_about(request, course_id):
     """
     This is the button that gets put into an iframe on the Drupal site
@@ -760,3 +794,16 @@ def submission_history(request, course_id, student_username, location):
     }
 
     return render_to_response('courseware/submission_history.html', context)
+
+#@begin:View of the newly added page
+#@date:2013-11-02        
+def my_course_portfolio(request, course_id, student_id=None):
+    return False
+
+
+def resource_library(request, course_id, student_id=None):
+    return False
+
+def people(request, course_id, student_id=None):
+    return False
+#@end

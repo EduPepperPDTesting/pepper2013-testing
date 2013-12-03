@@ -59,10 +59,12 @@
   @extend .m-btn-base;
   box-shadow: 0 2px 1px 0 $action-primary-shadow;
   background: $action-primary-bg;
+  background: #556370;
   color: $action-primary-fg;
 
   &:hover, &:active {
     background: $action-primary-focused-bg;
+    background: #6e8194;
   }
 
   &.current, &.active {

@@ -1,6 +1,7 @@
 ## mako
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
+
 <%!
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -13,9 +14,11 @@ from status.status import get_site_status_msg
 
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
-
 <%block cached="False">
 <%
+
+# print index
+   
 try:
     course_id = course.id
 except:
@@ -33,55 +36,152 @@ site_status_msg = get_site_status_msg(course_id)
 % endif
 </%block>
 
+<!--@begin:New added page style-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  *{font-family:"open sans" !important;}
+  p{font-family:"open sans" !important;}
+  
+  a.blue{
+  color:#556370 !important;
+  }
+  
+  a.blue-underline{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.blue-underline:normal{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.blue-underline:hover{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.main-link{
+  font-family:'open sans';
+  font-size:16px;
+  text-transform:none;
+  font-weight:normal !important;
+  }
+  
+</style>
+<!--@end-->
 
 % if course:
   <header class="global slim" aria-label="${_('Global Navigation')}">
 % else:
   <header class="global" aria-label="${_('Global Navigation')}">
 % endif
-  <nav>
+  <nav id="page-nav">
 
   <h1 class="logo">
-    <a href="${marketing_link('ROOT')}">
+<!--@begin:Choose the link of the top logo according user's login status-->
+<!--@date:2013-11-02-->
+    % if user.is_authenticated():
+    <a href="/dashboard">
+    % else:
+    <a href="/">
+    % endif
+<!--@end-->
+
       <%block name="navigation_logo">
+<!--@begin:Choose the image of the top logo according to user's login status-->      
+      % if index != 1:
         <img src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
-      </%block>
+      % endif
+<!--@end-->        
+     </%block>
     </a>
+
+
   </h1>
 
     % if course:
+
       <h2><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
+    % endif
+<!--@begin:Top navigation tabs and styles before login-->
+<!--@date:2013-11-02-->
+      <style>
+        ol.nav-left li a{
+        color:#555;
+        padding-top:20px;
+        }
+
+      </style>
+
+    % if user.is_authenticated():
+      <ol class="left nav-global authenticated">
+    % else:
+      <ol class="left nav-global">
+    % endif
+
+    % if not user.is_authenticated():
+    <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
+    % endif
+    
+    <li><a href="/courses" class="main-link">Courses</a></li>
+
+    % if not user.is_authenticated():
+    <li><a href="/contact" class="main-link">Districts</a></li>
     % endif
 
     % if user.is_authenticated():
+    <li><a href="/resource_library_global" class="main-link">Access Resource Library</a></li>
+    <li><a href="/people_search" class="main-link">People</a></li>
+    % endif
 
-    <ol class="left nav-global authenticated">
+    % if user.is_authenticated():
       <%block name="navigation_global_links_authenticated">
-        <li class="nav-global-01">
+        <li class="nav-global-01" style="display:none;">
           <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
         </li>
       </%block>
-    </ol>
-    <ol class="user">
-      <li class="primary">
-        <a href="${reverse('dashboard')}" class="user-link">
-          <span class="avatar"></span>
-          <span class="sr">${_("Dashboard for:")} </span> ${user.username}
-        </a>
-      </li>
-      <li class="primary">
-        <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
-        <ul class="dropdown-menu">
-          <%block name="navigation_dropdown_menu_links" >
-            <li><a href="${marketing_link('FAQ')}">${_("Help")}</a></li>
-          </%block>
-          <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
-        </ul>
-      </li>
-    </ol>
+   </ol>
+<!--@end-->
+
+
+
+
+<ol class="user" id="btn-logged-user">
+  <li class="primary">
+    <a href="${reverse('dashboard')}" class="user-link">
+      <span class="avatar"></span>
+      <span class="sr">${_("Dashboard for:")} </span> ${user.username}
+    </a>
+  </li>
+  <li class="primary">
+    <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+    <ul class="dropdown-menu">
+<%block name="navigation_dropdown_menu_links" >
+<!--@begin:Change the website in contact-->
+<!--@date:2013-11-02-->
+      <li><a href="/faq">${_("Help")}</a></li>
+<!--@end-->       
+</%block>
+<li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+</ul>
+</li>
+
+</ol>
+
+
+<ol class="right nav-courseware" id="btn-dashboard">
+  <li class="nav-courseware-01">
+    <a class="cta cta-login" href="/dashboard">Dashboard</a>
+  </li>
+</ol>
+
 
     % else:
-    <ol class="left nav-global">
+
       <%block name="navigation_global_links">
         % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
           <li class="nav-global-01">
@@ -95,26 +195,33 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         % endif
       </%block>
+
       % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
           % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-          <li class="nav-global-04">
-            <a class="cta cta-register" href="${reverse('course-specific-register', args=[course.id])}">${_("Register Now")}</a>
-          </li>
+<!--@begin:Change Register Now to Become a Member-->
+<!--@date:2013-11-02-->
+            <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
           % else:
-          <li class="nav-global-04">
-            <a class="cta cta-register" href="/register">${_("Register Now")}</a>
-          </li>
-          % endif
+           <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
+<!--@end-->            
+           % endif
       % endif
+<!--@begin:Add tab About Us-->
+<!--@date:2013-11-02-->
+      <li><a href="/about_pepper" class="main-link">About Us</a></li>
+<!--@end-->                  
     </ol>
 
     <ol class="right nav-courseware">
     <li class="nav-courseware-01">
       % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
           % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-          <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Log in")}</a>
+<!--@begin:Change the text in Log in to Login-->
+<!--@date:2013-11-02-->
+          <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
           % else:
-          <a class="cta cta-login" href="/login${login_query()}">${_("Log in")}</a>
+          <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
+<!--@end-->                
           % endif
       % endif
     </li>
@@ -122,6 +229,7 @@ site_status_msg = get_site_status_msg(course_id)
     % endif
   </nav>
 </header>
+
 % if course:
 <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif

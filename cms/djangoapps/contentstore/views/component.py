@@ -49,14 +49,17 @@ COMPONENT_TYPES = ['discussion', 'html', 'problem', 'video']
 
 OPEN_ENDED_COMPONENT_TYPES = ["combinedopenended", "peergrading"]
 NOTE_COMPONENT_TYPES = ['notes']
+#@begin:add poll_compare component
+#@data:2013-11-20
 ADVANCED_COMPONENT_TYPES = [
+    'poll_compare',
     'annotatable',
     'word_cloud',
     'graphical_slider_tool'
 ] + OPEN_ENDED_COMPONENT_TYPES + NOTE_COMPONENT_TYPES
 ADVANCED_COMPONENT_CATEGORY = 'advanced'
 ADVANCED_COMPONENT_POLICY_KEY = 'advanced_modules'
-
+#@end
 
 @login_required
 def edit_subsection(request, location):
@@ -123,6 +126,10 @@ def edit_subsection(request, location):
     return render_to_response(
         'edit_subsection.html',
         {
+#@begin:Pass location variable to the module and generate certain urls, such as preview
+#@date:2013-11-02        
+           'location':location,
+#@end
            'subsection': item,
            'context_course': course,
            'new_unit_category': 'vertical',

@@ -113,7 +113,12 @@ class @Sequence
 
     if (1 <= new_position) and (new_position <= @num_contents)
       Logger.log "seq_goto", old: @position, new: new_position, id: @id
-
+      #@begin:code on test and will be replaced
+      #@date:2013-11-02     
+      #try
+      #  set_tinyMCE_switchPage(1)
+      #catch
+      #@end
       analytics.pageview @id
 
       # navigation by clicking the tab directly

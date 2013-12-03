@@ -82,6 +82,7 @@ class @DiscussionUtil
       user_profile            : "/courses/#{$$course_id}/discussion/forum/users/#{param}"
       followed_threads        : "/courses/#{$$course_id}/discussion/forum/users/#{param}/followed"
       threads                 : "/courses/#{$$course_id}/discussion/forum"
+      set_visibility          : "/courses/#{$$course_id}/discussion/comments/#{param}/set_visibility/#{param1}"
       "enable_notifications"  : "/notification_prefs/enable/"
       "disable_notifications" : "/notification_prefs/disable/"
       "notifications_status" : "/notification_prefs/status"

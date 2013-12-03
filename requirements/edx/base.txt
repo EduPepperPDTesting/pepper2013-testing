@@ -4,7 +4,7 @@
 #   * @jtauber - to check licensing
 #   * One of @e0d, @jarv, or @feanil - to check system requirements
 
--r repo.txt
+#-r repo.txt
 
 beautifulsoup4==4.1.3
 beautifulsoup==3.2.1
@@ -41,7 +41,7 @@ nltk==2.0.4
 paramiko==1.9.0
 path.py==3.0.1
 Pillow==1.7.8
-pip>=1.4
+#pip>=1.4
 polib==1.0.3
 pycrypto>=2.6
 pygments==1.5
@@ -97,7 +97,7 @@ django-debug-toolbar-mongo
 nose-ignore-docstring
 nose-exclude
 
-git+https://github.com/mfogel/django-settings-context-processor.git
+#git+https://github.com/mfogel/django-settings-context-processor.git
 
 # django-cas version 2.0.3 with patch to be compatible with django 1.4
-git+https://github.com/mitocw/django-cas.git
+#git+https://github.com/mitocw/django-cas.git

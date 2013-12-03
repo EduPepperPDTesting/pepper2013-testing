@@ -1,6 +1,7 @@
-<%! from django.utils.translation import ugettext as _ %>
+Dear Educator,
 
-${_("Thank you for signing up for edX Studio! To activate your account, please copy and paste this address into your web browser's address bar:")}
+The<district name> invites you to join Pepper, the online network of Common Core Specialists.  Please click the link below to activate your account:
+
 
 % if is_secure:
   https://${ site }/activate/${ key }
@@ -8,4 +9,14 @@ ${_("Thank you for signing up for edX Studio! To activate your account, please c
   http://${ site }/activate/${ key }
 % endif
 
-${_("If you didn't request this, you don't need to do anything; you won't receive any more email from us. Please do not reply to this e-mail; if you require assistance, check the help section of the edX web site.")}
+% if is_secure:    
+#   https://${ site }/registration/activate/${ key }
+% else:
+#   http://${ site }/registration/activate/${ key }
+% endif
+
+When you click on the link, you will be asked to provide basic account information including your name and primary school location.  Once activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate.
+
+Congratulations on being selected to join the network, please feel free to contact us with any questions or concerns at PepperSupport@pcgus.com or 1-800-PEPPER.
+
+(PCG/PEPPER footer)

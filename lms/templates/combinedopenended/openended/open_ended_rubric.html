@@ -2,11 +2,18 @@
 <% from random import randint %>
 <form class="rubric-template" id="inputtype_${id}" xmlns="http://www.w3.org/1999/html">
     <div class="visibility-control visibility-control-rubric">
-        <div class="inner">
+        <!--@begin:delete section-header-rubric-->
+        <!--@date:2013-11-02-->
+        <!--<div class="inner">
         </div>
         <span class="section-header section-header-rubric">${_("Rubric")}</span>
+        -->
+        <!--@end-->
     </div>
-    <p>Select the criteria you feel best represents this submission in each category.</p>
+    <!--@begin:delete info-->
+    <!--@date:2013-11-02-->
+    <!--<p>Select the criteria you feel best represents this submission in each category.</p>-->
+    <!--@end-->
     <div class="rubric">
         % for i in range(len(categories)):
         <% category = categories[i] %>
@@ -22,7 +29,7 @@
                     % endif
                     <label class="rubric-label" for="score-${i}-${j}-${m}">
                         <span class="wrapper-score-selection"><input type="radio" class="score-selection" data-category="${i}" name="score-selection-${i}" id="score-${i}-${j}-${m}" value="${option['points']}"/></span>
-                        <span class="wrappable"> ${option['points']} points : ${option['text']}</span>
+                        <span class="wrappable">${option['text']}</span>
                     </label>
                     </li>
                 % endfor

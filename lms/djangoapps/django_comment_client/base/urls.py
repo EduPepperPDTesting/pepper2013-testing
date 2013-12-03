@@ -32,3 +32,7 @@ urlpatterns = patterns('django_comment_client.base.views',  # nopep8
     url(r'^(?P<commentable_id>[\w\-.]+)/follow$', 'follow_commentable', name='follow_commentable'),
     url(r'^(?P<commentable_id>[\w\-.]+)/unfollow$', 'unfollow_commentable', name='unfollow_commentable'),
 )
+
+urlpatterns += patterns('portfolio.portfolio_utils',  # nopep8
+    url(r'comments/(?P<comment_id>[\w\-.]+)/set_visibility/(?P<discussion_visibility>[^/]+)$', 'set_discussion_visibility', name='set_discussion_visibility'),
+)

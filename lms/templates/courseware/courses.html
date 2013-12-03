@@ -1,35 +1,52 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%inherit file="../main.html" />
-
 <%namespace name='static' file='../static_content.html'/>
-
 <%block name="title"><title>${_("Courses")}</title></%block>
 
-<section class="find-courses">
-  <header class="search">
-    <div class="inner-wrapper main-search">
-      <hgroup>
-        <div class="logo">
-          % if self.stanford_theme_enabled():
-            <img src="${static.url('themes/stanford/images/seal.png')}" alt="Stanford Seal Logo" />
-          % else:
-            <img src="${static.url('images/edx_bw.png')}" alt="Black and White edX Logo" />
-          % endif
-        </div>
-        % if self.stanford_theme_enabled():
-          <h2>${_("Explore free courses from {university_name}.").format(university_name="Stanford University")}</h2>
-        % else:
-          <h2>${_("Explore free courses from leading universities.")}</h2>
-        % endif
-      </hgroup>
-    </div>
-  </header>
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
 
-  <section class="container">
-    <section class="courses">
+<style type="text/css" media="screen">
+    #page-nav,#page-footer{width:960px;}
+    #btn-logged-user{display:none;}
+</style>
+
+<section class="find-courses" style="text-align:center;background:#F5F5F5;">
+	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+	<!--@date:2013-11-02-->
+	<div style="margin:0 auto;width:960px;height:195px;background:url(static/images/ppd-courses-banner.png);border-bottom:1px solid #000;">
+	<!--@end-->
+	
+		<!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+		<!--@date:2013-11-02-->
+		<div class="_banner_whatis_title_font">
+			PROFESSIONAL
+			<br/>
+			DEVELOPMENT COURSES
+			<div class="_banner_whatis_title_content_font">
+				to become a specialist in Common Core
+			</div>
+		</div>
+		<!--@end-->
+	</div>
+  <!--
+  <section style="margin:auto;text-align:left;width:960px;background:#E6F5FC;">
+    <div style="padding:20px;color:#666;">
+      <span style="color:#3468A1;font-family: 'Open Sans';">COURSE (${len(courses)})</span> &nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="#">all</a> |
+      <a href="#" style="color:#666">new</a> |
+      <a href="#" style="color:#666">current</a> |
+      <a href="#" style="color:#666">past</a>
+    </div>
+  </section>
+  -->
+  <section style="margin:auto;width:960px;background:#FFF;">
+    <section style="padding:0 30px 0 30px;" class="courses">
       <ul class="courses-listing">
         %for course in courses:
-        <li class="courses-listing-item">
+        <li style="float:none" class="courses-listing-item">
           <%include file="../course.html" args="course=course" />
         </li>
         %endfor
@@ -37,3 +54,5 @@
     </section>
   </section>
 </section>
+
+

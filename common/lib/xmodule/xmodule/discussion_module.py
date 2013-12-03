@@ -3,7 +3,7 @@ from pkg_resources import resource_string
 from xmodule.x_module import XModule
 from xmodule.raw_module import RawDescriptor
 from xmodule.editing_module import MetadataOnlyEditingDescriptor
-from xblock.fields import String, Scope
+from xblock.core import String, Scope
 from uuid import uuid4
 
 
@@ -32,6 +32,12 @@ class DiscussionFields(object):
         help="A subcategory name for the discussion. This name appears in the left pane of the discussion forum for the course.",
         scope=Scope.settings
     )
+    discussion_visibility = String(
+        display_name="Visibility",
+        default="true",
+        help="discussion Visibility",
+        scope=Scope.settings
+    )
     sort_key = String(scope=Scope.settings)
 
 
@@ -45,6 +51,7 @@ class DiscussionModule(DiscussionFields, XModule):
     def get_html(self):
         context = {
             'discussion_id': self.discussion_id,
+            'discussion_visibility': self.discussion_visibility,
         }
         return self.system.render_template('discussion/_discussion_module.html', context)
 

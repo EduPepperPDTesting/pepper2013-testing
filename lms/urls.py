@@ -9,37 +9,100 @@ import django.contrib.auth.views
 if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
-urlpatterns = ('',  # nopep8
-    # certificate view
+urlpatterns = (
+    '',  # nopep8
+    url(r'^reg_kits/$', 'reg_kits.views.district',name="reg_kits"),
 
+    url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts',name="drop_districts"),
+    url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools',name="drop_schools"),
+    url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts',name="drop_cohorts"),
+    
+    url(r'^reg_kits/district/$', 'reg_kits.views.district',name="district"),
+    url(r'^reg_kits/district/form/$', 'reg_kits.views.district_form',name="district_form"),
+    url(r'^reg_kits/district/form/(?P<district_id>\d+)$', 'reg_kits.views.district_form',name="district_form"),
+    url(r'^reg_kits/district/delete/$', 'reg_kits.views.district_delete',name="district_delete"),
+    url(r'^reg_kits/district/submit/$', 'reg_kits.views.district_submit',name="district_submit"),
+    
+    url(r'^reg_kits/transaction/$', 'reg_kits.views.transaction',name="transaction"),
+    url(r'^reg_kits/transaction/form$', 'reg_kits.views.transaction_form',name="transaction_form"),
+    url(r'^reg_kits/transaction/form/(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form',name="transaction_modify"),
+    url(r'^reg_kits/transaction/submit$', 'reg_kits.views.transaction_submit',name="transaction_submit"),
+    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete',name="transaction_delete"), 
+
+    url(r'^reg_kits/cohort/$', 'reg_kits.views.cohort',name="cohort"),
+    url(r'^reg_kits/cohort/form/$', 'reg_kits.views.cohort_form',name="cohort_form"),
+    url(r'^reg_kits/cohort/form/(?P<cohort_id>\d+)$', 'reg_kits.views.cohort_form',name="cohort_form"),
+    url(r'^reg_kits/cohort/delete/$', 'reg_kits.views.cohort_delete',name="cohort_delete"),
+    url(r'^reg_kits/cohort/submit/$', 'reg_kits.views.cohort_submit',name="cohort_submit"),
+ 
+    url(r'^reg_kits/school/$', 'reg_kits.views.school',name="school"),
+    url(r'^reg_kits/school/form/$', 'reg_kits.views.school_form',name="school_form"),
+    url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form',name="school_form"),
+    url(r'^reg_kits/school/delete/$', 'reg_kits.views.school_delete',name="school_delete"),
+    url(r'^reg_kits/school/submit/$', 'reg_kits.views.school_submit',name="school_submit"),
+    url(r'^reg_kits/school/import_school_submit/$', 'reg_kits.views.import_school_submit',name="import_school_submit"),
+    
+    url(r'^reg_kits/user/$', 'reg_kits.views.user',name="user"),
+    url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form',name="user_form"),
+    url(r'^reg_kits/user/form/(?P<user_id>\d+)$', 'reg_kits.views.user_form',name="user_form"),
+    url(r'^reg_kits/user/delete/$', 'reg_kits.views.user_delete',name="user_delete"),
+    url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit',name="user_submit"),
+    url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email',name="send_invite_email"),
+    
+    url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit',name="import_user_submit"),
+
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people_search$', 'people.views.course_index', name="people"),
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people_network$', 'people.views.my_course_index', name="my_people"),
+
+    url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
+    url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
+    url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
+
+    url(r'^people_search$', 'people.views.people', name="people"),
+    url(r'^people_network$', 'people.views.my_people', name="my_people"),
+    url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
+
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions$',
+             'portfolio.views.my_discussions', name="portfolio_my_discussions"),
+
+    #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
+    url(r'^latest_news/$', 'student.views.latest_news', name="latest_news"),
+    url(r'^access_resource_library/$', 'access_resource_library.views.index', name="access_resource_library"),
+    # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
+    url(r'^download_certificate$', 'certificates.views.download_certificate'),
+    url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
+    
     url(r'^register$', 'student.views.register_user', name="register_user"),
-
+    url(r'^register/(?P<activation_key>[^/]+)/$', 'student.views.register_user', name="register_user"),
+    
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
-
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
     url(r'^email_confirm/(?P<key>[^/]*)$', 'student.views.confirm_email_change'),
     url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
+    url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
+    url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),
+    url(r'^change_major_subject_area$', 'student.views.change_major_subject_area_request', name="change_major_subject_area"),
+    url(r'^change_bio$', 'student.views.change_bio_request', name="change_bio"),
+
+    url(r'^change_years_in_education$', 'student.views.change_years_in_education_request', name="change_years_in_education"),
+
     url(r'^accept_name_change$', 'student.views.accept_name_change'),
     url(r'^reject_name_change$', 'student.views.reject_name_change'),
     url(r'^pending_name_changes$', 'student.views.pending_name_changes'),
     url(r'^event$', 'track.views.user_track'),
     url(r'^t/(?P<template>[^/]*)$', 'static_template_view.views.index'),   # TODO: Is this used anymore? What is STATIC_GRAB?
-
     url(r'^accounts/login$', 'student.views.accounts_login', name="accounts_login"),
-
     url(r'^login_ajax$', 'student.views.login_user', name="login"),
     url(r'^login_ajax/(?P<error>[^/]*)$', 'student.views.login_user'),
     url(r'^logout$', 'student.views.logout_user', name='logout'),
     url(r'^create_account$', 'student.views.create_account', name='create_account'),
     url(r'^activate/(?P<key>[^/]*)$', 'student.views.activate_account', name="activate"),
-
     url(r'^begin_exam_registration/(?P<course_id>[^/]+/[^/]+/[^/]+)$', 'student.views.begin_exam_registration', name="begin_exam_registration"),
     url(r'^create_exam_registration$', 'student.views.create_exam_registration'),
-
     url(r'^password_reset/$', 'student.views.password_reset', name='password_reset'),
     ## Obsolete Django views for password resets
     ## TODO: Replace with Mako-ized views
@@ -54,28 +117,22 @@ urlpatterns = ('',  # nopep8
         name='auth_password_reset_complete'),
     url(r'^password_reset_done/$', django.contrib.auth.views.password_reset_done,
         name='auth_password_reset_done'),
-
     url(r'^heartbeat$', include('heartbeat.urls')),
-
     url(r'^user_api/', include('user_api.urls')),
 )
-
 js_info_dict = {
     'domain': 'djangojs',
     'packages': ('lms',),
 }
-
 urlpatterns += (
     # Serve catalog of localized strings to be rendered by Javascript
     url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
 )
-
 #Semi-static views (these need to be rendered and have the login bar, but don't change)
 urlpatterns += (
     url(r'^404$', 'static_template_view.views.render',
         {'template': '404.html'}, name="404"),
 )
-
 # Semi-static views only used by edX, not by themes
 if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
     urlpatterns += (
@@ -88,57 +145,43 @@ if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
             {'template': 'faq.html'}, name="faq_edx"),
         url(r'^help$', 'static_template_view.views.render',
             {'template': 'help.html'}, name="help_edx"),
-
         # TODO: (bridger) The copyright has been removed until it is updated for edX
         # url(r'^copyright$', 'static_template_view.views.render',
         #     {'template': 'copyright.html'}, name="copyright"),
-
         #Press releases
         url(r'^press/([_a-zA-Z0-9-]+)$', 'static_template_view.views.render_press_release', name='press_release'),
-
         # Favicon
         (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
-
         url(r'^submit_feedback$', 'util.views.submit_feedback'),
-
     )
-
 # Only enable URLs for those marketing links actually enabled in the
 # settings. Disable URLs by marking them as None.
 for key, value in settings.MKTG_URL_LINK_MAP.items():
     # Skip disabled URLs
     if value is None:
         continue
-
     # These urls are enabled separately
     if key == "ROOT" or key == "COURSES" or key == "FAQ":
         continue
-
     # Make the assumptions that the templates are all in the same dir
     # and that they all match the name of the key (plus extension)
     template = "%s.html" % key.lower()
-
     # To allow theme templates to inherit from default templates,
     # prepend a standard prefix
     if settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
         template = "theme-" + template
-
     # Make the assumption that the URL we want is the lowercased
     # version of the map key
     urlpatterns += (url(r'^%s' % key.lower(),
                         'static_template_view.views.render',
                         {'template': template}, name=value),)
-
-
 if settings.PERFSTATS:
     urlpatterns += (url(r'^reprofile$', 'perfstats.views.end_profile'),)
-
 # Multicourse wiki (Note: wiki urls must be above the courseware ones because of
 # the custom tab catch-all)
 if settings.WIKI_ENABLED:
     from wiki.urls import get_pattern as wiki_pattern
     from django_notify.urls import get_pattern as notify_pattern
-
     # Note that some of these urls are repeated in course_wiki.course_nav. Make sure to update
     # them together.
     urlpatterns += (
@@ -147,15 +190,12 @@ if settings.WIKI_ENABLED:
         url('^wiki/create-root/$', 'course_wiki.views.root_create', name='root_create'),
         url(r'^wiki/', include(wiki_pattern())),
         url(r'^notify/', include(notify_pattern())),
-
         # These urls are for viewing the wiki in the context of a course. They should
         # never be returned by a reverse() so they come after the other url patterns
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/course_wiki/?$',
             'course_wiki.views.course_wiki_redirect', name="course_wiki"),
         url(r'^courses/(?:[^/]+/[^/]+/[^/]+)/wiki/', include(wiki_pattern())),
     )
-
-
 if settings.COURSEWARE_ENABLED:
     urlpatterns += (
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/jump_to/(?P<location>.*)$',
@@ -165,43 +205,47 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/modx/(?P<location>.*?)/(?P<dispatch>[^/]*)$',
             'courseware.module_render.modx_dispatch',
             name='modx_dispatch'),
-
-
         # Software Licenses
-
         # TODO: for now, this is the endpoint of an ajax replay
         # service that retrieve and assigns license numbers for
         # software assigned to a course. The numbers have to be loaded
         # into the database.
         url(r'^software-licenses$', 'licenses.views.user_software_license', name="user_software_license"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/xqueue/(?P<userid>[^/]*)/(?P<mod_id>.*?)/(?P<dispatch>[^/]*)$',
             'courseware.module_render.xqueue_callback',
             name='xqueue_callback'),
         url(r'^change_setting$', 'student.views.change_setting',
             name='change_setting'),
-
         # TODO: These views need to be updated before they work
         url(r'^calculate$', 'util.views.calculate'),
         # TODO: We should probably remove the circuit package. I believe it was only used in the old way of saving wiki circuits for the wiki
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
-
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
+        url(r'^what_is$', 'branding.views.what_is', name="what_is"),
+        url(r'^districts$', 'branding.views.districts', name="districts"),
+        
+        url(r'^contact$', 'branding.views.contact', name="contact_us"),
+        url(r'^contact_us_submit$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+
+        url(r'^intro$', 'branding.views.intro', name="intro"),
+        url(r'^intro_research$', 'branding.views.intro_research', name="intro_research"),
+        url(r'^intro_ourteam$', 'branding.views.intro_ourteam', name="intro_ourteam"),
+        url(r'^intro_faq$', 'branding.views.intro_faq', name="intro_faq"),
         url(r'^change_enrollment$',
             'student.views.change_enrollment', name="change_enrollment"),
         url(r'^change_email_settings$', 'student.views.change_email_settings', name="change_email_settings"),
-
         #About the course
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/about$',
             'courseware.views.course_about', name="about_course"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cabout$',
+            'courseware.views.cabout', name="cabout"),
         #View for mktg site (kept for backwards compatibility TODO - remove before merge to master)
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/mktg-about$',
             'courseware.views.mktg_course_about', name="mktg_about_course"),
         #View for mktg site
         url(r'^mktg/(?P<course_id>.*)$',
             'courseware.views.mktg_course_about', name="mktg_about_course"),
-
         #Inside the course
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
             'courseware.views.course_info', name="course_root"),
@@ -209,27 +253,22 @@ if settings.COURSEWARE_ENABLED:
             'courseware.views.course_info', name="info"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/syllabus$',
             'courseware.views.syllabus', name="syllabus"),   # TODO arjun remove when custom tabs in place, see courseware/courses.py
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/book/(?P<book_index>\d+)/$',
             'staticbook.views.index', name="book"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/book/(?P<book_index>\d+)/(?P<page>\d+)$',
             'staticbook.views.index', name="book"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/$',
             'staticbook.views.pdf_index', name="pdf_book"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/(?P<page>\d+)$',
             'staticbook.views.pdf_index', name="pdf_book"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/$',
             'staticbook.views.pdf_index', name="pdf_book"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/(?P<page>\d+)$',
             'staticbook.views.pdf_index', name="pdf_book"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/htmlbook/(?P<book_index>\d+)/$',
             'staticbook.views.html_index', name="html_book"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/htmlbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/$',
             'staticbook.views.html_index', name="html_book"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/?$',
             'courseware.views.index', name="courseware"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/(?P<chapter>[^/]*)/$',
@@ -238,19 +277,25 @@ if settings.COURSEWARE_ENABLED:
             'courseware.views.index', name="courseware_section"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/(?P<chapter>[^/]*)/(?P<section>[^/]*)/(?P<position>[^/]*)/?$',
             'courseware.views.index', name="courseware_position"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress$',
             'courseware.views.progress', name="progress"),
         # Takes optional student_id for instructor use--shows profile as that student sees it.
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress/(?P<student_id>[^/]*)/$',
             'courseware.views.progress', name="student_progress"),
-
         # For the instructor
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
-
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
+            'portfolio.views.about_me', name="portfolio_about_me"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework$',
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<chapter_id>[^/]+)$',
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),           
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
+            'portfolio.views.uploads', name="portfolio_uploads"), 
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',
+            'courseware.views.resource_library', name="resource_library"),        
         # see ENABLE_INSTRUCTOR_BETA_DASHBOARD section for more urls
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/gradebook$',
             'instructor.views.legacy.gradebook', name='gradebook'),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/grade_summary$',
@@ -265,17 +310,14 @@ if settings.COURSEWARE_ENABLED:
             'open_ended_grading.staff_grading_service.save_grade', name='staff_grading_save_grade'),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading/get_problem_list$',
             'open_ended_grading.staff_grading_service.get_problem_list', name='staff_grading_get_problem_list'),
-
         # Open Ended problem list
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_problems$',
             'open_ended_grading.views.student_problem_list', name='open_ended_problems'),
-
         # Open Ended flagged problem list
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_flagged_problems$',
             'open_ended_grading.views.flagged_problem_list', name='open_ended_flagged_problems'),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_flagged_problems/take_action_on_flags$',
             'open_ended_grading.views.take_action_on_flags', name='open_ended_flagged_problems_take_action'),
-
         # Cohorts management
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts$',
             'course_groups.views.list_cohorts', name="cohorts"),
@@ -294,25 +336,19 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/debug$',
             'course_groups.views.debug_cohort_mgmt',
             name="debug_cohort_mgmt"),
-
         # Open Ended Notifications
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_notifications$',
             'open_ended_grading.views.combined_notifications', name='open_ended_notifications'),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/peer_grading$',
             'open_ended_grading.views.peer_grading', name='peer_grading'),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/notes$', 'notes.views.notes', name='notes'),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/notes/', include('notes.urls')),
-
     )
-
     # allow course staff to change to student view of courseware
     if settings.MITX_FEATURES.get('ENABLE_MASQUERADE'):
         urlpatterns += (
             url(r'^masquerade/(?P<marg>.*)$', 'courseware.masquerade.handle_ajax', name="masquerade-switch"),
         )
-
     # discussion forums live within courseware, so courseware must be enabled first
     if settings.MITX_FEATURES.get('ENABLE_DISCUSSION_SERVICE'):
         urlpatterns += (
@@ -330,60 +366,48 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
         'courseware.views.static_tab', name="static_tab"),
     )
-
     if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
         urlpatterns += (
             url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/submission_history/(?P<student_username>[^/]*)/(?P<location>.*?)$',
                 'courseware.views.submission_history',
                 name='submission_history'),
         )
-
 if settings.COURSEWARE_ENABLED and settings.MITX_FEATURES.get('ENABLE_INSTRUCTOR_BETA_DASHBOARD'):
     urlpatterns += (
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor_dashboard$',
             'instructor.views.instructor_dashboard.instructor_dashboard_2', name="instructor_dashboard_2"),
-
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor_dashboard/api/',
             include('instructor.views.api_urls'))
     )
-
 if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     ## Jasmine and admin
     urlpatterns += (url(r'^admin/', include(admin.site.urls)),)
-
 if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
     urlpatterns += (
         url(r'^openid/login/$', 'django_openid_auth.views.login_begin', name='openid-login'),
         url(r'^openid/complete/$', 'external_auth.views.openid_login_complete', name='openid-complete'),
         url(r'^openid/logo.gif$', 'django_openid_auth.views.logo', name='openid-logo'),
     )
-
 if settings.MITX_FEATURES.get('AUTH_USE_SHIB'):
     urlpatterns += (
         url(r'^shib-login/$', 'external_auth.views.shib_login', name='shib-login'),
     )
-
 if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
     urlpatterns += (
         url(r'^cas-auth/login/$', 'external_auth.views.cas_login', name="cas-login"),
         url(r'^cas-auth/logout/$', 'django_cas.views.logout', {'next_page': '/'}, name="cas-logout"),
     )
-
 if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD'):
     urlpatterns += (
         url(r'^course_specific_login/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
             'external_auth.views.course_specific_login', name='course-specific-login'),
         url(r'^course_specific_register/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
             'external_auth.views.course_specific_register', name='course-specific-register'),
-
     )
-
 # Shopping cart
 urlpatterns += (
     url(r'^shoppingcart/', include('shoppingcart.urls')),
 )
-
-
 if settings.MITX_FEATURES.get('AUTH_USE_OPENID_PROVIDER'):
     urlpatterns += (
         url(r'^openid/provider/login/$', 'external_auth.views.provider_login', name='openid-provider-login'),
@@ -391,10 +415,8 @@ if settings.MITX_FEATURES.get('AUTH_USE_OPENID_PROVIDER'):
         url(r'^openid/provider/identity/$', 'external_auth.views.provider_identity', name='openid-provider-identity'),
         url(r'^openid/provider/xrds/$', 'external_auth.views.provider_xrds', name='openid-provider-xrds')
     )
-
 if settings.MITX_FEATURES.get('ENABLE_PEARSON_LOGIN', False):
     urlpatterns += url(r'^testcenter/login$', 'external_auth.views.test_center_login'),
-
 if settings.MITX_FEATURES.get('ENABLE_LMS_MIGRATION'):
     urlpatterns += (
         url(r'^migrate/modules$', 'lms_migration.migrate.manage_modulestores'),
@@ -403,58 +425,47 @@ if settings.MITX_FEATURES.get('ENABLE_LMS_MIGRATION'):
         url(r'^gitreload$', 'lms_migration.migrate.gitreload'),
         url(r'^gitreload/(?P<reload_dir>[^/]+)$', 'lms_migration.migrate.gitreload'),
     )
-
 if settings.MITX_FEATURES.get('ENABLE_SQL_TRACKING_LOGS'):
     urlpatterns += (
         url(r'^event_logs$', 'track.views.view_tracking_log'),
         url(r'^event_logs/(?P<args>.+)$', 'track.views.view_tracking_log'),
     )
-
 if settings.MITX_FEATURES.get('ENABLE_SERVICE_STATUS'):
     urlpatterns += (
         url(r'^status/', include('service_status.urls')),
     )
-
 if settings.MITX_FEATURES.get('ENABLE_INSTRUCTOR_BACKGROUND_TASKS'):
     urlpatterns += (
         url(r'^instructor_task_status/$', 'instructor_task.views.instructor_task_status', name='instructor_task_status'),
     )
-
 if settings.MITX_FEATURES.get('RUN_AS_ANALYTICS_SERVER_ENABLED'):
     urlpatterns += (
         url(r'^edinsights_service/', include('edinsights.core.urls')),
     )
     import edinsights.core.registry
-
 # FoldIt views
 urlpatterns += (
     # The path is hardcoded into their app...
     url(r'^comm/foldit_ops', 'foldit.views.foldit_ops', name="foldit_ops"),
 )
-
 if settings.MITX_FEATURES.get('ENABLE_DEBUG_RUN_PYTHON'):
     urlpatterns += (
         url(r'^debug/run_python', 'debug.views.run_python'),
     )
-
 # Crowdsourced hinting instructor manager.
 if settings.MITX_FEATURES.get('ENABLE_HINTER_INSTRUCTOR_VIEW'):
     urlpatterns += (
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/hint_manager$',
             'instructor.hint_manager.hint_manager', name="hint_manager"),
     )
-
 # enable automatic login
 if settings.MITX_FEATURES.get('AUTOMATIC_AUTH_FOR_TESTING'):
     urlpatterns += (
         url(r'^auto_auth$', 'student.views.auto_auth'),
     )
-
 urlpatterns = patterns(*urlpatterns)
-
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
 #Custom error pages
 handler404 = 'static_template_view.views.render_404'
 handler500 = 'static_template_view.views.render_500'

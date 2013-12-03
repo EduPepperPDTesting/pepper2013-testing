@@ -420,12 +420,12 @@ function (HTML5Video) {
             this.videoPlayer.player.setPlaybackRate(this.speed);
         }
 
-        if (
-            !onTouchBasedDevice() &&
-            $('.video:first').data('autoplay') === 'True'
-        ) {
-            this.videoPlayer.play();
-        }
+        //if (
+        //    !onTouchBasedDevice() &&
+        //    $('.video:first').data('autoplay') === 'True'
+        //) {
+        //    this.videoPlayer.play();
+        //}
     }
 
     function onStateChange(event) {

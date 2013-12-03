@@ -1,11 +1,65 @@
 <%! from django.utils.translation import ugettext as _ %>
-
 <%! from django.core.urlresolvers import reverse %>
 <%! from time import strftime %>
+
 <%inherit file="main.html" />
 <%namespace name='static' file='static_content.html'/>
+<!--@begin:Add new page style-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<style type="text/css" media="screen">
+  #btn-logged-user{display:none;}
+  #page-nav,#page-footer{width:960px;}
+  
+  /*@ mouser up */
+  a.btnxf:hover {
+  background:#6e8194;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  color:#fff;
+  }
+  
+  /*@ background */
+  a.btnxf {
+  background-color:#556370;
+  text-decoration: none;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 7px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: 0px 0px 0px 2px #fff;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  
+  a.btnxf:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+<!--@end-->
 
-<section class="home">
+<!--@begin:Show two horizontal pages on the top-->
+<!--@date:2013-11-02-->
+<div style="text-align:center;border-bottom:1px solid #ccc;">
+	<img src="static/images/ppd-index-mainlogo.png" style="maring:auto"/>
+</div>
+<div style="text-align:center; background:#fff;border-bottom:1px solid #666;">
+  <img src="static/images/ppd-index-maintitle.png" style="maring:auto"/>
+</div>
+<!--@end-->
+
+<!--@begin:Removed-->
+<!--@date:2013-11-02-->
+<section class="home" style="display:none">
   <header>
     <div class="outer-wrapper">
       <div class="title">
@@ -17,14 +71,12 @@
           % endif
           <h2>${_("For anyone, anywhere, anytime")}</h2>
         </hgroup>
-
         ## Disable social buttons for non-edX sites
         % if not self.theme_enabled():
           <section class="actions">
             <div class="main-cta">
               <a href="#signup-modal" id="signup_action" class="find-courses" rel="leanModal">${_("Sign Up")}</a>
             </div>
-
             <div class="secondary-actions">
               <div class="social-sharing">
                 <div class="sharing-message">${_("Stay up to date with all {platform_name} has to offer!").format(platform_name=settings.PLATFORM_NAME)}</div>
@@ -42,22 +94,18 @@
           </section>
         % endif
       </div>
-
         <a href="#video-modal" class="media" rel="leanModal">
           <div class="hero">
             <div class="play-intro"></div>
           </div>
         </a>
-
     </div>
   </header>
-
   <section class="container">
     <section class="highlighted-courses">
       ## Disable university partner logos and sites for non-edX sites
       % if not self.theme_enabled():
         <h2>${_('Explore free courses from {span_start}{platform_name}{span_end} universities').format(platform_name="edX", span_start='<span class="edx">', span_end='</span>')}</h2>
-
         <section class="university-partners university-partners2x6">
           <ol class="partners">
             <li class="partner mit">
@@ -109,9 +157,7 @@
               </a>
             </li>
           </ol>
-
           <hr />
-
           <ol class="partners">
             <li class="partner">
               <a href="#">
@@ -164,11 +210,10 @@
           </ol>
         </section>
       % endif
-
       <section class="courses">
           <ul class="courses-listing">
           %for course in courses:
-            <li class="courses-listing-item">
+            <li style="float:none" class="courses-listing-item">
               <%include file="course.html" args="course=course" />
             </li>
           %endfor
@@ -189,7 +234,6 @@
     <iframe width="640" height="360" src="//www.youtube.com/embed/${youtube_video_id}?showinfo=0" frameborder="0" allowfullscreen></iframe>
   </div>
 </section>
-
 <%block name="js_extra">
    <script type="text/javascript">
       $(window).load(function() {
@@ -199,7 +243,6 @@
       })
    </script>
 </%block>
-
 % if show_signup_immediately is not UNDEFINED:
   ## NOTE: This won't work in production, because anonymous views are cached, so it will
   ## show either with or without this extra js for 3 minutes at a time.
@@ -207,3 +250,103 @@
   $(window).load(function() {$('#signup_action').trigger("click");});
 </script>
 % endif
+<!--@end-->
+
+<!--@begin:Two illustrations-->
+<!--@date:2013-11-02-->
+<div id="blocks" style="text-align:center;background:#f7f7f7;padding:25px 0 25px 0;">
+	<div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;background:#fff;">
+		<!--@begin:add the video-->
+		<!--@date:2013-11-15-->
+		<div id="ppd_video_main" style=" width:480px; height:270px; z-index:99; position:fixed;margin:auto;left:0; right:0; top:0; bottom:0;display:none;">
+			<div id="ppd_video_close" style="width:20px;height:20px;position:absolute;left:460px;cursor:pointer;z-index:1;">
+				<img src="static/images/ppd-video-close01.png" width="20" height="20"/>
+			</div>
+			<video id="sampleMovie" autobuffer controls>
+				<source src="static/video/ppd-whatis-banner01.mp4"/>
+			</video>
+		</div>
+		<!--@end-->
+		
+		<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.png"/>
+		<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right01.png);">
+
+			<!--@begin:change font color-->
+			<!--@date:2013-11-02-->
+			<div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:26px;">PROFESSIONAL DEVELOPMENT COURSES</div>
+			<!--@end-->
+			
+			<!--@begin:add code(class="_body_content_font") to modify font style-->
+			<!--@date:2013-11-02-->
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
+				Explore our ever-expanding Mathematics and English Language Arts catalog of courses.  
+			</div>	
+
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
+				Find a PD course and let’s start building…together. 
+			</div>	
+			<!--@end-->
+			
+			<!--@begin:modify button position-->
+			<!--@date:2013-11-02-->
+			<div style="width:500px;padding-left:32px;padding-top:19px;">
+				<a href="/courses" class="btnxf" style="color:#fff;font-size:11px;text-decoration:none;">VIEW ALL COURSES</a>
+			</div>
+			<!--@end-->
+		</div>
+	</div>
+  
+	<div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;margin-top:25px;background:#fff;">
+		<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.png"/>
+		<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right02.png);">
+			
+			<!--@begin:change font color-->
+			<!--@date:2013-11-02-->
+			<div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:41px;">WHAT IS PEPPER?</div>
+			<!--@end-->
+			
+			<!--@begin:add code(class="_body_content_font") to modify font style-->
+			<!--@date:2013-11-02-->
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
+				Use the latest in peer-to-peer social learning tools and connect with motivated and passionate educators - just like you - from around the nation.
+			</div>
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
+				Work at your own pace to become a Common Core specialist.
+			</div>
+			<!--@end-->
+			
+
+			<!--@begin:modify button position,button content-->
+			<!--@date:2013-11-02-->
+			<div id="ppd_btn_video" style="width:500px;padding-left:32px;padding-top:19px;">
+				<a href="javascript:void(0)" class="btnxf" style="color:#fff;font-size:11px !important;text-decoration:none;">WATCH PEPPER VIDEO</a>
+			</div>
+			<!--@end-->
+		</div>
+	</div>
+</div>
+<!--@end-->
+
+<!--@begin:add jq/js code to control the video-->
+<!--@date:2013-11-15-->
+<script>
+jQuery(function($){
+	var id_ppd_video_main = document.getElementById('ppd_video_main');
+	var id_ppd_btn_video = document.getElementById('ppd_btn_video');
+	var id_ppd_video_close = document.getElementById('ppd_video_close');
+	
+	id_ppd_btn_video.onmousedown = function()
+	{
+		$("#ppd_video_main").fadeIn(600);
+		document.getElementById('sampleMovie').play();
+	}
+	
+	id_ppd_video_close.onmousedown = function()
+	{
+		$("#ppd_video_main").fadeOut(300);
+		document.getElementById('sampleMovie').pause();
+		document.getElementById('sampleMovie').currentTime = 0;
+	}
+});
+</script>
+<!--@end-->

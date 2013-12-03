@@ -70,7 +70,7 @@ nav.sequence-nav {
     border: 1px solid #ccc;
     height: 44px;
     margin: 0 30px;
-    @include linear-gradient(top, #ddd, #eee);
+    background:#fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, .1) inset;
   }
 
@@ -112,13 +112,15 @@ nav.sequence-nav {
         }
 
         &:hover {
-          background-color: #fff;
+          background-color: #ccc;
           background-repeat: no-repeat;
           background-position: center 14px;
         }
 
         &.active {
-          background-color: #fff;
+          @include linear-gradient(top, #ddd, #eee);
+                background-image:linear-gradient(rgb(221, 221, 221), rgb(238, 238, 238));
+
           z-index: 9;
 
           // &:after {
@@ -133,7 +135,7 @@ nav.sequence-nav {
           // }
 
           &:hover {
-            background-color: #fff;
+         @include linear-gradient(top, #ddd, #eee);
             background-repeat: no-repeat;
             background-position: center 14px;
           }
@@ -142,6 +144,7 @@ nav.sequence-nav {
         //video
         &.seq_video {
           &.inactive {
+
             background-image: url('../images/sequence-nav/video-icon-normal.png');
           }
 

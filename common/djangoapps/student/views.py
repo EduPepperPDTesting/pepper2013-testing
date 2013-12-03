@@ -32,6 +32,9 @@ from django.utils.http import base36_to_int
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 
+from courseware.model_data import FieldDataCache
+from courseware.masquerade import setup_masquerade
+
 from ratelimitbackend.exceptions import RateLimitException
 
 from mitxmako.shortcuts import render_to_response, render_to_string
@@ -64,6 +67,14 @@ import track.views
 
 from statsd import statsd
 from pytz import UTC
+
+#@begin:add change_photo_request
+#@date:2013-11-11
+from PIL import Image
+#@end
+
+from xblock.fields import Scope
+from courseware.grades import grade
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -100,9 +111,10 @@ def index(request, extra_context={}, user=None):
 
     courses = get_courses(None, domain=domain)
     courses = sort_by_announcement(courses)
-
-    context = {'courses': courses}
-
+#@begin:Hide Dashboard button when the current page is homepage
+#@date:2013-11-02        
+    context = {'courses': courses,'index':True}
+#@end
     context.update(extra_context)
     return render_to_response('index.html', context)
 
@@ -241,45 +253,135 @@ def signin_user(request):
 
 
 @ensure_csrf_cookie
-def register_user(request, extra_context=None):
+def register_user(request, activation_key):
     """
     This view will display the non-modal registration form
     """
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
 
+    regs=Registration.objects.filter(activation_key=activation_key)
+
+    if not regs:
+        return HttpResponse("Invalid activation key.")
+    else:
+        reg=regs[0]
+
+    profile=UserProfile.objects.get(user_id=reg.user_id)
+
+    if profile.subscription_status=='Registered':
+        return HttpResponse("User already registered.")
+
+    if not profile.cohort_id:
+       return HttpResponse("Invalid cohort.")
+        
     context = {
+        'profile': profile,
+        'activation_key': activation_key,
         'course_id': request.GET.get('course_id'),
         'enrollment_action': request.GET.get('enrollment_action')
     }
-    if extra_context is not None:
-        context.update(extra_context)
+    # if extra_context is not None:
+    #     context.update(extra_context)
 
     return render_to_response('register.html', context)
 
+#@begin:View of the newly added page
+#@date:2013-11-07
+# copy from lms/djangoapps/courseware/module_render.py
+def get_module_for_descriptor(user, request, descriptor, field_data_cache, course_id,
+                              position=None, wrap_xmodule_display=True, grade_bucket_type=None,
+                              static_asset_path=''):
+    """
+    Implements get_module, extracting out the request-specific functionality.
+
+    See get_module() docstring for further details.
+    """
+    # allow course staff to masquerade as student
+    if has_access(user, descriptor, 'staff', course_id):
+        setup_masquerade(request, True)
+
+    track_function = make_track_function(request)
+    xqueue_callback_url_prefix = get_xqueue_callback_url_prefix(request)
+
+    return get_module_for_descriptor_internal(user, descriptor, field_data_cache, course_id,
+                                              track_function, xqueue_callback_url_prefix,
+                                              position, wrap_xmodule_display, grade_bucket_type,
+                                              static_asset_path)
+
+#@end
+
+from django.db import models
+
+class StudentModule(models.Model):
+    """
+    Keeps student state for a particular module in a particular course.
+    """
+    class Meta:
+        db_table = 'courseware_studentmodule'
+        # unique_together = (('student', 'module_state_key', 'course_id'),)
+
+    module_type = models.CharField(max_length=32, default='problem', db_index=True)
+    module_state_key = models.CharField(max_length=255, db_index=True, db_column='module_id')
+    # student = models.ForeignKey(User, db_index=True)
+    student_id = models.IntegerField(default=0)
+    course_id = models.CharField(max_length=255, db_index=True)
+    state = models.TextField(null=True, blank=True)
+    grade = models.FloatField(null=True, blank=True, db_index=True)
+    max_grade = models.FloatField(null=True, blank=True)
+    done = models.CharField(max_length=8, default='na', db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+    modified = models.DateTimeField(auto_now=True, db_index=True)
+    module_id = models.CharField(max_length=255, db_index=True)
 
 @login_required
 @ensure_csrf_cookie
 def dashboard(request):
     user = request.user
-
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
-    courses = []
+    
+#@begin:Fetch out courses complated/incomplated seprately.
+#@date:2013-11-08    
+    courses_complated = []
+    courses_incomplated = []
+    courses=[]
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
-            courses.append(course_from_id(enrollment.course_id))
+#@begin:Show the enrollment date of each course in Dashboard
+#@date:2013-11-02
+            c=course_from_id(enrollment.course_id)
+            c.student_enrollment_date=enrollment.created
+            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, request.user, c, depth=1)
+            chapter_count=len(model_data_cache.descriptors)
+            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, request.user, c, depth=2)
+            count_history=0
+            c.is_completed=False
+            chapter_count=len(model_data_cache.descriptors)-chapter_count
+            for m in model_data_cache.descriptors:
+                if m.ispublic:
+                    chapter_count=chapter_count+1
+                if len(StudentModule.objects.filter(student_id=request.user.id,
+                                                    course_id=c.id,
+                                                    module_type='sequential',
+                                                    module_id=m.location)) > 0:
+                    count_history=count_history+1
+            courses.append(c)
+
+            grade_precent=grade(request.user,request,c)['percent']
+            if count_history==chapter_count and grade_precent >= 0.85:
+                courses_complated.append(c)
+            else:
+                courses_incomplated.append(c)
+#@end            
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
-
     course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
-
     message = ""
     if not user.is_active:
         message = render_to_string('registration/activate_account_notice.html', {'email': user.email})
-
     # Global staff can see what courses errored on their dashboard
     staff_access = False
     errored_courses = {}
@@ -290,9 +392,8 @@ def dashboard(request):
 
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(request.user, course, 'load'))
-
+    
     cert_statuses = {course.id: cert_info(request.user, course) for course in courses}
-
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
 
     # get info w.r.t ExternalAuthMap
@@ -301,20 +402,46 @@ def dashboard(request):
         external_auth_map = ExternalAuthMap.objects.get(user=user)
     except ExternalAuthMap.DoesNotExist:
         pass
-
-    context = {'courses': courses,
-               'course_optouts': course_optouts,
-               'message': message,
-               'external_auth_map': external_auth_map,
-               'staff_access': staff_access,
-               'errored_courses': errored_courses,
-               'show_courseware_links_for': show_courseware_links_for,
-               'cert_statuses': cert_statuses,
-               'exam_registrations': exam_registrations,
-               }
+    context = {
+        'courses_complated': courses_complated,
+        'courses_incomplated': courses_incomplated,
+        'course_optouts': course_optouts,
+        'message': message,
+        'external_auth_map': external_auth_map,
+        'staff_access': staff_access,
+        'errored_courses': errored_courses,
+        'show_courseware_links_for': show_courseware_links_for,
+        'cert_statuses': cert_statuses,
+        'exam_registrations': exam_registrations,
+        }
+#@end
+    #@begin:change photo by Dashboard
+    #@date:2013-11-24
+    if request.method == 'POST':
+        up = UserProfile.objects.get(user=request.user)  
+        img_name = up.photo
+        file_img = request.FILES['photo']
+        if file_img:
+            if not img_name:
+                time_int = int(time.time()*100)    
+                random_int1 = random.randint(10000,100000000)
+                random_int2 = random.randint(10000,100000000)
+                zf1 = '%d' %time_int
+                zf2 = '%d' %random_int1
+                zf3 = '%d' %random_int2
+                filename = file_img.name
+                zf4 = filename.split('.')[-1]
+                img_name = zf1 + zf2 + zf3 + '.' + zf4
+            img = Image.open(file_img)
+            img.thumbnail((110,110),Image.ANTIALIAS)
+            img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
+       
+        if not up.photo:
+            up.photo = img_name
+            up.save()
+    #@end 
 
     return render_to_response('dashboard.html', context)
-
 
 def try_change_enrollment(request):
     """
@@ -337,7 +464,6 @@ def try_change_enrollment(request):
             )
         except Exception, e:
             log.exception("Exception automatically enrolling after login: {0}".format(str(e)))
-
 
 def change_enrollment(request):
     """
@@ -496,7 +622,6 @@ def login_user(request, error=""):
     return HttpResponse(json.dumps({'success': False,
                                     'value': not_activated_msg}))
 
-
 @ensure_csrf_cookie
 def logout_user(request):
     """
@@ -517,7 +642,6 @@ def logout_user(request):
                            domain=settings.SESSION_COOKIE_DOMAIN)
     return response
 
-
 @login_required
 @ensure_csrf_cookie
 def change_setting(request):
@@ -530,7 +654,6 @@ def change_setting(request):
 
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
-
 
 def _do_create_account(post_vars):
     """
@@ -568,7 +691,18 @@ def _do_create_account(post_vars):
     registration.register(user)
 
     profile = UserProfile(user=user)
-    profile.name = post_vars['name']
+#@begin:Add new fields to save profile in registration page
+#@date:2013-11-02        
+    # profile.name = post_vars['name']
+    profile.first_name = post_vars['first_name']
+    profile.last_name = post_vars['last_name']
+
+    profile.major_subject_area_id = post_vars['major_subject_area_id']
+    profile.grade_level_id = post_vars['grade_level_id']
+    profile.district_id = post_vars['district_id']
+    profile.school_id = post_vars['school_id']
+    profile.years_in_education_id = post_vars['years_in_education_id']
+#@end    
     profile.level_of_education = post_vars.get('level_of_education')
     profile.gender = post_vars.get('gender')
     profile.mailing_address = post_vars.get('mailing_address')
@@ -585,7 +719,6 @@ def _do_create_account(post_vars):
     except Exception:
         log.exception("UserProfile creation failed for user {id}.".format(id=user.id))
     return (user, profile, registration)
-
 
 @ensure_csrf_cookie
 def create_account(request, post_override=None):
@@ -608,26 +741,34 @@ def create_account(request, post_override=None):
             email = eamap.external_email
         except ValidationError:
             email = post_vars.get('email', '')
+            
         if eamap.external_name.strip() == '':
-            name = post_vars.get('name', '')
+#@begin: Change user registration table field and show the name by combining first_name and last_name
+#@date:2013-11-02        
+            name = post_vars.get('first_name', '') + post_vars.get('last_name', '')
+#@end            
         else:
             name = eamap.external_name
+            
         password = eamap.internal_password
         post_vars = dict(post_vars.items())
         post_vars.update(dict(email=email, name=name, password=password))
         log.debug(u'In create_account with external_auth: user = %s, email=%s', name, email)
 
-    # Confirm we have a properly formed request
-    for a in ['username', 'email', 'password', 'name']:
+    # Confirm we have a properly formed request          
+    for a in ['username', 'email', 'password', 'first_name','last_name']:
         if a not in post_vars:
             js['value'] = _("Error (401 {field}). E-mail us.").format(field=a)
             js['field'] = a
             return HttpResponse(json.dumps(js))
-
-    if post_vars.get('honor_code', 'false') != u'true':
-        js['value'] = _("To enroll, you must follow the honor code.").format(field=a)
-        js['field'] = 'honor_code'
-        return HttpResponse(json.dumps(js))
+        
+#@begin:honor_code is not used in Pepper. Change the following confirmation to comments.
+#@date:2013-11-02   
+    # if post_vars.get('honor_code', 'false') != u'true':
+    #     js['value'] = _("To enroll, you must follow the honor code.").format(field=a)
+    #     js['field'] = 'honor_code'
+    #     return HttpResponse(json.dumps(js))
+#@end
 
     # Can't have terms of service for certain SHIB users, like at Stanford
     tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
@@ -645,23 +786,50 @@ def create_account(request, post_override=None):
     # TODO: Confirm e-mail is not from a generic domain (mailinator, etc.)? Not sure if
     # this is a good idea
     # TODO: Check password is sane
-
-    required_post_vars = ['username', 'email', 'name', 'password', 'terms_of_service', 'honor_code']
+#@begin:Check the availability of the following fields as we changed the user registration table fields
+#@date:2013-11-02   
+    required_post_vars = ['username', 'email', 'first_name','last_name', 'password', 'terms_of_service']     # 'honor_code'
+#@end
     if tos_not_required:
-        required_post_vars = ['username', 'email', 'name', 'password', 'honor_code']
-
+#@begin:honor_code is not used in Pepper. Change the following confirmation to comments.
+#@date:2013-11-02           
+        required_post_vars = ['username', 'email', 'first_name','last_name', 'password'] # 'honor_code'
+#@end
     for a in required_post_vars:
         if len(post_vars[a]) < 2:
             error_str = {'username': 'Username must be minimum of two characters long.',
                          'email': 'A properly formatted e-mail is required.',
-                         'name': 'Your legal name must be a minimum of two characters long.',
+#@begin:Check the availability of the following fields as we changed the user registration table fields
+#@date:2013-11-02                            
+                         'first_name': 'Your first name must be a minimum of two characters long.',
+                         'last_name': 'Your last name must be a minimum of two characters long.',
+#@end                         
                          'password': 'A valid password is required.',
                          'terms_of_service': 'Accepting Terms of Service is required.',
-                         'honor_code': 'Agreeing to the Honor Code is required.'}
+#@begin:honor_code is not used in the registration page
+#@date:2013-11-02                               
+                         'honor_code': 'Agreeing to the Honor Code is required.',
+                         }
+#@end            
             js['value'] = error_str[a]
             js['field'] = a
             return HttpResponse(json.dumps(js))
-
+#@begin:Check the availability of the following fields as we changed the user registration table fields
+#@date:2013-11-02  
+    required_post_vars_dropdown=['major_subject_area_id','grade_level_id','district_id', 'school_id','years_in_education_id']
+    for a in required_post_vars_dropdown:
+        if len(post_vars[a]) < 1:
+            error_str = {
+                         'major_subject_area_id':'Major Subject Area is required',
+                         'grade_level_id':'Grade Level-heck is required',
+                         'district_id':'District is required',
+                         'school_id':'School is required',
+                         'years_in_education_id':'Number of Years in Education is required'
+                         }
+            js['value'] = error_str[a] 
+            js['field'] = a
+            return HttpResponse(json.dumps(js))    
+#@end 
     try:
         validate_email(post_vars['email'])
     except ValidationError:
@@ -676,13 +844,19 @@ def create_account(request, post_override=None):
         js['field'] = 'username'
         return HttpResponse(json.dumps(js))
 
+    if post_vars.get('activation_key'):
+        return activate_imported_account(post_vars)
+
     # Ok, looks like everything is legit.  Create the account.
     ret = _do_create_account(post_vars)
     if isinstance(ret, HttpResponse):  # if there was an error then return that
         return ret
     (user, profile, registration) = ret
-
-    d = {'name': post_vars['name'],
+#@begin:As we change the user registration table fields, use first_name and last_name to send confirmation email
+#@date:2013-11-02
+    d = {'first_name': post_vars['first_name'],
+         'last_name': post_vars['last_name'],
+#@end          
          'key': registration.activation_key,
          }
 
@@ -761,7 +935,6 @@ def create_account(request, post_override=None):
                         httponly=None)
     return response
 
-
 def exam_registration_info(user, course):
     """ Returns a Registration object if the user is currently registered for a current
     exam of the course.  Returns None if the user is not registered, or if there is no
@@ -778,7 +951,6 @@ def exam_registration_info(user, course):
     else:
         registration = None
     return registration
-
 
 @login_required
 @ensure_csrf_cookie
@@ -822,7 +994,6 @@ def begin_exam_registration(request, course_id):
                }
 
     return render_to_response('test_center_register.html', context)
-
 
 @ensure_csrf_cookie
 def create_exam_registration(request, post_override=None):
@@ -927,7 +1098,6 @@ def create_exam_registration(request, post_override=None):
     js = {'success': True}
     return HttpResponse(json.dumps(js), mimetype="application/json")
 
-
 def auto_auth(request):
     """
     Automatically logs the user in with a generated random credentials
@@ -979,7 +1149,6 @@ def auto_auth(request):
     # return empty success
     return HttpResponse('')
 
-
 @ensure_csrf_cookie
 def activate_account(request, key):
     """When link in activation e-mail is clicked"""
@@ -1014,7 +1183,6 @@ def activate_account(request, key):
         )
     return HttpResponse(_("Unknown error. Please e-mail us to let us know how it happened."))
 
-
 @ensure_csrf_cookie
 def password_reset(request):
     """ Attempts to send a password reset e-mail. """
@@ -1032,7 +1200,6 @@ def password_reset(request):
     else:
         return HttpResponse(json.dumps({'success': False,
                                         'error': _('Invalid e-mail or user')}))
-
 
 def password_reset_confirm_wrapper(
     request,
@@ -1057,7 +1224,6 @@ def password_reset_confirm_wrapper(
         request, uidb36=uidb36, token=token, extra_context=extra_context
     )
 
-
 def reactivation_email_for_user(user):
     try:
         reg = Registration.objects.get(user=user)
@@ -1065,8 +1231,10 @@ def reactivation_email_for_user(user):
         return HttpResponse(json.dumps({'success': False,
                                         'error': _('No inactive user with this e-mail exists')}))
 
-    d = {'name': user.profile.name,
-         'key': reg.activation_key}
+    d = {'name': "%s %s" % (user.profile.first_name, user.profile.last_name),
+         'key': reg.activation_key,
+         'district':user.profile.cohort.district.name
+         }
 
     subject = render_to_string('emails/activation_email_subject.txt', d)
     subject = ''.join(subject.splitlines())
@@ -1080,7 +1248,6 @@ def reactivation_email_for_user(user):
 
     return HttpResponse(json.dumps({'success': True}))
 
-
 @ensure_csrf_cookie
 def change_email_request(request):
     """ AJAX call from the profile page. User wants a new e-mail.
@@ -1090,11 +1257,12 @@ def change_email_request(request):
         raise Http404
 
     user = request.user
-
-    if not user.check_password(request.POST['password']):
-        return HttpResponse(json.dumps({'success': False,
-                                        'error': _('Invalid password')}))
-
+#@begin:User doesnt need to confirm password when changing email address
+#@date:2013-11-02  
+    # if not user.check_password(request.POST['password']):
+    #     return HttpResponse(json.dumps({'success': False,
+    #                                     'error': _('Invalid password')}))
+#@end
     new_email = request.POST['new_email']
     try:
         validate_email(new_email)
@@ -1134,7 +1302,6 @@ def change_email_request(request):
     _res = send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [pec.new_email])
 
     return HttpResponse(json.dumps({'success': True}))
-
 
 @ensure_csrf_cookie
 @transaction.commit_manually
@@ -1195,7 +1362,6 @@ def confirm_email_change(request, key):
         transaction.rollback()
         raise
 
-
 @ensure_csrf_cookie
 def change_name_request(request):
     """ Log a request for a new name. """
@@ -1207,10 +1373,21 @@ def change_name_request(request):
     except PendingNameChange.DoesNotExist:
         pnc = PendingNameChange()
     pnc.user = request.user
-    pnc.new_name = request.POST['new_name']
+#@begin:Add new field and change the code
+#@date:2013-11-02        
+    pnc.new_first_name = request.POST['new_first_name']
+    pnc.new_last_name = request.POST['new_last_name']
+#@end
     pnc.rationale = request.POST['rationale']
-    if len(pnc.new_name) < 2:
-        return HttpResponse(json.dumps({'success': False, 'error': _('Name required')}))
+#@begin:Add new field and change the code
+#@date:2013-11-02      
+    if len(pnc.new_first_name) < 2:
+        return HttpResponse(json.dumps({'success': False, 'error': _('First Name required')}))
+    if len(pnc.new_last_name) < 2:
+        return HttpResponse(json.dumps({'success': False, 'error': _('Last Name required')}))
+
+    pnc.new_name = "%s %s" % (request.POST['new_first_name'], request.POST['new_last_name'])
+#@end
     pnc.save()
 
     # The following automatically accepts name change requests. Remove this to
@@ -1218,7 +1395,6 @@ def change_name_request(request):
     accept_name_change_by_id(pnc.id)
 
     return HttpResponse(json.dumps({'success': True}))
-
 
 @ensure_csrf_cookie
 def pending_name_changes(request):
@@ -1235,7 +1411,6 @@ def pending_name_changes(request):
                         'cid': c.id} for c in changes]}
     return render_to_response('name_changes.html', js)
 
-
 @ensure_csrf_cookie
 def reject_name_change(request):
     """ JSON: Name change process. Course staff clicks 'reject' on a given name change """
@@ -1249,7 +1424,6 @@ def reject_name_change(request):
 
     pnc.delete()
     return HttpResponse(json.dumps({'success': True}))
-
 
 def accept_name_change_by_id(id):
     try:
@@ -1268,11 +1442,15 @@ def accept_name_change_by_id(id):
     up.set_meta(meta)
 
     up.name = pnc.new_name
+#@begin:Add new field and change the code
+#@date:2013-11-02          
+    up.first_name = pnc.new_first_name
+    up.last_name = pnc.new_last_name
+#@end
     up.save()
     pnc.delete()
 
     return HttpResponse(json.dumps({'success': True}))
-
 
 @ensure_csrf_cookie
 def accept_name_change(request):
@@ -1286,7 +1464,6 @@ def accept_name_change(request):
         raise Http404
 
     return accept_name_change_by_id(int(request.POST['id']))
-
 
 @require_POST
 @login_required
@@ -1309,3 +1486,92 @@ def change_email_settings(request):
         track.views.server_track(request, "change-email-settings", {"receive_emails": "no", "course": course_id}, page='dashboard')
 
     return HttpResponse(json.dumps({'success': True}))
+#@begin:Add more editable fields in the Dashboard
+#@date:2013-11-02        
+def download_certificate(request):
+    return render_to_response("download_certificate.html", {})
+
+def latest_news(request):
+    return render_to_response("latest_news.html", {})
+
+def change_school_request(request):
+    up = UserProfile.objects.get(user=request.user)  
+    if 'school_id' in request.POST:
+        up.school_id = request.POST['school_id']
+    up.save()
+
+    return HttpResponse(json.dumps({'success': True, 'school_id':up.school_id,
+                                    'location': up.location}))
+
+def change_grade_level_request(request):
+    up = UserProfile.objects.get(user=request.user) 
+    if 'grade_level_id' in request.POST:
+        up.grade_level_id = request.POST['grade_level_id']
+    up.save()
+
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location}))
+
+def change_major_subject_area_request(request):
+    up = UserProfile.objects.get(user=request.user) 
+    if 'major_subject_area_id' in request.POST:
+        up.major_subject_area_id = request.POST['major_subject_area_id']
+    up.save()
+
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location}))
+
+def change_years_in_education_request(request):
+    up = UserProfile.objects.get(user=request.user) 
+    if 'years_in_education_id' in request.POST:
+        up.years_in_education_id = request.POST['years_in_education_id']
+    up.save()
+
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location}))
+
+def change_bio_request(request):
+    up = UserProfile.objects.get(user=request.user)
+    if 'bio' in request.POST:
+        up.bio = request.POST['bio']
+    up.save()
+
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location, }))
+#@end
+
+
+def activate_imported_account(post_vars):
+    ret={'success': True}
+    try:
+        user_id=Registration.objects.get(activation_key=post_vars.get('activation_key','')).user_id
+        profile=UserProfile.objects.get(user_id=user_id)
+        profile.subscription_status='Registered'
+        profile.first_name=post_vars.get('first_name','')
+        profile.last_name=post_vars.get('last_name','')
+        profile.school_id=post_vars.get('school_id','')
+        profile.grade_level_id=post_vars.get('grade_level_id','')
+        profile.major_subject_area_id=post_vars.get('major_subject_area_id','')
+        profile.years_in_education_id=post_vars.get('years_in_education_id','')
+        profile.activate_date=datetime.datetime.now(UTC)
+        profile.save()
+
+        d={"first_name":profile.first_name,"last_name":profile.last_name,"district":profile.cohort.district.name}
+
+        # composes activation email
+        subject = render_to_string('emails/welcome_subject.txt', d)
+        # Email subject *must not* contain newlines
+        subject = ''.join(subject.splitlines())
+        message = render_to_string('emails/welcome_body.txt', d)
+
+        profile.user.is_active=True
+        profile.user.username=post_vars.get('username','')
+        profile.user.set_password(post_vars.get('password',''))
+        profile.user.save()
+
+        profile.user.email_user(subject, message, "djangoedx@gmail.com") # settings.default_from_email
+
+    except Exception as e:
+        transaction.rollback()
+        ret={'success':False,error:"%s" % e}
+    return HttpResponse(json.dumps(ret))

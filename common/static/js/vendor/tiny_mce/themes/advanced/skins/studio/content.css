@@ -14,6 +14,7 @@ span.mceItemNbsp {background: #DDD}
 td.mceSelected, th.mceSelected {background-color:#3399ff !important}
 img {border:0;}
 table, img, hr, .mceItemAnchor {cursor:default}
+hr{border-top:1px solid #757070}
 table td, table th {cursor:text}
 ins {border-bottom:1px solid green; text-decoration: none; color:green}
 del {color:red; text-decoration:line-through}

@@ -17,7 +17,9 @@ from logsettings import get_logger_config
 
 DEBUG = True
 TEMPLATE_DEBUG = True
-
+import os,sys
+sys.path.append("..") # => /home/tahoe/edx_all
+from siteconf import *
 
 MITX_FEATURES['DISABLE_START_DATES'] = True
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = True
@@ -43,10 +45,22 @@ LOGGING = get_logger_config(ENV_ROOT / "log",
                             dev_env=True,
                             debug=True)
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ENV_ROOT / "db" / "mitx.db",
+    }
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pepper',
+        'USER': 'pepper',
+        'PASSWORD': 'lebbeb',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 
@@ -81,10 +95,10 @@ CACHES = {
 
 
 XQUEUE_INTERFACE = {
-    "url": "https://sandbox-xqueue.edx.org",
+    "url": "http://127.0.0.1:3032",
     "django_auth": {
         "username": "lms",
-        "password": "***REMOVED***"
+        "password": "abcd"
     },
     "basic_auth": ('anant', 'agarwal'),
 }
@@ -281,3 +295,28 @@ try:
     from .private import *      # pylint: disable=F0401
 except ImportError:
     pass
+
+
+# email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'djangoedx@gmail.com'
+EMAIL_HOST_PASSWORD = 'django123'
+EMAIL_USE_TLS = True
+
+# for user profile records & register form dropdowns
+PEPPERPD_PROFILE_DISTRICTS= [{"name":"ABC Unified SD","school":['school20','school21','school22','school23']}
+                            ,{"name":"123 Elementary SD","school":['school30','school31','school32','school33']}
+                            ,{"name":"Sample County Office of Education","school":['school40','school41','school42','school43']}
+                            ,{"name":"State Department of Education","school":['school50','school51','school52','school53']}
+                            ]
+
+PEPPERPD_MAJOR_SUBJECT_AREA=["Multiple Subjects", "Mathematics", "ELA/Literacy","Science","History/Social Studies", "Other"]
+PEPPERPD_GRADE_LEVEL=["k","1","2","3","4","5","6","7","8","9","10","11","12"]
+PEPPERPD_YEARS_IN_EDUCATION=["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25+"]
+
+AWS_ACCESS_KEY_ID = AUTH_TOKENS_PEPPER["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]
+AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
+

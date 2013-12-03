@@ -13,7 +13,7 @@
         </div>
         % if course is UNDEFINED or has_permission(user, 'create_comment', course.id):
         <form class="discussion-reply-new" data-id="${'<%- id %>'}">
-            <h4>${_("Post a response:")}</h4>
+            <h4>${_("Start a new discussion:")}</h4>
             <ul class="discussion-errors"></ul>
             <div class="reply-body" data-id="${'<%- id %>'}"></div>
             <div class="reply-post-control">
@@ -66,7 +66,7 @@
       
       ${'<% if (obj.courseware_url) { %>'}
       <div class="post-context">
-          (this post is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'}</a>)
+          <!--(this post is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'}</a>)-->
       </div>
       ${'<% } %>'}
 

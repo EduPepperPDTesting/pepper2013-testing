@@ -16,7 +16,8 @@ if Backbone?
         @page = parseInt(match[1])
       else
         @page = 1
-
+      @showed=false
+      @toggleDiscussion(null)
     toggleNewPost: (event) ->
       event.preventDefault()
       if !@newPostForm
@@ -28,7 +29,7 @@ if Backbone?
       else
         @newPostForm.show()
       @toggleDiscussionBtn.addClass('shown')
-      @toggleDiscussionBtn.find('.button-text').html("Hide Discussion")
+      @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
       @$("section.discussion").slideDown()
       @showed = true
 
@@ -38,13 +39,13 @@ if Backbone?
 
     toggleDiscussion: (event) ->
       if @showed
-        @$("section.discussion").slideUp()
+        #@$("section.discussion").slideUp()
         @toggleDiscussionBtn.removeClass('shown')
-        @toggleDiscussionBtn.find('.button-text').html("Show Discussion")
+        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
         @showed = false
       else
         @toggleDiscussionBtn.addClass('shown')
-        @toggleDiscussionBtn.find('.button-text').html("Hide Discussion")
+        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
 
         if @retrieved
           @$("section.discussion").slideDown()
@@ -52,7 +53,7 @@ if Backbone?
         else
           $elem = @toggleDiscussionBtn
           @loadPage $elem
-
+      #@setVisibility()
     loadPage: ($elem)=>
       discussionId = @$el.data("discussion-id")
       url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
@@ -63,6 +64,16 @@ if Backbone?
         type: "GET"
         dataType: 'json'
         success: (response, textStatus, jqXHR) => @renderDiscussion($elem, response, textStatus, discussionId)
+
+    setVisibility: ($elem)=>
+      discussionId = @$el.data("discussion-id")
+      url = DiscussionUtil.urlFor('set_visibility', discussionId,@showed)
+      DiscussionUtil.safeAjax
+        $elem: $elem
+        $loading: $elem
+        url: url
+        type: "POST"
+        success: (response) =>
 
     renderDiscussion: ($elem, response, textStatus, discussionId) =>
       window.user = new DiscussionUser(response.user_info)

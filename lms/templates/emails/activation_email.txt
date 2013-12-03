@@ -1,24 +1,15 @@
-<%namespace file="../main.html" import="stanford_theme_enabled" />
+Dear Educator,
+The ${district} invites you to join Pepper, the online network of Common Core Specialists. Please click the link below to activate your account:
+http://${site}/register/${key}
 
-Thank you for signing up for ${settings.PLATFORM_NAME}! To activate
-your account, please copy and paste this address into your web
-browser's address bar:
+When you click on the link, you will be asked to provide basic account information including your name and primary school location. Once activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate.
+Congratulations on being selected to join the network, please feel free to contact us with any questions or concerns at PepperSupport@pcgus.com or 1-800-PEPPER.
+(PCG/PEPPER footer)
 
-% if is_secure:
-  https://${ site }/activate/${ key }
-% else:
-  http://${ site }/activate/${ key }
-% endif
 
-## Temporary hack until we develop a better way to adjust language
-% if stanford_theme_enabled():
-  If you didn't request this, you don't need to do anything; you won't
-  receive any more email from us. Please do not reply to this e-mail;
-  if you require assistance, check the about section of the
-  ${settings.PLATFORM_NAME} Courses web site.
-% else:
-  If you didn't request this, you don't need to do anything; you won't
-  receive any more email from us. Please do not reply to this e-mail;
-  if you require assistance, check the help section of the
-  ${settings.PLATFORM_NAME} web site.
-% endif
+
+
+
+
+
+

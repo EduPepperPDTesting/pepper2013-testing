@@ -5,6 +5,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
 
+#@begin:View certificate page use
+#@date:2013-11-28
+from django.shortcuts import redirect
+from django_future.csrf import ensure_csrf_cookie
+from mitxmako.shortcuts import render_to_response
+from mitxmako.shortcuts import marketing_link
+from util.cache import cache_if_anonymous
+#@end
+
 logger = logging.getLogger(__name__)
 
 
@@ -75,3 +84,16 @@ def update_certificate(request):
         cert.save()
         return HttpResponse(json.dumps({'return_code': 0}),
                              mimetype='application/json')
+
+#@begin:View certificate page
+#@date:2013-11-28
+@ensure_csrf_cookie
+@cache_if_anonymous
+def download_certificate(request):
+     return render_to_response('d_certificate.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def download_certificate_demo(request):
+     return render_to_response('d_certificate_demo.html', {})
+#@end

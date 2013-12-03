@@ -46,108 +46,24 @@ DEFAULT_DATA = textwrap.dedent("""\
     </prompt>
     <rubric>
         <rubric>
-            <category>
-                <description>
-                Ideas
-                </description>
-                <option>
-                Difficult for the reader to discern the main idea.  Too brief or too repetitive to establish or maintain a focus.
-                </option>
-                <option>
-                Attempts a main idea.  Sometimes loses focus or ineffectively displays focus.
-                </option>
-                <option>
-                Presents a unifying theme or main idea, but may include minor tangents.  Stays somewhat focused on topic and task.
-                </option>
-                <option>
-                Presents a unifying theme or main idea without going off on tangents.  Stays completely focused on topic and task.
-                </option>
-            </category>
-            <category>
-                <description>
-                Content
-                </description>
-                <option>
-                Includes little information with few or no details or unrelated details.  Unsuccessful in attempts to explore any facets of the topic.
-                </option>
-                <option>
-                Includes little information and few or no details.  Explores only one or two facets of the topic.
-                </option>
-                <option>
-                Includes sufficient information and supporting details. (Details may not be fully developed; ideas may be listed.)  Explores some facets of the topic.
-                </option>
-                <option>
-                Includes in-depth information and exceptional supporting details that are fully developed.  Explores all facets of the topic.
-                </option>
-            </category>
-            <category>
-            <description>
-                Organization
-                </description>
-                <option>
-                Ideas organized illogically, transitions weak, and response difficult to follow.
-                </option>
-                <option>
-                Attempts to logically organize ideas.  Attempts to progress in an order that enhances meaning, and demonstrates use of transitions.
-                </option>
-                <option>
-                Ideas organized logically.  Progresses in an order that enhances meaning.  Includes smooth transitions.
-                </option>
-            </category>
-            <category>
-                <description>
-                Style
-                </description>
-                <option>
-                Contains limited vocabulary, with many words used incorrectly.  Demonstrates problems with sentence patterns.
-                </option>
-                <option>
-                Contains basic vocabulary, with words that are predictable and common.  Contains mostly simple sentences (although there may be an attempt at more varied sentence patterns).
-                </option>
-                <option>
-                Includes vocabulary to make explanations detailed and precise.  Includes varied sentence patterns, including complex sentences.
-                </option>
-            </category>
-            <category>
-                <description>
-                Voice
-                </description>
-                <option>
-                Demonstrates language and tone that may be inappropriate to task and reader.
-                </option>
-                <option>
-                Demonstrates an attempt to adjust language and tone to task and reader.
-                </option>
-                <option>
-                Demonstrates effective adjustment of language and tone to task and reader.
-                </option>
+        <category>
+        <description>
+        Have you completed this task?
+        </description>
+        <option>
+        No
+        </option>
+        <option>
+        Yes
+        </option>
 
-            </category>
+        </category>
         </rubric>
     </rubric>
 
     <task>
     <selfassessment/></task>
-    <task>
-
-        <openended min_score_to_attempt="4" max_score_to_attempt="12" >
-            <openendedparam>
-                <initial_display>Enter essay here.</initial_display>
-                <answer_display>This is the answer.</answer_display>
-                <grader_payload>{"grader_settings" : "ml_grading.conf", "problem_id" : "6.002x/Welcome/OETest"}</grader_payload>
-            </openendedparam>
-        </openended>
-    </task>
-    <task>
-
-        <openended min_score_to_attempt="9" max_score_to_attempt="12" >
-            <openendedparam>
-                <initial_display>Enter essay here.</initial_display>
-                <answer_display>This is the answer.</answer_display>
-                <grader_payload>{"grader_settings" : "peer_grading.conf", "problem_id" : "6.002x/Welcome/OETest"}</grader_payload>
-            </openendedparam>
-        </openended>
-    </task>
+    
 
 </combinedopenended>
 """)
@@ -202,7 +118,7 @@ class CombinedOpenEndedFields(object):
     graded = Boolean(
         display_name="Graded",
         help='Defines whether the student gets credit for grading this problem.',
-        default=False,
+        default=True,
         scope=Scope.settings
     )
     student_attempts = Integer(
@@ -218,9 +134,9 @@ class CombinedOpenEndedFields(object):
     max_attempts = Integer(
         display_name="Maximum Attempts",
         help="The number of times the student can try to answer this problem.",
-        default=1,
+        default=99999,
         scope=Scope.settings,
-        values={"min": 1 }
+        values={"min": 9999 }
     )
     accept_file_upload = Boolean(
         display_name="Allow File Uploads",
@@ -294,31 +210,12 @@ class CombinedOpenEndedFields(object):
                         </p>
                     [prompt]
                     [rubric]
-                    + Ideas
-                    - Difficult for the reader to discern the main idea.  Too brief or too repetitive to establish or maintain a focus.
-                    - Attempts a main idea.  Sometimes loses focus or ineffectively displays focus.
-                    - Presents a unifying theme or main idea, but may include minor tangents.  Stays somewhat focused on topic and task.
-                    - Presents a unifying theme or main idea without going off on tangents.  Stays completely focused on topic and task.
-                    + Content
-                    - Includes little information with few or no details or unrelated details.  Unsuccessful in attempts to explore any facets of the topic.
-                    - Includes little information and few or no details.  Explores only one or two facets of the topic.
-                    - Includes sufficient information and supporting details. (Details may not be fully developed; ideas may be listed.)  Explores some facets of the topic.
-                    - Includes in-depth information and exceptional supporting details that are fully developed.  Explores all facets of the topic.
-                    + Organization
-                    - Ideas organized illogically, transitions weak, and response difficult to follow.
-                    - Attempts to logically organize ideas.  Attempts to progress in an order that enhances meaning, and demonstrates use of transitions.
-                    - Ideas organized logically.  Progresses in an order that enhances meaning.  Includes smooth transitions.
-                    + Style
-                    - Contains limited vocabulary, with many words used incorrectly.  Demonstrates problems with sentence patterns.
-                    - Contains basic vocabulary, with words that are predictable and common.  Contains mostly simple sentences (although there may be an attempt at more varied sentence patterns).
-                    - Includes vocabulary to make explanations detailed and precise.  Includes varied sentence patterns, including complex sentences.
-                    + Voice
-                    - Demonstrates language and tone that may be inappropriate to task and reader.
-                    - Demonstrates an attempt to adjust language and tone to task and reader.
-                    - Demonstrates effective adjustment of language and tone to task and reader.
+                    + Have you completed this task?
+                    - No
+                    - Yes
                     [rubric]
                     [tasks]
-                    (Self), ({4-12}AI), ({9-12}Peer)
+                    (Self)
                     [tasks]
 
         """),

@@ -64,8 +64,31 @@ DATABASES = {
     }
 }
 
-LMS_BASE = "localhost:8000"
-MITX_FEATURES['PREVIEW_LMS_BASE'] = "localhost:8000"
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pepper',
+        'USER': 'pepper',
+        'PASSWORD': 'lebbeb',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'pepper',
+#         'USER': 'pepper',
+#         'PASSWORD': 'lebbeb',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
+
+LMS_BASE = "www1.pepperpd.com"
+MITX_FEATURES['PREVIEW_LMS_BASE'] = "www1.pepperpd.com:8444"
 
 REPOS = {
     'edx4edx': {
@@ -158,6 +181,7 @@ DEBUG_TOOLBAR_PANELS = (
     #  'debug_toolbar.panels.profiling.ProfilingDebugPanel',
 )
 
+
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False
 }
@@ -188,3 +212,15 @@ try:
     from .private import *      # pylint: disable=F0401
 except ImportError:
     pass
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'djangoedx@gmail.com'
+EMAIL_HOST_PASSWORD = 'django123'
+EMAIL_USE_TLS = True
+
+
+import os,sys
+sys.path.append("..") # => /home/tahoe/edx_all
+from siteconf import *

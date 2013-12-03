@@ -7,15 +7,94 @@
   from certificates.models import CertificateStatuses
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
 %>
+
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+  #image_uploading{display:none;}
+</style>
+<!--@end-->
+
 <%inherit file="main.html" />
-
 <%namespace name='static' file='static_content.html'/>
-
 <%block name="title"><title>${_("Dashboard")}</title></%block>
+<!--@begin:Add new page style-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #submit:hover,#submit_email_change:hover {
+  background:#6e8194;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  color:#fff;
+  }
+  
+  #submit,#submit_email_change {
+  border-width:0;
+  background:#556370;
+  text-decoration: none;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 7px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: #949494 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  
+  #submit:normal,,#submit_email_change:normal {
+  background:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+<!--@end-->
 
 <%block name="js_extra">
   <script type="text/javascript">
+/*@begin:Click the round button in grade_level table*/
+/*@date:2013-11-02*/
+     function click_grade_btn(i){
+            var vals={}
+            $.each($("#grade_level_id").val().split(","),function(i,v){
+            if(v)vals[v]=1
+            })
+            var link=document.getElementById("grade_btn"+i)
+            if($(link).hasClass("btn_class_active")){
+            $(link).removeClass("btn_class_active");
+            vals[i]=''
+            }else{
+            $(link).addClass("btn_class_active");
+            vals[i]=1
+            }
+            var arVals=[]
+            $.each(vals,function(i,v){
+            if(v)arVals.push(i)
+            })
+            arVals.sort(function(a,b){return parseInt(a)>parseInt(b)})
+            $("#grade_level_id").val(arVals.join());
+            }
+/*@end*/
+
   (function() {
 
     $(".email-settings").click(function(event) {
@@ -54,10 +133,15 @@
 
     $("#change_email_form").submit(function(){
       var new_email = $('#new_email_field').val();
-      var new_password = $('#new_email_password').val();
+/*@begin:Do not need to confirm passowrd when changing email*/
+/*@date:2013-11-02*/
+
+      //var new_password = $('#new_email_password').val();
 
       $.post('${reverse("change_email")}',
-               {"new_email" : new_email, "password" : new_password},
+               {"new_email" : new_email, "password" : ""},
+/*@end*/
+
                function(data) {
                  if (data.success) {
                    $("#change_email_title").html("Please verify your new email");
@@ -73,11 +157,17 @@
     });
 
     $("#change_name_form").submit(function(){
-      var new_name = $('#new_name_field').val();
+/*@begin:Change the name to two fileds*/
+/*@date:2013-11-02*/
+
+      var new_first_name = $('#new_first_name_field').val();
+      var new_last_name = $('#new_last_name_field').val();
       var rationale = $('#name_rationale_field').val();
 
       $.post('${reverse("change_name")}',
-             {"new_name":new_name, "rationale":rationale},
+             {"new_first_name":new_first_name, "new_last_name":new_last_name,"rationale":rationale},
+/*@end*/
+
              function(data) {
                if(data.success) {
                  location.reload();
@@ -88,6 +178,104 @@
              });
        return false;
     });
+
+<!--@begin:Process the newly added fields in dashboard-->
+<!--@date:2013-11-02-->
+
+     $("#change_school_form").find("select[name='school_id']").val('${user.profile.school_id}')
+
+     
+    $("#change_school_form").submit(function(){
+      var school_id = $(this.school_id).val();
+
+     
+      $.post('${reverse("change_school")}',
+             {"school_id":school_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_school_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+     $.each( '${user.profile.grade_level_id}'.split(',') ,function(i,v){
+     if($.trim(v))
+     click_grade_btn(v)
+     })
+     
+   $("#change_grade_level_form").submit(function(){
+      var grade_level_id = $(this.grade_level_id).val();
+
+      $.post('${reverse("change_grade_level")}',
+             {"grade_level_id":grade_level_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_grade_level_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+
+
+     
+
+   $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${user.profile.major_subject_area_id}')
+
+   $("#change_major_subject_area_form").submit(function(){
+      var major_subject_area_id = $(this.major_subject_area_id).val();
+      $.post('${reverse("change_major_subject_area")}',
+             {"major_subject_area_id":major_subject_area_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_major_subject_area_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+
+
+
+
+     $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${user.profile.years_in_education_id}')
+
+   $("#change_years_in_education_form").submit(function(){
+      var years_in_education_id = $(this.years_in_education_id).val();
+      $.post('${reverse("change_years_in_education")}',
+             {"years_in_education_id":years_in_education_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_years_in_education_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+
+
+     
+
+     $("#change_bio_form").find("textarea[name='bio']").val('${user.profile.bio}')
+  $("#change_bio_form").submit(function(){
+      var bio = $(this.bio).val();
+      $.post('${reverse("change_bio")}',
+             {"bio":bio},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_bio_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+<!--@end-->
 
     $("#email_settings_form").submit(function(){
       $.ajax({
@@ -108,17 +296,59 @@
       return false;
     });
   })(this)
+
+  $("#change_photo_form").submit(function(){
+   
+    var AllowImgFileSize=512;
+    var AllowImgWidth=1024;
+    var AllowImgHeight=768; 
+    var fileImg = document.getElementById("id_photo"); 
+    
+    <!--check file choose-->
+    if (fileImg.value=="")
+    {
+      $("#change_photo_error").html("Update your avatar by uploading an image from your compute.").stop().css("display", "block");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+
+    <!--check file type-->
+    var fileImg_url=fileImg.value.toLowerCase();
+    var fileImg_ext=fileImg_url.substring(fileImg_url.length-3,fileImg_url.length);
+    if (fileImg_ext!="jpg" && fileImg_ext!="peg" && fileImg_ext!="png")
+    {
+      $("#change_photo_error").html("We accept image only in JPG or PNG.").stop().css("display", "block");
+      //fileImg.select()
+      //document.execCommand("Delete");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+
+    <!--check file size(less than 2m)-->
+    var file_size =  fileImg.files[0].size;
+
+    if (file_size>2048*1024)
+    {
+      $("#change_photo_error").html("The file size CANNOT exceed 2MB (2048 KB).").stop().css("display", "block");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+
+    $('#image_uploading').show(); 
+    $('#change_photo_form').submit(); 
+    });
   </script>
 </%block>
 
 <section class="container dashboard">
-
   %if message:
     <section class="dashboard-banner">
       ${message}
     </section>
   %endif
-
   <section class="profile-sidebar">
     <header class="profile">
       <h1 class="user-name">${ user.username }</h1>
@@ -126,8 +356,31 @@
     <section class="user-info">
       <ul>
         <li>
-          <span class="title"><div class="icon name-icon"></div>${_("Full Name")} (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)</span> <span class="data">${ user.profile.name | h }</span>
+<!--@begin:Profile：username-->
+<!--@date:2013-11-02-->
+          <span class="title">
+            <div class="icon name-icon"></div>${_("Name")}:
+            <span class="data" style="display:inline;margin-left:0;font-weight:normal;">${ user.profile.first_name | h } ${ user.profile.last_name | h }</span>
+            (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
+<!--@end-->          
+            
         </li>
+<!--@begin:Profile：user photo-->
+<!--@date:2013-11-02-->
+        <li>
+          <span class="title"><div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;">
+            </div>${_("User Photo")}
+            (<a href="#change_photo" rel="leanModal" class="edit-photo">${_("edit")}</a>)
+          </span> 
+          <div style="text-align:center;margin-top:5px;">
+                % if user.profile.photo:
+                  <img src="/static/uploads/photos/${ user.profile.photo }" style="" alt="photo" />
+                % else:
+                  <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
+                % endif
+          </div>
+        </li>
+<!--@end-->          
         <li>
           <span class="title"><div class="icon email-icon"></div>${_("Email")}
             % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
@@ -146,39 +399,246 @@
         </li>
         % endif
 
+<!--@begin:Profile: remove some not needed info-->
+<!--@date:2013-11-02-->        
+      <!-----------------------------------------------------------------------------------
+		<li>
+		  <span style="float:left;padding-left:0px;"><img src="${static.url('images/edx-user-photo.png')}" class="" alt="" /></span><span style="float:right;padding-right:0px;">Change picture (<a href="#apply_picture_change" rel="leanModal" class="">edit</a>)</span>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">Country: US</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">City,State: Aptos, Ca</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">Role tole in school: Teacher</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">Optional info</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		  <div style="padding-left:20px;">
+			Web site: www.rioschool.edu<br/>
+			IM: Mathgeek<br/>
+			Institution: PVUSD<br/>
+			Department:staff<br/>
+			Phone:None<br/>
+			Address:Here<br/>
+		  </div>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">Professional History</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		  <div style="padding-left:20px;">
+			School Name: Rio Elementary<br/>
+			Role in School: Teacher<br/>
+			Grade Level: 5/6<br/>
+			Ave.Class Size: 35<br/>
+		  </div>
+		</li>
+		<li>
+		  <span style="float:left;padding-left:0px;">Class Profile</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
+		  <br style="clear:both;"/>
+		  <div style="border:3px solid #aaa;height:80px;padding:10px;">
+			My class is divers and challenged..
+		  </div>
+		</li>
+
+        -->
+<!--@end-->
+
+<!--@begin:Add some profile info-->
+<!--@date:2013-11-02-->  
+		<li>
+
+		  <div style="font-family: 'Open Sans';font-size:12px;">
+			<div style="line-height:30px;">State:
+	          Alabama
+			</div>
+            
+			<div style="line-height:30px;">District:
+			  % if user.profile.cohort_id:
+			  ${user.profile.cohort.district.name}
+			  % endif
+			</div>
+
+			<div style="line-height:30px;">School:
+			  % if user.profile.school_id:
+			  ${user.profile.school.name}
+			  % endif
+			  (<a href="#change_school" rel="leanModal">edit</a>)
+			</div>
+
+			<div style="line-height:30px;">Grade Level:
+
+              <% gn=list() %>
+			  % if user.profile.grade_level_id:
+			  % for i,c in enumerate(user.profile.grade_level_id.split(',')):
+			  % if len(c)>0:
+			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
+			  % endif
+			  % endfor
+			  % endif
+              ${", ".join(gn)}
+
+			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
+			</div>
+			<div style="line-height:30px;">Major Subject Area:
+			  % if user.profile.major_subject_area_id:
+			  ${SubjectArea.objects.get(id=user.profile.major_subject_area_id).name}
+			  % endif
+			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
+			</div>
+			<div style="line-height:30px;">Number of Years Taught:
+			  % if user.profile.years_in_education_id:
+			  ${YearsInEducation.objects.get(id=user.profile.years_in_education_id).name}
+			  % endif
+              (<a href="#change_years_in_education" rel="leanModal">edit</a>)
+			</div>
+		</li>
+
+        <li>
+          <div style="font-family: 'Open Sans';font-size:12px;">
+            Bio: (<a href="#change_bio" rel="leanModal">edit</a>)
+            <span id="">
+
+              %if user.profile.bio:
+              ${user.profile.bio}
+              %else:
+              Add info that you would like to share about yourself here:
+              
+              %endif
+            </span>
+          </div>
+        </li>
+<!--@end-->        
+        
       </ul>
+<!--@begin: Remove some profile info-->
+<!--@date:2013-11-02-->  
+         <!-- <div style="width:180px">  <span>City:Aptos</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>State:Ca</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Zip:96003</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Address:(none)</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Phone:(none)</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div><p/></div> -->
+         <!-- <div style="width:180px"><span>District:Really big</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:220px"><span>School:Ver Little School</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:240px"><span>Role tale in school:Teacher</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:230px"><span>Focus Grade(s)4,5,and 6</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+       </div>
+<!--@end-->      
     </section>
 
   </section>
 
-  <section class="my-courses">
+<!--@begin:The styles used only in Dashboard-->
+<!--@date:2013-11-02--> 
+<style type="text/css" media="screen">
+  a.btnx:hover {
+  background: linear-gradient(#1e8bbe, #0e72a1); 
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:
+  cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  text-decoration:none;
+  }
+  
+  a.btnx {
+  background-clip: padding-box;
+  border:1ps solid rgb(13, 114, 162);
+  background-color:rgb(29, 157, 217);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1d9dd9), color-stop(100%, #0e7cb0));
+  background-image: -webkit-linear-gradient(#1d9dd9, #0e7cb0);
+  background-image: linear-gradient(#1d9dd9, #0e7cb0);
+  border: 1px solid #0d72a2;
+  box-shadow: inset 0 1px 0 0 #61b8e1;
+  text-decoration: none;
+  padding:6px 32px 7px 32px;
+  line-height:26px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+<!--@end-->
+
+<!--@begin:Add lastnew in Dashboard-->
+<!--@date:2013-11-02-->
+<section class="my-courses">
+  <header style="width:886px;height:246px;margin:auto;position:relative;border-bottom:none;margin-bottom:30px;">
+    <div style="position:absolute;background:url(${static.url('images/p15.png')});width:886px;height:246px;">
+      <a href="http://www.pepperpcg.blogspot.com" target="_blank" style="margin:170px 0 0 227px;position:absolute;" class="btnx dashboard-btn1">${_('Latest News')}</a>
+    </div>
+  </header>
+</section>
+<!--@end-->
+
+<section class="my-courses" style="" >
     <header>
       <h2>${_("Current Courses")}</h2>
     </header>
+    % if len(courses_incomplated) > 0:
+<!--@begin:Change the disply of the courses list in Dashboard-->
+<!--@date:2013-11-02-->    
+      % for i,course in enumerate(courses_incomplated):
 
-    % if len(courses) > 0:
-      % for course in courses:
 
-        <article class="my-course">
+    <%
+       border_overide='';
+       if i==len(courses_incomplated)-1:
+         border_overide="border-bottom:3px solid #0098C9"
+       %>
+    
+        <article class="my-course" style="${border_overide}" >
           <%
-            course_target = reverse('info', args=[course.id])
+            course_target = reverse('courseware', args=[course.id])
           %>
-
-
-
           % if course.id in show_courseware_links_for:
             <a href="${course_target}" class="cover">
-              <img src="${course_image_url(course)}" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
+              <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
             </a>
-          % else:
+<!--@end-->          
+
+            % else:
             <div class="cover">
               <img src="${course_image_url(course)}" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) | h}" />
             </div>
           % endif
-
           <section class="info">
             <hgroup>
+<!--@begin:Change the display of current courses in Dashboard-->
+<!--@date:2013-11-02-->                 
+
               <p class="date-block">
+                ${_("Enrollment date - {end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)}
+              </p>
+              % if False:
+              <p class="date-block">
+                
               % if course.has_ended():
               ${_("Course Completed - {end_date}").format(end_date=course.end_date_text)}
               % elif course.has_started():
@@ -186,7 +646,11 @@
               % else:   # hasn't started yet
               ${_("Course Starts - {start_date}").format(start_date=course.start_date_text)}
               % endif
+              
               </p>
+              % endif
+<!--@end-->      
+
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
                 % if course.id in show_courseware_links_for:
@@ -196,14 +660,12 @@
                 % endif
               </h3>
             </hgroup>
-
             <%
                 testcenter_exam_info = course.current_test_center_exam
                 registration = exam_registrations.get(course.id)
                 testcenter_register_target = reverse('begin_exam_registration', args=[course.id])
             %>
             % if testcenter_exam_info is not None:
-
                 % if registration is None and testcenter_exam_info.is_registering():
                 <div class="message message-status is-shown exam-register">
                   <a href="${testcenter_register_target}" class="button exam-button" id="exam_register_button">${_("Register for Pearson exam")}</a>
@@ -245,7 +707,6 @@
                     % endif
                 % endif
             % endif
-
             <%
             cert_status = cert_statuses.get(course.id)
             %>
@@ -261,7 +722,6 @@
                     status_css_class = 'course-status-processing'
                 %>
                 <div class="message message-status ${status_css_class} is-shown">
-
                 % if cert_status['status'] == 'processing':
                       <p class="message-copy">${_("Final course details are being wrapped up at this time. Your final standing will be available shortly.")}</p>
                 % elif cert_status['status'] in ('generating', 'ready', 'notpassing', 'restricted'):
@@ -277,7 +737,6 @@
                       % endif
                       </p>
                 % endif
-
                 % if cert_status['show_disabled_download_button'] or cert_status['show_download_url'] or cert_status['show_survey_button']:
                   <ul class="actions">
                     % if cert_status['show_disabled_download_button']:
@@ -289,7 +748,6 @@
                          title="${_('This link will open/download a PDF document')}">
                          Download Your PDF Certificate</a></li>
                     % endif
-
                     % if cert_status['show_survey_button']:
                       <li class="action"><a class="cta" href="${cert_status['survey_url']}">
                              ${_('Complete our course feedback survey')}</a></li>
@@ -297,16 +755,21 @@
                   </ul>
                 % endif
                 </div>
-
             % endif
 
+                
+            <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-              % if course.has_ended():
-                <a href="${course_target}" class="enter-course archived">${_('View Archived Course')}</a>
-              % else:
-                <a href="${course_target}" class="enter-course">${_('View Course')}</a>
-              % endif
+      				<!--@begin:make the 'View Portfolio' button enabled-->
+      				<!--@date:2013-11-02-->
+      				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+      				<!--@end-->
+              <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
             % endif
+
+           
+
+                
             <a href="#unenroll-modal" class="unenroll" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
 	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
@@ -314,10 +777,8 @@
 	    % endif
           </section>
         </article>
-
-
-
       % endfor
+
     % else:
       <section class="empty-dashboard-message">
         <p>${_("Looks like you haven't registered for any courses yet.")}</p>
@@ -326,11 +787,9 @@
         </a>
       </section>
     % endif
-
     % if staff_access and len(errored_courses) > 0:
       <div id="course-errors">
         <h2>${_("Course-loading errors")}</h2>
-
       % for course_dir, errors in errored_courses.items():
          <h3>${course_dir | h}</h3>
              <ul>
@@ -342,7 +801,234 @@
              </ul>
       % endfor
     % endif
-  </section>
+<!--@begin:Shown completed course list-->
+<!--@date:2013-11-02-->
+          <header>
+            <h2>${_("Completed Courses")}</h2>
+          </header>
+          <%include file="completed_courses.html" />
+<!--@end-->
+
+</section>
+</section>
+
+<!--@begin:Chagne the table with new profile fields-->
+<!--@date:2013-11-02-->
+<section id="change_photo" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Add Profile Picture').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="dashboard">
+      <!--@begin:Shown completed course list-->
+      <!--@date:2013-11-24-->
+      <div id="change_photo_error" class="modal-form-error"> </div>
+      <!--@end-->
+      <fieldset>
+        <div class="input-group">
+          <label>
+            <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
+              % if user.profile.photo:
+      			        <img src="/static/uploads/photos/${ user.profile.photo }" style="" alt="photo" />
+      			  % else:
+      			        <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
+      			  % endif		
+            </div>
+          </label>
+          <label style="margin:20px 0;display:block;">
+            <input type="file" name="photo" id="id_photo" value="Choose a file" />
+          </label>
+          <label>
+            The image will be automatically scaled to fit within 110x110 pixels.
+          </label>  
+          <div id="image_uploading" style="text-align:center;">
+            <img src="/static/images/ora-loading.gif" style=""/> 
+          </div>              
+        </div>
+
+      </fieldset>
+	  <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+     
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Upload" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_school" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My School').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_school_form" method="post">
+      <fieldset>
+        <div class="input-group">
+            <label>School:</label>
+            <label style="margin:20px 0;display:block;">
+              <select name="school_id" style="width:100%" autocomplete="off">
+
+              	% if user.profile.cohort:
+                
+                %for item in School.objects.filter(district_id=user.profile.cohort.district.id):
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+                
+              	% endif
+              </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
+
+<section id="change_grade_level" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My Grade Level').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_grade_level_form" method="post">
+      <fieldset>
+        <label id="">
+          Grade Level-Check all that apply:
+        </label>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <input id="grade_level_id" type="hidden" name="grade_level_id" value="" autocomplete="off"/>
+            %for item in GradeLevel.objects.all():
+            <span class="level">
+              <a href="#" id="grade_btn${item.id}" class="btn_class" onclick="click_grade_btn(${item.id});return false">
+                ${item.name}
+              </a>
+            </span>
+            %endfor
+            <br style="clear:both;"/>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<section id="change_major_subject_area" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My Subject Area').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_major_subject_area_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="major_subject_area_id" name="major_subject_area_id" style="width:100%" autocomplete="off">
+              %for item in SubjectArea.objects.all():
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_years_in_education" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My Subject Area').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_years_in_education_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="years_in_education_id" name="years_in_education_id" style="width:100%" autocomplete="off">
+              %for item in YearsInEducation.objects.all():
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_bio" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My BIO').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_bio_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label>
+            <textarea name="bio" rows="" cols="" tabindex="" style="width:100%;height:100%;height:300px;resize:none;"></textarea>
+          </label>
+          <section style="color:black;">
+            Limited to 255 Characters
+          </section>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+  <!--@end-->
+
 </section>
 
 <section id="email-settings-modal" class="modal">
@@ -351,15 +1037,17 @@
       <h2>${_('Email Settings for {course_number}').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
-
     <form id="email_settings_form" method="post">
       <input name="course_id" id="email_settings_course_id" type="hidden" />
       <label>${_("Receive course emails")} <input type="checkbox" id="receive_emails" name="receive_emails" /></label>
       <div class="submit">
-        <input type="submit" id="submit" value="Save Settings" />
+<!--@begin:Chagne the button bolor in Email Settings table-->
+<!--@date:2013-11-02-->
+        <input type="submit" class="btnx" id="submit" value="Save Settings" />
+<!--@end-->        
+        
       </div>
     </form>
-
     <div class="close-modal">
       <div class="inner">
         <p>&#10005;</p>
@@ -374,17 +1062,14 @@
       <h2>${_('Are you sure you want to unregister from {course_number}?').format(course_number='<span id="unenroll_course_number"></span>')}</h2>
       <hr/>
     </header>
-
     <div id="unenroll_error" class="modal-form-error"></div>
-
     <form id="unenroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
       <input name="course_id" id="unenroll_course_id" type="hidden" />
       <input name="enrollment_action" type="hidden" value="unenroll" />
       <div class="submit">
-        <input name="submit" type="submit" value="Unregister" />
+        <input id="submit" name="submit" type="submit" value="Unregister" />
       </div>
     </form>
-
     <div class="close-modal">
       <div class="inner">
         <p>&#10005;</p>
@@ -392,7 +1077,6 @@
     </div>
   </div>
 </section>
-
 <section id="password_reset_complete" class="modal">
   <div class="inner-wrapper">
     <header>
@@ -413,11 +1097,13 @@
     </div>
   </div>
 </section>
-
 <section id="change_email" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2><span id="change_email_title">${_("Change Email")}</span></h2>
+<!--@begin:Change the title of email table-->
+<!--@date:2013-11-02-->            
+      <h2><span id="change_email_title">${_("Change My Email")}</span></h2>
+<!--@end-->
       <hr/>
     </header>
     <div id="change_email_body">
@@ -425,14 +1111,17 @@
         <div id="change_email_error" class="modal-form-error"> </div>
         <fieldset>
           <div class="input-group">
-            <label>${_('Please enter your new email address:')}</label>
-            <input id="new_email_field" type="email" value="" />
-            <label>${_('Please confirm your password:')}</label>
-            <input id="new_email_password" value="" type="password" />
+<!--@begin:Change the email table-->
+<!--@date:2013-11-02-->            
+            <label>${_('Please edit your email below:')}</label>
+            <input id="new_email_field" type="email" value="${user.email}" />
+            <!-- <label>${_('Please confirm your password:')}</label> -->
+            <!-- <input id="new_email_password" value="" type="password" /> -->
           </div>
-          <section>
-            <p>${_('We will send a confirmation to both {email} and your new email as part of the process.').format(email=user.email)}</p>
-          </section>
+          <!-- <section> -->
+          <!--   <p>${_('We will send a confirmation to both {email} and your new email as part of the process.').format(email=user.email)}</p> -->
+          <!-- </section> -->
+<!--@end-->          
           <div class="submit">
             <input type="submit" id="submit_email_change" value="${_('Change Email')}"/>
           </div>
@@ -446,6 +1135,35 @@
     </div>
   </div>
 </section>
+<!--@begin:User photo upload table-->
+<!--@date:2013-11-02-->
+<section id="apply_picture_change" class="modal">
+  <div class="inner-wrapper">
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+    <header>
+      <h2>Picture uploading</h2>
+      <hr/>
+    </header>
+    <div id="">
+      <form method="" id="" action="">
+       <fieldset>
+          <div class="input-group">
+            <label>Please choose a file.</label>
+            <input type="file" name="file" value="" />
+          </div>
+          <div class="submit">
+            <input type="submit" id="submit" value="Upload now">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</section>
+<!--@end-->
 
 <section id="apply_name_change" class="modal">
   <div class="inner-wrapper">
@@ -461,9 +1179,19 @@
         <fieldset>
           <div class="input-group">
             <label>${_("Enter your desired full name, as it will appear on the {platform} certificates:").format(platform=settings.PLATFORM_NAME)}</label>
-            <input id="new_name_field" value="" type="text" />
+<!--@begin:Username change table-->
+<!--@date:2013-11-02-->            
+            <br/><br/>
+            
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">First Name</label>
+            <input id="new_first_name_field" value="" type="text" />
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Last Name</label>
+            <input id="new_last_name_field" value="" type="text" />
+<!--@end-->
+            
             <label>${_("Reason for name change:")}</label>
             <textarea id="name_rationale_field" value=""></textarea>
+            
           </div>
           <div class="submit">
             <input type="submit" id="submit" value="${_('Change My Name')}">

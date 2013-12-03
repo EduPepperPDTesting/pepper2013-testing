@@ -1,42 +1,143 @@
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="stanford_theme_enabled"/>
+
+<!--@begin:Show wireframes before implementing the functionalities of the page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #page-nav,#page-footer{width:960px;}
+  
+  a.btnx:hover {
+  background:#638194;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  color:#fff;
+  }
+  a.btnx {
+  background-color:#556370;
+  text-decoration: none;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 7px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  #blocks *{font-family:'Open Sans',​Arial;}
+  #blocks p{margin-top:10px;}
+</style>
 <%!
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from courseware.courses import course_image_url, get_course_about_section
 %>
 <%page args="course" />
-<article id="${course.id}" class="course">
-  %if course.is_newish:
-    <span class="status">${_("New")}</span>
-  %endif
-  <a href="${reverse('about_course', args=[course.id])}">
-  <div class="inner-wrapper">
-      <header class="course-preview">
-        <hgroup>
-          <h2><span class="course-number">${course.display_number_with_default | h}</span> ${get_course_about_section(course, 'title')}</h2>
-        </hgroup>
-        <div class="info-link">&#x2794;</div>
-      </header>
-      <section class="info">
-        <div class="cover-image">
-          <img src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image" />
-        </div>
-        <div class="desc">
-          <p>${get_course_about_section(course, 'short_description')}</p>
-        </div>
-        <div class="bottom">
-          % if stanford_theme_enabled():
-            <span class="university">${get_course_about_section(course, 'university')}</span>
-          % else:
-            <a href="#" class="university">${get_course_about_section(course, 'university')}</a>
-          % endif
-          <span class="start-date">${course.start_date_text}</span>
-        </div>
-      </section>
-    </div>
-    <div class="meta-info">
-      <p class="university">${get_course_about_section(course, 'university')}</p>
-    </div>
-  </a>
-</article>
+<style type="text/css" media="screen">
+  *{font-family: 'Open Sans'}
+</style>
+<div id="${course.id}" class="course-block" style="text-align:left;margin-top:25px;width:900px;border:1px solid;position:relative;height:150px;font-family: 'Open Sans';">
+	<div style="border-left:1px solid;height:150px;width:300px;float:right;top:0px;text-align:center;vertical-align:bottom;">
+		<div style="height:111px;">
+			<img style="width:100%;height:100%" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image" />
+		</div>
+		
+		<!--@begin:according to whether the course has a overview to make the button "learn more" enabled-->
+		<!--@date:2013-11-02-->
+		%if get_course_about_section(course, "overview"):
+			<a class="btnx" style="font-size:18px;height:25px;line-height:30px;display:block;color:#fff;text-decoration:none;margin:0px;" href="${reverse('cabout', args=[course.id])}"> Learn More </a>
+		%else:
+			<a class="btnx" style="font-size:18px;height:25px;line-height:30px;display:block;color:#fff;text-decoration:none;margin:0px;" href="#"> Learn More </a>    
+		%endif
+		<!--@end-->
+	</div>
+	<div style="float:left;height:150px;margin:6px;">
+		<!--@begin:Change the place and look of New icon in course directory page-->
+		<!--@date:2013-11-02-->
+		%if course.is_newish:
+			<div style="font-size:12px;margin:10px;background:#99cc33;color:#fff;padding:4px;width:27px;">NEW</div>
+		%else:
+			<div style="font-size:12px;margin:10px;padding:4px;width:27px;"></div>
+		%endif 
+		<!--@end-->
+	</div>
+  <div style="padding:20px 10px 0 60px;font-size:18px;width:580px;height:30px;">
+    <!--<span style="font-weight:bold;">${course.display_number_with_default | h}</span>:-->
+	${course.display_number_with_default}
+	${get_course_about_section(course, 'title')}
+  </div>
+  
+  <div class="desc" style="width:580px;height:70px;font-size:14px;">
+		<!--@begin:according to course id to show the course short description-->
+		<!--@date:2013-11-02-->
+		%if course.display_number_with_default == "MA101x":
+			<p style="line-height:16px;">In this course, elementary school mathematics teachers will receive an introduction to the Common Core’s eight Standards for 
+Mathematical Practice.</p>
+		%elif course.display_number_with_default == "MA102x":
+			<p style="line-height:16px;">In this course, middle school mathematics teachers will receive an introduction to the Common Core’s eight Standards for Mathematical 
+Practice.</p>
+		%elif course.display_number_with_default == "MA103x":
+			<p style="line-height:16px;">In this course, high school mathematics teachers will receive an introduction to the Common Core’s eight Standards for Mathematical 
+Practice.</p>
+		%elif course.display_number_with_default == "ELA101x":
+			<p style="line-height:16px;">This course supports K-5 teachers in implementing a key instructional shift outlined by the Common Core: ensuring a 50-50 balance in 
+the use of informational and literacy texts to provide young readers with access to increasingly complex and content-rich readings.</p>
+		%elif course.display_number_with_default == "ELA102x":
+			<p style="line-height:16px;">This course supports middle school teachers in implementing a key instructional shift outlined by the Common Core:more strategic 
+selection and instruction of vocabulary words to improve students' reading comprehension and deepen understanding of key content area concepts.</p>
+		%elif course.display_number_with_default == "ELA103x":
+			<p style="line-height:16px;">This course supports high school teachers in implementing a key instructional shift outlined by the Common Core: more strategic 
+selection and instruction of vocabulary words to improve students' reading comprehension and deepen understanding of key content area concepts.</p>
+		%elif course.display_number_with_default == "PEP101x":
+			<p style="line-height:16px;">A fun and interactive course designed to help you explore the Pepper learning experience.  Perfect to take before you start your courses.</p>
+		%else:
+			<p style="line-height:16px;">${get_course_about_section(course, 'short_description')}</p>
+		%endif
+		<!--@end-->
+  </div>
+  
+  <div class="meta-info" style="font-size:13px;width:580px;height:25px;">
+    <div class="university" style="background:#F2F2F2;margin:0px 0px 0px 50px;width:530px;height:25px;">
+		<section style="padding-top:3px;">
+			<span>
+				AUTHORS: 
+				<!--@begin:according to course id to show the AUTHORS information-->
+				<!--@date:2013-11-02-->
+				%if course.display_number_with_default == "MA101x":
+					C. Carroll, K. Salguero, A. Knotts 
+				%elif course.display_number_with_default == "MA102x":
+					C. Carroll, K. Salguero, A. Knotts 
+				%elif course.display_number_with_default == "MA103x":
+					C. Carroll, K. Salguero, A. Knotts 
+				%elif course.display_number_with_default == "ELA101x":
+					S. Feldman, S. Eng 
+				%elif course.display_number_with_default == "ELA102x":
+					S. Feldman, S. Eng 
+				%elif course.display_number_with_default == "ELA103x":
+					S. Feldman, S. Eng 
+				%elif course.display_number_with_default == "PEP101x":
+					A. Coffman, L. Hescock
+				%else:
+					C. Carroll, K. Salguero, A. Knotts 
+				%endif
+				<!--@end-->
+				&#8226; ${get_course_about_section(course, 'university')}
+			</span>
+		</section>
+	</div>
+  </div>
+  <br style="clear:both;"/>
+</div>
+
+<!--@end-->

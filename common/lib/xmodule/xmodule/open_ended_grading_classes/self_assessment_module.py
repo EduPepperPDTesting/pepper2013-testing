@@ -1,5 +1,6 @@
 import json
 import logging
+import urllib
 from lxml import etree
 
 from xmodule.capa_module import ComplexEncoder
@@ -35,7 +36,10 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
     ASSESSING = 'assessing'
     REQUEST_HINT = 'request_hint'
     DONE = 'done'
-
+    #@begin:Add a state so that answer will not be empty after clicking reset
+    #@date:2013-11-02       
+    INITIAL_SUBMIT = 'initial_submit'
+    #@end
     def setup_response(self, system, location, definition, descriptor):
         """
         Sets up the module
@@ -60,8 +64,15 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
             previous_answer = latest if latest is not None else ''
         else:
             previous_answer = ''
-
-        previous_answer = previous_answer.replace("\n","<br/>")
+        #@begin:code in test and will be replaced later
+        #@date:2013-11-02       
+        """ if self.child_state != self.INITIAL_SUBMIT:
+            previous_answer = previous_answer.replace("\n","<br>")
+        else:
+            previous_answer = previous_answer.replace("<br>","\n")
+        """
+        #@end
+        previous_answer=urllib.unquote(previous_answer)
         context = {
             'prompt': self.child_prompt,
             'previous_answer': previous_answer,
@@ -86,13 +97,17 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         'progress': 'none'/'in_progress'/'done',
         <other request-specific values here > }
         """
-
+        #@begin:add save_text function
+        #@date:2013-11-02    
         handlers = {
             'save_answer': self.save_answer,
+            'save_text': self.save_text,
             'save_assessment': self.save_assessment,
             'save_post_assessment': self.save_hint,
+            'remove_file': self.remove_file,
+            'upload_image':self.upload_image
         }
-
+        #@end
         if dispatch not in handlers:
             # This is a dev_facing_error
             log.error("Cannot find {0} in handlers in handle_ajax function for open_ended_module.py".format(dispatch))
@@ -129,6 +144,8 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
             context['read_only'] = False
         elif self.child_state in (self.POST_ASSESSMENT, self.DONE):
             context['read_only'] = True
+        elif self.child_state in (self.INITIAL_SUBMIT):
+            context['read_only'] = False
         else:
             # This is a dev_facing_error
             raise ValueError("Self assessment module is in an illegal state '{0}'".format(self.child_state))
@@ -177,13 +194,16 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         closed, msg = self.check_if_closed()
         if closed:
             return msg
-
-        if self.child_state != self.INITIAL:
+        #@begin:Save the previous logic
+        #@date:2013-11-02     
+        '''if self.child_state != self.INITIAL:
             return self.out_of_sync_error(data)
-
+        '''
+        #@end
         error_message = ""
         # add new history element with answer and empty score and hint.
-        success, data = self.append_image_to_student_answer(data)
+        success, error_message, data = self.append_file_link_to_student_answer(data)
+        data['student_answer']=urllib.quote(data['student_answer'])
         if success:
             data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
             self.new_history_entry(data['student_answer'])
@@ -198,7 +218,105 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
             'error': error_message,
             'student_response': data['student_answer'].replace("\n","<br/>")
         }
+    #@begin:Save the state without further processing
+    #@date:2013-11-02  
+    def save_text(self, data, system):
+        """
+        After the answer is submitted, show the rubric.
 
+        Args:
+            data: the request dictionary passed to the ajax request.  Should contain
+                a key 'student_answer'
+
+        Returns:
+            Dictionary with keys 'success' and either 'error' (if not success),
+            or 'rubric_html' (if success).
+        """
+        # Check to see if this problem is closed
+        closed, msg = self.check_if_closed()
+        if closed:
+            return msg
+
+        #@begin:Save the previous logic
+        #@date:2013-11-02     
+        '''if self.child_state != self.INITIAL:
+            return self.out_of_sync_error(data)
+        '''
+        #@end
+        error_message = ""
+        # add new history element with answer and empty score and hint.
+        success, error_message, data = self.append_file_link_to_student_answer(data)
+       
+        data['student_answer']=urllib.quote(data['student_answer'])
+        if success:
+            data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
+            self.new_history_entry(data['student_answer'])
+            self.change_state(self.INITIAL_SUBMIT)
+        else:
+            # This is a student_facing_error
+            error_message = "There was a problem saving the image in your submission.  Please try a different image, or try pasting a link to an image into the answer box."
+
+        
+        return {
+            'success': success,
+            'rubric_html': self.get_rubric_html(system),
+            'error': error_message,
+            'student_response': data['student_answer'].replace("\n","<br/>"),
+            'file_info': data['file_info']
+        }
+    #@end
+    #@begin:upload image
+    #@date:2013-11-02 
+    def upload_image(self, data, system):
+        """
+        upload_image
+
+        """
+        # Check to see if this problem is closed
+        closed, msg = self.check_if_closed()
+        if closed:
+            return msg
+
+        error_message = ""
+        # add new history element with answer and empty score and hint.
+        success, error_message, data = self.append_file_link_to_file_info(data)
+       
+        data['student_answer']=urllib.quote(data['student_answer'])
+        if success:
+            #data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
+            #self.new_history_entry(data['student_answer'])
+            #self.change_state(self.INITIAL_SUBMIT)
+            pass
+        else:
+            # This is a student_facing_error
+            error_message = "There was a problem saving the image in your submission.  Please try a different image, or try pasting a link to an image into the answer box."
+
+        
+        return {
+            'success': success,
+            'error': error_message,
+            'file_info': data['file_info']
+        }
+    #@end
+    #@begin:remove file
+    #@date:2013-11-02 
+    def remove_file(self, data, system):
+        """
+        remove_file
+
+        """
+        # Check to see if this problem is closed
+        closed, msg = self.check_if_closed()
+        if closed:
+            return msg
+            
+        success=self.delete_file_s3(data['file_key'])
+        
+        return {
+            'success': success,
+            'file_info': data['file_key']
+        }
+    #@end
     def save_assessment(self, data, _system):
         """
         Save the assessment.  If the student said they're right, don't ask for a

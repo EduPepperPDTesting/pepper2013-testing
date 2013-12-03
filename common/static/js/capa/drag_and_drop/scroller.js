@@ -63,11 +63,11 @@ define(['logme'], function (logme) {
 
             // When there are no more hidden draggables, prevent from
             // scrolling infinitely.
-            if (showElLeftMargin > -102) {
+            if (showElLeftMargin > -147) {
                 return;
             }
 
-            showElLeftMargin += 102;
+            showElLeftMargin += 147;
 
             // We scroll by changing the 'margin-left' CSS property smoothly.
             state.sliderEl.animate({
@@ -159,11 +159,11 @@ define(['logme'], function (logme) {
 
             // When there are no more hidden draggables, prevent from
             // scrolling infinitely.
-            if (showElLeftMargin < -102 * (state.numDraggablesInSlider - 6)) {
+            if (showElLeftMargin < -147 * (state.numDraggablesInSlider - 4)) {
                 return;
             }
 
-            showElLeftMargin -= 102;
+            showElLeftMargin -= 147;
 
             // We scroll by changing the 'margin-left' CSS property smoothly.
             state.sliderEl.animate({
@@ -193,10 +193,10 @@ define(['logme'], function (logme) {
             moveLeftEl.children('div').css('opacity', '1');
             moveRightEl.children('div').css('opacity', '1');
 
-            if (showElLeftMargin < -102 * (state.numDraggablesInSlider - 6)) {
+            if (showElLeftMargin < -147 * (state.numDraggablesInSlider - 4)) {
                 moveRightEl.children('div').css('opacity', '.4');
             }
-            if (showElLeftMargin > -102) {
+            if (showElLeftMargin > -147) {
                 moveLeftEl.children('div').css('opacity', '.4');
             }
         }

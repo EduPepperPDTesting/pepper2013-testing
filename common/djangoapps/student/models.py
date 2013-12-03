@@ -29,10 +29,85 @@ from django.forms import ModelForm, forms
 import comment_client as cc
 from pytz import UTC
 
+# from reg_objects.models import District,School,Cohort
 
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
+from django.db import connection
+
+class YearsInEducation(models.Model):
+    class Meta:
+        db_table = 'years_in_education'
+    name = models.CharField(blank=False, max_length=20, db_index=False)
+
+class GradeLevel(models.Model):
+    class Meta:
+        db_table = 'grade_level'
+    name = models.CharField(blank=False, max_length=20, db_index=False)
+
+class SubjectArea(models.Model):
+    class Meta:
+        db_table = 'subject_area'
+    name = models.CharField(blank=False, max_length=20, db_index=False)    
+
+class State(models.Model):
+    class Meta:
+        db_table = 'state'
+    name = models.CharField(blank=False, max_length=20, db_index=False)
+
+class District(models.Model):
+    class Meta:
+        db_table = 'district'
+    state = models.ForeignKey(State,on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True)         
+    name= models.CharField(blank=True, max_length=255, db_index=False)
+
+class Cohort(models.Model):
+    class Meta:
+        db_table = 'cohort'
+    district = models.ForeignKey(District,on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True) 
+    licences=models.IntegerField(blank=False, null=False, db_index=False)
+    term_months=models.IntegerField(blank=False, null=False, db_index=False)
+    start_date=models.DateTimeField(blank=False, db_index=False)
+    
+class School(models.Model):
+    class Meta:
+        db_table = 'school'
+    district = models.ForeignKey(District,on_delete=models.PROTECT)
+    name = models.CharField(blank=False, max_length=255, db_index=True) 
+    # district_id = models.CharField(blank=False, max_length=255, db_index=True) 
+
+# todo: Remove functions no use 
+def dictfetchall(cursor):
+    '''Returns a list of all rows from a cursor as a column: result dict.
+    Borrowed from Django documentation'''
+    desc = cursor.description
+    table = []
+    # table.append([col[0] for col in desc])
+    # ensure response from db is a list, not a tuple (which is returned
+    # by MySQL backed django instances)
+    rows_from_cursor=cursor.fetchall()
+    table = table + [list(row) for row in rows_from_cursor]
+    b=[]
+    for r in table:
+        t={}
+        for i,d in enumerate(desc):
+            t[d[0]]=r[i]
+        b.append(t)
+    return b
+
+def query_list(cursor, query_string):
+    cursor.execute(query_string)
+    raw_result=dictfetchall(cursor)
+    return raw_result
+
+def query_dict(cursor, query_string):
+    cursor.execute(query_string)
+    raw_result=dictfetchall(cursor)
+    if len(raw_result):
+        return raw_result[0]
 
 class UserProfile(models.Model):
     """This is where we store all the user demographic fields. We have a
@@ -62,6 +137,27 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
 
+    # district = models.OneToOneField(District, unique=True, db_index=True, related_name='profile')
+    # cohort = models.OneToOneField(Cohort, unique=True, db_index=True, related_name='profile')
+
+    school = models.ForeignKey(School,on_delete=models.PROTECT,blank=True)
+    cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT)
+    
+#@begin:Add some fields to student profile
+#@date:2013-11-15        
+    major_subject_area_id=models.IntegerField(blank=True, null=True, db_index=True)
+    grade_level_id=models.CharField(blank=True, max_length=255, db_index=True)
+    years_in_education_id=models.IntegerField(blank=True, null=True, db_index=True)
+    first_name = models.CharField(blank=True, max_length=255, db_index=True)
+    last_name = models.CharField(blank=True, max_length=255, db_index=True)
+    bio = models.CharField(blank=True, max_length=255, db_index=True)    
+    subscription_status=models.CharField(blank=False, max_length=20, db_index=False)
+    
+    invite_date=models.DateTimeField(auto_now_add=False, db_index=False)
+    activate_date=models.DateTimeField(auto_now_add=False, db_index=False)
+#@end
+
+    photo = models.CharField(blank=True, max_length=50, db_index=False)
     meta = models.TextField(blank=True)  # JSON dictionary for future expansion
     courseware = models.CharField(blank=True, max_length=255, default='course.xml')
 
@@ -117,6 +213,28 @@ class UserProfile(models.Model):
 TEST_CENTER_STATUS_ACCEPTED = "Accepted"
 TEST_CENTER_STATUS_ERROR = "Error"
 
+class Transaction(models.Model):
+    class Meta:
+        db_table = 'transaction'
+
+    # from django.contrib.contenttypes.models import ContentType
+    # from django.contrib.contenttypes import generic
+
+    # http://stackoverflow.com/questions/7269319/django-multi-table-inheritance-specify-custom-one-to-one-column-name
+    # https://docs.djangoproject.com/en/dev/topics/db/queries/
+    # owner_cohort=models.OneToOneField(Cohort, unique=True, db_index=True, related_name='transaction', db_column="owner_id",parent_link=True)
+    # owner_user=models.OneToOneField(UserProfile, unique=True, db_index=True, related_name='transaction', db_column="owner_id",parent_link=True)
+    # subscription_type = models.ForeignKey(ContentType)
+    subscription_type = models.CharField(blank=False, max_length=20, db_index=False)
+    # owner_id = models.IntegerField(blank=False, null=False, db_index=True)
+    
+    owner = models.ForeignKey(Cohort,on_delete=models.PROTECT,db_column='owner_id')
+    
+    # owner_object = generic.GenericForeignKey('subscription_type', 'owner_id')
+    code = models.CharField(blank=True, max_length=50, db_index=True)
+    start_date = models.DateTimeField(blank=False, db_index=False)
+    term_months = models.IntegerField(blank=False, null=False, db_index=False)
+    # status = models.CharField(blank=True, max_length=255, db_index=False)
 
 class TestCenterUser(models.Model):
     """This is our representation of the User for in-person testing, and
@@ -248,7 +366,6 @@ class TestCenterUser(models.Model):
     def is_pending(self):
         return not self.is_accepted and not self.is_rejected
 
-
 class TestCenterUserForm(ModelForm):
     class Meta:
         model = TestCenterUser
@@ -326,7 +443,6 @@ ACCOMMODATION_CODES = (
 )
 
 ACCOMMODATION_CODE_DICT = {code: name for (code, name) in ACCOMMODATION_CODES}
-
 
 class TestCenterRegistration(models.Model):
     """
@@ -546,7 +662,6 @@ class TestCenterRegistration(models.Model):
         else:
             return "Pending"
 
-
 class TestCenterRegistrationForm(ModelForm):
     class Meta:
         model = TestCenterRegistration
@@ -576,7 +691,6 @@ class TestCenterRegistrationForm(ModelForm):
                     raise forms.ValidationError(u'Invalid accommodation code specified: "{}"'.format(codeval))
         return code
 
-
 def get_testcenter_registration(user, course_id, exam_series_code):
     try:
         tcu = TestCenterUser.objects.get(user=user)
@@ -587,7 +701,6 @@ def get_testcenter_registration(user, course_id, exam_series_code):
 # nosetests thinks that anything with _test_ in the name is a test.
 # Correct this (https://nose.readthedocs.org/en/latest/finding_tests.html)
 get_testcenter_registration.__test__ = False
-
 
 def unique_id_for_user(user):
     """
@@ -601,14 +714,12 @@ def unique_id_for_user(user):
     h.update(str(user.id))
     return h.hexdigest()
 
-
 # TODO: Should be renamed to generic UserGroup, and possibly
 # Given an optional field for type of group
 class UserTestGroup(models.Model):
     users = models.ManyToManyField(User, db_index=True)
     name = models.CharField(blank=False, max_length=32, db_index=True)
     description = models.TextField(blank=True)
-
 
 class Registration(models.Model):
     ''' Allows us to wait for e-mail before user is registered. A
@@ -631,18 +742,20 @@ class Registration(models.Model):
         self.user.is_active = True
         self.user.save()
 
-
 class PendingNameChange(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True)
     new_name = models.CharField(blank=True, max_length=255)
+#@begin:When changing username in dashboard, add the field in student_pendingnamechange
+#@date:2013-11-02        
+    new_first_name = models.CharField(blank=True, max_length=255)
+    new_last_name = models.CharField(blank=True, max_length=255)
+#@end        
     rationale = models.CharField(blank=True, max_length=1024)
-
 
 class PendingEmailChange(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True)
     new_email = models.CharField(blank=True, max_length=255, db_index=True)
     activation_key = models.CharField(('activation key'), max_length=32, unique=True, db_index=True)
-
 
 class CourseEnrollment(models.Model):
     """
@@ -667,7 +780,6 @@ class CourseEnrollment(models.Model):
     # Represents the modes that are possible. We'll update this later with a
     # list of possible values.
     mode = models.CharField(default="honor", max_length=100)
-
 
     class Meta:
         unique_together = (('user', 'course_id'),)
@@ -861,7 +973,6 @@ class CourseEnrollment(models.Model):
             self.is_active = False
             self.save()
 
-
 class CourseEnrollmentAllowed(models.Model):
     """
     Table of users (specified by email address strings) who are allowed to enroll in a specified course.
@@ -884,7 +995,6 @@ class CourseEnrollmentAllowed(models.Model):
 
 #### Helper methods for use from python manage.py shell and other classes.
 
-
 def get_user_by_username_or_email(username_or_email):
     """
     Return a User object, looking up by email if username_or_email contains a
@@ -898,12 +1008,10 @@ def get_user_by_username_or_email(username_or_email):
     else:
         return User.objects.get(username=username_or_email)
 
-
 def get_user(email):
     u = User.objects.get(email=email)
     up = UserProfile.objects.get(user=u)
     return u, up
-
 
 def user_info(email):
     u, up = get_user(email)
@@ -915,28 +1023,23 @@ def user_info(email):
     print "Language", up.language
     return u, up
 
-
 def change_email(old_email, new_email):
     u = User.objects.get(email=old_email)
     u.email = new_email
     u.save()
-
 
 def change_name(email, new_name):
     u, up = get_user(email)
     up.name = new_name
     up.save()
 
-
 def user_count():
     print "All users", User.objects.all().count()
     print "Active users", User.objects.filter(is_active=True).count()
     return User.objects.all().count()
 
-
 def active_user_count():
     return User.objects.filter(is_active=True).count()
-
 
 def create_group(name, description):
     utg = UserTestGroup()
@@ -944,12 +1047,10 @@ def create_group(name, description):
     utg.description = description
     utg.save()
 
-
 def add_user_to_group(user, group):
     utg = UserTestGroup.objects.get(name=group)
     utg.users.add(User.objects.get(username=user))
     utg.save()
-
 
 def remove_user_from_group(user, group):
     utg = UserTestGroup.objects.get(name=group)
@@ -961,7 +1062,6 @@ default_groups = {'email_future_courses': 'Receive e-mails about future MITx cou
                   'mitx_unenroll': 'Fully unenrolled -- no further communications',
                   '6002x_unenroll': 'Took and dropped 6002x'}
 
-
 def add_user_to_default_group(user, group):
     try:
         utg = UserTestGroup.objects.get(name=group)
@@ -972,7 +1072,6 @@ def add_user_to_default_group(user, group):
         utg.save()
     utg.users.add(User.objects.get(username=user))
     utg.save()
-
 
 @receiver(post_save, sender=User)
 def update_user_information(sender, instance, created, **kwargs):
@@ -992,14 +1091,22 @@ def update_user_information(sender, instance, created, **kwargs):
 # page to login.  These are currently the only signals available, so we need to continue
 # identifying and logging failures separately (in views).
 
-
 @receiver(user_logged_in)
 def log_successful_login(sender, request, user, **kwargs):
     """Handler to log when logins have occurred successfully."""
     AUDIT_LOG.info(u"Login success - {0} ({1})".format(user.username, user.email))
 
-
 @receiver(user_logged_out)
 def log_successful_logout(sender, request, user, **kwargs):
     """Handler to log when logouts have occurred successfully."""
     AUDIT_LOG.info(u"Logout - {0}".format(request.user))
+
+#@begin:Add new functions used in People pages (Global and Course)
+#@date:2013-11-02        
+def get_user_by_id(user_id):
+    u = User.objects.get(id=user_id)
+    up=None
+    up = UserProfile.objects.get(user=u)
+    return u, up    
+#@end
+

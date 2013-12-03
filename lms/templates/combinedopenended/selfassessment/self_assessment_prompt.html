@@ -1,4 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
+
 <section id="self_assessment_${id}" class="open-ended-child" data-ajax-url="${ajax_url}"
          data-id="${id}" data-state="${state}" data-allow_reset="${allow_reset}" data-child-type="${child_type}">
     <div class="error"></div>
@@ -11,16 +12,22 @@
         <span class="section-header section-header-response">${_("Response")}</span>
     </div>
     <div>
-    <textarea name="answer" class="answer short-form-response" cols="70" rows="20">${previous_answer|n}</textarea>
-
+    <!--@begin:textarea editor-add style and class->
+    <!--@date:2013-11-02-->
+    <textarea  class="answer short-form-response mceEditor" cols="70" mce_editable="true" style="height:200px;">${previous_answer|n}</textarea>
+    <!--@end-->
     <div class="message-wrapper"></div>
+    <div class="file-upload-list"></div>
     <div class="grader-status"></div>
 
     <div class="rubric-wrapper">${initial_rubric}</div>
-
-    <div class="file-upload"></div>
+    <!--@begin:ORA-add progress bar, change button names-->
+    <!--@date:2013-11-02-->
+    <div class="file-upload"></div><br/>
+    <div class="ora-loading"><img src="/static/images/ora-loading.gif"/></div><br/>
+    <!--<input type="button" value="${_('Save without submitting')}" class="save-button" name="show"/>-->
     <input type="button" value="${_('Submit')}" class="submit-button" name="show"/>
-
+    <!--@end-->
     <div class="open-ended-action"></div>
     <span id="answer_${id}"></span>
 </section>

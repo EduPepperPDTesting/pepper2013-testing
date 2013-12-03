@@ -3,13 +3,14 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
 
 import student.views
 import branding
 import courseware.views
 from mitxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
-
+import json
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -17,9 +18,11 @@ def index(request):
     '''
     Redirects to main page -- info page if user authenticated, or marketing if not
     '''
-
-    if settings.COURSEWARE_ENABLED and request.user.is_authenticated():
-        return redirect(reverse('dashboard'))
+#@begin:Able to visit homepage after login
+#@date:2013-11-02        
+    # if settings.COURSEWARE_ENABLED and request.user.is_authenticated():
+    #     return redirect(reverse('dashboard'))
+#@end    
 
     if settings.MITX_FEATURES.get('AUTH_USE_MIT_CERTIFICATES'):
         from external_auth.views import ssl_login
@@ -34,8 +37,6 @@ def index(request):
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
     return student.views.index(request, user=request.user)
-
-
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -55,3 +56,72 @@ def courses(request):
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
     return courseware.views.courses(request)
+
+#@begin:View of the new added page
+#@date:2013-11-02        
+@ensure_csrf_cookie
+@cache_if_anonymous
+def what_is(request):
+     return render_to_response('what_is.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def districts(request):
+     return render_to_response('districts.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def intro(request):
+     return render_to_response('intro.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def intro_research(request):
+     return render_to_response('intro_research.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def intro_ourteam(request):
+     return render_to_response('intro_ourteam.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def intro_faq(request):
+    return render_to_response('intro_faq.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def contact(request):
+    return render_to_response('contact.html', {})
+
+def contact_us_submit(request):
+    ret={"success":True}
+    email=request.POST.get("email")
+    fullname=request.POST.get("fullname")
+    phone=request.POST.get("phone")
+    inquiry_type=request.POST.get("inquiry_type")
+    message=request.POST.get("message")
+    from django.core.mail import send_mail
+    from mitxmako.shortcuts import render_to_response, render_to_string
+    d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message}
+    subject="PepperPd Contact Us"
+    body = render_to_string('emails/contact_us_body.txt', d)
+    try:
+        send_mail(subject, body, 'djangoedx@gmail.com', ['peppersupport@pcgus.com'], fail_silently=False) # to: peppersupport@pcgus.com
+    except Exception as e:
+        message={"success":False,"error": "%s" % e}
+    return HttpResponse(json.dumps(ret))
+#@end
+
+#@begin:View of the new added page
+#@date:2013-11-21  
+@ensure_csrf_cookie
+@cache_if_anonymous
+def tos(request):
+    return render_to_response('static_templates/tos.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def privacy(request):
+    return render_to_response('static_templates/privacy.html', {})
+#@end

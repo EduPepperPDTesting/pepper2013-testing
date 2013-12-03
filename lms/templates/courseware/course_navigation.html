@@ -1,6 +1,11 @@
 ## mako
 <%page args="active_page=None" />
-
+<!--@begin:Hide the Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+</style>
+<!--@end-->
 <%
 if active_page is None and active_page_context is not UNDEFINED:
   # If active_page is not passed in as an argument, it may be in the context as active_page_context
@@ -18,18 +23,19 @@ def url_class(is_active):
   <div class="inner-wrapper">
     <ol class="course-tabs">
       % for tab in get_course_tabs(user, course, active_page):
-          <li>
-             <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
-                 ${tab.name | h}
-                 % if tab.is_active == True:
-                  <span class="sr">, current location</span>
-                 %endif
-                 % if tab.has_img == True:
-                    <img src="${tab.img}"/>
-                 %endif
-             </a>
-          </li>
+			<li>
+				<a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+					${tab.name | h}
+					% if tab.is_active == True:
+					    <span class="sr">, current location</span> 
+					%endif
+					% if tab.has_img == True:
+					    <img src="${tab.img}"/> 
+					%endif
+				</a>
+			</li>
       % endfor
+  
     <%block name="extratabs" />
         % if masquerade is not UNDEFINED:
           % if staff_access and masquerade is not None:

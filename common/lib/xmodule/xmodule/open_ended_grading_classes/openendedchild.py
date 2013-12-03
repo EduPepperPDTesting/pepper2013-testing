@@ -12,7 +12,9 @@ import controller_query_service
 
 from datetime import datetime
 from pytz import UTC
-
+import requests
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
 log = logging.getLogger("mitx.courseware")
 
 # Set the default number of max attempts.  Should be 1 for production
@@ -24,7 +26,43 @@ MAX_ATTEMPTS = 1
 # Overriden by max_score specified in xml.
 MAX_SCORE = 1
 
+FILE_NOT_FOUND_IN_RESPONSE_MESSAGE = "We could not find a file in your submission. Please try choosing a file or pasting a link to your file into the answer box."
+ERROR_SAVING_FILE_MESSAGE = "We are having trouble saving your file. Please try another file or paste a link to your file into the answer box."
+#@begin:Uploads/delete a file to S3
+#@date:2013-11-02   
+def upload_to_s3(file_to_upload, keyname, s3_interface):
+    '''
+    Upload file to S3 using provided keyname.
 
+    Returns:
+    public_url: URL to access uploaded file
+    '''
+
+    conn = S3Connection(s3_interface['access_key'], s3_interface['secret_access_key'])
+    bucketname = str(s3_interface['storage_bucket_name'])
+    bucket = conn.create_bucket(bucketname.lower())
+
+    k = Key(bucket)
+    k.key = keyname
+    k.set_metadata('filename', file_to_upload.name)
+    k.set_contents_from_file(file_to_upload)
+
+    k.set_acl("public-read")
+    public_url = k.generate_url(60 * 60 * 24 * 365) # URL timeout in seconds.
+
+    return public_url
+
+def delete_s3(keyname, s3_interface):
+    '''
+    del file
+    '''
+    conn = S3Connection(s3_interface['access_key'], s3_interface['secret_access_key'])
+    bucketname = str(s3_interface['storage_bucket_name'])
+    bucket = conn.create_bucket(bucketname.lower())
+    k = Key(bucket)
+    k.key = keyname
+    bucket.delete_key(keyname)
+#@end
 class OpenEndedChild(object):
     """
     States:
@@ -47,11 +85,14 @@ class OpenEndedChild(object):
     STATE_VERSION = 1
 
     # states
+    #@begin:Add initial_submit state
+    #@date:2013-11-02   
     INITIAL = 'initial'
+    INITIAL_SUBMIT = 'initial_submit'
     ASSESSING = 'assessing'
     POST_ASSESSMENT = 'post_assessment'
     DONE = 'done'
-
+    #@end
     # This is used to tell students where they are at in the module
     HUMAN_NAMES = {
         'initial': 'Not started',
@@ -172,8 +213,9 @@ class OpenEndedChild(object):
         if not self.child_history:
             return ""
         return self.child_history[-1].get('post_assessment', "")
-
-    @staticmethod
+    #@begin:Update edx code
+    #@date:2013-11-02    
+    '''
     def sanitize_html(answer):
         try:
             answer = autolink_html(answer)
@@ -186,7 +228,32 @@ class OpenEndedChild(object):
         except Exception:
             clean_html = answer
         return clean_html
-
+    '''
+    @staticmethod
+    def sanitize_html(answer):
+        """
+        Take a student response and sanitize the HTML to prevent malicious script injection
+        or other unwanted content.
+        answer - any string
+        return - a cleaned version of the string
+        """
+        try:
+            answer = autolink_html(answer)
+            cleaner = WhiteListCleaner(
+                style=True,
+                links=True,
+                add_nofollow=False,
+                page_structure=True,
+                safe_attrs_only=True,
+                whitelist_tags=('embed', 'iframe', 'a', 'img', 'br',)
+            )
+            clean_html = cleaner.clean_html(answer)
+            clean_html = re.sub(r'</p>$', '', re.sub(r'^<p>', '', clean_html))
+            clean_html = re.sub("\n","<br/>", clean_html)
+        except Exception:
+            clean_html = answer
+        return clean_html
+    #@end
     def new_history_entry(self, answer):
         """
         Adds a new entry to the history dictionary
@@ -259,7 +326,7 @@ class OpenEndedChild(object):
         Returns {'success': bool, 'error': msg}
         (error only present if not success)
         """
-        self.change_state(self.INITIAL)
+        self.change_state(self.INITIAL_SUBMIT)
         return {'success': True}
 
     def get_progress(self):
@@ -320,7 +387,9 @@ class OpenEndedChild(object):
         score = self.get_score()['score']
         correctness = 'correct' if self.is_submission_correct(score) else 'incorrect'
         return correctness
-
+    #@begin:Upload to / delete from s3
+    #@date:2013-11-02  
+    '''
     def upload_image_to_s3(self, image_data):
         """
         Uploads an image to S3
@@ -350,7 +419,37 @@ class OpenEndedChild(object):
                 log.exception("Could not upload image to S3.")
 
         return success, image_ok, s3_public_url
+    '''
+    def upload_file_to_s3(self, file_data):
+        """
+        Uploads a file to S3.
+        file_data: InMemoryUploadedFileObject that responds to read() and seek().
+        @return: A URL corresponding to the uploaded object.
+        """
+        fname=file_data.name.split(".")
+        file_key = fname[0] +"_"+datetime.now(UTC).strftime(
+            xqueue_interface.dateformat
+        )+"."+fname[1]
 
+        file_data.seek(0)
+        s3_public_url = upload_to_s3(
+            file_data, file_key, self.s3_interface
+        )
+
+        return s3_public_url, file_key
+    #@end
+    def delete_file_s3(self, file_key):
+        """ """
+        try:
+            delete_s3(file_key, self.s3_interface)
+            success = True
+        except Exception:
+            success = False
+
+        return success
+    #@begin:Change the file type that was image
+    #@date:2013-11-02  
+    '''
     def check_for_image_and_upload(self, data):
         """
         Checks to see if an image was passed back in the AJAX query.  If so, it will upload it to S3
@@ -371,7 +470,34 @@ class OpenEndedChild(object):
                     image_tag = self.generate_image_tag_from_url(s3_public_url, student_file.name)
 
         return has_file_to_upload, uploaded_to_s3, image_ok, image_tag
+    '''
+    def check_for_file_and_upload(self, data):
+        """
+        Checks to see if a file was passed back by the student. If so, it will be uploaded to S3.
+        @param data: AJAX post dictionary containing keys student_file and valid_files_attached.
+        @return: has_file_to_upload, whether or not a file was in the data dictionary,
+        and image_tag, the html needed to create a link to the uploaded file.
+        """
+        has_file_to_upload = False
+        image_tag = ""
 
+        # Ensure that a valid file was uploaded.
+        if ('can_upload_files' in data
+            and data['can_upload_files'] in ['true', '1', True]
+            and data['student_file'] is not None
+            and len(data['student_file']) > 0):
+                has_file_to_upload = True
+                student_file = data['student_file'][0]
+
+                # Upload the file to S3 and generate html to embed a link.
+                s3_public_url, file_key = self.upload_file_to_s3(student_file)
+                image_tag = self.generate_file_link_html_from_url(s3_public_url, student_file.name ,file_key)
+
+        return has_file_to_upload, image_tag
+    #@end
+    #@begin:Return node with file info
+    #@date:2013-11-02  
+    '''
     def generate_image_tag_from_url(self, s3_public_url, image_name):
         """
         Makes an image tag from a given URL
@@ -383,7 +509,19 @@ class OpenEndedChild(object):
                         <a href="{0}" target="_blank">{1}</a>
                          """.format(s3_public_url, image_name)
         return image_template
-
+    '''
+    def generate_file_link_html_from_url(self, s3_public_url, file_name,file_key):
+        """
+        Create an html link to a given URL.
+        @param s3_public_url: URL of the file.
+        @param file_name: Name of the file.
+        @return: Boolean success, updated AJAX data.
+        """
+        #image_link = """<a href="{0}" target="_blank">{1}</a>""".format(s3_public_url, file_name)
+        image_link = """<div class="file_url" style="display:none">{0}##{1}##{2}</div>""".format(s3_public_url, file_name, file_key)
+        return image_link
+    #@end
+    '''
     def append_image_to_student_answer(self, data):
         """
         Adds an image to a student answer after uploading it to S3
@@ -415,7 +553,92 @@ class OpenEndedChild(object):
         # log.debug("Has file: {0} Uploaded: {1} Image Ok: {2}".format(has_file_to_upload, uploaded_to_s3, image_ok))
 
         return overall_success, data
+    '''
+    #@begin:Remove the type constraints
+    #@date:2013-11-02  
+    def append_file_link_to_student_answer(self, data):
+        """
+        Adds a file to a student answer after uploading it to S3.
+        @param data: AJAX data containing keys student_answer, valid_files_attached, and student_file.
+        @return: Boolean success, and updated AJAX data dictionary.
+        """
 
+        error_message = ""
+
+        if not self.accept_file_upload or data['student_file']=='':
+            # If the question does not accept file uploads, do not do anything
+            return True, error_message, data
+
+        try:
+            # Try to upload the file to S3.
+            has_file_to_upload, image_tag = self.check_for_file_and_upload(data)
+            data['student_answer'] += image_tag
+            data['file_info']=image_tag
+            success = True
+            if not has_file_to_upload:
+                # If there is no file to upload, probably the student has embedded the link in the answer text
+                success, data['student_answer'] = self.check_for_url_in_text(data['student_answer'])
+
+                # If success is False, we have not found a link, and no file was attached.
+                # Show error to student.
+                if success is False:
+                    error_message = FILE_NOT_FOUND_IN_RESPONSE_MESSAGE
+
+        except Exception:
+            # In this case, an image was submitted by the student, but the image could not be uploaded to S3. Likely
+            # a config issue (development vs deployment).
+            log.exception("Student AJAX post to combined open ended xmodule indicated that it contained a file, "
+                          "but the image was not able to be uploaded to S3. This could indicate a configuration "
+                          "issue with this deployment and the S3_INTERFACE setting.")
+            success = False
+            error_message = ERROR_SAVING_FILE_MESSAGE
+
+        return success, error_message, data
+    #@end
+    #@begin:Return file info
+    #@date:2013-11-02  
+    def append_file_link_to_file_info(self, data):
+        """
+        Adds a file to a student answer after uploading it to S3.
+        @param data: AJAX data containing keys student_answer, valid_files_attached, and student_file.
+        @return: Boolean success, and updated AJAX data dictionary.
+        """
+
+        error_message = ""
+
+        if data['student_file']=='':
+            # If the question does not accept file uploads, do not do anything
+            return False, error_message, data
+
+        try:
+            # Try to upload the file to S3.
+            has_file_to_upload, image_tag = self.check_for_file_and_upload(data)
+            #data['student_answer'] += image_tag
+            data['file_info']=image_tag
+            success = True
+            if not has_file_to_upload:
+                # If there is no file to upload, probably the student has embedded the link in the answer text
+                success, data['student_answer'] = self.check_for_url_in_text(data['student_answer'])
+
+                # If success is False, we have not found a link, and no file was attached.
+                # Show error to student.
+                if success is False:
+                    error_message = FILE_NOT_FOUND_IN_RESPONSE_MESSAGE
+
+        except Exception:
+            # In this case, an image was submitted by the student, but the image could not be uploaded to S3. Likely
+            # a config issue (development vs deployment).
+            log.exception("Student AJAX post to combined open ended xmodule indicated that it contained a file, "
+                          "but the image was not able to be uploaded to S3. This could indicate a configuration "
+                          "issue with this deployment and the S3_INTERFACE setting.")
+            success = False
+            error_message = ERROR_SAVING_FILE_MESSAGE
+
+        return success, error_message, data
+    #@end
+    #@begin:Check for urls in a string
+    #@date:2013-11-02  
+    '''
     def check_for_url_in_text(self, string):
         """
         Checks for urls in a string
@@ -434,7 +657,26 @@ class OpenEndedChild(object):
                     success = True
 
         return success, string
+    '''
+    def check_for_url_in_text(self, string):
+        """
+        Checks for urls in a string.
+        @param string: Arbitrary string.
+        @return: Boolean success, and the edited string.
+        """
+        has_link = False
 
+        # Find all links in the string.
+        links = re.findall(r'(https?://\S+)', string)
+        if len(links)>0:
+            has_link = True
+
+        # Autolink by wrapping links in anchor tags.
+        for link in links:
+            string = re.sub(link, self.generate_file_link_html_from_url(link, link,""), string)
+
+        return has_link, string
+    #@end
     def get_eta(self):
         if self.controller_qs:
             response = self.controller_qs.check_for_eta(self.location_string)

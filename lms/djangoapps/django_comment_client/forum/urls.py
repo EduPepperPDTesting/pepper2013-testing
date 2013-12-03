@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import url, patterns
-
 urlpatterns = patterns('django_comment_client.forum.views',  # nopep8
     url(r'users/(?P<user_id>\w+)/followed$', 'followed_threads', name='followed_threads'),
     url(r'users/(?P<user_id>\w+)$', 'user_profile', name='user_profile'),

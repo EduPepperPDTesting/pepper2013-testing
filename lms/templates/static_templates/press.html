@@ -1,42 +1,96 @@
+<!--@begin:Change the whole page content in Press-->
+<!--@date:2013-11-02-->
+
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
 <%namespace name='static' file='../static_content.html'/>
 
 <%inherit file="../main.html" />
 
-<%block name="title"><title>${_("{edX} in the Press").format(edX="edX")}</title></%block>
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<!--@end-->
 
-<section class="container about">
-  <nav>
-    <a href="${reverse('about_edx')}">${_("Vision")}</a>
-    <a href="${reverse('faq_edx')}">${_("Faq")}</a>
-    <a href="${reverse('press')}" class="active">${_("Press")}</a>
-    <a href="${reverse('contact')}">${_("Contact")}</a>
-  </nav>
+<style type="text/css" media="screen">
+  /*@begin:hide button dashboard*/
+  /*@date:2013-11-02*/
+  #btn-dashboard{display:none;}
+  /*@end*/
 
-  <section class="press">
-    % for article in articles:
-      <article class="press-story">
-        <div class="article-cover">
-          <a href="${article.url}" target="_blank"/>
-            <img src="${static.url('images/press/' + article.image)}" />
-          </a>
-        </div>
-        <div class="press-info">
-          <header>
-            <h3>${article.title}</h3>
-            % if article.deck:
-              <p>${article.deck}</p>
-            % endif
-            <span class="post-date">${article.publication} | ${article.publish_date} 
-            % if article.author:
-              | By ${article.author}
-            % endif
-            </span><br/>
-          </header>
-          <a href="${article.url}" target="_blank">${article.url}</a>
-        </div>
-      </article>
-    % endfor
-  </section>
-</section>
+  #page-nav,#page-footer{
+  width:960px;
+  }
+
+  ul.left {
+  list-style:none;
+  }
+
+  ul.left li{
+  margin-top:30px;font-size:16px;
+  }
+  
+  ul.left a{
+  color:#666;
+  }  
+</style>
+<div style="text-align:center;background:#f5f5f5">
+	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+	<!--@date:2013-11-02-->
+	<div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.png);">
+	<!--@end-->
+
+		<!--@begin:add code(class="_banner_aboutus_title_font") to modify font style-->
+		<!--@date:2013-11-02-->
+		<section class="_banner_aboutus_title_font">PRESS</section>
+		<!--@end-->
+	</div>
+  
+	<div style="width:960px;margin:auto;background:#fff;">
+	    <div style="float:left;width:217px;height:580px;background:#E6F4FB;text-align:left;">
+	    	<ul class="left">
+		        <li><a href="/about_pepper">ABOUT PEPPER</a></li>
+		        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
+		        <li><a href="/our_team">OUR TEAM</a></li>
+		        <li><a href="/faq">FAQ</a></li>
+				<li><a href="/contact">CONTACT US</a></li>
+
+				<!--@begin:add new url-->
+				<!--@date:2013-11-02-->
+				<li><a href="/press" style="color:#3461ad;">PRESS</a></li>
+				<!--@end-->
+	    	</ul>
+	    </div>
+
+	    <!--@begin:add code(class="_...") to modify font style; new content-->
+		<!--@date:2013-11-02-->
+    	<div style="float:left;width:743px;height:580px;text-align:left;">
+    		<div style="padding:20px;">
+	        	<h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">IN THE NEWS</h2>
+	        	<hr />
+		        <div style="float:left;">
+					<div style="float:left;width:147px;">
+						<img style="padding-top:10px;" src="static/images/wested_logo.png"/>
+					</div>
+					<div style="float:right;width:540px;">
+						<section>
+		                    <span style="font-size:18px;color:#3461ad;">
+		                    	<a target="_blank" href="static/resource/PressRelease_Pepper_WestEd_27Sep2013.pdf">Lively Online Professional Development for the Common Core: Introducing Pepper</a>
+		                    </span>				
+		                    <br/><br/>
+		                    <span class="_body_content_font">By Matt Spaur</span>
+		                    <br/>
+		                    <span class="_body_content_font">WestEd News Release | November 30, 2013</span>
+		                    <br/><br/>
+		                    <span class="_body_content_font">WestEd and Public Consulting Group (PCG) today announced the launch of Pepper, self-paced, online professional development for educators implementing Common Core State Standards (CCSS).
+		                    </span>
+		                </section>      
+					</div>
+				</div>
+      		</div>
+    	</div>
+    	<!--@end-->
+    	
+    	<br style="clear:both"/>
+  	</div>
+</div>

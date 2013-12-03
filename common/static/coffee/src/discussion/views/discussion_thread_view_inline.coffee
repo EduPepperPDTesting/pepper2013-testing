@@ -102,7 +102,7 @@ if Backbone?
       @expanded = true
       @$el.addClass('expanded')
       @$el.find('.post-body').html(@model.get('body'))
-      @showView.convertMath()
+      #@showView.convertMath()
       @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
@@ -115,7 +115,7 @@ if Backbone?
       @expanded = false
       @$el.removeClass('expanded')
       @$el.find('.post-body').html(@model.get('abbreviatedBody'))
-      @showView.convertMath()
+      #@showView.convertMath()
       @$el.find('.collapse-post').css('display', 'none')
       @$el.find('.post-extended-content').hide()
       @$el.find('.expand-post').css('display', 'block')

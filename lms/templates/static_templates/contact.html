@@ -1,62 +1,125 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
-<%namespace name='static' file='../static_content.html'/>
+<%! from time import strftime %>
 
+<%namespace name='static' file='../static_content.html'/>
 <%inherit file="../main.html" />
 
-<%block name="title"><title>${_("Contact {platform_name}").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
+<!--@begin:add css link-->
+<!--@date:2013-11-02-->
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/contact.css"/>
+<!--@end-->
 
-<section class="container about">
-  <nav>
-    <a href="${reverse('about_edx')}">${_("Vision")}</a>
-    <a href="${reverse('faq_edx')}">${_("Faq")}</a>
-    <a href="${reverse('press')}">${_("Press")}</a>
-    <a href="${reverse('contact')}" class="active">${_("Contact")}</a>
-  </nav>
+<style type="text/css" media="screen">
+	/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
+	
+  #page-nav,#page-footer{
+  width:960px;
+  }
+  ul.left {
+  list-style:none;
+  }
+  ul.left li{
+  margin-top:30px;font-size:16px;
+  }
+  ul.left a{
+  color:#666;
+  }  
+</style>
+<div style="text-align:center;background:#f5f5f5">
+  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+  <!--@date:2013-11-02-->
+  <div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-register-banner.png);">
+  <!--@end-->
+	
+    <!--@begin:use html text to replace the text on the picture-->
+    <!--@date:2013-11-02-->
+    <section class="_banner_aboutus_title_font">LET US HEAR FROM YOU</section>
+    <!--@end-->
+	</div>
+  
+  <div style="width:960px;margin:auto;background:#fff;">
+    <div style="float:left;width:217px;height:951px;background:#E6F4FB;text-align:left;">
+	
+      <ul class="left">
+        <li><a href="/about_pepper">ABOUT PEPPER</a></li>
+        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
+        <li><a href="/our_team">OUR TEAM</a></li>
+        <li><a href="/faq">FAQ</a></li>
+		<li><a href="/contact" style="color:#3461ad;">CONTACT US</a></li>
 
-  <section class="contact">
-    <div class="photo">
-      <img src="${static.url('images/contact-page.jpg')}">
+        <!--@begin:add new url-->
+        <!--@date:2013-11-02-->
+        <li><a href="/press">PRESS</a></li>
+        <!--@end-->
+      </ul>
     </div>
-    <div class="contacts">
-      <h2>${_("Class Feedback")}</h2>
-      <p>${_("We are always seeking feedback to improve our courses. If you are an enrolled student and have any questions, feedback, suggestions, or any other issues specific to a particular class, please post on the discussion forums of that&nbsp;class.")}</p>
+    <div style="float:left;width:743px;height:951px;text-align:left;">
+      <div style="padding:20px;">
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:0px;">SCHEUDLE A DEMO</h2>
+        <hr />
 
-      <h2>${_("General Inquiries and Feedback")}</h2>
-      <p>${_('If you have a general question about {platform_name} please email {email}. To see if your question has already been answered, visit our {faq_link_start}FAQ page{faq_link_end}. You can also join the discussion on our {fb_link_start}facebook page{fb_link_end}. Though we may not have a chance to respond to every email, we take all feedback into consideration.').format(
-          platform_name=settings.PLATFORM_NAME,
-          email='<a href="mailto:{contact_email}">{contact_email}</a>'.format(contact_email=settings.CONTACT_EMAIL),
-          faq_link_start='<a href="{url}">'.format(url=reverse('faq_edx')),
-          faq_link_end='</a>',
-          fb_link_start='<a href="http://www.facebook.com/EdxOnline">',
-          fb_link_end='</a>'
-        )}</p>
+        <!--@begin:add code(class="_...") to modify font style; add some new content and mail>
+        <!--@date:2013-11-02-->
+        <p class="_body_content_font">
+         To receive more information about <a href="mailto:pepper@pcgus.com" class="_blue">signing up</a> teachers in your district or to schedule a demo, please contact us at <a href="mailto:pepper@pcgus.com" class="_blue">pepper@pcgus.com</a> or call us today at 775-313-3121. We look forward to speaking with you soon.
+        </p>
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:30px;">WE WOULD LIKE TO HEAR FROM YOU</h2>
+        <hr />
+        <img src="static/images/google.png" style="float:right;" alt="" />
+        <p class="_body_content_font">
+          Already a Pepper member? If you have questions or suggestions about a specific course please post them in your course's discussion forum.
+        </p>
+        <p class="_body_content_font">
+          Not a member yet and have a general question about Pepper? Please visit our FAQ's. Still need help or want to give us general feedback (which we want), contact us below.
+        </p>
+		<!--@end-->
 
-      <h2>${_("Technical Inquiries and Feedback")}</h2>
-      <p>${_('If you have suggestions/feedback about the overall {platform_name} platform, or are facing general technical issues with the platform (e.g., issues with email addresses and passwords), you can reach us at {tech_email}. For technical questions, please make sure you are using a current version of Firefox or Chrome, and include browser and version in your e-mail, as well as screenshots or other pertinent details. If you find a bug or other issues, you can reach us at the following: {bug_email}.').format(
-        platform_name=settings.PLATFORM_NAME,
-        tech_email='<a href="mailto:{tech_support_email}">{tech_support_email}</a>'.format(tech_support_email=settings.TECH_SUPPORT_EMAIL),
-        bug_email='<a href="mailto:{bugs_email}">{bugs_email}</a>'.format(bugs_email=settings.BUGS_EMAIL)
-      )}</p>
-
-      <h2>${_("Media")}</h2>
-      <p>${_('Please visit our {link_start}media/press page{link_end} for more information. For any media or press inquiries, please email {email}.').format(
-        link_start='<a href="{url}">'.format(url=reverse('faq_edx')),
-        link_end='</a>',
-        email='<a href="mailto:{email}">{email}</a>'.format(email="press@edx.org"),
-        )}</p>
-
-      <h2>${_("Universities")}</h2>
-      <p>${_('If you are a university wishing to collaborate or you have questions about {platform_name}, please email {email}.'.format(
-          platform_name="edX",
-          email='<a href="mailto:{email}">{email}</a>'.format(
-            email="university@edx.org"
-          )
-        ))}</p>
-
-      <h2>${_("Accessibility")}</h2>
-      <p>${_('{platform_name} strives to create an innovative online-learning platform that promotes accessibility for everyone, including students with disabilities. We are dedicated to improving the accessibility of the platform and welcome your comments or questions at {email}.'.format(platform_name="EdX", email='<a href="mailto:{email}">{email}</a>'.format(email="accessibility@edx.org")))}</p>
+        <!--@begin:add code(class="_...") to modify font style; write real form code replace the image; modify "option" content; add submit button-->
+        <!--@date:2013-11-02-->
+		<table class="connect_us_table _body_content_font" width="500" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td width="120">Your Email: <span class="red">*</span></td>
+				<td><input class="connect_input" id="edit-submitted-your-email" name="submitted[your_email]" size="60" type="email"></td>
+			</tr>
+			<tr>
+				<td>Full name:<span class="red"> *</span></td>
+				<td><input class="connect_input" id="edit-submitted-your-email2" name="edit-submitted-your-email" size="60" type="email"></td>
+			</tr>
+			<tr>
+				<td>Phone: </td>
+				<td><input class="connect_input" id="edit-submitted-your-email3" name="edit-submitted-your-email2" size="60" type="email"></td>
+			</tr>
+			<tr>
+				<td>Inquiry type: <span class="red">*</span></td>
+				<td>
+					<select id="edit-submitted-inquiry-type-student" name="submitted[inquiry_type_student]" class="connect_us_select">
+						<option value="" selected="selected">- Select -</option>
+						<option value="registration">Account Question</option>
+						<option value="technical">Sales Question</option>
+						<option value="accessibility">Technical Support Question</option>
+						<option value="exams">Idea to Share</option>
+						<option value="account">General / Other Question</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td> Message:      </td>
+				<td><textarea name="textarea" style="width:361px; height:150px;" class="connect_us_textarea"></textarea></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="" value="Submit" /></td>
+			</tr>
+            
+		</table>
+	    <!--@end-->
+      </div>
     </div>
-  </section>
-</section>
-
+    <br style="clear:both"/>
+  </div>
+</div>

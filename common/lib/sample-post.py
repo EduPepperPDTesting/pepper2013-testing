@@ -30,7 +30,7 @@ server = 'https://www.edx.org'
 course_id = 'HarvardX/PH207x/2012_Fall'
 location = 'i4x://HarvardX/PH207x/problem/ex_practice_2'
 
-#server = prompt('Server (no trailing slash)',  'http://127.0.0.1:8000')
+#server = prompt('Server (no trailing slash)',  'http://127.0.0.1:8111')
 #course_id = prompt('Course id', 'MITx/7012x/2013_Spring')
 #location = prompt('problem location', 'i4x://MITx/7012x/problem/example_upload_answer')
 value = prompt('value to upload')

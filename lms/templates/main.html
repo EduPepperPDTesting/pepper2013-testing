@@ -23,7 +23,10 @@
       <title>${_("Home")} | class.stanford.edu</title>
     % else:
       ## "edX" should not be translated
-      <title>edX</title>
+<!--@begin:Main module page, change the title-->
+<!--@date:2013-11-02-->      
+      <title>Pepper</title>
+<!--@end-->
 
       <script type="text/javascript">
         /* immediately break out of an iframe if coming from the marketing website */
@@ -77,11 +80,13 @@
 % elif not suppress_toplevel_navigation:
   <%include file="navigation.html" />
 % endif
-
-  <section class="content-wrapper">
+<!--@begin:Main module page, change the bottom margin in the body text-->
+<!--@date:2013-11-02-->
+  <section class="content-wrapper" style="padding-bottom:0px;">
     ${self.body()}
     <%block name="bodyextra"/>
   </section>
+<!--@end-->
 
 % if theme_enabled():
   <%include file="theme-footer.html" />

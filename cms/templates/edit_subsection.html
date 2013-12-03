@@ -83,6 +83,10 @@
     </div>
     <div class="row unit-actions">
       <a href="${preview_link}" target="_blank" class="preview-button">${_("Preview Drafts")}</a>
+      <!--@begin:Another form of preview-->
+      <!--@date:2013-11-02-->
+      <!-- <a href="${reverse('preview_component',args=[location])}" target="_blank" class="preview-button">${_("Preview Drafts")}</a> -->
+      <!--@end-->
       %if can_view_live:
       <a href="${lms_link}" target="_blank" class="preview-button">${_("View Live")}</a>
       %endif

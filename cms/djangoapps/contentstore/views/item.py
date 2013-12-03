@@ -65,7 +65,9 @@ def save_item(request):
         # the intent is to make it None, use the nullout field
         for metadata_key, value in request.POST.get('metadata', {}).items():
             field = existing_item.fields[metadata_key]
-
+            import logging
+            log = logging.getLogger("tracking")
+            log.debug("metadata_key===============================\n:"+str(metadata_key)+"\n===========================")
             if value is None:
                 field.delete_from(existing_item)
             else:

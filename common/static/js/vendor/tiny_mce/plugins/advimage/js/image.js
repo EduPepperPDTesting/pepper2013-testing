@@ -1,23 +1,32 @@
+/*@begin:uplad image*/
+jQuery.ajaxWithPrefix_image = function(url, settings) {
+        if (settings != null) {
+          return $.ajax(url, settings);
+        } else {
+          settings = url;
+          settings.url = settings.url;
+
+          return $.ajax(settings);
+        }
+      };
+
 var ImageDialog = {
+	fileURL:"",
 	preInit : function() {
 		var url;
-
 		tinyMCEPopup.requireLangPack();
-
 		if (url = tinyMCEPopup.getParam("external_image_list_url"))
 			document.write('<script language="javascript" type="text/javascript" src="' + tinyMCEPopup.editor.documentBaseURI.toAbsolute(url) + '"></script>');
 	},
-
 	init : function(ed) {
 		var f = document.forms[0], nl = f.elements, ed = tinyMCEPopup.editor, dom = ed.dom, n = ed.selection.getNode(), fl = tinyMCEPopup.getParam('external_image_list', 'tinyMCEImageList');
 
 		tinyMCEPopup.resizeToInnerSize();
-		this.fillClassList('class_list');
-		this.fillFileList('src_list', fl);
-		this.fillFileList('over_list', fl);
-		this.fillFileList('out_list', fl);
+		//this.fillClassList('class_list');
+		//this.fillFileList('src_list', fl);
+		//this.fillFileList('over_list', fl);
+		//this.fillFileList('out_list', fl);
 		TinyMCE_EditableSelects.init();
-
 		if (n.nodeName == 'IMG') {
 			nl.src.value = dom.getAttrib(n, 'src');
 			nl.width.value = dom.getAttrib(n, 'width');
@@ -59,36 +68,36 @@ var ImageDialog = {
 			}
 		}
 
-		// Setup browse button
-		document.getElementById('srcbrowsercontainer').innerHTML = getBrowserHTML('srcbrowser','src','image','theme_advanced_image');
-		if (isVisible('srcbrowser'))
-			document.getElementById('src').style.width = '260px';
+		// // Setup browse button
+		// document.getElementById('srcbrowsercontainer').innerHTML = getBrowserHTML('srcbrowser','src','image','theme_advanced_image');
+		// if (isVisible('srcbrowser'))
+		// 	document.getElementById('src').style.width = '260px';
 
-		// Setup browse button
-		document.getElementById('onmouseoversrccontainer').innerHTML = getBrowserHTML('overbrowser','onmouseoversrc','image','theme_advanced_image');
-		if (isVisible('overbrowser'))
-			document.getElementById('onmouseoversrc').style.width = '260px';
+		// // Setup browse button
+		// document.getElementById('onmouseoversrccontainer').innerHTML = getBrowserHTML('overbrowser','onmouseoversrc','image','theme_advanced_image');
+		// if (isVisible('overbrowser'))
+		// 	document.getElementById('onmouseoversrc').style.width = '260px';
 
-		// Setup browse button
-		document.getElementById('onmouseoutsrccontainer').innerHTML = getBrowserHTML('outbrowser','onmouseoutsrc','image','theme_advanced_image');
-		if (isVisible('outbrowser'))
-			document.getElementById('onmouseoutsrc').style.width = '260px';
+		// // Setup browse button
+		// document.getElementById('onmouseoutsrccontainer').innerHTML = getBrowserHTML('outbrowser','onmouseoutsrc','image','theme_advanced_image');
+		// if (isVisible('outbrowser'))
+		// 	document.getElementById('onmouseoutsrc').style.width = '260px';
 
 		// If option enabled default contrain proportions to checked
-		if (ed.getParam("advimage_constrain_proportions", true))
-			f.constrain.checked = true;
+		// if (ed.getParam("advimage_constrain_proportions", true))
+		// 	f.constrain.checked = true;
 
-		// Check swap image if valid data
-		if (nl.onmouseoversrc.value || nl.onmouseoutsrc.value)
-			this.setSwapImage(true);
-		else
-			this.setSwapImage(false);
+		// // Check swap image if valid data
+		// if (nl.onmouseoversrc.value || nl.onmouseoutsrc.value)
+		// 	this.setSwapImage(true);
+		// else
+		// 	this.setSwapImage(false);
 
-		this.changeAppearance();
-		this.showPreviewImage(nl.src.value, 1);
+		// this.changeAppearance();
+		// this.showPreviewImage(nl.src.value, 1);
 	},
-
 	insert : function(file, title) {
+
 		var ed = tinyMCEPopup.editor, t = this, f = document.forms[0];
 
 		if (f.src.value === '') {
@@ -114,7 +123,63 @@ var ImageDialog = {
 
 		t.insertAndClose();
 	},
-
+	upload_file:function() {
+      var fd, files, max_filesize, settings
+      max_filesize = 2 * 1000 * 1000;
+      can_upload_files = true;
+      _this=this;
+      $("#prev").html("");
+       if (/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test($(".file-upload-box")[0].files[0].name)) {
+		files = "";
+        if (can_upload_files == true) {
+          $(".file-loading").show();
+          files = $(".file-upload-box")[0].files[0];
+          if (files != void 0) {
+            if (files.size > max_filesize) {
+              can_upload_files = false;
+              files = "";
+              alert("File is too large.");
+              $(".file-upload-box")[0].files = [];
+              return false;
+            }
+          } else {
+            can_upload_files = false;
+          }
+        }
+        fd = new FormData();
+        fd.append('student_answer', '');
+        fd.append('student_file', files);
+        fd.append('file_info', '');
+        fd.append('can_upload_files', can_upload_files);
+        settings = {
+          type: "POST",
+          data: fd,
+          processData: false,
+          contentType: false,
+          async: false,
+          success: function(response) {
+          	var response=JSON.parse(response)
+            var answer_area_val, file_item, file_upload_item, insertImageItem;
+            $(".file-loading").hide();
+            if (response == null) {
+              alert("Network error. Please try again.");
+              return false;
+            }
+            if (response.success == true) {
+              alert("Upload success!");
+            } else {
+              alert("Upload fail");
+            }
+            var file_info=$(response.file_info).html().split("##");
+            _this.fileURL="<img src="+"'"+file_info[0]+"'/>";
+            $("#prev").html(_this.fileURL);
+          }
+        };
+        return $.ajaxWithPrefix_image("" + this.ajax_url + "/upload_image", settings);
+      } else {
+       	alert("File format not supported.");
+      }
+    },
 	insertAndClose : function() {
 		var ed = tinyMCEPopup.editor, f = document.forms[0], nl = f.elements, v, args = {}, el;
 
@@ -462,3 +527,41 @@ var ImageDialog = {
 
 ImageDialog.preInit();
 tinyMCEPopup.onInit.add(ImageDialog.init, ImageDialog);
+//-----------------------------------------------------------------------------------------------
+    $(document).ajaxSend(function(event, xhr, settings) {  
+        function getCookie(name) {  
+            var cookieValue = null;  
+            if (document.cookie && document.cookie != '') {  
+                var cookies = document.cookie.split(';');  
+                for (var i = 0; i < cookies.length; i++) {  
+                    var cookie = jQuery.trim(cookies[i]);  
+                    // Does this cookie string begin with the name we want?  
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {  
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));  
+                        break;  
+                    }  
+                }  
+            }  
+            return cookieValue;  
+        }  
+        function sameOrigin(url) {  
+            // url could be relative or scheme relative or absolute  
+            var host = document.location.host; // host + port  
+            var protocol = document.location.protocol;  
+            var sr_origin = '//' + host;  
+            var origin = protocol + sr_origin;  
+            // Allow absolute or scheme relative URLs to same origin  
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||  
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||  
+                // or any other URL that isn't scheme relative or absolute i.e relative.  
+                !(/^(\/\/|http:|https:).*/.test(url));  
+        }  
+        function safeMethod(method) {  
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));  
+        }  
+      
+        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {  
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));  
+        }  
+    });  
+/*@end*/

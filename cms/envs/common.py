@@ -182,7 +182,10 @@ TEMPLATE_DEBUG = False
 
 # Site info
 SITE_ID = 1
-SITE_NAME = "localhost:8000"
+#@begin:Change lms port to 8111 and the code
+#@date:2013-11-02
+SITE_NAME = "localhost:8111"
+#@end
 HTTPS = 'on'
 ROOT_URLCONF = 'cms.urls'
 IGNORABLE_404_ENDS = ('favicon.ico')

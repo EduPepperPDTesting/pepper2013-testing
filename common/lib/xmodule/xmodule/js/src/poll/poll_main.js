@@ -6,6 +6,8 @@ PollMain.prototype = {
 'showAnswerGraph': function (poll_answers, total) {
     var _this, totalValue;
 
+	return;
+
     totalValue = parseFloat(total);
     if (isFinite(totalValue) === false) {
         return;
@@ -34,17 +36,40 @@ PollMain.prototype = {
 'submitAnswer': function (answer, answerObj) {
     var _this;
 
+    logme("submitAnswer");
+    
+    
+    this._answer = answer;
+    this._answerObj = answerObj;
+    
+
     // Make sure that the user can answer a question only once.
     if (this.questionAnswered === true) {
         return;
     }
-    this.questionAnswered = true;
+
+    
+    //this.questionAnswered = true;
+    
 
     _this = this;
 
     console.log('submit answer');
 
+    
+    $.each(this.answersObj, function (index, value) {
+        if (value.buttonEl.hasClass('answered')) {
+            value.buttonEl.removeClass('answered');
+        }
+    });
+    
+
     answerObj.buttonEl.addClass('answered');
+    
+    
+    //return the submitAnswer process, dont submit 
+    return;
+    
 
     // Send the data to the server as an AJAX request. Attach a callback that will
     // be fired on server's response.
@@ -77,6 +102,11 @@ PollMain.prototype = {
 
     _this = this;
 
+    
+    this._answer = null;
+    this._answerObj = null;
+    
+
     console.log('submit reset');
 
     // Send the data to the server as an AJAX request. Attach a callback that will
@@ -99,6 +129,9 @@ PollMain.prototype = {
             _this.questionEl.find('.button.answered').removeClass('answered');
             _this.questionEl.find('.stats').hide();
             _this.resetButton.hide();
+            
+            _this.submiButton.show();
+            
 
             // Initialize Conditional constructors. We will specify the third parameter as 'true'
             // notifying the constructor that this is a reset operation.
@@ -110,7 +143,64 @@ PollMain.prototype = {
         }
     );
 }, // End-of: 'submitAnswer': function (answer, answerEl) {
+//new added
+'submitPoll': function () {
+    var _this;
 
+    logme("submitPoll");
+
+    
+    if(this._answer == null || this._answerObj == null) {
+        return;
+    }
+    
+
+    // Make sure that the user can answer a question only once.
+    if (this.questionAnswered === true) {
+        return;
+    }
+    this.questionAnswered = true;
+
+    _this = this;
+
+    console.log('submit poll');
+
+    
+    _this._answerObj.buttonEl.addClass('answered');
+    
+
+    // Send the data to the server as an AJAX request. Attach a callback that will
+    // be fired on server's response.
+    $.postWithPrefix(
+        
+        //_this.ajax_url + '/' + answer,  {},
+        _this.ajax_url + '/' + _this._answer,  {},
+        
+        function (response) {
+            console.log('success! response = ');
+            console.log(response);
+
+            
+            //_this.showAnswerGraph(response.poll_answers, response.total);
+            
+
+            if (_this.canReset === true) {
+                _this.resetButton.show();
+            }
+            
+            _this.submiButton.hide();
+            
+
+            // Initialize Conditional constructors.
+            if (_this.wrapperSectionEl !== null) {
+                $(_this.wrapperSectionEl).find('.xmodule_ConditionalModule').each(function (index, value) {
+                    new window.Conditional(value, _this.id.replace(/^poll_/, ''));
+                });
+            }
+        }
+    );
+},
+//added end
 'postInit': function () {
     var _this;
 
@@ -210,17 +300,36 @@ PollMain.prototype = {
     if ((typeof this.jsonConfig.reset === 'string') && (this.jsonConfig.reset.toLowerCase() === 'true')) {
         this.canReset = true;
 
-        this.resetButton = $('<div class="button reset-button">Change your vote</div>');
+        this.resetButton = $('<div class="button reset-button">Change your answer</div>');
+        
+        this.submiButton = $('<div class="button reset-button">Submit your answer</div>');
+        
 
         if (this.questionAnswered === false) {
             this.resetButton.hide();
+            
+            this.submiButton.show();
+            
+        } else {
+            
+            this.resetButton.show();
+            this.submiButton.hide();
+            
         }
 
         this.resetButton.appendTo(this.questionEl);
+        
+        this.submiButton.appendTo(this.questionEl);
+        
 
         this.resetButton.on('click', function () {
             _this.submitReset();
         });
+        
+        this.submiButton.on('click', function () {
+            _this.submitPoll();
+        });
+        
     } else {
         this.canReset = false;
     }

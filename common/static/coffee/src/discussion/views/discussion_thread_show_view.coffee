@@ -30,7 +30,8 @@ if Backbone?
       @renderPinned()
       @renderAttrs()
       @$("span.timeago").timeago()
-      @convertMath()
+      #@convertMath()
+      @$(".post-body").html(@$(".post-body").text())
       @highlight @$(".post-body")
       @highlight @$("h1,h3")
       @

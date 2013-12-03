@@ -51,7 +51,10 @@ class MockXQueueServerTest(unittest.TestCase):
         MockXQueueRequestHandler.post_to_url = mock.Mock()
 
         # Send a grade request
-        callback_url = 'http://127.0.0.1:8000/test_callback'
+#@begin:Change lms port to 8111
+#@date:2013-11-02        
+        callback_url = 'http://127.0.0.1:8111/test_callback'
+#@end                
 
         grade_header = json.dumps({'lms_callback_url': callback_url,
                                    'lms_key': 'test_queuekey',

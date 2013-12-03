@@ -13,7 +13,7 @@ class LMSLinksTestCase(TestCase):
     def about_page_test(self):
         """ Get URL for about page, no marketing site """
         # default for ENABLE_MKTG_SITE is False.
-        self.assertEquals(self.get_about_page_link(), "//localhost:8000/courses/mitX/101/test/about")
+        self.assertEquals(self.get_about_page_link(), "//localhost:8111/courses/mitX/101/test/about")
 
     @override_settings(MKTG_URLS={'ROOT': 'dummy-root'})
     def about_page_marketing_site_test(self):
@@ -21,7 +21,7 @@ class LMSLinksTestCase(TestCase):
         with mock.patch.dict('django.conf.settings.MITX_FEATURES', {'ENABLE_MKTG_SITE': True}):
             self.assertEquals(self.get_about_page_link(), "//dummy-root/courses/mitX/101/test/about")
         with mock.patch.dict('django.conf.settings.MITX_FEATURES', {'ENABLE_MKTG_SITE': False}):
-            self.assertEquals(self.get_about_page_link(), "//localhost:8000/courses/mitX/101/test/about")
+            self.assertEquals(self.get_about_page_link(), "//localhost:8111/courses/mitX/101/test/about")
 
     @override_settings(MKTG_URLS={'ROOT': 'http://www.dummy'})
     def about_page_marketing_site_remove_http_test(self):
@@ -61,7 +61,7 @@ class LMSLinksTestCase(TestCase):
         """ Tests get_lms_link_for_item. """
         location = 'i4x', 'mitX', '101', 'vertical', 'contacting_us'
         link = utils.get_lms_link_for_item(location, False, "mitX/101/test")
-        self.assertEquals(link, "//localhost:8000/courses/mitX/101/test/jump_to/i4x://mitX/101/vertical/contacting_us")
+        self.assertEquals(link, "//localhost:8111/courses/mitX/101/test/jump_to/i4x://mitX/101/vertical/contacting_us")
         link = utils.get_lms_link_for_item(location, True, "mitX/101/test")
         self.assertEquals(
             link,
@@ -74,7 +74,10 @@ class LMSLinksTestCase(TestCase):
         link = utils.get_lms_link_for_item(location)
         self.assertEquals(
             link,
-            "//localhost:8000/courses/mitX/101/test/jump_to/i4x://mitX/101/course/test"
+#@begin:Change lms port to 8111 and the code
+#@date:2013-11-02        
+            "//localhost:8111/courses/mitX/101/test/jump_to/i4x://mitX/101/course/test"
+#@end
         )
 
 

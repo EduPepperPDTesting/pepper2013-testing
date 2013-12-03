@@ -353,7 +353,8 @@ return {
             'z-index': this.zIndex,
             'width': this.iconWidthSmall,
             'height': this.iconHeightSmall,
-            'left': 50 - this.iconWidthSmall * 0.5,
+            //modify
+			'left': 72.5 - this.iconWidthSmall * 0.5,
 
             // Before:
             // 'top': ((this.labelEl !== null) ? (100 - this.iconHeightSmall - 25) * 0.5 : 50 - this.iconHeightSmall * 0.5)
@@ -370,7 +371,8 @@ return {
                 'padding-left': 0,
                 'padding-right': 0,
                 'z-index': this.zIndex,
-                'left': 50 - this.labelWidth * 0.5,
+                //modify
+				'left': 72.5 - this.labelWidth * 0.5,
 
                 // Before:
                 // 'top': (100 - this.iconHeightSmall - 25) * 0.5 + this.iconHeightSmall + 5

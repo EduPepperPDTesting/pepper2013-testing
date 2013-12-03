@@ -348,7 +348,7 @@ class CapaModule(CapaFields, XModule):
         else:
             final_check = False
 
-        return "Final Check" if final_check else "Check"
+        return "Final Check" if final_check else "Submit"
 
     def should_show_check_button(self):
         """

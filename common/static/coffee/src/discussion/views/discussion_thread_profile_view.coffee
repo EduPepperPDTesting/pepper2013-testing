@@ -29,7 +29,8 @@ if Backbone?
       @renderVoted()
       @renderAttrs()
       @$("span.timeago").timeago()
-      @convertMath()
+      #@convertMath()
+      @$(".post-body").html(@$(".post-body").text())
       if @expanded
         @renderResponses()
       @
