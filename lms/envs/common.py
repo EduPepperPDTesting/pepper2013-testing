@@ -35,11 +35,7 @@ from xmodule.modulestore.inheritance import InheritanceMixin
 
 ################################### FEATURES ###################################
 # The display name of the platform to be used in templates/emails/etc.
-
-#@begin:Change the platform name to be Pepper
-#@date:2013-11-02        
 PLATFORM_NAME = "Pepper"
-#@end
 
 COURSEWARE_ENABLED = True
 ENABLE_JASMINE = False
@@ -147,7 +143,7 @@ MITX_FEATURES = {
     'USE_CUSTOM_THEME': False,
 
     # Do autoplay videos for students
-    'AUTOPLAY_VIDEOS': False,
+    'AUTOPLAY_VIDEOS': True,
 
     # Enable instructor dash to submit background tasks
     'ENABLE_INSTRUCTOR_BACKGROUND_TASKS': True,
@@ -834,7 +830,7 @@ EDXMKTG_COOKIE_NAME = 'edxloggedin'
 MKTG_URLS = {}
 MKTG_URL_LINK_MAP = {
     'ABOUT': 'about_edx',
-    # 'CONTACT': 'contact',
+    'CONTACT': 'contact',
     'FAQ': 'help_edx',
     'COURSES': 'courses',
     'ROOT': 'root',

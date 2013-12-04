@@ -19,7 +19,6 @@ from courseware.courses import get_course_with_access
 import comment_client as cc
 import sys, re
 import urllib
-import functools
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import login_required
 reload(sys)  
@@ -272,40 +271,22 @@ def create_discussion(request, course, ora_id, parent_location, thread_data):
 
     return context
 
-def permitted(fn):
-    @functools.wraps(fn)
-    def wrapper(request, *args, **kwargs):
-        def fetch_content():
-            if "thread_id" in kwargs:
-                content = cc.Thread.find(kwargs["thread_id"]).to_dict()
-            elif "comment_id" in kwargs:
-                content = cc.Comment.find(kwargs["comment_id"]).to_dict()
-            else:
-                content = None
-            return content
-        if check_permissions_by_view(request.user, kwargs['course_id'], fetch_content(), request.view_name):
-            return fn(request, *args, **kwargs)
-        else:
-            #return JsonError("unauthorized", status=401)
-            pass
-    return wrapper
 @require_POST
 @login_required
-@permitted
 def set_discussion_visibility(request,course_id,comment_id,discussion_visibility):
-    import logging
-    log = logging.getLogger("tracking")
-    log.debug("discussion_id===============================\n:"+str(discussion_id)+"\n===========================")
-    log.debug("discussion_visibility===============================\n:"+str(discussion_visibility)+"\n===========================")
-    item_location = discussion_id
-
-    store = get_modulestore(Location(item_location))
+    
+    location = str(request.user.id)+'_'+comment_id
+    course_location = course_id.split('/')
+    item_location = Location('i4x://'+course_location[0]+'/'+course_location[1]+'/discussion/'+location)
+    
+    store = get_modulestore(item_location)
     metadata = {}
     metadata['discussion_visibility'] = discussion_visibility
     if metadata is not None:
         # the postback is not the complete metadata, as there's system metadata which is
         # not presented to the end-user for editing. So let's fetch the original and
         # 'apply' the submitted metadata, so we don't end up deleting system metadata
+        
         existing_item = modulestore().get_item(item_location)
         # update existing metadata with submitted metadata (which can be partial)
         # IMPORTANT NOTE: if the client passed 'null' (None) for a piece of metadata that means 'remove it'. If
@@ -323,6 +304,11 @@ def set_discussion_visibility(request,course_id,comment_id,discussion_visibility
         existing_item.save()
         # commit to datastore
         store.update_metadata(item_location, own_metadata(existing_item))
-    return "true"
+    
+    return JsonResponse({
+        'visibility': discussion_visibility
+    })
+    
+
 
     

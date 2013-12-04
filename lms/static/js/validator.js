@@ -87,11 +87,9 @@ FormValidator.prototype.check=function(elForm,mode){
 	  }
 	}
 	if(this.errorMessage.length > 0){
+		mode = mode || 1;
 		var errCount = this.errorItem.length;
 		switch(mode){
-        case 0:
-          try{this.errorItem[1].focus()}catch(e){}
-          break;
 		case 2 :
 			for(var i=1;i<errCount;i++)
 				this.errorItem[i].style.color = "red";
@@ -131,7 +129,7 @@ FormValidator.prototype.clearState = function(elem){
 }
 FormValidator.prototype.addError =function(index, str){
 	this.errorItem[this.errorItem.length] = this.errorItem[0].elements[index];
-	this.errorMessage[this.errorMessage.length] = str;
+	this.errorMessage[this.errorMessage.length] = (this.errorMessage.length+1) + ". " + str;
 }
 FormValidator.prototype.limit = function(len,min,max){
 	min = min || 0;

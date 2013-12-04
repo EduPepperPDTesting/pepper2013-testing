@@ -16,8 +16,8 @@ if Backbone?
         @page = parseInt(match[1])
       else
         @page = 1
-      @showed=false
-      @toggleDiscussion(null)
+      $elem = @toggleDiscussionBtn
+      @loadPage $elem
     toggleNewPost: (event) ->
       event.preventDefault()
       if !@newPostForm
@@ -31,31 +31,29 @@ if Backbone?
       @toggleDiscussionBtn.addClass('shown')
       @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
       @$("section.discussion").slideDown()
-      @showed = true
 
     hideNewPost: (event) ->
       event.preventDefault()
       @newPostForm.slideUp(300)
 
     toggleDiscussion: (event) ->
-      if @showed
-        #@$("section.discussion").slideUp()
+      if @toggleDiscussionBtn.find('.button-text').text()=='Showing in Public View'
         @toggleDiscussionBtn.removeClass('shown')
-        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
         @showed = false
       else
         @toggleDiscussionBtn.addClass('shown')
-        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+        @showed = true
+        
+      @setVisibility()  
 
-        if @retrieved
-          @$("section.discussion").slideDown()
-          @showed = true
-        else
-          $elem = @toggleDiscussionBtn
-          @loadPage $elem
-      #@setVisibility()
     loadPage: ($elem)=>
       discussionId = @$el.data("discussion-id")
+      if @$el.data("discussion-visibility")==true
+        @showed=true
+        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+      else
+        @showed=false
+        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
       url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem
@@ -66,14 +64,24 @@ if Backbone?
         success: (response, textStatus, jqXHR) => @renderDiscussion($elem, response, textStatus, discussionId)
 
     setVisibility: ($elem)=>
-      discussionId = @$el.data("discussion-id")
+      #discussionId = @$el.data("discussion-id")
+      discussionId = @$el.find('.edit-course-btn').attr('href').split('/')[6]
       url = DiscussionUtil.urlFor('set_visibility', discussionId,@showed)
       DiscussionUtil.safeAjax
         $elem: $elem
         $loading: $elem
         url: url
         type: "POST"
-        success: (response) =>
+        success: (response) => @switch_status($elem,response)
+          
+
+    switch_status:($elem,response)=>
+      if response.visibility=='true'
+        @showed=true
+        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+      else
+        @showed=false
+        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
 
     renderDiscussion: ($elem, response, textStatus, discussionId) =>
       window.user = new DiscussionUser(response.user_info)

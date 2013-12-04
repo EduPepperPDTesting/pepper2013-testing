@@ -49,7 +49,7 @@
         <tr>
           <td><input type="checkbox" name="id" value="${item.id}" /></td>
           <td><a href="${reverse('cohort_form',args=[item.id])}">${item.code}</a></td>
-          <td>${item.licences}</td>
+          <td>${item.licences_exist}/${item.licences}</td>
           <td>${item.term_months}</td>
           <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
           <td style="text-align:center;">

@@ -62,6 +62,7 @@ urlpatterns = (
     url(r'^people_network$', 'people.views.my_people', name="my_people"),
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
+
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
@@ -224,10 +225,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
-        
         url(r'^contact$', 'branding.views.contact', name="contact_us"),
-        url(r'^contact_us_submit$', 'branding.views.contact_us_submit', name="contact_us_submit"),
-
         url(r'^intro$', 'branding.views.intro', name="intro"),
         url(r'^intro_research$', 'branding.views.intro_research', name="intro_research"),
         url(r'^intro_ourteam$', 'branding.views.intro_ourteam', name="intro_ourteam"),
