@@ -3,12 +3,14 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
 
 import student.views
 import branding
 import courseware.views
 from mitxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
+import json
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -93,8 +95,22 @@ def contact(request):
     return render_to_response('contact.html', {})
 
 def contact_us_submit(request):
-    pass
-
+    ret={"success":True}
+    email=request.POST.get("email")
+    fullname=request.POST.get("fullname")
+    phone=request.POST.get("phone")
+    inquiry_type=request.POST.get("inquiry_type")
+    message=request.POST.get("message")
+    from django.core.mail import send_mail
+    from mitxmako.shortcuts import render_to_response, render_to_string
+    d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message}
+    subject="PepperPd Contact Us"
+    body = render_to_string('emails/contact_us_body.txt', d)
+    try:
+        send_mail(subject, body, 'djangoedx@gmail.com', ['peppersupport@pcgus.com'], fail_silently=False) # to: peppersupport@pcgus.com
+    except Exception as e:
+        message={"success":False,"error": "%s" % e}
+    return HttpResponse(json.dumps(ret))
 #@end
 
 #@begin:View of the new added page

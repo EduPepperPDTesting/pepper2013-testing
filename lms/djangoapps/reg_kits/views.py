@@ -365,7 +365,7 @@ def send_invite_email(request):
             subject = ''.join(subject.splitlines())
             message = render_to_string('emails/activation_email.txt', d)
             try:
-                item.user.email_user(subject, message, "djangoedx@gmail.com") # settings.default_from_email
+                item.user.email_user(subject, message, "peppersupport@pcgus.com") # settings.default_from_email
             except Exception as e:
                 # log.warning('unable to send reactivation email', exc_info=true)
                 raise Exception('unable to send reactivation email: %s' % e)

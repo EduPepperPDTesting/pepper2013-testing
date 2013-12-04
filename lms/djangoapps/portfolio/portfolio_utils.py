@@ -8,9 +8,8 @@ from django.core.urlresolvers import reverse
 from HTMLParser import HTMLParser
 from sgmllib import SGMLParser
 
-
 from django_comment_client.base.views import ajax_content_response
-from django_comment_client.forum.views import inline_discussion,get_threads
+#from django_comment_client.forum.views import inline_discussion,get_threads
 from django_comment_client.utils import JsonResponse, JsonError, extract, get_courseware_context, safe_content
 from django_comment_client.permissions import check_permissions_by_view, cached_has_permission
 from util.json_request import expect_json, JsonResponse
@@ -21,6 +20,9 @@ import sys, re
 import urllib
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import login_required
+from course_groups.cohorts import (is_course_cohorted, get_cohort_id, is_commentable_cohorted,
+                                   get_cohorted_commentables, get_course_cohorts, get_cohort_by_id)
+from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context)
 reload(sys)  
 sys.setdefaultencoding('utf-8')
 DIRECT_ONLY_CATEGORIES = ['course', 'chapter', 'sequential', 'about', 'static_tab', 'course_info']
@@ -67,10 +69,10 @@ def Get_combinedopenended_info(con):
 def add_edit_tool(data, course, descriptor):
     return '''<div>{0}<a class="blue_btn" href="{1}">Edit in Course</a>&nbsp;&nbsp;<a class="orange_btn" href="#">View & Join Discussion</a></div>'''.format(data,reverse('jump_to_id',args=(course.id,descriptor.location[4])))
 
-def get_chaper_for_course(request, course, active_chapter):
+def get_chaper_for_course(request, course, active_chapter,portfolio_user):
     model_data_cache = FieldDataCache.cache_for_descriptor_descendents(
-            course.id, request.user, course, depth=2)
-    course_module = get_module_for_descriptor(request.user, request, course, model_data_cache, course.id)
+            course.id, portfolio_user, course, depth=2)
+    course_module = get_module_for_descriptor(portfolio_user, request, course, model_data_cache, course.id)
     if course_module is None:
         return None
 
@@ -82,15 +84,15 @@ def get_chaper_for_course(request, course, active_chapter):
         if chapter.url_name == active_chapter:
             _active_chapter['display_name'] = chapter.display_name
     return chapters
-def get_module_combinedopenended(request, course, location, isupload):
+def get_module_combinedopenended(request, course, location, portfolio_user):
     location = course.location[0]+'://'+course.location[1]+'/'+course.location[2]+'/chapter/'+location
     section_descriptor = modulestore().get_instance(course.id, location, depth=None)
-    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, request.user, section_descriptor, depth=None)
+    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, portfolio_user, section_descriptor, depth=None)
     descriptor = modulestore().get_instance_items(course.id, location,'combinedopenended',depth=None)
     content = []
     
     for x in range(len(descriptor)):
-        module = get_module_for_descriptor(request.user, request, descriptor[x][1], field_data_cache, course.id,
+        module = get_module_for_descriptor(portfolio_user, request, descriptor[x][1], field_data_cache, course.id,
                                          position=None, wrap_xmodule_display=True, grade_bucket_type=None,
                                          static_asset_path='')
         con = module.runtime.render(module, None, 'student_view').content
@@ -120,20 +122,20 @@ def get_modulestore(category_or_location):
     else:
         return modulestore()
 
-def get_discussion_context(request, course, location, parent_location):
+def get_discussion_context(request, course, location, parent_location,portfolio_user):
         section_descriptor = modulestore().get_instance(course.id, parent_location, depth=None)
-        field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, request.user, section_descriptor, depth=None)
+        field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, portfolio_user, section_descriptor, depth=None)
         descriptor = modulestore().get_item(location)
-        module = get_module_for_descriptor(request.user, request, descriptor, field_data_cache, course.id,
+        module = get_module_for_descriptor(portfolio_user, request, descriptor, field_data_cache, course.id,
                                      position=None, wrap_xmodule_display=True, grade_bucket_type=None,
                                      static_asset_path='')
         return module.runtime.render(module, None, 'student_view').content
 
-def create_thread(request, course_id, commentable_id, thread_data):
+def create_thread(request, course_id, commentable_id, thread_data, portfolio_user):
     """
     Given a course and commentble ID, create the thread
     """
-    course = get_course_with_access(request.user, course_id, 'load')
+    course = get_course_with_access(portfolio_user, course_id, 'load')
    
     if course.allow_anonymous:
         anonymous = thread_data.get('anonymous', 'false').lower() == 'true'
@@ -150,10 +152,10 @@ def create_thread(request, course_id, commentable_id, thread_data):
         'anonymous_to_peers': anonymous_to_peers,
         'commentable_id': commentable_id,
         'course_id': course_id,
-        'user_id': request.user.id,
+        'user_id': portfolio_user.id,
     })
     
-    user = cc.User.from_django_user(request.user)
+    user = cc.User.from_django_user(portfolio_user)
 
     #kevinchugh because the new requirement is that all groups will be determined
     #by the group id in the request this all goes away
@@ -166,7 +168,7 @@ def create_thread(request, course_id, commentable_id, thread_data):
         # TODO (vshnayder): once we have more than just cohorts, we'll want to
         # change this to a single get_group_for_user_and_commentable function
         # that can do different things depending on the commentable_id
-        if cached_has_permission(request.user, "see_all_cohorts", course_id):
+        if cached_has_permission(portfolio_user, "see_all_cohorts", course_id):
             # admins can optionally choose what group to post as
             group_id = thread_data.get('group_id', user_group_id)
         else:
@@ -182,7 +184,7 @@ def create_thread(request, course_id, commentable_id, thread_data):
         thread['pinned'] = False
 
     if thread_data.get('auto_subscribe', 'false').lower() == 'true':
-        user = cc.User.from_django_user(request.user)
+        user = cc.User.from_django_user(portfolio_user)
         user.follow(thread)
     courseware_context = get_courseware_context(thread, course)
     data = thread.to_dict()
@@ -195,6 +197,83 @@ def create_thread(request, course_id, commentable_id, thread_data):
     else:
         return JsonResponse(safe_content(data))
     '''
+
+def get_threads(request, course_id, portfolio_user,discussion_id=None, per_page=20):
+    """
+    This may raise cc.utils.CommentClientError or
+    cc.utils.CommentClientUnknownError if something goes wrong.
+    """
+    default_query_params = {
+        'page': 1,
+        'per_page': per_page,
+        'sort_key': 'date',
+        'sort_order': 'desc',
+        'text': '',
+        'tags': '',
+        'commentable_id': discussion_id,
+        'course_id': course_id,
+        'user_id': portfolio_user.id,
+    }
+
+    if not request.GET.get('sort_key'):
+        # If the user did not select a sort key, use their last used sort key
+        cc_user = cc.User.from_django_user(portfolio_user)
+        cc_user.retrieve()
+        # TODO: After the comment service is updated this can just be user.default_sort_key because the service returns the default value
+        default_query_params['sort_key'] = cc_user.get('default_sort_key') or default_query_params['sort_key']
+    else:
+        # If the user clicked a sort key, update their default sort key
+        cc_user = cc.User.from_django_user(portfolio_user)
+        cc_user.default_sort_key = request.GET.get('sort_key')
+        cc_user.save()
+
+    #there are 2 dimensions to consider when executing a search with respect to group id
+    #is user a moderator
+    #did the user request a group
+
+    #if the user requested a group explicitly, give them that group, othewrise, if mod, show all, else if student, use cohort
+
+    group_id = request.GET.get('group_id')
+
+    if group_id == "all":
+        group_id = None
+
+    if not group_id:
+        if not cached_has_permission(portfolio_user, "see_all_cohorts", course_id):
+            group_id = get_cohort_id(portfolio_user, course_id)
+
+    if group_id:
+        default_query_params["group_id"] = group_id
+
+    #so by default, a moderator sees all items, and a student sees his cohort
+
+    query_params = merge_dict(default_query_params,
+                              strip_none(extract(request.GET,
+                                                 ['page', 'sort_key',
+                                                  'sort_order', 'text',
+                                                  'tags', 'commentable_ids', 'flagged'])))
+
+    threads, page, num_pages = cc.Thread.search(query_params)
+
+    #now add the group name if the thread has a group id
+    for thread in threads:
+
+        if thread.get('group_id'):
+            thread['group_name'] = get_cohort_by_id(course_id, thread.get('group_id')).name
+            thread['group_string'] = "This post visible only to Group %s." % (thread['group_name'])
+        else:
+            thread['group_name'] = ""
+            thread['group_string'] = "This post visible to everyone."
+
+        #patch for backward compatibility to comments service
+        if not 'pinned' in thread:
+            thread['pinned'] = False
+
+    query_params['page'] = page
+    query_params['num_pages'] = num_pages
+
+    return threads, query_params
+
 def update_thread(request, course_id, thread_id, thread_data):
     """
     Given a course id and thread id, update a existing thread, used for both static and ajax submissions
@@ -203,7 +282,7 @@ def update_thread(request, course_id, thread_id, thread_data):
     thread.update_attributes(**extract(thread_data, ['body', 'title', 'tags']))
     thread.save()
 
-def create_discussion(request, course, ora_id, parent_location, thread_data):
+def create_discussion(request, course, ora_id, parent_location, thread_data, portfolio_user):
     category = 'discussion'
     context = ''
     display_name = 'Discussion'
@@ -213,7 +292,7 @@ def create_discussion(request, course, ora_id, parent_location, thread_data):
     '''
     parent = get_modulestore(category).get_item(parent_location)
     #dest_location = parent_location.replace(category=category, name=uuid4().hex)
-    dest_location = Location(parent_location).replace(category=category, name=str(request.user.id)+'_'+ora_id)
+    dest_location = Location(parent_location).replace(category=category, name=str(portfolio_user.id)+'_'+ora_id)
     # get the metadata, display_name, and definition from the request
 
 
@@ -252,17 +331,17 @@ def create_discussion(request, course, ora_id, parent_location, thread_data):
             get_modulestore(parent.location).update_children(parent_location, parent.children + [dest_location.url()])
         '''
 
-        context = get_discussion_context(request, course, dest_location, parent_location)
+        context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
         did = Get_discussion_id()
         did.feed(context)
-        create_thread(request, course.id, did.id_urls[0], thread_data)
+        create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user)
     else:
-        context = get_discussion_context(request, course, dest_location, parent_location)
+        context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
         did = Get_discussion_id()
         did.feed(context)
-        thread_id = get_threads(request, course.id, did.id_urls[0], per_page=20)[0][0]['id']
+        thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
         update_thread(request, course.id, thread_id, thread_data)
-        context = get_discussion_context(request, course, dest_location, parent_location)
+        context = get_discussion_context(request, course, dest_location, parent_location, sportfolio_user)
     #if context=='':
     #    context = get_discussion_context(request, course, dest_location, parent_location)
     p=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
