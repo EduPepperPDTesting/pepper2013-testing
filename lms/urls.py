@@ -366,6 +366,8 @@ if settings.COURSEWARE_ENABLED:
         # This MUST be the last view in the courseware--it's a catch-all for custom tabs.
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
         'courseware.views.static_tab', name="static_tab"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/(?P<is_global>global)/$',
+        'courseware.views.static_tab', name="static_tab"),        
     )
     if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
         urlpatterns += (
