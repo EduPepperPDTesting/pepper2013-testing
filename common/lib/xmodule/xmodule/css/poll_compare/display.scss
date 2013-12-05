@@ -18,11 +18,13 @@ section.poll_compare{
 		/*
 			Out Layer div #5B9BD5
 		*/
-		border-top:1px #d4d4d4 solid;
-		border-bottom:1px #d4d4d4 solid;
-		border-right:1px #d4d4d4 solid;
-		border-left:1px #d4d4d4 solid;
-		width:810px;
+		border-top:0px #d40000 solid;
+		border-bottom:0px #00d400 solid;
+		border-right:0px #0000d4 solid;
+		border-left:0px #00d4d4 solid;
+		/*812px*/
+		height:100px;
+		width:auto;
 
 		font-size:12px;
 		font-family:'Open Sans', sans-serif;
@@ -108,6 +110,7 @@ section.poll_compare{
 			background-image: -moz-linear-gradient(bottom,#e1e1e1,#f6f6f6);
 			background-image: -o-linear-gradient(bottom,#e1e1e1,#f6f6f6);
 			background-image: linear-gradient(bottom,#e1e1e1,#f6f6f6);
+			border-top:1px #d4d4d4 solid;
 			color:#2160a1;
 			font-weight:bold;
 			font-size:12px;
@@ -165,9 +168,9 @@ section.poll_compare{
 			Out Layer div
 		*/
 		border-top:0px #d4d4d4 solid;
-		border-left:1px #d4d4d4 solid;
-		border-bottom:1px #d4d4d4 solid;
-		border-right:1px #d4d4d4 solid;
+		border-left:0px #d4d4d4 solid;
+		border-bottom:0px #d4d4d4 solid;
+		border-right:0px #d4d4d4 solid;
 
 		font-size:12px;
 		font-family:'Open Sans', sans-serif;
