@@ -307,7 +307,7 @@
     <!--check file choose-->
     if (fileImg.value=="")
     {
-      $("#change_photo_error").html("Update your avatar by uploading an image from your compute.").stop().css("display", "block");
+      $("#change_photo_error").html("Update your avatar by uploading an image from your computer.").stop().css("display", "block");
       fileImg.focus();
       return false;
     }
@@ -340,10 +340,39 @@
     $('#image_uploading').show(); 
     $('#change_photo_form').submit(); 
     });
+  
+<!--@begin:clear form content and error information when close the sub page-->
+<!--@date:2013-12-05--> 
+    $("#change_name_close").click(function(){
+      $('#change_name_error').hide();
+      $('#new_first_name_field')[0].value = "";
+      $('#new_last_name_field')[0].value = "";
+      $('#name_rationale_field')[0].value = "";
+    });
+
+    $("#change_photo_close").click(function(){
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+    });
+
+    $("#change_bio_close").click(function(){
+      $('#id_bio')[0].value = "";
+    });
+
+    $("#container_dashboard").click(function(){
+      $('#change_name_error').hide();
+      $('#new_first_name_field')[0].value = "";
+      $('#new_last_name_field')[0].value = "";
+      $('#name_rationale_field')[0].value = "";
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+      $('#id_bio')[0].value = "";
+    });
+<!--@end-->
   </script>
 </%block>
 
-<section class="container dashboard">
+<section class="container dashboard" id="container_dashboard">
   %if message:
     <section class="dashboard-banner">
       ${message}
@@ -854,7 +883,7 @@
         <input type="submit" class="btnx" id="submit" value="Upload" />
       </div>          
     </form>
-    <div class="close-modal">
+    <div class="close-modal" id="change_photo_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
@@ -1010,7 +1039,7 @@
       <fieldset>
         <div class="input-group">
           <label>
-            <textarea name="bio" rows="" cols="" tabindex="" style="width:100%;height:100%;height:300px;resize:none;"></textarea>
+            <textarea name="bio" id="id_bio" rows="" cols="" tabindex="" style="width:100%;height:100%;height:300px;resize:none;"></textarea>
           </label>
           <section style="color:black;">
             Limited to 255 Characters
@@ -1022,7 +1051,7 @@
       </div>          
     </form>
     <div class="close-modal">
-      <div class="inner">
+      <div class="inner" id="change_bio_close">
         <p>&#10005;</p>
       </div>
     </div>
@@ -1137,6 +1166,7 @@
 </section>
 <!--@begin:User photo upload table-->
 <!--@date:2013-11-02-->
+<!----
 <section id="apply_picture_change" class="modal">
   <div class="inner-wrapper">
     <div class="close-modal">
@@ -1163,6 +1193,7 @@
     </div>
   </div>
 </section>
+-->
 <!--@end-->
 
 <section id="apply_name_change" class="modal">
@@ -1199,7 +1230,7 @@
         </fieldset>
       </form>
     </div>
-    <div class="close-modal">
+    <div class="close-modal" id="change_name_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
