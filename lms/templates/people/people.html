@@ -25,6 +25,8 @@
 
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
 
+
+
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -59,6 +61,7 @@
 }
 </style>
 
+total:${len(profiles)}<br>
 %for item in profiles:
 ${item.user.email} <br>
 %endfor

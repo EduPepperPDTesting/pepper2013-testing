@@ -9,15 +9,24 @@ def search_user(username='',first_name='',last_name='',
     # client.SetFieldWeights()
     client.SetLimits(0, 5)  
     client.SetServer('127.0.0.1', 9312)
-    client.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED)
+    client.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
     
-    if course_id:
-        client.SetFilter('course_id',[course_id])
+    # if course_id:
+    #     # todo: Implement multi course.
+    #     # read http://sphinxsearch.com/forum/view.html?id=8901
+    #     client.SetFilter('course_id',[course_id])
     
     cond=list()
     # refer to:
     # http://sphinxsearch.com/docs/current.html#extended-syntax
     # 5.3. Extended query syntax
+
+ # select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
+# select a.user_id,b.email,group_concat(a.course_id,' ') from student_courseenrollment a inner join auth_user b on a.user_id=b.id where b.is_active and not b.is_staff and not b.is_superuser and a.course_id  like 'WestEd%' group by a.user_id;
+
+    
+    if course_id:
+        cond.append('@course "WestEd/002/002"')
     if username:
         cond.append("@username %s" % username)
     if first_name:
@@ -42,7 +51,7 @@ def search_user(username='',first_name='',last_name='',
         # status ,matches ,fields ,time ,total_found ,warning ,attrs ,words ,error ,total
         matches=result['matches']
         for item in matches:
-            profiles.append(UserProfile.objects.get(id=item['id']))
+            profiles.append(UserProfile.objects.get(user_id=item['id']))
         
     return profiles
 

@@ -43,7 +43,8 @@ def my_course_index(request,course_id):
 # http://localhost:8111/people/    
 def people(request):
     # people searching
-    profiles=search_user(username=request.GET.get('username',''),
+    profiles=search_user(course_id=request.GET.get('course_id',''),
+                         username=request.GET.get('username',''),
                          first_name=request.GET.get('first_name',''),
                          last_name=request.GET.get('last_name',''),
                          district_id=request.GET.get('district_id',''),
