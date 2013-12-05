@@ -18,7 +18,7 @@ from markupsafe import escape
 
 from courseware import grades
 from courseware.access import has_access
-from courseware.courses import (get_courses, get_course_with_access,
+from courseware.courses import (get_courses, get_course_with_access,get_course_by_id,
                                 get_courses_by_university, sort_by_announcement)
 import courseware.tabs as tabs
 from courseware.masquerade import setup_masquerade
@@ -530,13 +530,19 @@ def course_info(request, course_id):
 
 
 @ensure_csrf_cookie
-def static_tab(request, course_id, tab_slug):
+def static_tab(request, course_id, tab_slug, is_global=None):
     """
     Display the courses tab with the given name.
 
     Assumes the course_id is in a valid format.
     """
-    course = get_course_with_access(request.user, course_id, 'load')
+
+    if is_global:
+      course = get_course_by_id(course_id)
+      if not request.user.is_authenticated():
+          raise Http404("Page not found.")
+    else:
+      course = get_course_with_access(request.user, course_id, 'load')
 
     tab = tabs.get_static_tab_by_slug(course, tab_slug)
     if tab is None:
@@ -547,6 +553,7 @@ def static_tab(request, course_id, tab_slug):
         course,
         tab
     )
+    
     if contents is None:
         raise Http404
 
@@ -555,10 +562,10 @@ def static_tab(request, course_id, tab_slug):
                               {'course': course,
                                'tab': tab,
                                'tab_contents': contents,
-                               'staff_access': staff_access, })
+                               'staff_access': staff_access,
+                               'is_global':is_global})
 
 # TODO arjun: remove when custom tabs in place, see courseware/syllabus.py
-
 
 @ensure_csrf_cookie
 def syllabus(request, course_id):
@@ -573,7 +580,6 @@ def syllabus(request, course_id):
     return render_to_response('courseware/syllabus.html', {'course': course,
                                             'staff_access': staff_access, })
 
-
 def registered_for_course(course, user):
     """
     Return True if user is registered for course, else False
@@ -584,7 +590,6 @@ def registered_for_course(course, user):
         return CourseEnrollment.is_enrolled(user, course.id)
     else:
         return False
-
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -608,7 +613,6 @@ def course_about(request, course_id):
                                'registered': registered,
                                'course_target': course_target,
                                'show_courseware_link': show_courseware_link})
-
 
 @ensure_csrf_cookie
 @cache_if_anonymous
@@ -636,7 +640,6 @@ def cabout(request, course_id):
                                'registered': registered,
                                'course_target': course_target,
                                'show_courseware_link': show_courseware_link})
-
 
 #@end
 
@@ -678,7 +681,6 @@ def mktg_course_about(request, course_id):
                                   'course_modes': course_modes,
                               })
 
-
 def render_notifications(request, course, notifications):
     context = {
         'notifications': notifications,
@@ -686,7 +688,6 @@ def render_notifications(request, course, notifications):
         'course': course,
     }
     return render_to_string('courseware/notifications.html', context)
-
 
 @login_required
 def news(request, course_id):
@@ -700,7 +701,6 @@ def news(request, course_id):
     }
 
     return render_to_response('courseware/news.html', context)
-
 
 @login_required
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -748,7 +748,6 @@ def progress(request, course_id, student_id=None):
     context.update()
 
     return render_to_response('courseware/progress.html', context)
-
 
 @login_required
 def submission_history(request, course_id, student_username, location):
@@ -799,7 +798,6 @@ def submission_history(request, course_id, student_username, location):
 #@date:2013-11-02        
 def my_course_portfolio(request, course_id, student_id=None):
     return False
-
 
 def resource_library(request, course_id, student_id=None):
     return False

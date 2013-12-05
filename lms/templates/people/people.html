@@ -7,6 +7,7 @@
   from certificates.models import CertificateStatuses
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
+  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
 %>
 <%! import json%>
 <style type="text/css" media="screen">
@@ -23,6 +24,8 @@
 </%block>
 
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
+
+
 
 <%block name="headextra">
 %if course:
@@ -58,43 +61,43 @@
 }
 </style>
 
-%if False:
-  %for u in page.object_list :
-  ${u.name} ---  ${u.email} <br>
-  %endfor
-%endif
+total:${len(profiles)}<br>
+%for item in profiles:
+${item.user.email} <br>
+%endfor
 
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
 
-<section class="container">
-  %if course:
+  <section class="container">
+    %if course:
     <div class="course-wrapper">
-    <section class="course-index" style="width:280px !important;">
-  %else:
-    <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
-    <section class="course-index">
-  %endif
-      <div class="sub_tit">
-        <a class="view_active" href="#">Search</a>
-        %if course:
-          <a class="view_normal" href="${reverse('my_people', args=[course.id])}">View My Network</a>
+      <section class="course-index" style="width:280px !important;">
         %else:
-          <a class="view_normal" href="${reverse('my_people')}">View My Network</a>
-        %endif
-      <span class="line_blue"></span> 
-    </div>
-    <div class="filter">Search By</div>
-      <div class="filters">
-        <input type="" name="" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
-      </div>
-      <div class="filters">
-        <input type="" name="" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
-      </div>
-      <div class="filters">
-        <input type="" name="" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
-      </div>
+        <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
+          <section class="course-index">
+            %endif
+            <div class="sub_tit">
+              <a class="view_active" href="#">Search</a>
+              %if course:
+              <a class="view_normal" href="${reverse('my_people', args=[course.id])}">View My Network</a>
+              %else:
+              <a class="view_normal" href="${reverse('my_people')}">View My Network</a>
+              %endif
+              <span class="line_blue"></span> 
+            </div>
+            <div class="filter">Search By</div>
+            <div class="filters">
+              <input type="" name="user_name" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
+            </div>
+            <div class="filters">
+              <input type="" name="first_name" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+            </div>
+            <div class="filters">
+              <input type="" name="last_name" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+            </div>
+            
  <script type="text/javascript">
             var json_district=${json.dumps(settings.PEPPERPD_PROFILE_DISTRICTS)};
             function reload_school_dropdown(district_id){
@@ -110,60 +113,56 @@
  
       %if not course:
       <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())">
+        <select  onchange="reload_school_dropdown($(this).val())" name="course_id">
           <option value="">Courses</option>
-          <option>User's Guide to Pepper </option>
-          <option>Balancing Informational & Literary Texts (K-5) </option>
-          <option>Building Academic Vocabulary (6-8) </option>
-          <option>Building Academic Vocabulary (9-12) </option>
-          <option>Intro to CCSS for Mathematical Practice (K-5) </option>
-          <option>Intro to CCSS for Mathematical Practice (6-8) </option>
-          <option>Intro to CCSS for Mathematical Practice (9-12) </option>
         </select>
       </div>
-      %endif  
+      %endif
 
       <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())">
+        <select  onchange="reload_school_dropdown($(this).val())" name="district_id">
           <option value="">District</option>
-          %for i,item in enumerate(settings.PEPPERPD_PROFILE_DISTRICTS):
-          <option value="${i}">${item['name']}</option>
+          %for item in District.objects.all():
+          <option value="${item.id}">${item.name}</option>
           %endfor           
         </select>
       </div>
       <div class="filters">
-        <select  id="school_id">
-          <option value="">--</option>
+        <select  id="school_id" name="school_id">
+          <option value="">School</option>
+          %for item in School.objects.all():
+          <option value="${item.id}">${item.name}</option>
+          %endfor          
         </select>
       </div>
       <div class="filters">
-        <select  >
+        <select name="subject_area_id">
           <option value="">Major Subject Area</option>
-          %for i,n in enumerate(settings.PEPPERPD_MAJOR_SUBJECT_AREA):
-          <option value="${i}">${n}</option>
+          %for item in SubjectArea.objects.all():
+          <option value="${item.id}">${item.name}</option>
           %endfor
         </select>
       </div>
       <div class="filters">
-        <select  >
+        <select name="grade_level_id">
           <option value="">Grade Level</option>
-          %for i,n in enumerate(settings.PEPPERPD_GRADE_LEVEL):
-          <option value="${i}">${n}</option>
+          %for item in GradeLevel.objects.all():
+          <option value="${item.id}">${item.name}</option>
           %endfor          
         </select>
       </div>
       <div class="filters">
         <select  >
-          <option value="">Years in Education</option>
-          %for i,n in enumerate(settings.PEPPERPD_YEARS_IN_EDUCATION):
-          <option value="${i}">${n}</option>
+          <option value="years_in_education_id">Years in Education</option>
+          %for item in YearsInEducation.objects.all():
+          <option value="${item.id}">${item.name}</option>
           %endfor            
         </select>
       </div>
       <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
         *Leave fields blank to search for all people
       </div>
-      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
+      <div class="but_search" ><a href="#" class="button_default button-ondark button-icon button-add icon icon-search" style="-webkit-user-select: none; padding:10px 100px;display:block;">Search </a>
       </div>
       <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-clear" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
        </a>
