@@ -664,6 +664,8 @@ section.open-ended-child {
     height: auto;
     border: 1px solid #ddd;
     background: #f6f6f6;
+    word-wrap:break-word;
+    overflow:hidden;
   }
 
   .grader-status {
