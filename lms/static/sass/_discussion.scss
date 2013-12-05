@@ -2723,3 +2723,12 @@ display:none;
   color: #888;
   font-style: italic;
 }
+div.short-form-response {
+    overflow-y: auto;
+    margin-bottom: 0;
+    padding: $baseline/2;
+    min-height: 20px;
+    height: auto;
+    word-wrap:break-word;
+    overflow:hidden;
+  }
