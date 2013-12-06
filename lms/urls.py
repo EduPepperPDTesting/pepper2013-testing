@@ -62,7 +62,9 @@ urlpatterns = (
     url(r'^people_network$', 'people.views.my_people', name="my_people"),
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions$',
+    url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+    
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -224,10 +226,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
-        
         url(r'^contact$', 'branding.views.contact', name="contact_us"),
-        url(r'^contact_us_submit$', 'branding.views.contact_us_submit', name="contact_us_submit"),
-
         url(r'^intro$', 'branding.views.intro', name="intro"),
         url(r'^intro_research$', 'branding.views.intro_research', name="intro_research"),
         url(r'^intro_ourteam$', 'branding.views.intro_ourteam', name="intro_ourteam"),
@@ -287,9 +286,9 @@ if settings.COURSEWARE_ENABLED:
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
-        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework$',
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
-        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<chapter_id>[^/]+)$',
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),           
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
             'portfolio.views.uploads', name="portfolio_uploads"), 
@@ -365,6 +364,8 @@ if settings.COURSEWARE_ENABLED:
         # This MUST be the last view in the courseware--it's a catch-all for custom tabs.
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
         'courseware.views.static_tab', name="static_tab"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/(?P<is_global>global)/$',
+        'courseware.views.static_tab', name="static_tab"),        
     )
     if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
         urlpatterns += (
