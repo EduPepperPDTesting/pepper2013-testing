@@ -62,7 +62,8 @@ urlpatterns = (
     url(r'^people_network$', 'people.views.my_people', name="my_people"),
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
-
+    url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+    
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
