@@ -25,8 +25,6 @@
 
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
 
-
-
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -61,11 +59,6 @@
 }
 </style>
 
-total:${len(profiles)}<br>
-%for item in profiles:
-${item.user.email} <br>
-%endfor
-
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
@@ -88,8 +81,9 @@ ${item.user.email} <br>
               <span class="line_blue"></span> 
             </div>
             <div class="filter">Search By</div>
+            <form method="" id="search_form" action="${reverse('people')}">
             <div class="filters">
-              <input type="" name="user_name" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
+              <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
             </div>
             <div class="filters">
               <input type="" name="first_name" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
@@ -97,80 +91,89 @@ ${item.user.email} <br>
             <div class="filters">
               <input type="" name="last_name" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
             </div>
-            
- <script type="text/javascript">
-            var json_district=${json.dumps(settings.PEPPERPD_PROFILE_DISTRICTS)};
-            function reload_school_dropdown(district_id){
-            var drop=document.getElementById("school_id");
-            $(drop).find("option").filter(function(){return $.trim(this.value)!=''}).remove();
-            if(district_id=='') return;
-            $.each(json_district[district_id].school,function(i,school){
-            var code=district_id+"-"+i
-            $(drop).append("<option value='"+code+"'>"+school+"</option>");
-            })
-            }
+            %if not course:
+            <div class="filters">
+              <select  name="course_id">
+                <option value="">Courses</option>
+              </select>
+            </div>
+            %else:
+            <input type="hidden" name="course_id" value="${course.id}" />
+            %endif
+            <div class="filters">
+              <select name="district_id">
+                <option value="">District</option>
+                %for item in District.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor           
+              </select>
+            </div>
+            <div class="filters">
+              <select  id="school_id" name="school_id">
+                <option value="">School</option>
+                %for item in School.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor          
+              </select>
+            </div>
+            <div class="filters">
+              <select name="subject_area_id">
+                <option value="">Major Subject Area</option>
+                %for item in SubjectArea.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+              </select>
+            </div>
+            <div class="filters">
+              <select name="grade_level_id">
+                <option value="">Grade Level</option>
+                %for item in GradeLevel.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor          
+              </select>
+            </div>
+            <div class="filters">
+              <select name="years_in_education_id">
+                <option value="">Years in Education</option>
+                %for item in YearsInEducation.objects.all():
+                <option value="${item.id}">${item.name}</option>
+                %endfor            
+              </select>
+            </div>
+            <input type="submit" name="" value="" style="display:none"/>
+            <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
+              *Leave fields blank to search for all people
+            </div>
+            <div class="but_search" style="line-height:19px;">
+              <a href="#" onclick="$('#search_form').submit()"
+                 class="button_default button-ondark button-icon button-add icon icon-search"
+                 style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
+                <div style="display:inline-block;text-align:center;width:140px;padding-right:25px;">Search</div>
+              </a>
+            </div>
+            <div class="but_search">
+              <a href="${reverse('people')}"
+                 class="button_default button-ondark button-icon button-add icon icon-clear"
+                 style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
+                <div style="display:inline-block;text-align:center;width:140px;padding-right:25px;">Clear Search</div>
+              </a>
+            </div>
+          </section>
+          <script type="text/javascript">
+          $(document).ready(function(){
+            var form=$("#search_form");
+            form.find("input[name=username]").val("${request.GET.get('username','')}")
+            form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
+            form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
+            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+            form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
+            form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
+            form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
+            form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
+            form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
+          });
           </script>
- 
-      %if not course:
-      <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())" name="course_id">
-          <option value="">Courses</option>
-        </select>
-      </div>
-      %endif
-
-      <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())" name="district_id">
-          <option value="">District</option>
-          %for item in District.objects.all():
-          <option value="${item.id}">${item.name}</option>
-          %endfor           
-        </select>
-      </div>
-      <div class="filters">
-        <select  id="school_id" name="school_id">
-          <option value="">School</option>
-          %for item in School.objects.all():
-          <option value="${item.id}">${item.name}</option>
-          %endfor          
-        </select>
-      </div>
-      <div class="filters">
-        <select name="subject_area_id">
-          <option value="">Major Subject Area</option>
-          %for item in SubjectArea.objects.all():
-          <option value="${item.id}">${item.name}</option>
-          %endfor
-        </select>
-      </div>
-      <div class="filters">
-        <select name="grade_level_id">
-          <option value="">Grade Level</option>
-          %for item in GradeLevel.objects.all():
-          <option value="${item.id}">${item.name}</option>
-          %endfor          
-        </select>
-      </div>
-      <div class="filters">
-        <select  >
-          <option value="years_in_education_id">Years in Education</option>
-          %for item in YearsInEducation.objects.all():
-          <option value="${item.id}">${item.name}</option>
-          %endfor            
-        </select>
-      </div>
-      <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
-        *Leave fields blank to search for all people
-      </div>
-      <div class="but_search" ><a href="#" class="button_default button-ondark button-icon button-add icon icon-search" style="-webkit-user-select: none; padding:10px 100px;display:block;">Search </a>
-      </div>
-      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-clear" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-       </a>
-      </div>
-    </section>
-    
-
-    
+    </form>
   <!--right content of page------------------------------------------------------------------------------------------------>
   %if course:
     <section>
@@ -178,14 +181,15 @@ ${item.user.email} <br>
     <section class="course-content">
   %endif
       <div class="people_tit">People</div>
-    
+      %if total_found==0:
       <!--hide this div after press btn'search'-----------------------------------------------------------> 
       <div id="" class="people_default">
         <div style="width:341px;height:126px;margin:0 auto;">
           <img src="/static/images/ppd-people-logo.png"/>
         </div>
         <section style="padding-left:100px;padding-right:100px;padding-top:20px;padding-bottom:10px;line-height:33px;font-size:25px;">
-          Welcome to your People network! Search and use the filters to the left to find peers. Click on a user's name to access their dashboard and begin collaborating on course portfolios. You can also bookmark peers, mentor, and coaches that you want to add to your Pepper team.
+          Welcome to your People network! Search and use the filters to the left to find peers. Click on a user's name to access their
+          dashboard and begin collaborating on course portfolios. You can also bookmark peers, mentor, and coaches that you want to add to your Pepper team.
         </section>
          <div style="height:76px;padding-left:710px;">
           <img src="/static/images/ppd-people-arrow.png"/>
@@ -214,6 +218,11 @@ ${item.user.email} <br>
           </div>
         </div>  
       </div>
+      %else:
+  
+
+
+      %endif
       
       <!--show these content bellow after press btn'search'-----------------------------------------------------------> 
       <div class="people_content" style="display:none;">

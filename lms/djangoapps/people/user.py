@@ -2,12 +2,11 @@ from student.models import UserProfile
 import sphinxapi
 def search_user(username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
-                grade_level_id='',years_in_education_id='',course_id=''):
-    
-    
+                grade_level_id='',years_in_education_id='',course_id='',email=''):
+
     client = sphinxapi.SphinxClient()
     # client.SetFieldWeights()
-    # client.SetLimits(0, 5)  
+    client.SetLimits(0, 500)  
     client.SetServer('127.0.0.1', 9312)
     client.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
     
@@ -21,10 +20,11 @@ def search_user(username='',first_name='',last_name='',
     # http://sphinxsearch.com/docs/current.html#extended-syntax
     # 5.3. Extended query syntax
 
- # select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
+# select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
 # select a.user_id,b.email,group_concat(a.course_id,' ') from student_courseenrollment a inner join auth_user b on a.user_id=b.id where b.is_active and not b.is_staff and not b.is_superuser and a.course_id  like 'WestEd%' group by a.user_id;
 
-    
+    if email:
+        cond.append('@email "%s"' % email)    
     if course_id:
         cond.append('@course "%s"' % course_id)
     if username:
@@ -40,23 +40,19 @@ def search_user(username='',first_name='',last_name='',
     if subject_area_id:
         cond.append("@subject_area_id %s" % subject_area_id)        
     if grade_level_id:
-        cond.append("@grade_level_id %s" % grade_level_id)        
+        cond.append('@grade_level_id "%s"' % grade_level_id)        
     if years_in_education_id:
         cond.append("@years_in_education_id %s" % years_in_education_id)        
     result=client.Query(' '.join(cond))
-
+    total_found=0
     profiles=list()
- 
     if result:
         # status ,matches ,fields ,time ,total_found ,warning ,attrs ,words ,error ,total
-
         matches=result['matches']
+        total_found=result['total_found']
         for item in matches:
-            print "========================================="
-
             profiles.append(UserProfile.objects.get(user_id=item['id']))
-        
-    return profiles
+    return profiles,total_found
 
 # from django_sphinx_db.backend.models import SphinxModel, SphinxField
 # class User(SphinxModel):

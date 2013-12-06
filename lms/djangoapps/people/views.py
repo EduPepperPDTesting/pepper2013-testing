@@ -43,7 +43,8 @@ def my_course_index(request,course_id):
 # http://localhost:8111/people/    
 def people(request):
     # people searching
-    profiles=search_user(course_id=request.GET.get('course_id',''),
+    profiles,total_found=search_user(course_id=request.GET.get('course_id',''),
+                         email=request.GET.get('email',''),
                          username=request.GET.get('username',''),
                          first_name=request.GET.get('first_name',''),
                          last_name=request.GET.get('last_name',''),
@@ -53,7 +54,9 @@ def people(request):
                          grade_level_id=request.GET.get('grade_level_id',''),
                          years_in_education_id=request.GET.get('years_in_education_id',''))
 
-    return render_to_response('people/people.html', {'profiles':profiles})
+    return render_to_response('people/people.html', {'profiles':profiles,
+                                                     'total_found':total_found,
+                                                     'people_search_debug':1})
 
 def my_people(request):
     # from modle
