@@ -259,12 +259,10 @@
 		<!--@begin:add the video-->
 		<!--@date:2013-11-15-->
 		<div id="ppd_video_main" style=" width:480px; height:270px; z-index:99; position:fixed;margin:auto;left:0; right:0; top:0; bottom:0;display:none;">
-			<div id="ppd_video_close" style="width:20px;height:20px;position:absolute;left:460px;cursor:pointer;z-index:1;">
-				<img src="static/images/ppd-video-close01.png" width="20" height="20"/>
-			</div>
-			<video id="sampleMovie" autobuffer controls>
-				<source src="static/video/ppd-whatis-banner01.mp4"/>
-			</video>
+      <div id="ppd_video_close" style="width:20px;height:20px;position:absolute;left:480px;cursor:pointer;z-index:1;">
+        <img src="static/images/ppd-video-close01.png" width="20" height="20"/>
+      </div>
+			<iframe src="//player.vimeo.com/video/80954694" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 		</div>
 		<!--@end-->
 		
@@ -338,14 +336,14 @@ jQuery(function($){
 	id_ppd_btn_video.onmousedown = function()
 	{
 		$("#ppd_video_main").fadeIn(600);
-		document.getElementById('sampleMovie').play();
+		//document.getElementById('sampleMovie').play();
 	}
 	
 	id_ppd_video_close.onmousedown = function()
 	{
 		$("#ppd_video_main").fadeOut(300);
-		document.getElementById('sampleMovie').pause();
-		document.getElementById('sampleMovie').currentTime = 0;
+		//document.getElementById('sampleMovie').pause();
+		//document.getElementById('sampleMovie').currentTime = 0;
 	}
 });
 </script>
