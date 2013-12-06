@@ -1,0 +1,11 @@
+https://github.com/EduPepperPDTesting/pepper2013-testing.git
+
+
+git remote add testing https://github.com/EduPepperPDTesting/pepper2013-testing.git
+
+git add <file name>
+
+git commit -m "<message>"
+
+git push testing <branch name>lvzh
+ 
