@@ -62,7 +62,7 @@ urlpatterns = (
     url(r'^people_network$', 'people.views.my_people', name="my_people"),
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions$',
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -287,10 +287,10 @@ if settings.COURSEWARE_ENABLED:
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
-        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework$',
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
-        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<chapter_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),           
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),            
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
             'portfolio.views.uploads', name="portfolio_uploads"), 
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',

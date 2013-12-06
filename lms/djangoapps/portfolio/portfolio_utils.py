@@ -49,6 +49,15 @@ class Get_discussion_id(SGMLParser):
         if attr:
             self.id_urls.extend(attr)
 
+class Get_discussion_visibility(SGMLParser):
+    def reset(self):
+        SGMLParser.reset(self)
+        self.urls=[]
+    def start_div(self, attrs):
+        attr = [v for k, v in attrs if k=='data-discussion-visibility']
+        if attr:
+            self.urls.extend(attr)
+
 def Get_combinedopenended_info(con):
     p_title = re.compile('<div[^>]*class="problemtype"[^>]*>([\s\S]*?)<\/div>')
     p_body_a = re.compile('<div*[^>]*class="prompt"[^>]*>[\s\S]*?<\/div>')
@@ -106,7 +115,9 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
             #c_info = Get_combinedopenended_info()
             #c_info.feed(con)
             title, body = Get_combinedopenended_info(con)
-            content.append(create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body}))
+            discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body},portfolio_user)
+            if visibility:
+                content.append(discussion)
 
     return content
 
@@ -281,11 +292,48 @@ def update_thread(request, course_id, thread_id, thread_data):
     thread = cc.Thread.find(thread_id)
     thread.update_attributes(**extract(thread_data, ['body', 'title', 'tags']))
     thread.save()
+    
+def _create_comment(request, course_id, thread_id=None, parent_id=None):
+    """
+    given a course_id, thread_id, and parent_id, create a comment,
+    called from create_comment to do the actual creation
+    """
+    post = request.POST
+    comment = cc.Comment(**extract(post, ['body']))
+
+    course = get_course_with_access(request.user, course_id, 'load')
+    if course.allow_anonymous:
+        anonymous = post.get('anonymous', 'false').lower() == 'true'
+    else:
+        anonymous = False
+
+    if course.allow_anonymous_to_peers:
+        anonymous_to_peers = post.get('anonymous_to_peers', 'false').lower() == 'true'
+    else:
+        anonymous_to_peers = False
+
+    comment.update_attributes(**{
+        'anonymous': anonymous,
+        'anonymous_to_peers': anonymous_to_peers,
+        'user_id': request.user.id,
+        'course_id': course_id,
+        'thread_id': thread_id,
+        'parent_id': parent_id,
+    })
+    comment.save()
+    if post.get('auto_subscribe', 'false').lower() == 'true':
+        user = cc.User.from_django_user(request.user)
+        user.follow(comment.thread)
+    if request.is_ajax():
+        return ajax_content_response(request, course_id, comment.to_dict(), 'discussion/ajax_create_comment.html')
+    else:
+        return JsonResponse(utils.safe_content(comment.to_dict()))
 
 def create_discussion(request, course, ora_id, parent_location, thread_data, portfolio_user):
     category = 'discussion'
     context = ''
     display_name = 'Discussion'
+    discussion_visibility = True
     '''
     if not has_access(request.user, parent_location):
         raise PermissionDenied()
@@ -341,14 +389,26 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
         did.feed(context)
         thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
         update_thread(request, course.id, thread_id, thread_data)
-        context = get_discussion_context(request, course, dest_location, parent_location, sportfolio_user)
+        context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
     #if context=='':
     #    context = get_discussion_context(request, course, dest_location, parent_location)
-    p=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
-    edit_course_btn = '<a class="edit-course-btn" href="{0}">Edit in Course</a>'.format(reverse('jump_to_id',args=(course.id,ora_id)))
-    context = context.replace(p.findall(context)[0], edit_course_btn)
-
-    return context
+    new_post_btn_match=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
+    discussion_show_match=re.compile('<a*[^>]*class="discussion-show control-button*"[^>]*>[\s\S]*?<\/a>')
+    #p=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
+    if request.user.id == portfolio_user.id:
+        edit_course_btn = '<a class="edit-course-btn" href="{0}">Edit in Course</a>'.format(reverse('jump_to_id',args=(course.id,ora_id)))
+        discussion_visibility=True
+    else:
+        edit_course_btn =''
+        context = context.replace(discussion_show_match.findall(context)[0], '')
+        d_vis = Get_discussion_visibility()
+        d_vis.feed(context)
+        if d_vis.urls[0]=='true':
+            discussion_visibility=True
+        else:
+            discussion_visibility=False
+    context = context.replace(new_post_btn_match.findall(context)[0], edit_course_btn)
+    return context, discussion_visibility
 
 @require_POST
 @login_required
