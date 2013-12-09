@@ -357,6 +357,8 @@ class @CombinedOpenEnded
     else if @child_state == 'initial_submit'
       
       @answer_area.attr("disabled", false)
+      if @accept_file_upload== "True"
+         @submit_button.attr("disabled",true)
       @rubric_wrapper.hide()
       @setup_file_upload()
       tinyMCE_class_init(@location)
@@ -368,6 +370,8 @@ class @CombinedOpenEnded
     #@date:2013-11-02
     else if @child_state == 'initial'
       @answer_area.attr("disabled", false)
+      if @accept_file_upload== "True"
+         @submit_button.attr("disabled",true)
       @setup_file_upload()
       tinyMCE_class_init(@location)
       #@begin:Always show prompt
@@ -570,7 +574,10 @@ class @CombinedOpenEnded
             @can_upload_files = false
             files = ""
             alert("File is too large.")
+            @ora_loading.hide()
             @$(@file_upload_box_sel)[0].files=[]
+            @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
+            @$(@file_upload_box_sel).change @preview_image
             return false
         else
           @can_upload_files = false
@@ -623,6 +630,10 @@ class @CombinedOpenEnded
           )
           #@answer_area.val(tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
           @answer_area.val(answer_area_val.html())
+          if @file_upload_list.find('.file_upload_item').length>0
+            @submit_button.attr('disabled',false)
+          else
+            @submit_button.attr('disabled',true)
       $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
     else
       @errors_area.html(@out_of_sync_message)
@@ -689,6 +700,12 @@ class @CombinedOpenEnded
         async: false
         success: (response) =>
           @ora_loading.hide()
+          @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
+          @$(@file_upload_box_sel).change @preview_image
+          if @file_upload_list.find('.file_upload_item').length>0
+            @submit_button.attr('disabled',false)
+          else
+            @submit_button.attr('disabled',true)
           alert("Remove success")
 
       $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
@@ -943,6 +960,10 @@ class @CombinedOpenEnded
             #)
             
         )
+        if @file_upload_list.find('.file_upload_item').length>0
+          @submit_button.attr('disabled',false)
+        else
+          @submit_button.attr('disabled',true)
       else
         @gentle_alert 'File uploads are required for this question, but are not supported in this browser. Try the newest version of google chrome.  Alternatively, if you have uploaded the image to the web, you can paste a link to it into the answer box.'
   #@end
@@ -1059,7 +1080,7 @@ class @CombinedOpenEnded
           scale_factor = width_px/max_dim
         @$(@file_upload_preview_sel)[0].width = width_px/scale_factor
         @$(@file_upload_preview_sel)[0].height = height_px/scale_factor
-        @$(@file_upload_preview_sel).show()
+        #@$(@file_upload_preview_sel).show()
       reader.readAsDataURL(@$(@file_upload_box_sel)[0].files[0])
       #@begin:upload
       #@date:2013-11-02 
