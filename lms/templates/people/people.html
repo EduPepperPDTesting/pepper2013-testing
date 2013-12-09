@@ -181,8 +181,9 @@
     <section class="course-content">
   %endif
       <div class="people_tit">People</div>
-      %if total_found==0:
-      <!--hide this div after press btn'search'-----------------------------------------------------------> 
+      %if profiles.paginator.count==0:
+      <!--hide this div after press btn'search'----------------------------------------------------------->
+      
       <div id="" class="people_default">
         <div style="width:341px;height:126px;margin:0 auto;">
           <img src="/static/images/ppd-people-logo.png"/>
@@ -218,87 +219,54 @@
         </div>  
       </div>
       %else:
-  
+        <div id="" class="people_default">
+          %for profile in profiles:
+          <div id="" style="height:130px;padding-left:90px;border-bottom:1px solid #ccc;">
+            <span class="head_photo">
+              <a href="#">
+                % if user.profile.photo:
+                  <img src="/static/uploads/photos/${ user.profile.photo }" style="" alt="photo" />
+                % else:
+                  <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
+                % endif                
+              </a>
+            </span>
+            <span class="name_container">
+              <span class="full_name"><a href="#" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a></span> 
+              <span class="name_text">${profile.user.username}</span>
+              %if profile.cohort_id and profile.school_id:
+              <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
+              %endif
+              %if len(profile.years_in_education_id) and int(profile.years_in_education_id):
+              <span class="name_text">${profile.years_in_education.name} Years in Education</span>
+              %endif
+            </span>
+            <div class="btn_container">
+              <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+            </div>
+          </div>
+          %endfor
+
+<br style="clear:both"/>
+<div class="page" style="width:auto" >
+  items per page <input type="" name="" value="" size="4"/>
+  ${pager.count}
+  <a href="/people/?${params}&page=${pager.page_num-1}" class="up_page"></a>
+  %for p in pager.page_range_ext:
+    %if p==pager.page_num:
+    <a href="/people/?${params}&page=${p}" class="page_active">${p}</a>
+    %else:
+    <a href="/people/?${params}&page=${p}">${p}</a>
+    %endif
+  %endfor
+  <a href="/people/?${params}&page=${pager.page_num+1}" class="next_page"></a>
+</div>
 
 
+        </div>
       %endif
       
-      <!--show these content bellow after press btn'search'-----------------------------------------------------------> 
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/man_head.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">Mark Winter</span> 
-        <span class="name_text">Mwinter</span> 
-        <span class="name_text">ABC Unified School District</span> 
-        <span class="name_text">7 Years in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-      </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Sally.png" width="110" height="110" border="0" /></span>
-        <span class="name_container">
-          <span class="full_name">Sally June</span> 
-          <span class="name_text">SJune21</span> 
-          <span class="name_text">123 Unified School District</span> 
-          <span class="name_text">15 Years in Education</span>
-        </span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a><a class="ico_del"></a>
-        </div>
-      </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Cynthia.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">Cynthia Autumn</span> 
-        <span class="name_text">AutumnC</span> 
-        <span class="name_text">Impressive Unified School District</span> 
-        <span class="name_text">1 Year in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-        </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/John.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">John Acre</span> 
-        <span class="name_text">JJAcre</span> 
-        <span class="name_text">County School District</span> 
-        <span class="name_text">25 Years in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-      </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Steven.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">Steven Spring</span> 
-        <span class="name_text">SpringS</span> 
-        <span class="name_text">123 Unified School District</span> 
-        <span class="name_text">7 Years in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-      </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Kendra.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">Kendra Reader</span> 
-        <span class="name_text">Read123</span> 
-        <span class="name_text">Impressive  Unified School District</span> 
-        <span class="name_text">3 Years in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-      </div>
-      <div class="people_content" style="display:none;">
-        <span class="head_photo"><img src="/static/tmp-resource/image/heads/Maria.png" width="110" height="110" border="0" /></span>
-        <span class="name_container"><span class="full_name">Maria Note</span> 
-        <span class="name_text">MNote34</span> 
-        <span class="name_text">County School District</span> 
-        <span class="name_text">12 Years in Education</span></span>
-        <div class="btn_container">
-          <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
-        </div>
-      </div>
-      <div class="page" style="display:none;">
-        <a href="#" class="up_page"></a><a href="#">1</a><a href="#">2</a><a href="#" class="page_active">3</a><a href="#">4</a><a href="#">5</a><a href="#">6</a><a href="#" class="next_page"></a>
-      </div>
+
     </section>
   </div>
 </section>

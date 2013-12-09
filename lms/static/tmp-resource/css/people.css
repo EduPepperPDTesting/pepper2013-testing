@@ -1035,16 +1035,13 @@ te
 	margin-top:20px;
 	margin-bottom:40px;
 	margin-right:20px;
-	width:250px;
 	float:right;
 	line-height:24px;
-background:#;
 	clear:both;
 }
 .page a {
-	float:left;
 	width:auto;
-	line-height:17px;
+	line-height:24px;
 	padding:2px 5px;
 	color:#333;
     border:1px solid #ccc;
@@ -1054,18 +1051,18 @@ background:#;
 	color:#ff6600;
 }
 .page .up_page {
-	float:left;
+    display:inline-block;
 	width:17px !important;
+    line-height:24px;
+
 	height:20px;
-	display:block;
 	background:url(../image/up_page.png) no-repeat;
     border:none;
 }
 .page .next_page {
-	float:left;
+    display:inline-block;
 	width:17px !important;
 	height:20px;
-	display:block;
 	background: url(../image/next_page.png) no-repeat;
     border:none;
     margin-left:13px;

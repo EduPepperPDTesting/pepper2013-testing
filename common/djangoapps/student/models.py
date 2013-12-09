@@ -142,12 +142,13 @@ class UserProfile(models.Model):
 
     school = models.ForeignKey(School,on_delete=models.PROTECT,blank=True)
     cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT)
-    
+
+    years_in_education = models.ForeignKey(YearsInEducation,on_delete=models.PROTECT)
+    grade_level = models.ForeignKey(GradeLevel,on_delete=models.PROTECT)
+    major_subject_area = models.ForeignKey(SubjectArea,on_delete=models.PROTECT)
+
 #@begin:Add some fields to student profile
 #@date:2013-11-15        
-    major_subject_area_id=models.IntegerField(blank=True, null=True, db_index=True)
-    grade_level_id=models.CharField(blank=True, max_length=255, db_index=True)
-    years_in_education_id=models.IntegerField(blank=True, null=True, db_index=True)
     first_name = models.CharField(blank=True, max_length=255, db_index=True)
     last_name = models.CharField(blank=True, max_length=255, db_index=True)
     bio = models.CharField(blank=True, max_length=255, db_index=True)    
