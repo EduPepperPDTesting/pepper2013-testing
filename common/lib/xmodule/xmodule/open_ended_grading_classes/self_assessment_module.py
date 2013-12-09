@@ -72,7 +72,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
             previous_answer = previous_answer.replace("<br>","\n")
         """
         #@end
-        previous_answer=urllib.unquote(previous_answer.decode(sys.stdin.encoding).encode('utf8'))
+        previous_answer=urllib.unquote(previous_answer.decode('utf8').encode('utf8'))
         context = {
             'prompt': self.child_prompt,
             'previous_answer': previous_answer,
@@ -203,7 +203,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         error_message = ""
         # add new history element with answer and empty score and hint.
         success, error_message, data = self.append_file_link_to_student_answer(data)
-        data['student_answer']=urllib.quote(data['student_answer'].decode(sys.stdin.encoding).encode('utf8'))
+        data['student_answer']=urllib.quote(data['student_answer'].decode('utf8').encode('utf8'))
         if success:
             data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
             self.new_history_entry(data['student_answer'])
@@ -247,7 +247,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         # add new history element with answer and empty score and hint.
         success, error_message, data = self.append_file_link_to_student_answer(data)
        
-        data['student_answer']=urllib.quote(data['student_answer'].decode(sys.stdin.encoding).encode('utf8'))
+        data['student_answer']=urllib.quote(data['student_answer'].decode('utf8').encode('utf8'))
         if success:
             data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
             self.new_history_entry(data['student_answer'])
@@ -281,7 +281,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         # add new history element with answer and empty score and hint.
         success, error_message, data = self.append_file_link_to_file_info(data)
        
-        data['student_answer']=urllib.quote(data['student_answer'].decode(sys.stdin.encoding).encode('utf8'))
+        data['student_answer']=urllib.quote(data['student_answer'].decode('utf8').encode('utf8'))
         if success:
             #data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
             #self.new_history_entry(data['student_answer'])
