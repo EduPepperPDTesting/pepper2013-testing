@@ -93,8 +93,9 @@ def get_chaper_for_course(request, course, active_chapter,portfolio_user):
         if chapter.url_name == active_chapter:
             _active_chapter['display_name'] = chapter.display_name
     return chapters
-def get_module_combinedopenended(request, course, location, portfolio_user):
-    location = course.location[0]+'://'+course.location[1]+'/'+course.location[2]+'/chapter/'+location
+def get_module_discussions(request, course, portfolio_user):
+    #location = course.location[0]+'://'+course.location[1]+'/'+course.location[2]
+    location=Location(course.location)
     section_descriptor = modulestore().get_instance(course.id, location, depth=None)
     field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, portfolio_user, section_descriptor, depth=None)
     descriptor = modulestore().get_instance_items(course.id, location,'combinedopenended',depth=None)
@@ -108,12 +109,7 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
         confirm = Get_confirm()
         confirm.feed(con)
         if confirm.score_urls[0] == 'correct' and confirm.state_urls[0] == 'done':
-            #content.append(add_edit_tool(con,course,descriptor[x]))
-            #import logging
-            #log = logging.getLogger("tracking")
-            #log.debug("descriptor_location===============================\n:"+str(con)+"\n===========================")
-            #c_info = Get_combinedopenended_info()
-            #c_info.feed(con)
+
             title, body = Get_combinedopenended_info(con)
             discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body},portfolio_user)
             if visibility:
@@ -354,24 +350,22 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
         thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
         update_thread(request, course.id, thread_id, thread_data)
         context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
-    #if context=='':
-    #    context = get_discussion_context(request, course, dest_location, parent_location)
     new_post_btn_match=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
     discussion_show_match=re.compile('<a*[^>]*class="discussion-show control-button*"[^>]*>[\s\S]*?<\/a>')
-    #p=re.compile('<a*[^>]*class="new-post-btn"[^>]*>[\s\S]*?<\/a>')
     if request.user.id == portfolio_user.id:
-        edit_course_btn = '<a class="edit-course-btn" href="{0}">Edit in Course</a>'.format(reverse('jump_to_id',args=(course.id,ora_id)))
         discussion_visibility=True
     else:
         edit_course_btn =''
-        context = context.replace(discussion_show_match.findall(context)[0], '')
         d_vis = Get_discussion_visibility()
         d_vis.feed(context)
         if d_vis.urls[0]=='true':
             discussion_visibility=True
         else:
             discussion_visibility=False
+    edit_course_btn = ''
+    discussion_show = ''
     context = context.replace(new_post_btn_match.findall(context)[0], edit_course_btn)
+    context = context.replace(discussion_show_match.findall(context)[0], discussion_show)
     return context, discussion_visibility
 
 @require_POST
