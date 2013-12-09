@@ -24,7 +24,7 @@
 <!--@begin:Add new page style-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #submit:hover,#submit_email_change:hover {
+  #submit:hover,#submit_email_change:hover,#photo_submit:hover {
   background:#6e8194;
   transition-delay: 0s, 0s, 0s;
   transition-duration: 0.25s, 0.25s, 0.25s;
@@ -34,7 +34,7 @@
   color:#fff;
   }
   
-  #submit,#submit_email_change {
+  #submit,#submit_email_change,#photo_submit {
   border-width:0;
   background:#556370;
   text-decoration: none;
@@ -53,7 +53,7 @@
   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
   
-  #submit:normal,,#submit_email_change:normal {
+  #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
   background:#126F9A;
   text-decoration: none;
   border-bottom-left-radius: 2px;
@@ -298,7 +298,8 @@
   })(this)
 
   $("#change_photo_form").submit(function(){
-   
+    
+
     var AllowImgFileSize=512;
     var AllowImgWidth=1024;
     var AllowImgHeight=768; 
@@ -337,6 +338,7 @@
     }
     <!------------------------------------------>
 
+    document.getElementById("photo_submit").disabled = true;
     $('#image_uploading').show(); 
     $('#change_photo_form').submit(); 
     });
@@ -563,7 +565,7 @@ Add info that you would like to share about yourself here:
   </section>
 
 <!--@begin:The styles used only in Dashboard-->
-<!--@date:2013-11-02--> 
+<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
   a.btnx:hover {
   background: linear-gradient(#1e8bbe, #0e72a1); 
@@ -878,7 +880,7 @@ Add info that you would like to share about yourself here:
 	  <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
      
       <div class="submit">
-        <input type="submit" class="btnx" id="submit" value="Upload" />
+        <input type="submit" class="btnx" id="photo_submit" value="Upload" />
       </div>          
     </form>
     <div class="close-modal" id="change_photo_close">
