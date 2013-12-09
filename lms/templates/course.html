@@ -1,3 +1,4 @@
+
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="stanford_theme_enabled"/>
 
@@ -37,7 +38,12 @@
   }
   #blocks *{font-family:'Open Sans',​Arial;}
   #blocks p{margin-top:10px;}
+/*@begin:tag 'p' sytle of short_description read from course_overview*/
+/*@date:2013-12-09*/
+  p{line-height:15px;}
+/*@end*/
 </style>
+
 <%!
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
@@ -79,31 +85,23 @@ from courseware.courses import course_image_url, get_course_about_section
   </div>
   
   <div class="desc" style="width:580px;height:70px;font-size:14px;">
-		<!--@begin:according to course id to show the course short description-->
-		<!--@date:2013-11-02-->
-		%if course.display_number_with_default == "MA101x":
-			<p style="line-height:16px;">In this course, elementary school mathematics teachers will receive an introduction to the Common Core’s eight Standards for 
-Mathematical Practice.</p>
-		%elif course.display_number_with_default == "MA102x":
-			<p style="line-height:16px;">In this course, middle school mathematics teachers will receive an introduction to the Common Core’s eight Standards for Mathematical 
-Practice.</p>
-		%elif course.display_number_with_default == "MA103x":
-			<p style="line-height:16px;">In this course, high school mathematics teachers will receive an introduction to the Common Core’s eight Standards for Mathematical 
-Practice.</p>
-		%elif course.display_number_with_default == "ELA101x":
-			<p style="line-height:16px;">This course supports K-5 teachers in implementing a key instructional shift outlined by the Common Core: ensuring a 50-50 balance in 
-the use of informational and literacy texts to provide young readers with access to increasingly complex and content-rich readings.</p>
-		%elif course.display_number_with_default == "ELA102x":
-			<p style="line-height:16px;">This course supports middle school teachers in implementing a key instructional shift outlined by the Common Core:more strategic 
-selection and instruction of vocabulary words to improve students' reading comprehension and deepen understanding of key content area concepts.</p>
-		%elif course.display_number_with_default == "ELA103x":
-			<p style="line-height:16px;">This course supports high school teachers in implementing a key instructional shift outlined by the Common Core: more strategic 
-selection and instruction of vocabulary words to improve students' reading comprehension and deepen understanding of key content area concepts.</p>
-		%elif course.display_number_with_default == "PEP101x":
-			<p style="line-height:16px;">A fun and interactive course designed to help you explore the Pepper learning experience.  Perfect to take before you start your courses.</p>
-		%else:
-			<p style="line-height:16px;">${get_course_about_section(course, 'short_description')}</p>
-		%endif
+		<!--@begin:read short_description from overview-->
+		<!--@date:2013-12-09-->
+            <%def name='short_description()'>
+              <%
+              	text1=""
+                text2=""
+                overview_temp = get_course_about_section(course, "overview")
+                length1 = len(overview_temp.split('</section>'))
+                if length1 > 1:
+                    text1 = overview_temp.split('</section>')[1]
+                length2 = len(text1.split('<section class="short_description">'))
+                if length2 > 1:
+                    text2 = text1.split('<section class="short_description">')[1]
+              %>
+              ${text2}
+            </%def>
+            ${short_description()}
 		<!--@end-->
   </div>
   
@@ -111,26 +109,24 @@ selection and instruction of vocabulary words to improve students' reading compr
     <div class="university" style="background:#F2F2F2;margin:0px 0px 0px 50px;width:530px;height:25px;">
 		<section style="padding-top:3px;">
 			<span>
-				AUTHORS: 
-				<!--@begin:according to course id to show the AUTHORS information-->
-				<!--@date:2013-11-02-->
-				%if course.display_number_with_default == "MA101x":
-					Katie Salguero, Cathy Carroll, Angela Knotts 
-				%elif course.display_number_with_default == "MA102x":
-					Cathy Carroll, Katie Salguero, Angela Knotts 
-				%elif course.display_number_with_default == "MA103x":
-					Angela Knotts, Cathy Carroll, Katie Salguero 
-				%elif course.display_number_with_default == "ELA101x":
-					S. Feldman, S. Eng 
-				%elif course.display_number_with_default == "ELA102x":
-					S. Feldman, S. Eng 
-				%elif course.display_number_with_default == "ELA103x":
-					S. Feldman, S. Eng 
-				%elif course.display_number_with_default == "PEP101x":
-					A. Coffman, L. Hescock
-				%else:
-					C. Carroll, K. Salguero, A. Knotts 
-				%endif
+				AUTHORS:
+				<!--@begin:read short_description from overview-->
+				<!--@date:2013-12-09-->
+		            <%def name='authors()'>
+		              <%
+		              	text1=""
+		                text2=""
+		                overview_temp = get_course_about_section(course, "overview")
+		                length1 = len(overview_temp.split('</section>'))
+		                if length1 > 5:
+		                    text1 = overview_temp.split('</section>')[5]
+		                length2 = len(text1.split('<section class="authors">'))
+		                if length2 > 1:
+		                    text2 = text1.split('<section class="authors">')[1]
+		              %>
+		              ${text2}
+		            </%def>
+		            ${authors()}
 				<!--@end-->
 				&#8226; ${get_course_about_section(course, 'university')}
 			</span>
