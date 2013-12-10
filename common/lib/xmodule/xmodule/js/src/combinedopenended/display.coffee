@@ -573,7 +573,7 @@ class @CombinedOpenEnded
           if files.size > max_filesize
             @can_upload_files = false
             files = ""
-            alert("File is too large.")
+            alert("File is too large.(2MB limit per attachment)")
             @ora_loading.hide()
             @$(@file_upload_box_sel)[0].files=[]
             @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
@@ -603,6 +603,8 @@ class @CombinedOpenEnded
             alert("Network error. Please try again.")
             return false
           if response.success==true
+            @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
+            @$(@file_upload_box_sel).change @preview_image
             alert("Upload success!")
           else
             alert("Upload fail")
@@ -1064,28 +1066,7 @@ class @CombinedOpenEnded
 
   preview_image: (event) =>
     if @$(@file_upload_box_sel)[0].files && @$(@file_upload_box_sel)[0].files[0]
-      reader = new FileReader()
-      reader.onload = (e) =>
-        max_dim = 150
-        @remove_attribute('src')
-        @remove_attribute('height')
-        @remove_attribute('width')
-        @$(@file_upload_preview_sel).attr('src', e.target.result)
-        height_px = @$(@file_upload_preview_sel)[0].height
-        width_px = @$(@file_upload_preview_sel)[0].width
-        scale_factor = 0
-        if height_px>width_px
-          scale_factor = height_px/max_dim
-        else
-          scale_factor = width_px/max_dim
-        @$(@file_upload_preview_sel)[0].width = width_px/scale_factor
-        @$(@file_upload_preview_sel)[0].height = height_px/scale_factor
-        #@$(@file_upload_preview_sel).show()
-      reader.readAsDataURL(@$(@file_upload_box_sel)[0].files[0])
-      #@begin:upload
-      #@date:2013-11-02 
       @upload_file(event)
-      #@end
 
   toggle_rubric: (event) =>
     info_rubric_elements = @$(@info_rubric_elements_sel)

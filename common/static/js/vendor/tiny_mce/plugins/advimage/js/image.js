@@ -138,7 +138,7 @@ var ImageDialog = {
             if (files.size > max_filesize) {
               can_upload_files = false;
               files = "";
-              alert("File is too large.");
+              alert("File is too large.(2MB limit per attachment)");
               $(".file-upload-box")[0].files = [];
               return false;
             }

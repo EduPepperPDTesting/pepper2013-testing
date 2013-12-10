@@ -134,7 +134,10 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         rubric_dict = rubric_renderer.render_rubric(self.child_rubric)
         success = rubric_dict['success']
         rubric_html = rubric_dict['html']
-
+        if rubric_html.index("Have you completed this task?")>0:
+            rubric_html = rubric_html.replace("Have you completed this task?","Is your response ready to send to your portfolio?")
+        if self.accept_file_upload:
+            rubric_html = rubric_html.replace("Is your response ready to send to your portfolio?","Is your assignment ready to send to your portfolio?")
         # we'll render it
         context = {'rubric': rubric_html,
                    'max_score': self._max_score,
@@ -203,9 +206,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         error_message = ""
         # add new history element with answer and empty score and hint.
         success, error_message, data = self.append_file_link_to_student_answer(data)
-
         data['student_answer']=urllib.quote(data['student_answer'].decode('utf8').encode('utf8'))
-
         if success:
             data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
             self.new_history_entry(data['student_answer'])
@@ -282,6 +283,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         error_message = ""
         # add new history element with answer and empty score and hint.
         success, error_message, data = self.append_file_link_to_file_info(data)
+       
         data['student_answer']=urllib.quote(data['student_answer'].decode('utf8').encode('utf8'))
         if success:
             #data['student_answer'] = SelfAssessmentModule.sanitize_html(data['student_answer'])
