@@ -17,7 +17,7 @@ def get_portfolio_user(request,user_id=''):
         return User.objects.get(id=user_id)
 
 def about_me(request,course_id):
-    portfolio_user = get_portfolio_user(request,'')
+    portfolio_user = get_portfolio_user(request,6)
     course = get_course_with_access(portfolio_user, course_id, 'load')
     return render_to_response('portfolio/about_me.html', {'course':course,'portfolio_user_id':portfolio_user.id})
 

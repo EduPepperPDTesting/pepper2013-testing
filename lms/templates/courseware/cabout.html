@@ -64,6 +64,14 @@ from student.models import CourseEnrollment
   color:#fff;
   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
+
+/*@begin:hide prerequisites and authors in main content*/
+/*@date:2013-12-09*/
+.prerequisites
+{display:none;}
+.authors
+{display:none;}
+/*@end*/
 </style>
 
 <div style="background:#f5f5f5;">
@@ -112,26 +120,23 @@ from student.models import CourseEnrollment
 				  <div style="background:#E1E1E1;margin:0 10px 10px 10px;line-height:20px;">
 					<p style="padding:10px 20px;"><b>Suggested Prerequisites:</b>
 						<br>
-						<!--@begin:according to the course id to show the Suggested...-->
-						<!--@date:2013-11-02-->
-						% if course.display_number_with_default == "MA101x":
-							<span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
-						% endif
-            % if course.display_number_with_default == "MA102x":
-              <span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
-            % endif
-            % if course.display_number_with_default == "MA103x":
-              <span>This course is designed for teachers who have taught or will be teaching middle school mathematics.</span>
-            % endif
-						% if course.display_number_with_default == "ELA101x":
-							<span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
-						% endif
-            % if course.display_number_with_default == "ELA102x":
-              <span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
-            % endif
-            % if course.display_number_with_default == "ELA103x":
-              <span>It is strongly recommended that participants in this online course are current classroom teachers or have access to students in order to be able to implement the practicum assignments developed as part of the session activities.</span>
-            % endif
+						<!--@begin:read prerequisites from overview-->
+						<!--@date:2013-12-09-->
+            <%def name='prerequisites()'>
+              <%
+                text1=""
+                text2=""
+                overview_temp = get_course_about_section(course, "overview")
+                length1 = len(overview_temp.split('</section>'))
+                if length1 > 4:
+                    text1 = overview_temp.split('</section>')[4]
+                length2 = len(text1.split('<section class="prerequisites">'))
+                if length2 > 1:
+                    text2 = text1.split('<section class="prerequisites">')[1]
+              %>
+              ${text2}
+            </%def>
+            <span>${prerequisites()}<span>
 						<!--@end-->
 					</p>
 				  </div>

@@ -24,7 +24,7 @@
 <!--@begin:Add new page style-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #submit:hover,#submit_email_change:hover {
+  #submit:hover,#submit_email_change:hover,#photo_submit:hover {
   background:#6e8194;
   transition-delay: 0s, 0s, 0s;
   transition-duration: 0.25s, 0.25s, 0.25s;
@@ -34,7 +34,7 @@
   color:#fff;
   }
   
-  #submit,#submit_email_change {
+  #submit,#submit_email_change,#photo_submit {
   border-width:0;
   background:#556370;
   text-decoration: none;
@@ -53,7 +53,7 @@
   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
   }
   
-  #submit:normal,,#submit_email_change:normal {
+  #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
   background:#126F9A;
   text-decoration: none;
   border-bottom-left-radius: 2px;
@@ -298,7 +298,8 @@
   })(this)
 
   $("#change_photo_form").submit(function(){
-   
+    
+
     var AllowImgFileSize=512;
     var AllowImgWidth=1024;
     var AllowImgHeight=768; 
@@ -307,7 +308,7 @@
     <!--check file choose-->
     if (fileImg.value=="")
     {
-      $("#change_photo_error").html("Update your avatar by uploading an image from your compute.").stop().css("display", "block");
+      $("#change_photo_error").html("Update your avatar by uploading an image from your computer.").stop().css("display", "block");
       fileImg.focus();
       return false;
     }
@@ -337,13 +338,43 @@
     }
     <!------------------------------------------>
 
+    document.getElementById("photo_submit").disabled = true;
     $('#image_uploading').show(); 
     $('#change_photo_form').submit(); 
     });
+  
+<!--@begin:clear form content and error information when close the sub page-->
+<!--@date:2013-12-05--> 
+    $("#change_name_close").click(function(){
+      $('#change_name_error').hide();
+      $('#new_first_name_field')[0].value = "";
+      $('#new_last_name_field')[0].value = "";
+      $('#name_rationale_field')[0].value = "";
+    });
+
+    $("#change_photo_close").click(function(){
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+    });
+
+    $("#change_bio_close").click(function(){
+      $('#id_bio')[0].value = "";
+    });
+
+    $("#container_dashboard").click(function(){
+      $('#change_name_error').hide();
+      $('#new_first_name_field')[0].value = "";
+      $('#new_last_name_field')[0].value = "";
+      $('#name_rationale_field')[0].value = "";
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+      $('#id_bio')[0].value = "";
+    });
+<!--@end-->
   </script>
 </%block>
 
-<section class="container dashboard">
+<section class="container dashboard" id="container_dashboard">
   %if message:
     <section class="dashboard-banner">
       ${message}
@@ -492,7 +523,7 @@
 			  % endif
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
 			</div>
-			<div style="line-height:30px;">Number of Years Taught:
+			<div style="line-height:30px;">Change Number of Years Taught:
 			  % if user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=user.profile.years_in_education_id).name}
 			  % endif
@@ -503,15 +534,13 @@
         <li>
           <div style="font-family: 'Open Sans';font-size:12px;">
             Bio: (<a href="#change_bio" rel="leanModal">edit</a>)
-            <span id="">
-
-              %if user.profile.bio:
-              ${user.profile.bio}
-              %else:
-              Add info that you would like to share about yourself here:
-              
-              %endif
-            </span>
+<pre style="padding:0;margin-top:10px;">
+%if user.profile.bio:
+${user.profile.bio}
+%else:
+Add info that you would like to share about yourself here:  
+%endif
+</pre>
           </div>
         </li>
 <!--@end-->        
@@ -536,7 +565,7 @@
   </section>
 
 <!--@begin:The styles used only in Dashboard-->
-<!--@date:2013-11-02--> 
+<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
   a.btnx:hover {
   background: linear-gradient(#1e8bbe, #0e72a1); 
@@ -851,10 +880,10 @@
 	  <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
      
       <div class="submit">
-        <input type="submit" class="btnx" id="submit" value="Upload" />
+        <input type="submit" class="btnx" id="photo_submit" value="Upload" />
       </div>          
     </form>
-    <div class="close-modal">
+    <div class="close-modal" id="change_photo_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
@@ -973,7 +1002,7 @@
 <section id="change_years_in_education" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change My Subject Area').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <h2>${_('Change Number of Years Taught').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
     <form id="change_years_in_education_form" method="post">
@@ -1010,7 +1039,7 @@
       <fieldset>
         <div class="input-group">
           <label>
-            <textarea name="bio" rows="" cols="" tabindex="" style="width:100%;height:100%;height:300px;resize:none;"></textarea>
+            <textarea maxlength="255" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${user.profile.bio}</textarea>
           </label>
           <section style="color:black;">
             Limited to 255 Characters
@@ -1022,7 +1051,7 @@
       </div>          
     </form>
     <div class="close-modal">
-      <div class="inner">
+      <div class="inner" id="change_bio_close">
         <p>&#10005;</p>
       </div>
     </div>
@@ -1137,6 +1166,7 @@
 </section>
 <!--@begin:User photo upload table-->
 <!--@date:2013-11-02-->
+<!----
 <section id="apply_picture_change" class="modal">
   <div class="inner-wrapper">
     <div class="close-modal">
@@ -1163,6 +1193,7 @@
     </div>
   </div>
 </section>
+-->
 <!--@end-->
 
 <section id="apply_name_change" class="modal">
@@ -1184,9 +1215,9 @@
             <br/><br/>
             
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">First Name</label>
-            <input id="new_first_name_field" value="" type="text" />
+            <input id="new_first_name_field" value="${user.profile.first_name}" type="text" />
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Last Name</label>
-            <input id="new_last_name_field" value="" type="text" />
+            <input id="new_last_name_field" value="${user.profile.first_name}" type="text" />
 <!--@end-->
             
             <label>${_("Reason for name change:")}</label>
@@ -1199,7 +1230,7 @@
         </fieldset>
       </form>
     </div>
-    <div class="close-modal">
+    <div class="close-modal" id="change_name_close">
       <div class="inner">
         <p>&#10005;</p>
       </div>
