@@ -655,9 +655,12 @@ te
 .tou {
 	float:left;
 	display:block;
+	width:110px;
+	height:110px;
+	text-align:center
 }
 .name {
-
+	width:340px;
 	float:left;
 	margin-left:10px;
 }
@@ -666,6 +669,7 @@ te
 	float:left;
 	margin-left:10px;
 	height:200px;
+	font-size:14px;
 }
 .express_inf {
 	float:left;
@@ -673,6 +677,7 @@ te
 	line-height:28px;
 	clear:both;
 	display:block;
+	font-size:14px;
 }
 .about_tit {
 	float:right;
