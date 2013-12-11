@@ -8,6 +8,7 @@ from django.core.context_processors import csrf
 from django_future.csrf import ensure_csrf_cookie
 from django.views.decorators.cache import cache_control
 from portfolio_utils import get_module_combinedopenended, get_chaper_for_course
+from my_discussions import get_module_discussions
 from django.contrib.auth.models import User
 def get_portfolio_user(request,user_id=''):
     if request.user.id == user_id or user_id=='':
@@ -42,5 +43,7 @@ def uploads(request,course_id):
 def my_discussions(request,course_id,user_id):
     portfolio_user = get_portfolio_user(request,user_id)
     course = get_course_with_access(portfolio_user, course_id, 'load')
-    return render_to_response('portfolio/my_discussions.html', {'course':course,'portfolio_user_id':portfolio_user.id})
+    content=[]
+    content = get_module_discussions(request,course,portfolio_user)
+    return render_to_response('portfolio/my_discussions.html', {'course':course,'content':content,'portfolio_user_id':portfolio_user.id})
 

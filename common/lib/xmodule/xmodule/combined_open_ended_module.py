@@ -48,7 +48,7 @@ DEFAULT_DATA = textwrap.dedent("""\
         <rubric>
         <category>
         <description>
-        Have you completed this task?
+        Is your response ready to send to your portfolio?
         </description>
         <option>
         No
@@ -210,7 +210,7 @@ class CombinedOpenEndedFields(object):
                         </p>
                     [prompt]
                     [rubric]
-                    + Have you completed this task?
+                    + Is your response ready to send to your portfolio?
                     - No
                     - Yes
                     [rubric]

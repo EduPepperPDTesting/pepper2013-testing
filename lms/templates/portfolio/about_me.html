@@ -7,6 +7,7 @@
   from certificates.models import CertificateStatuses
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
 %>
 
 <%inherit file="../main.html" />
@@ -47,9 +48,72 @@
 		</section>
 		
 		<section class="course-content">
-			<img src="/static/tmp-resource/image/Pepper_about_me.png" style="padding-top:10px;padding-left:17px;"/>
+			<div class="user_express">
+        <div class="tou">
+          % if user.profile.photo:
+            <img src="/static/uploads/photos/${ user.profile.photo }" alt="photo" />
+          % else:
+            <img src="/static/uploads/photos/photo_temp.png" alt="photo" />
+          % endif
+        </div>
+        <div class="name">
+          <span id="user_name" class="express_inf">User Name: <strong>${ user.username }</strong></span> 
+          <span id="name" class="express_inf"><span>Name: <strong>${ user.profile.first_name | h } ${ user.profile.last_name | h }</strong></span></span>
+          <span id="email" class="express_inf">Email: <strong><a href="#">${ user.email | h }</a></strong></span>
+          
+          <span id="district" class="express_inf"><span>District: <strong>
+            % if user.profile.cohort_id:
+              ${user.profile.cohort.district.name}
+            % endif
+          </strong></span></span>
+          
+          <span id="school" class="express_inf">
+            <span>School: <strong>
+                % if user.profile.school_id:
+                ${user.profile.school.name}
+                % endif
+          </strong></span></span>
+
+          <span id="major_subject_area" class="express_inf">
+            <span>Major Subject Area: 
+             % if user.profile.major_subject_area_id:
+                ${SubjectArea.objects.get(id=user.profile.major_subject_area_id).name}
+              % endif
+            </span>
+          </span>
+
+          <span id="grade" class="express_inf">
+            <span>Grade: 
+              <% gn=list() %>
+              % if user.profile.grade_level_id:
+                % for i,c in enumerate(user.profile.grade_level_id.split(',')):
+                  % if len(c)>0:
+                  <% gn.append(GradeLevel.objects.get(id=c).name) %>
+                  % endif
+                % endfor
+              % endif
+              ${", ".join(gn)}
+            </span>
+          </span>
+        </div>
+
+        <div id="bio" class="express">
+            Bio: 
+            %if user.profile.bio:
+              ${user.profile.bio}
+            %else:
+              Add info that you would like to share about yourself here.  
+            %endif
+        </div>
+      </div>
+
+
+      <div class="about_tit">About Me</div>
+      <div class="message_all" style="height:800px;">
+        
+      </div>
 		</section>
 	</div>
 </div>
 <br style="clear:both;">
-<br style="clear:both;">
+

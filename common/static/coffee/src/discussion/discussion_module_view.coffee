@@ -48,7 +48,7 @@ if Backbone?
 
     loadPage: ($elem)=>
       discussionId = @$el.data("discussion-id")
-      if @$el.data("discussion-visibility")==true
+      if @$el.data("discussion-visibility")
         @showed=true
         @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
       else
@@ -64,7 +64,6 @@ if Backbone?
         success: (response, textStatus, jqXHR) => @renderDiscussion($elem, response, textStatus, discussionId)
 
     setVisibility: ($elem)=>
-      #discussionId = @$el.data("discussion-id")
       discussionId = @$el.find('.edit-course-btn').attr('href').split('/')[6]
       url = DiscussionUtil.urlFor('set_visibility', discussionId,@showed)
       DiscussionUtil.safeAjax
@@ -74,7 +73,6 @@ if Backbone?
         type: "POST"
         success: (response) => @switch_status($elem,response)
           
-
     switch_status:($elem,response)=>
       if response.visibility=='true'
         @showed=true

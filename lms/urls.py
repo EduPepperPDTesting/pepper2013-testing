@@ -63,6 +63,7 @@ urlpatterns = (
     
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
+
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
@@ -290,7 +291,8 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),           
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),            
+  
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
             'portfolio.views.uploads', name="portfolio_uploads"), 
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',
