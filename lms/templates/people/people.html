@@ -225,8 +225,8 @@
       %else:
         <div id="" class="people_default">
           %for profile in profiles:
-          <div id="" style="height:130px;padding-left:90px;border-bottom:1px solid #ccc;">
-            <span class="head_photo">
+          <div id="" style="height:130px;padding-left:90px;">
+            <span class="head_photo" style="background:transparent;">
               <a href="#">
                 % if profile.user.profile.photo:
                   <img src="/static/uploads/photos/${ profile.user.profile.photo }" style="" alt="photo" />
