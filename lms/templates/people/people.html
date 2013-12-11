@@ -95,6 +95,9 @@
             <div class="filters">
               <select  name="course_id">
                 <option value="">Courses</option>
+                %for item in courses:
+                <option value="${item.id}">${item.display_name}</option>
+                %endfor
               </select>
             </div>
             %else:
@@ -237,7 +240,7 @@
               %if profile.cohort_id and profile.school_id:
               <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
               %endif
-              %if len(profile.years_in_education_id) and int(profile.years_in_education_id):
+              %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
               <span class="name_text">${profile.years_in_education.name} Years in Education</span>
               %endif
             </span>
@@ -262,10 +265,8 @@
   <a href="/people/?${params}&page=${pager.page_num+1}" class="next_page"></a>
 </div>
 
-
         </div>
       %endif
-      
 
     </section>
   </div>
