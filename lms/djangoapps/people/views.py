@@ -72,8 +72,20 @@ def people(request):
     pager=JuncheePaginator(f,5,6)
     profiles=valid_pager(pager,request.GET.get('page'))
     params=pager_params(request)
+    courses=list()
 
+    from student.views import course_from_id
+    for e in CourseEnrollment.enrollments_for_user(request.user):
+        try:
+            c=course_from_id(e.course_id)
+            courses.append(c)
+        except:
+            pass
+
+    # return HttpResponse("<br>".join(dir(courses[0])))
+        
     return render_to_response('people/people.html', {
+        'courses':courses,
         'profiles':profiles,
         'pager':pager,
         'params':params,
