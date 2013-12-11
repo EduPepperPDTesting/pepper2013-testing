@@ -10,7 +10,7 @@ from courseware.courses import (get_courses, get_course_with_access,
 
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
-from people.user import search_user 
+from people.user import search_user, JuncheePaginator
 
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
@@ -30,20 +30,36 @@ def SQL_query_to_list(cursor, query_string):
     raw_result=dictfetchall(cursor)
     return raw_result
 
-# http://localhost:8111/course/test3/test3/test3/people/
 def course_index(request,course_id):
     course = get_course_with_access(request.user, course_id, 'load')
     return render_to_response('people/people.html', {'course':course})
 
-# http://localhost:8111/course/test3/test3/test3/my_people/
 def my_course_index(request,course_id):
     course = get_course_with_access(request.user, course_id, 'load')
     return render_to_response('people/my_people.html', {'course':course})
 
-# http://localhost:8111/people/    
+def valid_pager(paginator,page):
+    try:
+        page=int(page)
+    except Exception:
+        page=1
+    if page<1: page=1
+    if page>paginator.num_pages: page=paginator.num_pages
+    data=paginator.page(page)
+    return data
+
+def pager_params(request):
+    b=list()
+    for (n,v) in request.GET.items():
+        if n != 'page':
+            b.append("%s=%s" % (n,v))
+    return "&".join(b)
+
+
 def people(request):
     # people searching
-    profiles=search_user(course_id=request.GET.get('course_id',''),
+    f=search_user(course_id=request.GET.get('course_id',''),
+                         email=request.GET.get('email',''),
                          username=request.GET.get('username',''),
                          first_name=request.GET.get('first_name',''),
                          last_name=request.GET.get('last_name',''),
@@ -52,8 +68,16 @@ def people(request):
                          subject_area_id=request.GET.get('subject_area_id',''),
                          grade_level_id=request.GET.get('grade_level_id',''),
                          years_in_education_id=request.GET.get('years_in_education_id',''))
+    
+    pager=JuncheePaginator(f,5,6)
+    profiles=valid_pager(pager,request.GET.get('page'))
+    params=pager_params(request)
 
-    return render_to_response('people/people.html', {'profiles':profiles})
+    return render_to_response('people/people.html', {
+        'profiles':profiles,
+        'pager':pager,
+        'params':params,
+        'people_search_debug':1})
 
 def my_people(request):
     # from modle

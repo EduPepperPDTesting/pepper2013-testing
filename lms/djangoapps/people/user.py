@@ -1,67 +1,128 @@
 from student.models import UserProfile
-# import sphinxapi
+from django.core.paginator import Paginator
+import sphinxapi
+import socket
+
+import logging
+log = logging.getLogger("tracking")
+
+
+class JuncheePaginator(Paginator):
+    def __init__(self, object_list, per_page, range_num=5, orphans=0, allow_empty_first_page=True):
+        Paginator.__init__(self, object_list, per_page, orphans, allow_empty_first_page)
+        self.range_num = range_num
+
+    def page(self, number):
+        self.page_num = number
+        return super(JuncheePaginator, self).page(number)
+
+    def _page_range_ext(self):
+        if self.num_pages <= self.range_num:
+            return range(1, self.num_pages + 1)
+        num_list = []
+        start=int(self.page_num-round(self.range_num/2))
+        if start<1:start=1
+        end=int(start+self.range_num)
+        if end>self.num_pages: end=self.num_pages
+        for i in range(start, end+1):
+            num_list.append(i)
+        return num_list
+
+    page_range_ext = property(_page_range_ext)
+
+class Filter():
+    def __init__(self,item_decorator=None):
+        self.client=sphinxapi.SphinxClient()
+        self.cond=list()
+        self.result=None
+        self.item_decorator=item_decorator
+
+    def SetLimits(self,bottom,top):
+        self.client.SetLimits(bottom,top)
+        
+    def SetServer(self,host,port):
+        self.client.SetServer(host,port)
+
+    def SetMatchMode(self,mode):
+        self.client.SetMatchMode(mode)
+        
+    def AddCond(self,cond):
+        self.cond.append(cond)
+        
+    def count(self):
+        self.SetLimits(0,1)
+        self.Query()
+        if self.result:
+            return self.result['total_found']
+        else:
+            return 0
+        
+    def __getitem__(self,key):
+        # the key is a slice()
+        stop=key.stop
+        start=key.start
+        if stop<1: stop=1
+        self.SetLimits(start,stop) 
+        # re-calc range, cause we fetch the current page from sphinx only.
+        if start>1:
+            stop=stop-start
+            start=0
+        self.Query()
+        ret=list()
+        if self.result and self.item_decorator:
+            for i,item in enumerate(self.result['matches']):
+                self.result['matches'][i]=self.item_decorator(item)
+            ret=self.result['matches'][start:stop]
+        return ret
+    
+    def Query(self):
+        try:
+            self.result=self.client.Query(' '.join(self.cond))
+        except socket.error, msg:
+            raise Exception("Failed to connect sphinx")
+
 def search_user(username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
-                grade_level_id='',years_in_education_id='',course_id=''):
-    pass
+                grade_level_id='',years_in_education_id='',course_id='',email=''):
+
+    """
+    refer to:
+    http://sphinxsearch.com/docs/current.html#extended-syntax
+    5.3. Extended query syntax
+
+    testing mysql query:
+    select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
+    select a.user_id,b.email,group_concat(a.course_id,' ') from student_courseenrollment a inner join auth_user b on
+    a.user_id=b.id where b.is_active and not b.is_staff and not b.is_superuser and a.course_id  like 'WestEd%' group by a.user_id;
+    """    
+
+    def dc(item):
+        return UserProfile.objects.get(user_id=item['id'])
     
-#     client = sphinxapi.SphinxClient()
-#     # client.SetFieldWeights()
-#     client.SetLimits(0, 5)  
-#     client.SetServer('127.0.0.1', 9312)
-#     client.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
-    
-#     # if course_id:
-#     #     # todo: Implement multi course.
-#     #     # read http://sphinxsearch.com/forum/view.html?id=8901
-#     #     client.SetFilter('course_id',[course_id])
-    
-#     cond=list()
-#     # refer to:
-#     # http://sphinxsearch.com/docs/current.html#extended-syntax
-#     # 5.3. Extended query syntax
+    f=Filter(dc)
+    # f.SetFieldWeights()
+    f.SetLimits(0, 500)  
+    f.SetServer('127.0.0.1', 9312)
+    f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
 
-#  # select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
-# # select a.user_id,b.email,group_concat(a.course_id,' ') from student_courseenrollment a inner join auth_user b on a.user_id=b.id where b.is_active and not b.is_staff and not b.is_superuser and a.course_id  like 'WestEd%' group by a.user_id;
-
-    
-#     if course_id:
-#         cond.append('@course "WestEd/002/002"')
-#     if username:
-#         cond.append("@username %s" % username)
-#     if first_name:
-#         cond.append("@first_name %s" % first_name)
-#     if last_name:
-#         cond.append("@last_name %s" % last_name)
-#     if district_id:
-#         cond.append("@district_id %s" % district_id)
-#     if school_id:
-#         cond.append("@school_id %s" % school_id)        
-#     if subject_area_id:
-#         cond.append("@subject_area_id %s" % subject_area_id)        
-#     if grade_level_id:
-#         cond.append("@grade_level_id %s" % grade_level_id)        
-#     if years_in_education_id:
-#         cond.append("@years_in_education_id %s" % years_in_education_id)        
-#     result=client.Query(' '.join(cond))
-
-#     profiles=list()       
- 
-#     if result:
-#         # status ,matches ,fields ,time ,total_found ,warning ,attrs ,words ,error ,total
-#         matches=result['matches']
-#         for item in matches:
-#             profiles.append(UserProfile.objects.get(user_id=item['id']))
-        
-#     return profiles
-
-# from django_sphinx_db.backend.models import SphinxModel, SphinxField
-# class User(SphinxModel):
-#     class Meta:
-#         # This next bit is important, you don't want Django to manage
-#         # the table for this model.
-#         managed = False
-
-#     user_name = SphinxField()
-#     first_name = SphinxField()
-#     id = SphinxField()
+    if email:
+        f.AddCond('@email "%s"' % email)    
+    if course_id:
+        f.AddCond('@course "%s"' % course_id)
+    if username:
+        f.AddCond("@username %s" % username)
+    if first_name:
+        f.AddCond("@first_name %s" % first_name)
+    if last_name:
+        f.AddCond("@last_name %s" % last_name)
+    if district_id:
+        f.AddCond("@district_id %s" % district_id)
+    if school_id:
+        f.AddCond("@school_id %s" % school_id)        
+    if subject_area_id:
+        f.AddCond("@subject_area_id %s" % subject_area_id)        
+    if grade_level_id:
+        f.AddCond('@grade_level_id "%s"' % grade_level_id)        
+    if years_in_education_id:
+        f.AddCond("@years_in_education_id %s" % years_in_education_id)
+    return f
