@@ -184,11 +184,9 @@
 
      $("#change_school_form").find("select[name='school_id']").val('${user.profile.school_id}')
 
-     
     $("#change_school_form").submit(function(){
       var school_id = $(this.school_id).val();
 
-     
       $.post('${reverse("change_school")}',
              {"school_id":school_id},
              function(data) {
@@ -220,9 +218,6 @@
        return false;
     });
 
-
-     
-
    $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${user.profile.major_subject_area_id}')
 
    $("#change_major_subject_area_form").submit(function(){
@@ -239,9 +234,6 @@
        return false;
     });
 
-
-
-
      $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${user.profile.years_in_education_id}')
 
    $("#change_years_in_education_form").submit(function(){
@@ -257,9 +249,6 @@
              });
        return false;
     });
-
-
-     
 
      $("#change_bio_form").find("textarea[name='bio']").val('${user.profile.bio}')
   $("#change_bio_form").submit(function(){
@@ -298,7 +287,6 @@
   })(this)
 
   $("#change_photo_form").submit(function(){
-    
 
     var AllowImgFileSize=512;
     var AllowImgWidth=1024;
@@ -392,7 +380,9 @@
           <span class="title">
             <div class="icon name-icon"></div>${_("Name")}:
             <span class="data" style="display:inline;margin-left:0;font-weight:normal;">${ user.profile.first_name | h } ${ user.profile.last_name | h }</span>
+            %if user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
+            %endif
 <!--@end-->          
             
         </li>
@@ -401,7 +391,9 @@
         <li>
           <span class="title"><div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;">
             </div>${_("User Photo")}
+            %if user==request.user:
             (<a href="#change_photo" rel="leanModal" class="edit-photo">${_("edit")}</a>)
+            %endif
           </span> 
           <div style="text-align:center;margin-top:5px;">
                 % if user.profile.photo:
@@ -411,15 +403,19 @@
                 % endif
           </div>
         </li>
-<!--@end-->          
+<!--@end-->
+
         <li>
           <span class="title"><div class="icon email-icon"></div>${_("Email")}
+            %if user==request.user:
             % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
             (<a href="#change_email" rel="leanModal" class="edit-email">${_("edit")}</a>)
             % endif
+            %endif
           </span> <span class="data">${ user.email | h }</span>
         </li>
 
+        %if user==request.user:
         % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
         <li>
           <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
@@ -429,6 +425,7 @@
           </form>
         </li>
         % endif
+        %endif
 
 <!--@begin:Profile: remove some not needed info-->
 <!--@date:2013-11-02-->        
@@ -500,7 +497,9 @@
 			  % if user.profile.school_id:
 			  ${user.profile.school.name}
 			  % endif
+              %if user==request.user:
 			  (<a href="#change_school" rel="leanModal">edit</a>)
+              %endif
 			</div>
 
 			<div style="line-height:30px;">Grade Level:
@@ -514,26 +513,34 @@
 			  % endfor
 			  % endif
               ${", ".join(gn)}
-
+              %if user==request.user:
 			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
+              %endif
 			</div>
 			<div style="line-height:30px;">Major Subject Area:
 			  % if user.profile.major_subject_area_id:
 			  ${SubjectArea.objects.get(id=user.profile.major_subject_area_id).name}
 			  % endif
+               %if user==request.user:
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
+              %endif
 			</div>
 			<div style="line-height:30px;">Change Number of Years Taught:
 			  % if user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=user.profile.years_in_education_id).name}
 			  % endif
+              %if user==request.user:
               (<a href="#change_years_in_education" rel="leanModal">edit</a>)
+              %endif
 			</div>
 		</li>
 
         <li>
           <div style="font-family: 'Open Sans';font-size:12px;">
-            Bio: (<a href="#change_bio" rel="leanModal">edit</a>)
+            Bio:
+            %if user==request.user:
+            (<a href="#change_bio" rel="leanModal">edit</a>)
+            %endif
 <pre style="padding:0;margin-top:10px;">
 %if user.profile.bio:
 ${user.profile.bio}
@@ -634,7 +641,6 @@ Add info that you would like to share about yourself here:
 <!--@begin:Change the disply of the courses list in Dashboard-->
 <!--@date:2013-11-02-->    
       % for i,course in enumerate(courses_incomplated):
-
 
     <%
        border_overide='';
@@ -785,8 +791,6 @@ Add info that you would like to share about yourself here:
                 % endif
                 </div>
             % endif
-
-                
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
       				<!--@begin:make the 'View Portfolio' button enabled-->
@@ -795,10 +799,6 @@ Add info that you would like to share about yourself here:
       				<!--@end-->
               <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
             % endif
-
-           
-
-                
             <a href="#unenroll-modal" class="unenroll" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
 	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
@@ -810,10 +810,12 @@ Add info that you would like to share about yourself here:
 
     % else:
       <section class="empty-dashboard-message">
+        %if user==request.user:
         <p>${_("Looks like you haven't registered for any courses yet.")}</p>
         <a href="${marketing_link('COURSES')}">
             ${_("Find courses now!")}
         </a>
+        %endif
       </section>
     % endif
     % if staff_access and len(errored_courses) > 0:
@@ -965,9 +967,6 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </section>
-
-
-
 
 <section id="change_major_subject_area" class="modal">
   <div class="inner-wrapper">

@@ -7,6 +7,8 @@
   from certificates.models import CertificateStatuses
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
+  from student.models import UserProfile
+  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
 %>
 <%! import json%>
 <style type="text/css" media="screen">
@@ -85,130 +87,182 @@
         <a class="view_active" href="#">View My Network</a> <span class="line_blue"></span> 
       </div>
       <div class="filter">Search by</div>
+      <form method="" id="search_form" action="${reverse('my_people')}">
       <div class="filters">
-        <input type="" name="" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
+        <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
       </div>
       <div class="filters">
-        <input type="" name="" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+        <input type="" name="first_name" placeholder="First Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
       </div>
       <div class="filters">
-        <input type="" name="" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
+        <input type="" name="last_name" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
       </div>
- <script type="text/javascript">
-            var json_district=${json.dumps(settings.PEPPERPD_PROFILE_DISTRICTS)};
-            function reload_school_dropdown(district_id){
-            var drop=document.getElementById("school_id");
-            $(drop).find("option").filter(function(){return $.trim(this.value)!=''}).remove();
-            if(district_id=='') return;
-            $.each(json_district[district_id].school,function(i,school){
-            var code=district_id+"-"+i
-            $(drop).append("<option value='"+code+"'>"+school+"</option>");
-            })
-            }
-          </script>
-
       %if not course:
       <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())">
+        <select name="course_id">
           <option value="">Courses</option>
-          <option>User's Guide to Pepper </option>
-          <option>Balancing Informational & Literary Texts (K-5) </option>
-          <option>Building Academic Vocabulary (6-8) </option>
-          <option>Building Academic Vocabulary (9-12) </option>
-          <option>Intro to CCSS for Mathematical Practice (K-5) </option>
-          <option>Intro to CCSS for Mathematical Practice (6-8) </option>
-          <option>Intro to CCSS for Mathematical Practice (9-12) </option>
+          %for item in courses:
+          <option value="${item.id}">${item.display_name}</option>
+          %endfor
         </select>
       </div>
       %endif
-       
       <div class="filters">
-        <select  onchange="reload_school_dropdown($(this).val())">
+        <select name="district_id">
           <option value="">District</option>
-          %for i,item in enumerate(settings.PEPPERPD_PROFILE_DISTRICTS):
-          <option value="${i}">${item['name']}</option>
-          %endfor           
+          %for item in District.objects.all():
+          <option value="${item.id}">${item.name}</option>
+          %endfor            
         </select>
       </div>
       <div class="filters">
-        <select  id="school_id">
-          <option value="">--</option>
+        <select  name="school_id">
+          <option value="">School</option>
+          %for item in School.objects.all():
+          <option value="${item.id}">${item.name}</option>
+          %endfor            
         </select>
       </div>
       <div class="filters">
-        <select  >
+        <select name="subject_area_id">
           <option value="">Major Subject Area</option>
-          %for i,n in enumerate(settings.PEPPERPD_MAJOR_SUBJECT_AREA):
-          <option value="${i}">${n}</option>
+          %for item in SubjectArea.objects.all():
+          <option value="${item.id}">${item.name}</option>
           %endfor
         </select>
       </div>
       <div class="filters">
-        <select  >
+        <select name="grade_level_id">
           <option value="">Grade Level</option>
-          %for i,n in enumerate(settings.PEPPERPD_GRADE_LEVEL):
-          <option value="${i}">${n}</option>
-          %endfor          
+          %for item in GradeLevel.objects.all():
+          <option value="${item.id}">${item.name}</option>
+          %endfor             
         </select>
       </div>
       <div class="filters">
-        <select  >
+        <select name="years_in_education_id">
           <option value="">Years in Education</option>
-          %for i,n in enumerate(settings.PEPPERPD_YEARS_IN_EDUCATION):
-          <option value="${i}">${n}</option>
-          %endfor            
+          %for item in YearsInEducation.objects.all():
+          <option value="${item.id}">${item.name}</option>
+          %endfor                 
         </select>
       </div>
+
+      <input type="hidden" name="prepage" value="${prepage}"/>
+      <input type="submit" style="display:none"/>
+
        <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
         *Leave fields blank to search for all people
-      </div>
-      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a>
-      </div>
-      <div class="but_search"><a href="#" class="button_default button-ondark button-icon button-add icon icon-clear" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear Search &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-       </a>
-      </div>
+       </div>
+       <div class="but_search" style="line-height:19px;">
+         <a href="#" onclick="$('#search_form').submit()"
+            class="button_default button-ondark button-icon button-add icon icon-search"
+            style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
+           <div style="display:inline-block;text-align:center;width:140px;padding-right:25px;">Search</div>
+         </a>
+       </div>
+       <div class="but_search">
+         <a href="${reverse('people')}"
+            class="button_default button-ondark button-icon button-add icon icon-clear"
+            style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
+           <div style="display:inline-block;text-align:center;width:140px;padding-right:25px;">Clear Search</div>
+         </a>
+       </div>
     </section>
 
+         <script type="text/javascript">
+          $(document).ready(function(){
+            var form=$("#search_form");
+            form.find("input[name=username]").val("${request.GET.get('username','')}")
+            form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
+            form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
+            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+            form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
+            form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
+            form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
+            form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
+            form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
+            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+          });
+          </script>
+    
+    </form>
     %if course:
       <section>
     %else:
       <section class="course-content">
     %endif
+      %if len(people)==0:
+      No search result.
+      %else:
       <div class="people_tit">People</div>
+      %endif
+      
+      %for p in people:
+      <% profile=UserProfile.objects.get(user_id=p.people.id) %>
       <div class="people_content">
-			<span class="head_photo"><img src="/static/tmp-resource/image/heads/Allen.png" border="0" height="110" width="110"></span>
-			<span class="name_container"><span class="full_name">Allen Thomas</span> 
-			<span class="name_text">ThomasA</span> 
-			<span class="name_text">Impressive Unified School District</span> 
-			<span class="name_text">20 Years in Education</span></span>
-			<div class="btn_container"><a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><a class="ico_del"></a></div>
+        <span class="head_photo" style="background:transparent;">
+          <a href="${reverse('dashboard',args=[profile.user_id])}">
+            % if profile.photo:
+            <img src="/static/uploads/photos/${profile.photo}" style="" alt="photo" />
+            % else:
+            <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
+            % endif                
+          </a>
+        </span>
+        <span class="name_container">
+          <span class="full_name"><a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a></span> 
+          <span class="name_text">${profile.user.username}</span>
+          %if profile.cohort_id and profile.school_id:
+          <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
+          %endif
+          %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
+          <span class="name_text">${profile.years_in_education.name} Years in Education</span>
+          %endif
+        </span>
+		<div class="btn_container">
+          <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+          <a class="button-del" style="cursor:pointer;" onclick="remove_people('${p.id}');return false;"></a>
+        </div>
       </div>
-      <div class="people_content">
-			<span class="head_photo"><img src="/static/tmp-resource/image/heads/Sally.png" border="0" height="110" width="110"></span>
-			<span class="name_container"><span class="full_name">Sally June</span> 
-			<span class="name_text">SJune21</span> 
-			<span class="name_text">123 Unified School District</span> 
-			<span class="name_text">15 Years in Education</span></span>
-			<div class="btn_container"><a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><a class="ico_del"></a></div>
+      %endfor
       </div>
-	  <div class="people_content">
-			<span class="head_photo"><img src="/static/tmp-resource/image/heads/Virginia.png" border="0" height="110" width="110"></span>
-			<span class="name_container"><span class="full_name">Virginia Algebra</span> 
-			<span class="name_text">MathQueen</span> 
-			<span class="name_text">ABC Unified School District</span> 
-			<span class="name_text">22 Years in Education</span></span>
-			<div class="btn_container"><a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><a class="ico_del"></a></div>
-      </div>
-	  <div class="people_content">
-			<span class="head_photo"><img src="/static/tmp-resource/image/heads/tou.png" border="0" height="110" width="110"></span>
-			<span class="name_container"><span class="full_name">Kelly Sunday</span> 
-			<span class="name_text">KelSunday</span> 
-			<span class="name_text">County School District</span> 
-			<span class="name_text">1 Year in Education</span></span>
-			<div class="btn_container"><a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a><a class="ico_del"></a></div>
-      </div>
-      <div class="page"><a href="#" class="up_page"></a><a href="#">1</a><a href="#">2</a><a href="#" class="page_active">3</a><a href="#">4</a><a href="#">5</a><a href="#">6</a><a href="#" class="next_page"></a></div>
+     %if len(people)>0:
+    <div class="page" style="width:auto;" >
+      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="1"/>
+      ${pager.count}
+      <a href="${reverse('my_people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
+      %for p in pager.page_range_ext:
+      %if p==pager.page_num:
+      <a href="${reverse('my_people')}?${params}&page=${p}" class="page_active">${p}</a>
+      %else:
+      <a href="${reverse('my_people')}?${params}&page=${p}">${p}</a>
+      %endif
+      %endfor
+      <a href="${reverse('my_people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+    </div>
+    %endif
     </section>
   </div>
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
+<script type="text/javascript">
+$("#text_pre_page").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+      var f=$("#search_form")
+      f.find("input[name=prepage]").val($(this).val())
+      f.submit()
+    }
+  })
+  
+function remove_people(id){
+  if(confirm("Really delete this people?")){
+    $.post("${reverse('remove_people')}",{id:id},function(r){
+      if (r instanceof String) r=$.parseJSON();
+      if(r.success)
+        window.location.reload()
+    });
+  }
+}
+</script>

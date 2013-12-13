@@ -1,4 +1,4 @@
-from student.models import UserProfile
+from student.models import UserProfile, People
 from django.core.paginator import Paginator
 import sphinxapi
 import socket
@@ -9,6 +9,7 @@ log = logging.getLogger("tracking")
 
 class JuncheePaginator(Paginator):
     def __init__(self, object_list, per_page, range_num=5, orphans=0, allow_empty_first_page=True):
+        
         Paginator.__init__(self, object_list, per_page, orphans, allow_empty_first_page)
         self.range_num = range_num
 
@@ -81,7 +82,7 @@ class Filter():
         except socket.error, msg:
             raise Exception("Failed to connect sphinx")
 
-def search_user(username='',first_name='',last_name='',
+def search_user(me,username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
                 grade_level_id='',years_in_education_id='',course_id='',email=''):
 
@@ -94,16 +95,22 @@ def search_user(username='',first_name='',last_name='',
     select a.user_id,b.email,a.course_id from student_courseenrollment a inner join auth_user b on a.user_id=b.id order by a.course_id;
     select a.user_id,b.email,group_concat(a.course_id,' ') from student_courseenrollment a inner join auth_user b on
     a.user_id=b.id where b.is_active and not b.is_staff and not b.is_superuser and a.course_id  like 'WestEd%' group by a.user_id;
-    """    
-
+    """
+    
     def dc(item):
-        return UserProfile.objects.get(user_id=item['id'])
+        profile=UserProfile.objects.get(user_id=item['id'])
+        f=People.objects.filter(user_id=me.id).filter(people_id=profile.user_id)
+        profile.student_people_id=None
+        if f.exists():
+            profile.student_people_id=f[0].id
+        return profile
     
     f=Filter(dc)
     # f.SetFieldWeights()
     f.SetLimits(0, 500)  
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
+    f.AddCond('@user_id !%s' % me.id)
 
     if email:
         f.AddCond('@email "%s"' % email)    
@@ -125,4 +132,5 @@ def search_user(username='',first_name='',last_name='',
         f.AddCond('@grade_level_id "%s"' % grade_level_id)        
     if years_in_education_id:
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
+
     return f

@@ -109,8 +109,17 @@ def query_dict(cursor, query_string):
     if len(raw_result):
         return raw_result[0]
 
+class People(models.Model):
+    """
+    This is where to store peoples in the network of each students
+    """
+    user = models.ForeignKey(User,on_delete=models.PROTECT,related_name="user_id")
+    people = models.ForeignKey(User,on_delete=models.PROTECT,related_name="people_id")
+    created = models.DateTimeField(auto_now_add=True, db_index=False)
+
 class UserProfile(models.Model):
-    """This is where we store all the user demographic fields. We have a
+    """
+    This is where we store all the user demographic fields. We have a
     separate table for this rather than extending the built-in Django auth_user.
 
     Notes:
@@ -137,18 +146,15 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
 
-    # district = models.OneToOneField(District, unique=True, db_index=True, related_name='profile')
-    # cohort = models.OneToOneField(Cohort, unique=True, db_index=True, related_name='profile')
-
     school = models.ForeignKey(School,on_delete=models.PROTECT,blank=True)
     cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT)
 
     years_in_education = models.ForeignKey(YearsInEducation,on_delete=models.PROTECT)
-    grade_level = models.ForeignKey(GradeLevel,on_delete=models.PROTECT)
     major_subject_area = models.ForeignKey(SubjectArea,on_delete=models.PROTECT)
 
-#@begin:Add some fields to student profile
-#@date:2013-11-15        
+    grade_level_id = models.CharField(blank=False, max_length=255, db_index=True) 
+
+
     first_name = models.CharField(blank=True, max_length=255, db_index=True)
     last_name = models.CharField(blank=True, max_length=255, db_index=True)
     bio = models.CharField(blank=True, max_length=255, db_index=True)    
@@ -156,7 +162,6 @@ class UserProfile(models.Model):
     
     invite_date=models.DateTimeField(auto_now_add=False, db_index=False)
     activate_date=models.DateTimeField(auto_now_add=False, db_index=False)
-#@end
 
     photo = models.CharField(blank=True, max_length=50, db_index=False)
     meta = models.TextField(blank=True)  # JSON dictionary for future expansion
