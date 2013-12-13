@@ -693,7 +693,7 @@ te
 .message_all {
 	float:right;
 	width:842px;
-	margin-right:40px;
+	/*margin-right:40px;*/
 	margin-top:0px;
 	padding:0px;
 }
