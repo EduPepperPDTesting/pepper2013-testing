@@ -647,7 +647,7 @@ te
 .user_express {
 	float:right;
 	width:820px;
-	margin-right:40px;
+	/*margin-right:40px;*/
 	padding:10px;
 	margin-top:28px;
 	border:1px solid #ccc;
@@ -670,6 +670,7 @@ te
 	margin-left:10px;
 	height:200px;
 	font-size:14px;
+	line-height:150%;
 }
 .express_inf {
 	float:left;
@@ -682,7 +683,7 @@ te
 .about_tit {
 	float:right;
 	width:842px;
-	margin-right:40px;
+	/*margin-right:40px;*/
 	margin-top:28px;
 	margin-bottom:20px;
 	border-bottom:1px solid #ccc;
