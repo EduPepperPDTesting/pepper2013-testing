@@ -9,6 +9,15 @@
   from xmodule.modulestore.django import modulestore
 %>
 
+<!--@begin:information of user who have no COMPLETED COURSES-->
+<!--@date:2013-12-13-->
+%if not courses_complated:
+   <section class="empty-dashboard-message">
+        <p>${_("You haven’t completed any course yet.")}</p>
+   </section>
+%endif
+<!--@end-->
+
 % for course in courses_complated:
         <article class="my-course">
           <%
