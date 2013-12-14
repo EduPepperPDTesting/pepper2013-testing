@@ -288,8 +288,13 @@ if settings.COURSEWARE_ENABLED:
         # For the instructor
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
+        
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
+
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me/(?P<user_id>[^/]+)$',
+            'portfolio.views.about_me', name="portfolio_about_me"),        
+        
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',

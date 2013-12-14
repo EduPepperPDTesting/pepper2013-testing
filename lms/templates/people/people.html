@@ -261,13 +261,15 @@
             %if profile.student_people_id:
             <div class="btn_container btn_container_del">
               <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
-                 style="-webkit-user-select: none; " people_id="${profile.user_id}"><div>In My Network</div></a>
+                 style="-webkit-user-select: none; " people_id="${profile.user_id}">
+                <div>In My Network</div>
+              </a>
               <a class="button-del" onclick="remove_people('${profile.student_people_id}',this);return false;"></a>
             </div>
             %else:
             <div class="btn_container btn_container_add">
               <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
-                 style="-webkit-user-select: none; " people_id="${profile.user_id}" onclick="add_people(this)">
+                 style="-webkit-user-select: none; " people_id="${profile.user_id}" onclick="add_people(this);return false;">
                 <div>Add to My Network</div>
               </a>
               <a class="button-del"></a>
@@ -297,37 +299,28 @@
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
-
-
-  $("#text_pre_page").bind('keydown', function (e) {
-    var key = e.which;
-    if (key == 13) {
-      var f=$("#search_form")
-      f.find("input[name=prepage]").val($(this).val())
-      f.submit()
-    }
-  })
-
-
-  
-  
+$("#text_pre_page").bind('keydown', function (e) {
+  var key = e.which;
+  if (key == 13) {
+    var f=$("#search_form")
+    f.find("input[name=prepage]").val($(this).val())
+    f.submit()
+  }
+})
 function add_people(btn){
   var people_id=$(btn).attr('people_id')
   var data={people_id:people_id}
   $.post("${reverse('add_people')}",data,function(r){
     if(r instanceof String)r=$.parseJSON(r);
       if(r.success){
-  
         $(btn).parent().removeClass("btn_container_add")
         $(btn).parent().addClass("btn_container_del")
-  
         $(btn).find("div").html("In My Network")
-
-  $(btn).next(".button-del")[0].onclick=null
-  
+        $(btn).next(".button-del")[0].onclick=null
         $(btn).next(".button-del").unbind('click')
         $(btn).next(".button-del").click(function(){
           remove_people(r.id,this);
+          return false;
         })
       }
   })
@@ -344,6 +337,7 @@ function remove_people(id,btn){
         $(btn).prev(".button-status").unbind('click')
         $(btn).prev(".button-status").click(function(){
           add_people(this);
+          return false;
         })
       }
     });

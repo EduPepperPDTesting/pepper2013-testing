@@ -1091,6 +1091,7 @@ div.btn_container a.button-status div{
 div.btn_container a.button-del{
     width: 26px;
     height: 26px;
+    margin-left:5px;
     display: inline-block;
     vertical-align:middle;
     line-height:39px;    
@@ -1109,7 +1110,8 @@ div.btn_container_del a.button-status{
 	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
 }
 div.btn_container_del a.button-status div{
-  padding:0 15px;
+  padding:0 15px 3px 10px;
+
 }
 div.btn_container_del a.button-status:hover {
 	color:#900;
@@ -1146,7 +1148,7 @@ div.btn_container_add a.button-status:hover{
 	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
 }
 div.btn_container_add a.button-status div{
-  padding:0 0px;
+  padding:0 0px 3px 0;
 }
 div.btn_container_add a.button-del{
   display:none;

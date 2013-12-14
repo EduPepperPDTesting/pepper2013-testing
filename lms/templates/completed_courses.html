@@ -120,10 +120,13 @@
                       <li class="action"><span class="disabled">
                           ${_("Your Certificate is Generating")}</span></li>
                     % elif cert_status['show_download_url']:
+                      %if user==request.user:      
                       <li class="action">
                       <a class="btn" href="${cert_status['download_url']}"
                          title="${_('This link will open/download a PDF document')}">
-                         Download Your PDF Certificate</a></li>
+                         Download Your PDF Certificate</a>
+                      </li>
+                      %endif
                     % endif
                     % if cert_status['show_survey_button']:
                       <li class="action"><a class="cta" href="${cert_status['survey_url']}">
@@ -136,16 +139,22 @@
                 <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
 
             %if course.id in show_courseware_links_for:
-				      <!--@begin:make the 'View Portfolio' button enabled-->
-				      <!--@date:2013-11-02-->
-				      <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-				      <!--@end-->
-              <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %if user==request.user:              
+				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+			    %else:
+                <a href="${reverse('portfolio_about_me',args=[course.id,user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+                %endif
+
+                %if user==request.user:      
+                <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %endif                      
             %endif
 
   	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
   	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
+              %if user==request.user:      
               <a href="/download_certificate" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
+              %endif
   	    % endif
             </section>
           </article>

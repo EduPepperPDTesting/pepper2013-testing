@@ -1,7 +1,8 @@
 from django.http import Http404
 from mitxmako.shortcuts import render_to_response
 from django.db import connection
-
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 from student.models import CourseEnrollment,get_user_by_id,People
 from django.contrib.auth.models import User
 
@@ -81,8 +82,13 @@ def remove_people(request):
     return HttpResponse(json.dumps(message))
 
 def people(request):
+    if not request.user.is_authenticated():
+       return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
-    if not prepage or not prepage.isdigit():
+    
+    if prepage.isdigit() and int(prepage)>0:
+        prepage=int(prepage)
+    else:
         prepage=5
         
     context={}
@@ -125,8 +131,13 @@ def people(request):
     return render_to_response('people/people.html', context)
 
 def my_people(request):
+    if not request.user.is_authenticated():
+       return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
-    if not prepage or not prepage.isdigit():
+    
+    if prepage.isdigit() and int(prepage)>0:
+        prepage=int(prepage)
+    else:
         prepage=5
     
     cursor = connection.cursor()
@@ -146,10 +157,8 @@ def my_people(request):
         people=people.filter(people__profile__cohort__district_id = request.GET.get('district_id',''))
     if request.GET.get('school_id',''):
         people=people.filter(people__profile__school_id = request.GET.get('school_id',''))
-        
     if request.GET.get('subject_area_id',''):
         people=people.filter(people__profile__major_subject_area_id = request.GET.get('subject_area_id',''))
-        
     if request.GET.get('grade_level_id',''):
         people=people.filter(people__profile__grade_level_id__regex = "(^|,)%s(,|$)" % request.GET.get('grade_level_id',''))
     if request.GET.get('years_in_education_id',''):

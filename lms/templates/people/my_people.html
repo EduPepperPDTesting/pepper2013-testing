@@ -229,7 +229,7 @@
       </div>
      %if len(people)>0:
     <div class="page" style="width:auto;" >
-      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="1"/>
+      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
       ${pager.count}
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:

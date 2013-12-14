@@ -793,11 +793,14 @@ Add info that you would like to share about yourself here:
             % endif
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-      				<!--@begin:make the 'View Portfolio' button enabled-->
-      				<!--@date:2013-11-02-->
-      				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-      				<!--@end-->
-              <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+      		%if user==request.user:              
+			<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+			%else:
+            <a href="${reverse('portfolio_about_me',args=[course.id,user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+            %endif
+            %if user==request.user:      
+            <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+            %endif
             % endif
             <a href="#unenroll-modal" class="unenroll" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
 	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
