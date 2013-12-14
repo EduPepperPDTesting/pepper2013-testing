@@ -59,10 +59,11 @@ urlpatterns = (
     url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
 
     url(r'^people/$', 'people.views.people', name="people"),
-    url(r'^my_people$', 'people.views.my_people', name="my_people"),
-    
-    url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^my_people/$', 'people.views.my_people', name="my_people"),
+    url(r'^add_people/$', 'people.views.add_people', name="add_people"),
+    url(r'^remove_people/$', 'people.views.remove_people', name="remove_people"),
 
+    url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     
@@ -78,6 +79,7 @@ urlpatterns = (
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
+    url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     
     url(r'^register$', 'student.views.register_user', name="register_user"),
@@ -286,8 +288,13 @@ if settings.COURSEWARE_ENABLED:
         # For the instructor
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
+        
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
+
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me/(?P<user_id>[^/]+)$',
+            'portfolio.views.about_me', name="portfolio_about_me"),        
+        
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
             'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',

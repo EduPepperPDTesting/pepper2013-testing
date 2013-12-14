@@ -891,10 +891,10 @@ te
 	color:#FFF;
 }
 .ico_add {
-	background:url(../image/btn_add.png) no-repeat
+	background:url(../image/btn_add.png) no-repeat;
 }
 /*-----------------------button--------------*/
-	.button_default {
+.button_default {
 	background: #555;
 	color: #fff;
 	text-decoration: none !important;;
@@ -928,6 +928,7 @@ te
 	top:8px;
 	margin-right:10px;
 	opacity: 0.5;
+
 }
 
 /*button: (Add to My Network)  color*/
@@ -1002,35 +1003,22 @@ te
 	padding-left: 2px;
 }
 /*-----------------ico_search----------------*/
-	.icon-search:before {
+.icon-search:before {
 	content:url(../image/search.png);
 	padding-left: 2px;
 }
 /*-----------------ico_select----------------*/
-	.icon-search:before {
+.icon-search:before {
 	content:url(../image/ico_select.png);
 	padding-left: 2px;
 }
 /*-------------------------------------------*/
-.ico_hiden {
-	display: none;
-}
-.ico_del {
-	width:26px;
-	height:26px;
-	background:url(../image/ico_del.png) no-repeat;
-	display:block;
-	float:right;
-	margin-top:8px;
-	margin-right:15px;
-}
 .but_search {
 	float:left;
 	width:200px;
 	margin-left:20px;
 	margin-top:20px;
 }
-
 .page {
 	margin-top:20px;
 	margin-bottom:40px;
@@ -1054,10 +1042,10 @@ te
     display:inline-block;
 	width:17px !important;
     line-height:24px;
-
 	height:20px;
 	background:url(../image/up_page.png) no-repeat;
     border:none;
+    vertical-align:middle;
 }
 .page .next_page {
     display:inline-block;
@@ -1066,6 +1054,7 @@ te
 	background: url(../image/next_page.png) no-repeat;
     border:none;
     margin-left:13px;
+    vertical-align:middle;
 }
 .page_active {
 	color:#ff6600 !important;
@@ -1084,11 +1073,83 @@ te
 	content:url(../image/btn_del.png);
 	padding-left: 2px;
 }
-
 .people_default {
 	float:right;
 	width:842px;
 	margin-right:40px;
 	margin-top:30px;
 	/*border-bottom:1px solid #ccc;*/
+}
+div.btn_container a.button-status{
+    vertical-align:middle;
+    padding:10px 10px;
+}
+div.btn_container a.button-status div{
+   display:inline;
+   vertical-align:middle;
+}
+div.btn_container a.button-del{
+    width: 26px;
+    height: 26px;
+    margin-left:5px;
+    display: inline-block;
+    vertical-align:middle;
+    line-height:39px;    
+    background: url(/static/tmp-resource/image/ico_del.png);
+    cursor:pointer;
+}
+div.btn_container_del a.button-status{
+	color: #fff !important;
+	background-color: #4ecdc4;
+	box-shadow: inset 0 0px rgba(255, 255, 255, .5);
+	border: solid 0px #cb6500;
+	background-image: url('../image/overlay.png'), -webkit-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
+	background-image: url('../image/overlay.png'), -moz-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
+	background-image: url('../image/overlay.png'), -o-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
+	background-image: url('../image/overlay.png'), -ms-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
+	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25));
+}
+div.btn_container_del a.button-status div{
+  padding:0 15px 3px 10px;
+
+}
+div.btn_container_del a.button-status:hover {
+	color:#900;
+	background-color: #5ceae5 !important;
+	background-image: url('../image/overlay.png'), -webkit-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), moz-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), -o-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), -ms-linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(97, 48, 0, 0), rgba(97, 48, 0, 0.25)) !important;
+}
+div.btn_container_del a.button-del{
+  display:inline-block;
+}
+div.btn_container_add a.button-status{
+	color: #fff !important;
+	background-color: #556370;
+	-webkit-box-shadow: inset 0 0px rgba(255, 255, 255, .5);
+	-moz-box-shadow: inset 0 0px rgba(255, 255, 255, .5);
+	box-shadow: inset 0 0px rgba(255, 255, 255, .5);
+	border: solid 0px #0d72a2;
+	background-image: url('../image/overlay.png'), -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+	background-image: url('../image/overlay.png'), -moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+	background-image: url('../image/overlay.png'), -o-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+	background-image: url('../image/overlay.png'), -ms-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25));
+}
+div.btn_container_add a.button-status:hover{
+	color:#900;
+	background-color: #6e8194 !important;
+	background-image: url('../image/overlay.png'), -webkit-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), -o-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), -ms-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
+	background-image: url('../image/overlay.png'), linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.25)) !important;
+}
+div.btn_container_add a.button-status div{
+  padding:0 0px 3px 0;
+}
+div.btn_container_add a.button-del{
+  display:none;
 }

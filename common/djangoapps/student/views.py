@@ -337,8 +337,13 @@ class StudentModule(models.Model):
 
 @login_required
 @ensure_csrf_cookie
-def dashboard(request):
-    user = request.user
+def dashboard(request,user_id=None):
+    if user_id:
+        user=User.objects.get(id=user_id)
+    else:
+        user = request.user
+
+        
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
@@ -350,32 +355,29 @@ def dashboard(request):
     courses=[]
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
-#@begin:Show the enrollment date of each course in Dashboard
-#@date:2013-11-02
             c=course_from_id(enrollment.course_id)
             c.student_enrollment_date=enrollment.created
-            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, request.user, c, depth=1)
+            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
             chapter_count=len(model_data_cache.descriptors)
-            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, request.user, c, depth=2)
+            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=2)
             count_history=0
             c.is_completed=False
             chapter_count=len(model_data_cache.descriptors)-chapter_count
             for m in model_data_cache.descriptors:
                 if m.ispublic:
                     chapter_count=chapter_count+1
-                if len(StudentModule.objects.filter(student_id=request.user.id,
+                if len(StudentModule.objects.filter(student_id=user.id,
                                                     course_id=c.id,
                                                     module_type='sequential',
                                                     module_id=m.location)) > 0:
                     count_history=count_history+1
             courses.append(c)
 
-            grade_precent=grade(request.user,request,c)['percent']
+            grade_precent=grade(user,request,c)['percent']
             if count_history==chapter_count and grade_precent >= 0.85:
                 courses_complated.append(c)
             else:
-                courses_incomplated.append(c)
-#@end            
+                courses_incomplated.append(c)         
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
@@ -392,9 +394,9 @@ def dashboard(request):
         errored_courses = modulestore().get_errored_courses()
 
     show_courseware_links_for = frozenset(course.id for course in courses
-                                          if has_access(request.user, course, 'load'))
+                                          if has_access(user, course, 'load'))
     
-    cert_statuses = {course.id: cert_info(request.user, course) for course in courses}
+    cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
 
     # get info w.r.t ExternalAuthMap
@@ -414,6 +416,7 @@ def dashboard(request):
         'show_courseware_links_for': show_courseware_links_for,
         'cert_statuses': cert_statuses,
         'exam_registrations': exam_registrations,
+        'user':user,
         }
 #@end
     #@begin:change photo by Dashboard

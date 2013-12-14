@@ -143,7 +143,9 @@
                 %endfor            
               </select>
             </div>
-            <input type="submit" name="" value="" style="display:none"/>
+            <input type="hidden" name="searching" value="1"/>
+            <input type="hidden" name="prepage" value="${prepage}"/>
+            <input type="submit" style="display:none"/>
             <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
               *Leave fields blank to search for all people
             </div>
@@ -182,10 +184,11 @@
   %if course:
     <section>
   %else:
-    <section class="course-content">
+    <section class="course-content" style="padding-left:20px;">
   %endif
-      <div class="people_tit">People</div>
-      %if profiles.paginator.count==0:
+      %if not request.GET.get('searching'):
+        <div class="people_tit" style="margin-right:20px;">People</div>
+
       <!--hide this div after press btn'search'----------------------------------------------------------->
       
       <div id="" class="people_default">
@@ -218,25 +221,35 @@
             <span class="name_text">15 Years in Education</span>
           </span>
           <div class="btn_container">
-            <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></a><a class="ico_del"></a>
+            <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">
+              &nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </a>
+            <a class="ico_del"></a>
           </div>
         </div>  
       </div>
       %else:
-        <div id="" class="people_default">
+        <div >
+          %if len(profiles)==0:
+             No search result.
+          %else:
+            <div class="people_tit" style="margin-right:20px;">People</div>
+          %endif
           %for profile in profiles:
-          <div id="" style="height:130px;padding-left:90px;">
+          <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
-              <a href="#">
-                % if profile.user.profile.photo:
-                  <img src="/static/uploads/photos/${ profile.user.profile.photo }" style="" alt="photo" />
+              <a href="${reverse('dashboard',args=[profile.user_id])}">
+                % if profile.photo:
+                  <img src="/static/uploads/photos/${profile.photo}" style="" alt="photo" />
                 % else:
                   <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
                 % endif                
               </a>
             </span>
             <span class="name_container">
-              <span class="full_name"><a href="#" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a></span> 
+              <span class="full_name">
+                <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a>
+              </span> 
               <span class="name_text">${profile.user.username}</span>
               %if profile.cohort_id and profile.school_id:
               <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
@@ -245,32 +258,89 @@
               <span class="name_text">${profile.years_in_education.name} Years in Education</span>
               %endif
             </span>
-            <div class="btn_container">
-              <a href="#" class="button_default button-ondark button-icon button-add icon icon-add" style="-webkit-user-select: none; ">Add to My Network </span></a><a class="ico_hiden"></a>
+            %if profile.student_people_id:
+            <div class="btn_container btn_container_del">
+              <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
+                 style="-webkit-user-select: none; " people_id="${profile.user_id}">
+                <div>In My Network</div>
+              </a>
+              <a class="button-del" onclick="remove_people('${profile.student_people_id}',this);return false;"></a>
             </div>
+            %else:
+            <div class="btn_container btn_container_add">
+              <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
+                 style="-webkit-user-select: none; " people_id="${profile.user_id}" onclick="add_people(this);return false;">
+                <div>Add to My Network</div>
+              </a>
+              <a class="button-del"></a>
+            </div>
+            %endif
           </div>
           %endfor
-
-<br style="clear:both"/>
-<div class="page" style="width:auto" >
-  items per page <input type="" name="" value="" size="4"/>
-  ${pager.count}
-  <a href="/people/?${params}&page=${pager.page_num-1}" class="up_page"></a>
-  %for p in pager.page_range_ext:
-    %if p==pager.page_num:
-    <a href="/people/?${params}&page=${p}" class="page_active">${p}</a>
-    %else:
-    <a href="/people/?${params}&page=${p}">${p}</a>
-    %endif
-  %endfor
-  <a href="/people/?${params}&page=${pager.page_num+1}" class="next_page"></a>
-</div>
-
+          %if len(profiles)>0:
+          <div class="page" style="width:auto" >
+            items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
+            ${pager.count}
+            <a href="${reverse('people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
+            %for p in pager.page_range_ext:
+            %if p==pager.page_num:
+            <a href="${reverse('people')}?${params}&page=${p}" class="page_active">${p}</a>
+            %else:
+            <a href="${reverse('people')}?${params}&page=${p}">${p}</a>
+            %endif
+            %endfor
+            <a href="${reverse('people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+          </div>
         </div>
+        %endif
       %endif
-
     </section>
   </div>
 </section>
-
 <div style="height:20px; width:100%; clear:both;"></div>
+<script type="text/javascript">
+$("#text_pre_page").bind('keydown', function (e) {
+  var key = e.which;
+  if (key == 13) {
+    var f=$("#search_form")
+    f.find("input[name=prepage]").val($(this).val())
+    f.submit()
+  }
+})
+function add_people(btn){
+  var people_id=$(btn).attr('people_id')
+  var data={people_id:people_id}
+  $.post("${reverse('add_people')}",data,function(r){
+    if(r instanceof String)r=$.parseJSON(r);
+      if(r.success){
+        $(btn).parent().removeClass("btn_container_add")
+        $(btn).parent().addClass("btn_container_del")
+        $(btn).find("div").html("In My Network")
+        $(btn).next(".button-del")[0].onclick=null
+        $(btn).next(".button-del").unbind('click')
+        $(btn).next(".button-del").click(function(){
+          remove_people(r.id,this);
+          return false;
+        })
+      }
+  })
+  btn.onclick=null;
+}
+function remove_people(id,btn){
+  if(confirm("Really delete this people?")){
+    $.post("${reverse('remove_people')}",{id:id},function(r){
+      if (r instanceof String) r=$.parseJSON();
+      if(r.success){
+        $(btn).parent().removeClass("btn_container_del")
+        $(btn).parent().addClass("btn_container_add")
+        $(btn).prev(".button-status").find("div").html("Add to My Network")
+        $(btn).prev(".button-status").unbind('click')
+        $(btn).prev(".button-status").click(function(){
+          add_people(this);
+          return false;
+        })
+      }
+    });
+  }
+}
+</script>
