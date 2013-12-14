@@ -100,8 +100,6 @@ def people(request,course_id=None):
     else:
         course=get_course_with_access(request.user, course_id, 'load')
 
-
-        
     if request.GET.get('searching',''):
         f=search_user(me=request.user,
                       course_id=course_id,
@@ -140,7 +138,6 @@ def people(request,course_id=None):
     context['prepage']=prepage
     context['course']=course
     context['course_id'] = course_id
-
 
     return render_to_response('people/people.html', context)
 
@@ -195,6 +192,7 @@ def my_people(request,course_id=None):
         'people':people,
         'pager':pager,
         'params':params,
+        'course_id':course_id,
         'people_search_debug':1}
 
     if not course:

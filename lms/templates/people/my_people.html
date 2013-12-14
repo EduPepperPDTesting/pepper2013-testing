@@ -87,7 +87,14 @@
         <a class="view_active" href="#">View My Network</a> <span class="line_blue"></span> 
       </div>
       <div class="filter">Search by</div>
+ 
+      %if course:
+      <form method="" id="search_form" action="${reverse('my_people',args=[course_id])}">
+      %else:
       <form method="" id="search_form" action="${reverse('my_people')}">
+      %endif
+
+        
       <div class="filters">
         <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
       </div>
@@ -227,7 +234,23 @@
       </div>
       %endfor
       </div>
-     %if len(people)>0:
+    
+    %if len(people)>0:
+    %if course:
+    <div class="page" style="width:auto;" >
+      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
+      ${pager.count}
+      <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
+      %for p in pager.page_range_ext:
+      %if p==pager.page_num:
+      <a href="${reverse('my_people',args=[course_id])}?${params}&page=${p}" class="page_active">${p}</a>
+      %else:
+      <a href="${reverse('my_people',args=[course_id])}?${params}&page=${p}">${p}</a>
+      %endif
+      %endfor
+      <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+    </div>
+    %else:
     <div class="page" style="width:auto;" >
       items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
       ${pager.count}
@@ -242,6 +265,8 @@
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
     </div>
     %endif
+    %endif
+    
     </section>
   </div>
 </section>

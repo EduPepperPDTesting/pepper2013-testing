@@ -284,7 +284,23 @@
             %endif
           </div>
           %endfor
+          
           %if len(profiles)>0:
+          %if course:
+          <div class="page" style="width:auto" >
+            items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
+            ${pager.count}
+            <a href="${reverse('people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
+            %for p in pager.page_range_ext:
+            %if p==pager.page_num:
+            <a href="${reverse('people',args=[course_id])}?${params}&page=${p}" class="page_active">${p}</a>
+            %else:
+            <a href="${reverse('people',args=[course_id])}?${params}&page=${p}">${p}</a>
+            %endif
+            %endfor
+            <a href="${reverse('people',args=[course_id])}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+          </div>
+          %else:
           <div class="page" style="width:auto" >
             items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
             ${pager.count}
@@ -297,9 +313,14 @@
             %endif
             %endfor
             <a href="${reverse('people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
-          </div>
+          </div>          
+          %endif
+         %endif
+
+          
         </div>
-        %endif
+
+        
       %endif
     </section>
   </div>

@@ -78,7 +78,7 @@ class Filter():
     
     def Query(self):
         try:
-            self.result=self.client.Query(' '.join(self.cond))
+            self.result=self.client.Query(' '.join(self.cond),'people_user,delta')
         except socket.error, msg:
             raise Exception("Failed to connect sphinx")
 
