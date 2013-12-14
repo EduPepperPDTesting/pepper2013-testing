@@ -51,8 +51,8 @@ urlpatterns = (
     
     url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit',name="import_user_submit"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people_search$', 'people.views.course_index', name="people"),
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people_network$', 'people.views.my_course_index', name="my_people"),
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people/$', 'people.views.people', name="people"),
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
 
     url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
     url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),

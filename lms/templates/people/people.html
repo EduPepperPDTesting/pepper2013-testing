@@ -66,11 +66,11 @@
   <section class="container">
     %if course:
     <div class="course-wrapper">
-      <section class="course-index" style="width:280px !important;">
-        %else:
-        <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
-          <section class="course-index">
-            %endif
+    <section class="course-index" style="width:280px !important;height:700px !important;">
+    %else:
+    <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
+    <section class="course-index" style="min-height:700px;">
+    %endif
             <div class="sub_tit">
               <a class="view_active" href="#">Search</a>
               %if course:
@@ -81,7 +81,13 @@
               <span class="line_blue"></span> 
             </div>
             <div class="filter">Search By</div>
-            <form method="" id="search_form" action="${reverse('people')}">
+
+            %if course:
+            <form method="" id="search_form" action="${reverse('people',args=[course_id])}">
+              %else:
+              <form method="" id="search_form" action="${reverse('people')}">
+                %endif
+            
             <div class="filters">
               <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
             </div>
@@ -100,8 +106,6 @@
                 %endfor
               </select>
             </div>
-            %else:
-            <input type="hidden" name="course_id" value="${course.id}" />
             %endif
             <div class="filters">
               <select name="district_id">
@@ -164,6 +168,9 @@
               </a>
             </div>
           </section>
+
+
+          
           <script type="text/javascript">
           $(document).ready(function(){
             var form=$("#search_form");

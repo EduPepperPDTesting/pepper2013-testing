@@ -81,11 +81,11 @@ def remove_people(request):
         message={'success':False, 'error': "%s" % e}
     return HttpResponse(json.dumps(message))
 
-def people(request):
+def people(request,course_id=None):
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
-    
+
     if prepage.isdigit() and int(prepage)>0:
         prepage=int(prepage)
     else:
@@ -93,9 +93,18 @@ def people(request):
         
     context={}
 
+    course=None
+
+    if not course_id:
+        course_id=request.GET.get('course_id','')
+    else:
+        course=get_course_with_access(request.user, course_id, 'load')
+
+
+        
     if request.GET.get('searching',''):
         f=search_user(me=request.user,
-                      course_id=request.GET.get('course_id',''),
+                      course_id=course_id,
                       email=request.GET.get('email',''),
                       username=request.GET.get('username',''),
                       first_name=request.GET.get('first_name',''),
@@ -117,23 +126,34 @@ def people(request):
             'people_search_debug':1}
     
     courses=list()
+
+    if not course:
+        from student.views import course_from_id
+        for e in CourseEnrollment.enrollments_for_user(request.user):
+            try:
+                c=course_from_id(e.course_id)
+                courses.append(c)
+            except:
+                pass
+        context['courses']=courses
     
-    from student.views import course_from_id
-    for e in CourseEnrollment.enrollments_for_user(request.user):
-        try:
-            c=course_from_id(e.course_id)
-            courses.append(c)
-        except:
-            pass
-    context['courses']=courses
     context['prepage']=prepage
+    context['course']=course
+    context['course_id'] = course_id
+
 
     return render_to_response('people/people.html', context)
 
-def my_people(request):
+def my_people(request,course_id=None):
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
+
+    course=None
+    if not course_id:
+        course_id=request.GET.get('course_id','')
+    else:
+        course=get_course_with_access(request.user, course_id, 'load')    
     
     if prepage.isdigit() and int(prepage)>0:
         prepage=int(prepage)
@@ -151,8 +171,8 @@ def my_people(request):
         people=people.filter(people__profile__first_name = request.GET.get('first_name',''))
     if request.GET.get('last_name',''):
         people=people.filter(people__profile__last_name = request.GET.get('last_name',''))        
-    if request.GET.get('course_id',''):
-        people=people.filter(people__courseenrollment__course_id = request.GET.get('course_id',''))
+    if course_id:
+        people=people.filter(people__courseenrollment__course_id = course_id)
     if request.GET.get('district_id',''):
         people=people.filter(people__profile__cohort__district_id = request.GET.get('district_id',''))
     if request.GET.get('school_id',''):
@@ -168,19 +188,23 @@ def my_people(request):
     people=valid_pager(pager,request.GET.get('page'))
     params=pager_params(request)
     courses=list()
-    
-    from student.views import course_from_id
-    for e in CourseEnrollment.enrollments_for_user(request.user):
-        try:
-            c=course_from_id(e.course_id)
-            courses.append(c)
-        except:
-            pass
-        
-    return render_to_response('people/my_people.html', {
+
+    context={
         'prepage':prepage,
-        'courses':courses,
+        'course':course,
         'people':people,
         'pager':pager,
         'params':params,
-        'people_search_debug':1})
+        'people_search_debug':1}
+
+    if not course:
+        from student.views import course_from_id
+        for e in CourseEnrollment.enrollments_for_user(request.user):
+            try:
+                c=course_from_id(e.course_id)
+                courses.append(c)
+            except:
+                pass
+        context['courses']=courses
+
+    return render_to_response('people/my_people.html', context)
