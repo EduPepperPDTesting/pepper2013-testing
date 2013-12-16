@@ -257,7 +257,7 @@
             </span>
             %if profile.student_people_id:
             <div class="btn_container btn_container_del">
-              <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
+              <a href="#" class="button_default button-ondark button-icon icon icon-search button-status"
                  style="-webkit-user-select: none; " people_id="${profile.user_id}">
                 <div>In My Network</div>
               </a>
@@ -328,6 +328,8 @@ function add_people(btn){
       if(r.success){
         $(btn).parent().removeClass("btn_container_add")
         $(btn).parent().addClass("btn_container_del")
+        $(btn).removeClass("icon-add")
+        $(btn).addClass("icon-search")
         $(btn).find("div").html("In My Network")
         $(btn).next(".button-del")[0].onclick=null
         $(btn).next(".button-del").unbind('click')
@@ -346,6 +348,8 @@ function remove_people(id,btn){
       if(r.success){
         $(btn).parent().removeClass("btn_container_del")
         $(btn).parent().addClass("btn_container_add")
+        $(btn).prev(".button-status").removeClass("icon-search")
+        $(btn).prev(".button-status").addClass("icon-add")
         $(btn).prev(".button-status").find("div").html("Add to My Network")
         $(btn).prev(".button-status").unbind('click')
         $(btn).prev(".button-status").click(function(){
