@@ -76,6 +76,10 @@ import os
 
 from xblock.fields import Scope
 from courseware.grades import grade
+#@begin:complete_course_survey
+#@data:2013-12-14
+from courseware.module_render import get_module
+#@end
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -373,11 +377,25 @@ def dashboard(request,user_id=None):
                     count_history=count_history+1
             courses.append(c)
 
-            grade_precent=grade(user,request,c)['percent']
-            if count_history==chapter_count and grade_precent >= 0.85:
+            # grade_precent=grade(user,request,c)['percent']
+            # if count_history==chapter_count and grade_precent >= 0.85:
+            #     courses_complated.append(c)
+            # else:
+            #     courses_incomplated.append(c)         
+            #@begin:complete_course_survey
+            #@data:2013-12-14
+            course_id = enrollment.course_id
+            student = request.user
+            course_descriptor = course_from_id(course_id)
+            field_data_cache = FieldDataCache([course_descriptor], course_id, student)
+            course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
+            if course_instance.complete_course:
+                c.complete_date = course_instance.complete_date
+                c.student_enrollment_date = course_instance.complete_date
                 courses_complated.append(c)
             else:
-                courses_incomplated.append(c)         
+                courses_incomplated.append(c)
+            #@end
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))

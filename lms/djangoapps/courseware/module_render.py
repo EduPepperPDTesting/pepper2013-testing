@@ -39,6 +39,14 @@ from xblock.fields import Scope
 from util.sandboxing import can_execute_unsafe_code
 from util.json_request import JsonResponse
 from lms.xblock.field_data import lms_field_data
+#@begin:course_complete_survey
+#@data:2013-12-10
+from courseware.course_grades_helper import get_course_with_access, get_course_by_id, grade
+
+from datetime import datetime
+from xmodule.fields import Date
+from django.utils.timezone import UTC
+#@end
 
 log = logging.getLogger(__name__)
 
@@ -603,8 +611,44 @@ def modx_dispatch(request, dispatch, location, course_id):
     # Let the module handle the AJAX
     try:
         ajax_return = instance.handle_ajax(dispatch, data)
-        # Save any fields that have changed to the underlying KeyValueStore
-        instance.save()
+        
+        #@begin:complete_course_survey
+        #@data:2013-12-13
+        try:
+            if hasattr(instance,'complete_survey') and dispatch == 'problem_check':
+                if instance.complete_survey and dispatch == 'problem_check':
+                    student = request.user
+                    course_descriptor = get_course_by_id(course_id)
+                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course_descriptor, depth=None)
+                    course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
+                    percent = grade(student,request,course_descriptor,field_data_cache)['percent']
+                    ajax_return_json = json.loads(ajax_return)
+                    if ajax_return_json['success'] == u'correct':
+                        completed_course_prompt = '<h2>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</h2>'
+                        uncompleted_course_prompt = '<h2>This course requires a passing score of 85 percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</h2>'
+                        if percent > 0.85:
+                            course_instance.complete_course = True
+                            course_instance.complete_date = datetime.now(UTC())
+                            ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
+                            instance.save()
+                        else:
+                            course_instance.complete_course = False
+                            course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                            ajax_return_json['contents'] = uncompleted_course_prompt + ajax_return_json['contents']
+                        ajax_return = json.dumps(ajax_return_json)
+                    else:
+                        course_instance.complete_course = False
+                        course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                        instance.save()
+                    course_instance.save()
+                else:
+                    # Save any fields that have changed to the underlying KeyValueStore
+                    instance.save()
+            else:
+                    instance.save()
+        except ItemNotFoundError:
+            instance.save()
+        #@end
 
     # If we can't find the module, respond with a 404
     except NotFoundError:

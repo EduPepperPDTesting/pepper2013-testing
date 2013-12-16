@@ -8,8 +8,13 @@ from xmodule.xml_module import XmlDescriptor
 from xmodule.x_module import XModule
 from xmodule.progress import Progress
 from xmodule.exceptions import NotFoundError
-from xblock.fields import Integer, Scope
+from xblock.fields import Integer, Scope, Boolean
 from pkg_resources import resource_string
+#@begin:complete_course_survey
+from datetime import datetime
+from .fields import Date
+from django.utils.timezone import UTC
+#@end
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +29,10 @@ class SequenceFields(object):
     # NOTE: Position is 1-indexed.  This is silly, but there are now student
     # positions saved on prod, so it's not easy to fix.
     position = Integer(help="Last tab viewed in this sequence", scope=Scope.user_state)
-
+    #@begin:complete_course_survey
+    complete_course = Boolean(help="", scope=Scope.user_state, default=False)
+    complete_date = Date(help="Date that complete the course", scope=Scope.user_state, default=datetime.fromtimestamp(0, UTC()))
+    #@end
 
 class SequenceModule(SequenceFields, XModule):
     ''' Layout module which lays out content in a temporal sequence
