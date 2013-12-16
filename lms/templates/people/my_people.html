@@ -60,16 +60,9 @@
 }
 </style>
 
-%if False:
-  %for u in page.object_list :
-  ${u.name} ---  ${u.email} <br>
-  %endfor
-%endif
-
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
-
 <section class="container">
   %if course:
     <div class="course-wrapper">
@@ -87,14 +80,11 @@
         <a class="view_active" href="#">View My Network</a> <span class="line_blue"></span> 
       </div>
       <div class="filter">Search by</div>
- 
       %if course:
       <form method="" id="search_form" action="${reverse('my_people',args=[course_id])}">
       %else:
       <form method="" id="search_form" action="${reverse('my_people')}">
       %endif
-
-        
       <div class="filters">
         <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
       </div>
@@ -154,10 +144,8 @@
           %endfor                 
         </select>
       </div>
-
       <input type="hidden" name="prepage" value="${prepage}"/>
       <input type="submit" style="display:none"/>
-
        <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
         *Leave fields blank to search for all people
        </div>
@@ -176,7 +164,6 @@
          </a>
        </div>
     </section>
-
          <script type="text/javascript">
           $(document).ready(function(){
             var form=$("#search_form");
@@ -192,7 +179,6 @@
             form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
           });
           </script>
-    
     </form>
     %if course:
       <section>
@@ -204,12 +190,11 @@
       %else:
       <div class="people_tit">People</div>
       %endif
-      
       %for p in people:
       <% profile=UserProfile.objects.get(user_id=p.people.id) %>
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
-          <a href="${reverse('dashboard',args=[profile.user_id])}">
+          <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
             % if profile.photo:
             <img src="/static/uploads/photos/${profile.photo}" style="" alt="photo" />
             % else:
@@ -218,7 +203,9 @@
           </a>
         </span>
         <span class="name_container">
-          <span class="full_name"><a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a></span> 
+          <span class="full_name">
+            <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)" target="_blank">${profile.first_name} ${profile.last_name}</a>
+          </span> 
           <span class="name_text">${profile.user.username}</span>
           %if profile.cohort_id and profile.school_id:
           <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
@@ -233,12 +220,11 @@
         </div>
       </div>
       %endfor
-      </div>
-    
+    </div>
     %if len(people)>0:
     %if course:
     <div class="page" style="width:auto;" >
-      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
+      Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
       ${pager.count}
       <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:
@@ -252,7 +238,7 @@
     </div>
     %else:
     <div class="page" style="width:auto;" >
-      items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
+      Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
       ${pager.count}
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:
@@ -266,27 +252,25 @@
     </div>
     %endif
     %endif
-    
     </section>
   </div>
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
-$("#text_pre_page").bind('keydown', function (e) {
+$("#text_pre_page").bind('keydown', function(e){
     var key = e.which;
     if (key == 13) {
-      var f=$("#search_form")
-      f.find("input[name=prepage]").val($(this).val())
-      f.submit()
+      var f=$("#search_form");
+      f.find("input[name=prepage]").val($(this).val());
+      f.submit();
     }
-  })
-  
+});
 function remove_people(id){
   if(confirm("Really delete this people?")){
     $.post("${reverse('remove_people')}",{id:id},function(r){
       if (r instanceof String) r=$.parseJSON();
       if(r.success)
-        window.location.reload()
+        window.location.reload();
     });
   }
 }

@@ -58,11 +58,9 @@
 	background-image: linear-gradient(to top, #f93, #e0862c, #f93);
 }
 </style>
-
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
-
   <section class="container">
     %if course:
     <div class="course-wrapper">
@@ -81,13 +79,11 @@
               <span class="line_blue"></span> 
             </div>
             <div class="filter">Search By</div>
-
             %if course:
             <form method="" id="search_form" action="${reverse('people',args=[course_id])}">
-              %else:
-              <form method="" id="search_form" action="${reverse('people')}">
-                %endif
-            
+            %else:
+            <form method="" id="search_form" action="${reverse('people')}">
+            %endif
             <div class="filters">
               <input type="" name="username" placeholder="User Name" style="width:233px;margin:20px 20px 0" class="filters"/>
             </div>
@@ -168,9 +164,6 @@
               </a>
             </div>
           </section>
-
-
-          
           <script type="text/javascript">
           $(document).ready(function(){
             var form=$("#search_form");
@@ -195,9 +188,7 @@
   %endif
       %if not request.GET.get('searching'):
         <div class="people_tit" style="margin-right:20px;">People</div>
-
       <!--hide this div after press btn'search'----------------------------------------------------------->
-      
       <div id="" class="people_default">
         <div style="width:341px;height:126px;margin:0 auto;">
           <img src="/static/images/ppd-people-logo.png"/>
@@ -208,7 +199,6 @@
          <div style="height:76px;padding-left:710px;">
           <img src="/static/images/ppd-people-arrow.png"/>
         </div>
-
         <div id="" style="height:130px;padding-left:90px;border-bottom:1px solid #ccc;">
           <span class="head_photo"><img src="/static/tmp-resource/image/heads/man_head.png" width="110" height="110" border="0" /></span>
           <span class="name_container"><span class="full_name">Mark Winter</span> 
@@ -245,7 +235,7 @@
           %for profile in profiles:
           <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
-              <a href="${reverse('dashboard',args=[profile.user_id])}">
+              <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
                 % if profile.photo:
                   <img src="/static/uploads/photos/${profile.photo}" style="" alt="photo" />
                 % else:
@@ -255,7 +245,7 @@
             </span>
             <span class="name_container">
               <span class="full_name">
-                <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)">${profile.first_name} ${profile.last_name}</a>
+                <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)" target="_blank">${profile.first_name} ${profile.last_name}</a>
               </span> 
               <span class="name_text">${profile.user.username}</span>
               %if profile.cohort_id and profile.school_id:
@@ -284,11 +274,10 @@
             %endif
           </div>
           %endfor
-          
           %if len(profiles)>0:
           %if course:
           <div class="page" style="width:auto" >
-            items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
+            Items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
             ${pager.count}
             <a href="${reverse('people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
             %for p in pager.page_range_ext:
@@ -302,7 +291,7 @@
           </div>
           %else:
           <div class="page" style="width:auto" >
-            items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
+            Items per page <input id="text_pre_page" name="" value="${prepage}" size="4" maxlength="2" style="text-align:center;"/>
             ${pager.count}
             <a href="${reverse('people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
             %for p in pager.page_range_ext:
@@ -315,12 +304,8 @@
             <a href="${reverse('people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
           </div>          
           %endif
-         %endif
-
-          
+          %endif
         </div>
-
-        
       %endif
     </section>
   </div>

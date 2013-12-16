@@ -75,7 +75,7 @@
             <th>Activate Date</th>
             <th>Status</th>
           </tr>
-          % for item in users:
+          %for item in users:
           <tr>
             <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
             <td>${item.user_id}</td>
@@ -94,7 +94,7 @@
             <td align="center">${item.activate_date}</td>
             <td align="center">${item.subscription_status}</td>
           </tr>
-          % endfor       
+          %endfor       
         </table>
         <div style="padding:5px;text-align:right;">
           Total:${users.paginator.count} - 

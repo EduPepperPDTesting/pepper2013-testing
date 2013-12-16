@@ -58,8 +58,6 @@ def pager_params(request):
             b.append("%s=%s" % (n,v))
     return "&".join(b)
 
-
-
 def add_people(request):
     message={'success':True}    
     try:
@@ -92,9 +90,8 @@ def people(request,course_id=None):
         prepage=5
         
     context={}
-
     course=None
-
+    
     if not course_id:
         course_id=request.GET.get('course_id','')
     else:
@@ -126,14 +123,18 @@ def people(request,course_id=None):
     courses=list()
 
     if not course:
-        from student.views import course_from_id
-        for e in CourseEnrollment.enrollments_for_user(request.user):
-            try:
-                c=course_from_id(e.course_id)
-                courses.append(c)
-            except:
-                pass
+        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+        courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
         context['courses']=courses
+        # === Courses of myself ===        
+        # from student.views import course_from_id
+        # for e in CourseEnrollment.enrollments_for_user(request.user):
+        #     try:
+        #         c=course_from_id(e.course_id)
+        #         courses.append(c)
+        #     except:
+        #         pass
+        # context['courses']=courses
     
     context['prepage']=prepage
     context['course']=course
@@ -196,13 +197,17 @@ def my_people(request,course_id=None):
         'people_search_debug':1}
 
     if not course:
-        from student.views import course_from_id
-        for e in CourseEnrollment.enrollments_for_user(request.user):
-            try:
-                c=course_from_id(e.course_id)
-                courses.append(c)
-            except:
-                pass
+        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+        courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
         context['courses']=courses
+        # === Courses of myself ===
+        # from student.views import course_from_id
+        # for e in CourseEnrollment.enrollments_for_user(request.user):
+        #     try:
+        #         c=course_from_id(e.course_id)
+        #         courses.append(c)
+        #     except:
+        #         pass
+        # context['courses']=courses
 
     return render_to_response('people/my_people.html', context)
