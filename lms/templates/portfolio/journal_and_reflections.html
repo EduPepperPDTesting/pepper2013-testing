@@ -262,7 +262,7 @@
 
 <div style="text-align:center;">
   <div style="width:1200px;margin:auto;">
-    <%include file="/courseware/course_navigation.html" args="active_page='portfolio'" />
+    <%include file="/courseware/course_navigation.html" args="active_page='portfolio',portfolio_user=portfolio_user" />
   </div>
 </div>
 
@@ -270,24 +270,26 @@
 <section class="container">
   <div class="course-wrapper">
     <section class="course-index">
-      <div class="sub_tit" style="width:auto;"><span class="user_name">${ user.username }</span></div>
-      <a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id])}">About Me</a> 
-      <a class="sub_menu xz" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a> 
+      <div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
+      <a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
+      <a class="sub_menu xz" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}?pf_id=${portfolio_user.id}">My Coursework</a> 
       <div class="chapter">
       <ul>
       % for chapter in chapters:
           <li class="${'active' if chapter['active'] else ''}" >
-            <a href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id,chapter['url_name']])}">
+            <a href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id,chapter['url_name']])}?pf_id=${portfolio_user.id}">
               <p>${chapter['display_name']} ${'<span class="sr">, current section</span>' if chapter['active'] else ''}</p>
             </a>
           </li>
       % endfor
       </ul>
       </div>
+      <!--
       <a class="sub_menu" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>
+      -->
     </section>
 
-    <section class="course-content">
+    <section class="course-content my-course-work-content">
       <ol class="vert-mod">
        %for con in content:
        <li>${con}</li><p/>
@@ -297,7 +299,11 @@
        %endif
        %if len(content)==0 and chapter_id=='':
         <div style="text-align:center;margin-top:30px;"><div style='font-family:Arial;font-size:24pt;color:#366092'>Key Assignments from My Course</div>
-        <div style='font-family:open sans;font-size:14.5pt;;margin-top:20px;'><img src='/static/tmp-resource/image/PepperIcon_StorePortfolio.png'/>&nbsp;Review and collaborate on coursework from each session by using the left side navigation menu.</div>
+        <div style='font-family:open sans;font-size:14.5pt;margin-top:20px;'><img src='/static/tmp-resource/image/PepperIcon_StorePortfolio.png'/>&nbsp;Review and collaborate on coursework from each session by using the left side navigation menu.</div><p/>
+        <div style='font-family:open sans;font-size:14.5pt;margin-top:20px;'><img src='/static/tmp-resource/image/PepperIcon_Select.png'/>&nbsp;Click on "<b>Show Me More</b>" to expand the preview window for each assignment.</div><p/>
+        <div style='margin-top:20px;'><img src='/static/tmp-resource/image/pf_1.png'/></div><p/>
+        <div style='font-family:open sans;font-size:14.5pt;margin-top:20px;'><img src='/static/tmp-resource/image/PepperIcon_pen.png'/>&nbsp;Leave feedback about the assignment by writing in the <b>Add a Comment</b> text field.</div><p/>
+        <div style='margin-top:20px;'><img src='/static/tmp-resource/image/pf_2.png'/></div>
        %endif
       </ol>
     </section>
