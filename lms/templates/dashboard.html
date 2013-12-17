@@ -250,7 +250,6 @@
        return false;
     });
 
-     $("#change_bio_form").find("textarea[name='bio']").val('${user.profile.bio}')
   $("#change_bio_form").submit(function(){
       var bio = $(this.bio).val();
       $.post('${reverse("change_bio")}',
