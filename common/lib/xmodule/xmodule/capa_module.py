@@ -151,7 +151,15 @@ class CapaFields(object):
         help="Source code for LaTeX and Word problems. This feature is not well-supported.",
         scope=Scope.settings
     )
-
+    #@begin:course_complete_survey
+    #@data:2013-12-10
+    complete_survey = Boolean(
+        display_name="Complete Survey",
+        help="Whether complete course",
+        scope=Scope.settings,
+        default=False
+        )
+    #@end
 
 class CapaModule(CapaFields, XModule):
     """

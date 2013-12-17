@@ -75,10 +75,11 @@ urlpatterns = (
     url(r'^access_resource_library/$', 'access_resource_library.views.index', name="access_resource_library"),
     # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
-    url(r'^download_certificate$', 'certificates.views.download_certificate'),
+    url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
+    url(r'^uploadphoto$', 'student.views.uploadphoto', name="uploadphoto"),
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     

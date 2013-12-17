@@ -162,7 +162,7 @@
   	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
   	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
               %if user==request.user:      
-              <a href="/download_certificate" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
+              <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
               %endif
   	    % endif
             </section>
