@@ -275,8 +275,6 @@ def register_user(request, activation_key):
 
     if not profile.cohort_id:
        return HttpResponse("Invalid cohort.")
-
-    CourseEnrollment.enroll(User.objects.get(id=reg.user_id), 'PCG/PEP101x/FALL_2013')
         
     context = {
         'profile': profile,
@@ -1566,6 +1564,8 @@ def activate_imported_account(post_vars):
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
 
+        CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/FALL_2013')
+        
         d={"first_name":profile.first_name,"last_name":profile.last_name,"district":profile.cohort.district.name}
 
         # composes activation email
