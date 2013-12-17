@@ -79,6 +79,7 @@ class Filter():
     def Query(self):
         try:
             self.result=self.client.Query(' '.join(self.cond),'people_user,delta')
+            # log.debug(' '.join(self.cond))
         except socket.error, msg:
             raise Exception("Failed to connect sphinx")
 
@@ -107,7 +108,7 @@ def search_user(me,username='',first_name='',last_name='',
     
     f=Filter(dc)
     # f.SetFieldWeights()
-    f.SetLimits(0, 500)  
+    # f.SetLimits(0, 5)  
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
     f.AddCond('@user_id !%s' % me.id)
@@ -134,3 +135,5 @@ def search_user(me,username='',first_name='',last_name='',
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
 
     return f
+
+

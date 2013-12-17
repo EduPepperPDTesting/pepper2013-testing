@@ -165,7 +165,6 @@
             </div>
           </section>
           <script type="text/javascript">
-          $(document).ready(function(){
             var form=$("#search_form");
             form.find("input[name=username]").val("${request.GET.get('username','')}")
             form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
@@ -177,7 +176,6 @@
             form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
             form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
             form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
-          });
           </script>
     </form>
   <!--right content of page------------------------------------------------------------------------------------------------>

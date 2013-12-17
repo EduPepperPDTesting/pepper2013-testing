@@ -164,21 +164,19 @@
          </a>
        </div>
     </section>
-         <script type="text/javascript">
-          $(document).ready(function(){
-            var form=$("#search_form");
-            form.find("input[name=username]").val("${request.GET.get('username','')}")
-            form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
-            form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
-            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
-            form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
-            form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
-            form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
-            form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
-            form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
-            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
-          });
-          </script>
+    <script type="text/javascript">
+       var form=$("#search_form");
+       form.find("input[name=username]").val("${request.GET.get('username','')}")
+       form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
+       form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
+       form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+       form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
+       form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
+       form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
+       form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
+       form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
+       form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+    </script>
     </form>
     %if course:
       <section>
