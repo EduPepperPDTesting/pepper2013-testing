@@ -2,7 +2,7 @@
 <%! import django_comment_client.helpers as helpers %>
 <%! from django.template.defaultfilters import escapejs %>
 <%! from django.core.urlresolvers import reverse %>
-
+<%! from django.contrib.auth.models import User %>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="bodyclass">discussion</%block>
@@ -17,8 +17,14 @@
 <%include file="_js_body_dependencies.html" />
 <%static:js group='discussion'/>
 </%block>
-
-<%include file="_discussion_course_navigation.html" args="active_page='discussion'" />
+<%
+def get_portfolio_user():
+  if request.GET.get('pf_id') != None:
+    return User.objects.get(id=int(request.GET.get('pf_id')))
+  else:
+    return None
+%>
+<%include file="_discussion_course_navigation.html" args="active_page='discussion',portfolio_user=get_portfolio_user()" />
 
 <%include file="_new_post.html" />
 

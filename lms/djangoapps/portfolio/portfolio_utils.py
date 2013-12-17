@@ -115,7 +115,7 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
             #c_info = Get_combinedopenended_info()
             #c_info.feed(con)
             title, body = Get_combinedopenended_info(con)
-            discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body},portfolio_user)
+            discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body,'tags':'portfolio'},portfolio_user)
             if visibility:
                 content.append(discussion)
 
@@ -262,9 +262,9 @@ def get_threads(request, course_id, portfolio_user,discussion_id=None, per_page=
                               strip_none(extract(request.GET,
                                                  ['page', 'sort_key',
                                                   'sort_order', 'text',
-                                                  'tags', 'commentable_ids', 'flagged'])))
+                                                  'tags', 'commentable_ids', 'flagged','portfolio'])))
 
-    threads, page, num_pages = cc.Thread.search(query_params)
+    threads, page, num_pages = cc.Thread.search(query_params,{'portfolio':'true'})
 
     #now add the group name if the thread has a group id
     for thread in threads:
@@ -279,10 +279,8 @@ def get_threads(request, course_id, portfolio_user,discussion_id=None, per_page=
         #patch for backward compatibility to comments service
         if not 'pinned' in thread:
             thread['pinned'] = False
-
     query_params['page'] = page
     query_params['num_pages'] = num_pages
-
     return threads, query_params
 
 def update_thread(request, course_id, thread_id, thread_data):
@@ -292,6 +290,30 @@ def update_thread(request, course_id, thread_id, thread_data):
     thread = cc.Thread.find(thread_id)
     thread.update_attributes(**extract(thread_data, ['body', 'title', 'tags']))
     thread.save()
+
+def create_comment(request, course_id, comment_data, portfolio_user, thread_id=None, parent_id=None):
+    """
+    given a course_id, thread_id, and parent_id, create a comment,
+    called from create_comment to do the actual creation
+    """
+    comment = cc.Comment(**extract(comment_data, ['body']))
+
+    course = get_course_with_access(portfolio_user, course_id, 'load')
+    anonymous = False
+    anonymous_to_peers = False
+
+    comment.update_attributes(**{
+        'anonymous': anonymous,
+        'anonymous_to_peers': anonymous_to_peers,
+        'user_id': portfolio_user.id,
+        'course_id': course_id,
+        'thread_id': thread_id,
+        'parent_id': parent_id,
+    })
+    comment.save()
+    user = cc.User.from_django_user(portfolio_user)
+    user.follow(comment.thread)
+
 
 def create_discussion(request, course, ora_id, parent_location, thread_data, portfolio_user):
     category = 'discussion'
@@ -325,6 +347,7 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
 
         if display_name is not None:
             metadata['display_name'] = display_name
+            '''
             discussion_category = _active_chapter['display_name'].split(':')
             if len(discussion_category)>1:
                 metadata['discussion_category'] = discussion_category[0]
@@ -332,6 +355,9 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
             else:
                 metadata['discussion_category'] = discussion_category[0]
                 metadata['discussion_target'] = 'Course Overview'
+            '''
+            metadata['discussion_category']=''
+            metadata['discussion_target']=''
         get_modulestore(category).create_and_save_xmodule(
             dest_location,
             definition_data=data,
@@ -347,6 +373,8 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
         did = Get_discussion_id()
         did.feed(context)
         create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user)
+        thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
+        create_comment(request, course.id, {'body':'Please leave me your feedback by adding a comment below.'}, portfolio_user, thread_id)
     else:
         context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
         did = Get_discussion_id()

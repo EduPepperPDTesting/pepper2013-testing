@@ -94,6 +94,7 @@ def create_thread(request, course_id, commentable_id):
         'commentable_id': commentable_id,
         'course_id': course_id,
         'user_id': request.user.id,
+        'tags':'default',
     })
 
     user = cc.User.from_django_user(request.user)
@@ -147,6 +148,9 @@ def update_thread(request, course_id, thread_id):
     """
     thread = cc.Thread.find(thread_id)
     thread.update_attributes(**extract(request.POST, ['body', 'title', 'tags']))
+    thread.update_attributes(**{
+        'tags':'default',
+    })
     thread.save()
     if request.is_ajax():
         return ajax_content_response(request, course_id, thread.to_dict(), 'discussion/ajax_update_thread.html')

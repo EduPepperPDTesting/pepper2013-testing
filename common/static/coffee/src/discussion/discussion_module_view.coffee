@@ -9,8 +9,12 @@ if Backbone?
     paginationTemplate: -> DiscussionUtil.getTemplate("_pagination")
     page_re: /\?discussion_page=(\d+)/
     initialize: ->
+
       @toggleDiscussionBtn = @$(".discussion-show")
       # Set the page if it was set in the URL. This is used to allow deep linking to pages
+      if $(".edit-course-btn").length<1
+        @toggleDiscussionBtn.find('span').hide()
+        @toggleDiscussionBtn.append('<span>&nbsp;</span>')
       match = @page_re.exec(window.location.href)
       if match
         @page = parseInt(match[1])

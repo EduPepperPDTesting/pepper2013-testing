@@ -26,6 +26,8 @@ if Backbone?
       @renderAttrs()
       @renderFlagged()
       @$el.find(".posted-details").timeago()
+      @$el.find(".posted-by").attr('href','javascript:void(0)')
+      @$el.find(".posted-by").css('cursor','default')
       @convertMath()
       @markAsStaff()
       @
