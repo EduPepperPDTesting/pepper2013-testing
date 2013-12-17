@@ -14,6 +14,11 @@ from mitxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
 #@end
 
+from courseware.courses import (get_courses, get_course_with_access,
+                                get_courses_by_university, sort_by_announcement)
+from courseware.model_data import FieldDataCache
+import datetime
+
 logger = logging.getLogger(__name__)
 
 
@@ -87,10 +92,26 @@ def update_certificate(request):
 
 #@begin:View certificate page
 #@date:2013-11-28
-@ensure_csrf_cookie
-@cache_if_anonymous
-def download_certificate(request):
-     return render_to_response('d_certificate.html', {})
+def course_from_id(course_id):
+    """Return the CourseDescriptor corresponding to this course_id"""
+    course_loc = CourseDescriptor.id_to_location(course_id)
+    return modulestore().get_instance(course_id, course_loc)
+
+def download_certificate(request,course_id,completed_time):
+    t_user = request.user.id
+    t_course = get_course_with_access(t_user, course_id, 'load')
+    t_time = ""
+    t_y = ""
+    t_m = ""
+    t_d = ""
+    changdu = len(completed_time)
+    if changdu > 9:
+        t_time = completed_time.split('-')
+        t_y = int(t_time[0])
+        t_m = int(t_time[1])    
+        t_d = int(t_time[2])        
+    t_time_fin = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
+    return render_to_response('d_certificate.html', {'course':t_course,'completed_time': t_time_fin})
 
 @ensure_csrf_cookie
 @cache_if_anonymous

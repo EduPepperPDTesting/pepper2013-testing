@@ -1,3 +1,13 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
 <style>
 body { margin:0px; padding:0px;font-family: 'Open Sans', sans-serif; font-size:14px;}
 .zf_bg { width:794px; height:552px; background:url(/static/images/certificate/zs_bg.jpg) no-repeat; z-index:99; margin:auto;position:fixed;left:0; right:0; top:0; bottom:0;}
@@ -20,13 +30,20 @@ body { margin:0px; padding:0px;font-family: 'Open Sans', sans-serif; font-size:1
 </head>
 <body>
 <div class="zf_bg"> 
-<div class="zf_date">January 13, 2014</div>
+<div class="zf_date">
+${completed_time}
+</div>
 
 <div class="gray_part">
 <span class="text_style1 zf_lineheight zf_top">This is to certify that</span>
-<span class="text_style1 zf_name">Kelly Sunday</span>
+<span class="text_style1 zf_name">
+	${ user.profile.first_name | h } ${ user.profile.last_name | h }
+</span>
 <span class="text_style1 zf_lineheight">Successfully completed</span>
-<span class="text_style1 zf_content">ELA101x Balancing Informational &amp; Literary Texts (K-5)</span>
+<span class="text_style1 zf_content">
+	${course.display_name_with_default}
+	${course.number}
+</span>
 <span class="text_style1 zf_express">a course of study offered by <strong>WestEd</strong>, a partner in<strong> Pepper</strong>, an online learning initiative for<strong> Common Core Specialists</strong></span>
 </div>
 <div class="tab_main">
