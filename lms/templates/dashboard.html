@@ -1041,13 +1041,20 @@ Add info that you would like to share about yourself here:
       <fieldset>
         <div class="input-group">
           <label>
-            <textarea maxlength="255" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${user.profile.bio}</textarea>
+            <textarea maxlength="255" id="txBio" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${user.profile.bio}</textarea>
           </label>
           <section style="color:black;">
-            Limited to 255 Characters
+            Maximum to 255 Characters <span></span>
           </section>
         </div>
       </fieldset>
+      <script type="text/javascript">
+        var txBio=document.getElementById('txBio');
+        txBio.oninput=function(){
+          $(this).parent().next("section").find("span").html(255-this.value.length)
+        }
+        txBio.oninput()
+      </script>
       <div class="submit">
         <input type="submit" class="btnx" id="submit" value="Save Changes" />
       </div>          
