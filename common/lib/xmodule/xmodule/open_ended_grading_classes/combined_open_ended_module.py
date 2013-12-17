@@ -31,8 +31,6 @@ VERSION_TUPLES = {
 }
 
 DEFAULT_VERSION = 1
-#@begin:Modify the template
-#@date:2013-11-02
 DEFAULT_DATA = textwrap.dedent("""\
 <combinedopenended>
     <prompt>
@@ -69,7 +67,7 @@ DEFAULT_DATA = textwrap.dedent("""\
 
 </combinedopenended>
 """)
-#@end
+
 
 class VersionInteger(Integer):
     """
@@ -117,9 +115,6 @@ class CombinedOpenEndedFields(object):
         default="initial",
         scope=Scope.user_state
     )
-    #@begin:graded:default=True
-    #@date:2013-11-02
-    #@end      
     graded = Boolean(
         display_name="Graded",
         help='Defines whether the student gets credit for grading this problem.',
@@ -136,9 +131,6 @@ class CombinedOpenEndedFields(object):
         default=False,
         scope=Scope.user_state
     )
-    #@begin:Maximum Attempts:default=99999
-    #@date:2013-11-02
-    #@end
     max_attempts = Integer(
         display_name="Maximum Attempts",
         help="The number of times the student can try to answer this problem.",
@@ -204,7 +196,6 @@ class CombinedOpenEndedFields(object):
         scope=Scope.settings,
         values={"min": 1, "step": "1", "max": 5}
     )
-    #@begin:Modify the template
     markdown = String(
         help="Markdown source of this module",
         default=textwrap.dedent("""\
@@ -230,7 +221,7 @@ class CombinedOpenEndedFields(object):
         """),
         scope=Scope.settings
     )
-    #@end
+
 
 class CombinedOpenEndedModule(CombinedOpenEndedFields, XModule):
     """
@@ -374,6 +365,10 @@ class CombinedOpenEndedDescriptor(CombinedOpenEndedFields, RawDescriptor):
 
     def get_context(self):
         _context = RawDescriptor.get_context(self)
+        import logging
+        log = logging.getLogger("tracking")
+        log.debug("markdown===============================\n:"+str(self.markdown)+"\n===========================")
+        log.debug("accept_file_upload===============================\n:"+str(self.accept_file_upload)+"\n===========================")
         _context.update({'markdown': self.markdown,
                          'enable_markdown': self.markdown is not None})
         return _context
