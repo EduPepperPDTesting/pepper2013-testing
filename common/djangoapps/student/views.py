@@ -437,36 +437,6 @@ def dashboard(request,user_id=None):
         'user':user,
         }
 #@end
-    #@begin:change photo by Dashboard
-    #@date:2013-11-24
-    if request.method == 'POST':
-        up = UserProfile.objects.get(user=request.user)  
-        img_name = up.photo
-        file_img = request.FILES['photo']
-        
-        if img_name:
-            targetFile = os.path.join('/home/tahoe/edx_all/uploads/photos/', img_name)
-            if os.path.isfile(targetFile):
-                os.remove(targetFile)
-                
-        if file_img:
-            time_int = int(time.time()*100)    
-            random_int1 = random.randint(10000,100000000)
-            random_int2 = random.randint(10000,100000000)
-            zf1 = '%d' %time_int
-            zf2 = '%d' %random_int1
-            zf3 = '%d' %random_int2
-            filename = file_img.name
-            zf4 = filename.split('.')[-1]
-            img_name = zf1 + zf2 + zf3 + '.' + zf4
-            img = Image.open(file_img)
-            img.thumbnail((110,110),Image.ANTIALIAS)
-            img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
-       
-        up.photo = img_name
-        up.save()
-    #@end 
-
     return render_to_response('dashboard.html', context)
 
 def try_change_enrollment(request):
@@ -1601,3 +1571,35 @@ def activate_imported_account(post_vars):
         transaction.rollback()
         ret={'success':False,error:"%s" % e}
     return HttpResponse(json.dumps(ret))
+
+#@begin:change photo by Dashboard
+#@date:2013-11-24
+def uploadphoto(request):
+    if request.method == 'POST':
+        up = UserProfile.objects.get(user=request.user)  
+        img_name = up.photo
+        file_img = request.FILES['photo']
+        
+        if img_name:
+            targetFile = os.path.join('/home/tahoe/edx_all/uploads/photos/', img_name)
+            if os.path.isfile(targetFile):
+                os.remove(targetFile)
+                
+        if file_img:
+            time_int = int(time.time()*100)    
+            random_int1 = random.randint(10000,100000000)
+            random_int2 = random.randint(10000,100000000)
+            zf1 = '%d' %time_int
+            zf2 = '%d' %random_int1
+            zf3 = '%d' %random_int2
+            filename = file_img.name
+            zf4 = filename.split('.')[-1]
+            img_name = zf1 + zf2 + zf3 + '.' + zf4
+            img = Image.open(file_img)
+            img.thumbnail((110,110),Image.ANTIALIAS)
+            img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
+       
+        up.photo = img_name
+        up.save()
+    return redirect(reverse('dashboard'))
+#@end 
