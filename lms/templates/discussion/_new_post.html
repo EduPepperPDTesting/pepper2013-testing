@@ -10,16 +10,20 @@
 </%def>
 
 <%def name="render_entry(entries, entry)">
-    <li><a href="#" class="topic" data-discussion_id="${entries[entry]['id']}" cohorted = "${entries[entry]['id'] in cohorted_commentables}">${entry}</a></li>
+    % if entry!='':
+        <li><a href="#" class="topic" data-discussion_id="${entries[entry]['id']}" cohorted = "${entries[entry]['id'] in cohorted_commentables}">${entry}</a></li>
+    %endif
 </%def>
 
 <%def name="render_category(categories, category)">
+    % if category!='':
     <li>
         <a href="#">${category}</a>
         <ul>
             ${render_form_filter_dropdown(categories[category])}
         </ul>
     </li>
+    %endif
 </%def>
 
 
@@ -27,7 +31,7 @@
     <div class="inner-wrapper">
         <form class="new-post-form">
             <div class="left-column">
-                <!--
+               
                 <label>${_("Create new post about:")}</label>
                 <div class="form-topic-drop">
                     <a href="#" class="topic_dropdown_button">${_("Show All Discussions")}<span class="drop-arrow">▾</span></a>
@@ -40,8 +44,7 @@
                         </ul>
                     </div>
                 </div>
-                -->
-                <label>${_("Create new post:")}</label>
+               
                 <div class="options">
                     <input type="checkbox" name="follow" class="discussion-follow" class="discussion-follow" id="new-post-follow" checked><label for="new-post-follow">${_("follow this post")}</label>
                     <br>

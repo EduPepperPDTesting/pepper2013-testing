@@ -1,5 +1,5 @@
 ## mako
-<%page args="active_page=None" />
+<%page args="active_page=None,portfolio_user=None" />
 <!--@begin:Hide the Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
@@ -23,17 +23,45 @@ def url_class(is_active):
   <div class="inner-wrapper">
     <ol class="course-tabs">
       % for tab in get_course_tabs(user, course, active_page):
-			<li>
-				<a href="${tab.link | h}" class="${url_class(tab.is_active)}">
-					${tab.name | h}
-					% if tab.is_active == True:
-					    <span class="sr">, current location</span> 
-					%endif
-					% if tab.has_img == True:
-					    <img src="${tab.img}"/> 
-					%endif
-				</a>
-			</li>
+      % if portfolio_user == user and request.GET.get('pf_id')==None or portfolio_user == None and request.GET.get('pf_id')==None or portfolio_user.id == user.id:
+    			<li>
+    				<a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+    					${tab.name | h}
+    					% if tab.is_active == True:
+    					    <span class="sr">, current location</span> 
+    					%endif
+    					% if tab.has_img == True:
+    					    <img src="${tab.img}"/> 
+    					%endif
+    				</a>
+    			</li>
+      %else:
+        %if tab.name!='My Course' and tab.name!='My Progress' and tab.name!='People':
+          <li>
+          <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab.is_active)}">
+            ${tab.name | h}
+            % if tab.is_active == True:
+                <span class="sr">, current location</span> 
+            %endif
+            % if tab.has_img == True:
+                <img src="${tab.img}"/> 
+            %endif
+          </a>
+      </li>
+        %else:
+          <li>
+          <a href="javascript:void(0);" disabled="disabled" style="color:#A4A4A4">
+            ${tab.name | h}
+            % if tab.is_active == True:
+                <span class="sr">, current location</span> 
+            %endif
+            % if tab.has_img == True:
+                <img src="${tab.img}"/> 
+            %endif
+          </a>
+      </li>
+        %endif
+      %endif
       % endfor
   
     <%block name="extratabs" />

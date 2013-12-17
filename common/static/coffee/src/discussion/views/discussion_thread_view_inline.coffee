@@ -36,6 +36,14 @@ if Backbone?
       #@renderTags()
 
       @$("span.timeago").timeago()
+      if $(".my-course-work-content").length>0
+        @$el.find('.discussion-reply-new').remove()
+        @$el.find('.username').attr('href','javascript:void(0);')
+        @$el.find('.username').css('cursor','default')
+      if $(".about-me-content").length>0
+        @$el.find('.username').attr('href','javascript:void(0);')
+        @$el.find('.username').css('cursor','default')
+
       @$el.find('.post-extended-content').hide()
       if @expanded
         @makeWmdEditor "reply-body"

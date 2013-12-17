@@ -185,15 +185,19 @@ def forum_form_discussion(request, course_id):
     user = cc.User.from_django_user(request.user)
     user_info = user.to_dict()
 
-    annotated_content_info = utils.get_metadata_for_threads(course_id, threads, request.user, user_info)
-
+    thread_output = []
     for thread in threads:
         courseware_context = get_courseware_context(thread, course)
         if courseware_context:
             thread.update(courseware_context)
+        
+        if len(thread.get('tags'))>0:
+            if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                thread_output.append(thread)
+    annotated_content_info = utils.get_metadata_for_threads(course_id, thread_output, request.user, user_info)
     if request.is_ajax():
         return utils.JsonResponse({
-            'discussion_data': threads,   # TODO: Standardize on 'discussion_data' vs 'threads'
+            'discussion_data': thread_output,   # TODO: Standardize on 'discussion_data' vs 'threads'
             'annotated_content_info': annotated_content_info,
             'num_pages': query_params['num_pages'],
             'page': query_params['page'],
@@ -219,7 +223,7 @@ def forum_form_discussion(request, course_id):
             #'recent_active_threads': recent_active_threads,
             #'trending_tags': trending_tags,
             'staff_access': has_access(request.user, course, 'staff'),
-            'threads': saxutils.escape(json.dumps(threads), escapedict),
+            'threads': saxutils.escape(json.dumps(thread_output), escapedict),
             'thread_pages': query_params['num_pages'],
             'user_info': saxutils.escape(json.dumps(user_info), escapedict),
             'flag_moderator': cached_has_permission(request.user, 'openclose_thread', course.id) or has_access(request.user, course, 'staff'),
@@ -340,19 +344,28 @@ def user_profile(request, course_id, user_id):
 
         query_params = {
             'page': request.GET.get('page', 1),
-            'per_page': THREADS_PER_PAGE,   # more than threads_per_page to show more activities
+            'per_page': 100,   # more than threads_per_page to show more activities
         }
 
         threads, page, num_pages = profiled_user.active_threads(query_params)
+        thread_output = []
+        for thread in threads:
+            courseware_context = get_courseware_context(thread, course)
+            if courseware_context:
+                thread.update(courseware_context)
+            
+            if len(thread.get('tags'))>0:
+                if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                    thread_output.append(thread)
         query_params['page'] = page
         query_params['num_pages'] = num_pages
         user_info = cc.User.from_django_user(request.user).to_dict()
 
-        annotated_content_info = utils.get_metadata_for_threads(course_id, threads, request.user, user_info)
+        annotated_content_info = utils.get_metadata_for_threads(course_id, thread_output, request.user, user_info)
 
         if request.is_ajax():
             return utils.JsonResponse({
-                'discussion_data': map(utils.safe_content, threads),
+                'discussion_data': map(utils.safe_content, thread_output),
                 'page': query_params['page'],
                 'num_pages': query_params['num_pages'],
                 'annotated_content_info': saxutils.escape(json.dumps(annotated_content_info), escapedict),
@@ -363,7 +376,8 @@ def user_profile(request, course_id, user_id):
                 'user': request.user,
                 'django_user': User.objects.get(id=user_id),
                 'profiled_user': profiled_user.to_dict(),
-                'threads': saxutils.escape(json.dumps(threads), escapedict),
+                'threads': saxutils.escape(json.dumps(thread_output), escapedict),
+                'threads_num': len(thread_output),
                 'user_info': saxutils.escape(json.dumps(user_info), escapedict),
                 'annotated_content_info': saxutils.escape(json.dumps(annotated_content_info), escapedict),
 #                'content': content,
