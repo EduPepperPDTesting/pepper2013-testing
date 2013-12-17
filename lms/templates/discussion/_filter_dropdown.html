@@ -12,16 +12,20 @@
 </%def>
 
 <%def name="render_entry(entries, entry)">
+    % if entry!='':
     <li><a href="#" class="drop-menu-entry"><span class="board-name" data-discussion_id='${json.dumps(entries[entry])}' cohorted = "${entries[entry]['id'] in cohorted_commentables}">${entry}</span></a></li>
+    %endif
 </%def>
 
 <%def name="render_category(categories, category)">
+    % if category!='':
     <li>
         <a href="#" class="drop-menu-parent-category"><span class="board-name">${category}</span></a>
         <ul>
             ${render_dropdown(categories[category])}
         </ul>
     </li>
+    %endif
 </%def>
 
 <div class="browse-topic-drop-menu-wrapper">
@@ -47,6 +51,6 @@
                 <span class="board-name" data-discussion_id='#following'><i class="icon-star" style="padding-right:5px;"></i>${_("Posts I'm Following")}</span>
             </a>
         </li>
-        <!--${render_dropdown(category_map)}-->
+        ${render_dropdown(category_map)}
     </ul>
 </div>
