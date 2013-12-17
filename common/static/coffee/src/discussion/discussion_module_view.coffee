@@ -33,7 +33,7 @@ if Backbone?
       else
         @newPostForm.show()
       @toggleDiscussionBtn.addClass('shown')
-      @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+      @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
       @$("section.discussion").slideDown()
 
     hideNewPost: (event) ->
@@ -41,7 +41,7 @@ if Backbone?
       @newPostForm.slideUp(300)
 
     toggleDiscussion: (event) ->
-      if @toggleDiscussionBtn.find('.button-text').text()=='Showing in Public View'
+      if @toggleDiscussionBtn.find('.button-text').text()=='Hidden from Public View'
         @toggleDiscussionBtn.removeClass('shown')
         @showed = false
       else
@@ -54,10 +54,10 @@ if Backbone?
       discussionId = @$el.data("discussion-id")
       if @$el.data("discussion-visibility")
         @showed=true
-        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
       else
         @showed=false
-        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
+        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
       url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem
@@ -80,10 +80,10 @@ if Backbone?
     switch_status:($elem,response)=>
       if response.visibility=='true'
         @showed=true
-        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
       else
         @showed=false
-        @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
+        @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
 
     renderDiscussion: ($elem, response, textStatus, discussionId) =>
       window.user = new DiscussionUser(response.user_info)
