@@ -275,6 +275,8 @@ def register_user(request, activation_key):
 
     if not profile.cohort_id:
        return HttpResponse("Invalid cohort.")
+
+    CourseEnrollment.enroll(User.objects.get(id=reg.user_id), 'PCG/PEP101x/FALL_2013')
         
     context = {
         'profile': profile,
