@@ -55,9 +55,11 @@ if Backbone?
       if @$el.data("discussion-visibility")
         @showed=true
         @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
+        @toggleDiscussionBtn.removeClass('shown')
       else
         @showed=false
         @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+        @toggleDiscussionBtn.addClass('shown')
       url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem
@@ -81,9 +83,11 @@ if Backbone?
       if response.visibility=='true'
         @showed=true
         @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
+        @toggleDiscussionBtn.removeClass('shown')
       else
         @showed=false
         @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+        @toggleDiscussionBtn.addClass('shown')
 
     renderDiscussion: ($elem, response, textStatus, discussionId) =>
       window.user = new DiscussionUser(response.user_info)
