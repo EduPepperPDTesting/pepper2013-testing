@@ -37,18 +37,28 @@ class Filter():
         self.cond=list()
         self.result=None
         self.item_decorator=item_decorator
+        # max_matches:
+        # 0 means default
+        # can't be larger than max_matches in sphinx.conf
+        self.max_matches=0
 
-    def SetLimits(self,bottom,top):
-        self.client.SetLimits(bottom,top)
+    def SetLimits(self,offset,limit):
+        self.client.SetLimits(offset,limit,self.max_matches)
         
     def SetServer(self,host,port):
         self.client.SetServer(host,port)
+        
+    def SetFilter(self,attribute, values, exclude=0):
+        self.client.SetFilter(attribute, values, exclude)
 
     def SetMatchMode(self,mode):
         self.client.SetMatchMode(mode)
+
+    def SetMaxMatches(self,count):
+        self.max_matches=count
         
     def AddCond(self,cond):
-        self.cond.append(cond)
+        self.cond.append(cond)  
         
     def count(self):
         self.SetLimits(0,1)
@@ -108,21 +118,26 @@ def search_user(me,username='',first_name='',last_name='',
     
     f=Filter(dc)
     # f.SetFieldWeights()
-    # f.SetLimits(0, 5)  
+    # f.SetLimits(0, 5)
+    
+    f.SetMaxMatches(10000)
+    
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
-    f.AddCond('@user_id !%s' % me.id)
+    # f.AddCond('@user_id !%s' % me.id)
+
+    f.SetFilter('user_id',[me.id],True)
 
     if email:
         f.AddCond('@email "%s"' % email)    
     if course_id:
         f.AddCond('@course "%s"' % course_id)
     if username:
-        f.AddCond("@username %s" % username)
+        f.AddCond('@username "^%s*"' % username)
     if first_name:
-        f.AddCond("@first_name %s" % first_name)
+        f.AddCond('@first_name "^%s*"' % first_name)
     if last_name:
-        f.AddCond("@last_name %s" % last_name)
+        f.AddCond('@last_name "^%s*"' % last_name)
     if district_id:
         f.AddCond("@district_id %s" % district_id)
     if school_id:
@@ -133,10 +148,9 @@ def search_user(me,username='',first_name='',last_name='',
         f.AddCond('@grade_level_id "%s"' % grade_level_id)        
     if years_in_education_id:
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
+    
+    # if len(f.cond)==1:
+    #     f.SetMatchMode(sphinxapi.SPH_MATCH_FULLSCAN)
 
-
-    f.AddCond("*")
-        
     return f
-
 

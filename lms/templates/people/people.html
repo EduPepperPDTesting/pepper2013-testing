@@ -64,7 +64,7 @@
   <section class="container">
     %if course:
     <div class="course-wrapper">
-    <section class="course-index" style="width:280px !important;height:700px !important;">
+    <section class="course-index" style="width:280px !important;height:800px !important;">
     %else:
     <div class="course-wrapper" style="border-left: 1px solid rgb(200, 200, 200) !important;">
     <section class="course-index" style="min-height:700px;">
@@ -93,7 +93,6 @@
             <div class="filters">
               <input type="" name="last_name" placeholder="Last Name" value="" style="width:233px;margin:20px 20px 0" class="filters"/>
             </div>
-            %if not course:
             <div class="filters">
               <select  name="course_id">
                 <option value="">Courses</option>
@@ -102,7 +101,6 @@
                 %endfor
               </select>
             </div>
-            %endif
             <div class="filters">
               <select name="district_id">
                 <option value="">District</option>
@@ -157,7 +155,11 @@
               </a>
             </div>
             <div class="but_search">
+              %if course:
+              <a href="${reverse('people',args=[course_id])}"
+              %else:
               <a href="${reverse('people')}"
+              %endif 
                  class="button_default button-ondark button-icon button-add icon icon-clear"
                  style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
                 <div style="display:inline-block;text-align:center;width:140px;padding-right:25px;">Clear Search</div>
@@ -169,13 +171,12 @@
             form.find("input[name=username]").val("${request.GET.get('username','')}")
             form.find("input[name=first_name]").val("${request.GET.get('first_name','')}")
             form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
-            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
+            form.find("select[name=course_id]").val("${search_course_id}")
             form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
             form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
             form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
             form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
             form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
-            form.find("select[name=course_id]").val("${request.GET.get('course_id','')}")
           </script>
     </form>
   <!--right content of page------------------------------------------------------------------------------------------------>

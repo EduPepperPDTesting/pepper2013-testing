@@ -90,55 +90,58 @@ def people(request,course_id=None):
         prepage=5
         
     context={}
-    course=None
-    
-    if not course_id:
-        course_id=request.GET.get('course_id','')
-    else:
-        course=get_course_with_access(request.user, course_id, 'load')
 
+    search_course_id=request.GET.get('course_id')
+    if search_course_id is None:
+        search_course_id=course_id
 
-    f=search_user(me=request.user,
-        course_id=course_id,
-        email=request.GET.get('email',''),
-        username=request.GET.get('username',''),
-        first_name=request.GET.get('first_name',''),
-        last_name=request.GET.get('last_name',''),
-        district_id=request.GET.get('district_id',''),
-        school_id=request.GET.get('school_id',''),
-        subject_area_id=request.GET.get('subject_area_id',''),
-        grade_level_id=request.GET.get('grade_level_id',''),
-        years_in_education_id=request.GET.get('years_in_education_id',''))
+    if request.GET.get('searching'):
+        f=search_user(me=request.user,
+            course_id=search_course_id,
+            email=request.GET.get('email',''),
+            username=request.GET.get('username',''),
+            first_name=request.GET.get('first_name',''),
+            last_name=request.GET.get('last_name',''),
+            district_id=request.GET.get('district_id',''),
+            school_id=request.GET.get('school_id',''),
+            subject_area_id=request.GET.get('subject_area_id',''),
+            grade_level_id=request.GET.get('grade_level_id',''),
+            years_in_education_id=request.GET.get('years_in_education_id',''))
 
-    pager=JuncheePaginator(f,prepage,6)
-    profiles=valid_pager(pager,request.GET.get('page'))
-    
-    params=pager_params(request)
-    context={
-        'profiles':profiles,
-        'pager':pager,
-        'params':params,
-        'people_search_debug':1}
+        pager=JuncheePaginator(f,prepage,6)
+        profiles=valid_pager(pager,request.GET.get('page'))
+
+        params=pager_params(request)
+        context={
+            'profiles':profiles,
+            'pager':pager,
+            'params':params,
+            'people_search_debug':1}
     
     courses=list()
 
-    if not course:
-        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-        courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
-        context['courses']=courses
-        # === Courses of myself ===        
-        # from student.views import course_from_id
-        # for e in CourseEnrollment.enrollments_for_user(request.user):
-        #     try:
-        #         c=course_from_id(e.course_id)
-        #         courses.append(c)
-        #     except:
-        #         pass
-        # context['courses']=courses
+    courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+    courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
+    context['courses']=courses
     
+    # === Courses of myself ===        
+    # from student.views import course_from_id
+    # for e in CourseEnrollment.enrollments_for_user(request.user):
+    #     try:
+    #         c=course_from_id(e.course_id)
+    #         courses.append(c)
+    #     except:
+    #         pass
+    # context['courses']=courses
+
+    course=None
+    if course_id:
+        course=get_course_with_access(request.user, course_id, 'load')
+        
     context['prepage']=prepage
     context['course']=course
     context['course_id'] = course_id
+    context['search_course_id'] = search_course_id
 
     return render_to_response('people/people.html', context)
 
@@ -147,12 +150,6 @@ def my_people(request,course_id=None):
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
 
-    course=None
-    if not course_id:
-        course_id=request.GET.get('course_id','')
-    else:
-        course=get_course_with_access(request.user, course_id, 'load')    
-    
     if prepage.isdigit() and int(prepage)>0:
         prepage=int(prepage)
     else:
@@ -162,15 +159,19 @@ def my_people(request,course_id=None):
     context={'users':[]}
 
     people=People.objects.filter(user_id=request.user.id)
-
+    
+    search_course_id=request.GET.get('course_id')
+    if search_course_id is None:
+        search_course_id=course_id
+    
     if request.GET.get('username',''):
         people=people.filter(people__username = request.GET.get('username',''))
     if request.GET.get('first_name',''):
         people=people.filter(people__profile__first_name = request.GET.get('first_name',''))
     if request.GET.get('last_name',''):
-        people=people.filter(people__profile__last_name = request.GET.get('last_name',''))        
-    if course_id:
-        people=people.filter(people__courseenrollment__course_id = course_id)
+        people=people.filter(people__profile__last_name = request.GET.get('last_name',''))
+    if search_course_id:
+        people=people.filter(people__courseenrollment__course_id = search_course_id)
     if request.GET.get('district_id',''):
         people=people.filter(people__profile__cohort__district_id = request.GET.get('district_id',''))
     if request.GET.get('school_id',''):
@@ -187,27 +188,32 @@ def my_people(request,course_id=None):
     params=pager_params(request)
     courses=list()
 
+    course=None
+    if course_id:
+        course=get_course_with_access(request.user, course_id, 'load')    
+
     context={
         'prepage':prepage,
         'course':course,
+        'course_id':course_id,
         'people':people,
         'pager':pager,
         'params':params,
-        'course_id':course_id,
         'people_search_debug':1}
 
-    if not course:
-        courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-        courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
-        context['courses']=courses
-        # === Courses of myself ===
-        # from student.views import course_from_id
-        # for e in CourseEnrollment.enrollments_for_user(request.user):
-        #     try:
-        #         c=course_from_id(e.course_id)
-        #         courses.append(c)
-        #     except:
-        #         pass
-        # context['courses']=courses
+    courses=get_courses(request.user, request.META.get('HTTP_HOST'))
+    courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
+    context['courses']=courses
+    context['search_course_id']=search_course_id
+
+    # === Courses of myself ===
+    # from student.views import course_from_id
+    # for e in CourseEnrollment.enrollments_for_user(request.user):
+    #     try:
+    #         c=course_from_id(e.course_id)
+    #         courses.append(c)
+    #     except:
+    #         pass
+    # context['courses']=courses
 
     return render_to_response('people/my_people.html', context)
