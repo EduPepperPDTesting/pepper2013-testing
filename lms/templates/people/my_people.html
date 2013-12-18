@@ -264,7 +264,7 @@ $("#text_pre_page").bind('keydown', function(e){
     }
 });
 function remove_people(id){
-  if(confirm("Really delete this people?")){
+  if(confirm("Are you sure that you would like to remove this person from your network list?")){
     $.post("${reverse('remove_people')}",{id:id},function(r){
       if (r instanceof String) r=$.parseJSON();
       if(r.success)

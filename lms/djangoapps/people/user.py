@@ -134,6 +134,9 @@ def search_user(me,username='',first_name='',last_name='',
     if years_in_education_id:
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
 
+
+    f.AddCond("*")
+        
     return f
 
 

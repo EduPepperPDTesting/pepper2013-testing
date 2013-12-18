@@ -97,28 +97,28 @@ def people(request,course_id=None):
     else:
         course=get_course_with_access(request.user, course_id, 'load')
 
-    if request.GET.get('searching',''):
-        f=search_user(me=request.user,
-                      course_id=course_id,
-                      email=request.GET.get('email',''),
-                      username=request.GET.get('username',''),
-                      first_name=request.GET.get('first_name',''),
-                      last_name=request.GET.get('last_name',''),
-                      district_id=request.GET.get('district_id',''),
-                      school_id=request.GET.get('school_id',''),
-                      subject_area_id=request.GET.get('subject_area_id',''),
-                      grade_level_id=request.GET.get('grade_level_id',''),
-                      years_in_education_id=request.GET.get('years_in_education_id',''))
 
-        pager=JuncheePaginator(f,prepage,6)
-        profiles=valid_pager(pager,request.GET.get('page'))
+    f=search_user(me=request.user,
+        course_id=course_id,
+        email=request.GET.get('email',''),
+        username=request.GET.get('username',''),
+        first_name=request.GET.get('first_name',''),
+        last_name=request.GET.get('last_name',''),
+        district_id=request.GET.get('district_id',''),
+        school_id=request.GET.get('school_id',''),
+        subject_area_id=request.GET.get('subject_area_id',''),
+        grade_level_id=request.GET.get('grade_level_id',''),
+        years_in_education_id=request.GET.get('years_in_education_id',''))
 
-        params=pager_params(request)
-        context={
-            'profiles':profiles,
-            'pager':pager,
-            'params':params,
-            'people_search_debug':1}
+    pager=JuncheePaginator(f,prepage,6)
+    profiles=valid_pager(pager,request.GET.get('page'))
+    
+    params=pager_params(request)
+    context={
+        'profiles':profiles,
+        'pager':pager,
+        'params':params,
+        'people_search_debug':1}
     
     courses=list()
 
