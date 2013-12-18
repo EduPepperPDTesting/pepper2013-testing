@@ -561,114 +561,118 @@ class @CombinedOpenEnded
   upload_file: (event) =>
     event.preventDefault()
     @ora_loading.show()
-    @child_state = 'initial'
-    max_filesize = 2*1000*1000 #2MB
-    #pre_can_upload_files = @can_upload_files
-    @can_upload_files = true
-    if @child_state == 'initial'
-      files = ""
-      if @can_upload_files == true
-        files = @$(@file_upload_box_sel)[0].files[0]
-        if files != undefined 
-          if files.size > max_filesize
+    setTimeout(()=>
+      @child_state = 'initial'
+      max_filesize = 2*1000*1000 #2MB
+      #pre_can_upload_files = @can_upload_files
+      @can_upload_files = true
+      if @child_state == 'initial'
+        files = ""
+        if @can_upload_files == true
+          files = @$(@file_upload_box_sel)[0].files[0]
+          if files != undefined 
+            if files.size > max_filesize
+              @can_upload_files = false
+              files = ""
+              alert("File is too large.(2MB limit per attachment)")
+              @ora_loading.hide()
+              @$(@file_upload_box_sel)[0].files=[]
+              @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
+              @$(@file_upload_box_sel).change @preview_image
+              return false
+          else
             @can_upload_files = false
-            files = ""
-            alert("File is too large.(2MB limit per attachment)")
+
+        fd = new FormData()
+        #fd.append('student_answer', @answer_area.val())
+        fd.append('student_answer', @get_text())
+        #alert("val_"+$(".mceEditor").attr("id")+"___"+@answer_area.attr("id"))
+        #alert("mc"+tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
+        fd.append('student_file', files)
+        fd.append('file_info', '')
+        fd.append('can_upload_files', @can_upload_files)
+
+        settings =
+          type: "POST"
+          data: fd
+          processData: false
+          contentType: false
+          async: false
+          success: (response) =>
             @ora_loading.hide()
-            @$(@file_upload_box_sel)[0].files=[]
-            @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
-            @$(@file_upload_box_sel).change @preview_image
-            return false
-        else
-          @can_upload_files = false
-
-      fd = new FormData()
-      #fd.append('student_answer', @answer_area.val())
-      fd.append('student_answer', @get_text())
-      #alert("val_"+$(".mceEditor").attr("id")+"___"+@answer_area.attr("id"))
-      #alert("mc"+tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
-      fd.append('student_file', files)
-      fd.append('file_info', '')
-      fd.append('can_upload_files', @can_upload_files)
-
-      settings =
-        type: "POST"
-        data: fd
-        processData: false
-        contentType: false
-        async: false
-        success: (response) =>
-          @ora_loading.hide()
-          if response==null
-            alert("Network error. Please try again.")
-            return false
-          if response.success==true
-            @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
-            @$(@file_upload_box_sel).change @preview_image
-            alert("Upload success!")
-          else
-            alert("Upload fail")
-          file_item=$(response.file_info).text().split("##")
-          if /\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(file_item[1])
-              #insertImageItem=" | <a class='insert_image_btn' href='javascript:void(0)'>Insert Image</a>"
-              insertImageItem=""
-          else
-              insertImageItem=""
-          file_upload_item=$("<div class='file_upload_item' style='margin:10px;'>"+file_item[1]+" | <a href="+"'"+file_item[0]+"'"+" target='_blank'>Download</a><span class='file_upload_item_edit'> | <a class='remove_btn' href='javascript:void(0)' rel="+"'"+$(response.file_info).text()+"'"+">Remove</a>"+insertImageItem+"</span></div>")
-          @file_upload_list.append(file_upload_item)
-          file_upload_item.find(".remove_btn").click(()=> 
-              @remove_file(file_item[2],file_upload_item)
-          )
-          #file_upload_item.find(".insert_image_btn").click(()=> 
-              #tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML+="<img src="+"'"+file_item[0]+"'/>"
-          #)
-          answer_area_val=$("<div>"+@answer_area.val()+"</div>")
-          answer_area_val.find(".file_url").each((i,ele) =>
-            $(ele).remove()
-          )
-          @file_upload_list.find(".file_upload_item").each((i,ele) =>
-            answer_area_val.append("<div class='file_url' style='display:none'>"+$(ele).find(".remove_btn")[0].rel+"</div>")
+            if response==null
+              alert("Network error. Please try again.")
+              return false
+            if response.success==true
+              @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
+              @$(@file_upload_box_sel).change @preview_image
+              alert("The file is uploaded successfully.")
+            else
+              alert("Upload fail")
+            file_item=$(response.file_info).text().split("##")
+            if /\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(file_item[1])
+                #insertImageItem=" | <a class='insert_image_btn' href='javascript:void(0)'>Insert Image</a>"
+                insertImageItem=""
+            else
+                insertImageItem=""
+            file_upload_item=$("<div class='file_upload_item' style='margin:10px;'>"+file_item[1]+" | <a href="+"'"+file_item[0]+"'"+" target='_blank'>Download</a><span class='file_upload_item_edit'> | <a class='remove_btn' href='javascript:void(0)' rel="+"'"+$(response.file_info).text()+"'"+">Remove</a>"+insertImageItem+"</span></div>")
+            @file_upload_list.append(file_upload_item)
+            file_upload_item.find(".remove_btn").click(()=> 
+                @remove_file(file_item[2],file_upload_item)
+            )
+            #file_upload_item.find(".insert_image_btn").click(()=> 
+                #tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML+="<img src="+"'"+file_item[0]+"'/>"
+            #)
+            answer_area_val=$("<div>"+@answer_area.val()+"</div>")
+            answer_area_val.find(".file_url").each((i,ele) =>
+              $(ele).remove()
+            )
+            @file_upload_list.find(".file_upload_item").each((i,ele) =>
+              answer_area_val.append("<div class='file_url' style='display:none'>"+$(ele).find(".remove_btn")[0].rel+"</div>")
+              #@answer_area.val(tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
+            )
             #@answer_area.val(tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
-          )
-          #@answer_area.val(tinyMCE.getInstanceById(@answer_area.attr("id")).getBody().innerHTML)
-          @answer_area.val(answer_area_val.html())
-          if @file_upload_list.find('.file_upload_item').length>0
-            @submit_button.attr('disabled',false)
-          else
-            @submit_button.attr('disabled',true)
-      $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
-    else
-      @errors_area.html(@out_of_sync_message)
+            @answer_area.val(answer_area_val.html())
+            if @file_upload_list.find('.file_upload_item').length>0
+              @submit_button.attr('disabled',false)
+            else
+              @submit_button.attr('disabled',true)
+        $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
+      else
+        @errors_area.html(@out_of_sync_message)
+    ,2000)
   #@end
   #@begin:Delete uploaded files
   #@date:2013-11-02
   remove_file: (key,item) =>
     @ora_loading.show()
-    fd = new FormData()
-    fd.append('file_key', key)
-    settings =
-        type: "POST"
-        data: fd
-        processData: false
-        contentType: false
-        async: false
-        success: (response) =>
-          if response==null
-            @ora_loading.hide()
-            alert("Network error. Please try again.")
-            return false
-          item.remove()
-          answer_area_val=$("<div>"+@answer_area.val()+"</div>")
-          answer_area_val.find(".file_url").each((i,ele) =>
-            $(ele).remove();
-          )
-          #@answer_area.val(answer_area_val.html())
-          @file_upload_list.find(".file_upload_item").each((i,ele) =>
-            answer_area_val.append("<div class='file_url' style='display:none'>"+$(ele).find(".remove_btn")[0].rel+"</div>")
-          )
-          @answer_area.val(answer_area_val.html())
-          @remove_confirm()
-    $.ajaxWithPrefix("#{@ajax_url}/remove_file",settings)
+    setTimeout(()=>
+      fd = new FormData()
+      fd.append('file_key', key)
+      settings =
+          type: "POST"
+          data: fd
+          processData: false
+          contentType: false
+          async: false
+          success: (response) =>
+            if response==null
+              @ora_loading.hide()
+              alert("Network error. Please try again.")
+              return false
+            item.remove()
+            answer_area_val=$("<div>"+@answer_area.val()+"</div>")
+            answer_area_val.find(".file_url").each((i,ele) =>
+              $(ele).remove();
+            )
+            #@answer_area.val(answer_area_val.html())
+            @file_upload_list.find(".file_upload_item").each((i,ele) =>
+              answer_area_val.append("<div class='file_url' style='display:none'>"+$(ele).find(".remove_btn")[0].rel+"</div>")
+            )
+            @answer_area.val(answer_area_val.html())
+            @remove_confirm()
+      $.ajaxWithPrefix("#{@ajax_url}/remove_file",settings)
+    ,2000)
   #@end
   #@begin:Confirm and save after deleting the uploaded file
   #@date:2013-11-02
@@ -708,7 +712,7 @@ class @CombinedOpenEnded
             @submit_button.attr('disabled',false)
           else
             @submit_button.attr('disabled',true)
-          alert("Remove success")
+          alert("The file is removed successfully.")
 
       $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
     else
