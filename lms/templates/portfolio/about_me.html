@@ -286,25 +286,25 @@
           % endif
         </div>
         <div class="name">
-          <span id="user_name" class="express_inf">User Name: <strong>${ portfolio_user.username }</strong></span> 
-          <span id="name" class="express_inf"><span>Name: <strong>${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</strong></span></span>
-          <span id="email" class="express_inf">Email: <strong><a href="#">${ portfolio_user.email | h }</a></strong></span>
+          <span id="user_name" class="express_inf"><strong>User Name:</strong> ${ portfolio_user.username }</span> 
+          <span id="name" class="express_inf"><span><strong>Name:</strong> ${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</span></span>
+          <span id="email" class="express_inf"><strong>Email:</strong> <a href="#">${ portfolio_user.email | h }</a></span>
           
-          <span id="district" class="express_inf"><span>District: <strong>
+          <span id="district" class="express_inf"><span><strong>District:</strong> 
             % if portfolio_user.profile.cohort_id:
               ${portfolio_user.profile.cohort.district.name}
             % endif
-          </strong></span></span>
+          </span></span>
           
           <span id="school" class="express_inf">
-            <span>School: <strong>
+            <span><strong>School:</strong> 
                 % if portfolio_user.profile.school_id:
                 ${portfolio_user.profile.school.name}
                 % endif
-          </strong></span></span>
+          </span></span>
 
           <span id="major_subject_area" class="express_inf">
-            <span>Major Subject Area: 
+            <span><strong>Major Subject Area:</strong> 
              % if portfolio_user.profile.major_subject_area_id:
                 ${SubjectArea.objects.get(id=portfolio_user.profile.major_subject_area_id).name}
               % endif
@@ -312,7 +312,7 @@
           </span>
 
           <span id="grade" class="express_inf">
-            <span>Grade: 
+            <span><strong>Grade:</strong> 
               <% gn=list() %>
               % if portfolio_user.profile.grade_level_id:
                 % for i,c in enumerate(portfolio_user.profile.grade_level_id.split(',')):
@@ -327,7 +327,7 @@
         </div>
 
         <div id="bio" class="express">
-            Bio: 
+            <strong>Bio:</strong> 
             %if portfolio_user.profile.bio:
               ${portfolio_user.profile.bio}
             %else:
