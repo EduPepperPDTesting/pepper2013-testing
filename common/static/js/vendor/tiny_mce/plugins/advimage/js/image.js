@@ -123,30 +123,8 @@ var ImageDialog = {
 
 		t.insertAndClose();
 	},
-	upload_file:function() {
-      var fd, files, max_filesize, settings
-      max_filesize = 2 * 1000 * 1000;
-      can_upload_files = true;
-      _this=this;
-      $("#prev").html("");
-       if (/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test($(".file-upload-box")[0].files[0].name)) {
-		files = "";
-        if (can_upload_files == true) {
-          $(".file-loading").show();
-          files = $(".file-upload-box")[0].files[0];
-          if (files != void 0) {
-            if (files.size > max_filesize) {
-              can_upload_files = false;
-              files = "";
-              alert("File is too large.(2MB limit per attachment)");
-              $(".file-upload-box")[0].files = [];
-              return false;
-            }
-          } else {
-            can_upload_files = false;
-          }
-        }
-        fd = new FormData();
+	ajax_upload_image:function(_this, files, can_upload_files){
+    	fd = new FormData();
         fd.append('student_answer', '');
         fd.append('student_file', files);
         fd.append('file_info', '');
@@ -166,7 +144,7 @@ var ImageDialog = {
               return false;
             }
             if (response.success == true) {
-              alert("Upload success!");
+              alert("The image is uploaded successfully.");
             } else {
               alert("Upload fail");
             }
@@ -176,6 +154,35 @@ var ImageDialog = {
           }
         };
         return $.ajaxWithPrefix_image("" + this.ajax_url + "/upload_image", settings);
+
+    },
+	upload_file:function() {
+      var fd, files, max_filesize, settings
+      max_filesize = 2 * 1000 * 1000;
+      can_upload_files = true;
+      _this=this;
+      $("#prev").html("");
+       if (/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test($(".file-upload-box")[0].files[0].name)) {
+       		
+			files = "";
+	        if (can_upload_files == true) {
+	          $(".file-loading").show();
+	          files = $(".file-upload-box")[0].files[0];
+	          if (files != void 0) {
+	            if (files.size > max_filesize) {
+	              can_upload_files = false;
+	              files = "";
+	              alert("File is too large.(2MB limit per attachment)");
+	              $(".file-upload-box")[0].files = [];
+	              return false;
+	            }
+	          } else {
+	            can_upload_files = false;
+	          }
+	        }
+	        window.setTimeout(function(){
+	        	_this.ajax_upload_image(_this, files, can_upload_files)
+	    },1000)
       } else {
        	alert("File format not supported.");
       }
