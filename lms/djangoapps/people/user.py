@@ -50,6 +50,9 @@ class Filter():
         
     def SetFilter(self,attribute, values, exclude=0):
         self.client.SetFilter(attribute, values, exclude)
+        
+    def SetSortMode(self, mode, clause=''):
+        self.client.SetSortMode(mode, clause)
 
     def SetMatchMode(self,mode):
         self.client.SetMatchMode(mode)
@@ -109,11 +112,15 @@ def search_user(me,username='',first_name='',last_name='',
     """
     
     def dc(item):
-        profile=UserProfile.objects.get(user_id=item['id'])
-        f=People.objects.filter(user_id=me.id).filter(people_id=profile.user_id)
-        profile.student_people_id=None
-        if f.exists():
-            profile.student_people_id=f[0].id
+        if UserProfile.objects.filter(user_id=item['id']).exists():
+            profile=UserProfile.objects.get(user_id=item['id'])
+            f=People.objects.filter(user_id=me.id).filter(people_id=profile.user_id)
+            profile.student_people_id=None
+            if f.exists():
+                profile.student_people_id=f[0].id
+        else:
+            profile=None
+            
         return profile
     
     f=Filter(dc)
@@ -124,6 +131,9 @@ def search_user(me,username='',first_name='',last_name='',
     
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
+    
+    f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_name ASC, first_name ASC" )
+    
     # f.AddCond('@user_id !%s' % me.id)
 
     f.SetFilter('user_id',[me.id],True)
