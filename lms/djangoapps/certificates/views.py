@@ -113,6 +113,9 @@ def download_certificate(request,course_id,completed_time):
     t_time_fin = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
     return render_to_response('d_certificate.html', {'course':t_course,'completed_time': t_time_fin})
 
+def course_credits(request):
+     return render_to_response('course_credits.html', {})
+
 @ensure_csrf_cookie
 @cache_if_anonymous
 def download_certificate_demo(request):
