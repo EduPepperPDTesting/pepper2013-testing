@@ -624,8 +624,8 @@ def modx_dispatch(request, dispatch, location, course_id):
                     percent = grade(student,request,course_descriptor,field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
                     if ajax_return_json['success'] == u'correct':
-                        completed_course_prompt = '<h2>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</h2>'
-                        uncompleted_course_prompt = '<h2>This course requires a passing score of 85 percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</h2>'
+                        completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
+                        uncompleted_course_prompt = '<p style=\'color:red\'>This course requires a passing score of 85 percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</p>'
                         if percent > 0.85:
                             course_instance.complete_course = True
                             course_instance.complete_date = datetime.now(UTC())
