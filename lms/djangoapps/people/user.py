@@ -50,6 +50,9 @@ class Filter():
         
     def SetFilter(self,attribute, values, exclude=0):
         self.client.SetFilter(attribute, values, exclude)
+        
+    def SetSortMode(self, mode, clause=''):
+        self.client.SetSortMode(mode, clause)
 
     def SetMatchMode(self,mode):
         self.client.SetMatchMode(mode)
@@ -128,6 +131,8 @@ def search_user(me,username='',first_name='',last_name='',
     
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
+    
+    f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_name ASC, first_name ASC" )
     
     # f.AddCond('@user_id !%s' % me.id)
 

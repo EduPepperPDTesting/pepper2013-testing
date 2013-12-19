@@ -232,6 +232,18 @@
             <div class="people_tit" style="margin-right:20px;">People</div>
           %endif
           %for profile in profiles:
+          %if profile is None:
+          <div id="" style="height:130px;margin-right:20px;" class="people_content">
+            <span class="head_photo" style="background:transparent;">
+              <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
+            </span>
+            <span class="name_container">
+              <span class="full_name">
+                <a href="#" style="color:rgb(52, 97, 173)" onclick="return false;">This user is not available for now.</a>
+              </span> 
+            </span>
+          </div>            
+          %else:
           <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
@@ -272,6 +284,7 @@
             </div>
             %endif
           </div>
+          %endif
           %endfor
           %if len(profiles)>0:
           %if course:

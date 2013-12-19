@@ -87,7 +87,7 @@ def people(request,course_id=None):
     if prepage.isdigit() and int(prepage)>0:
         prepage=int(prepage)
     else:
-        prepage=5
+        prepage=25
         
     context={}
 
@@ -153,7 +153,7 @@ def my_people(request,course_id=None):
     if prepage.isdigit() and int(prepage)>0:
         prepage=int(prepage)
     else:
-        prepage=5
+        prepage=25
     
     cursor = connection.cursor()
     context={'users':[]}
@@ -182,6 +182,8 @@ def my_people(request,course_id=None):
         people=people.filter(people__profile__grade_level_id__regex = "(^|,)%s(,|$)" % request.GET.get('grade_level_id',''))
     if request.GET.get('years_in_education_id',''):
         people=people.filter(people__profile__years_in_education_id = request.GET.get('years_in_education_id',''))
+
+    people=people.order_by('people__profile__last_name').order_by('people__profile__first_name')
 
     pager=JuncheePaginator(people,prepage,6)
     people=valid_pager(pager,request.GET.get('page'))
