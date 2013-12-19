@@ -109,9 +109,10 @@ if Backbone?
       @$(".post-list").html("")
       rendered = $("<div></div>")
       for thread in @displayedCollection.models
-        content = @renderThread(thread)
-        rendered.append content
-        content.wrap("<li class='list-item' data-id='\"#{thread.get('id')}\"' />")
+        if thread.get('tags')[0]=='default' and String(thread.get('courseware_url')).indexOf('__am')<0
+          content = @renderThread(thread)
+          rendered.append content
+          content.wrap("<li class='list-item' data-id='\"#{thread.get('id')}\"' />")
 
       @$(".post-list").html(rendered.html())
       @renderMorePages()

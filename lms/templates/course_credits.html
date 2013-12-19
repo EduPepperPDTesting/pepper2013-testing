@@ -1,0 +1,80 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+<%! from time import strftime %>
+<%namespace name='static' file='static_content.html'/>
+<%inherit file="main.html" />
+
+<style>
+/*@begin:hide button dashboard*/
+	/*@date:2013-11-02*/
+	#btn-dashboard{display:none;}
+	/*@end*/
+
+  #page-nav,#page-footer{
+  width:960px;
+  }
+
+.main_div{
+	font-family:Verdana, Geneva, sans-serif;
+	font-size:14px;
+	background:#FFF;
+	margin:0px;
+	padding:0px; line-height:24px;
+}
+td, div, li, select, input, textarea {
+	margin:0;
+}
+p{ clear:both;}
+input {
+	line-height:1.3;
+	color:#333333
+}
+a {
+	color:#3461ad;
+	text-decoration:underline
+}
+a:hover {
+	color:#1b6fbc;
+	text-decoration:underline
+}
+.form_main {
+	width:960px;
+	margin:0px auto;
+	height:700px;
+}
+.form_container { margin:20px;}
+.form_tit { font-size:24px; font-family:Verdana, Geneva, sans-serif; text-align:center; line-height:30px; color: #489FDF}
+.form_logo { text-align:center;  margin:20px 0px; }
+.form_list { width:300px; margin:0px auto; clear:both; text-align:center; line-height:26px; }
+.xhx { text-decoration:underline;}
+</style>
+
+
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+  section.content-wrapper{background:transparent !important;}
+</style>
+
+<div class="form_main main_div">
+	<div class=" form_container" style="margin-top:0;padding-top:20px;">
+	  <div class="form_tit"><strong>Would you like to earn credits for the courses you are taking?</strong></div>
+	  <div class="form_logo"><img src="/static/images/course_credits/tcsj.png" width="349" height="97" /></div>
+	  <p>One professional development credit is available for each of the courses you complete (except the Pepper 101x course).  To receive credit, please follow these easy steps:</p>
+
+	<ol class="">
+	<li>Download the <a href="/static/resource/course_credit_form.docx" target="_blank">Course Completion Form</a> and fill out the required information</li>
+	<li>Print a copy of your Course Certificate from your Pepper dashboard</li>
+	<li> Make a check for $65 for one semester unit out to<strong> San Joaquin County Office of Education</strong></li></ol>
+	<p>And finally … mail the forms, the certificate and the check to: </p>
+	<div class="form_list">
+	 San Joaquin County Office of Education<br />
+	 Teacher Development Department/TCSJ<br />
+	 Attn:  Admissions/Esmeralda Capello<br />
+	 P.O. Box 213030<br />
+	 Stockton, CA 95213-9030
+	</div>
+	<p><strong>Important note:</strong> Please check with your Human Resources Department to confirm that these semester credits are applicable for certification and salary growth opportunities.</p>
+	<p>For more specific questions, please contact Esmeralda Capello at <a href="mailto:ecapello@sjcoe.net">ecapello@sjcoe.net</a> or the Registrar, Louise Gammon, <a href="mailto:lgammon@sjcoe.net">lgammon@sjcoe.net</a>.</p>
+	</div>
+</div>
+
