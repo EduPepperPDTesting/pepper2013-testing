@@ -225,7 +225,13 @@
     <div class="page" style="width:850px;" >
       <span style="float:left;">Total Search Results: ${pager.count}</span>
       <span style="float:right;">
-        Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
+        Items Per Page
+        <select id="text_pre_page" autocomplate="off">
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>200</option>
+        </select>
         <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
         %for p in pager.page_range_ext:
         %if p==pager.page_num:
@@ -241,7 +247,13 @@
     <div class="page" style="width:850px;" >
       <span style="float:left;">Total Search Results: ${pager.count}</span>
       <span style="float:right;">
-      Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
+      Items Per Page
+      <select id="text_pre_page" autocomplate="off">
+          <option>25</option>
+          <option>50</option>
+          <option>100</option>
+          <option>200</option>
+        </select>
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:
       %if p==pager.page_num:
@@ -256,19 +268,16 @@
     %endif
     %endif
         </div>
-
     </section>
   </div>
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
-$("#text_pre_page").bind('keydown', function(e){
-    var key = e.which;
-    if (key == 13) {
+$("#text_pre_page").val("${prepage}")
+$("#text_pre_page").bind('change', function(e){
       var f=$("#search_form");
       f.find("input[name=prepage]").val($(this).val());
       f.submit();
-    }
 });
 function remove_people(id){
   if(confirm("Are you sure that you would like to remove this person from your network list?")){
