@@ -171,21 +171,21 @@ def my_people(request,course_id=None):
         if len(un)<3:
             people=people.filter(people__username = un)
         else:
-            people=people.filter(people__username__iregex = "^%s" % re.escape(un))
+            people=people.filter(people__username__istartswith = un)
 
     fn=request.GET.get('first_name','') 
     if fn:
         if len(fn)<3:
             people=people.filter(people__profile__first_name = fn)
         else:
-            people=people.filter(people__profile__first_name__iregex = "^%s" % re.escape(fn))
+            people=people.filter(people__profile__first_name__istartswith = fn)
 
     ln=request.GET.get('last_name','') 
     if ln:
         if len(ln)<3:
             people=people.filter(people__profile__last_name = ln)
         else:
-            people=people.filter(people__profile__last_name__iregex = "^%s" % re.escape(ln))
+            people=people.filter(people__profile__last_name__istartswith = ln)
 
     if search_course_id:
         people=people.filter(people__courseenrollment__course_id = search_course_id)
