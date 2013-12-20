@@ -8,7 +8,7 @@ from django.core.context_processors import csrf
 from django_future.csrf import ensure_csrf_cookie
 from django.views.decorators.cache import cache_control
 from portfolio_utils import get_module_combinedopenended, get_chaper_for_course
-from my_discussions import get_module_discussions
+from my_discussions import user_discussions_profile
 from django.contrib.auth.models import User
 from about_me import create_discussion_about_me
 def get_portfolio_user(request,user_id=None):
@@ -49,6 +49,6 @@ def my_discussions(request,course_id,user_id):
     portfolio_user = get_portfolio_user(request,user_id)
     course = get_course_with_access(portfolio_user, course_id, 'load')
     content=[]
-    content = get_module_discussions(request,course,portfolio_user)
-    return render_to_response('portfolio/my_discussions.html', {'course':course,'content':content,'portfolio_user_id':portfolio_user.id})
+    context = user_discussions_profile(request,course_id,portfolio_user)
+    return render_to_response('portfolio/my_discussions.html', context)
 
