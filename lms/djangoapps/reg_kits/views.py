@@ -245,13 +245,16 @@ def user_submit(request):
             profile=UserProfile.objects.get(user_id=request.POST['id'])
             user=User.objects.get(id=request.POST['id'])
         else:
-            profile=Profile()
+            profile=UserProfile()
             user=User()
+        user.email=request.POST['email']
+        user.save()
+        
+        profile.user_id=user.id
         profile.cohort_id=request.POST['cohort_id']
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
-        user.email=request.POST['email']
-        user.save()
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))

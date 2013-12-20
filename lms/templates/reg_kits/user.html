@@ -204,7 +204,7 @@ function send_invite_email(){
       %endif
       <form method="post" id="form" action="${reverse('user_submit')}">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
-        <input type="hidden" name="id" value="${user.id or ''}" />
+        <input type="hidden" name="id" value="${profile.user.id or ''}" />
         <table width="100%;" cellspacing="" cellpadding="" border="0" id="form-table">
           <tbody style="background:#eee;">
             <tr>
