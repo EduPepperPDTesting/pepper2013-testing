@@ -1538,7 +1538,7 @@ def change_bio_request(request):
 
 
 def activate_imported_account(post_vars):
-    ret={'success': True}
+    ret={'success': False}
     try:
         user_id=Registration.objects.get(activation_key=post_vars.get('activation_key','')).user_id
         profile=UserProfile.objects.get(user_id=user_id)
@@ -1565,13 +1565,24 @@ def activate_imported_account(post_vars):
         profile.user.is_active=True
         profile.user.username=post_vars.get('username','')
         profile.user.set_password(post_vars.get('password',''))
-        profile.user.save()
 
+        try:
+            profile.user.save()
+        except Exception as e:
+            if "username" in "%s" % e:
+                ret['value'] = "An account with the Public Username '%s' already exists." % post_vars.get('username','')
+                ret['field'] = 'username'
+            raise e
+      
         profile.user.email_user(subject, message, "djangoedx@gmail.com") # settings.default_from_email
-
+        
+        ret={'success': True}
     except Exception as e:
         transaction.rollback()
-        ret={'success':False,error:"%s" % e}
+        
+        ret['success']=False
+        ret['error']="%s" % e
+        
     return HttpResponse(json.dumps(ret))
 
 #@begin:change photo by Dashboard

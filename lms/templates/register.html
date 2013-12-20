@@ -93,14 +93,18 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
         toggleSubmitButton(true);
       });
       $('#register-form').on('ajax:success', function(event, json, xhr) {
-        if(json.success) {
+
+    
+       if(json.success) {
           location.href="${reverse('dashboard')}";
        } else {
          toggleSubmitButton(true);
          $('.status.message.submission-error').addClass('is-shown').focus();
-         $('.status.message.submission-error .message-copy').html(json.value).stop().css("display", "block");
-         $(".field-error").removeClass('field-error');
-         $("[data-field='"+json.field+"']").addClass('field-error')
+         $('.status.message.submission-error .message-copy').html(json.value || json.error ).stop().css("display", "block");
+         if(json.field){
+              $(".field-error").removeClass('field-error');
+              $("[data-field='"+json.field+"']").addClass('field-error')
+         }
        }
       });
     })(this);

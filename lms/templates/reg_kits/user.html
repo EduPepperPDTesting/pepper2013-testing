@@ -79,7 +79,7 @@
           <tr>
             <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
             <td>${item.user_id}</td>
-            <td>${item.name}</td>
+            <td>${item.user.username}</td>
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
             <td>${item.cohort.district.state.name}</td>     
             <td>${item.cohort.district.name}</td>
