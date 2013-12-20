@@ -224,8 +224,9 @@
     %if len(people)>0:
     %if course:
     <div class="page" style="width:auto;" >
+    <span style="float:left;">Total Search Results: ${pager.count}</span>
+    <span style="float:right;">
       Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
-      ${pager.count}
       <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:
       %if p==pager.page_num:
@@ -235,11 +236,13 @@
       %endif
       %endfor
       <a href="${reverse('my_people',args=[course_id])}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+    </span>
     </div>
     %else:
-    <div class="page" style="width:auto;" >
+    <div class="page" style="width:850px;" >
+      <span style="float:left;">Total Search Results: ${pager.count}</span>
+      <span style="float:right;">
       Items per page <input style="text-align:center;" id="text_pre_page" value="${prepage}" size="4" maxlength="2"/>
-      ${pager.count}
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
       %for p in pager.page_range_ext:
       %if p==pager.page_num:
@@ -249,6 +252,7 @@
       %endif
       %endfor
       <a href="${reverse('my_people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+      </span>
     </div>
     %endif
     %endif

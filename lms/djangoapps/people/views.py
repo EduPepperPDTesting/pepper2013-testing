@@ -163,13 +163,30 @@ def my_people(request,course_id=None):
     search_course_id=request.GET.get('course_id')
     if search_course_id is None:
         search_course_id=course_id
-    
-    if request.GET.get('username',''):
-        people=people.filter(people__username = request.GET.get('username',''))
-    if request.GET.get('first_name',''):
-        people=people.filter(people__profile__first_name = request.GET.get('first_name',''))
-    if request.GET.get('last_name',''):
-        people=people.filter(people__profile__last_name = request.GET.get('last_name',''))
+
+    import re
+
+    un=request.GET.get('username','')
+    if un:
+        if len(un)<3:
+            people=people.filter(people__username = un)
+        else:
+            people=people.filter(people__username__iregex = "^%s" % re.escape(un))
+
+    fn=request.GET.get('first_name','') 
+    if fn:
+        if len(fn)<3:
+            people=people.filter(people__profile__first_name = fn)
+        else:
+            people=people.filter(people__profile__first_name__iregex = "^%s" % re.escape(fn))
+
+    ln=request.GET.get('last_name','') 
+    if ln:
+        if len(ln)<3:
+            people=people.filter(people__profile__last_name = ln)
+        else:
+            people=people.filter(people__profile__last_name__iregex = "^%s" % re.escape(ln))
+
     if search_course_id:
         people=people.filter(people__courseenrollment__course_id = search_course_id)
     if request.GET.get('district_id',''):
