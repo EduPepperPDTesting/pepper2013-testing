@@ -400,8 +400,8 @@ def dashboard(request,user_id=None):
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
 
-    courses_complated=sorted(courses_complated,key=lambda x:x.id)
-    courses_incomplated=sorted(courses_incomplated,key=lambda x:x.id)
+    courses_complated=sorted(courses_complated,key=lambda x:x.id.lower())
+    courses_incomplated=sorted(courses_incomplated,key=lambda x:x.id.lower())
             
     course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
     message = ""
