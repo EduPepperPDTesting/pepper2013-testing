@@ -157,9 +157,9 @@
        </div>
        <div class="but_search">
          %if course:
-         <a href="${reverse('people',args=[course_id])}"
+         <a href="${reverse('my_people',args=[course_id])}"
          %else:
-         <a href="${reverse('people')}"
+         <a href="${reverse('my_people')}"
          %endif
             class="button_default button-ondark button-icon button-add icon icon-clear"
             style="-webkit-user-select: none; text-align:left;width:207px;height:19px;">
