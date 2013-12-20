@@ -8,6 +8,7 @@
    from certificates.models import CertificateStatuses
    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
    from xmodule.modulestore.django import modulestore
+   from django.template.defaultfilters import escapejs
    %>
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
@@ -256,24 +257,33 @@
 % endif
 
 </%block>
-
+<div style="text-align:center;">
+  <div style="width:1200px;margin:auto;">
+    <%include file="/courseware/course_navigation.html" args="active_page='portfolio',portfolio_user=portfolio_user" />
+  </div>
+</div>
 <div class="main" style="margin-top:20px">
 	<section class="container">
   <div class="course-wrapper">
 		<section class="course-index">
-			<div class="sub_tit" style="width:auto;"><span class="user_name">${ user.username }</span></div>
-			<a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id])}">About Me</a> 
+			<div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
+			<a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
 			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
 			<a class="sub_menu xz" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>  
 		</section>
 		
 		<section class="course-content">
     <ol class="vert-mod">
-      %for con in content:
-       <li>${con}</li><p/>
-       %endfor
-			<!--<img src="/static/tmp-resource/image/pepper-discussion.jpg" style="padding-top:10px;padding-left:40px;"/>-->
-      </ol>
+       <section class="container discussion-user-threads" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id | escapejs}" data-threads="${threads}" data-user-info="${user_info}">
+    </section>
+  </div>
+</section>
+
+<script type="text/javascript">
+  var $$profiled_user_id = "${django_user.id | escapejs}";
+  var $$course_id = "${course.id | escapejs}";
+</script>
+  </ol>
 		</section>
 	</div>
 </div>
