@@ -121,7 +121,7 @@ def people(request,course_id=None):
     courses=list()
 
     courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-    courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
+    courses=sorted(courses, key=lambda course: course.number.lower())
     context['courses']=courses
     
     # === Courses of myself ===        
@@ -221,7 +221,7 @@ def my_people(request,course_id=None):
         'people_search_debug':1}
 
     courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-    courses=sorted(courses, key=lambda course: course.display_name.strip(' '))
+    courses=sorted(courses, key=lambda course: course.number.lower())
     context['courses']=courses
     context['search_course_id']=search_course_id
 
