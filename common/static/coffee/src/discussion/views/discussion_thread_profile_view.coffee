@@ -6,6 +6,8 @@ if Backbone?
       "click .action-follow": "toggleFollowing"
       "click .expand-post": "expandPost"
       "click .collapse-post": "collapsePost"
+      "click .discussion-submit-comment": "submitComment"
+      "click .discussion-submit-post": "submitThread"
 
     initLocal: ->
       @$local = @$el.children(".discussion-article").children(".local")
@@ -29,9 +31,15 @@ if Backbone?
       @renderVoted()
       @renderAttrs()
       @$("span.timeago").timeago()
+      if $(".my-discussion-content").length>0
+        @$el.find('.username').attr('href','javascript:void(0);')
+        @$el.find('.username').css('cursor','default')
+        @$el.find('.username').css('color','#366094')
+      @$el.find('.post-extended-content').hide()
       #@convertMath()
       @$(".post-body").html(@$(".post-body").text())
       if @expanded
+        @makeWmdEditor "reply-body"
         @renderResponses()
       @
 
@@ -69,8 +77,10 @@ if Backbone?
       response.set('thread', @model)
       view = new ThreadResponseView(model: response)
       view.on "comment:add", @addComment
+      view.on "comment:endorse", @endorseThread
       view.render()
       @$el.find(".responses").append(view.el)
+      view.afterInsert()
 
     addComment: =>
       @model.comment()
@@ -132,6 +142,8 @@ if Backbone?
       @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
+      @makeWmdEditor "reply-body"
+      @renderAttrs()
       if @$el.find('.loading').length
         @renderResponses()
 
@@ -143,3 +155,47 @@ if Backbone?
       @$el.find('.collapse-post').css('display', 'none')
       @$el.find('.post-extended-content').hide()
       @$el.find('.expand-post').css('display', 'block')
+
+    submitComment: (event) ->
+      event.preventDefault()
+      url = @model.urlFor('reply')
+      body = @getWmdContent("comment-body")
+      return if not body.trim().length
+      @setWmdContent("comment-body", "")
+      comment = new Comment(body: body, created_at: (new Date()).toISOString(), username: window.user.get("username"), abuse_flaggers:[], user_id: window.user.get("id"), id:"unsaved")
+      view = @renderComment(comment)
+      @hideEditorChrome()
+      @trigger "comment:add", comment
+
+      DiscussionUtil.safeAjax
+        $elem: $(event.target)
+        url: url
+        type: "POST"
+        dataType: 'json'
+        data:
+          body: body
+        success: (response, textStatus) ->
+          comment.set(response.content)
+          view.render() # This is just to update the id for the most part, but might be useful in general
+
+    submitThread: (event) ->
+      event.preventDefault()
+      url = @model.urlFor('reply')
+      body = @getWmdContent("reply-body")
+      return if not body.trim().length
+      @setWmdContent("reply-body", "")
+      comment = new Comment(body: body, created_at: (new Date()).toISOString(), username: window.user.get("username"), votes: { up_count: 0 }, abuse_flaggers:[], endorsed: false, user_id: window.user.get("id"))
+      comment.set('thread', @model.get('thread'))
+      @renderResponse(comment)
+      @model.addComment()
+
+      DiscussionUtil.safeAjax
+        $elem: $(event.target)
+        url: url
+        type: "POST"
+        dataType: 'json'
+        data:
+          body: body
+        success: (data, textStatus) =>
+          comment.updateInfo(data.annotated_content_info)
+          comment.set(data.content)

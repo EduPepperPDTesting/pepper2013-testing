@@ -19,14 +19,28 @@
             </p>
         </header>
         <div class="post-body">{{abbreviatedBody}}</div>
+         <ul class="moderator-actions post-extended-content">
+        <li style="display: none"><a class="action-edit" href="javascript:void(0)"><span class="edit-icon"></span> Edit</a></li>
+        <li style="display: none"><a class="action-delete" href="javascript:void(0)"><span class="delete-icon"></span> Delete</a></li>
+        <li style="display: none"><a class="action-openclose" href="javascript:void(0)"><span class="edit-icon"></span> Close</a></li>
+    </ul>
     </div>
-    <ol class="responses post-extended-content">
-        <li class="loading"></li>
+   <ol class="responses post-extended-content">
+        <li class="loading"><div class="loading-animation"></div></li>
     </ol>
+    <form class="local discussion-reply-new post-extended-content"  data-id="{{id}}">
+        <h4>Start a new discussion:</h4>
+        <ul class="discussion-errors"></ul>
+        <div class="reply-body" data-id="{{id}}"></div>
+        <div class="reply-post-control">
+            <a class="discussion-submit-post control-button" href="#">Submit</a>
+        </div>
+    </form>
 
     <div class="local post-tools">
-        <a href="{{permalink}}">Show Me More</a>
-        <!-- <a href="javascript:void(0)" class="collapse-post">Hide discussion</a> -->
+        <!--<a href="{{permalink}}">Show Me More</a>-->
+        <a href="javascript:void(0)" class="expand-post">Show Me More</a>
+        <a href="javascript:void(0)" class="collapse-post">Show Me Less</a>
     </div>
 
 </article>

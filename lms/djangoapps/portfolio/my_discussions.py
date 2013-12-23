@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 import xml.sax.saxutils as saxutils
 from django.http import Http404
 import json
+from django_comment_client.permissions import cached_has_permission
+from courseware.access import has_access
 escapedict = {'"': '&quot;'}
 def user_discussions_profile(request, course_id, portfolio_user):
     course = get_course_with_access(portfolio_user, course_id, 'load_forum')
@@ -53,6 +55,8 @@ def user_discussions_profile(request, course_id, portfolio_user):
                 'annotated_content_info': saxutils.escape(json.dumps(annotated_content_info), escapedict),
                 'portfolio_user':portfolio_user,
                 'portfolio_user_id':portfolio_user.id,
+                'roles': saxutils.escape(json.dumps(utils.get_role_ids(course_id)), escapedict),
+                'flag_moderator': cached_has_permission(portfolio_user, 'openclose_thread', course.id) or has_access(portfolio_user, course, 'staff'),
             }
             
             return context

@@ -269,13 +269,37 @@
 			<div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
 			<a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
 			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
-			<a class="sub_menu xz" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>  
+			<a class="sub_menu xz" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>
+      % if threads_num>0: 
+      <div class="chapter">
+      <ul>
+          <li class="" >
+            <a href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}?chapter=1">
+              <p>View My Discussions</p>
+            </a>
+          </li>
+      </ul>
+      </div> 
+      %endif
 		</section>
 		
-		<section class="course-content">
+		<section class="course-content my-discussion-content">
     <ol class="vert-mod">
-       <section class="container discussion-user-threads" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id | escapejs}" data-threads="${threads}" data-user-info="${user_info}">
-    </section>
+    % if request.GET.get('chapter')=='1' and threads_num>0: 
+       <section id="discussion-container" class="container discussion-user-threads" data-roles="${roles}" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id | escapejs}" data-threads="${threads}" data-user-info="${user_info}" data-flag-moderator="${flag_moderator}">
+      </section>
+    % else:
+      <center>
+        <div style="width:650px;">
+        <div style='font-family:Arial !important;font-size:65pt;color:#366092 '>My Discussions</div>
+        <div style="float:right;font-family:Arial !important;font-size:14pt;">portfolio</div>
+        <table style='margin-top:40px;'>
+         <tr><td><img src='/static/tmp-resource/image/PepperIcon_StorePortfolio.png'/>&nbsp;</td><td style='font-family:open sans;font-size:14.5pt;'><b>My Discussions</b> shows all of my collaborative conversations and the topics that I am following in the course.</td></tr></table>
+        <table style='margin-top:20px;'>
+        <tr><td><img src='/static/tmp-resource/image/PepperIcon_Select.png'/>&nbsp;</td><td style='font-family:open sans;font-size:14.5pt;margin-top:20px;text-align:left'>Click on "<b>Show Me More</b>" to expand the preview window for each discussion.</td></tr></table>
+        </div>
+        <center> 
+    %endif
   </div>
 </section>
 
@@ -283,6 +307,7 @@
   var $$profiled_user_id = "${django_user.id | escapejs}";
   var $$course_id = "${course.id | escapejs}";
 </script>
+<%include file="../discussion/_underscore_templates.html" />
   </ol>
 		</section>
 	</div>

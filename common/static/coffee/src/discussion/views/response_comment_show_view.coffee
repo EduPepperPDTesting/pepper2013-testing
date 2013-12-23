@@ -19,7 +19,7 @@ if Backbone?
       @delegateEvents()
       @renderAttrs()
       @renderFlagged()
-      @markAsStaff()
+      #@markAsStaff()
       @$el.find(".timeago").timeago()
       @convertMath()
       @addReplyLink()

@@ -28,12 +28,12 @@ if Backbone?
       @$el.find(".posted-details").timeago()
       #@$el.find(".posted-by").attr('href','javascript:void(0)')
       #@$el.find(".posted-by").css('cursor','default')
-      if $(".my-course-work-content").length>0 or $(".about-me-content").length>0
+      if $(".my-course-work-content").length>0 or $(".about-me-content").length>0 or $(".my-discussion-content").length>0
         @$el.find('.posted-by').attr('href','javascript:void(0);')
         @$el.find('.posted-by').css('cursor','default')
         @$el.find('.posted-by').css('color','#366094')
       @convertMath()
-      @markAsStaff()
+      #@markAsStaff()
       @
 
     convertMath: ->
