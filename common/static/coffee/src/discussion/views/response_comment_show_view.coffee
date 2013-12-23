@@ -21,6 +21,9 @@ if Backbone?
       @renderFlagged()
       #@markAsStaff()
       @$el.find(".timeago").timeago()
+      @$el.find('a.profile-link').attr('href','javascript:void(0);')
+      @$el.find('a.profile-link').css('cursor','default')
+      @$el.find('a.profile-link').css('color','#366094')
       @convertMath()
       @addReplyLink()
       @

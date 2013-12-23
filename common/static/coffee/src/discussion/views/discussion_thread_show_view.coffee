@@ -34,6 +34,9 @@ if Backbone?
       @$(".post-body").html(@$(".post-body").text())
       @highlight @$(".post-body")
       @highlight @$("h1,h3")
+      @$el.find('.username').attr('href','javascript:void(0);')
+      @$el.find('.username').css('cursor','default')
+      @$el.find('.username').css('color','#366094')
       @
 
     renderDogear: ->
