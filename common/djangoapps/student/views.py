@@ -385,7 +385,7 @@ def dashboard(request,user_id=None):
             #@begin:complete_course_survey
             #@data:2013-12-14
             course_id = enrollment.course_id
-            student = request.user
+            student = user
             course_descriptor = course_from_id(course_id)
             field_data_cache = FieldDataCache([course_descriptor], course_id, student)
             course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
