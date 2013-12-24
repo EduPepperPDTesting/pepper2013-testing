@@ -83,6 +83,10 @@ class Filter():
             start=0
         self.Query()
         ret=list()
+
+
+        log.debug(self.result)
+        
         if self.result and self.item_decorator:
             for i,item in enumerate(self.result['matches']):
                 self.result['matches'][i]=self.item_decorator(item)
@@ -92,7 +96,7 @@ class Filter():
     def Query(self):
         try:
             self.result=self.client.Query(' '.join(self.cond),'people_user,delta')
-            # log.debug(' '.join(self.cond))
+            log.debug(' '.join(self.cond))
         except socket.error, msg:
             raise Exception("Failed to connect sphinx")
 
@@ -153,12 +157,12 @@ def search_user(me,username='',first_name='',last_name='',
     if school_id:
         f.AddCond("@school_id %s" % school_id)        
     if subject_area_id:
-        f.AddCond("@subject_area_id %s" % subject_area_id)        
+        f.AddCond("@major_subject_area_id %s" % subject_area_id)        
     if grade_level_id:
         f.AddCond('@grade_level_id "%s"' % grade_level_id)        
     if years_in_education_id:
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
-    
+
     # if len(f.cond)==1:
     #     f.SetMatchMode(sphinxapi.SPH_MATCH_FULLSCAN)
 
