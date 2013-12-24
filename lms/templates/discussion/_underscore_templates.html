@@ -173,6 +173,9 @@
     </a>
 </script>
 <script type="text/template" id="discussion-home">
+  <style>
+    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+  </style>
   <div class="discussion-article blank-slate">
   <section class="home-header">
   <span class="label">DISCUSSION HOME:</span>
@@ -181,7 +184,7 @@
   </section>
   
   % if settings.MITX_FEATURES.get('ENABLE_DISCUSSION_HOME_PANEL'):
-  <span class="label label-settings">HOW TO USE EDX DISCUSSIONS</span>
+  <span class="label label-settings">HOW TO USE PEPPER DISCUSSIONS</span>
   <table class="home-helpgrid">
   <tr class="helpgrid-row helpgrid-row-navigation">
   <td class="row-title">Find discussions</td>
@@ -213,6 +216,7 @@
   <span class="row-description">Follow posts for updates</span>
   </td>
   </tr>
+  <!--
   <tr class="helpgrid-row helpgrid-row-notification">
   <td class="row-title">Receive updates</td>
   <td class="row-item-full" colspan="3">
@@ -221,6 +225,7 @@
   <span class="row-description"> If enabled, you will receive an email digest once a day notifying you about new, unread activity from posts you are following. </span>
   </td>
   </tr>
+  -->
   </table>
   % endif
   % endif

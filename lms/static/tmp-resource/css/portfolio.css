@@ -1455,3 +1455,4 @@ div.short-form-response {
     word-wrap:break-word;
     overflow:hidden;
   }
+[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
