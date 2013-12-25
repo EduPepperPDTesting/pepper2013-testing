@@ -22,6 +22,7 @@ import datetime
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -130,8 +131,12 @@ def download_certificate(request,course_id,completed_time):
     user_id_string = '%d' %user_id_temp
     pdf_filename = temp1 + user_id_string + temp2 + '.pdf'
 
-    #save pdf file for user
-    c = canvas.Canvas("/home/tahoe/edx_all/edx-platform/lms/static/certificate/" + pdf_filename, pagesize=(841.89,595.27))
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"' #directly download pdf
+    buffer = BytesIO()
+    # Create the PDF object, using the BytesIO object as its "file." Paper size = 'A4'
+    c = canvas.Canvas(buffer,pagesize=(841.89,595.27))
 
     fontpath = '/home/tahoe/edx_all/edx-platform/lms/static/fonts'
     imagepath = '/home/tahoe/edx_all/edx-platform/lms/static/images/certificate'
@@ -207,7 +212,11 @@ def download_certificate(request,course_id,completed_time):
     c.showPage()
     c.save()
 
-    return redirect('/static/certificate/' + pdf_filename)
+    # Get the value of the BytesIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
 
 def course_credits(request):
      return render_to_response('course_credits.html', {})
