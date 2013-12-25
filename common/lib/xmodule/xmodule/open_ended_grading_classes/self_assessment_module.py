@@ -134,7 +134,7 @@ class SelfAssessmentModule(openendedchild.OpenEndedChild):
         rubric_dict = rubric_renderer.render_rubric(self.child_rubric)
         success = rubric_dict['success']
         rubric_html = rubric_dict['html']
-        if rubric_html.index("Have you completed this task?")>0:
+        if rubric_html.find("Have you completed this task?")>0:
             rubric_html = rubric_html.replace("Have you completed this task?","Is your response ready to send to your portfolio?")
         if self.accept_file_upload:
             rubric_html = rubric_html.replace("Is your response ready to send to your portfolio?","Is your assignment ready to send to your portfolio?")
