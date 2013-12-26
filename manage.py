@@ -91,5 +91,5 @@ if __name__ == "__main__":
     startup.run()
 
     from django.core.management import execute_from_command_line
-
+    # this is a commited changed,that we dont want
     execute_from_command_line([sys.argv[0]] + django_args)
