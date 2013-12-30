@@ -89,7 +89,7 @@ def get_course_for_item(location):
     return courses[0]
 
 
-def get_lms_link_for_item(location, preview=False, course_id=None):
+def get_lms_link_for_item(location, preview=False, course_id=None, domains=None):
     """
     Returns an LMS link to the course with a jump_to to the provided location.
 
@@ -115,6 +115,24 @@ def get_lms_link_for_item(location, preview=False, course_id=None):
         )
     else:
         lms_link = None
+
+    #@begin: lmk link, new add domains param , 
+    #        if domains is None dont do this,
+    #        so this modify dont effect to old functions
+    #@data:2013-12-26
+    if domains is not None:
+        if preview:
+            lms_base = domains['preview']
+            return lms_base
+        else:
+            lms_base = domains['view']
+            lms_link = "//{lms_base}/courses/{course_id}/jump_to/{location}".format(
+                lms_base=lms_base,
+                course_id=course_id,
+                location=Location(location)
+            )
+            return lms_link  
+    #@end
 
     return lms_link
 
