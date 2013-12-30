@@ -14,6 +14,10 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from people.user import search_user, JuncheePaginator
 
 import json
+from django.contrib.auth.decorators import login_required
+from django.core.context_processors import csrf
+from django_future.csrf import ensure_csrf_cookie
+from django.views.decorators.cache import cache_control
 
 def dictfetchall(cursor):
     '''Returns a list of all rows from a cursor as a column: result dict.
@@ -79,6 +83,9 @@ def remove_people(request):
         message={'success':False, 'error': "%s" % e}
     return HttpResponse(json.dumps(message))
 
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def people(request,course_id=None):
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
@@ -145,6 +152,9 @@ def people(request,course_id=None):
 
     return render_to_response('people/people.html', context)
 
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def my_people(request,course_id=None):
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
