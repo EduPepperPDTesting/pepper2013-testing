@@ -88,8 +88,9 @@ def get_course_for_item(location):
 
     return courses[0]
 
-
-def get_lms_link_for_item(location, preview=False, course_id=None, domains=None):
+#@begin: lms links for preview and view live
+#@data: 2013-12-30
+def get_lms_link_for_item(location, preview=False, course_id=None, request=None):
     """
     Returns an LMS link to the course with a jump_to to the provided location.
 
@@ -117,10 +118,44 @@ def get_lms_link_for_item(location, preview=False, course_id=None, domains=None)
         lms_link = None
 
     #@begin: lmk link, new add domains param , 
-    #        if domains is None dont do this,
+    #        if request is None dont do this,
     #        so this modify dont effect to old functions
     #@data:2013-12-26
-    if domains is not None:
+    if request is not None:
+        #@begin:lms link for preview and view live, get host name from url's domain name
+        #       get domains from dev.py
+        #       LMS_BASE : DEFAULT VIEW LIVE
+        #       MITX_FEATURES: DEFAULT PREVIEW
+        #       PEPPER_HOSTS_LMS : VIEW LIVE FOR THIS HOST
+        #       PEPPER_HOSTS_PRE : PREVIEW FOR THIS HOST
+        #@data:2013-12-26
+        domain_name = request.META['HTTP_HOST']
+        server_name = request.META['SERVER_NAME']
+        match_obj = re.match(r'^(.*?)\.(.*?)\.(.*?)$', domain_name)
+        match_group = match_obj.groups(0)
+
+        host_name = None
+        if len(match_group) >0:
+            host_name = match_group[0].upper()
+        else:
+            host_name = ''
+
+        domains = {
+            'preview':'',
+            'view':''
+        }
+        try:
+            domains['preview'] = settings.PEPPER_HOSTS_PRE[host_name]
+            domains['view'] = settings.PEPPER_HOSTS_LMS[host_name]
+        except AttributeError:
+            # PEPPER_HOSTS_PRE or PEPPER_HOSTS_LMS is not seting in cms/envs/dev.py
+            domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
+            domains['view'] = settings.LMS_BASE
+        except KeyError:
+            # host name of domain is not recognized
+            domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
+            domains['view'] = settings.LMS_BASE
+        #@end
         if preview:
             lms_base = domains['preview']
             return lms_base
@@ -135,7 +170,7 @@ def get_lms_link_for_item(location, preview=False, course_id=None, domains=None)
     #@end
 
     return lms_link
-
+#@end
 
 def get_lms_link_for_about_page(location):
     """

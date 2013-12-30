@@ -33,7 +33,6 @@ from xblock.plugin import PluginMissingError
 from xblock.runtime import Mixologist
 import re
 
-
 __all__ = ['OPEN_ENDED_COMPONENT_TYPES',
            'ADVANCED_COMPONENT_POLICY_KEY',
            'edit_subsection',
@@ -177,41 +176,16 @@ def edit_unit(request, location):
         item = modulestore().get_item(location, depth=1)
     except ItemNotFoundError:
         return HttpResponseBadRequest()
-    #@begin:lms link for preview and view live
-    #@data:2013-12-26
-    domain_name = request.META['HTTP_HOST']
-    server_name = request.META['SERVER_NAME']
-    match_obj = re.match(r'^(.*?)\.(.*?)\.(.*?)$', domain_name)
-    match_group = match_obj.groups(0)
-
-    host_name = None
-    if len(match_group) >0:
-        host_name = match_group[0].upper()
-    else:
-        host_name = ''
-
-    domains = {
-        'preview':'',
-        'view':''
-    }
-    try:
-        domains['preview'] = settings.PEPPER_HOSTS_PRE[host_name]
-        domains['view'] = settings.PEPPER_HOSTS_LMS[host_name]
-    except AttributeError:
-        # PEPPER_HOSTS_PRE or PEPPER_HOSTS_LMS is not seting in cms/envs/dev.py
-        domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
-        domains['view'] = settings.LMS_BASE
-    except KeyError:
-        # host name of domain is not recognized
-        domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
-        domains['view'] = settings.LMS_BASE
     
+    #@begin:lms link for preview and view live
+    #@data:2013-12-30
     lms_link = get_lms_link_for_item(
             item.location,
             course_id=course.location.course_id,
-            domains=domains
+            request=request
     )
     #@end
+    
     component_templates = defaultdict(list)
     for category in COMPONENT_TYPES:
         component_class = load_mixed_class(category)
@@ -309,7 +283,7 @@ def edit_unit(request, location):
             item.location,
             course_id=course.location.course_id,
             preview=True,
-            domains=domains
+            request=request
     )
     if preview_lms_base is None:
         preview_lms_base = settings.MITX_FEATURES.get('PREVIEW_LMS_BASE')
