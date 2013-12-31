@@ -82,12 +82,24 @@ from student.models import CourseEnrollment
     <hr />
    
 	<div style="padding-left:10px;padding-right:10px;">
-		<div style="width:608px;height:211px;border:0px solid;float:left;">
+    %if course.display_number_with_default == "PEP101x":
+		  <div style="width:608px;height:211px;border:0px solid;float:left;border:3px solid #999;margin:-3px;">
+    %else:
+      <div style="width:608px;height:211px;border:0px solid;float:left;">
+    %endif
 		  <img src="${course_image_url(course)}"  style="width:100%;height:100%;" alt="" />
 		</div>
-		<div style="float:right;">
-			<img src="/static/images/p5-2.png" alt="" />
-		</div>
+
+    %if course.display_number_with_default == "PEP101x":
+      <div style="float:right;">
+        <img src="/static/images/p5-1_pcg.png" alt="" />
+      </div>
+    %else:
+      <div style="float:right;">
+        <img src="/static/images/p5-2.png" alt="" />
+      </div>
+    %endif
+
 		<div style="float:right;padding-top:10px;">
 				
 				<!--@begin:add course description(overview)-->

@@ -1290,7 +1290,7 @@ background:#;
 	width:100%;
 	line-height:48px;
 	text-align:center;
-	background:url(/static/tmp-resource/image/head.png) no-repeat 25px 12px
+	background:url(../image/head.png) no-repeat 25px 12px
 }
 
 a.blue_btn:hover {
@@ -1455,3 +1455,4 @@ div.short-form-response {
     word-wrap:break-word;
     overflow:hidden;
   }
+[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}

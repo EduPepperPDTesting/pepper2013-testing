@@ -23,6 +23,9 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
 from io import BytesIO
+from django.contrib.auth.decorators import login_required
+from django.core.context_processors import csrf
+from django.views.decorators.cache import cache_control
 
 logger = logging.getLogger(__name__)
 
@@ -102,12 +105,19 @@ def course_from_id(course_id):
     course_loc = CourseDescriptor.id_to_location(course_id)
     return modulestore().get_instance(course_id, course_loc)
 
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def download_certificate(request,course_id,completed_time):
-    t_user = request.user.id
-    t_course = get_course_with_access(t_user, course_id, 'load')
-    t_coursename = t_course.display_name_with_default
+    user_id = request.user.id
+    user_course = get_course_with_access(user_id, course_id, 'load')
     first_name = request.user.profile.first_name
     last_name = request.user.profile.last_name
+
+    c_course_name = user_course.display_name_with_default
+    c_user_name = first_name + ' ' +last_name
+    c_organization = ''
+    c_estimated_effort = ''
 
     t_time = ""
     t_y = ""
@@ -119,15 +129,20 @@ def download_certificate(request,course_id,completed_time):
         t_y = int(t_time[0])
         t_m = int(t_time[1])    
         t_d = int(t_time[2])        
-    t_time_fin = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
+    c_completed_time = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
+
+    user_id_temp = user_id + 15
+    temp1 = '821bf6753e09qx4'
+    temp2 = '103md94e157wf62a9'
+    user_id_string = '%d' %user_id_temp
+    pdf_filename = temp1 + user_id_string + temp2 + '.pdf'
 
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"' #directly download pdf
     buffer = BytesIO()
-    # Create the PDF object, using the BytesIO object as its "file."
+    # Create the PDF object, using the BytesIO object as its "file." Paper size = 'A4'
     c = canvas.Canvas(buffer,pagesize=(841.89,595.27))
-
 
     fontpath = '/home/tahoe/edx_all/edx-platform/lms/static/fonts'
     imagepath = '/home/tahoe/edx_all/edx-platform/lms/static/images/certificate'
@@ -135,34 +150,29 @@ def download_certificate(request,course_id,completed_time):
     pdfmetrics.registerFont(ttfonts.TTFont('OpenSans_i',os.path.join(fontpath, 'OpenSans-Italic-webfont.ttf')))
     pdfmetrics.registerFont(ttfonts.TTFont('OpenSans_b',os.path.join(fontpath, 'OpenSans-Bold-webfont.ttf')))
     pdfmetrics.registerFont(ttfonts.TTFont('Nunito',os.path.join(fontpath, 'Nunito-Regular.ttf')))
-
     fontsize_completedtime = 15
     fontsize_maincontent = 20
     fontsize_username = 45
     fontsize_coursename = 28
     fontsize_effort = 21
 
-    completed_time = t_time_fin
-    user_name = first_name + ' ' +last_name
-    course_name = t_coursename
-    organization = ''
-    estimated_effort = ''
-
-    if t_course.display_number_with_default == "PEP101x":
-        organization = 'PCG Education'
-        c.drawImage(imagepath+"/zs_bg_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
-        estimated_effort = '1 hours'
+    if user_course.display_number_with_default == "PEP101x":
+        c_organization = 'PCG Education'
+        c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = '1 hours'
     else:
-        organization = 'WestEd'
-        c.drawImage(imagepath+"/zs_bg.jpg",0,0, width=841.89,height=595.27,mask=None)
-        estimated_effort = '15 hours'
+        c_organization = 'WestEd'
+        c.drawImage(imagepath+"/certificate_wested.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = '15 hours'
 
     c.drawImage(imagepath+"/qianzi.jpg",360,50, width=None,height=None,mask=None)
-    c.drawImage(imagepath+"/pcg_logo_r.jpg",590,75, width=None,height=None,mask=None)
+    #c.drawImage(imagepath+"/pcgeducationdown_logo.jpg",590,75, width=None,height=None,mask=None)
 
     c.setFillColorRGB(0.5,0.5,0.5)
+    c.setFont("Open Sans", 25)
+    c.drawString(642,490,"CERTIFICATE")
     c.setFont("OpenSans_i", fontsize_completedtime)
-    c.drawString(652,468,completed_time)
+    c.drawString(652,468,c_completed_time)
 
     c.setFont("Open Sans", fontsize_maincontent)
     c.drawString(50,400,'This is to certify that')
@@ -171,9 +181,9 @@ def download_certificate(request,course_id,completed_time):
 
     c.drawString(50,230,'a course of study offered by ')
     c.setFont("OpenSans_b", fontsize_maincontent)
-    c.drawString(315,230,organization)
+    c.drawString(315,230,c_organization)
 
-    if t_course.display_number_with_default == "PEP101x":
+    if user_course.display_number_with_default == "PEP101x":
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(460,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -197,17 +207,17 @@ def download_certificate(request,course_id,completed_time):
         c.drawString(165,205,'Common Core Specialists')
 
     c.setFont("Open Sans", fontsize_effort)
-    c.drawString(50,50,'Estimated Effort: ' + estimated_effort)
+    c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
 
     c.setFillColorRGB(0,0.5,0.85)
     c.setFont("Nunito", fontsize_username)
-    c.drawString(50,348,user_name)
+    c.drawString(50,348,c_user_name)
     c.setFont("Nunito", fontsize_coursename)
-    c.drawString(50,270,course_name)
+    c.drawString(50,270,c_course_name)
 
     c.showPage()
     c.save()
-    
+
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
     buffer.close()
