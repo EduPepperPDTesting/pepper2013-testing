@@ -298,6 +298,8 @@ except ImportError:
 
 
 # email
+# Sometime we need to unlock the gmail account as new device?
+# https://accounts.google.com/DisplayUnlockCaptch
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
