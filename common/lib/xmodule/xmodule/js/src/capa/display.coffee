@@ -122,6 +122,14 @@ class @Problem
   render: (content) ->
     if content
       @el.html(content)
+      matchElement=@el.find('div[edu_show_me_id],label[edu_show_me_id]')
+      edu_show_me_id = matchElement.attr("edu_show_me_id")
+      is_complete = matchElement.find('[class]').length>0 and String(matchElement.attr('class')).indexOf('unanswered')<0
+      if edu_show_me_id!='None' and edu_show_me_id!='' and is_complete
+        show_me_btn=$('<input type="button" value="Show Me" class="show">')
+        @$('section.action').append(show_me_btn)
+        show_me_btn.click ()=>
+          window.open('/files/engine/dp/dp.html?id='+edu_show_me_id, 'edu dp')
       JavascriptLoader.executeModuleScripts @el, () =>
         @setupInputTypes()
         @bind()
@@ -129,6 +137,14 @@ class @Problem
     else
       $.postWithPrefix "#{@url}/problem_get", (response) =>
         @el.html(response.html)
+        matchElement=@el.find('div[edu_show_me_id],label[edu_show_me_id]')
+        edu_show_me_id = matchElement.attr("edu_show_me_id")
+        is_complete = matchElement.find('[class]').length>0 and String(matchElement.attr('class')).indexOf('unanswered')<0
+        if edu_show_me_id!='None' and edu_show_me_id!='' and is_complete
+          show_me_btn=$('<input type="button" value="Show Me" class="show">')
+          @$('section.action').append(show_me_btn)
+          show_me_btn.click ()=>
+            window.open('/files/engine/dp/dp.html?id='+edu_show_me_id, 'edu dp')
         JavascriptLoader.executeModuleScripts @el, () =>
           @setupInputTypes()
           @bind()

@@ -15,8 +15,8 @@
 
     <fieldset>
 
-        % for choice_id, choice_description in choices:
-        <label for="input_${id}_${choice_id}"
+        % for choice_id, choice_description, edu_show_me_id in choices:
+        <label for="input_${id}_${choice_id}" edu_show_me_id="${edu_show_me_id}"
             ## If the student has selected this choice...
             % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
             <%
