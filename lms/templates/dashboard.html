@@ -477,7 +477,9 @@
 
 		  <div style="font-family: 'Open Sans';font-size:12px;">
 			<div style="line-height:30px;">State:
-	          Alabama
+	          % if user.profile.cohort_id:
+			  ${user.profile.cohort.district.state.name}
+			  % endif
 			</div>
             
 			<div style="line-height:30px;">District:
