@@ -165,7 +165,6 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@end-->
 
 
-%if user == request.user:
 <ol class="user" id="btn-logged-user">
   <li class="primary">
     <a href="${reverse('dashboard')}" class="user-link">
@@ -183,7 +182,7 @@ site_status_msg = get_site_status_msg(course_id)
     </ul>
   </li>
 </ol>
-%endif
+
 
 <ol class="right nav-courseware" id="btn-dashboard">
   <li class="nav-courseware-01">
