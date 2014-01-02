@@ -53,9 +53,13 @@ def index(request):
                 'course': course.location.course,
                 'name': course.location.name,
             }),
+            #@begin:lms link
+            #@data:2014-01-02
             get_lms_link_for_item(
-                course.location
+                course.location,
+                request=request
             ),
+            #@end
             course.display_org_with_default,
             course.display_number_with_default,
             course.location.name

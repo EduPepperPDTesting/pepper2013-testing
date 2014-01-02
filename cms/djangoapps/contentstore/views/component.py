@@ -79,13 +79,6 @@ def edit_subsection(request, location):
     except ItemNotFoundError:
         return HttpResponseBadRequest()
 
-    lms_link = get_lms_link_for_item(
-            location, course_id=course.location.course_id
-    )
-    preview_link = get_lms_link_for_item(
-            location, course_id=course.location.course_id, preview=True
-    )
-
     # make sure that location references a 'sequential', otherwise return
     # BadRequest
     if item.location.category != 'sequential':
@@ -102,6 +95,38 @@ def edit_subsection(request, location):
 
     # this should blow up if we don't find any parents, which would be erroneous
     parent = modulestore().get_item(parent_locs[0])
+
+    #@begin:lms link
+    #@data:2014-01-02
+    lms_link = get_lms_link_for_item(
+            location, course_id=course.location.course_id, request=request
+    )
+    preview_lms_base = get_lms_link_for_item(
+            item.location,
+            course_id=course.location.course_id,
+            preview=True,
+            request=request
+    )
+    if preview_lms_base is None:
+        preview_lms_base = settings.MITX_FEATURES.get('PREVIEW_LMS_BASE')
+
+    containing_section = parent
+    containing_subsection = item
+
+    preview_link = (
+        '//{preview_lms_base}/courses/{org}/{course}/'
+        '{course_name}/courseware/{section}/{subsection}/{index}'
+    ).format(
+        preview_lms_base=preview_lms_base,
+        lms_base=lms_link,
+        org=course.location.org,
+        course=course.location.course,
+        course_name=course.location.name,
+        section=containing_section.location.name,
+        subsection=containing_subsection.location.name,
+        index=1
+    )
+    #@end
 
     # remove all metadata from the generic dictionary that is presented in a
     # more normalized UI. We only want to display the XBlocks fields, not
