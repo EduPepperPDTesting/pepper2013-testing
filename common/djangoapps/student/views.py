@@ -258,12 +258,15 @@ def signin_user(request):
 
 
 @ensure_csrf_cookie
-def register_user(request, activation_key):
+def register_user(request, activation_key=None):
     """
     This view will display the non-modal registration form
     """
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
+
+    if not activation_key:
+        return HttpResponse("Invalid activation key.")
 
     regs=Registration.objects.filter(activation_key=activation_key)
 
