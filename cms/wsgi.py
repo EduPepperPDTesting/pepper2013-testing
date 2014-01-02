@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cms.envs.aws")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cms.envs.staging")
 
 import cms.startup as startup
 startup.run()

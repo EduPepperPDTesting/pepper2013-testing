@@ -518,7 +518,7 @@
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
               %endif
 			</div>
-			<div style="line-height:30px;">Change Number of Years Taught:
+			<div style="line-height:30px;">Number of Years Taught:
 			  % if user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=user.profile.years_in_education_id).name}
 			  % endif
@@ -1009,7 +1009,7 @@ Add info that you would like to share about yourself here:
 <section id="change_years_in_education" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change Number of Years Taught').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <h2>${_('Change Number of Years Taught').format()}</h2>
       <hr/>
     </header>
     <form id="change_years_in_education_form" method="post">

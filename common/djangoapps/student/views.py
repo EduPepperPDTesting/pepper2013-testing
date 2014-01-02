@@ -1556,7 +1556,7 @@ def activate_imported_account(post_vars):
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
 
-        CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/FALL_2013')
+        CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
         
         d={"first_name":profile.first_name,"last_name":profile.last_name,"district":profile.cohort.district.name}
 
