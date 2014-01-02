@@ -232,13 +232,23 @@ PEPPER_HOSTS_LMS = {
     'STUDIO0':'www0.pepperpd.com',
     'STUDIO1':'www1.pepperpd.com',
     'STUDIO-STAGING':'staging.pepperpd.com',
-    'STUDIO':'www.pepperpd.com'
+    'STUDIO':'www.pepperpd.com',
+
+    '69.175.21.194':'www0.pepperpd.com',
+    '65.60.34.67':'www1.pepperpd.com',
+    '198.101.238.239':'staging.pepperpd.com',
+    '166.78.2.144':'www.pepperpd.com'
 }
 
 PEPPER_HOSTS_PRE = {
     'STUDIO0':'preview0.pepperpd.com',
     'STUDIO1':'preview1.pepperpd.com',
     'STUDIO-STAGING':'preview-staging.pepperpd.com',
-    'STUDIO':'preview.pepperpd.com'
+    'STUDIO':'preview.pepperpd.com',
+
+    '69.175.21.194':'preview0.pepperpd.com',
+    '65.60.34.67':'preview1.pepperpd.com',
+    '198.101.238.239':'preview-staging.pepperpd.com',
+    '166.78.2.144':'preview.pepperpd.com'
 }
 #@end
