@@ -298,6 +298,8 @@ except ImportError:
 
 
 # email
+# Sometime we need to unlock the gmail account as new device?
+# https://accounts.google.com/DisplayUnlockCaptch
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -305,18 +307,8 @@ EMAIL_HOST_USER = 'djangoedx@gmail.com'
 EMAIL_HOST_PASSWORD = 'django123'
 EMAIL_USE_TLS = True
 
-# for user profile records & register form dropdowns
-PEPPERPD_PROFILE_DISTRICTS= [{"name":"ABC Unified SD","school":['school20','school21','school22','school23']}
-                            ,{"name":"123 Elementary SD","school":['school30','school31','school32','school33']}
-                            ,{"name":"Sample County Office of Education","school":['school40','school41','school42','school43']}
-                            ,{"name":"State Department of Education","school":['school50','school51','school52','school53']}
-                            ]
-
-PEPPERPD_MAJOR_SUBJECT_AREA=["Multiple Subjects", "Mathematics", "ELA/Literacy","Science","History/Social Studies", "Other"]
-PEPPERPD_GRADE_LEVEL=["k","1","2","3","4","5","6","7","8","9","10","11","12"]
-PEPPERPD_YEARS_IN_EDUCATION=["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25+"]
-
 AWS_ACCESS_KEY_ID = AUTH_TOKENS_PEPPER["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]
 AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
+
 

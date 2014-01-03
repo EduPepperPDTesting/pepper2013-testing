@@ -706,7 +706,7 @@ class MultipleChoiceResponse(LoncapaResponse):
     response_tag = 'multiplechoiceresponse'
     max_inputfields = 1
     allowed_inputfields = ['choicegroup']
-
+    edu_show_me=''
     def setup_response(self):
         # call secondary setup for MultipleChoice questions, to set name
         # attributes
@@ -727,6 +727,8 @@ class MultipleChoiceResponse(LoncapaResponse):
         '''
         Initialize name attributes in <choice> stanzas in the <choicegroup> in this response.
         '''
+       
+        self.edu_show_me_id=self.xml.xpath("choicegroup")[0].get("edu_show_me_id")
         i = 0
         for response in self.xml.xpath("choicegroup"):
             rtype = response.get('type')
@@ -739,6 +741,10 @@ class MultipleChoiceResponse(LoncapaResponse):
                     i += 1
                 else:
                     choice.set("name", "choice_" + choice.get("name"))
+                if self.edu_show_me_id is None:
+                    choice.set("edu_show_me_id", '')
+                else:
+                    choice.set("edu_show_me_id", self.edu_show_me_id)
 
     def get_score(self, student_answers):
         '''
@@ -949,11 +955,11 @@ class StringResponse(LoncapaResponse):
     allowed_inputfields = ['textline']
     required_attributes = ['answer']
     max_inputfields = 1
-
+    edu_show_me_id=''
     def setup_response(self):
         self.correct_answer = contextualize_text(
             self.xml.get('answer'), self.context).strip()
-
+        self.edu_show_me_id = self.xml.get('edu_show_me_id')
     def get_score(self, student_answers):
         '''Grade a string response '''
         student_answer = student_answers[self.answer_id].strip()

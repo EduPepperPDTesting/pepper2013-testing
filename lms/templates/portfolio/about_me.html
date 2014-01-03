@@ -279,7 +279,7 @@
 		<section class="course-content about-me-content">
 			<div class="user_express">
         <div class="tou">
-          % if user.profile.photo:
+          % if portfolio_user.profile.photo:
             <img src="/static/uploads/photos/${ portfolio_user.profile.photo }" alt="photo" />
           % else:
             <img src="/static/uploads/photos/photo_temp.png" alt="photo" />
@@ -288,7 +288,7 @@
         <div class="name">
           <span id="user_name" class="express_inf"><strong>User Name:</strong> ${ portfolio_user.username }</span> 
           <span id="name" class="express_inf"><span><strong>Name:</strong> ${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</span></span>
-          <span id="email" class="express_inf"><strong>Email:</strong> <a href="#">${ portfolio_user.email | h }</a></span>
+          <span id="email" class="express_inf"><strong>Email:</strong> ${ portfolio_user.email | h }</span>
           
           <span id="district" class="express_inf"><span><strong>District:</strong> 
             % if portfolio_user.profile.cohort_id:

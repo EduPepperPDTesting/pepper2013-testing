@@ -17,6 +17,7 @@
 
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 
 <%block name="title">
 %if course:
@@ -282,10 +283,15 @@ $("#text_pre_page").bind('change', function(e){
 function remove_people(id){
   if(confirm("Are you sure that you would like to remove this person from your network list?")){
     $.post("${reverse('remove_people')}",{id:id},function(r){
-      if (r instanceof String) r=$.parseJSON();
+      if ((typeof r) == 'string') r=$.parseJSON();
       if(r.success)
         window.location.reload();
     });
   }
 }
+var form=$("#search_form");
+form.find("select[name=district_id]").change(function(){
+  var district_id=$(this).val();
+  dropSchool(form,'',district_id);
+})
 </script>

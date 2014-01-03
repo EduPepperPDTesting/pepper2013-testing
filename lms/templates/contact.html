@@ -142,7 +142,7 @@ form.submit(function(){
   $("#message").html("Submiting..");
   $.post('${reverse("contact_us_submit")}',data,
   function(r) {
-    if(r instanceof String) r = $.parseJSON(r);
+    if((typeof r) == 'string') r = $.parseJSON(r);
     self.reset();
     $("#message").show();
     if (r.success) {

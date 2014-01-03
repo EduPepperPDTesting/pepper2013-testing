@@ -106,11 +106,14 @@ def contact_us_submit(request):
     d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message}
     subject="PepperPd Contact Us"
     body = render_to_string('emails/contact_us_body.txt', d)
-    try:
-        send_mail(subject, body, 'djangoedx@gmail.com', ['peppersupport@pcgus.com'], fail_silently=False) # to: peppersupport@pcgus.com
-    except Exception as e:
-        message={"success":False,"error": "%s" % e}
+
+    # todo: catch SMTPAuthenticationError and SMTPException
+    
+    from smtplib import SMTPException
+    send_mail(subject, body, 'djangoedx@gmail.com', ['peppersupport@pcgus.com','ashardonofsky@pcgus.com','lhescock@pcgus.com','gingerjiang2013@gmail.com'], fail_silently=False) # to: peppersupport@pcgus.com
+    
     return HttpResponse(json.dumps(ret))
+
 #@end
 
 #@begin:View of the new added page

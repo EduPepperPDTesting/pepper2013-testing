@@ -165,7 +165,6 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@end-->
 
 
-%if user == request.user:
 <ol class="user" id="btn-logged-user">
   <li class="primary">
     <a href="${reverse('dashboard')}" class="user-link">
@@ -177,13 +176,13 @@ site_status_msg = get_site_status_msg(course_id)
     <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
     <ul class="dropdown-menu">
       <%block name="navigation_dropdown_menu_links" >
-      <li><a href="/faq">${_("Help")}</a></li>
+      <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
       </%block>
       <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
     </ul>
   </li>
 </ol>
-%endif
+
 
 <ol class="right nav-courseware" id="btn-dashboard">
   <li class="nav-courseware-01">

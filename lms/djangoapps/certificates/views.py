@@ -23,6 +23,9 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
 from io import BytesIO
+from django.contrib.auth.decorators import login_required
+from django.core.context_processors import csrf
+from django.views.decorators.cache import cache_control
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +105,9 @@ def course_from_id(course_id):
     course_loc = CourseDescriptor.id_to_location(course_id)
     return modulestore().get_instance(course_id, course_loc)
 
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def download_certificate(request,course_id,completed_time):
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
