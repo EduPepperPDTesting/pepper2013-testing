@@ -606,7 +606,7 @@ class @CombinedOpenEnded
             if response.success==true
               @$(@file_upload_box_sel)[0].outerHTML=@$(@file_upload_box_sel)[0].outerHTML
               @$(@file_upload_box_sel).change @preview_image
-              alert("The file is uploaded successfully.")
+              alert("The file upload is successful. PLEASE REMEMBER TO PRESS SUBMIT TO SAVE.")
             else
               alert("Upload fail")
             file_item=$(response.file_info).text().split("##")
