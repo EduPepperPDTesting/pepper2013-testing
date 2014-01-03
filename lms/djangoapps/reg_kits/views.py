@@ -326,7 +326,7 @@ def import_user_submit(request):
                 email=line[USER_CVS_COL_EMAIL]
                 import random
                 username="".join(random.sample('abcdefg&#%^*f1234567890',20))
-                user = User(username=username, email=email, is_active=True)
+                user = User(username=username, email=email, is_active=False)
                 user.set_password(username)
                 user.save()
                 registration = Registration()

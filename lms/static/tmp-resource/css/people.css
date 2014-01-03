@@ -117,7 +117,7 @@
 	height:80px;
 	line-height:80px;
 	text-indent:60px;
-	background:url(../images/book.png) no-repeat 10px;
+	background:url(../image/book.png) no-repeat 10px;
 	font-size:20px;
 	margin-top:-20px;
 }
@@ -1095,7 +1095,7 @@ div.btn_container a.button-del{
     display: inline-block;
     vertical-align:middle;
     line-height:39px;    
-    background: url(/static/tmp-resource/image/ico_del.png);
+    background: url(../image/ico_del.png);
     cursor:pointer;
 }
 div.btn_container_del a.button-status{

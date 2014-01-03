@@ -16,6 +16,7 @@
 
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 
 <%block name="title">
 %if course:
@@ -350,7 +351,7 @@ function add_people(btn){
   var people_id=$(btn).attr('people_id')
   var data={people_id:people_id}
   $.post("${reverse('add_people')}",data,function(r){
-    if(r instanceof String)r=$.parseJSON(r);
+    if((typeof r) == 'string')r=$.parseJSON(r);
       if(r.success){
         $(btn).parent().removeClass("btn_container_add")
         $(btn).parent().addClass("btn_container_del")
@@ -370,7 +371,7 @@ function add_people(btn){
 function remove_people(id,btn){
   if(confirm("Are you sure that you would like to remove this person from your network list?")){
     $.post("${reverse('remove_people')}",{id:id},function(r){
-      if (r instanceof String) r=$.parseJSON();
+      if ((typeof r) == 'string') r=$.parseJSON();
       if(r.success){
         $(btn).parent().removeClass("btn_container_del")
         $(btn).parent().addClass("btn_container_add")
@@ -386,4 +387,9 @@ function remove_people(id,btn){
     });
   }
 }
+var form=$("#search_form");
+form.find("select[name=district_id]").change(function(){
+  var district_id=$(this).val();
+  dropSchool(form,'',district_id);
+})
 </script>

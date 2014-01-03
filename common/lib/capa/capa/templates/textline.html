@@ -8,16 +8,16 @@
     % endif
 
     % if status == 'unsubmitted':
-    <div class="unanswered ${doinline}" id="status_${id}">
+    <div class="unanswered ${doinline}" id="status_${id}" edu_show_me_id="${edu_show_me_id}">
     % elif status == 'correct':
-    <div class="correct ${doinline}" id="status_${id}">
+    <div class="correct ${doinline}" id="status_${id}" edu_show_me_id="${edu_show_me_id}">
     % elif status == 'incorrect':
-    <div class="incorrect ${doinline}" id="status_${id}">
+    <div class="incorrect ${doinline}" id="status_${id}" edu_show_me_id="${edu_show_me_id}">
     % elif status == 'incomplete':
-    <div class="incorrect ${doinline}" id="status_${id}">
+    <div class="incorrect ${doinline}" id="status_${id}" edu_show_me_id="${edu_show_me_id}">
     % endif
     % if hidden:
-      <div style="display:none;" name="${hidden}" inputid="input_${id}" />
+      <div style="display:none;" name="${hidden}" inputid="input_${id}" edu_show_me_id="${edu_show_me_id}" />
     % endif
 
   <input type="text" name="input_${id}" id="input_${id}" aria-describedby="answer_${id}" value="${value|h}"

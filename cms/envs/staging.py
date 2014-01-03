@@ -59,13 +59,6 @@ CONTENTSTORE = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ENV_ROOT / "db" / "mitx.db",
-    }
-}
-
-DATABASES = {
-    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'pepper',
         'USER': 'pepper',
@@ -76,16 +69,8 @@ DATABASES = {
 }
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'pepper',
-#         'USER': 'pepper',
-#         'PASSWORD': 'lebbeb',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#     }
-# }
+LMS_BASE = "www1.pepperpd.com"
+MITX_FEATURES['PREVIEW_LMS_BASE'] = "www1.pepperpd.com:8444"
 
 REPOS = {
     'edx4edx': {
@@ -222,23 +207,4 @@ import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
 
-#@begin:lmk link
-#@data:2013-12-16
-########################## PREVIEW AND VIEW LIVE URL ####################################
-LMS_BASE = "www.pepperpd.com"
-MITX_FEATURES['PREVIEW_LMS_BASE'] = "preview.pepperpd.com"
-
-PEPPER_HOSTS_LMS = {
-    'STUDIO0':'www0.pepperpd.com',
-    'STUDIO1':'www1.pepperpd.com',
-    'STUDIO-STAGING':'staging.pepperpd.com',
-    'STUDIO':'www.pepperpd.com'
-}
-
-PEPPER_HOSTS_PRE = {
-    'STUDIO0':'preview0.pepperpd.com',
-    'STUDIO1':'preview1.pepperpd.com',
-    'STUDIO-STAGING':'preview-staging.pepperpd.com',
-    'STUDIO':'preview.pepperpd.com'
-}
-#@end
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

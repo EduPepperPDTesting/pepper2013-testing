@@ -152,7 +152,7 @@ class InputTypeBase(object):
         # existing state with an old id). Since we don't make this guarantee,
         # we can swap this around in the future if there's a more logical
         # order.
-
+        self.edu_show_me_id = xml.get('edu_show_me_id')
         self.input_id = state.get('id', xml.get('id'))
         if self.input_id is None:
             raise ValueError("input id state is None. xml is {0}".format(
@@ -256,6 +256,7 @@ class InputTypeBase(object):
             'value': self.value,
             'status': self.status,
             'msg': self.msg,
+            'edu_show_me_id':self.edu_show_me_id,
         }
         context.update((a, v) for (
             a, v) in self.loaded_attributes.iteritems() if a in self.to_render)
@@ -410,7 +411,7 @@ class ChoiceGroup(InputTypeBase):
                 # TODO: fix order?
                 choice_text += choice.text
 
-            choices.append((choice.get("name"), choice_text))
+            choices.append((choice.get("name"), choice_text, choice.get("edu_show_me_id")))
 
         return choices
 
