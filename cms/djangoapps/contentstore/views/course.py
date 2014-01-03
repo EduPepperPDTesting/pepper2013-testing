@@ -68,7 +68,10 @@ def course_index(request, org, course, name):
     """
     location = get_location_and_verify_access(request, org, course, name)
 
-    lms_link = get_lms_link_for_item(location)
+    #@begin:lms link
+    #@data:2014-01-02
+    lms_link = get_lms_link_for_item(location,request=request)
+    #@end
 
     upload_asset_callback_url = reverse('upload_asset', kwargs={
         'org': org,

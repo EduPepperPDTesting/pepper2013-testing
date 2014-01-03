@@ -153,8 +153,12 @@ def get_lms_link_for_item(location, preview=False, course_id=None, request=None)
             domains['view'] = settings.LMS_BASE
         except KeyError:
             # host name of domain is not recognized
-            domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
-            domains['view'] = settings.LMS_BASE
+            try:
+                domains['preview'] = settings.PEPPER_HOSTS_PRE[server_name]
+                domains['view'] = settings.PEPPER_HOSTS_LMS[server_name]
+            except KeyError:
+                domains['preview'] = settings.MITX_FEATURES['PREVIEW_LMS_BASE']
+                domains['view'] = settings.LMS_BASE
         #@end
         if preview:
             lms_base = domains['preview']
