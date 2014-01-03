@@ -110,7 +110,7 @@ def contact_us_submit(request):
     # todo: catch SMTPAuthenticationError and SMTPException
     
     from smtplib import SMTPException
-    send_mail(subject, body, 'djangoedx@gmail.com', ['peppersupport@pcgus.com','ashardonofsky@pcgus.com','lhescock@pcgus.com','gingerjiang2013@gmail.com'], fail_silently=False) # to: peppersupport@pcgus.com
+    send_mail(subject, body, 'PepperSupport@pcgus.com', ['peppersupport@pcgus.com','ashardonofsky@pcgus.com','lhescock@pcgus.com','gingerjiang2013@gmail.com'], fail_silently=False) # to: peppersupport@pcgus.com
     
     return HttpResponse(json.dumps(ret))
 

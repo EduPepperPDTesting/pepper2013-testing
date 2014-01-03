@@ -1581,7 +1581,7 @@ def activate_imported_account(post_vars):
                 ret['field'] = 'username'
             raise e
       
-        profile.user.email_user(subject, message, "djangoedx@gmail.com") # settings.default_from_email
+        profile.user.email_user(subject, message, "PepperSupport@pcgus.com") # settings.default_from_email
         
         ret={'success': True}
     except Exception as e:

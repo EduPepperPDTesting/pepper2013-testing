@@ -300,12 +300,24 @@ except ImportError:
 # email
 # Sometime we need to unlock the gmail account as new device?
 # https://accounts.google.com/DisplayUnlockCaptch
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'djangoedx@gmail.com'
+# EMAIL_HOST_PASSWORD = 'django123'
+# EMAIL_USE_TLS = True
+
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'djangoedx@gmail.com'
-EMAIL_HOST_PASSWORD = 'django123'
+EMAIL_HOST_USER = 'pepperemailbox@gmail.com'
+EMAIL_HOST_PASSWORD = 'PepperPD'
 EMAIL_USE_TLS = True
+
 
 AWS_ACCESS_KEY_ID = AUTH_TOKENS_PEPPER["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]

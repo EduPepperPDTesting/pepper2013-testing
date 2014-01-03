@@ -47,6 +47,8 @@
               <option value="Unregistered">Unregistered</option>
               <option value="Registered">Registered</option>
             </select>
+            Email:
+            <input type="input" name="email" size="30" autocomplate="off" />
             Days After Invited:
             <input type="" size="3" name="invite_days_min" value="" /> to 
             <input type="" size="3" name="invite_days_max" value="" />
@@ -92,7 +94,18 @@
             <td align="center">${item.invite_date}</td>
             <td align="center">${item.days_after_invite}</td>
             <td align="center">${item.activate_date}</td>
-            <td align="center">${item.subscription_status}</td>
+            <td align="center">
+              <select id="lstStatus${item.user_id}" autocomplate="off">
+                <option value=""></option>
+                <option value="Imported">Imported</option>
+                <option value="Unregistered">Unregistered</option>
+                <option value="Registered">Registered</option>
+              </select>
+              <script type="text/javascript">
+                $("#lstStatus${item.user_id}").val('${item.subscription_status}')
+                $("#lstStatus${item.user_id}").change(function(){modify_status('${item.user_id}',this)})
+              </script>
+            </td>
           </tr>
           %endfor       
         </table>
@@ -147,13 +160,12 @@ var cohort_id="${request.GET.get('cohort_id') or ''}"
 var district_id="${request.GET.get('district_id') or ''}"
 var school_id="${request.GET.get('school_id') or ''}"
 var subscription_status="${request.GET.get('subscription_status') or ''}"
-
 var invite_days_min="${request.GET.get('invite_days_min') or ''}"
 var invite_days_max="${request.GET.get('invite_days_max') or ''}"
-
+var email="${request.GET.get('email') or ''}"
+form.find("input[name=email]").val(email)
 form.find("input[name=invite_days_min]").val(invite_days_min)
 form.find("input[name=invite_days_max]").val(invite_days_max)
-
 form.find("select[name=subscription_status]").val(subscription_status)
 dropDistrict(form,state_id,function(){
   $(this).val(district_id)
@@ -164,6 +176,16 @@ dropCohort(form,state_id,district_id,function(){
 dropSchool(form,state_id,district_id,function(){
   $(this).val(school_id)
 });
+// modify status
+function modify_status(user_id,lst){
+  var status=$(lst).val()
+  $.post("${reverse('user_modify_status')}",
+        {id:user_id,subscription_status:status,csrfmiddlewaretoken:'${csrf_token}'},function(r){
+    if((typeof r)=='string')r=$.parseJSON(r);
+    if(r.success)
+      window.location.href=window.location.href;
+  });
+}
 // send invite email
 function send_invite_email(){
   var total=${invite_count};

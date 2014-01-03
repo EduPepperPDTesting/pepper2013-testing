@@ -84,8 +84,7 @@ class Filter():
         self.Query()
         ret=list()
 
-
-        log.debug(self.result)
+        # log.debug(self.result)
         
         if self.result and self.item_decorator:
             for i,item in enumerate(self.result['matches']):
@@ -130,16 +129,11 @@ def search_user(me,username='',first_name='',last_name='',
     f=Filter(dc)
     # f.SetFieldWeights()
     # f.SetLimits(0, 5)
-    
     f.SetMaxMatches(10000)
-    
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
-    
     f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_name ASC, first_name ASC" )
-    
     # f.AddCond('@user_id !%s' % me.id)
-
     f.SetFilter('user_id',[me.id],True)
 
     if email:

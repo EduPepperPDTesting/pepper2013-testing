@@ -211,6 +211,8 @@ def filter_user(request):
     data=UserProfile.objects.all() #.select_related('owner_object')
     if request.GET.get('school_id'):
         data=data.filter(school_id=request.GET.get('school_id'))
+    if request.GET.get('email'):
+        data=data.filter(user__email=request.GET.get('email'))
     if request.GET.get('district_id'):
         data=data.filter(school_id=request.GET.get('district_id'))
     if request.GET.get('state_id'):
@@ -247,6 +249,12 @@ def user_submit(request):
         else:
             profile=UserProfile()
             user=User()
+
+        # if request.POST['subscription_status']=='Registered':
+        #     user.is_active=True
+        # else:
+        #     user.is_active=False 
+            
         user.email=request.POST['email']
         user.save()
         
@@ -255,6 +263,26 @@ def user_submit(request):
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
 
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+    return HttpResponse(json.dumps({'success': True}))
+
+
+def user_modify_status(request):
+    user=User.objects.get(id=request.POST['id'])
+    profile=UserProfile.objects.get(user_id=request.POST['id'])
+    try:
+        # if request.POST['subscription_status']=='Registered':
+        #     user.is_active=True
+        # else:
+        #     user.is_active=False
+            
+        # user.save()
+        
+        profile.subscription_status=request.POST['subscription_status']
+        profile.save()
+        
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
@@ -338,6 +366,7 @@ def import_user_submit(request):
                 profile.cohort_id=cohort_id
                 profile.subscription_status="Imported"
                 profile.save()
+                count_success=count_success+1
                 # reg = Registration.objects.get(user=user)
                 # d = {'name': profile.name, 'key': reg.activation_key}
                 # subject = render_to_string('emails/activation_email_subject.txt', d)
@@ -380,6 +409,8 @@ def send_invite_email(request):
     except Exception as e:
        ret={"success":False,"error":"%s" % e}
     return HttpResponse(json.dumps(ret))
+
+    
 
 ##############################################
 # transaction
