@@ -12,7 +12,7 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
     url(r'^reg_kits/$', 'reg_kits.views.district',name="reg_kits"),
-
+    
     url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts',name="drop_districts"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools',name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts',name="drop_cohorts"),
@@ -48,6 +48,7 @@ urlpatterns = (
     url(r'^reg_kits/user/delete/$', 'reg_kits.views.user_delete',name="user_delete"),
     url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit',name="user_submit"),
     url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email',name="send_invite_email"),
+    url(r'^reg_kits/user/modify_status$', 'reg_kits.views.user_modify_status',name="user_modify_status"),
     
     url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit',name="import_user_submit"),
 

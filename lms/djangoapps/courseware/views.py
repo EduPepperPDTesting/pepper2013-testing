@@ -528,8 +528,9 @@ def course_info(request, course_id):
     return render_to_response('courseware/info.html', {'request': request, 'course_id': course_id, 'cache': None,
             'course': course, 'staff_access': staff_access, 'masquerade': masq})
 
-
+@login_required
 @ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def static_tab(request, course_id, tab_slug, is_global=None):
     """
     Display the courses tab with the given name.

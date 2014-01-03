@@ -255,73 +255,72 @@
 <!--@begin:Two illustrations-->
 <!--@date:2013-11-02-->
 <div id="blocks" style="text-align:center;background:#f7f7f7;padding:25px 0 25px 0;">
-	<div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;background:#fff;">
-		<!--@begin:add the video-->
-		<!--@date:2013-11-15-->
-		<div id="ppd_video_main" style=" width:480px; height:270px; z-index:99; position:fixed;margin:auto;left:0; right:0; top:0; bottom:0;display:none;">
-      <div id="ppd_video_close" style="width:20px;height:20px;position:absolute;left:480px;cursor:pointer;z-index:1;">
-        <img src="static/images/ppd-video-close01.png" width="20" height="20"/>
+  <div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;background:#fff;">
+	<!--@begin:add the video-->
+	<!--@date:2013-11-15-->
+	<div id="ppd_video_main" style=" width:950px; height:530px; z-index:99; position:fixed;margin:auto;left:0; right:0; top:0; bottom:0;display:none;">
+      <div id="ppd_video_close" style="width:20px;height:20px;position:absolute;right:0px;cursor:pointer;z-index:1;">
+        <img src="static/images/ppd-video-close01.png" width="20" height="20" onclick="$('#frmVideo')[0].src+=''"/>
       </div>
-			<iframe src="//player.vimeo.com/video/80954694" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-		</div>
-		<!--@end-->
-		
-		<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.png"/>
-		<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right01.png);">
-
-			<!--@begin:change font color-->
-			<!--@date:2013-11-02-->
-			<div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:26px;">PROFESSIONAL DEVELOPMENT COURSES</div>
-			<!--@end-->
-			
-			<!--@begin:add code(class="_body_content_font") to modify font style-->
-			<!--@date:2013-11-02-->
-			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
-				Explore our ever-expanding Mathematics and English Language Arts catalog of courses.  
-			</div>	
-
-			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
-				Find a PD course and let’s start building…together. 
-			</div>	
-			<!--@end-->
-			
-			<!--@begin:modify button position-->
-			<!--@date:2013-11-02-->
-			<div style="width:500px;padding-left:32px;padding-top:19px;">
-				<a href="/courses" class="btnxf" style="color:#fff;font-size:11px;text-decoration:none;">VIEW ALL COURSES</a>
-			</div>
-			<!--@end-->
-		</div>
+	  <iframe src="//player.vimeo.com/video/80954694" id="frmVideo" width="950" height="530" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	</div>
+	<!--@end-->
+	<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.png"/>
+	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right01.png);">
+
+	  <!--@begin:change font color-->
+	  <!--@date:2013-11-02-->
+	  <div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:26px;">PROFESSIONAL DEVELOPMENT COURSES</div>
+	  <!--@end-->
+	  
+	  <!--@begin:add code(class="_body_content_font") to modify font style-->
+	  <!--@date:2013-11-02-->
+	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
+		Explore our ever-expanding Mathematics and English Language Arts catalog of courses.  
+	  </div>	
+
+	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
+		Find a PD course and let’s start building…together. 
+	  </div>	
+	  <!--@end-->
+	  
+	  <!--@begin:modify button position-->
+	  <!--@date:2013-11-02-->
+	  <div style="width:500px;padding-left:32px;padding-top:19px;">
+		<a href="/courses" class="btnxf" style="color:#fff;font-size:11px;text-decoration:none;">VIEW ALL COURSES</a>
+	  </div>
+	  <!--@end-->
+	</div>
+  </div>
   
-	<div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;margin-top:25px;background:#fff;">
-		<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.png"/>
-		<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right02.png);">
-			
-			<!--@begin:change font color-->
-			<!--@date:2013-11-02-->
-			<div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:41px;">WHAT IS PEPPER?</div>
-			<!--@end-->
-			
-			<!--@begin:add code(class="_body_content_font") to modify font style-->
-			<!--@date:2013-11-02-->
-			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
-				Use the latest in peer-to-peer social learning tools and connect with motivated and passionate educators - just like you - from around the nation.
-			</div>
-			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
-				Work at your own pace to become a Common Core specialist.
-			</div>
-			<!--@end-->
-			
+  <div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;margin-top:25px;background:#fff;">
+	<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.png"/>
+	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right02.png);">
+	  
+	  <!--@begin:change font color-->
+	  <!--@date:2013-11-02-->
+	  <div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:41px;">WHAT IS PEPPER?</div>
+	  <!--@end-->
+	  
+	  <!--@begin:add code(class="_body_content_font") to modify font style-->
+	  <!--@date:2013-11-02-->
+	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
+		Use the latest in peer-to-peer social learning tools and connect with motivated and passionate educators - just like you - from around the nation.
+	  </div>
+	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
+		Work at your own pace to become a Common Core specialist.
+	  </div>
+	  <!--@end-->
+	  
 
-			<!--@begin:modify button position,button content-->
-			<!--@date:2013-11-02-->
-			<div id="ppd_btn_video" style="width:500px;padding-left:32px;padding-top:19px;">
-				<a href="javascript:void(0)" class="btnxf" style="color:#fff;font-size:11px !important;text-decoration:none;">WATCH PEPPER VIDEO</a>
-			</div>
-			<!--@end-->
-		</div>
+	  <!--@begin:modify button position,button content-->
+	  <!--@date:2013-11-02-->
+	  <div id="ppd_btn_video" style="width:500px;padding-left:32px;padding-top:19px;">
+		<a href="javascript:void(0)" class="btnxf" style="color:#fff;font-size:11px !important;text-decoration:none;">WATCH PEPPER VIDEO</a>
+	  </div>
+	  <!--@end-->
 	</div>
+  </div>
 </div>
 <!--@end-->
 

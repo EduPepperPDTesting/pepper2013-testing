@@ -1,15 +1,17 @@
 Dear Educator,
-The ${district} invites you to join Pepper, the online network of Common Core Specialists. Please click the link below to activate your account:
-http://${site}/register/${key}
+Congratulations! <span style="color:#C00000;">{district}</span> has selected you to join PEPPER, the online e-learning network of Common Core Specialists. We welcome you to the PEPPER community!  You are now part of a vibrant and growing network of educators dedicated to effective implementation of the Common Core standards.
 
-When you click on the link, you will be asked to provide basic account information including your name and primary school location. Once activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate.
-Congratulations on being selected to join the network, please feel free to contact us with any questions or concerns at PepperSupport@pcgus.com or 1-800-PEPPER.
-(PCG/PEPPER footer)
+We invite you to enjoy the convenience of self-paced online professional development courses from <b>WestEd</b> as you learn with the support and collaboration of other inspiring educators, just like you. 
 
+<b>Below is a link to your self-registration</b>.   You will be asked to provide basic account information including your name and primary school location.  Once your registration is activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate through PEPPER and find courses.  You have 24/7 access to our evolving network for a full year, so we encourage you to register as soon as possible! 
 
+Please click the link below to activate your account:
 
+<a style="color:#C00000;" href="http://${site}/register/${key}{Registration Link}">http://${site}/register/${key}{Registration Link}</a>
 
+We are happy to have you as part of the PEPPER network, please feel free to contact us with any questions or concerns at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a> .  If you would like to learn more about PEPPER, we invite you to learn more at <a href="www.PepperPD.com">www.PepperPD.com</a> .
 
+The PEPPER Team
 
 
 
