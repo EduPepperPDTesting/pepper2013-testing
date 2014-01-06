@@ -1,22 +1,22 @@
-Dear <span style="color:#C00000">${first_name}</span>,
+Dear <span style="color:#C00000">${first_name}</span>,<br/><br/>
 
-Thank you for completing your registration with PEPPER!  You now have an activated account and can log in anytime using your email and password at <a href="http://www.pepperpd.com/login">http://www.pepperpd.com/login</a>.
+Thank you for completing your registration with PEPPER!  You now have an activated account and can log in anytime using your email and password at <a href="http://www.pepperpd.com/login">http://www.pepperpd.com/login</a>.<br/><br/>
 
-After login you will be directed to your personal dashboard where you can complete your profile and find a PD course.   You will notice you are already registered for a short interactive course, “<i><b>Users Guide to PEPPER 101</b></i>.”  We encourage you to take 15 minutes to complete this course to become familiar with the PEPPER learning tools.  Simply press the turquoise “<span style="color:#1E4E79;">View Course</span>” button to begin.  
+After login you will be directed to your personal dashboard where you can complete your profile and find a PD course.   You will notice you are already registered for a short interactive course, "<i><b>Users Guide to PEPPER 101</b></i>."  We encourage you to take 15 minutes to complete this course to become familiar with the PEPPER learning tools.  Simply press the turquoise "<span style="color:#1E4E79;">View Course</span>" button to begin.  <br/><br/>
 
-In this Pepper course you will learn:
+In this Pepper course you will learn:<br/><br/>
 
 <ul>
 <li>Basic navigation</li>
 <li>How to find and get started</li>
 <li>More about the course organization and the interactive course activities</li>
 <li>Tips on collaborative learning features such as peer discussions and course portfolios</li>
-<li>How to keep the momentum going – building Common Core mastery step by step, applying for credits, and other professional growth opportunities</li>
+<li>How to keep the momentum going - building Common Core mastery step by step, applying for credits, and other professional growth opportunities</li>
 </ul>
 
-We hope you find PEPPER to be a great place to share your experiences with your peers, coaches, and mentors. Please feel free to contact us with any questions or concerns at PepperSupport@pcgus.com.  
+We hope you find PEPPER to be a great place to share your experiences with your peers, coaches, and mentors. Please feel free to contact us with any questions or concerns at PepperSupport@pcgus.com.  <br/><br/>
 
-<i>To experience PEPPER at its best please use Chrome or Firefox browsers.</i>
+<i>To experience PEPPER at its best please use Chrome, FireFox or Internet Explorer 10 browsers.</i><br/><br/>
 
 The PEPPER Team
 

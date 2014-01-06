@@ -1,5 +1,5 @@
-Your Email: ${email}
-Full Name: ${fullname}
-Phone: ${phone}
-Inquiry Type: ${inquiry_type} 
+Your Email: ${email}<br/>
+Full Name: ${fullname}<br/>
+Phone: ${phone}<br/>
+Inquiry Type: ${inquiry_type}<br/>  
 Message: ${message} 
