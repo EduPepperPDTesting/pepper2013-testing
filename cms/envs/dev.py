@@ -233,11 +233,13 @@ PEPPER_HOSTS_LMS = {
     'STUDIO1':'www1.pepperpd.com',
     'STUDIO-STAGING':'staging.pepperpd.com',
     'STUDIO':'www.pepperpd.com',
+    'STUDIO-DEMO':'demo.pepperpd.com',
 
-    '69.175.21.194':'www0.pepperpd.com',
-    '65.60.34.67':'www1.pepperpd.com',
-    '198.101.238.239':'staging.pepperpd.com',
-    '166.78.2.144':'www.pepperpd.com'
+    '69.175.21.195':'www0.pepperpd.com',#studio0 ip
+    '107.6.148.67':'www1.pepperpd.com',#studio1 ip
+    '198.101.238.239':'staging.pepperpd.com',#studio-staging ip
+    '166.78.2.144':'www.pepperpd.com',#studio ip
+    '65.60.34.67':'demo.pepperpd.com'#studio-demo ip
 }
 
 PEPPER_HOSTS_PRE = {
@@ -245,10 +247,12 @@ PEPPER_HOSTS_PRE = {
     'STUDIO1':'preview1.pepperpd.com',
     'STUDIO-STAGING':'preview-staging.pepperpd.com',
     'STUDIO':'preview.pepperpd.com',
+    'STUDIO-DEMO':'preview-demo.pepperpd.com',
 
-    '69.175.21.194':'preview0.pepperpd.com',
-    '65.60.34.67':'preview1.pepperpd.com',
+    '69.175.21.195':'preview0.pepperpd.com',
+    '107.6.148.67':'preview1.pepperpd.com',
     '198.101.238.239':'preview-staging.pepperpd.com',
-    '166.78.2.144':'preview.pepperpd.com'
+    '166.78.2.144':'preview.pepperpd.com',
+    '65.60.34.67':'preview-demo.pepperpd.com'#studio-demo ip
 }
 #@end
