@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
@@ -383,6 +384,8 @@ def import_user_submit(request):
             message={'success': False,'error':'Import error: %s. At cvs line: %s, Nobody imported.' % (e,count_success+1)}
     return HttpResponse(json.dumps(message))
 
+from mail import send_html_mail
+
 def send_invite_email(request):
     try:
         data=filter_user(request)
@@ -397,7 +400,8 @@ def send_invite_email(request):
             subject = ''.join(subject.splitlines())
             message = render_to_string('emails/activation_email.txt', d)
             try:
-                item.user.email_user(subject, message, "peppersupport@pcgus.com") # settings.default_from_email
+                # item.user.email_user(subject, message, "peppersupport@pcgus.com") # settings.default_from_email
+                send_html_mail(subject, message, 'PepperSupport@pcgus.com', [item.user.email])
             except Exception as e:
                 # log.warning('unable to send reactivation email', exc_info=true)
                 raise Exception('unable to send reactivation email: %s' % e)
@@ -409,8 +413,6 @@ def send_invite_email(request):
     except Exception as e:
        ret={"success":False,"error":"%s" % e}
     return HttpResponse(json.dumps(ret))
-
-    
 
 ##############################################
 # transaction

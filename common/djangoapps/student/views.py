@@ -1580,8 +1580,9 @@ def activate_imported_account(post_vars):
                 ret['value'] = "An account with the Public Username '%s' already exists." % post_vars.get('username','')
                 ret['field'] = 'username'
             raise e
-      
-        profile.user.email_user(subject, message, "PepperSupport@pcgus.com") # settings.default_from_email
+
+        from mail import send_html_mail
+        send_html_mail(subject, message, "PepperSupport@pcgus.com",[profile.user.email])
         
         ret={'success': True}
     except Exception as e:
