@@ -133,8 +133,13 @@ def search_user(me,username='',first_name='',last_name='',
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
     f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_name ASC, first_name ASC" )
+
     # f.AddCond('@user_id !%s' % me.id)
     f.SetFilter('user_id',[me.id],True)
+
+    f.AddCond('@is_active 1')
+    f.AddCond('@is_staff 0')
+    f.AddCond('@is_superuser 0')
 
     if email:
         f.AddCond('@email "%s"' % email)    

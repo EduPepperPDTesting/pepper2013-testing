@@ -86,8 +86,14 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@date:2013-11-02-->
 
 
-%if user==request.user:
-    %if user.is_authenticated():
+%if context.get("curr_user"):
+  <% curr_user=context.get("curr_user") %>
+%else:
+  <% curr_user=user %>
+%endif
+  
+%if curr_user==request.user:
+    %if curr_user.is_authenticated():
     <a href="/dashboard">
     %else:
     <a href="/">
@@ -123,28 +129,28 @@ site_status_msg = get_site_status_msg(course_id)
 
       </style>
 
-    % if user.is_authenticated():
+      
+    %if curr_user==request.user and curr_user.is_authenticated():
       <ol class="left nav-global authenticated">
-    % else:
+    %else:
       <ol class="left nav-global">
-    % endif
+    %endif
 
-    % if not user.is_authenticated():
+    % if curr_user==request.user and not curr_user.is_authenticated():
     <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
     % endif
 
-    %if user==request.user:
+    %if curr_user==request.user:
     <li><a href="/courses" class="main-link">Courses</a></li>
     %else:
     <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
     %endif
     
-    % if not user.is_authenticated():
+    % if curr_user==request.user and not curr_user.is_authenticated():
     <li><a href="/contact" class="main-link">Districts</a></li>
     % endif
 
-    % if user.is_authenticated():
-    %if user==request.user:
+    %if curr_user==request.user and curr_user.is_authenticated:
     <li><a href="/resource_library_global" class="main-link">Access Resource Library</a></li>
     <li><a href="/people" class="main-link">People</a></li>
     <li><a href="/course_credits" class="main-link" target="_blank">Course Credits</a></li>
@@ -153,9 +159,8 @@ site_status_msg = get_site_status_msg(course_id)
     <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
     <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li>
     %endif
-    % endif
 
-    % if user.is_authenticated():
+    % if curr_user.is_authenticated():
       <%block name="navigation_global_links_authenticated">
         <li class="nav-global-01" style="display:none;">
           <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
@@ -164,12 +169,12 @@ site_status_msg = get_site_status_msg(course_id)
    </ol>
 <!--@end-->
 
-
+%if curr_user==request.user:
 <ol class="user" id="btn-logged-user">
   <li class="primary">
     <a href="${reverse('dashboard')}" class="user-link">
       <span class="avatar"></span>
-      <span class="sr">${_("Dashboard for:")} </span> ${user.username}
+      <span class="sr">${_("Dashboard for:")} </span> ${curr_user.username}
     </a>
   </li>
   <li class="primary">
@@ -182,7 +187,7 @@ site_status_msg = get_site_status_msg(course_id)
     </ul>
   </li>
 </ol>
-
+%endif
 
 <ol class="right nav-courseware" id="btn-dashboard">
   <li class="nav-courseware-01">
@@ -245,7 +250,7 @@ site_status_msg = get_site_status_msg(course_id)
 <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif
 
-%if not user.is_authenticated():
+%if not curr_user.is_authenticated():
   <%include file="forgot_password_modal.html" />
 %endif
 
