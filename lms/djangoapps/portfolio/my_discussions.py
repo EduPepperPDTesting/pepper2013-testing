@@ -46,6 +46,7 @@ def user_discussions_profile(request, course_id, portfolio_user):
         else:
             context = {
                 'course': course,
+                'curr_user':portfolio_user,
                 'user': request.user,
                 'django_user': User.objects.get(id=portfolio_user.id),
                 'profiled_user': profiled_user.to_dict(),

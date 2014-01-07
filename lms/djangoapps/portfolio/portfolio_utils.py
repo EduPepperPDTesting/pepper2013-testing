@@ -379,7 +379,38 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
         context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
         did = Get_discussion_id()
         did.feed(context)
-        thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
+        try:
+            thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
+        except IndexError:
+            if modulestore().has_item(course.id, dest_location):
+                modulestore().delete_item(dest_location)
+                metadata = {}
+                data = None
+                template_id = request.POST.get('boilerplate')
+                if template_id is not None:
+                    clz = XModuleDescriptor.load_class(category)
+                    if clz is not None:
+                        template = clz.get_template(template_id)
+                        if template is not None:
+                            metadata = template.get('metadata', {})
+                            data = template.get('data')
+
+                if display_name is not None:
+                    metadata['display_name'] = display_name
+                    metadata['discussion_category']=''
+                    metadata['discussion_target']=''
+                get_modulestore(category).create_and_save_xmodule(
+                    dest_location,
+                    definition_data=data,
+                    metadata=metadata,
+                    system=parent.system,
+                )
+                context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
+                did = Get_discussion_id()
+                did.feed(context)
+                create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user)
+                thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
+                create_comment(request, course.id, {'body':'Please leave me your feedback by adding a comment below.'}, portfolio_user, thread_id)
         update_thread(request, course.id, thread_id, thread_data)
         context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
     #if context=='':
