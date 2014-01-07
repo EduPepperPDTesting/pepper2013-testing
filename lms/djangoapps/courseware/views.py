@@ -558,10 +558,14 @@ def static_tab(request, course_id, tab_slug, is_global=None):
     )
     if contents is None:
         raise Http404
-
+    if request.GET.get('pf_id') != None:
+        curr_user = User.objects.get(id=int(request.GET.get('pf_id')))
+    else:
+        curr_user = None
     staff_access = has_access(request.user, course, 'staff')
     return render_to_response('courseware/static_tab.html',
                               {'course': course,
+                               'curr_user':curr_user,
                                'tab': tab,
                                'tab_contents': contents,
                                'staff_access': staff_access,

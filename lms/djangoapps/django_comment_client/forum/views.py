@@ -168,7 +168,6 @@ def forum_form_discussion(request, course_id):
     """
     Renders the main Discussion page, potentially filtered by a search query
     """
-
     course = get_course_with_access(request.user, course_id, 'load_forum')
     category_map = utils.get_discussion_category_map(course)
 
@@ -216,8 +215,12 @@ def forum_form_discussion(request, course_id):
         cohorted_commentables = get_cohorted_commentables(course_id)
 
         user_cohort_id = get_cohort_id(request.user, course_id)
-
+        if request.GET.get('pf_id') != None:
+            curr_user = User.objects.get(id=int(request.GET.get('pf_id')))
+        else:
+            curr_user = None
         context = {
+            'curr_user':curr_user,
             'csrf': csrf(request)['csrf_token'],
             'course': course,
             #'recent_active_threads': recent_active_threads,
