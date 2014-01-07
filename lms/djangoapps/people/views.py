@@ -198,7 +198,7 @@ def my_people(request,course_id=None):
             people=people.filter(people__profile__last_name__istartswith = ln)
 
     if search_course_id:
-        people=people.filter(people__courseenrollment__course_id = search_course_id)
+        people=people.filter(people__courseenrollment__course_id = search_course_id, people__courseenrollment__is_active = True)
     if request.GET.get('district_id',''):
         people=people.filter(people__profile__cohort__district_id = request.GET.get('district_id',''))
     if request.GET.get('school_id',''):
