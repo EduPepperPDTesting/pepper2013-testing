@@ -62,3 +62,9 @@ DEBUG_TOOLBAR_PANELS += (
 # ========================================================================
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+DEBUG = False
+# PIPELINE=False 
+# PIPELINE_ENABLED=False
+STATIC_ROOT = ENV_ROOT / "staticfiles/lms"
+
+# MITX_FEATURES['USE_DJANGO_PIPELINE']=True

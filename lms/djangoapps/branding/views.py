@@ -118,7 +118,7 @@ def contact_us_submit(request):
         # 'ashardonofsky@pcgus.com',
         # 'gingerjiang2013@gmail.com',
         # 'mailfcl@126.com'
-        ])
+        ], fail_silently=False)  
 
     return HttpResponse(json.dumps(ret))
 
