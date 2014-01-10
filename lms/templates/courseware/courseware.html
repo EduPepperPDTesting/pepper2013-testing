@@ -31,18 +31,27 @@
   ## codemirror
   <script type="text/javascript" src="${static.url('js/vendor/codemirror-compressed.js')}"></script>
 
+
   ## alternate codemirror
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/lib/codemirror.js')}"></script>
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/mode/xml/xml.js')}"></script>
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/mode/python/python.js')}"></script>
+ 
 <!--@begin:Load and initialize ORA editor-->
 <!--@date:2013-11-02-->
+
+<script type="text/javascript">
+  
+</script>
   <script type="text/javascript" src="${static.url('js/vendor/tiny_mce/tiny_mce.js')}"></script>
   <script type="text/javascript">
     var tinyMCE_init_sate=0;
     var switch_content_page=0;
+    
+    tinymce.baseURL='/static/js/vendor/tiny_mce'
+    
     function tinyMCE_init()
-    {   
+    {
         if(!tinyMCE_init_sate){
 
           tinyMCE.init({
