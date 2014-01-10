@@ -118,8 +118,8 @@ from courseware.courses import course_image_url, get_course_about_section
 		                text2=""
 		                overview_temp = get_course_about_section(course, "overview")
 		                length1 = len(overview_temp.split('</section>'))
-		                if length1 > 5:
-		                    text1 = overview_temp.split('</section>')[5]
+		                if length1 > 6:
+		                    text1 = overview_temp.split('</section>')[6]
 		                length2 = len(text1.split('<section class="authors">'))
 		                if length2 > 1:
 		                    text2 = text1.split('<section class="authors">')[1]
