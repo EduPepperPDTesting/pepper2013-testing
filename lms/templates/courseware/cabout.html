@@ -140,8 +140,8 @@ from student.models import CourseEnrollment
                 text2=""
                 overview_temp = get_course_about_section(course, "overview")
                 length1 = len(overview_temp.split('</section>'))
-                if length1 > 4:
-                    text1 = overview_temp.split('</section>')[4]
+                if length1 > 5:
+                    text1 = overview_temp.split('</section>')[5]
                 length2 = len(text1.split('<section class="prerequisites">'))
                 if length2 > 1:
                     text2 = text1.split('<section class="prerequisites">')[1]
