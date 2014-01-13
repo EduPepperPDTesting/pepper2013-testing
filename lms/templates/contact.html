@@ -137,21 +137,14 @@ form.submit(function(){
   var flds=["email","fullname","phone","inquiry_type","message","csrfmiddlewaretoken"];
   var data=easy.form.getFormData(this,flds);
   $("#message").html("Submiting..");
-
-
-$("#message").css("background","#fc5")
-$("#message").css("border-color","#f70")
-
-
-return false
-
-
   $.post('${reverse("contact_us_submit")}',data,
   function(r) {
     if((typeof r) == 'string') r = $.parseJSON(r);
     self.reset();
     $("#message").show();
     if (r.success) {
+       $("#message").css("background","#fc5")
+       $("#message").css("border-color","#f70")
        easy.form.infoAndWait($("#message"),"Submit success",5,window.location.href)
     } else {
        $("#message").html(r.error);
