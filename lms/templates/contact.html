@@ -26,7 +26,9 @@
   }
   ul.left a{
   color:#666;
-  }  
+  }
+
+  span.red{float:right;padding-right:10px;}
 </style>
 <div style="text-align:center;background:#f5f5f5">
   <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
@@ -102,16 +104,11 @@
 				  <option>Technical Support Question</option>
 				  <option>Idea to Share</option>
 				  <option>General / Other Question</option>
-				  <!-- <option value="registration">Account Question</option> -->
-				  <!-- <option value="technical">Sales Question</option> -->
-				  <!-- <option value="accessibility">Technical Support Question</option> -->
-				  <!-- <option value="exams">Idea to Share</option> -->
-				  <!-- <option value="account">General / Other Question</option> -->                
 			  </select>
 			</td>
 		  </tr>
 		  <tr>
-			<td> Message: </td>
+			<td> Message: <span class="red"> *</span></td>
 			<td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea" chkType="Require" chkMsg="Message is required."></textarea></td>
 		  </tr>
 		  <tr>
