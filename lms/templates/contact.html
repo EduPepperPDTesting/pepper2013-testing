@@ -75,7 +75,7 @@
 		<!--@end-->
 
 
-        <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;"> </div>
+        <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;width:490px;"> </div>
         
         <form method="" id="form" action="">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
@@ -137,6 +137,15 @@ form.submit(function(){
   var flds=["email","fullname","phone","inquiry_type","message","csrfmiddlewaretoken"];
   var data=easy.form.getFormData(this,flds);
   $("#message").html("Submiting..");
+
+
+$("#message").css("background","#fc5")
+$("#message").css("border-color","#f70")
+
+
+return false
+
+
   $.post('${reverse("contact_us_submit")}',data,
   function(r) {
     if((typeof r) == 'string') r = $.parseJSON(r);
@@ -148,6 +157,9 @@ form.submit(function(){
        $("#message").html(r.error);
     }
   });
+
+
+
   return false;
 });
 </script>
