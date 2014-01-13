@@ -159,7 +159,7 @@ def download_certificate(request,course_id,completed_time):
     if user_course.display_number_with_default == "PEP101x":
         c_organization = 'PCG Education'
         c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
-        c_estimated_effort = '1 hours'
+        c_estimated_effort = '1 hour'
     else:
         c_organization = 'WestEd'
         c.drawImage(imagepath+"/certificate_wested.jpg",0,0, width=841.89,height=595.27,mask=None)
