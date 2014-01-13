@@ -233,7 +233,7 @@
             <div class="people_tit" style="margin-right:20px;">People</div>
           %endif
           %for profile in profiles:
-          %if profile is None:
+          %if (profile is None) or (not profile.user.is_active):
           <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />

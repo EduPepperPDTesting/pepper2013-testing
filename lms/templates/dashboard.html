@@ -356,11 +356,12 @@
 </%block>
 
 <section class="container dashboard" id="container_dashboard">
-  %if message:
+  %if message and curr_user==request.user:
     <section class="dashboard-banner">
       ${message}
     </section>
   %endif
+    
   <section class="profile-sidebar">
     <header class="profile">
       <h1 class="user-name">${ curr_user.username }</h1>
@@ -420,56 +421,6 @@
         % endif
         %endif
 
-<!--@begin:Profile: remove some not needed info-->
-<!--@date:2013-11-02-->        
-      <!-----------------------------------------------------------------------------------
-		<li>
-		  <span style="float:left;padding-left:0px;"><img src="${static.url('images/edx-user-photo.png')}" class="" alt="" /></span><span style="float:right;padding-right:0px;">Change picture (<a href="#apply_picture_change" rel="leanModal" class="">edit</a>)</span>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Country: US</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">City,State: Aptos, Ca</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Role tole in school: Teacher</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Optional info</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="padding-left:20px;">
-			Web site: www.rioschool.edu<br/>
-			IM: Mathgeek<br/>
-			Institution: PVUSD<br/>
-			Department:staff<br/>
-			Phone:None<br/>
-			Address:Here<br/>
-		  </div>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Professional History</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="padding-left:20px;">
-			School Name: Rio Elementary<br/>
-			Role in School: Teacher<br/>
-			Grade Level: 5/6<br/>
-			Ave.Class Size: 35<br/>
-		  </div>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Class Profile</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="border:3px solid #aaa;height:80px;padding:10px;">
-			My class is divers and challenged..
-		  </div>
-		</li>
-
-        -->
-<!--@end-->
 
 <!--@begin:Add some profile info-->
 <!--@date:2013-11-02-->  

@@ -114,11 +114,11 @@ def contact_us_submit(request):
 
     send_html_mail(subject, body, 'PepperSupport@pcgus.com', [
         'peppersupport@pcgus.com',
-        'lhescock@pcgus.com',
+        'laura.hescock@hotmail.com',
         # 'ashardonofsky@pcgus.com',
         # 'gingerjiang2013@gmail.com',
         # 'mailfcl@126.com'
-        ])
+        ], fail_silently=False)  
 
     return HttpResponse(json.dumps(ret))
 

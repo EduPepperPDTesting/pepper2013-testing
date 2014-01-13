@@ -8,7 +8,7 @@ This config file runs the simplest dev environment"""
 from .common import *
 from logsettings import get_logger_config
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 LOGGING = get_logger_config(ENV_ROOT / "log",
                             logging_env="dev",
@@ -208,3 +208,8 @@ sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+STATIC_ROOT = ENV_ROOT / "staticfiles/cms"
+
+
+MITX_FEATURES['USE_DJANGO_PIPELINE']=True
