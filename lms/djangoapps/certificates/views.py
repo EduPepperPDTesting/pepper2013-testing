@@ -118,6 +118,7 @@ def download_certificate(request,course_id,completed_time):
     c_user_name = first_name + ' ' +last_name
     c_organization = ''
     c_estimated_effort = ''
+    c_course_full_name = user_course.display_number_with_default + " " + c_course_name #course name
 
     t_time = ""
     t_y = ""
@@ -213,7 +214,7 @@ def download_certificate(request,course_id,completed_time):
     c.setFont("Nunito", fontsize_username)
     c.drawString(50,348,c_user_name)
     c.setFont("Nunito", fontsize_coursename)
-    c.drawString(50,270,c_course_name)
+    c.drawString(50,270,c_course_full_name)
 
     c.showPage()
     c.save()
