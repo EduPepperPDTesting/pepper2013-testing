@@ -316,7 +316,7 @@
             <span><strong>Grade:</strong> 
               <% gn=list() %>
               % if portfolio_user.profile.grade_level_id:
-                % for i,c in enumerate(sorted(curr_user.profile.grade_level_id.split(','))):
+                % for i,c in enumerate(portfolio_user.profile.grade_level_id.split(',')):
                   % if len(c)>0:
                   <% gn.append(GradeLevel.objects.get(id=c).name) %>
                   % endif

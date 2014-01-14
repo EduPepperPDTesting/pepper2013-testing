@@ -8,6 +8,10 @@ from student.models import CourseEnrollment
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 
+<%block name="title">
+<title>${_("{course_number} Course Detail").format(course_number=course.display_number_with_default) | h}</title>
+</%block>
+
 
 <!--@begin:add css link-->
 <!--@date:2013-11-02-->

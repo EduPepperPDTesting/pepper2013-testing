@@ -85,7 +85,7 @@
             <td>
               %if Registration.objects.filter(user_id=item.user_id).count():
               <a href="http://${site}/register/${Registration.objects.get(user_id=item.user_id).activation_key}" target="_blank">
-                ${Registration.objects.get(user_id=item.user_id).activation_key}
+                ${Registration.objects.get(user_id=item.user_id).activation_key[:8]}...
               </a>
               %endif
             </td>
