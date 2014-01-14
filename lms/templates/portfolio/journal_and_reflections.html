@@ -13,6 +13,7 @@
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
+<%block name="title"><title>${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
 
 <%block name="headextra">
@@ -304,6 +305,20 @@
        %if len(content)==0 and chapter_id=='':
         <section class="course-content my-course-work-content" style="padding:0px;">
         <ol class="vert-mod">
+        <!--
+        <center>
+        <div style="width:650px;"><div style='font-family:Arial !important;font-size:85pt;color:#366092'>Coursework</div>
+        <div style="float:right;font-family:Arial !important;font-size:14pt;">portfolio</div>
+        <table style='margin-top:40px;'>
+         <tr><td><img src='/static/tmp-resource/image/PepperIcon_StorePortfolio.png'/>&nbsp;</td><td style='font-family:open sans;font-size:14.5pt;'>Review and collaborate on coursework from each session by using the left side navigation menu.</td></tr></table>
+        <table style='margin-top:20px;'>
+        <tr><td><img src='/static/tmp-resource/image/PepperIcon_Select.png'/>&nbsp;</td><td style='font-family:open sans;font-size:14.5pt;margin-top:20px;text-align:left'>Click on "<b>Show Me More</b>" to expand the preview window for each assignment.</td></tr></table>
+        <div style='margin-top:20px;'><img src='/static/tmp-resource/image/pf_1.png'/></div>
+        <table style='margin-top:20px;'>
+        <tr><td><img src='/static/tmp-resource/image/PepperIcon_pen.png'/>&nbsp;</td><td style='font-family:open sans;font-size:14.5pt;margin-top:20px;text-align:left'>Leave feedback about the assignment by writing in the <b>Add a Comment</b> text field.</td></tr></table>
+        <div style='margin-top:20px;'><img src='/static/tmp-resource/image/pf_2.png'/></div>
+        <center>
+        -->
         <img src='/static/tmp-resource/image/my-coursework.png'/>
        %endif
       </ol>

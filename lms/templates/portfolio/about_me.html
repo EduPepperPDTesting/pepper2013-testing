@@ -10,9 +10,10 @@
   from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
 %>
 
-<%inherit file="/main.html" />
+<%inherit file="/main.html"/>
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
+<%block name="title"><title>${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
 
 <%block name="headextra">
