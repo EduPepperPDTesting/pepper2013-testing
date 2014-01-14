@@ -13,14 +13,15 @@
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
 </style>
-
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 
 <%block name="title">
 %if course:
-<title>${_("{course_number} Courseware").format(course_number=course.display_number_with_default) | h}</title>
+<title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
+%else:
+<title>People</title>
 %endif
 </%block>
 

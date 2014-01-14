@@ -119,8 +119,8 @@ site_status_msg = get_site_status_msg(course_id)
 
       <h2><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
     % endif
-<!--@begin:Top navigation tabs and styles before login-->
-<!--@date:2013-11-02-->
+      <!--@begin:Top navigation tabs and styles before login-->
+      <!--@date:2013-11-02-->
       <style>
         ol.nav-left li a{
         color:#555;
@@ -129,7 +129,17 @@ site_status_msg = get_site_status_msg(course_id)
 
       </style>
 
-      
+      %if curr_user!=request.user:
+      <style type="text/css" media="screen">
+        a.main-link{
+        color:#ccc !important;
+        }
+        a.main-link:hover{
+        color:#ccc !important;
+        }
+      </style>
+      %endif
+
     %if curr_user==request.user and curr_user.is_authenticated():
       <ol class="left nav-global authenticated">
     %else:
@@ -152,7 +162,7 @@ site_status_msg = get_site_status_msg(course_id)
 
     %if request.user.is_authenticated():
       %if curr_user==request.user:
-      <li><a href="/resource_library_global" class="main-link">Access Resource Library</a></li>
+      <li><a href="/resource_library_global" class="main-link">Global Resource Library</a></li>
       <li><a href="/people" class="main-link">People</a></li>
       <li><a href="/course_credits" class="main-link" target="_blank">Course Credits</a></li>
       %else:
@@ -196,7 +206,6 @@ site_status_msg = get_site_status_msg(course_id)
     <a class="cta cta-login" href="/dashboard">Dashboard</a>
   </li>
 </ol>
-
 
     % else:
 

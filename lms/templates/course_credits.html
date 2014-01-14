@@ -1,8 +1,12 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
 <%! from time import strftime %>
+
+
 <%namespace name='static' file='static_content.html'/>
 <%inherit file="main.html" />
+
+<%block name="title"><title>${_("Course Credits")}</title></%block>
 
 <style>
 /*@begin:hide button dashboard*/

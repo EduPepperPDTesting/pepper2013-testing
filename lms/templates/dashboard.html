@@ -20,7 +20,7 @@
 
 <%inherit file="main.html" />
 <%namespace name='static' file='static_content.html'/>
-<%block name="title"><title>${_("Dashboard")}</title></%block>
+<%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
 <!--@begin:Add new page style-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
@@ -90,11 +90,11 @@
             $.each(vals,function(i,v){
             if(v)arVals.push(i)
             })
-            arVals.sort(function(a,b){return parseInt(a)>parseInt(b)})
+            arVals.sort(function(a,b){
+               return parseInt(a)-parseInt(b)})
             $("#grade_level_id").val(arVals.join());
             }
 /*@end*/
-
   (function() {
 
     $(".email-settings").click(function(event) {

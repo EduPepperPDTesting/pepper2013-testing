@@ -7,7 +7,7 @@
    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
    from xmodule.modulestore.django import modulestore
    import json
-   from student.models import State,District,Transaction,Cohort,School
+   from student.models import State,District,Transaction,Cohort,School,Registration
 %>
 <body>
   <%include file="tabs.html" args="active_page='user'" />
@@ -66,6 +66,7 @@
           <tr>
             <th></th>
             <th>User ID</th>
+            <th>Activate Link</th>
             <th>Username</th>
             <th>Email</th>
             <th>State</th>
@@ -81,6 +82,13 @@
           <tr>
             <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
             <td>${item.user_id}</td>
+            <td>
+              %if Registration.objects.filter(user_id=item.user_id).count():
+              <a href="http://${site}/register/${Registration.objects.get(user_id=item.user_id).activation_key}" target="_blank">
+                ${Registration.objects.get(user_id=item.user_id).activation_key}
+              </a>
+              %endif
+            </td>
             <td>${item.user.username}</td>
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
             <td>${item.cohort.district.state.name}</td>     

@@ -6,6 +6,13 @@
   #btn-dashboard{display:none;}
 </style>
 <!--@end-->
+
+%if context.get("curr_user"):
+  <% curr_user=context.get("curr_user") %>
+%else:
+  <% curr_user=user %>
+%endif
+
 <%
 if active_page is None and active_page_context is not UNDEFINED:
   # If active_page is not passed in as an argument, it may be in the context as active_page_context

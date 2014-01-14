@@ -161,7 +161,9 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
             $.each(vals,function(i,v){
             if(v)arVals.push(i)
             })
-            arVals.sort(function(a,b){return parseInt(a)>parseInt(b)})
+            arVals.sort(function(a,b){
+            return parseInt(a)-parseInt(b)
+            })
             $("#grade_level_id").val(arVals.join());
             }
           </script>

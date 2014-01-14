@@ -1586,7 +1586,7 @@ def activate_imported_account(post_vars):
         
         ret={'success': True}
     except Exception as e:
-        transaction.rollback()
+        # transaction.rollback()
         
         ret['success']=False
         ret['error']="%s" % e
