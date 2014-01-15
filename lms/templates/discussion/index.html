@@ -6,13 +6,15 @@
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="bodyclass">discussion</%block>
-<%block name="title"><title>${_("Discussion - {course_number}").format(course_number=course.display_number_with_default) | h}</title></%block>
+<%block name="title"><title>${_("{course_number} Discussion").format(course_number=course.display_number_with_default) | h}</title></%block>
 
 <%block name="headextra">
 <%static:css group='course'/>
 <%include file="_js_head_dependencies.html" />	
 </%block>
-
+<style type="text/css" media="screen">
+  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+</style>
 <%block name="js_extra">
 <%include file="_js_body_dependencies.html" />
 <%static:js group='discussion'/>

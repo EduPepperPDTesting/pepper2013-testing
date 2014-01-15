@@ -2,7 +2,7 @@
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
-<%block name="title"><title>${_("{course_number} Courseware").format(course_number=course.display_number_with_default) | h}</title></%block>
+<%block name="title"><title>${_("{course_number} Course").format(course_number=course.display_number_with_default) | h}</title></%block>
 
 <%block name="headextra">
   <%static:css group='course'/>
@@ -31,18 +31,28 @@
   ## codemirror
   <script type="text/javascript" src="${static.url('js/vendor/codemirror-compressed.js')}"></script>
 
+
   ## alternate codemirror
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/lib/codemirror.js')}"></script>
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/mode/xml/xml.js')}"></script>
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/mode/python/python.js')}"></script>
+ 
 <!--@begin:Load and initialize ORA editor-->
 <!--@date:2013-11-02-->
+
+<script type="text/javascript">
+  
+</script>
   <script type="text/javascript" src="${static.url('js/vendor/tiny_mce/tiny_mce.js')}"></script>
   <script type="text/javascript">
+    tinymce.baseURL='/static/js/vendor/tiny_mce'
     var tinyMCE_init_sate=0;
     var switch_content_page=0;
+    
+    tinymce.baseURL='/static/js/vendor/tiny_mce'
+    
     function tinyMCE_init()
-    {   
+    {
         if(!tinyMCE_init_sate){
 
           tinyMCE.init({

@@ -86,8 +86,14 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@date:2013-11-02-->
 
 
-%if user==request.user:
-    %if user.is_authenticated():
+%if context.get("curr_user"):
+  <% curr_user=context.get("curr_user") %>
+%else:
+  <% curr_user=user %>
+%endif
+  
+%if curr_user==request.user:
+    %if curr_user.is_authenticated():
     <a href="/dashboard">
     %else:
     <a href="/">
@@ -113,8 +119,8 @@ site_status_msg = get_site_status_msg(course_id)
 
       <h2><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
     % endif
-<!--@begin:Top navigation tabs and styles before login-->
-<!--@date:2013-11-02-->
+      <!--@begin:Top navigation tabs and styles before login-->
+      <!--@date:2013-11-02-->
       <style>
         ol.nav-left li a{
         color:#555;
@@ -123,39 +129,50 @@ site_status_msg = get_site_status_msg(course_id)
 
       </style>
 
-    % if user.is_authenticated():
-      <ol class="left nav-global authenticated">
-    % else:
-      <ol class="left nav-global">
-    % endif
+      %if curr_user!=request.user:
+      <style type="text/css" media="screen">
+        a.main-link{
+        color:#ccc !important;
+        }
+        a.main-link:hover{
+        color:#ccc !important;
+        }
+      </style>
+      %endif
 
-    % if not user.is_authenticated():
+    %if curr_user==request.user and curr_user.is_authenticated():
+      <ol class="left nav-global authenticated">
+    %else:
+      <ol class="left nav-global">
+    %endif
+
+    % if curr_user==request.user and not curr_user.is_authenticated():
     <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
     % endif
 
-    %if user==request.user:
+    %if curr_user==request.user:
     <li><a href="/courses" class="main-link">Courses</a></li>
     %else:
     <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
     %endif
     
-    % if not user.is_authenticated():
+    % if curr_user==request.user and not curr_user.is_authenticated():
     <li><a href="/contact" class="main-link">Districts</a></li>
     % endif
 
-    % if user.is_authenticated():
-    %if user==request.user:
-    <li><a href="/resource_library_global" class="main-link">Access Resource Library</a></li>
-    <li><a href="/people" class="main-link">People</a></li>
-    <li><a href="/course_credits" class="main-link" target="_blank">Course Credits</a></li>
-    %else:
-    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Access Resource Library</a></li>
-    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li>
+    %if request.user.is_authenticated():
+      %if curr_user==request.user:
+      <li><a href="/resource_library_global" class="main-link">Access Resource Library</a></li>
+      <li><a href="/people" class="main-link">People</a></li>
+      <li><a href="/course_credits" class="main-link" target="_blank">Course Credits</a></li>
+      %else:
+      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Access Resource Library</a></li>
+      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
+      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li>
+      %endif
     %endif
-    % endif
 
-    % if user.is_authenticated():
+    % if curr_user.is_authenticated():
       <%block name="navigation_global_links_authenticated">
         <li class="nav-global-01" style="display:none;">
           <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
@@ -164,12 +181,12 @@ site_status_msg = get_site_status_msg(course_id)
    </ol>
 <!--@end-->
 
-
+%if curr_user==request.user:
 <ol class="user" id="btn-logged-user">
   <li class="primary">
     <a href="${reverse('dashboard')}" class="user-link">
       <span class="avatar"></span>
-      <span class="sr">${_("Dashboard for:")} </span> ${user.username}
+      <span class="sr">${_("Dashboard for:")} </span> ${curr_user.username}
     </a>
   </li>
   <li class="primary">
@@ -182,14 +199,13 @@ site_status_msg = get_site_status_msg(course_id)
     </ul>
   </li>
 </ol>
-
+%endif
 
 <ol class="right nav-courseware" id="btn-dashboard">
   <li class="nav-courseware-01">
     <a class="cta cta-login" href="/dashboard">Dashboard</a>
   </li>
 </ol>
-
 
     % else:
 
@@ -245,7 +261,7 @@ site_status_msg = get_site_status_msg(course_id)
 <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif
 
-%if not user.is_authenticated():
+%if not curr_user.is_authenticated():
   <%include file="forgot_password_modal.html" />
 %endif
 

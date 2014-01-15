@@ -20,7 +20,7 @@
 
 <%inherit file="main.html" />
 <%namespace name='static' file='static_content.html'/>
-<%block name="title"><title>${_("Dashboard")}</title></%block>
+<%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
 <!--@begin:Add new page style-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
@@ -90,11 +90,11 @@
             $.each(vals,function(i,v){
             if(v)arVals.push(i)
             })
-            arVals.sort(function(a,b){return parseInt(a)>parseInt(b)})
+            arVals.sort(function(a,b){
+               return parseInt(a)-parseInt(b)})
             $("#grade_level_id").val(arVals.join());
             }
 /*@end*/
-
   (function() {
 
     $(".email-settings").click(function(event) {
@@ -182,7 +182,7 @@
 <!--@begin:Process the newly added fields in dashboard-->
 <!--@date:2013-11-02-->
 
-     $("#change_school_form").find("select[name='school_id']").val('${user.profile.school_id}')
+     $("#change_school_form").find("select[name='school_id']").val('${curr_user.profile.school_id}')
 
     $("#change_school_form").submit(function(){
       var school_id = $(this.school_id).val();
@@ -198,7 +198,7 @@
              });
        return false;
     });
-     $.each( '${user.profile.grade_level_id}'.split(',') ,function(i,v){
+     $.each( '${curr_user.profile.grade_level_id}'.split(',') ,function(i,v){
      if($.trim(v))
      click_grade_btn(v)
      })
@@ -218,7 +218,7 @@
        return false;
     });
 
-   $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${user.profile.major_subject_area_id}')
+   $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${curr_user.profile.major_subject_area_id}')
 
    $("#change_major_subject_area_form").submit(function(){
       var major_subject_area_id = $(this.major_subject_area_id).val();
@@ -234,7 +234,7 @@
        return false;
     });
 
-     $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${user.profile.years_in_education_id}')
+     $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${curr_user.profile.years_in_education_id}')
 
    $("#change_years_in_education_form").submit(function(){
       var years_in_education_id = $(this.years_in_education_id).val();
@@ -356,14 +356,15 @@
 </%block>
 
 <section class="container dashboard" id="container_dashboard">
-  %if message:
+  %if message and curr_user==request.user:
     <section class="dashboard-banner">
       ${message}
     </section>
   %endif
+    
   <section class="profile-sidebar">
     <header class="profile">
-      <h1 class="user-name">${ user.username }</h1>
+      <h1 class="user-name">${ curr_user.username }</h1>
     </header>
     <section class="user-info">
       <ul>
@@ -372,8 +373,8 @@
 <!--@date:2013-11-02-->
           <span class="title">
             <div class="icon name-icon"></div>${_("Name")}:
-            <span class="data" style="display:inline;margin-left:0;font-weight:normal;">${ user.profile.first_name | h } ${ user.profile.last_name | h }</span>
-            %if user==request.user:
+            <span class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.first_name | h } ${ curr_user.profile.last_name | h }</span>
+            %if curr_user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
 <!--@end-->          
@@ -384,13 +385,13 @@
         <li>
           <span class="title"><div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;">
             </div>${_("User Photo")}
-            %if user==request.user:
+            %if curr_user==request.user:
             (<a href="#change_photo" rel="leanModal" class="edit-photo">${_("edit")}</a>)
             %endif
           </span> 
           <div style="text-align:center;margin-top:5px;">
-                % if user.profile.photo:
-                  <img src="/static/uploads/photos/${ user.profile.photo }" style="" alt="photo" />
+                % if curr_user.profile.photo:
+                  <img src="/static/uploads/photos/${ curr_user.profile.photo }" style="" alt="photo" />
                 % else:
                   <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
                 % endif
@@ -400,76 +401,26 @@
 
         <li>
           <span class="title"><div class="icon email-icon"></div>${_("Email")}
-            %if user==request.user:
+            %if curr_user==request.user:
             % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
-            (<a href="#change_email" rel="leanModal" class="edit-email">${_("edit")}</a>)
+            <!-- (<a href="#change_email" rel="leanModal" class="edit-email">${_("edit")}</a>) -->
             % endif
             %endif
-          </span> <span class="data">${ user.email | h }</span>
+          </span> <span class="data">${ curr_user.email | h }</span>
         </li>
 
-        %if user==request.user:
+        %if curr_user==request.user:
         % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
         <li>
           <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
           <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
-            <input id="id_email" type="hidden" name="email" maxlength="75" value="${user.email}" />
+            <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
             <!-- <input type="submit" id="pwd_reset_button" value="${_('Reset Password')}" /> -->
           </form>
         </li>
         % endif
         %endif
 
-<!--@begin:Profile: remove some not needed info-->
-<!--@date:2013-11-02-->        
-      <!-----------------------------------------------------------------------------------
-		<li>
-		  <span style="float:left;padding-left:0px;"><img src="${static.url('images/edx-user-photo.png')}" class="" alt="" /></span><span style="float:right;padding-right:0px;">Change picture (<a href="#apply_picture_change" rel="leanModal" class="">edit</a>)</span>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Country: US</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">City,State: Aptos, Ca</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Role tole in school: Teacher</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Optional info</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="padding-left:20px;">
-			Web site: www.rioschool.edu<br/>
-			IM: Mathgeek<br/>
-			Institution: PVUSD<br/>
-			Department:staff<br/>
-			Phone:None<br/>
-			Address:Here<br/>
-		  </div>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Professional History</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="padding-left:20px;">
-			School Name: Rio Elementary<br/>
-			Role in School: Teacher<br/>
-			Grade Level: 5/6<br/>
-			Ave.Class Size: 35<br/>
-		  </div>
-		</li>
-		<li>
-		  <span style="float:left;padding-left:0px;">Class Profile</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span>
-		  <br style="clear:both;"/>
-		  <div style="border:3px solid #aaa;height:80px;padding:10px;">
-			My class is divers and challenged..
-		  </div>
-		</li>
-
-        -->
-<!--@end-->
 
 <!--@begin:Add some profile info-->
 <!--@date:2013-11-02-->  
@@ -477,22 +428,22 @@
 
 		  <div style="font-family: 'Open Sans';font-size:12px;">
 			<div style="line-height:30px;">State:
-	          % if user.profile.cohort_id:
-			  ${user.profile.cohort.district.state.name}
+	          % if curr_user.profile.cohort_id:
+			  ${curr_user.profile.cohort.district.state.name}
 			  % endif
 			</div>
             
 			<div style="line-height:30px;">District:
-			  % if user.profile.cohort_id:
-			  ${user.profile.cohort.district.name}
+			  % if curr_user.profile.cohort_id:
+			  ${curr_user.profile.cohort.district.name}
 			  % endif
 			</div>
 
 			<div style="line-height:30px;">School:
-			  % if user.profile.school_id:
-			  ${user.profile.school.name}
+			  % if curr_user.profile.school_id:
+			  ${curr_user.profile.school.name}
 			  % endif
-              %if user==request.user:
+              %if curr_user==request.user:
 			  (<a href="#change_school" rel="leanModal">edit</a>)
               %endif
 			</div>
@@ -500,31 +451,31 @@
 			<div style="line-height:30px;">Grade Level:
 
               <% gn=list() %>
-			  % if user.profile.grade_level_id:
-			  % for i,c in enumerate(user.profile.grade_level_id.split(',')):
+			  % if curr_user.profile.grade_level_id:
+			  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
 			  % if len(c)>0:
 			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
 			  % endif
 			  % endfor
 			  % endif
               ${", ".join(gn)}
-              %if user==request.user:
+              %if curr_user==request.user:
 			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
               %endif
 			</div>
 			<div style="line-height:30px;">Major Subject Area:
-			  % if user.profile.major_subject_area_id:
-			  ${SubjectArea.objects.get(id=user.profile.major_subject_area_id).name}
+			  % if curr_user.profile.major_subject_area_id:
+			  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
 			  % endif
-               %if user==request.user:
+               %if curr_user==request.user:
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
               %endif
 			</div>
 			<div style="line-height:30px;">Number of Years Taught:
-			  % if user.profile.years_in_education_id:
-			  ${YearsInEducation.objects.get(id=user.profile.years_in_education_id).name}
+			  % if curr_user.profile.years_in_education_id:
+			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
 			  % endif
-              %if user==request.user:
+              %if curr_user==request.user:
               (<a href="#change_years_in_education" rel="leanModal">edit</a>)
               %endif
 			</div>
@@ -533,12 +484,12 @@
         <li>
           <div style="font-family: 'Open Sans';font-size:12px;">
             Bio:
-            %if user==request.user:
+            %if curr_user==request.user:
             (<a href="#change_bio" rel="leanModal">edit</a>)
             %endif
 <pre style="padding:0;margin-top:10px;">
-%if user.profile.bio:
-${user.profile.bio}
+%if curr_user.profile.bio:
+${curr_user.profile.bio}
 %else:
 Add info that you would like to share about yourself here:  
 %endif
@@ -648,7 +599,7 @@ Add info that you would like to share about yourself here:
             course_target = reverse('courseware', args=[course.id])
           %>
           % if course.id in show_courseware_links_for:
-          %if user==request.user:
+          %if curr_user==request.user:
             <a href="${course_target}" class="cover">
           %else:
             <a href="" class="cover" style="cursor:default;" onclick="return false;">
@@ -688,7 +639,7 @@ Add info that you would like to share about yourself here:
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
                 % if course.id in show_courseware_links_for:
-                %if user==request.user:
+                %if curr_user==request.user:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
                   <a href="" style="cursor:default;" onclick="return false;">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
@@ -796,17 +747,17 @@ Add info that you would like to share about yourself here:
             % endif
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-      		%if user==request.user:              
+      		%if curr_user==request.user:              
 			<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			%else:
-            <a href="${reverse('portfolio_about_me',args=[course.id,user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+            <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
             %endif
-            %if user==request.user:      
+            %if curr_user==request.user:      
             <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
             %endif
             % endif
 
-            %if user==request.user:
+            %if curr_user==request.user:
             <a href="#unenroll-modal" class="unenroll" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
 	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
@@ -820,7 +771,7 @@ Add info that you would like to share about yourself here:
 
     % else:
       <section class="empty-dashboard-message">
-        %if user==request.user:
+        %if curr_user==request.user:
         <p>${_("Looks like you haven't registered for any courses yet.")}</p>
         <a href="${marketing_link('COURSES')}">
             ${_("Find courses now!")}
@@ -870,8 +821,8 @@ Add info that you would like to share about yourself here:
         <div class="input-group">
           <label>
             <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
-              % if user.profile.photo:
-      			        <img src="/static/uploads/photos/${ user.profile.photo }" style="" alt="photo" />
+              % if curr_user.profile.photo:
+      			        <img src="/static/uploads/photos/${ curr_user.profile.photo }" style="" alt="photo" />
       			  % else:
       			        <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
       			  % endif		
@@ -916,9 +867,9 @@ Add info that you would like to share about yourself here:
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
 
-              	% if user.profile.cohort:
+              	% if curr_user.profile.cohort:
                 
-                %for item in School.objects.filter(district_id=user.profile.cohort.district.id):
+                %for item in School.objects.filter(district_id=curr_user.profile.cohort.district.id):
                 <option value="${item.id}">${item.name}</option>
                 %endfor
                 
@@ -1048,7 +999,7 @@ Add info that you would like to share about yourself here:
       <fieldset>
         <div class="input-group">
           <label>
-            <textarea maxlength="255" id="txBio" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${user.profile.bio}</textarea>
+            <textarea maxlength="255" id="txBio" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${curr_user.profile.bio}</textarea>
           </label>
           <section style="color:black;">
             Maximum to 255 Characters <span></span>
@@ -1131,7 +1082,7 @@ Add info that you would like to share about yourself here:
     <div>
       <form> <!-- Here for styling reasons -->
         <section>
-          <p>${_('An email has been sent to {email}. Follow the link in the email to change your password.').format(email=user.email)}</p>
+          <p>${_('An email has been sent to {email}. Follow the link in the email to change your password.').format(email=curr_user.email)}</p>
         </section>
       </form>
     </div>
@@ -1159,12 +1110,12 @@ Add info that you would like to share about yourself here:
 <!--@begin:Change the email table-->
 <!--@date:2013-11-02-->            
             <label>${_('Please edit your email below:')}</label>
-            <input id="new_email_field" type="email" value="${user.email}" />
+            <input id="new_email_field" type="email" value="${curr_user.email}" />
             <!-- <label>${_('Please confirm your password:')}</label> -->
             <!-- <input id="new_email_password" value="" type="password" /> -->
           </div>
           <!-- <section> -->
-          <!--   <p>${_('We will send a confirmation to both {email} and your new email as part of the process.').format(email=user.email)}</p> -->
+          <!--   <p>${_('We will send a confirmation to both {email} and your new email as part of the process.').format(email=curr_user.email)}</p> -->
           <!-- </section> -->
 <!--@end-->          
           <div class="submit">
@@ -1231,9 +1182,9 @@ Add info that you would like to share about yourself here:
             <br/><br/>
             
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">First Name</label>
-            <input id="new_first_name_field" value="${user.profile.first_name}" type="text" autocomplete="off"/>
+            <input id="new_first_name_field" value="${curr_user.profile.first_name}" type="text" autocomplete="off"/>
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Last Name</label>
-            <input id="new_last_name_field" value="${user.profile.last_name}" type="text" autocomplete="off"/>
+            <input id="new_last_name_field" value="${curr_user.profile.last_name}" type="text" autocomplete="off"/>
 <!--@end-->
             
             <label>${_("Reason for name change:")}</label>

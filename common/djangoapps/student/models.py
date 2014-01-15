@@ -269,8 +269,9 @@ class People(models.Model):
     """
     This is where to store peoples in the network of each students
     """
-    user = models.ForeignKey(User,on_delete=models.PROTECT,related_name="user_id")
-    people = models.ForeignKey(User,on_delete=models.PROTECT,related_name="people_id")
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="user_id")
+    people = models.ForeignKey(User,on_delete=models.CASCADE,related_name="people_id")
+    
     created = models.DateTimeField(auto_now_add=True, db_index=False)
 
 class UserProfile(models.Model):

@@ -18,6 +18,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
   <%block name="title">
     % if stanford_theme_enabled():
       <title>${_("Home")} | class.stanford.edu</title>
@@ -94,10 +95,11 @@
   <%include file="footer.html" />
 % endif
 
+
   <%static:js group='application'/>
   <%static:js group='module-js'/>
-
   <%block name="js_extra"/>
+
 </body>
 </html>
 

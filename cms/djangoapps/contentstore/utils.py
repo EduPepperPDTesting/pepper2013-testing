@@ -132,7 +132,11 @@ def get_lms_link_for_item(location, preview=False, course_id=None, request=None)
         domain_name = request.META['HTTP_HOST']
         server_name = request.META['SERVER_NAME']
         match_obj = re.match(r'^(.*?)\.(.*?)\.(.*?)$', domain_name)
-        match_group = match_obj.groups(0)
+        
+        if match_obj:
+            match_group = match_obj.groups(0)
+        else:
+            match_group=[]
 
         host_name = None
         if len(match_group) >0:

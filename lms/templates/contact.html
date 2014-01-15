@@ -5,6 +5,8 @@
 <%namespace name='static' file='static_content.html'/>
 <%inherit file="main.html" />
 
+<%block name="title"><title>${_("Contact Us")}</title></%block>
+
 <!--@begin:add css link-->
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
@@ -26,7 +28,9 @@
   }
   ul.left a{
   color:#666;
-  }  
+  }
+
+  span.red{float:right;padding-right:10px;}
 </style>
 <div style="text-align:center;background:#f5f5f5">
   <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
@@ -54,7 +58,7 @@
     </div>
     <div style="float:left;width:743px;height:951px;text-align:left;">
       <div style="padding:20px;">
-        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:0px;">SCHEUDLE A DEMO</h2>
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:0px;">SCHEDULE A DEMO</h2>
         <hr />
         <!--@begin:add code(class="_...") to modify font style; add some new content and mail>
             <!--@date:2013-11-02-->
@@ -73,7 +77,7 @@
 		<!--@end-->
 
 
-        <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;"> </div>
+        <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;width:490px;"> </div>
         
         <form method="" id="form" action="">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
@@ -102,17 +106,12 @@
 				  <option>Technical Support Question</option>
 				  <option>Idea to Share</option>
 				  <option>General / Other Question</option>
-				  <!-- <option value="registration">Account Question</option> -->
-				  <!-- <option value="technical">Sales Question</option> -->
-				  <!-- <option value="accessibility">Technical Support Question</option> -->
-				  <!-- <option value="exams">Idea to Share</option> -->
-				  <!-- <option value="account">General / Other Question</option> -->                
 			  </select>
 			</td>
 		  </tr>
 		  <tr>
-			<td> Message: </td>
-			<td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea"></textarea></td>
+			<td> Message: <span class="red"> *</span></td>
+			<td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea" chkType="Require" chkMsg="Message is required."></textarea></td>
 		  </tr>
 		  <tr>
 			<td></td>
@@ -146,11 +145,16 @@ form.submit(function(){
     self.reset();
     $("#message").show();
     if (r.success) {
+       $("#message").css("background","#fc5")
+       $("#message").css("border-color","#f70")
        easy.form.infoAndWait($("#message"),"Submit success",5,window.location.href)
     } else {
        $("#message").html(r.error);
     }
   });
+
+
+
   return false;
 });
 </script>

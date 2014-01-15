@@ -6,6 +6,13 @@
   #btn-dashboard{display:none;}
 </style>
 <!--@end-->
+
+%if context.get("curr_user"):
+  <% curr_user=context.get("curr_user") %>
+%else:
+  <% curr_user=user %>
+%endif
+
 <%
 if active_page is None and active_page_context is not UNDEFINED:
   # If active_page is not passed in as an argument, it may be in the context as active_page_context
@@ -36,7 +43,7 @@ def url_class(is_active):
     				</a>
     			</li>
       %else:
-        %if tab.name!='My Course' and tab.name!='My Progress' and tab.name!='People':
+        %if tab.name!='My Course' and tab.name!='My Progress' and tab.name!='People' and tab.name!='Course Discussion'and tab.name!='Resource Library':
           <li>
           <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab.is_active)}">
             ${tab.name | h}

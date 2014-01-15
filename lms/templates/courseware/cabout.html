@@ -8,6 +8,10 @@ from student.models import CourseEnrollment
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 
+<%block name="title">
+<title>${_("{course_number} Course Detail").format(course_number=course.display_number_with_default) | h}</title>
+</%block>
+
 
 <!--@begin:add css link-->
 <!--@date:2013-11-02-->
@@ -140,8 +144,8 @@ from student.models import CourseEnrollment
                 text2=""
                 overview_temp = get_course_about_section(course, "overview")
                 length1 = len(overview_temp.split('</section>'))
-                if length1 > 4:
-                    text1 = overview_temp.split('</section>')[4]
+                if length1 > 5:
+                    text1 = overview_temp.split('</section>')[5]
                 length2 = len(text1.split('<section class="prerequisites">'))
                 if length2 > 1:
                     text2 = text1.split('<section class="prerequisites">')[1]

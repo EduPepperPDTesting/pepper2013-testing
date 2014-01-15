@@ -7,7 +7,7 @@
    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
    from xmodule.modulestore.django import modulestore
    import json
-   from student.models import State,District,Transaction,Cohort,School
+   from student.models import State,District,Transaction,Cohort,School,Registration
 %>
 <body>
   <%include file="tabs.html" args="active_page='user'" />
@@ -66,6 +66,7 @@
           <tr>
             <th></th>
             <th>User ID</th>
+            <th>Activate Link</th>
             <th>Username</th>
             <th>Email</th>
             <th>State</th>
@@ -81,6 +82,13 @@
           <tr>
             <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
             <td>${item.user_id}</td>
+            <td>
+              %if Registration.objects.filter(user_id=item.user_id).count():
+              <a href="http://${site}/register/${Registration.objects.get(user_id=item.user_id).activation_key}" target="_blank">
+                ${Registration.objects.get(user_id=item.user_id).activation_key[:8]}...
+              </a>
+              %endif
+            </td>
             <td>${item.user.username}</td>
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
             <td>${item.cohort.district.state.name}</td>     
@@ -256,6 +264,14 @@ function send_invite_email(){
                 </select>
               </td>
            </tr>
+            <tr>
+              <td class="label">School</td>
+              <td>
+                <select id="school_id" name="school_id" autocomplate="off">
+                  <option value=""></option>
+                </select>
+              </td>
+            </tr>           
           </tbody>
           <tr>
             <td class="label required">Status</td>
@@ -287,7 +303,7 @@ var form=$("#form");
 // submit form
 form.submit(function(){
   if(!new FormValidator().check(this))return false;
-  var flds=["id","email","subscription_status","cohort_id","csrfmiddlewaretoken"]
+  var flds=["id","email","subscription_status","cohort_id","school_id","csrfmiddlewaretoken"]
   var data=getFormData(this,flds);
   $("#message").html("Submiting");
   $.post('${reverse("user_submit")}',data,
@@ -309,21 +325,25 @@ form.find("select[name=state_id]").change(function(){
   dropDistrict(form,state_id,function(){
     dropCohort(form,state_id);
   });
-})
+  dropSchool(form,state_id,'',school_id);
+});
 form.find("select[name=district_id]").change(function(){
   var district_id=$(this).val();
   dropCohort(form,'',district_id,cohort_id);
-})
+  dropSchool(form,'',district_id,school_id);
+});
 // init form
 %if profile.id:
   var cohort_id="${profile.cohort.id}"
   var district_id="${profile.cohort.district.id}"
   var state_id="${profile.cohort.district.state.id}"
+  var school_id="${profile.school_id}"
   var subscription_status="${profile.subscription_status}"
 %else:
   var cohort_id=""
   var district_id=""
   var state_id=""
+  var school_id=""
 %endif
 form.find("select[name=state_id]").val(state_id)
 form.find("select[name=subscription_status]").val(subscription_status)
@@ -332,6 +352,9 @@ dropDistrict(form,state_id,function(){
 })
 dropCohort(form,state_id,district_id,function(){
   $(this).val(cohort_id)
+})
+dropSchool(form,state_id,district_id,function(){
+  $(this).val(school_id)
 })
 </script>
 %endif

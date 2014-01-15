@@ -455,7 +455,7 @@ def dashboard(request,user_id=None):
         'show_courseware_links_for': show_courseware_links_for,
         'cert_statuses': cert_statuses,
         'exam_registrations': exam_registrations,
-        'user':user,
+        'curr_user':user
         }
 #@end
     return render_to_response('dashboard.html', context)
@@ -1610,12 +1610,13 @@ def activate_imported_account(post_vars):
                 ret['value'] = "An account with the Public Username '%s' already exists." % post_vars.get('username','')
                 ret['field'] = 'username'
             raise e
-      
-        profile.user.email_user(subject, message, "PepperSupport@pcgus.com") # settings.default_from_email
+
+        from mail import send_html_mail
+        send_html_mail(subject, message, "PepperSupport@pcgus.com",[profile.user.email])
         
         ret={'success': True}
     except Exception as e:
-        transaction.rollback()
+        # transaction.rollback()
         
         ret['success']=False
         ret['error']="%s" % e

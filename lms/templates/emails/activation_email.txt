@@ -1,15 +1,18 @@
-Dear Educator,
-Congratulations! <span style="color:#C00000;">{district}</span> has selected you to join PEPPER, the online e-learning network of Common Core Specialists. We welcome you to the PEPPER community!  You are now part of a vibrant and growing network of educators dedicated to effective implementation of the Common Core standards.
+Dear Educator,<br/><br/>
 
-We invite you to enjoy the convenience of self-paced online professional development courses from <b>WestEd</b> as you learn with the support and collaboration of other inspiring educators, just like you. 
+Congratulations! ${district} has selected you to join PEPPER, the online e-learning network of Common Core Specialists. We welcome you to the PEPPER community!  You are now part of a vibrant and growing network of educators dedicated to effective implementation of the Common Core standards.<br/><br/>
 
-<b>Below is a link to your self-registration</b>.   You will be asked to provide basic account information including your name and primary school location.  Once your registration is activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate through PEPPER and find courses.  You have 24/7 access to our evolving network for a full year, so we encourage you to register as soon as possible! 
+We invite you to enjoy the convenience of self-paced online professional development courses from <b>WestEd</b> as you learn with the support and collaboration of other inspiring educators, just like you. <br/><br/>
 
-Please click the link below to activate your account:
+<b>Below is a link to your self-registration</b>.   You will be asked to provide basic account information including your name and primary school location. Once your registration is activated, you will receive a welcome email that verifies your membership and will lead you to a tutorial to help you navigate through PEPPER and find courses.  You have 24/7 access to our evolving network for a full year, so we encourage you to register as soon as possible! <br/><br/>
 
-<a style="color:#C00000;" href="http://${site}/register/${key}{Registration Link}">http://${site}/register/${key}{Registration Link}</a>
+Please click the link below to activate your account:<br/><br/>
 
-We are happy to have you as part of the PEPPER network, please feel free to contact us with any questions or concerns at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a> .  If you would like to learn more about PEPPER, we invite you to learn more at <a href="www.PepperPD.com">www.PepperPD.com</a> .
+<a href="http://${site}/register/${key}">http://${site}/register/${key}</a><br/><br/>
+
+We are happy to have you as part of the PEPPER network, please feel free to contact us with any questions or concerns at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a> .  If you would like to learn more about PEPPER, we invite you to learn more at <a href="http://www.PepperPD.com">www.PepperPD.com</a> .<br/><br/>
+
+<i>To experience PEPPER at its best please use Chrome, FireFox or Internet Explorer 10 browsers.</i><br/><br/>
 
 The PEPPER Team
 

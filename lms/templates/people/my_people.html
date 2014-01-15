@@ -21,7 +21,9 @@
 
 <%block name="title">
 %if course:
-<title>${_("{course_number} Courseware").format(course_number=course.display_number_with_default) | h}</title>
+<title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
+%else:
+<title>${_("People")}</title>
 %endif
 </%block>
 
@@ -192,7 +194,12 @@
       <div class="people_tit">People</div>
       %endif
       %for p in people:
-      <% profile=UserProfile.objects.get(user_id=p.people.id) %>
+
+      <%
+         the_people_id=p.people.id
+         profile=UserProfile.objects.get(user_id=p.people.id)
+      %>
+      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
           <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
@@ -220,6 +227,7 @@
           <a class="button-del" style="cursor:pointer;" onclick="remove_people('${p.id}');return false;"></a>
         </div>
       </div>
+
       %endfor
     %if len(people)>0:
     %if course:

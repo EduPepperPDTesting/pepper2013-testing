@@ -118,6 +118,7 @@ def download_certificate(request,course_id,completed_time):
     c_user_name = first_name + ' ' +last_name
     c_organization = ''
     c_estimated_effort = ''
+    c_course_full_name = user_course.display_number_with_default + " " + c_course_name #course name
 
     t_time = ""
     t_y = ""
@@ -159,7 +160,7 @@ def download_certificate(request,course_id,completed_time):
     if user_course.display_number_with_default == "PEP101x":
         c_organization = 'PCG Education'
         c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
-        c_estimated_effort = '1 hours'
+        c_estimated_effort = '1 hour'
     else:
         c_organization = 'WestEd'
         c.drawImage(imagepath+"/certificate_wested.jpg",0,0, width=841.89,height=595.27,mask=None)
@@ -213,7 +214,7 @@ def download_certificate(request,course_id,completed_time):
     c.setFont("Nunito", fontsize_username)
     c.drawString(50,348,c_user_name)
     c.setFont("Nunito", fontsize_coursename)
-    c.drawString(50,270,c_course_name)
+    c.drawString(50,270,c_course_full_name)
 
     c.showPage()
     c.save()
