@@ -25,6 +25,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.forms import ModelForm, forms
+from django.db import connection
 
 import comment_client as cc
 from pytz import UTC
@@ -35,6 +36,161 @@ log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
 from django.db import connection
+
+
+#@begin:user login info model
+#@data:2014-01-07
+#@create table cms_login_info
+# create table cms_login_info(
+#     id int(11) NOT NULL AUTO_INCREMENT,
+#     ip_address varchar(20) NOT NULL,
+#     user_name varchar(30) NOT NULL,
+#     log_type_login tinyint(1) NOT NULL,
+#     login_or_logout_time datetime NOT NULL,
+#     primary key (id)
+# )
+
+class CmsLoginInfo(models.Model):
+    class Meta:
+        db_table = 'cms_login_info'
+    ip_address = models.CharField(blank=False, max_length=20)
+    user_name = models.CharField(blank=False, max_length=30)
+    log_type_login = models.BooleanField(blank=False)
+    login_or_logout_time = models.DateTimeField(blank=True)
+
+    def __unicode__(self):
+        return (
+            "[CmsLoginInfo] {} {} {}"
+        ).format(self.user_name, 'login' if self.log_type_login else 'logout', self.login_or_logout_time)    
+
+#@end
+
+
+
+#@begin:student resource library
+#@date:2014-01-07
+
+# #TABLES FOR RESOURCELIBRARYSITE####################
+# create table student_resourcelibrarysubclasssite(
+#   id int(11) not null auto_increment,
+#   display varchar(255) not null,
+#   link varchar(512) not null,
+#   primary key(id),
+#   order int(11) not null
+#    )
+# create table student_resourcelibrarysubclass_sites(
+#   id int(11) not null auto_increment,
+#   resourcelibrarysubclass_id int(11) not null,
+#   resourcelibrarysubclasssite_id int(11) not null,
+#   primary key(id)
+#    )
+## ####################################################
+## #TABLES FOR RESOURCELIBRARYSUBCLASSITEM#############
+## create table student_resourcelibrarysubclassitem(
+##     id int(11) NOT NULL AUTO_INCREMENT,
+##     display varchar(255) NOT NULL,
+##     link varchar(512) NOT NULL,
+##     primary key(id),
+##     order int(11) not null
+## )
+## create table student_resourcelibrarysubclass_items(
+##     id int(11) not null auto_increment,
+##     resourcelibrarysubclass_id int(11) not null,
+##     resourcelibrarysubclassitem_id int(11) not null,
+##     primary key(id),
+##     )
+# ####################################################
+# #TABLES FOR RESOURCELIBRARYSUBCLASS ###########
+# create table student_resourcelibrarysubclass(
+#     id int(11) not null auto_increment,
+#     display varchar(255),
+#     primary key(id),
+#     display_order int(11) not null
+#     )
+# ###############################################
+# # TABLES FOR RESOURCELIBRARYCATEGORY###########
+# create table student_resourcelibrarycategory(
+#     id int(11) NOT NULL AUTO_INCREMENT,
+#     display varchar(255) NOT NULL,
+#     primary key(id),
+#     display_order int(11) not null,
+#     unique key(display)
+#     )
+# ###############################################
+# # TABLES FOR RESOURCELIBRARY ###########
+# create table student_resourcelibrary(
+#     id int(11) NOT NULL AUTO_INCREMENT,
+#     category_id int(11) NOT NULL,
+#     subclass_id int(11) NULL,
+#     display  varchar(255) NOT NULL,
+#     link     varchar(512) NOT NULL,
+#     primary key(id),
+#     display_order int(11) NOT NULL
+#     );
+# ########################################
+class ResourceLibrarySubclassSite(models.Model):
+    class Meta:
+        db_table = 'student_resourcelibrarysubclasssite'
+    display = models.CharField(max_length=255,blank=False)
+    link = models.TextField(max_length=255,blank=False)
+    display_order = models.IntegerField(blank=False)
+
+    def __unicode__(self):
+        return (
+            "[ResourceLibrarySubclassSite] {}"
+        ).format(self.display)
+
+# class ResourceLibrarySubclassItem(models.Model):
+#     class Meta:
+#         db_table = 'student_resourcelibrarysubclassitem'
+#     display = models.CharField(blank=False, max_length=100)
+#     link = models.TextField(blank=False, max_length=255)
+#     display_order = models.IntegerField(blank=False)
+
+#     def __unicode__(self):
+#         return (
+#             "[ResourceLibrarySubclassItem] {}"
+#         ).format(self.display)
+
+class ResourceLibrarySubclass(models.Model):
+    class Meta:
+        db_table = 'student_resourcelibrarysubclass'
+    # items = models.ManyToManyField(ResourceLibrarySubclassItem, blank=True)
+    sites = models.ManyToManyField(ResourceLibrarySubclassSite, blank=True)
+    display = models.CharField(blank=False,max_length=255)
+    display_order = models.IntegerField(blank=False)
+
+    def __unicode__(self):
+        return (
+            "[ResourceLibrarySubclass] {}"
+            ).format(self.display)
+
+class ResourceLibraryCategory(models.Model):
+    class Meta:
+        db_table = 'student_resourcelibrarycategory'
+    display = models.CharField(blank=False,max_length=255)
+    display_order = models.IntegerField(blank=False)
+
+    def __unicode__(self):
+        return (
+                "[ResourceLibraryCategory] {}"
+            ).format(self.display)
+
+class ResourceLibrary(models.Model):
+    class Meta:
+        db_table = 'student_resourcelibrary'
+    category = models.ForeignKey(ResourceLibraryCategory)
+    subclass = models.ForeignKey(ResourceLibrarySubclass, blank=True,null=True)
+    display  = models.CharField(blank=False, max_length=255)
+    link = models.TextField(blank=False, max_length=512)
+    display_order = models.IntegerField(blank=False)
+
+    def __unicode__(self):
+        return (
+                "[ResourceLibrary] {}"
+            ).format(self.display)
+#@end
+
 
 class YearsInEducation(models.Model):
     class Meta:
