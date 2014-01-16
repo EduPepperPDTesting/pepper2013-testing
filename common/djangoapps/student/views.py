@@ -1582,7 +1582,7 @@ def activate_imported_account(post_vars):
             raise e
 
         from mail import send_html_mail
-        send_html_mail(subject, message, "PepperSupport@pcgus.com",[profile.user.email])
+        # send_html_mail(subject, message, "PepperSupport@pcgus.com",[profile.user.email])
         
         ret={'success': True}
     except Exception as e:
