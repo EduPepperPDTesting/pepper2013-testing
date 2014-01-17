@@ -262,8 +262,6 @@ def register_user(request, activation_key=None):
     """
     This view will display the non-modal registration form
     """
-    if request.user.is_authenticated():
-        return redirect(reverse('dashboard'))
 
     if not activation_key:
         return HttpResponse("Invalid activation key.")
@@ -276,6 +274,9 @@ def register_user(request, activation_key=None):
         reg=regs[0]
 
     profile=UserProfile.objects.get(user_id=reg.user_id)
+
+    if request.user.is_authenticated() and profile.user==request.user:
+        return redirect(reverse('dashboard'))
 
     if profile.subscription_status=='Registered':
         return HttpResponse("User already registered.")
@@ -350,7 +351,6 @@ def dashboard(request,user_id=None):
     else:
         user = request.user
 
-        
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
@@ -1542,7 +1542,6 @@ def change_bio_request(request):
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
 #@end
-
 
 def activate_imported_account(post_vars):
     ret={'success': False}

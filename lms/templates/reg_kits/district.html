@@ -55,6 +55,7 @@
         <div style="padding:5px;text-align:right;">
           Total:${districts.paginator.count} -
           Page:${districts.number}/${districts.paginator.num_pages}
+          <input type="text" name="page" value="${districts.number}" size="5" maxlength="8"/>
           %if districts.has_previous():
           - <a href="${reverse('district')}?${pager_params}&page=${district.previous_page_number()}">prev</a>
           %endif
@@ -95,6 +96,15 @@
     </div>
   </section>
   <script type="text/javascript">
+$("input[name=page]").keyup(function(e){
+  if(e.keyCode==13){
+    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+    if(/^[1-9]\d*$/.test(p))
+      window.location.href='${reverse('district')}?${pager_params}&page='+p
+    else
+      alert("Invalid page number '"+p+"'")
+  }
+})
 // delete districts
 $("input[type=button][name=delete]").click(function(){
   var ids=[];
