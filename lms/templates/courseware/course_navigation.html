@@ -32,7 +32,11 @@ def url_class(is_active):
       % for tab in get_course_tabs(user, course, active_page):
       % if portfolio_user == user and request.GET.get('pf_id')==None or portfolio_user == None and request.GET.get('pf_id')==None or portfolio_user.id == user.id:
     			<li>
-    				<a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+    				% if tab.name!='Course Discussion':
+              <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+            % else:
+              <a href="${tab.link | h}?tags=default" class="${url_class(tab.is_active)}">
+            %endif
     					${tab.name | h}
     					% if tab.is_active == True:
     					    <span class="sr">, current location</span> 
