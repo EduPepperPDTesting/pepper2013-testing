@@ -296,11 +296,9 @@ try:
 except ImportError:
     pass
 
-
 # email
 # Sometime we need to unlock the gmail account as new device?
 # https://accounts.google.com/DisplayUnlockCaptch
-
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
@@ -309,18 +307,26 @@ except ImportError:
 # EMAIL_HOST_PASSWORD = 'django123'
 # EMAIL_USE_TLS = True
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'pepperemailbox@gmail.com'
+# EMAIL_HOST_PASSWORD = 'PepperPD'
+# EMAIL_USE_TLS = True
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.emailsrvr.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'peppersupport@pepperpd.com' 
+# EMAIL_HOST_PASSWORD = 'Pas$w0rd' 
+# EMAIL_USE_TLS = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'pepperemailbox@gmail.com'
-EMAIL_HOST_PASSWORD = 'PepperPD'
-EMAIL_USE_TLS = True
-
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
 
 AWS_ACCESS_KEY_ID = AUTH_TOKENS_PEPPER["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]
 AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
-
 

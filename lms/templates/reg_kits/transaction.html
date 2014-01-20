@@ -59,6 +59,7 @@
       <div style="padding:5px;text-align:right;">
         Total:${transactions.paginator.count} -
         Page: ${transactions.number}/${transactions.paginator.num_pages}
+        <input type="text" name="page" value="${transactions.number}" size="5" maxlength="8"/>
         %if transactions.has_previous():
         - <a href="${reverse('transaction')}?${pager_params}&page=${transactions.previous_page_number()}">prev</a>
         %endif
@@ -70,6 +71,15 @@
       </div>
 <script type="text/javascript">
 var form=$("#form_filter");
+$("input[name=page]").keyup(function(e){
+  if(e.keyCode==13){
+    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+    if(/^[1-9]\d*$/.test(p))
+      window.location.href='${reverse('transaction')}?${pager_params}&page='+p
+    else
+      alert("Invalid page number '"+p+"'")
+  }
+});
 // delete transactions
 $("input[type=button][name=delete]").click(function(){
   var ids=[];

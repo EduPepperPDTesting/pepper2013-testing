@@ -127,8 +127,13 @@
       $.post('${reverse("password_reset")}',
              {"email"  : $('#id_email').val()},
              function(data){
-               $("#password_reset_complete_link").click();
+               //$("#password_reset_complete_link").click();
              });
+
+
+        return false;
+
+
     });
 
     $("#change_email_form").submit(function(){

@@ -120,6 +120,7 @@
         <div style="padding:5px;text-align:right;">
           Total:${users.paginator.count} - 
           Page: ${users.number}/${users.paginator.num_pages}
+          <input type="text" name="page" value="${users.number}" size="5" maxlength="8"/>
           %if users.has_previous():
           - <a href="${reverse('user')}?${pager_params}&page=${users.previous_page_number()}">prev</a>
           %endif
@@ -133,6 +134,16 @@
   </div>
 <script type="text/javascript">
 var form=$("#form_filter");
+$("input[name=page]").keyup(function(e){
+  if(e.keyCode==13){
+    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+    if(/^[1-9]\d*$/.test(p))
+      window.location.href='${reverse('user')}?${pager_params}&page='+p
+    else
+      alert("Invalid page number '"+p+"'")
+  }
+})
+
 // delete users
 $("input[type=button][name=delete]").click(function(){
   var ids=[];
@@ -198,7 +209,7 @@ function modify_status(user_id,lst){
 function send_invite_email(){
   var total=${invite_count};
   if(total<1)return alert("User count is 0.")
-  var flds=["cohort_id","district_id","state_id","school_id","subscription_status"]
+  var flds=["cohort_id","district_id","state_id","school_id","subscription_status","email"]
   var data=getFormData(form[0],flds);
   data.count=1
   var done=0;

@@ -56,6 +56,7 @@
       <div style="padding:5px;text-align:right;">
         Total:${schools.paginator.count} -
         Page: ${schools.number}/${schools.paginator.num_pages}
+        <input type="text" name="page" value="${schools.number}" size="5" maxlength="8"/>
         %if schools.has_previous():
         - <a href="${reverse('school')}?${pager_params}&page=${schools.previous_page_number()}">prev</a>
         %endif
@@ -70,6 +71,17 @@
 </div>
 <script type="text/javascript">
 var form=$("#form_filter");
+
+$("input[name=page]").keyup(function(e){
+  if(e.keyCode==13){
+    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+    if(/^[1-9]\d*$/.test(p))
+      window.location.href='${reverse('school')}?${pager_params}&page='+p
+    else
+      alert("Invalid page number '"+p+"'")
+  }
+});
+
 // delete school
 $("input[type=button][name=delete]").click(function(){
   var ids=[];
