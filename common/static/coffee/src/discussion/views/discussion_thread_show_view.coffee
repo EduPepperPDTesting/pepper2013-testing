@@ -30,8 +30,8 @@ if Backbone?
       @renderPinned()
       @renderAttrs()
       @$("span.timeago").timeago()
-      #@convertMath()
-      @$(".post-body").html(@$(".post-body").text())
+      @convertMath()
+      #@$(".post-body").html(@$(".post-body").text())
       @highlight @$(".post-body")
       @highlight @$("h1,h3")
       @$el.find('.username').attr('href','javascript:void(0);')
@@ -78,8 +78,9 @@ if Backbone?
 
     convertMath: ->
       element = @$(".post-body")
+      element.html(element.text())
       element.html DiscussionUtil.postMathJaxProcessor DiscussionUtil.markdownWithHighlight element.text()
-      MathJax.Hub.Queue ["Typeset", MathJax.Hub, element[0]]
+      #MathJax.Hub.Queue ["Typeset", MathJax.Hub, element[0]]
 
     toggleVote: (event) ->
       event.preventDefault()
