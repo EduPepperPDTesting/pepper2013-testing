@@ -189,6 +189,18 @@ class ResourceLibrary(models.Model):
         return (
                 "[ResourceLibrary] {}"
             ).format(self.display)
+# create table student_staticcontent( 
+#     id int(11) not null auto_increment,
+#     name varchar(255) not null,
+#     content text,
+#     primary key(id),
+#     unique key(name)
+#     )
+class StaticContent(models.Model):
+    class Meta:
+        db_table = 'student_staticcontent'
+    name = models.CharField(blank=False,max_length=255)
+    content = models.TextField(blank=False)
 #@end
 
 

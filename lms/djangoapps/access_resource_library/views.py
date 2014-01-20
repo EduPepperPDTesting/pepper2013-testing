@@ -3,10 +3,10 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response
-from student.models import ResourceLibrary
+from student.models import ResourceLibrary,StaticContent
 from collections import deque
 
-def index(request):
+def index_bak(request):
 
 	def custom_compare_key(item):
 		category_order = item.category.display_order * 10000
@@ -77,3 +77,8 @@ def index(request):
 	resources = result
 
 	return render_to_response('access_resource_library.html', {'resources': result})
+
+def index(request):
+	static_content = StaticContent.objects.get(name="Resource Library")
+	static_html_content = static_content.content if static_content else 'sorry for maintain...'
+	return render_to_response('access_resource_library_.html',{'static_content':static_html_content})
