@@ -876,7 +876,7 @@ def create_account(request, post_override=None):
                 dest_addr = settings.MITX_FEATURES['REROUTE_ACTIVATION_EMAIL']
                 message = ("Activation for %s (%s): %s\n" % (user, user.email, profile.name) +
                            '-' * 80 + '\n\n' + message)
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [dest_addr], fail_silently=False)
+                # send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [dest_addr], fail_silently=False)
             else:
                 _res = user.email_user(subject, message, settings.DEFAULT_FROM_EMAIL)
         except:
@@ -1581,7 +1581,7 @@ def activate_imported_account(post_vars):
             raise e
 
         from mail import send_html_mail
-        # send_html_mail(subject, message, "PepperSupport@pcgus.com",[profile.user.email])
+        # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
         
         ret={'success': True}
     except Exception as e:

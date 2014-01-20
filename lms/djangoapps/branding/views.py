@@ -112,8 +112,8 @@ def contact_us_submit(request):
     from smtplib import SMTPException
     from mail import send_html_mail
 
-    send_html_mail(subject, body, 'PepperSupport@pcgus.com', [
-        'peppersupport@pcgus.com',
+    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [
+        settings.SUPPORT_EMAIL,
         'laura.hescock@hotmail.com',
         # 'ashardonofsky@pcgus.com',
         # 'gingerjiang2013@gmail.com',
