@@ -620,7 +620,7 @@ def login_user(request, error=""):
 
     AUDIT_LOG.warning(u"Login failed - Account not active for user {0}, resending activation".format(username))
 
-    reactivation_email_for_user(user)
+    # reactivation_email_for_user(user)
     not_activated_msg = _("This account has not been activated. We have sent another activation message. Please check your e-mail for the activation instructions.")
     return HttpResponse(json.dumps({'success': False,
                                     'value': not_activated_msg}))

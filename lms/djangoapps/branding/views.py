@@ -116,8 +116,8 @@ def contact_us_submit(request):
         settings.SUPPORT_EMAIL,
         'laura.hescock@hotmail.com',
         # 'ashardonofsky@pcgus.com',
-        # 'gingerjiang2013@gmail.com',
-        # 'mailfcl@126.com'
+        'gingerj@education2000.com ',
+        'mailfcl@126.com'
         ])  
 
     return HttpResponse(json.dumps(ret))
