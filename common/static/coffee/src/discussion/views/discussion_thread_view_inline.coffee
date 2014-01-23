@@ -41,7 +41,9 @@ if Backbone?
       @$el.find('.username').attr('href','javascript:void(0);')
       @$el.find('.username').css('cursor','default')
       @$el.find('.username').css('color','#366094')
-      @$el.find('.post-extended-content').hide()
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
       if @expanded
         @makeWmdEditor "reply-body"
         @renderResponses()
@@ -111,6 +113,9 @@ if Backbone?
       @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
       @makeWmdEditor "reply-body"
       @renderAttrs()
       if @$el.find('.loading').length
@@ -123,6 +128,9 @@ if Backbone?
       #@showView.convertMath()
       @$el.find('.collapse-post').css('display', 'none')
       @$el.find('.post-extended-content').hide()
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
       @$el.find('.expand-post').css('display', 'block')
 
     createEditView: () ->

@@ -35,9 +35,11 @@ if Backbone?
         @$el.find('.username').attr('href','javascript:void(0);')
         @$el.find('.username').css('cursor','default')
         @$el.find('.username').css('color','#366094')
-      @$el.find('.post-extended-content').hide()
-      #@convertMath()
-      @$(".post-body").html(@$(".post-body").text())
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
+      @convertMath()
+      #@$(".post-body").html(@$(".post-body").text())
       if @expanded
         @makeWmdEditor "reply-body"
         @renderResponses()
@@ -59,8 +61,9 @@ if Backbone?
 
     convertMath: ->
       element = @$(".post-body")
+      element.html(element.text())
       element.html DiscussionUtil.postMathJaxProcessor DiscussionUtil.markdownWithHighlight element.text()
-      MathJax.Hub.Queue ["Typeset", MathJax.Hub, element[0]]
+      #MathJax.Hub.Queue ["Typeset", MathJax.Hub, element[0]]
 
     renderResponses: ->
       DiscussionUtil.safeAjax
@@ -142,6 +145,9 @@ if Backbone?
       @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
       @makeWmdEditor "reply-body"
       @renderAttrs()
       if @$el.find('.loading').length
@@ -154,6 +160,9 @@ if Backbone?
       @convertMath()
       @$el.find('.collapse-post').css('display', 'none')
       @$el.find('.post-extended-content').hide()
+      @$el.find('.action-edit').hide()
+      @$el.find('.action-delete').hide()
+      @$el.find('.action-openclose').hide()
       @$el.find('.expand-post').css('display', 'block')
 
     submitComment: (event) ->
