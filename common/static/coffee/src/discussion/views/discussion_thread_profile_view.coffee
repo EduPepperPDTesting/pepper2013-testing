@@ -8,6 +8,9 @@ if Backbone?
       "click .collapse-post": "collapsePost"
       "click .discussion-submit-comment": "submitComment"
       "click .discussion-submit-post": "submitThread"
+      "click .action-edit": "edit"
+      "click .action-delete": "_delete"
+      "click .action-openclose": "toggleClosed"
 
     initLocal: ->
       @$local = @$el.children(".discussion-article").children(".local")
@@ -208,3 +211,23 @@ if Backbone?
         success: (data, textStatus) =>
           comment.updateInfo(data.annotated_content_info)
           comment.set(data.content)
+
+    toggleClosed: (event) ->
+      $elem = $(event.target)
+      url = @model.urlFor('close')
+      closed = @model.get('closed')
+      data = { closed: not closed }
+      DiscussionUtil.safeAjax
+        $elem: $elem
+        url: url
+        data: data
+        type: "POST"
+        success: (response, textStatus) =>
+          @model.set('closed', not closed)
+          @model.set('ability', response.ability)
+
+    edit: (event) ->
+      @trigger "thread:edit", event
+
+    _delete: (event) ->
+      @trigger "thread:_delete", event
