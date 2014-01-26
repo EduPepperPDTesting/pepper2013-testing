@@ -75,10 +75,7 @@
           Not a member yet and have a general question about Pepper? Please visit our FAQ's. Still need help or want to give us general feedback (which we want), contact us below.
         </p>
 		<!--@end-->
-
-
         <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;width:490px;"> </div>
-        
         <form method="" id="form" action="">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
         <!--@begin:add code(class="_...") to modify font style; write real form code replace the image; modify "option" content; add submit button-->
@@ -115,7 +112,7 @@
 		  </tr>
 		  <tr>
 			<td></td>
-			<td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="" value="Submit" /></td>
+			<td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="submit" value="Submit" autocomplate="off"/></td>
 		  </tr>
 		</table>
 	    <!--@end-->
@@ -136,6 +133,7 @@ form.submit(function(){
     $("#message").html(fv.errorMessage[0]);
     return false;
   }
+  this.submit.disabled=true;
   var flds=["email","fullname","phone","inquiry_type","message","csrfmiddlewaretoken"];
   var data=easy.form.getFormData(this,flds);
   $("#message").html("Submiting..");
@@ -152,9 +150,6 @@ form.submit(function(){
        $("#message").html(r.error);
     }
   });
-
-
-
   return false;
 });
 </script>
