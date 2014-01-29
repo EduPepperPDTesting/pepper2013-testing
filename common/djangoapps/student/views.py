@@ -81,6 +81,11 @@ from courseware.grades import grade
 from courseware.module_render import get_module
 #@end
 
+#@begin:login info
+#@data:1024-01-07
+from student.models import CmsLoginInfo
+#@end
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -256,6 +261,15 @@ def signin_user(request):
     }
     return render_to_response('login.html', context)
 
+@ensure_csrf_cookie
+def cms_login_info(request):
+    """
+    """
+    csrf_token = csrf(request)['csrf_token']
+    return render_to_response('cms_login_info.html', {
+        'csrf': csrf_token,
+        'forgot_password_link': "//{base}/#forgot-password-modal".format(base=settings.LMS_BASE),
+    })
 
 @ensure_csrf_cookie
 def register_user(request, activation_key=None):
@@ -564,6 +578,14 @@ def login_user(request, error=""):
     username = user.username if user else ""
     try:
         user = authenticate(username=username, password=password, request=request)
+
+        #@begin:add cms login and log out info
+        #@log in
+        #@data:2014-01-07
+        ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
+        login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=True, login_or_logout_time=datetime.datetime.utcnow())
+        login_info.save()
+        #@end
     # this occurs when there are too many attempts from the same IP address
     except RateLimitException:
         return HttpResponse(json.dumps({'success': False,
@@ -639,6 +661,14 @@ def logout_user(request):
         target = reverse('cas-logout')
     else:
         target = '/'
+    #@begin:cms login or logout info
+    #@log out
+    #@data:2014-01-07
+    username = request.user.username if request.user else ""
+    ip_address = request.META.get('HTTP_X_FORWARDED_FOR', 'not get')
+    login_info = CmsLoginInfo(ip_address=ip_address, user_name=username, log_type_login=False, login_or_logout_time=datetime.datetime.utcnow())
+    login_info.save()
+    #@end
     response = redirect(target)
     response.delete_cookie(settings.EDXMKTG_COOKIE_NAME,
                            path='/',
