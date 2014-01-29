@@ -298,6 +298,16 @@ def delete_comment(request, course_id, comment_id):
     return JsonResponse(utils.safe_content(comment.to_dict()))
 
 
+@login_required
+def admin_delete_comment(request, course_id, comment_id):
+    """
+    given a course_id and comment_id delete this comment
+    ajax only
+    """
+    comment = cc.Comment.find(comment_id)
+    comment.delete()
+    return JsonResponse(utils.safe_content(comment.to_dict()))
+
 @require_POST
 @login_required
 @permitted
