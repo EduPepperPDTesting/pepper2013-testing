@@ -25,6 +25,7 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 from pytz import UTC
 import datetime
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
 def valid_pager(all,size,page):
     paginator = Paginator(all, size)
@@ -48,6 +49,7 @@ def pager_params(request):
 # DISTRICT
 ##############################################
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def district(request):
     data=District.objects.all()
     if request.GET.get('state_id'):
@@ -56,10 +58,12 @@ def district(request):
     return render_to_response('reg_kits/district.html', {"districts":data,"ui":"list","pager_params":pager_params(request)})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def district_create(request):
     return render_to_response('reg_kits/district.html', {"districts":District.objects.all(),"district_from":True})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def district_modify(request,district_id=''):
     district={}
     if district_id:
@@ -91,6 +95,7 @@ def district_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def district_delete(request):
     ids=request.GET.get("ids").split(",")
     message={'success': True}
@@ -103,6 +108,7 @@ def district_delete(request):
     return HttpResponse(json.dumps(message))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def district_form(request,district_id=None):
    if district_id:
        c=District.objects.get(id=district_id)
@@ -114,6 +120,7 @@ def district_form(request,district_id=None):
 # COHORT
 ##############################################
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def cohort(request):
     data=Cohort.objects.all()
     if request.GET.get('district_id'):
@@ -128,6 +135,7 @@ def cohort(request):
     return render_to_response('reg_kits/cohort.html', {"cohorts":data,"ui":"list","pager_params":pager_params(request)})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def cohort_submit(request):
     if not request.user.is_authenticated:
         raise Http404
@@ -150,6 +158,7 @@ def cohort_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def cohort_delete(request):
     ids=request.GET.get("ids").split(",")
     message={'success': True}
@@ -161,6 +170,7 @@ def cohort_delete(request):
     return HttpResponse(json.dumps(message))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def cohort_form(request,cohort_id=None):
    if cohort_id:
        c=Cohort.objects.get(id=cohort_id)
@@ -173,6 +183,7 @@ def cohort_form(request,cohort_id=None):
 # SCHOOL
 ##############################################
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def school(request):
     data=School.objects.all()
     if request.GET.get('district_id'):
@@ -183,6 +194,7 @@ def school(request):
     return render_to_response('reg_kits/school.html', {"schools":data,"ui":"list","pager_params":pager_params(request)})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def school_submit(request):
     if not request.user.is_authenticated:
         raise Http404
@@ -200,6 +212,7 @@ def school_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def school_delete(request):
     ids=request.GET.get("ids").split(",")
     message={'success': True}
@@ -212,6 +225,7 @@ def school_delete(request):
     return HttpResponse(json.dumps(message))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def school_form(request,school_id=None):
    if school_id:
        c=School.objects.get(id=school_id)
@@ -243,6 +257,7 @@ def filter_user(request):
     return data
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def user(request):
     data=filter_user(request)
     invite_count=data.filter(subscription_status='Imported').count()
@@ -256,6 +271,7 @@ def user(request):
                                                    "ui":"list",
                                                    "pager_params":pager_params(request)})
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def user_submit(request):
     if not request.user.is_authenticated:
         raise Http404
@@ -287,6 +303,7 @@ def user_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def user_modify_status(request):
     user=User.objects.get(id=request.POST['id'])
     profile=UserProfile.objects.get(user_id=request.POST['id'])
@@ -307,6 +324,7 @@ def user_modify_status(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def user_delete(request):
     ids=request.GET.get("ids").split(",")
     message={'success': True}
@@ -320,6 +338,7 @@ def user_delete(request):
     return HttpResponse(json.dumps(message))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def user_form(request,user_id=None):
     if user_id:
         c=UserProfile.objects.get(id=user_id)
@@ -348,6 +367,7 @@ def validate_user_cvs_line(line):
     return exist
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
 @cache_if_anonymous  
 def import_user_submit(request):  
@@ -407,6 +427,7 @@ def import_user_submit(request):
 from mail import send_html_mail
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def send_invite_email(request):
     try:
         data=filter_user(request)
@@ -421,8 +442,7 @@ def send_invite_email(request):
             subject = ''.join(subject.splitlines())
             message = render_to_string('emails/activation_email.txt', d)
             try:
-                # item.user.email_user(subject, message, "peppersupport@pcgus.com") # settings.default_from_email
-                send_html_mail(subject, message, 'PepperSupport@pcgus.com', [item.user.email])
+                send_html_mail(subject, message, settings.SUPPORT_EMAIL, [item.user.email])
             except Exception as e:
                 # log.warning('unable to send reactivation email', exc_info=true)
                 raise Exception('unable to send reactivation email: %s' % e)
@@ -439,6 +459,7 @@ def send_invite_email(request):
 # transaction
 ##############################################
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def transaction_form(request,transaction_id=None):
     if transaction_id:
         t=Transaction.objects.get(id=transaction_id)
@@ -450,6 +471,7 @@ def transaction_form(request,transaction_id=None):
                               {"district":District.objects.all(), "transaction":t,"cohort":c, "ui":"form"})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def transaction(request):
     sql="select  a.*,c.code as district_code from transaction a \
     inner join cohort b on a.owner_id=b.id and a.subscription_type='cohort' \
@@ -463,6 +485,7 @@ def transaction(request):
     return render_to_response('reg_kits/transaction.html', {"transactions":data, "ui":"list","pager_params":pager_params(request)})
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
 @cache_if_anonymous
 def transaction_submit(request):
@@ -488,6 +511,7 @@ def transaction_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def transaction_delete(request):
     ids=request.GET.get("ids").split(",")
     message={'success': True}
@@ -551,6 +575,7 @@ def validate_school_cvs_line(line,district_id):
         raise Exception("A school named '{name}' already exists in this district".format(name=name))
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def import_school_submit(request):
     if request.method == 'POST':
         f=request.FILES['file']

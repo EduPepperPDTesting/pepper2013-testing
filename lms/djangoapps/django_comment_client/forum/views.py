@@ -18,8 +18,8 @@ from django_comment_client.utils import (merge_dict, extract, strip_none, get_co
 import django_comment_client.utils as utils
 import comment_client as cc
 
-THREADS_PER_PAGE = 20
-INLINE_THREADS_PER_PAGE = 20
+THREADS_PER_PAGE = 200
+INLINE_THREADS_PER_PAGE = 200
 PAGES_NEARBY_DELTA = 2
 escapedict = {'"': '&quot;'}
 log = logging.getLogger("edx.discussions")

@@ -38,10 +38,20 @@ if Backbone?
       @$("span.timeago").timeago()
       if $(".my-course-work-content").length>0
         @$el.find('.discussion-reply-new').remove()
+        @$el.find('.action-edit').hide()
+        @$el.find('.action-delete').hide()
+        @$el.find('.action-openclose').hide()
+        
+      if $(".my-discussion-content").length>0
+        @$el.find('.action-edit').hide()
+        @$el.find('.action-delete').hide()
+        @$el.find('.action-openclose').hide()
+
+      @$el.find('.discussion-reply-new').hide()
       @$el.find('.username').attr('href','javascript:void(0);')
       @$el.find('.username').css('cursor','default')
       @$el.find('.username').css('color','#366094')
-      @$el.find('.post-extended-content').hide()
+      
       if @expanded
         @makeWmdEditor "reply-body"
         @renderResponses()
@@ -106,11 +116,21 @@ if Backbone?
     expandPost: (event) =>
       @expanded = true
       @$el.addClass('expanded')
-      @$el.find('.post-body').html(@model.get('body'))
-      #@showView.convertMath()
+      #@$el.find('.post-body').html(@model.get('body'))
+      if $(".my-course-work-content").length<=0
+        element = @$el.find('.post-body')
+        element.text(@model.get('body'))
+        element.html DiscussionUtil.postMathJaxProcessor DiscussionUtil.markdownWithHighlight element.text()
+        #@showView.convertMath()
+      else
+        @$el.find('.post-body').html(@model.get('body'))
       @$el.find('.expand-post').css('display', 'none')
       @$el.find('.collapse-post').css('display', 'block')
       @$el.find('.post-extended-content').show()
+      if $(".my-course-work-content").length>0
+        @$el.find('.action-edit').hide()
+        @$el.find('.action-delete').hide()
+        @$el.find('.action-openclose').hide()
       @makeWmdEditor "reply-body"
       @renderAttrs()
       if @$el.find('.loading').length
@@ -119,10 +139,20 @@ if Backbone?
     collapsePost: (event) ->
       @expanded = false
       @$el.removeClass('expanded')
-      @$el.find('.post-body').html(@model.get('abbreviatedBody'))
-      #@showView.convertMath()
+      #@$el.find('.post-body').html(@model.get('abbreviatedBody'))
+      if $(".my-course-work-content").length<=0
+        element = @$el.find('.post-body')
+        element.text(@model.get('abbreviatedBody'))
+        element.html DiscussionUtil.postMathJaxProcessor DiscussionUtil.markdownWithHighlight element.text()
+        #@showView.convertMath()
+      else
+        @$el.find('.post-body').html(@model.get('abbreviatedBody'))
       @$el.find('.collapse-post').css('display', 'none')
       @$el.find('.post-extended-content').hide()
+      if $(".my-course-work-content").length>0
+        @$el.find('.action-edit').hide()
+        @$el.find('.action-delete').hide()
+        @$el.find('.action-openclose').hide()
       @$el.find('.expand-post').css('display', 'block')
 
     createEditView: () ->
