@@ -289,8 +289,9 @@
         <div class="name">
           <span id="user_name" class="express_inf"><strong>User Name:</strong> ${ portfolio_user.username }</span> 
           <span id="name" class="express_inf"><span><strong>Name:</strong> ${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</span></span>
-          <span id="email" class="express_inf"><strong>Email:</strong> ${ portfolio_user.email | h }</span>
-          
+          <!--
+            <span id="email" class="express_inf"><strong>Email:</strong> ${ portfolio_user.email | h }</span>
+          -->
           <span id="district" class="express_inf"><span><strong>District:</strong> 
             % if portfolio_user.profile.cohort_id:
               ${portfolio_user.profile.cohort.district.name}
