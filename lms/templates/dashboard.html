@@ -404,15 +404,15 @@
         </li>
 <!--@end-->
 
-        <li>
-          <span class="title"><div class="icon email-icon"></div>${_("Email")}
-            %if curr_user==request.user:
-            % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
-            <!-- (<a href="#change_email" rel="leanModal" class="edit-email">${_("edit")}</a>) -->
-            % endif
-            %endif
-          </span> <span class="data">${ curr_user.email | h }</span>
-        </li>
+        <!-- <li> -->
+        <!--   <span class="title"><div class="icon email-icon"></div>${_("Email")} -->
+        <!--     %if curr_user==request.user: -->
+        <!--     % if external_auth_map is None or 'shib' not in external_auth_map.external_domain: -->
+        <!--     <\!-- (<a href="#change_email" rel="leanModal" class="edit-email">${_("edit")}</a>) -\-> -->
+        <!--     % endif -->
+        <!--     %endif -->
+        <!--   </span> <span class="data">${ curr_user.email | h }</span> -->
+        <!-- </li> -->
 
         %if curr_user==request.user:
         % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:

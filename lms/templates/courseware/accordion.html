@@ -21,9 +21,9 @@
       </h3>
 
     <ul>
-      % for section in chapter['sections']:
+      % for i,section in enumerate(chapter['sections']):
           <li class="${'active' if 'active' in section and section['active'] else ''} ${'graded'  if 'graded' in section and section['graded'] else ''}">
-            <a href="${reverse('courseware_section', args=[course_id, chapter['url_name'], section['url_name']])}">
+            <a href="${reverse('courseware_section', args=[course_id, chapter['url_name'], section['url_name']])}" class="section_link">
               <p>${section['display_name']} ${'<span class="sr">, current section</span>' if 'active' in section and section['active'] else ''}</p>
 <!--@begin:Hide subtitle-->
 <!--@date:2013-11-11-->              
@@ -40,3 +40,11 @@
     ${make_chapter(chapter)}
 % endfor
 
+<script>
+var sections=[];
+var SHOW_GLOBAL_SEQUENCE=1;
+$.each($(".section_link"),function(i,el){
+  $(el).attr("index",i);
+  sections.push( $(el).attr("href"));
+})
+</script>

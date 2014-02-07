@@ -65,6 +65,12 @@ class @Sequence
   toggleArrows: =>
     @$('.sequence-nav-buttons a').unbind('click')
 
+    next_section=null;
+    if SHOW_GLOBAL_SEQUENCE
+      section=parseInt($("li.active").find("a.section_link").attr("index"));
+      if(section+1<sections.length)
+        next_section=sections[section+1]
+      
     if @contents.length == 0
       @$('.sequence-nav-buttons .prev a').addClass('disabled')
       @$('.sequence-nav-buttons .next a').addClass('disabled')
@@ -76,7 +82,12 @@ class @Sequence
       @$('.sequence-nav-buttons .prev a').removeClass('disabled').click(@previous)
 
     if @position == @contents.length
-      @$('.sequence-nav-buttons .next a').addClass('disabled')
+      if next_section != null
+        @$('.sequence-nav-buttons .next a').removeClass('disabled').click(()=>
+          window.location.href=next_section
+        )
+      else
+        @$('.sequence-nav-buttons .next a').addClass('disabled')
     else
       @$('.sequence-nav-buttons .next a').removeClass('disabled').click(@next)
 
