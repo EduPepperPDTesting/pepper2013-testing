@@ -3,6 +3,8 @@ if Backbone?
 
     events:
       "click .discussion-flag-abuse": "toggleFlagAbuse"
+      "click .action-edit": "edit"
+      "click .action-delete": "_delete"
 
     tagName: "li"
 
@@ -58,4 +60,93 @@ if Backbone?
     updateModelDetails: =>
       @renderFlagged()
 
+    hideCommentForm: () ->
+      @$('.comment-form').closest('li').hide()
 
+    showCommentForm: () ->
+      @$('.comment-form').closest('li').show()
+      
+    renderSubView: (view) ->
+      view.setElement(@$('.discussion-response'+@model.id))
+      view.render()
+      view.delegateEvents()
+
+    renderShowView: () ->
+      @renderSubView(@showView)
+
+    createShowView: () ->
+
+      if @editView?
+        @editView.undelegateEvents()
+        @editView.$el.empty()
+        @editView = null
+
+      @showView = new ThreadResponseShowView(model: @model)
+      @showView.bind "response:_delete", @_delete
+      @showView.bind "response:edit", @edit
+
+    edit: (event) =>
+      @createEditView()
+      @renderEditView()
+      @hideCommentForm()
+
+    _delete: (event) =>
+      event.preventDefault()
+      if not @model.get('can_delete')
+        return
+      if not confirm "Are you sure to delete this Comment? "
+        return
+      url = @model.urlFor('_delete')
+      @model.remove()
+      @$el.remove()
+      $elem = $(event.target)
+      DiscussionUtil.safeAjax
+        $elem: $elem
+        url: url
+        type: "POST"
+        success: (response, textStatus) =>
+
+    createEditView: () ->
+      if @showView?
+        @showView.undelegateEvents()
+        @showView.$el.empty()
+        @showView = null
+
+      @editView = new ThreadResponseEditView(model: @model)
+      @editView.bind "response:update", @update
+      @editView.bind "response:cancel_edit", @cancelEdit
+
+    renderEditView: () ->
+      @renderSubView(@editView)
+
+    cancelEdit: (event) =>
+      event.preventDefault()
+      @showCommentForm()
+
+    update: (event) =>
+
+      newBody  = @editView.$(".edit-post-body textarea").val()
+
+      url = DiscussionUtil.urlFor('update_comment', @model.id)
+
+      DiscussionUtil.safeAjax
+          $elem: $(event.target)
+          $loading: $(event.target) if event
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: false # TODO when the rest of the stuff below is made to work properly..
+          data:
+              body: newBody
+          error: DiscussionUtil.formErrorHandler(@$(".edit-post-form-errors"))
+          success: (response, textStatus) =>
+              # TODO: Move this out of the callback, this makes it feel sluggish
+              @editView.$(".edit-post-body textarea").val("").attr("prev-text", "")
+              @editView.$(".wmd-preview p").html("")
+
+              @model.set
+                body: newBody
+
+              @createShowView()
+              @renderShowView()
+              @showCommentForm()
