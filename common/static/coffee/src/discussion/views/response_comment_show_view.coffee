@@ -92,7 +92,7 @@ if Backbone?
 
     _delete: (event) =>
       event.preventDefault()
-      if not @model.get('can_delete')
+      if not @model.can('can_delete')
         return
       if not confirm "Are you sure to delete this Comment? "
         return
