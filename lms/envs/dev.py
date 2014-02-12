@@ -216,7 +216,8 @@ CELERY_ALWAYS_EAGER = True
 
 INSTALLED_APPS += ('debug_toolbar',)
 MIDDLEWARE_CLASSES += ('django_comment_client.utils.QueryCountDebugMiddleware',
-                       'debug_toolbar.middleware.DebugToolbarMiddleware',)
+                       'debug_toolbar.middleware.DebugToolbarMiddleware',
+                       'online_status.middleware.OnlineStatusMiddleware',)
 INTERNAL_IPS = ('127.0.0.1',)
 
 DEBUG_TOOLBAR_PANELS = (
@@ -332,3 +333,10 @@ AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
 
 SUPPORT_EMAIL='Pepper Support <PepperSupport@pcgus.com>'
 DEFAULT_FROM_EMAIL = SUPPORT_EMAIL
+
+
+# online status
+USERS_ONLINE__TIME_IDLE = 60*5 # 5 minutes
+USERS_ONLINE__TIME_OFFLINE = 60*10 # 10 minutes
+# USERS_ONLINE__CACHE_PREFIX_USER = 'online_user'
+# USERS_ONLINE__CACHE_USERS = 'online_users'

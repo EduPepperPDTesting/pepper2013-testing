@@ -55,6 +55,8 @@ urlpatterns = (
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people/$', 'people.views.people', name="people"),
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
 
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat/$', 'chat.views.index', name="chat"),
+    
     url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
     url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
     url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
