@@ -85,7 +85,7 @@ function init() {
   updateChatUrl();
 
   if (onChatTab) {
-      document.getElementById('chatiframe').height = 600;
+      document.getElementById('chatiframe').style.height = "600px";
   }
   $("#chatframe").show();
 

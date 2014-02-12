@@ -81,10 +81,6 @@ if Backbone?
         @editView.$el.empty()
         @editView = null
 
-      @showView = new ThreadResponseShowView(model: @model)
-      @showView.bind "response:_delete", @_delete
-      @showView.bind "response:edit", @edit
-
     edit: (event) =>
       @createEditView()
       @renderEditView()
@@ -92,7 +88,7 @@ if Backbone?
 
     _delete: (event) =>
       event.preventDefault()
-      if not @model.get('can_delete')
+      if not @model.can('can_delete')
         return
       if not confirm "Are you sure to delete this Comment? "
         return
@@ -121,6 +117,7 @@ if Backbone?
 
     cancelEdit: (event) =>
       event.preventDefault()
+      @createShowView()
       @showCommentForm()
 
     update: (event) =>
@@ -148,5 +145,5 @@ if Backbone?
                 body: newBody
 
               @createShowView()
-              @renderShowView()
+              @render()
               @showCommentForm()
