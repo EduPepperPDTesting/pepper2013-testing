@@ -135,7 +135,8 @@ def sort_map_entries(category_map, sort_alpha):
     for title, category in category_map["subcategories"].items():
         things.append((title, category))
         sort_map_entries(category_map["subcategories"][title], sort_alpha)
-    category_map["children"] = [x[0] for x in sorted(things, key=lambda x: x[1]["sort_key"])]
+    #category_map["children"] = [x[0] for x in sorted(things, key=lambda x: x[1]["sort_key"])]
+    category_map["children"] = [x[0] for x in sorted(things, key=lambda x: x[0])]
 
 
 def initialize_discussion_info(course):
