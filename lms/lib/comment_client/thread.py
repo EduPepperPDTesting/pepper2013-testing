@@ -35,10 +35,7 @@ class Thread(models.Model):
         params = merge_dict(default_params, strip_blank(strip_none(query_params)))
 
         if query_params.get('text') or query_params.get('tags') or query_params.get('commentable_ids'):
-            #url = cls.url(action='search')
-            url = cls.url(action='get_all', params=extract(params, 'commentable_id'))
-            if params.get('commentable_id'):
-                del params['commentable_id']
+            url = cls.url(action='search')
         else:
             url = cls.url(action='get_all', params=extract(params, 'commentable_id'))
             if params.get('commentable_id'):
