@@ -35,7 +35,7 @@ def url_class(is_active):
     				% if tab.name!='Course Discussion':
               <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
             % else:
-              <a href="${tab.link | h}?tags=default" class="${url_class(tab.is_active)}">
+              <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
             %endif
     					${tab.name | h}
     					% if tab.is_active == True:
