@@ -13,7 +13,7 @@
 
 <%def name="render_entry(entries, entry)">
     % if entry!='':
-    <li><a href="#" class="drop-menu-entry"><span class="board-name" data-discussion_id='${json.dumps(entries[entry])}' cohorted = "${entries[entry]['id'] in cohorted_commentables}">${entry}</span></a></li>
+    <li><a href="#" class="drop-menu-entry"><span class="board-name" data-discussion_id='${json.dumps(entries[entry])}' cohorted = "${entries[entry]['id'] in cohorted_commentables}" data-id="${entries[entry]['data_id']}">${entry}</span></a></li>
     %endif
 </%def>
 
