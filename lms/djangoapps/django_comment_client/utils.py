@@ -216,7 +216,7 @@ def initialize_discussion_info(course):
         category_map['entries'][topic] = {"id": entry["id"],
                                           "sort_key": entry.get("sort_key", topic),
                                           "start_date": datetime.now(UTC()),
-                                          "data_id": entry["data_id"]
+                                          "data_id": ''
                                           }
 
     sort_map_entries(category_map, course.discussion_sort_alpha)
