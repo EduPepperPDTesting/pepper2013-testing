@@ -14,11 +14,9 @@
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
 </style>
-
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
-
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -26,9 +24,7 @@
 <title>${_("People")}</title>
 %endif
 </%block>
-
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
-
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -42,7 +38,6 @@
   % endif
 %endif
 </%block>
-
 <style>
 /* Button 1 */
 .btn-1 {
@@ -62,7 +57,6 @@
 	background-image: linear-gradient(to top, #f93, #e0862c, #f93);
 }
 </style>
-
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
@@ -196,12 +190,10 @@
       <div class="people_tit">People</div>
       %endif
       %for p in people:
-
       <%
          the_people_id=p.people.id
          profile=UserProfile.objects.get(user_id=p.people.id)
       %>
-      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
           <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
@@ -223,13 +215,16 @@
           %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
           <span class="name_text">${profile.years_in_education.name} Years in Education</span>
           %endif
+          %if p.people.online:
+          <span class="name_text" style="color:#FFC90E;font-weight:bold;">Online Now!</span>              
+          %endif
+          </span>
         </span>
 		<div class="btn_container">
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="remove_people('${p.id}');return false;"></a>
         </div>
       </div>
-
       %endfor
     %if len(people)>0:
     %if course:

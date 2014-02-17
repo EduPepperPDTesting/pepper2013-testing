@@ -87,6 +87,7 @@ def remove_people(request):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def people(request,course_id=None):
+
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
@@ -97,6 +98,9 @@ def people(request,course_id=None):
         prepage=25
         
     context={}
+
+    print "=================="
+    print User.objects.get(id=3).is_authenticated()
 
     search_course_id=request.GET.get('course_id')
     if search_course_id is None:
@@ -216,6 +220,10 @@ def my_people(request,course_id=None):
     people=valid_pager(pager,request.GET.get('page'))
     params=pager_params(request)
     courses=list()
+
+    from online_status.status import status_for_user
+    for p in people:
+        p.people.online=not (status_for_user(User.objects.get(id=p.people.id))) is None
 
     course=None
     if course_id:

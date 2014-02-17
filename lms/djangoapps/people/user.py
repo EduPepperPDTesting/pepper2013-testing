@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from student.models import UserProfile, People
 from django.core.paginator import Paginator
 import sphinxapi
@@ -97,7 +98,12 @@ class Filter():
             self.result=self.client.Query(' '.join(self.cond),'people_user,delta')
             log.debug(' '.join(self.cond))
         except socket.error, msg:
-            raise Exception("Failed to connect sphinx")
+            raise Exception("Failed to connect sphinx: %s" % self.client._error)
+
+
+
+
+from online_status.status import status_for_user
 
 def search_user(me,username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
@@ -117,15 +123,20 @@ def search_user(me,username='',first_name='',last_name='',
     def dc(item):
         if UserProfile.objects.filter(user_id=item['id']).exists():
             profile=UserProfile.objects.get(user_id=item['id'])
+
+            profile.online=not (status_for_user(User.objects.get(id=item['id']))) is None
+
             f=People.objects.filter(user_id=me.id).filter(people_id=profile.user_id)
             profile.student_people_id=None
+            # is my people?
             if f.exists():
                 profile.student_people_id=f[0].id
+
         else:
             profile=None
             
         return profile
-    
+
     f=Filter(dc)
     # f.SetFieldWeights()
     # f.SetLimits(0, 5)

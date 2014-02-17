@@ -1,5 +1,4 @@
 <%! from django.utils.translation import ugettext as _ %>
-
 <%!
   from django.core.urlresolvers import reverse
   from courseware.courses import course_image_url, get_course_about_section
@@ -16,7 +15,6 @@
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
-
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -24,9 +22,7 @@
 <title>People</title>
 %endif
 </%block>
-
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
-
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -40,7 +36,6 @@
   % endif
 %endif
 </%block>
-
 <style>
 /* Button 1 */
 .btn-1 {
@@ -261,13 +256,16 @@
             <span class="name_container">
               <span class="full_name">
                 <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)" target="_blank">${profile.first_name} ${profile.last_name}</a>
-              </span> 
+              </span>
               <span class="name_text">${profile.user.username}</span>
               %if profile.cohort_id and profile.school_id:
               <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
               %endif
               %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
               <span class="name_text">${profile.years_in_education.name} Years in Education</span>
+              %endif
+              %if profile.user.is_authenticated:
+              <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif
             </span>
             %if profile.student_people_id:
@@ -346,9 +344,9 @@
 <script type="text/javascript">
 $("#text_pre_page").val("${prepage}")
 $("#text_pre_page").bind('change', function(e){
-      var f=$("#search_form");
-      f.find("input[name=prepage]").val($(this).val());
-      f.submit();
+  var f=$("#search_form");
+  f.find("input[name=prepage]").val($(this).val());
+  f.submit();
 });
 function add_people(btn){
   var people_id=$(btn).attr('people_id')
