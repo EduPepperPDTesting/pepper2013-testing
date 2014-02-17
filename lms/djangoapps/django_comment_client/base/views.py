@@ -28,7 +28,8 @@ from django_comment_client.utils import JsonResponse, JsonError, extract, get_co
 from django_comment_client.permissions import check_permissions_by_view, cached_has_permission
 from django_comment_common.models import Role
 from courseware.access import has_access
-
+from xmodule.modulestore.django import modulestore
+from xmodule.modulestore import Location
 log = logging.getLogger(__name__)
 
 
