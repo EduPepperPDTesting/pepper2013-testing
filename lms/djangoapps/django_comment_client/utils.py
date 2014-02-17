@@ -168,7 +168,7 @@ def initialize_discussion_info(course):
         discussion_id_map[id] = {"location": module.location, "title": last_category + " / " + title}
         #Handle case where module.start is None
         entry_start_date = module.start if module.start else datetime.max.replace(tzinfo=pytz.UTC)
-        unexpanded_category_map[category].append({"title": title, "id": id, "sort_key": sort_key, "start_date": entry_start_date})
+        unexpanded_category_map[category].append({"title": title, "id": id, "sort_key": sort_key, "start_date": entry_start_date,"data_id":module.id})
 
     category_map = {"entries": defaultdict(dict), "subcategories": defaultdict(dict)}
     for category_path, entries in unexpanded_category_map.items():
@@ -205,7 +205,9 @@ def initialize_discussion_info(course):
         for entry in entries:
             node[level]["entries"][entry["title"]] = {"id": entry["id"],
                                                       "sort_key": entry["sort_key"],
-                                                      "start_date": entry["start_date"]}
+                                                      "start_date": entry["start_date"],
+                                                      "data_id": entry["data_id"]
+                                                      }
 
     # TODO.  BUG! : course location is not unique across multiple course runs!
     # (I think Kevin already noticed this)  Need to send course_id with requests, store it
@@ -213,7 +215,9 @@ def initialize_discussion_info(course):
     for topic, entry in course.discussion_topics.items():
         category_map['entries'][topic] = {"id": entry["id"],
                                           "sort_key": entry.get("sort_key", topic),
-                                          "start_date": datetime.now(UTC())}
+                                          "start_date": datetime.now(UTC()),
+                                          "data_id": entry["data_id"]
+                                          }
 
     sort_map_entries(category_map, course.discussion_sort_alpha)
 

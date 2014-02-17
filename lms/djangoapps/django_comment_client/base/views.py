@@ -307,6 +307,14 @@ def admin_delete_comment(request, course_id, comment_id):
     comment = cc.Comment.find(comment_id)
     comment.delete()
     return JsonResponse(utils.safe_content(comment.to_dict()))
+    
+@login_required
+def admin_delete_discussion(request, course_id, discussion_id):
+    course_location = course_id.split('/')
+    location=Location('i4x://'+course_location[0]+'/'+course_location[1]+'/discussion/'+discussion_id)
+    if modulestore().has_item(course_id,location)==True:
+        modulestore().delete_item(location)
+    return JsonResponse({})
 
 @require_POST
 @login_required
