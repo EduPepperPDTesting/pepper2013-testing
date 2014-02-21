@@ -7,6 +7,7 @@
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
 %>
 <%! import json%>
 <style type="text/css" media="screen">
@@ -138,6 +139,30 @@
                 %endfor            
               </select>
             </div>
+            <div class="filters">
+              <select name="percent_lunch">
+                <option value="">Free/Reduced Lunch</option>
+                %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+                <option value="${item.value}">${item.content}</option>
+                %endfor
+              </select>
+            </div>
+            <div class="filters">
+              <select name="percent_iep">
+                <option value="">IEPs</option>
+                %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+                <option value="${item.value}">${item.content}</option>
+                %endfor
+              </select>
+            </div>
+            <div class="filters">
+              <select name="percent_eng_learner">
+                <option value="">English Learners</option>
+                %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+                <option value="${item.value}">${item.content}</option>
+                %endfor
+              </select>
+            </div>
             <input type="hidden" name="searching" value="1"/>
             <input type="hidden" name="prepage" value="${prepage}"/>
             <input type="submit" style="display:none"/>
@@ -174,6 +199,9 @@
             form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
             form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
             form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
+            form.find("select[name=percent_lunch]").val("${request.GET.get('percent_lunch','')}")
+            form.find("select[name=percent_iep]").val("${request.GET.get('percent_iep','')}")
+            form.find("select[name=percent_eng_learner]").val("${request.GET.get('percent_eng_learner','')}")
           </script>
     </form>
   <!--right content of page------------------------------------------------------------------------------------------------>
@@ -264,7 +292,7 @@
               %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
               <span class="name_text">${profile.years_in_education.name} Years in Education</span>
               %endif
-              %if profile.user.is_authenticated:
+              %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif
             </span>

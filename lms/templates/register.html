@@ -15,6 +15,7 @@ from datetime import date
 import calendar 
 from libtahoe import isdev,isdemo1,isdemo2 
 from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+from baseinfo.models import Enum
 %>
 
 <%! import json%>
@@ -289,6 +290,33 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
               %endfor                
             </select>
 <!--@end-->
+          </li>
+          <li class="field required text" id="field-name">
+            <label for="percent_lunch">${_('Free/Reduced Lunch')}</label>
+            <select autocomplete="off" name="percent_lunch" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor                
+            </select>
+          </li>
+          <li class="field required text" id="field-name">
+            <label for="percent_iep">${_('IEPs')}</label>
+            <select autocomplete="off" name="percent_iep" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor 
+            </select>
+          </li>
+          <li class="field required text" id="field-name">
+            <label for="percent_eng_learner">${_('English Learners')}</label>
+            <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor 
+            </select>
           </li>
         </ol>
         % else:

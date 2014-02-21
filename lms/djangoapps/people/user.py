@@ -107,7 +107,8 @@ from online_status.status import status_for_user
 
 def search_user(me,username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
-                grade_level_id='',years_in_education_id='',course_id='',email=''):
+                grade_level_id='',years_in_education_id='',course_id='',email='',
+                percent_lunch='',percent_iep='',percent_eng_learner=''):
 
     """
     refer to:
@@ -172,9 +173,17 @@ def search_user(me,username='',first_name='',last_name='',
         f.AddCond('@grade_level_id "%s"' % grade_level_id)        
     if years_in_education_id:
         f.AddCond("@years_in_education_id %s" % years_in_education_id)
-
+    if percent_lunch:
+        f.AddCond('@percent_lunch %s' % percent_lunch)
+    if percent_iep:
+        f.AddCond("@percent_iep %s" % percent_iep)
+    if percent_eng_learner:
+        f.AddCond("@percent_eng_learner %s" % percent_eng_learner)
+    if years_in_education_id:
+        f.AddCond("@years_in_education_id %s" % years_in_education_id)
+    if years_in_education_id:
+        f.AddCond("@years_in_education_id %s" % years_in_education_id)
     # if len(f.cond)==1:
     #     f.SetMatchMode(sphinxapi.SPH_MATCH_FULLSCAN)
-
     return f
 
