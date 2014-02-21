@@ -98,10 +98,7 @@ def people(request,course_id=None):
         prepage=25
         
     context={}
-
-    print "=================="
-    print User.objects.get(id=3).is_authenticated()
-
+    
     search_course_id=request.GET.get('course_id')
     if search_course_id is None:
         search_course_id=course_id
@@ -117,7 +114,10 @@ def people(request,course_id=None):
             school_id=request.GET.get('school_id',''),
             subject_area_id=request.GET.get('subject_area_id',''),
             grade_level_id=request.GET.get('grade_level_id',''),
-            years_in_education_id=request.GET.get('years_in_education_id',''))
+            years_in_education_id=request.GET.get('years_in_education_id',''),
+            percent_lunch=request.GET.get('percent_lunch',''),
+            percent_iep=request.GET.get('percent_iep',''),
+            percent_eng_learner=request.GET.get('percent_eng_learner',''))
 
         pager=JuncheePaginator(f,prepage,6)
         profiles=valid_pager(pager,request.GET.get('page'))
@@ -213,6 +213,12 @@ def my_people(request,course_id=None):
         people=people.filter(people__profile__grade_level_id__regex = "(^|,)%s(,|$)" % request.GET.get('grade_level_id',''))
     if request.GET.get('years_in_education_id',''):
         people=people.filter(people__profile__years_in_education_id = request.GET.get('years_in_education_id',''))
+    if request.GET.get('percent_lunch',''):
+        people=people.filter(people__profile__percent_lunch = request.GET.get('percent_lunch',''))
+    if request.GET.get('percent_iep',''):
+        people=people.filter(people__profile__percent_iep = request.GET.get('percent_iep',''))
+    if request.GET.get('percent_eng_learner',''):
+        people=people.filter(people__profile__percent_eng_learner = request.GET.get('percent_eng_learner',''))
 
     people=people.order_by('people__profile__last_name').order_by('people__profile__first_name')
 

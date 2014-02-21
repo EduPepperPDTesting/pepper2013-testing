@@ -15,6 +15,7 @@ from datetime import date
 import calendar 
 from libtahoe import isdev,isdemo1,isdemo2 
 from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+from baseinfo.models import Enum
 %>
 
 <%! import json%>
@@ -269,7 +270,7 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
             <label for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
-            <div class="level_containter">
+            <div class="level_containter" style="margin-bottom:10px;">
             <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
               %for item in GradeLevel.objects.all():
               <span class="level">
@@ -289,6 +290,35 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
               %endfor                
             </select>
 <!--@end-->
+          </li>
+          <li class="field required text" id="field-name">
+            In my class,
+            <select autocomplete="off" name="percent_lunch" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor                
+            </select>
+            of my students are eligible for Free/Reduced lunch. <b>*</b>
+          </li>
+          <li class="field required text" id="field-name">
+            In my class, 
+            <select autocomplete="off" name="percent_iep" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor 
+            </select>
+            of my students have an IEP.  <b>*</b>
+          </li>
+          <li class="field required text" id="field-name">
+            <select autocomplete="off" name="percent_eng_learner" style="width:100px;">
+              <option value="">--</option>
+              %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor 
+            </select>
+            of my students are English Learners. <b>*</b>  
           </li>
         </ol>
         % else:
@@ -371,14 +401,16 @@ from student.models import State,District,SubjectArea,GradeLevel,YearsInEducatio
         <legend class="sr">${_("Account Acknowledgements")}</legend>
         <ol class="list-input">
           <li class="field-group">
+            
             % if has_extauth_info is UNDEFINED or ask_for_tos :
-            <div class="field required checkbox" id="field-tos">
+            <div class="field required checkbox" id="field-tos" style="padding:20px 0">
               <input id="tos-yes" type="checkbox" name="terms_of_service" value="true" required aria-required="true" />
               <label for="tos-yes">${_('I agree to the {link_start}Terms of Service{link_end}').format(
                 link_start='<a href="{url}" class="new-vp">'.format(url=marketing_link('TOS')),
                 link_end='</a>')}</label>
             </div>
             % endif
+            
             % if False:
             <div class="field required checkbox" id="field-honorcode">
               <input id="honorcode-yes" type="checkbox" name="honor_code" value="true" />

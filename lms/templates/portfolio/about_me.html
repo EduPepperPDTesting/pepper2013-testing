@@ -8,6 +8,7 @@
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
   from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
 %>
 
 <%inherit file="/main.html"/>
@@ -287,6 +288,7 @@
           % endif
         </div>
         <div class="name">
+             <span><strong class="express_inf">My Profile:</strong></span>
           <span id="user_name" class="express_inf"><strong>User Name:</strong> ${ portfolio_user.username }</span> 
           <span id="name" class="express_inf"><span><strong>Name:</strong> ${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</span></span>
           <!--
@@ -326,9 +328,39 @@
               ${", ".join(gn)}
             </span>
           </span>
-        </div>
-
+ 
+</div>
         <div id="bio" class="express">
+
+          
+       <span class="express_inf"><strong>My Class Profile:</strong></span>
+          <span id="major_subject_area" class="express_inf">
+            <span>
+              % if portfolio_user.profile.percent_lunch:
+              ${Enum.objects.get(name="percent_lunch",value=portfolio_user.profile.percent_lunch).content}
+              % endif
+              Free/Reduced Lunch
+            </span>
+          </span>
+          <span id="major_subject_area" class="express_inf">
+            <span>
+              % if portfolio_user.profile.percent_iep:
+              ${Enum.objects.get(name="percent_iep",value=portfolio_user.profile.percent_iep).content}
+              % endif
+              IEPs
+            </span>
+          </span>
+          <span id="major_subject_area" class="express_inf">
+            <span>
+              % if portfolio_user.profile.percent_eng_learner:
+              ${Enum.objects.get(name="percent_eng_learner",value=portfolio_user.profile.percent_eng_learner).content}
+              % endif
+              English Learners
+            </span>
+          </span>
+
+          <br style="clear:both">
+          
             <strong>Bio:</strong> 
             %if portfolio_user.profile.bio:
               ${portfolio_user.profile.bio}
@@ -337,18 +369,14 @@
             %endif
         </div>
       </div>
-
-
       <div class="about_tit">About Me</div>
       <div class="message_all">
         <ol class="vert-mod">
             <li>${content}</li>
         </ol>
       </div>
-      
 		</section>
 	</div>
 </div>
 </div>
 <br style="clear:both;">
-
