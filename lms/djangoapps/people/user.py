@@ -103,7 +103,7 @@ class Filter():
 
 
 
-from online_status.status import status_for_user
+# from online_status.status import status_for_user
 
 def search_user(me,username='',first_name='',last_name='',
                 district_id='',school_id='',subject_area_id='',
@@ -125,7 +125,7 @@ def search_user(me,username='',first_name='',last_name='',
         if UserProfile.objects.filter(user_id=item['id']).exists():
             profile=UserProfile.objects.get(user_id=item['id'])
 
-            profile.online=not (status_for_user(User.objects.get(id=item['id']))) is None
+            # profile.online=not (status_for_user(User.objects.get(id=item['id']))) is None
 
             f=People.objects.filter(user_id=me.id).filter(people_id=profile.user_id)
             profile.student_people_id=None

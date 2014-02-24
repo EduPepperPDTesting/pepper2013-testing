@@ -227,9 +227,9 @@ def my_people(request,course_id=None):
     params=pager_params(request)
     courses=list()
 
-    from online_status.status import status_for_user
-    for p in people:
-        p.people.online=not (status_for_user(User.objects.get(id=p.people.id))) is None
+    # from online_status.status import status_for_user
+    # for p in people:
+    #     p.people.online=not (status_for_user(User.objects.get(id=p.people.id))) is None
 
     course=None
     if course_id:
