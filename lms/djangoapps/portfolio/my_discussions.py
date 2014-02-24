@@ -41,7 +41,8 @@ def user_discussions_profile(request, course_id, portfolio_user):
                 'discussion_data': map(utils.safe_content, thread_output),
                 'page': query_params['page'],
                 'num_pages': query_params['num_pages'],
-                'annotated_content_info': saxutils.escape(json.dumps(annotated_content_info), escapedict),
+                #'annotated_content_info': saxutils.escape(json.dumps(annotated_content_info), escapedict),
+                'annotated_content_info': annotated_content_info,
             })
         else:
             context = {
