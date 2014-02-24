@@ -376,7 +376,7 @@
 <!--@begin:Profile：username-->
 <!--@date:2013-11-02-->
           <span class="title">
-            <div class="icon name-icon"></div>${_("Name")}:
+            <div class="icon name-icon"></div><b>${_("Name")}:</b>
             <span class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.first_name | h } ${ curr_user.profile.last_name | h }</span>
             %if curr_user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
@@ -387,7 +387,7 @@
 <!--@date:2013-11-02-->
         <li>
           <span class="title"><div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;">
-            </div>${_("User Photo")}
+            </div><b>${_("User Photo")}</b>
             %if curr_user==request.user:
             (<a href="#change_photo" rel="leanModal" class="edit-photo">${_("edit")}</a>)
             %endif
@@ -424,31 +424,34 @@
 <!--@begin:Add some profile info-->
 <!--@date:2013-11-02-->  
 		<li>
+
+          <span class="title">
 		  <div style="font-family: 'Open Sans';font-size:12px;">
-            <div> 
-              <b>My Profile:</b>
+            <div class="" style="padding:0 0 5px 0;"> 
+              <b style="font-size:14px;color:#000">My Profile:</b>
             </div>
-			<div style="line-height:30px;">State:
+			<div style="line-height:30px;"><b>State:</b>
 	          % if curr_user.profile.cohort_id:
 			  ${curr_user.profile.cohort.district.state.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;">District:
+			<div style="line-height:30px;"><b>District:</b>
 			  % if curr_user.profile.cohort_id:
-			  ${curr_user.profile.cohort.district.name}
+			  <br>${curr_user.profile.cohort.district.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;">School:
+			<div style="line-height:30px;"><b>School:</b>
 			  % if curr_user.profile.school_id:
-			  ${curr_user.profile.school.name}
+			  <br>${curr_user.profile.school.name}
 			  % endif
               %if curr_user==request.user:
 			  (<a href="#change_school" rel="leanModal">edit</a>)
               %endif
 			</div>
-			<div style="line-height:30px;">Grade Level:
+			<div style="line-height:30px;"><b>Grade Level:</b>
               <% gn=list() %>
 			  % if curr_user.profile.grade_level_id:
+              <br>
 			  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
 			  % if len(c)>0:
 			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
@@ -460,15 +463,16 @@
 			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
               %endif
 			</div>
-			<div style="line-height:30px;">Major Subject Area:
+			<div style="line-height:30px;"><b>Major Subject Area:</b>
 			  % if curr_user.profile.major_subject_area_id:
+              <br>
 			  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
 			  % endif
                %if curr_user==request.user:
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
               %endif
 			</div>
-			<div style="line-height:30px;">Number of Years Taught:
+			<div style="line-height:30px;"><b>Number of Years Taught:</b>
 			  % if curr_user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
 			  % endif
@@ -477,41 +481,43 @@
               %endif
 			</div>
 
-            <div style="padding-top:10px;"> 
-              <b>My Class Profile:</b>
+            <div style="padding:15px 0 5px 0;"> 
+              <b style="font-size:14px;color:#000;">My Class Profile:</b>
             </div>
             
 			<div style="line-height:30px;">
+              <b>Free/Reduced Lunch:</b>
 			  % if curr_user.profile.percent_lunch:
 			  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
 			  % endif
-              Free/Reduced Lunch
               %if curr_user==request.user:
               (<a href="#change_percent_lunch" rel="leanModal">edit</a>)
               %endif
 			</div>
             <div style="line-height:30px;">
+              <b>IEPs:</b>
 			  % if curr_user.profile.percent_iep:
 			  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
 			  % endif
-              IEPs
               %if curr_user==request.user:
               (<a href="#change_percent_iep" rel="leanModal">edit</a>)
               %endif
 			</div>
             <div style="line-height:30px;">
+              <b>English Learners:</b>
 			  % if curr_user.profile.percent_eng_learner:
 			  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
 			  % endif
-              English Learners
               %if curr_user==request.user:
               (<a href="#change_percent_eng_learner" rel="leanModal">edit</a>)
               %endif
 			</div>
+            </span>
 		</li>
         <li>
+          <span class="title">
           <div style="font-family: 'Open Sans';font-size:12px;">
-            Bio:
+            <b style="color:#000;font-size:14px;">Bio:</b>
             %if curr_user==request.user:
             (<a href="#change_bio" rel="leanModal">edit</a>)
             %endif
@@ -523,6 +529,7 @@ Add info that you would like to share about yourself here:
 %endif
 </pre>
           </div>
+          </span>
         </li>
 <!--@end-->        
       </ul>

@@ -266,6 +266,10 @@
   </div>
 </div>
 
+<style type="text/css" media="screen">
+  .express_inf strong {color:#8b8b8b}
+</style>
+
 <div class="main">
 	<section class="container">
   <div class="course-wrapper">
@@ -273,13 +277,10 @@
 			<div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
 			<a class="sub_menu xz" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
 			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
-
 			<a class="sub_menu" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a> 
-   
 		</section>
-		
 		<section class="course-content about-me-content">
-			<div class="user_express">
+			<div class="user_express" style="height:auto !important;">
         <div class="tou">
           % if portfolio_user.profile.photo:
             <img src="/static/uploads/photos/${ portfolio_user.profile.photo }" alt="photo" />
@@ -288,18 +289,31 @@
           % endif
         </div>
         <div class="name">
-             <span><strong class="express_inf">My Profile:</strong></span>
+             <span class="express_inf"><strong style="font-size:16px;color:#000;">My Profile:</strong></span>
           <span id="user_name" class="express_inf"><strong>User Name:</strong> ${ portfolio_user.username }</span> 
           <span id="name" class="express_inf"><span><strong>Name:</strong> ${ portfolio_user.profile.first_name | h } ${ portfolio_user.profile.last_name | h }</span></span>
           <!--
             <span id="email" class="express_inf"><strong>Email:</strong> ${ portfolio_user.email | h }</span>
           -->
-          <span id="district" class="express_inf"><span><strong>District:</strong> 
-            % if portfolio_user.profile.cohort_id:
-              ${portfolio_user.profile.cohort.district.name}
-            % endif
-          </span></span>
+
+
+          <span id="district" class="express_inf">
+            <span>
+              <strong>State:</strong>
+              % if portfolio_user.profile.cohort_id:
+              ${portfolio_user.profile.cohort.district.state.name}
+              % endif
+            </span>
+          </span>
           
+          <span id="district" class="express_inf">
+            <span>
+              <strong>District:</strong> 
+              % if portfolio_user.profile.cohort_id:
+              ${portfolio_user.profile.cohort.district.name}
+              % endif
+            </span>
+          </span>
           <span id="school" class="express_inf">
             <span><strong>School:</strong> 
                 % if portfolio_user.profile.school_id:
@@ -307,16 +321,8 @@
                 % endif
           </span></span>
 
-          <span id="major_subject_area" class="express_inf">
-            <span><strong>Major Subject Area:</strong> 
-             % if portfolio_user.profile.major_subject_area_id:
-                ${SubjectArea.objects.get(id=portfolio_user.profile.major_subject_area_id).name}
-              % endif
-            </span>
-          </span>
-
-          <span id="grade" class="express_inf">
-            <span><strong>Grade:</strong> 
+       <span id="grade" class="express_inf">
+            <span><strong>Grade Level:</strong> 
               <% gn=list() %>
               % if portfolio_user.profile.grade_level_id:
                 % for i,c in enumerate(portfolio_user.profile.grade_level_id.split(',')):
@@ -327,47 +333,63 @@
               % endif
               ${", ".join(gn)}
             </span>
-          </span>
- 
-</div>
-        <div id="bio" class="express">
-
+          </span>          
           
-       <span class="express_inf"><strong>My Class Profile:</strong></span>
+          <span id="major_subject_area" class="express_inf">
+            <span><strong>Major Subject Area:</strong> 
+             % if portfolio_user.profile.major_subject_area_id:
+                ${SubjectArea.objects.get(id=portfolio_user.profile.major_subject_area_id).name}
+              % endif
+            </span>
+          </span>
+          
+          <span id="major_subject_area" class="express_inf">
+            <span><strong>Number of Years Taught:</strong> 
+			  % if portfolio_user.profile.years_in_education_id:
+			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+			  % endif              
+            </span>
+          </span>   
+</div>
+        <div id="bio" class="express" style="height:auto">
+       <span class="express_inf"><strong style="font-size:16px;color:#000;">My Class Profile:</strong></span>
           <span id="major_subject_area" class="express_inf">
             <span>
+              <strong>Free/Reduced Lunch:</strong>
               % if portfolio_user.profile.percent_lunch:
               ${Enum.objects.get(name="percent_lunch",value=portfolio_user.profile.percent_lunch).content}
               % endif
-              Free/Reduced Lunch
             </span>
           </span>
           <span id="major_subject_area" class="express_inf">
             <span>
+              <strong>IEPs:</strong>
               % if portfolio_user.profile.percent_iep:
               ${Enum.objects.get(name="percent_iep",value=portfolio_user.profile.percent_iep).content}
               % endif
-              IEPs
             </span>
           </span>
           <span id="major_subject_area" class="express_inf">
             <span>
+              <strong>English Learners:</strong>
               % if portfolio_user.profile.percent_eng_learner:
               ${Enum.objects.get(name="percent_eng_learner",value=portfolio_user.profile.percent_eng_learner).content}
-              % endif
-              English Learners
             </span>
+            <br style="clear:both;"/>
           </span>
-
-          <br style="clear:both">
-          
-            <strong>Bio:</strong> 
+          <span id="major_subject_area" class="express_inf">
+            <strong style="color:#000;font-size:16px;">Bio:</strong>
+          </span>
+          <br/>
             %if portfolio_user.profile.bio:
               ${portfolio_user.profile.bio}
+              % endif            
             %else:
               Add info that you would like to share about yourself here.  
             %endif
+            <br style="clear:both"/>
         </div>
+        <br style="clear:both"/>
       </div>
       <div class="about_tit">About Me</div>
       <div class="message_all">
