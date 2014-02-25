@@ -477,7 +477,8 @@ class @CombinedOpenEnded
 
   save_answer: (event) =>
     @ora_loading.show()
-    @rubric_wrapper.show()
+    if @data_score!='correct'
+      @rubric_wrapper.show()
     event.preventDefault()
     @answer_area.attr("disabled", true)
     max_filesize = 2*1000*1000 #2MB

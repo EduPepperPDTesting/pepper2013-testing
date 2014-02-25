@@ -288,7 +288,7 @@
     % if request.GET.get('chapter')=='1' and threads_num>0: 
       <section class="course-content my-discussion-content">
       <ol class="vert-mod">
-       <section id="discussion-container" class="container discussion-user-threads" data-roles="${roles}" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id | escapejs}" data-threads="${threads}" data-user-info="${user_info}" data-flag-moderator="${flag_moderator}">
+       <section id="discussion-container" class="container discussion-user-threads" data-roles="${roles}" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id}" data-threads="${threads}" data-user-info="${user_info}" data-flag-moderator="${flag_moderator}">
       </section>
     % else:
       <section class="course-content my-discussion-content" style="padding:0px">
