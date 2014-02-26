@@ -9,16 +9,18 @@
   from xmodule.modulestore.django import modulestore
   from student.models import UserProfile
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
 %>
 <%! import json%>
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
+  section.course-index{
+    padding-bottom:50px !important;
+  }
 </style>
-
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
-
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -26,9 +28,7 @@
 <title>${_("People")}</title>
 %endif
 </%block>
-
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
-
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -42,7 +42,6 @@
   % endif
 %endif
 </%block>
-
 <style>
 /* Button 1 */
 .btn-1 {
@@ -62,7 +61,6 @@
 	background-image: linear-gradient(to top, #f93, #e0862c, #f93);
 }
 </style>
-
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
 %endif
@@ -118,7 +116,7 @@
           <option value="">School</option>
           %for item in School.objects.all():
           <option value="${item.id}">${item.name}</option>
-          %endfor            
+          %endfor
         </select>
       </div>
       <div class="filters">
@@ -134,7 +132,7 @@
           <option value="">Grade Level</option>
           %for item in GradeLevel.objects.all():
           <option value="${item.id}">${item.name}</option>
-          %endfor             
+          %endfor
         </select>
       </div>
       <div class="filters">
@@ -142,7 +140,31 @@
           <option value="">Years in Education</option>
           %for item in YearsInEducation.objects.all():
           <option value="${item.id}">${item.name}</option>
-          %endfor                 
+          %endfor
+        </select>
+      </div>
+      <div class="filters">
+        <select name="percent_lunch">
+          <option value="">Free/Reduced Lunch</option>
+          %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+          <option value="${item.value}">${item.content}</option>
+          %endfor
+        </select>
+      </div>
+      <div class="filters">
+        <select name="percent_iep">
+          <option value="">IEPs</option>
+          %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+          <option value="${item.value}">${item.content}</option>
+          %endfor
+        </select>
+      </div>
+      <div class="filters">
+        <select name="percent_eng_learner">
+          <option value="">English Learners</option>
+          %for item in Enum.objects.filter(name="percent_eng_learner").order_by("odr"):
+          <option value="${item.value}">${item.content}</option>
+          %endfor
         </select>
       </div>
       <input type="hidden" name="prepage" value="${prepage}"/>
@@ -181,6 +203,9 @@
        form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
        form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
        form.find("select[name=years_in_education_id]").val("${request.GET.get('years_in_education_id','')}")
+       form.find("select[name=percent_lunch]").val("${request.GET.get('percent_lunch','')}")
+       form.find("select[name=percent_iep]").val("${request.GET.get('percent_iep','')}")
+       form.find("select[name=percent_eng_learner]").val("${request.GET.get('percent_eng_learner','')}")       
     </script>
     </form>
     %if course:
@@ -196,12 +221,10 @@
       <div class="people_tit">People</div>
       %endif
       %for p in people:
-
       <%
          the_people_id=p.people.id
          profile=UserProfile.objects.get(user_id=p.people.id)
       %>
-      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
           <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
@@ -223,13 +246,16 @@
           %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
           <span class="name_text">${profile.years_in_education.name} Years in Education</span>
           %endif
+          %if 0:
+          <span class="name_text" style="color:#FFC90E;font-weight:bold;">Online Now!</span>              
+          %endif
+          </span>
         </span>
 		<div class="btn_container">
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="remove_people('${p.id}');return false;"></a>
         </div>
       </div>
-
       %endfor
     %if len(people)>0:
     %if course:

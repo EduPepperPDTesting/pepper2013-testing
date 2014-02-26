@@ -55,6 +55,8 @@ urlpatterns = (
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people/$', 'people.views.people', name="people"),
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
 
+    # url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat/$', 'chat.views.index', name="chat"),
+    
     url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
     url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
     url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
@@ -92,6 +94,15 @@ urlpatterns = (
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
     url(r'^email_confirm/(?P<key>[^/]*)$', 'student.views.confirm_email_change'),
+
+
+    url(r'^change_percent_lunch$', 'student.views.change_percent_lunch', name="change_percent_lunch"),
+    url(r'^change_percent_iep$', 'student.views.change_percent_iep', name="change_percent_iep"),
+    url(r'^change_percent_eng_learner$', 'student.views.change_percent_eng_learner', name="change_percent_eng_learner"),
+
+
+    
+    
     url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
     url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
     url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),

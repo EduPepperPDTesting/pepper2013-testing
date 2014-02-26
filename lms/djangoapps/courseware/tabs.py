@@ -82,6 +82,11 @@ def _wiki(tab, user, course, active_page):
         return [CourseTab(tab['name'], link, active_page == 'wiki')]
     return []
 
+def _chat(tab, user, course, active_page):
+    link = reverse('chat', args=[course.id])
+    return [CourseTab(tab['name'], link, active_page == 'chat')]
+
+
 
 def _discussion(tab, user, course, active_page):
     """
@@ -234,6 +239,7 @@ VALID_TAB_TYPES = {
     'wiki': TabImpl(need_name, _wiki),
     'discussion': TabImpl(need_name, _discussion),
     'progress': TabImpl(need_name, _progress),
+    'chat': TabImpl(need_name, _chat),
     
     'external_discussion': TabImpl(key_checker(['link']), _external_discussion),
     'external_link': TabImpl(key_checker(['name', 'link']), _external_link),
@@ -327,7 +333,6 @@ def get_course_tabs(user, course, active_page):
                               reverse('instructor_dashboard', args=[course.id]),
                               active_page == 'instructor'))
 
-
 #@begin:Add new static tags in courses
 #@date:2013-11-02 
     tabs.append(CourseTab('People',
@@ -342,9 +347,12 @@ def get_course_tabs(user, course, active_page):
                           reverse('portfolio_about_me', args=[course.id]),
                           active_page == 'portfolio'))
 
+    tabs.append(CourseTab('Chat',
+                          reverse('chat', args=[course.id]),
+                          active_page == 'chat'))    
+
 #@end    
     return tabs
-
 
 def get_discussion_link(course):
     """
@@ -366,7 +374,6 @@ def get_discussion_link(course):
     else:
         return reverse('django_comment_client.forum.views.forum_form_discussion', args=[course.id])
 
-
 def get_default_tabs(user, course, active_page):
 
     # When calling the various _tab methods, can omit the 'type':'blah' from the
@@ -374,7 +381,6 @@ def get_default_tabs(user, course, active_page):
     tabs = []
     tabs.extend(_courseware({''}, user, course, active_page))
     tabs.extend(_course_info({'name': 'Course Info'}, user, course, active_page))
-
 
 #@begin:Change the static tag of Progress to the front of Discussion
 #@date:2013-11-02 
@@ -404,7 +410,6 @@ def get_default_tabs(user, course, active_page):
 
     return tabs
 
-
 def get_static_tab_by_slug(course, tab_slug):
     """
     Look for a tab with type 'static_tab' and the specified 'tab_slug'.  Returns
@@ -418,7 +423,6 @@ def get_static_tab_by_slug(course, tab_slug):
             return tab
 
     return None
-
 
 def get_static_tab_contents(request, course, tab):
 

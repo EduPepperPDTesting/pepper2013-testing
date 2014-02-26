@@ -849,16 +849,22 @@ def create_account(request, post_override=None):
             return HttpResponse(json.dumps(js))
 #@begin:Check the availability of the following fields as we changed the user registration table fields
 #@date:2013-11-02  
-    required_post_vars_dropdown=['major_subject_area_id','grade_level_id','district_id', 'school_id','years_in_education_id']
+    required_post_vars_dropdown=['major_subject_area_id','grade_level_id','district_id',
+                                 'school_id','years_in_education_id',
+                                 'percent_lunch','percent_iep','percent_eng_learner'
+                                 ]
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
             error_str = {
-                         'major_subject_area_id':'Major Subject Area is required',
-                         'grade_level_id':'Grade Level-heck is required',
-                         'district_id':'District is required',
-                         'school_id':'School is required',
-                         'years_in_education_id':'Number of Years in Education is required'
-                         }
+                'major_subject_area_id':'Major Subject Area is required',
+                'grade_level_id':'Grade Level-heck is required',
+                'district_id':'District is required',
+                'school_id':'School is required',
+                'years_in_education_id':'Number of Years in Education is required',
+                'percent_lunch':'Free/Reduced Lunch is required',
+                'percent_iep':'IEPs is required',
+                'percent_eng_learner':'English Learners is required'
+                }
             js['value'] = error_str[a] 
             js['field'] = a
             return HttpResponse(json.dumps(js))    
@@ -1532,7 +1538,6 @@ def change_school_request(request):
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
-
     return HttpResponse(json.dumps({'success': True, 'school_id':up.school_id,
                                     'location': up.location}))
 
@@ -1541,7 +1546,6 @@ def change_grade_level_request(request):
     if 'grade_level_id' in request.POST:
         up.grade_level_id = request.POST['grade_level_id']
     up.save()
-
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location}))
 
@@ -1550,7 +1554,6 @@ def change_major_subject_area_request(request):
     if 'major_subject_area_id' in request.POST:
         up.major_subject_area_id = request.POST['major_subject_area_id']
     up.save()
-
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location}))
 
@@ -1559,7 +1562,6 @@ def change_years_in_education_request(request):
     if 'years_in_education_id' in request.POST:
         up.years_in_education_id = request.POST['years_in_education_id']
     up.save()
-
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location}))
 
@@ -1568,15 +1570,36 @@ def change_bio_request(request):
     if 'bio' in request.POST:
         up.bio = request.POST['bio']
     up.save()
-
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
 #@end
 
+def change_percent_lunch(request):
+    up=UserProfile.objects.get(user=request.user)
+    up.percent_lunch=request.POST.get("percent_lunch")
+    up.save()
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location, }))
+    
+def change_percent_iep(request):
+    up=UserProfile.objects.get(user=request.user)
+    up.percent_iep=request.POST.get("percent_iep")
+    up.save()
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location, }))
+
+def change_percent_eng_learner(request):
+    up=UserProfile.objects.get(user=request.user)
+    up.percent_eng_learner=request.POST.get("percent_eng_learner")
+    up.save()
+    return HttpResponse(json.dumps({'success': True,
+                                    'location': up.location, }))
+# called by create_account()    
 def activate_imported_account(post_vars):
     ret={'success': False}
     try:
         user_id=Registration.objects.get(activation_key=post_vars.get('activation_key','')).user_id
+        
         profile=UserProfile.objects.get(user_id=user_id)
         profile.subscription_status='Registered'
         profile.first_name=post_vars.get('first_name','')
@@ -1585,6 +1608,9 @@ def activate_imported_account(post_vars):
         profile.grade_level_id=post_vars.get('grade_level_id','')
         profile.major_subject_area_id=post_vars.get('major_subject_area_id','')
         profile.years_in_education_id=post_vars.get('years_in_education_id','')
+        profile.percent_lunch=post_vars.get('percent_lunch','')
+        profile.percent_iep=post_vars.get('percent_iep','')
+        profile.percent_eng_learner=post_vars.get('percent_eng_learner','')
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
 

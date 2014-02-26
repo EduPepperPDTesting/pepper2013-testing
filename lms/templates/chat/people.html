@@ -1,0 +1,57 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
+<%! import json%>
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+</style>
+<%namespace name='static' file='/static_content.html'/>
+<%inherit file="/main.html" />
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+
+<%block name="title">
+%if course:
+<title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
+%endif
+</%block>
+
+
+
+<%block name="headextra">
+%if course:
+  <%static:css group='course'/>
+  <%include file="../discussion/_js_head_dependencies.html" />
+  % if show_chat:
+    <link rel="stylesheet" href="${static.url('css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css')}" />
+    ## It'd be better to have this in a place like lms/css/vendor/candy,
+    ## but the candy_res/ folder contains images and other junk, and it
+    ## all needs to stay together for the Candy.js plugin to work.
+    <link rel="stylesheet" href="${static.url('candy_res/candy_full.css')}" />
+  % endif
+%endif
+</%block>
+
+<%include file="/courseware/course_navigation.html" args="active_page='chat'" />
+
+<section class="container">
+  <div class="static_tab_wrapper">
+    <section class="xblock xblock-student_view xmodule_display xmodule_StaticTabModule" data-runtime-version="1" data-init="XBlockToXModuleShim" data-handler-prefix="/courses/BerkeleyX/CS.169.2x/3T2013/xblock/i4x:;_;_BerkeleyX;_CS.169.2x;_static_tab;_1b387dcb690747fabcbc5f60adc09637/handler" data-type="HTMLModule" data-block-type="static_tab">
+
+
+
+      <p>Below is our course's live chatroom, where you can talk with World TAs and other students currently taking the course in real-time. You will find this chatroom throughout the course.</p>
+      <p><div id="chatframe"></div></p>
+      <p>You can also connect to the chatroom with your own IRC client, such as mIRC or Chatzilla:</p>
+      <ul>
+        <li><span style="font-size: 1em; line-height: 1.6em;">add the host cs1692x.moocforums.org port 6667, SSL disabled, and autojoin channel #cs1692x. We recommend that you <a href="http://wiki.xkcd.com/irc/hide_join_part_messages">disable join/part notifications</a>.</span></li>
+      </ul>
+      <script type="text/javascript" src="/static/js/edxframe.js" charset="utf-8"></script>
+    </section>
+  </div>
+</section>
