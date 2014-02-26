@@ -18,8 +18,8 @@ from django_comment_client.utils import (merge_dict, extract, strip_none, get_co
 import django_comment_client.utils as utils
 import comment_client as cc
 
-THREADS_PER_PAGE = 200
-INLINE_THREADS_PER_PAGE = 200
+THREADS_PER_PAGE = 20
+INLINE_THREADS_PER_PAGE = 20
 PAGES_NEARBY_DELTA = 2
 escapedict = {'"': '&quot;'}
 log = logging.getLogger("edx.discussions")
@@ -102,6 +102,82 @@ def get_threads(request, course_id, discussion_id=None, per_page=THREADS_PER_PAG
 
     return threads, query_params
 
+@login_required
+def get_threads_tags(request, course_id, discussion_id=None, per_page=THREADS_PER_PAGE):
+    """
+    This may raise cc.utils.CommentClientError or
+    cc.utils.CommentClientUnknownError if something goes wrong.
+    """
+    default_query_params = {
+        'page': 1,
+        'per_page': per_page,
+        'sort_key': 'date',
+        'sort_order': 'desc',
+        'text': '',
+        'tags': 'default',
+        'commentable_id': discussion_id,
+        'course_id': course_id,
+        'user_id': request.user.id,
+    }
+
+    if not request.GET.get('sort_key'):
+        # If the user did not select a sort key, use their last used sort key
+        cc_user = cc.User.from_django_user(request.user)
+        cc_user.retrieve()
+        # TODO: After the comment service is updated this can just be user.default_sort_key because the service returns the default value
+        default_query_params['sort_key'] = cc_user.get('default_sort_key') or default_query_params['sort_key']
+    else:
+        # If the user clicked a sort key, update their default sort key
+        cc_user = cc.User.from_django_user(request.user)
+        cc_user.default_sort_key = request.GET.get('sort_key')
+        cc_user.save()
+
+    #there are 2 dimensions to consider when executing a search with respect to group id
+    #is user a moderator
+    #did the user request a group
+
+    #if the user requested a group explicitly, give them that group, othewrise, if mod, show all, else if student, use cohort
+
+    group_id = request.GET.get('group_id')
+
+    if group_id == "all":
+        group_id = None
+
+    if not group_id:
+        if not cached_has_permission(request.user, "see_all_cohorts", course_id):
+            group_id = get_cohort_id(request.user, course_id)
+
+    if group_id:
+        default_query_params["group_id"] = group_id
+
+    #so by default, a moderator sees all items, and a student sees his cohort
+
+    query_params = merge_dict(default_query_params,
+                              strip_none(extract(request.GET,
+                                                 ['page', 'sort_key',
+                                                  'sort_order', 'text',
+                                                  'tags', 'commentable_ids', 'flagged'])))
+
+    threads, page, num_pages = cc.Thread.search(query_params)
+
+    #now add the group name if the thread has a group id
+    for thread in threads:
+
+        if thread.get('group_id'):
+            thread['group_name'] = get_cohort_by_id(course_id, thread.get('group_id')).name
+            thread['group_string'] = "This post visible only to Group %s." % (thread['group_name'])
+        else:
+            thread['group_name'] = ""
+            thread['group_string'] = "This post visible to everyone."
+
+        #patch for backward compatibility to comments service
+        if not 'pinned' in thread:
+            thread['pinned'] = False
+
+    query_params['page'] = page
+    query_params['num_pages'] = num_pages
+
+    return threads, query_params
 
 @login_required
 def inline_discussion(request, course_id, discussion_id):
@@ -172,7 +248,7 @@ def forum_form_discussion(request, course_id):
     category_map = utils.get_discussion_category_map(course)
 
     try:
-        unsafethreads, query_params = get_threads(request, course_id)   # This might process a search query
+        unsafethreads, query_params = get_threads_tags(request, course_id)   # This might process a search query
         threads = [utils.safe_content(thread) for thread in unsafethreads]
     except cc.utils.CommentClientMaintenanceError:
         log.warning("Forum is in maintenance mode")
