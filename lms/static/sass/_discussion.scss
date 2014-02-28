@@ -1986,6 +1986,30 @@ body.discussion {
     }
   }
 
+  .discussion-show-default {
+    position: relative;
+    top: 3px;
+    font-size: 14px;
+    text-align: center;
+
+    &.shown {
+      .show-hide-discussion-icon {
+        background-position: 0 0;
+      }
+    }
+
+    .show-hide-discussion-icon {
+      display: inline-block;
+      position: relative;
+      top: 5px;
+      margin-right: 6px;
+      width: 21px;
+      height: 19px;
+      background: url(../images/show-hide-discussion-icon.png) no-repeat;
+      background-position: -21px 0;
+    }
+  }
+  
   .new-post-btn {
     display: inline-block;
     float: right;

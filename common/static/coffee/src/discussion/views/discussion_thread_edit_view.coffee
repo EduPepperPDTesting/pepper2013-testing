@@ -15,6 +15,8 @@ if Backbone?
       @template = _.template($("#thread-edit-template").html())
       @$el.html(@template(@model.toJSON()))
       @delegateEvents()
+      @$el.find('.edit-post-title').val(@model.get('title'))
+      @$el.find('.edit-post-body').html(@model.get('body'))
       DiscussionUtil.makeWmdEditor @$el, $.proxy(@$, @), "edit-post-body"
       @$(".edit-post-tags").tagsInput DiscussionUtil.tagsInputOptions()
       @
