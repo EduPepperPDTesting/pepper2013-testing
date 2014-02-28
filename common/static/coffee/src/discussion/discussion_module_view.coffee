@@ -5,35 +5,48 @@ if Backbone?
       "click .new-post-btn": "toggleNewPost"
       "click .new-post-cancel": "hideNewPost"
       "click .discussion-paginator a": "navigateToPage"
+      "click .discussion-show-default": "toggleDiscussion_default"
 
     paginationTemplate: -> DiscussionUtil.getTemplate("_pagination")
     page_re: /\?discussion_page=(\d+)/
     initialize: ->
 
       @toggleDiscussionBtn = @$(".discussion-show")
+      @toggleDiscussionDefaultBtn = @$(".discussion-show-default")
       # Set the page if it was set in the URL. This is used to allow deep linking to pages
-      if $(".edit-course-btn").length<1
-        @toggleDiscussionBtn.find('span').hide()
-        @toggleDiscussionBtn.append('<span>&nbsp;</span>')
+      
       match = @page_re.exec(window.location.href)
       if match
         @page = parseInt(match[1])
       else
         @page = 1
-      $elem = @toggleDiscussionBtn
-      @loadPage $elem
+      if $(".my-course-work-content").length<1
+        @toggleDiscussionBtn.hide()
+        @toggleDiscussionDefaultBtn.show()
+      else
+        @toggleDiscussionBtn.show()
+        @toggleDiscussionDefaultBtn.hide()
+        $elem = @toggleDiscussionBtn
+        @loadPage $elem
     toggleNewPost: (event) ->
       event.preventDefault()
       if !@newPostForm
-        @toggleDiscussion()
+        if $(".my-course-work-content").length<1
+          @toggleDiscussion_default()
+          @toggleDiscussionDefaultBtn.addClass('shown')
+          @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
+        else
+          @toggleDiscussion()
+          @toggleDiscussionBtn.addClass('shown')
+          @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
         @isWaitingOnNewPost = true;
         return
       if @showed
         @newPostForm.slideDown(300)
       else
         @newPostForm.show()
-      @toggleDiscussionBtn.addClass('shown')
-      @toggleDiscussionBtn.find('.button-text').html("Showing in Public View")
+      if $(".my-course-work-content").length<1
+        @showed = true
       @$("section.discussion").slideDown()
 
     hideNewPost: (event) ->
@@ -49,6 +62,22 @@ if Backbone?
         @showed = true
         
       @setVisibility()  
+    toggleDiscussion_default: (event) ->
+      if @showed
+        @$("section.discussion").slideUp()
+        @toggleDiscussionDefaultBtn.removeClass('shown')
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
+        @showed = false
+      else
+        @toggleDiscussionDefaultBtn.addClass('shown')
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
+
+        if @retrieved
+          @$("section.discussion").slideDown()
+          @showed = true
+        else
+          $elem = @toggleDiscussionDefaultBtn
+          @loadPage_default $elem
 
     loadPage: ($elem)=>
       discussionId = @$el.data("discussion-id")
@@ -60,6 +89,17 @@ if Backbone?
         @showed=false
         @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
         @toggleDiscussionBtn.removeClass('shown')
+      url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
+      DiscussionUtil.safeAjax
+        $elem: $elem
+        $loading: $elem
+        url: url
+        type: "GET"
+        dataType: 'json'
+        success: (response, textStatus, jqXHR) => @renderDiscussion($elem, response, textStatus, discussionId)
+
+    loadPage_default: ($elem)=>
+      discussionId = @$el.data("discussion-id")
       url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem

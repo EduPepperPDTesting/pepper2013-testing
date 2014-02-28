@@ -23,6 +23,8 @@ if Backbone?
 
     render: ->
       @$el.html(@renderTemplate())
+      @$(".discussion-post").find('h1').html(@model.get('title'))
+      @$(".post-body").html(@model.get('body'))
       @delegateEvents()
       @renderDogear()
       @renderVoted()
