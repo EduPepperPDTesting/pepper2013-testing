@@ -215,9 +215,9 @@ CELERY_ALWAYS_EAGER = True
 ################################ DEBUG TOOLBAR ################################
 
 INSTALLED_APPS += ('debug_toolbar',)
-MIDDLEWARE_CLASSES += ('django_comment_client.utils.QueryCountDebugMiddleware',
-                       'debug_toolbar.middleware.DebugToolbarMiddleware',
-                       'online_status.middleware.OnlineStatusMiddleware',
+MIDDLEWARE_CLASSES += ('django_comment_client.utils.QueryCountDebugMiddleware'
+                       ,'debug_toolbar.middleware.DebugToolbarMiddleware'
+                       # 'online_status.middleware.OnlineStatusMiddleware'
                        )
 INTERNAL_IPS = ('127.0.0.1',)
 
