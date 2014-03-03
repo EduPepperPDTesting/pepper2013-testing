@@ -283,10 +283,10 @@ def user_submit(request):
             profile=UserProfile()
             user=User()
 
-        # if request.POST['subscription_status']=='Registered':
-        #     user.is_active=True
-        # else:
-        #     user.is_active=False 
+        if request.POST['subscription_status']=='Registered':
+            user.is_active=True
+        else:
+            user.is_active=False 
             
         user.email=request.POST['email']
         user.save()
@@ -308,12 +308,11 @@ def user_modify_status(request):
     user=User.objects.get(id=request.POST['id'])
     profile=UserProfile.objects.get(user_id=request.POST['id'])
     try:
-        # if request.POST['subscription_status']=='Registered':
-        #     user.is_active=True
-        # else:
-        #     user.is_active=False
-            
-        # user.save()
+        if request.POST['subscription_status']=='Registered':
+            user.is_active=True
+        else:
+            user.is_active=False
+        user.save()
         
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
