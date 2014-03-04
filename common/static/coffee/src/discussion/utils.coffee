@@ -73,7 +73,7 @@ class @DiscussionUtil
       upload                  : "/courses/#{$$course_id}/discussion/upload"
       search                  : "/courses/#{$$course_id}/discussion/forum/search"
       tags_autocomplete       : "/courses/#{$$course_id}/discussion/threads/tags/autocomplete"
-      retrieve_discussion     : "/courses/#{$$course_id}/discussion/forum/#{param}/inline"
+      retrieve_discussion     : "/courses/#{$$course_id}/discussion/forum/#{param}/inline/#{param1}"
       retrieve_single_thread  : "/courses/#{$$course_id}/discussion/forum/#{param}/threads/#{param1}"
       update_moderator_status : "/courses/#{$$course_id}/discussion/users/#{param}/update_moderator_status"
       openclose_thread        : "/courses/#{$$course_id}/discussion/threads/#{param}/close"

@@ -25,6 +25,7 @@ if Backbone?
       @$el.html(@renderTemplate())
       @$(".discussion-post").find('h1').html(@model.get('title'))
       @$(".post-body").html(@model.get('body'))
+      @$(".post-body").find('.file_url').remove()
       @delegateEvents()
       @renderDogear()
       @renderVoted()

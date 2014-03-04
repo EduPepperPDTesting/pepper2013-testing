@@ -321,7 +321,7 @@ if Backbone?
       @loadMorePages(event)
       
     retrieveDiscussion: (discussion_id, callback=null) ->
-      url = DiscussionUtil.urlFor("retrieve_discussion", discussion_id)
+      url = DiscussionUtil.urlFor("retrieve_discussion", discussion_id,'default')
       DiscussionUtil.safeAjax
         url: url
         type: "GET"
