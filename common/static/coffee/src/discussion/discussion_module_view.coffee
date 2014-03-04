@@ -23,6 +23,7 @@ if Backbone?
       if $(".my-course-work-content").length<1
         @toggleDiscussionBtn.hide()
         @toggleDiscussionDefaultBtn.show()
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
       else
         @toggleDiscussionBtn.show()
         @toggleDiscussionDefaultBtn.hide()
@@ -34,7 +35,7 @@ if Backbone?
         if $(".my-course-work-content").length<1
           @toggleDiscussion_default()
           @toggleDiscussionDefaultBtn.addClass('shown')
-          @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
+          @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
         else
           @toggleDiscussion()
           @toggleDiscussionBtn.addClass('shown')
@@ -66,11 +67,11 @@ if Backbone?
       if @showed
         @$("section.discussion").slideUp()
         @toggleDiscussionDefaultBtn.removeClass('shown')
-        @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
         @showed = false
       else
         @toggleDiscussionDefaultBtn.addClass('shown')
-        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
 
         if @retrieved
           @$("section.discussion").slideDown()
@@ -89,7 +90,7 @@ if Backbone?
         @showed=false
         @toggleDiscussionBtn.find('.button-text').html("Hidden from Public View")
         @toggleDiscussionBtn.removeClass('shown')
-      url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
+      url = DiscussionUtil.urlFor('retrieve_discussion', discussionId,'portfolio') + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem
         $loading: $elem
@@ -100,7 +101,10 @@ if Backbone?
 
     loadPage_default: ($elem)=>
       discussionId = @$el.data("discussion-id")
-      url = DiscussionUtil.urlFor('retrieve_discussion', discussionId) + "?page=#{@page}"
+      if $(".about-me-content").length<1
+        url = DiscussionUtil.urlFor('retrieve_discussion', discussionId,'default') + "?page=#{@page}"
+      else
+        url = DiscussionUtil.urlFor('retrieve_discussion', discussionId,'aboutme') + "?page=#{@page}"
       DiscussionUtil.safeAjax
         $elem: $elem
         $loading: $elem

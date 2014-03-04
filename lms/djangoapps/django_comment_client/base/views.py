@@ -122,7 +122,13 @@ def create_thread(request, course_id, commentable_id):
             thread.update_attributes(group_id=group_id)
 
     thread.save()
-
+    courseware_context = get_courseware_context(thread, course)
+    if courseware_context:
+        if str(courseware_context.get('courseware_url')).find('__am')>0:
+            thread.update_attributes(**{
+                'tags':'aboutme',
+            })
+        thread.save()
     #patch for backward compatibility to comments service
     if not 'pinned' in thread.attributes:
         thread['pinned'] = False
@@ -153,6 +159,14 @@ def update_thread(request, course_id, thread_id):
         'tags':'default',
     })
     thread.save()
+    course = get_course_with_access(request.user, course_id, 'load')
+    courseware_context = get_courseware_context(thread, course)
+    if courseware_context:
+        if str(courseware_context.get('courseware_url')).find('__am')>0:
+            thread.update_attributes(**{
+                'tags':'aboutme',
+            })
+        thread.save()
     if request.is_ajax():
         return ajax_content_response(request, course_id, thread.to_dict(), 'discussion/ajax_update_thread.html')
     else:

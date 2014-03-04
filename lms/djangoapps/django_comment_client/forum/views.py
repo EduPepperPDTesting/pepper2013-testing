@@ -103,7 +103,7 @@ def get_threads(request, course_id, discussion_id=None, per_page=THREADS_PER_PAG
     return threads, query_params
 
 @login_required
-def get_threads_tags(request, course_id, discussion_id=None, per_page=THREADS_PER_PAGE):
+def get_threads_tags(request, course_id, tags_type='default',discussion_id=None, per_page=THREADS_PER_PAGE):
     """
     This may raise cc.utils.CommentClientError or
     cc.utils.CommentClientUnknownError if something goes wrong.
@@ -114,7 +114,7 @@ def get_threads_tags(request, course_id, discussion_id=None, per_page=THREADS_PE
         'sort_key': 'date',
         'sort_order': 'desc',
         'text': '',
-        'tags': 'default',
+        'tags': tags_type,
         'commentable_id': discussion_id,
         'course_id': course_id,
         'user_id': request.user.id,
@@ -180,14 +180,14 @@ def get_threads_tags(request, course_id, discussion_id=None, per_page=THREADS_PE
     return threads, query_params
 
 @login_required
-def inline_discussion(request, course_id, discussion_id):
+def inline_discussion(request, course_id, discussion_id,tags_type):
     """
     Renders JSON for DiscussionModules
     """
     course = get_course_with_access(request.user, course_id, 'load_forum')
 
     try:
-        threads, query_params = get_threads(request, course_id, discussion_id, per_page=INLINE_THREADS_PER_PAGE)
+        threads, query_params = get_threads_tags(request, course_id, tags_type, discussion_id, per_page=INLINE_THREADS_PER_PAGE)
         cc_user = cc.User.from_django_user(request.user)
         user_info = cc_user.to_dict()
     except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
@@ -351,14 +351,14 @@ def single_thread(request, course_id, discussion_id, thread_id):
         category_map = utils.get_discussion_category_map(course)
 
         try:
-            threads, query_params = get_threads(request, course_id)
+            threads, query_params = get_threads_tags(request, course_id)
             threads.append(thread.to_dict())
         except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
             log.error("Error loading single thread.")
             raise Http404
 
         course = get_course_with_access(request.user, course_id, 'load_forum')
-
+        thread_output = []
         for thread in threads:
             courseware_context = get_courseware_context(thread, course)
             if courseware_context:
@@ -369,8 +369,10 @@ def single_thread(request, course_id, discussion_id, thread_id):
             #patch for backward compatibility with comments service
             if not "pinned" in thread:
                 thread["pinned"] = False
-
-        threads = [utils.safe_content(thread) for thread in threads]
+            if len(thread.get('tags'))>0:
+                if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                    thread_output.append(thread)
+        thread_output = [utils.safe_content(thread) for thread in thread_output]
 
         #recent_active_threads = cc.search_recent_active_threads(
         #    course_id,
@@ -382,7 +384,7 @@ def single_thread(request, course_id, discussion_id, thread_id):
         #    course_id,
         #)
 
-        annotated_content_info = utils.get_metadata_for_threads(course_id, threads, request.user, user_info)
+        annotated_content_info = utils.get_metadata_for_threads(course_id, thread_output, request.user, user_info)
 
         cohorts = get_course_cohorts(course_id)
         cohorted_commentables = get_cohorted_commentables(course_id)
@@ -399,7 +401,7 @@ def single_thread(request, course_id, discussion_id, thread_id):
             #'trending_tags': trending_tags,
             'course_id': course.id,   # TODO: Why pass both course and course.id to template?
             'thread_id': thread_id,
-            'threads': saxutils.escape(json.dumps(threads), escapedict),
+            'threads': saxutils.escape(json.dumps(thread_output), escapedict),
             'category_map': category_map,
             'roles': saxutils.escape(json.dumps(utils.get_role_ids(course_id)), escapedict),
             'thread_pages': query_params['num_pages'],
