@@ -349,9 +349,11 @@ class UserProfile(models.Model):
     gender = models.CharField(
         blank=True, null=True, max_length=6, db_index=True, choices=GENDER_CHOICES
     )
-    percent_lunch = models.IntegerField(blank=False, null=False, db_index=False)
-    percent_iep = models.IntegerField(blank=False, null=False, db_index=False)
-    percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False)
+
+    percent_lunch = models.IntegerField(blank=False, null=False, db_index=False,default=0)
+    percent_iep = models.IntegerField(blank=False, null=False, db_index=False,default=0)
+    percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False,default=0)
+    
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
     # ('p_se', 'Doctorate in science or engineering'),
