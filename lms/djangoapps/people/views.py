@@ -175,8 +175,9 @@ def my_people(request,course_id=None):
     people=People.objects.filter(user_id=request.user.id)
     
     search_course_id=request.GET.get('course_id')
-    if search_course_id is None:
-        search_course_id=course_id
+
+    # if search_course_id is None:
+    #     search_course_id=course_id      # DEFAULT VALUE
 
     import re
 
