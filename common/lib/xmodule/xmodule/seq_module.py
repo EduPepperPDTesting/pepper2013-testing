@@ -98,7 +98,7 @@ class SequenceModule(SequenceFields, XModule):
                 ),
                 'progress_status': Progress.to_js_status_str(progress),
                 'progress_detail': Progress.to_js_detail_str(progress),
-                'type': child.get_icon_class(),
+                'type': self.get_vertical_type(child),
                 'id': child.id,
             }
             if childinfo['title'] == '':
@@ -124,7 +124,12 @@ class SequenceModule(SequenceFields, XModule):
                 new_class = c
         return new_class
 
-
+    def get_vertical_type(self,child):
+        if child.display_name_with_default.find('[#')<0:
+            return child.get_icon_class()
+        else:
+            return child.display_name_with_default.split("[#")[1].split("#]")[0]
+            
 class SequenceDescriptor(SequenceFields, MakoModuleDescriptor, XmlDescriptor):
     mako_template = 'widgets/sequence-edit.html'
     module_class = SequenceModule
