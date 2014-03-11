@@ -168,6 +168,13 @@ class CourseFields(object):
     grading_policy = Dict(help="Grading policy definition for this class",
                           default={"GRADER": [
                               {
+                                  "type": "Scored Section",
+                                  "min_count": 20,
+                                  "drop_count": 0,
+                                  "short_label": "Scored Group",
+                                  "weight": 1
+                              },
+                              {
                                   "type": "Homework",
                                   "min_count": 12,
                                   "drop_count": 2,

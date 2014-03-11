@@ -136,9 +136,19 @@ def sort_map_entries(category_map, sort_alpha):
         things.append((title, category))
         sort_map_entries(category_map["subcategories"][title], sort_alpha)
     #category_map["children"] = [x[0] for x in sorted(things, key=lambda x: x[1]["sort_key"])]
-    category_map["children"] = [x[0] for x in sorted(things, key=lambda x: x[0])]
+    category_map["children"] = [x[0] for x in sorted(things, key=lambda x: num_sort(x[0]))]
 
-
+def num_sort(x):
+    num = x.split(" ")[0]
+    r=0
+    modulus=1000000
+    if num.find(".")>0:
+        digitalArr=num.split(".")
+        for d in digitalArr:
+            modulus/=100
+            r+=int(d)*modulus
+    return r
+    
 def initialize_discussion_info(course):
     course_id = course.id
 
