@@ -146,7 +146,10 @@ def num_sort(x):
         digitalArr=num.split(".")
         for d in digitalArr:
             modulus/=100
-            r+=int(d)*modulus
+            try: 
+                r+=int(d)*modulus
+            except:
+                return r 
     return r
     
 def initialize_discussion_info(course):
