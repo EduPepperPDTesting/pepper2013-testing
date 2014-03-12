@@ -171,7 +171,10 @@ class @Sequence
       sequence_id: @id
       current_sequential: @position
       target_sequential: new_position
-
+    if document.documentElement.scrollTop==0 
+      document.body.scrollTop = 0
+    else
+      document.documentElement.scrollTop = 0
     @render new_position
 
   previous: (event) =>
@@ -186,7 +189,10 @@ class @Sequence
       sequence_id: @id
       current_sequential: @position
       target_sequential: new_position
-
+    if document.documentElement.scrollTop==0 
+      document.body.scrollTop = 0
+    else
+      document.documentElement.scrollTop = 0
     @render new_position
 
   link_for: (position) ->
