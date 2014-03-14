@@ -93,11 +93,14 @@
         if(json.success) {
           var u=decodeURI(window.location.search);
           next=u.split("next=")[1];
-          if (next && !isExternal(next)) {
+
+          var next_to_dashboard_only=true
+          if (!next_to_dashboard_only && next && !isExternal(next)) {
             location.href=next;
           }  else {
             location.href="${reverse('dashboard')}";
           }
+    
         } else {
           toggleSubmitButton(true);
           $('.message.submission-error').addClass('is-shown').focus();
