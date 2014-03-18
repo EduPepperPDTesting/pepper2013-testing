@@ -7,17 +7,36 @@ return {
         self = this;
 
         this[element].mousedown(function (event) {
-            self.mouseDown(event);
+            var obj=event;
+            self.mouseDown(event,obj);
         });
         this[element].mouseup(function (event) {
-            self.mouseUp(event);
+            self.mouseUp();
         });
         this[element].mousemove(function (event) {
-            self.mouseMove(event);
+            var obj=event;
+            self.mouseMove(event,obj);
         });
+        this[element][0].addEventListener('touchstart',function(event){
+            
+            var obj=event.targetTouches[0];
+            self.mouseDown(event,obj);
+
+        },false);
+
+        this[element][0].addEventListener('touchmove',function(event){
+            event.preventDefault(); 
+            var obj=event.targetTouches[0];
+            self.mouseMove(event,obj);
+
+        },false);
+
+        this[element][0].addEventListener('touchend',function(event){
+            self.mouseUp();
+        },false);
     },
 
-    'mouseDown': function (event) {
+    'mouseDown': function (event,obj) {
         if (this.mousePressed === false) {
             // So that the browser does not perform a default drag.
             // If we don't do this, each drag operation will
@@ -58,8 +77,8 @@ return {
                     'border': this.iconElBorder,
                     'width': this.iconWidth,
                     'height': this.iconHeight,
-                    'left': event.pageX - this.state.baseImageEl.offset().left - this.iconWidth * 0.5 - this.iconElLeftOffset,
-                    'top': event.pageY - this.state.baseImageEl.offset().top - this.iconHeight * 0.5
+                    'left': obj.pageX - this.state.baseImageEl.offset().left - this.iconWidth * 0.5 - this.iconElLeftOffset,
+                    'top': obj.pageY - this.state.baseImageEl.offset().top - this.iconHeight * 0.5
                 });
                 this.iconEl.appendTo(this.state.baseImageEl.parent());
 
@@ -72,8 +91,8 @@ return {
                         'padding-left': 8,
                         'padding-right': 8,
                         'border': '1px solid black',
-                        'left': event.pageX - this.state.baseImageEl.offset().left - this.labelWidth * 0.5 - 9, // Account for padding, border.
-                        'top': event.pageY - this.state.baseImageEl.offset().top + this.iconHeight * 0.5 + 5
+                        'left': obj.pageX - this.state.baseImageEl.offset().left - this.labelWidth * 0.5 - 9, // Account for padding, border.
+                        'top': obj.pageY - this.state.baseImageEl.offset().top + this.iconHeight * 0.5 + 5
                     });
                     this.labelEl.appendTo(this.state.baseImageEl.parent());
                 }
@@ -103,7 +122,7 @@ return {
         }
     },
 
-    'mouseMove': function (event) {
+    'mouseMove': function (event,obj) {
         if (this.mousePressed === true) {
             // Because we have also attached a 'mousemove' event to the
             // 'document' (that will do the same thing), let's tell the
@@ -114,14 +133,14 @@ return {
             event.stopPropagation();
 
             this.iconEl.css({
-                'left': event.pageX - this.state.baseImageEl.offset().left - this.iconWidth * 0.5 - this.iconElLeftOffset,
-                'top': event.pageY - this.state.baseImageEl.offset().top - this.iconHeight * 0.5
+                'left': obj.pageX - this.state.baseImageEl.offset().left - this.iconWidth * 0.5 - this.iconElLeftOffset,
+                'top': obj.pageY - this.state.baseImageEl.offset().top - this.iconHeight * 0.5
             });
 
             if (this.labelEl !== null) {
                 this.labelEl.css({
-                    'left': event.pageX - this.state.baseImageEl.offset().left - this.labelWidth * 0.5 - 9, // Acoount for padding, border.
-                    'top': event.pageY - this.state.baseImageEl.offset().top + this.iconHeight * 0.5 + 5
+                    'left': obj.pageX - this.state.baseImageEl.offset().left - this.labelWidth * 0.5 - 9, // Acoount for padding, border.
+                    'top': obj.pageY - this.state.baseImageEl.offset().top + this.iconHeight * 0.5 + 5
                 });
             }
         }

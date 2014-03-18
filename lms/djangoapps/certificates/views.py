@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 import logging
 from certificates.models import GeneratedCertificate
 from certificates.models import CertificateStatuses as status
@@ -225,6 +226,7 @@ def download_certificate(request,course_id,completed_time):
     response.write(pdf)
     return response
 
+@login_required
 def course_credits(request):
      return render_to_response('course_credits.html', {})
 

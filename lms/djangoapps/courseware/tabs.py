@@ -346,12 +346,18 @@ def get_course_tabs(user, course, active_page):
     tabs.append(CourseTab('My Course Portfolio',
                           reverse('portfolio_about_me', args=[course.id]),
                           active_page == 'portfolio'))
+    
+#@end
 
-    # tabs.append(CourseTab('Chat',
-    #                       reverse('chat', args=[course.id]),
-    #                       active_page == 'chat'))    
-
-#@end    
+    # Move "Live Hangout" to the end.
+    n=-1
+    for i,t in enumerate(tabs):
+        if t.name.strip()=="Live Hangout!":
+            n=i
+            tabs.append(t)
+            break
+    if n>-1: del tabs[n]
+ 
     return tabs
 
 def get_discussion_link(course):

@@ -144,7 +144,7 @@ def search_user(me,username='',first_name='',last_name='',
     f.SetMaxMatches(10000)
     f.SetServer('127.0.0.1', 9312)
     f.SetMatchMode(sphinxapi.SPH_MATCH_EXTENDED2)
-    f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_name ASC, first_name ASC" )
+    f.SetSortMode(sphinxapi.SPH_SORT_EXTENDED, "last_login DESC, last_name ASC, first_name ASC" )
 
     # f.AddCond('@user_id !%s' % me.id)
     f.SetFilter('user_id',[me.id],True)
