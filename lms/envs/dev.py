@@ -217,7 +217,8 @@ CELERY_ALWAYS_EAGER = True
 INSTALLED_APPS += ('debug_toolbar',)
 MIDDLEWARE_CLASSES += ('django_comment_client.utils.QueryCountDebugMiddleware'
                        ,'debug_toolbar.middleware.DebugToolbarMiddleware'
-                       # 'online_status.middleware.OnlineStatusMiddleware'
+                       # ,'online_status.middleware.OnlineStatusMiddleware'
+                       ,'middleware.SessionExpiry'
                        )
 INTERNAL_IPS = ('127.0.0.1',)
 
@@ -283,10 +284,8 @@ CC_PROCESSOR['CyberSource']['MERCHANT_ID'] = os.environ.get('CYBERSOURCE_MERCHAN
 CC_PROCESSOR['CyberSource']['SERIAL_NUMBER'] = os.environ.get('CYBERSOURCE_SERIAL_NUMBER', '')
 CC_PROCESSOR['CyberSource']['PURCHASE_ENDPOINT'] = os.environ.get('CYBERSOURCE_PURCHASE_ENDPOINT', '')
 
-
 ########################## USER API ########################
 EDX_API_KEY = None
-
 
 ####################### Shoppingcart ###########################
 MITX_FEATURES['ENABLE_SHOPPING_CART'] = True
@@ -335,9 +334,12 @@ AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
 SUPPORT_EMAIL='Pepper Support <PepperSupport@pcgus.com>'
 DEFAULT_FROM_EMAIL = SUPPORT_EMAIL
 
-
 # online status
 USERS_ONLINE__TIME_IDLE = 60*5 # 5 minutes
 USERS_ONLINE__TIME_OFFLINE = 60*10 # 10 minutes
 # USERS_ONLINE__CACHE_PREFIX_USER = 'online_user'
 # USERS_ONLINE__CACHE_USERS = 'online_users'
+
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_COOKIE_AGE = 30 * 60
+SESSION_EXPIRY = 30 * 60

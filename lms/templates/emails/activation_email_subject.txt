@@ -1,1 +1,1 @@
-Action Required - Invitation from ${district}
+Registration Action Required - Invitation from ${district} DISTRICT
