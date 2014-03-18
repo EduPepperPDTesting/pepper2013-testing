@@ -221,7 +221,7 @@ def my_people(request,course_id=None):
     if request.GET.get('percent_eng_learner',''):
         people=people.filter(people__profile__percent_eng_learner = request.GET.get('percent_eng_learner',''))
 
-    people=people.order_by('people__profile__last_name').order_by('people__profile__first_name')
+    people=people.order_by('-people__last_login','people__profile__last_name','people__profile__first_name')
 
     pager=JuncheePaginator(people,prepage,6)
     people=valid_pager(pager,request.GET.get('page'))

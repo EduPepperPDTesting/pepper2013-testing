@@ -5,6 +5,7 @@ from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response
 from student.models import ResourceLibrary,StaticContent
 from collections import deque
+from django.contrib.auth.decorators import login_required
 
 def index_bak(request):
 
@@ -78,6 +79,7 @@ def index_bak(request):
 
 	return render_to_response('access_resource_library.html', {'resources': result})
 
+@login_required
 def index(request):
 	static_content = StaticContent.objects.get(name="Resource Library")
 	static_html_content = static_content.content if static_content else 'sorry for maintain...'

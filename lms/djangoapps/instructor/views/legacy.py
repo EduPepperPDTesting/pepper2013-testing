@@ -13,6 +13,7 @@ from requests.status_codes import codes
 from collections import OrderedDict
 
 from StringIO import StringIO
+from django.contrib.auth.decorators import login_required
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
@@ -73,7 +74,7 @@ def split_by_comma_and_whitespace(a_str):
     """
     return re.split(r'[\s,]', a_str)
 
-
+@login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def instructor_dashboard(request, course_id):
