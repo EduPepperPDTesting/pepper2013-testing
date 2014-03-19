@@ -235,10 +235,11 @@ class @CombinedOpenEnded
       @coe.replaceWith(response.html)
     catch
     #@end
-    if document.documentElement.scrollTop==0 
-      document.body.scrollTop = 0
-    else
-      document.documentElement.scrollTop = 0
+    if@child_state!='initial'
+      if document.documentElement.scrollTop==0 
+        document.body.scrollTop = 0
+      else
+        document.documentElement.scrollTop = 0
   get_html: () =>
     url = "#{@ajax_url}/get_html"
     $.ajaxWithPrefix({
