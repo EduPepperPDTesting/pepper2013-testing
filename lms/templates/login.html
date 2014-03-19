@@ -79,6 +79,10 @@
     });
     
     (function() {
+      if (localStorage.pepperpd_login_email)
+      {
+        $("#email").val(localStorage.pepperpd_login_email);
+      }
       toggleSubmitButton(true);
 
       $('#login-form').on('submit', function() {
@@ -91,6 +95,10 @@
 
       $('#login-form').on('ajax:success', function(event, json, xhr) {
         if(json.success) {
+          if ($('#remember-yes').attr("checked"))
+          {
+            localStorage.pepperpd_login_email=$("#email").val();
+          }
           var u=decodeURI(window.location.search);
           next=u.split("next=")[1];
 
