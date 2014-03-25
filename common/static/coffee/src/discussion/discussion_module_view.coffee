@@ -23,19 +23,24 @@ if Backbone?
       if $(".my-course-work-content").length<1
         @toggleDiscussionBtn.hide()
         @toggleDiscussionDefaultBtn.show()
-        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
+        @toggleDiscussionDefaultBtn.addClass('shown')
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
       else
         @toggleDiscussionBtn.show()
         @toggleDiscussionDefaultBtn.hide()
         $elem = @toggleDiscussionBtn
         @loadPage $elem
+      if $(".about-me-content").length>0
+        @toggleDiscussionDefaultBtn.html('<span>&nbsp;</span>')
+        @showed = false
+        @toggleDiscussion_default()
     toggleNewPost: (event) ->
       event.preventDefault()
       if !@newPostForm
         if $(".my-course-work-content").length<1
           @toggleDiscussion_default()
-          @toggleDiscussionDefaultBtn.addClass('shown')
-          @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
+          @toggleDiscussionDefaultBtn.removeClass('shown')
+          @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
         else
           @toggleDiscussion()
           @toggleDiscussionBtn.addClass('shown')
@@ -47,7 +52,7 @@ if Backbone?
       else
         @newPostForm.show()
       if $(".my-course-work-content").length<1
-        @showed = true
+        @showed = false
       @$("section.discussion").slideDown()
 
     hideNewPost: (event) ->
@@ -66,12 +71,12 @@ if Backbone?
     toggleDiscussion_default: (event) ->
       if @showed
         @$("section.discussion").slideUp()
-        @toggleDiscussionDefaultBtn.removeClass('shown')
-        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
-        @showed = false
-      else
         @toggleDiscussionDefaultBtn.addClass('shown')
         @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
+        @showed = false
+      else
+        @toggleDiscussionDefaultBtn.removeClass('shown')
+        @toggleDiscussionDefaultBtn.find('.button-text').html("Hide Discussion")
 
         if @retrieved
           @$("section.discussion").slideDown()
