@@ -49,191 +49,14 @@
 
 <!--@begin:Show two horizontal pages on the top-->
 <!--@date:2013-11-02-->
-<div style="text-align:center;border-bottom:1px solid #ccc;">
-	<img src="static/images/ppd-index-mainlogo.png" style="maring:auto"/>
+<div style="text-align:center;border-bottom:1px solid #ccc;padding-bottom:1px;">
+	<img src="static/images/ppd-index-mainlogo.png" width="720" height="205" style="maring:auto"/>
 </div>
 <div style="text-align:center; background:#fff;border-bottom:1px solid #666;">
-  <img src="static/images/ppd-index-maintitle.png" style="maring:auto"/>
+  <img src="static/images/ppd-index-maintitle.png" width="720" height="62" style="maring:auto"/>
 </div>
 <!--@end-->
 
-<!--@begin:Removed-->
-<!--@date:2013-11-02-->
-<section class="home" style="display:none">
-  <header>
-    <div class="outer-wrapper">
-      <div class="title">
-        <hgroup>
-          % if self.stanford_theme_enabled():
-            <h1>${_("Free courses from <strong>{university_name}</strong>").format(university_name="Stanford")}</h1>
-          % else:
-            <h1>${_("The Future of Online Education")}</h1>
-          % endif
-          <h2>${_("For anyone, anywhere, anytime")}</h2>
-        </hgroup>
-        ## Disable social buttons for non-edX sites
-        % if not self.theme_enabled():
-          <section class="actions">
-            <div class="main-cta">
-              <a href="#signup-modal" id="signup_action" class="find-courses" rel="leanModal">${_("Sign Up")}</a>
-            </div>
-            <div class="secondary-actions">
-              <div class="social-sharing">
-                <div class="sharing-message">${_("Stay up to date with all {platform_name} has to offer!").format(platform_name=settings.PLATFORM_NAME)}</div>
-                <a href="https://twitter.com/edXOnline" class="share">
-                  <img src="${static.url('images/social/twitter-sharing.png')}">
-                </a>
-                <a href="http://www.facebook.com/EdxOnline" class="share">
-                  <img src="${static.url('images/social/facebook-sharing.png')}">
-                </a>
-                <a href="https://plus.google.com/108235383044095082735/posts" class="share">
-                  <img src="${static.url('images/social/google-plus-sharing.png')}">
-                </a>
-              </div>
-            </div>
-          </section>
-        % endif
-      </div>
-        <a href="#video-modal" class="media" rel="leanModal">
-          <div class="hero">
-            <div class="play-intro"></div>
-          </div>
-        </a>
-    </div>
-  </header>
-  <section class="container">
-    <section class="highlighted-courses">
-      ## Disable university partner logos and sites for non-edX sites
-      % if not self.theme_enabled():
-        <h2>${_('Explore free courses from {span_start}{platform_name}{span_end} universities').format(platform_name="edX", span_start='<span class="edx">', span_end='</span>')}</h2>
-        <section class="university-partners university-partners2x6">
-          <ol class="partners">
-            <li class="partner mit">
-              <a href="#">
-                <img src="${static.url('images/university/mit/mit.png')}" />
-                <div class="name">
-                  <span>MITx</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/harvard/harvard.png')}" />
-                <div class="name">
-                  <span>HarvardX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/berkeley/berkeley.png')}" />
-                <div class="name">
-                  <span>BerkeleyX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/ut/ut-rollover_350x150.png')}" />
-                <div class="name">
-                  <span>UTx</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/mcgill/mcgill.png')}" />
-                <div class="name">
-                  <span>McGillX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/anu/anu.png')}" />
-                <div class="name">
-                  <span>ANUx</span>
-                </div>
-              </a>
-            </li>
-          </ol>
-          <hr />
-          <ol class="partners">
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/wellesley/wellesley-rollover_350x150.png')}" />
-                <div class="name">
-                  <span>WellesleyX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/georgetown/georgetown-rollover_350x150.png')}" />
-                <div class="name">
-                  <span>GeorgetownX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/toronto/toronto.png')}" />
-                <div class="name">
-                  <span>University of TorontoX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/epfl/epfl.png')}" />
-                <div class="name">
-                  <span>EPFLx</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/delft/delft.png')}" />
-                <div class="name">
-                  <span>DelftX</span>
-                </div>
-              </a>
-            </li>
-            <li class="partner">
-              <a href="#">
-                <img src="${static.url('images/university/rice/rice.png')}" />
-                <div class="name">
-                  <span>RiceX</span>
-                </div>
-              </a>
-            </li>
-          </ol>
-        </section>
-      % endif
-      <section class="courses">
-          <ul class="courses-listing">
-          %for course in courses:
-            <li style="float:none" class="courses-listing-item">
-              <%include file="course.html" args="course=course" />
-            </li>
-          %endfor
-          </ul>
-      </section>
-    </section>
-  </section>
-</section>
-
-<section id="video-modal" class="modal home-page-video-modal video-modal">
-  <div class="inner-wrapper">
-    <%
-      if self.stanford_theme_enabled():
-        youtube_video_id = "2gmreZObCY4"
-      else:
-        youtube_video_id = "XNaiOGxWeto"
-    %>
-    <iframe width="640" height="360" src="//www.youtube.com/embed/${youtube_video_id}?showinfo=0" frameborder="0" allowfullscreen></iframe>
-  </div>
-</section>
 <%block name="js_extra">
    <script type="text/javascript">
       $(window).load(function() {
@@ -265,7 +88,7 @@
 	  <iframe src="//player.vimeo.com/video/80954694" id="frmVideo" width="950" height="530" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	</div>
 	<!--@end-->
-	<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.png"/>
+	<img style="float:left;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.png" width="376" height="225"/>
 	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right01.png);">
 
 	  <!--@begin:change font color-->
@@ -294,7 +117,7 @@
   </div>
   
   <div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;margin-top:25px;background:#fff;">
-	<img style="float:left;width:376px;height:225px;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.png"/>
+	<img style="float:left;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.png" width="376" height="225"/>
 	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right02.png);">
 	  
 	  <!--@begin:change font color-->
