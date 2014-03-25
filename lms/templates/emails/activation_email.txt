@@ -1,12 +1,12 @@
 Dear Educator,<br/><br/>
 
-Congratulations! ${district} has selected you to join Pepper, the online e-learning network of Common Core Specialists. We welcome you to the Pepper community! You are now part of a vibrant and growing network of educators dedicated to effective implementation of the Common Core standards.<br/><br/>
+Congratulations! ${district} has selected you to join Pepper, the online professional development network of Common Core specialists. We welcome you to the Pepper community! You are now part of a vibrant and growing network of educators dedicated to effective implementation of the Common Core standards.<br/><br/>
 
-We invite you to enjoy the convenience of self-paced online professional development courses from <b>WestEd</b> as you learn with the support and collaboration of other inspiring educators, just like you.<br/><br/>
+We invite you to enjoy the convenience of self-paced online courses from <b>WestEd</b> with the support and collaboration of other inspiring educators, just like you.<br/><br/>
 
 <b>Below is a link to your self-registration</b>. You will be asked to provide basic account information including setting your account password.  Once your registration is activated, you will be able to log in to Pepper anytime at <a href="http://www.pepperpd.com">http://www.pepperpd.com</a>.  You have 24/7 access to Pepper’s evolving network for a full year, so we encourage you to register as soon as possible!<br/><br/>
 
-There are many professional development courses to choose from in Pepper and you have access to all of them.  You will find a course already in your dashboard called <b>PEP101x User’s Guide to Pepper</b>. To access this course simply press the turquoise <b style="color:#2E75B6;">View Course</b> button under the course heading. We suggest that you review this user guide course first before starting other courses. It offers a very brief (15 min) overview for navigating within Pepper. <br/><br/>
+There are many professional development courses to choose from in Pepper and you have access to all of them.  You will find a course already in your dashboard called <b>PEP101x User’s Guide to Pepper</b>. To access this course simply press the turquoise <b style="color:#2E75B6;">View Course</b> button under the course heading. We suggest that you review this introductory course first before starting other courses. It offers a very brief (15 min) overview for navigating in Pepper. <br/><br/>
 
 <b style="color:#2E75B6;">Please click the link below to activate your Pepper account:</b><br/><br/>
 
