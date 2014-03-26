@@ -155,7 +155,7 @@ def download_certificate(request,course_id,completed_time):
     fontsize_completedtime = 15
     fontsize_maincontent = 20
     fontsize_username = 45
-    fontsize_coursename = 28
+    fontsize_coursename = 25
     fontsize_effort = 21
 
     if user_course.display_number_with_default == "PEP101x":
