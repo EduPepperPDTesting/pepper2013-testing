@@ -47,7 +47,7 @@ def url_class(is_active):
     				</a>
     			</li>
       %else:
-        %if tab.name!='My Course' and tab.name!='My Progress' and tab.name!='People' and tab.name!='Course Discussion'and tab.name!='Resource Library':
+        %if tab.name=='My Course Portfolio':
           <li>
           <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab.is_active)}">
             ${tab.name | h}
