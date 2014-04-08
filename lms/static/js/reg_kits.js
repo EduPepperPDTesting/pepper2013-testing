@@ -28,7 +28,7 @@ function dropDistrict(form,state_id,callback){
       }
       var html="";
       var drop=form.find("select[name=district_id]");
-      drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+      clearOption(drop)
       for(k in r){
         d=r[k];
         html+="<option value='" + d.id+"'>" + d.name + " - " + d.code + "</option>";
@@ -42,7 +42,7 @@ function dropSchool(form,state_id,district_id,callback){
     if((typeof r) == 'string')r=$.parseJSON(r)
     var html="";
     var drop=form.find("select[name=school_id]")
-    drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+    clearOption(drop)
     for(k in r){
       d=r[k];
       html+="<option value='" + d.id+"'>" + d.name + "</option>"
@@ -55,8 +55,9 @@ function dropCohort(form,state_id,district_id,callback){
   $.get('/reg_kits/drop_cohorts',{state_id:state_id,district_id:district_id},function(r){
     if((typeof r) == 'string')r=$.parseJSON(r)
     var html="";
-    var drop=form.find("select[name=cohort_id]")         
-    drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+    var drop=form.find("select[name=cohort_id]")
+    clearOption(drop)
+    clearOption(drop)
     for(k in r){
       d=r[k];
       html+="<option value='" + d.id+"'>" + d.code + "</option>"
@@ -65,3 +66,6 @@ function dropCohort(form,state_id,district_id,callback){
     if(callback instanceof Function)callback.apply(drop[0]);
   });
 }             
+function clearOption(drop){
+  drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+}

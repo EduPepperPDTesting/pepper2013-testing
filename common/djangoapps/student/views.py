@@ -1228,8 +1228,18 @@ def password_reset(request):
     if request.method != "POST":
         raise Http404
 
+    # return HttpResponse(json.dumps({'success': False,
+    #                                 'error': 'tttt'}))
+
     form = PasswordResetFormNoActive(request.POST)
     if form.is_valid():
+
+        profile=UserProfile.objects.get(user__email=request.POST.get('email'))
+
+        if profile.subscription_status!='Registered':
+            return HttpResponse(json.dumps({'success': False,
+                                        'error': _("User haven't been activated.")}))            
+        
         form.save(use_https=request.is_secure(),
                   from_email=settings.DEFAULT_FROM_EMAIL,
                   request=request,

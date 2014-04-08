@@ -114,9 +114,11 @@
       <div class="filters">
         <select  name="school_id">
           <option value="">School</option>
-          %for item in School.objects.all():
+          %if request.GET.get("district_id"):
+          %for item in School.objects.filter(district_id=request.GET.get("district_id")).order_by("name"):
           <option value="${item.id}">${item.name}</option>
           %endfor
+          %endif           
         </select>
       </div>
       <div class="filters">
@@ -328,6 +330,11 @@ function remove_people(id){
 var form=$("#search_form");
 form.find("select[name=district_id]").change(function(){
   var district_id=$(this).val();
-  dropSchool(form,'',district_id);
+  if(district_id){
+    dropSchool(form,'',district_id);
+  }else{
+    var drop=form.find("select[name=school_id]")
+    clearOption(drop)
+  }
 })
 </script>

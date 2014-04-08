@@ -112,10 +112,12 @@ padding-bottom:50px !important;
             </div>
             <div class="filters">
               <select  id="school_id" name="school_id">
-                <option value="">School</option>
-                %for item in School.objects.all():
-                <option value="${item.id}">${item.name}</option>
-                %endfor          
+              <option value="">School</option>
+              %if request.GET.get("district_id"):
+              %for item in School.objects.filter(district_id=request.GET.get("district_id")).order_by("name"):
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+              %endif                
               </select>
             </div>
             <div class="filters">
@@ -290,7 +292,7 @@ padding-bottom:50px !important;
               </span>
               <span class="name_text">${profile.user.username}</span>
               %if profile.cohort_id and profile.school_id:
-              <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
+              <span class="name_text">${profile.school.name} <br/> ${profile.cohort.district.name}</span>
               %endif
               %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
               <span class="name_text">${profile.years_in_education.name} Years in Education</span>
@@ -422,6 +424,11 @@ function remove_people(id,btn){
 var form=$("#search_form");
 form.find("select[name=district_id]").change(function(){
   var district_id=$(this).val();
-  dropSchool(form,'',district_id);
+  if(district_id){
+    dropSchool(form,'',district_id);
+  }else{
+    var drop=form.find("select[name=school_id]")
+    clearOption(drop)
+  }
 })
 </script>
