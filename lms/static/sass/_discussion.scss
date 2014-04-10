@@ -1938,7 +1938,6 @@ body.discussion {
 .discussion-module {
   @extend .discussion-body;
   position: relative;
-  margin: $baseline 0;
   padding: $baseline;
   background: #f6f6f6 !important;
   border-radius: 3px;
