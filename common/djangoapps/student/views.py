@@ -278,12 +278,12 @@ def register_user(request, activation_key=None):
     """
 
     if not activation_key:
-        return HttpResponse("Invalid activation key.")
+        return render_to_response("registration/invalid_activation_key.html", {})
 
     regs=Registration.objects.filter(activation_key=activation_key)
 
     if not regs:
-        return HttpResponse("Invalid activation key.")
+        return render_to_response("registration/invalid_activation_key.html", {})
     else:
         reg=regs[0]
 
@@ -643,7 +643,7 @@ def login_user(request, error=""):
     AUDIT_LOG.warning(u"Login failed - Account not active for user {0}, resending activation".format(username))
 
     # reactivation_email_for_user(user)
-    not_activated_msg = _("This account has not been activated. We have sent another activation message. Please check your e-mail for the activation instructions.")
+    not_activated_msg = _("You do not have an active Pepper account. Please click <a href='{0}'>here</a> to contact Pepper Support.".format(reverse('contact_us')))
     return HttpResponse(json.dumps({'success': False,
                                     'value': not_activated_msg}))
 
@@ -1228,9 +1228,6 @@ def password_reset(request):
     if request.method != "POST":
         raise Http404
 
-    # return HttpResponse(json.dumps({'success': False,
-    #                                 'error': 'tttt'}))
-
     form = PasswordResetFormNoActive(request.POST)
     if form.is_valid():
 
@@ -1238,12 +1235,16 @@ def password_reset(request):
 
         if profile.subscription_status!='Registered':
             return HttpResponse(json.dumps({'success': False,
-                                        'error': _("User haven't been activated.")}))            
+                                        'error': _("You do not have an active Pepper account. Please click <a href='{0}'>here</a> to contact Pepper Support.".format(reverse('contact_us')))}))            
         
         form.save(use_https=request.is_secure(),
                   from_email=settings.DEFAULT_FROM_EMAIL,
                   request=request,
                   domain_override=request.get_host())
+
+        # registration=Registration.objects.get(user_id=profile.user_id)
+        # registration.activate()
+        
         return HttpResponse(json.dumps({'success': True,
                                         'value': render_to_string('registration/password_reset_done.html', {})}))
     else:
@@ -1262,6 +1263,10 @@ def password_reset_confirm_wrapper(
     try:
         uid_int = base36_to_int(uidb36)
         user = User.objects.get(id=uid_int)
+
+        if not user.is_active:
+            return render_to_response("inactivate_reset_pwd.html", {})
+            
         user.is_active = True
         user.save()
     except (ValueError, User.DoesNotExist):
@@ -1608,7 +1613,8 @@ def change_percent_eng_learner(request):
 def activate_imported_account(post_vars):
     ret={'success': False}
     try:
-        user_id=Registration.objects.get(activation_key=post_vars.get('activation_key','')).user_id
+        registration=Registration.objects.get(activation_key=post_vars.get('activation_key',''))
+        user_id=registration.user_id
         
         profile=UserProfile.objects.get(user_id=user_id)
         profile.subscription_status='Registered'
@@ -1634,12 +1640,12 @@ def activate_imported_account(post_vars):
         subject = ''.join(subject.splitlines())
         message = render_to_string('emails/welcome_body.txt', d)
 
-        profile.user.is_active=True
         profile.user.username=post_vars.get('username','')
         profile.user.set_password(post_vars.get('password',''))
 
         try:
             profile.user.save()
+            registration.activate()
         except Exception as e:
             if "username" in "%s" % e:
                 ret['value'] = "An account with the Public Username '%s' already exists." % post_vars.get('username','')

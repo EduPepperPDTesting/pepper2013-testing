@@ -1,0 +1,20 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+
+<%namespace name='static' file='/static_content.html'/>
+<%inherit file="../main.html" />
+
+<div class="view-passwordreset">
+  <section class="content-wrapper">
+    <section class="passwordreset container">
+      <section class="introduction">
+        <header>
+          <h1>${_("PEPPER REGISTRATION")} </h1>
+        </header>
+      </section>
+      <section role="main" class="content">
+        <p>Your registration link has expired, please <a href="${reverse('contact_us')}">contact us</a> for assistance.</p>
+      </section>
+    </section>
+  </section>
+</div>

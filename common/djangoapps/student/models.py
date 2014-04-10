@@ -918,6 +918,8 @@ class Registration(models.Model):
         self.save()
 
     def activate(self):
+        self.activation_key = uuid.uuid4().hex
+        self.save()
         self.user.is_active = True
         self.user.save()
 

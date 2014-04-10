@@ -95,14 +95,10 @@ urlpatterns = (
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
     url(r'^email_confirm/(?P<key>[^/]*)$', 'student.views.confirm_email_change'),
 
-
     url(r'^change_percent_lunch$', 'student.views.change_percent_lunch', name="change_percent_lunch"),
     url(r'^change_percent_iep$', 'student.views.change_percent_iep', name="change_percent_iep"),
     url(r'^change_percent_eng_learner$', 'student.views.change_percent_eng_learner', name="change_percent_eng_learner"),
 
-
-    
-    
     url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
     url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
     url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),
@@ -495,6 +491,4 @@ if settings.DEBUG:
 #Custom error pages
 handler404 = 'static_template_view.views.render_404'
 handler500 = 'static_template_view.views.render_500'
-
-
 
