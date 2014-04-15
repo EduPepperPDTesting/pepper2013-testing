@@ -61,7 +61,7 @@ class Get_discussion_visibility(SGMLParser):
 def Get_combinedopenended_info(con):
     p_title = re.compile('<div[^>]*class="problemtype"[^>]*>([\s\S]*?)<\/div>')
     p_body_a = re.compile('<div*[^>]*class="prompt"[^>]*>[\s\S]*?<\/div>')
-    p_body_b = '<span><hr style="border: 1px dashed #ccc; width: 85%; height: 1px;" /></span><span class="section-header section-header-response">Response</span>'
+    p_body_b = '<span><hr style="border: 1px dashed #ccc; width: 85%; height: 1px;" /></span><span class="section-header section-header-response"><b>Response:</b>    </span>'
     p_body_c = re.compile('<textarea*[^>]*mce_editable="true"[^>]*>([\s\S]*?)<\/textarea>')
     p_body_d = re.compile('<div*[^>]*class="file_url"[^>]*>([\s\S]*?)<\/div>')
     try:
@@ -72,7 +72,7 @@ def Get_combinedopenended_info(con):
         p_body_d = file_items
     except:
         p_body_d=''
-    p_body = p_body_a.findall(con)[0] + p_body_b + '<div class="answer short-form-response">' + p_body_c.findall(con)[0] + '</div>' + p_body_d
+    p_body = p_body_a.findall(con)[0] + p_body_b + '<div class="answer">' + p_body_c.findall(con)[0] + '</div>' + p_body_d
     return p_title.findall(con)[0].strip(), p_body
 
 def add_edit_tool(data, course, descriptor):
