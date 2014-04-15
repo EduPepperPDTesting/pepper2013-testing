@@ -540,6 +540,7 @@ def drop_schools(request):
     elif request.GET.get('state_id'):
         data=data.filter(district__state_id=request.GET.get('state_id'))
     r=list()
+    data=data.order_by("name")
     for item in data:
         r.append({"id":item.id,"name":item.name})        
     return HttpResponse(json.dumps(r))
