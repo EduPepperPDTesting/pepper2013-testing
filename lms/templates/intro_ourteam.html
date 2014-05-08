@@ -12,11 +12,10 @@
 <!--@end-->
 
 <style type="text/css" media="screen">
-	/*@begin:hide button dashboard*/
-	/*@date:2013-11-02*/
-	#btn-dashboard{display:none;}
-	/*@end*/
-
+  /*@begin:hide button dashboard*/
+  /*@date:2013-11-02*/
+  #btn-dashboard{display:none;}
+  /*@end*/
   #page-nav,#page-footer{
   width:960px;
   }
@@ -29,20 +28,26 @@
   ul.left a{
   color:#666;
   }
-
+  div.gray_box{
+  border:3px solid #DDDDDD;width:39%;height:220px;float:left;margin-left:20px;padding:20px;
+  }
+  div.gray_box div{
+  border-top:1px solid #ccc;
+  margin-top:15px;
+  padding-top:15px;
+  font-size:12px !important;
+  }
 </style>
 <div style="text-align:center;background:#f5f5f5">
   <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
   <!--@date:2013-11-02-->
   <div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.jpg);">
-  <!--@end-->
-
+    <!--@end-->
 	<!--@begin:use html text to replace the text on the picture-->
     <!--@date:2013-11-02-->
     <section class="_banner_aboutus_title_font">OUR TEAM</section>
     <!--@end-->
-	</div>
-  
+  </div>
   <div style="width:960px;margin:auto;background:#fff;">
     <div style="float:left;width:217px;height:680px;background:#E6F4FB;text-align:left;">
       <ul class="left">
@@ -51,7 +56,6 @@
         <li><a href="/our_team" style="color:#3461ad;">OUR TEAM</a></li>
         <li><a href="/faq">FAQ</a></li>
 		<li><a href="/contact">CONTACT US</a></li>
-
         <!--@begin:add new url-->
         <!--@date:2013-11-02-->
         <li><a href="/press">PRESS</a></li>
@@ -62,29 +66,57 @@
       <div style="padding:20px;">
         <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">WHO WE ARE</h2>
         <hr />
-        <p style="text-align:24px;">
-
-        <!--@begin:add code(_body_content_font) to modify font style; add some css code; modify some url(href=...""); new content-->
-        <!--@date:2013-11-02-->
-				<p class="_body_content_font">
-					<img src="static/images/pcg_logo.png" />
-					<br/>PCG Education is a division of Public Consulting Group (PCG), a leading provider of management consulting and technology to help public sector education, health, human services, and other government clients achieve their performance goals and better serve populations in need. PCG Education currently works with more than 4,000 school districts and has contracts with 13 state education agencies to provide services and software solutions that focus on student achievement. More information about PCG is available at <a target="_blank" href="http://www.publicconsultinggroup.com/education" class="_blue">Publicconsultinggroup.com</a>.
-				</p>
-			<br /><br />
-				<p class="_body_content_font">
-					<img src="static/images/wested_logo.png" />
-					<br/>WestEd, a national nonpartisan, nonprofit research, development, and service agency, works with education and other communities to promote excellence, achieve equity, and improve learning for children, youth, and adults. WestEd has 16 offices nationwide, from Washington and Boston to Arizona and California. Its corporate headquarters are in San Francisco. More information about WestEd is available at <a target="_blank" href="http://www.wested.org" class="_blue">WestEd.org</a>.
-				</p>
-			<br /><br />
-				<p class="_body_content_font">
-					<img src="static/images/edu2000_logo.png" />
-					<br/>
-				  Since 1995, Edu2000 has been the primary developer of visual online content for several state departments of education, school districts, and educational 
-publishers. Edu2000 is particularly strong in the development of online mathematics and science curriculum that includes interactive animations, simulations, 
-experiments, and "visual dictionary" products that teach concepts to all learners. Edu2000 is also experienced in custom development for interactive digital 
-content, technology enhanced assessment items, and online professional development materials. More information about Edu2000 is available at <a target="_blank" href="http://www.education2000.com" class="_blue">www.education2000.com<a>.
-          <!--@end-->
-				</p>
+        <p style="text-align:24px;width:100%;">
+          <div class="clearfix" style="padding-top:10px;">
+            <div class="gray_box _body_content_font">
+              <a href="http://www.wested.org/">
+                <img src="static/images/wested_logo.png" /></a>
+              <div id="">
+                WestEd, a national nonpartisan, nonprofit research,
+                development, and service agency, works with
+                education and other communities to promote
+                excellence, achieve equity, and improve learning for
+                children, youth, and adults.                
+              </div>
+            </div>
+            <div class="gray_box _body_content_font">
+              <a href="https://www.edx.org/">
+                <img src="static/images/wested_logo.png" /></a>
+              <div id="">
+                Pepper is delivered on the powerful edX learning platform,
+                the Cambridge-based education partnership founded by
+                Harvard University and M.I.T., to support two important
+                missions: improving online education, and advancing
+                teaching and learning through research.  
+              </div>
+            </div>
+          </div>
+          <div class="clearfix" style="padding-top:20px;">
+            <div class="gray_box _body_content_font">
+              <a href="http://www.publicconsultinggroup.com/education/">
+                <img src="static/images/pcg_logo.png" /></a>
+              <div id="">
+                PCG Education is a division of Public Consulting
+                Group, currently works with more than 4,400
+                school districts and has contracts with 14 state
+                education agencies to provide services and
+                software solutions that focus on student
+                achievement.  
+              </div>
+            </div>
+            <div class="gray_box _body_content_font">
+              <a href="http://www.education2000.com/">
+                <img src="static/images/edu2000_logo.png" /></a>
+              <div id="">
+                Edu2000 develops interactive content for state
+                departments of education, school districts, and
+                educational publishers. Edu2000 is particularly strong in
+                the delivery of online mathematics and science curriculum
+                that includes interactive animations, simulations, visual
+                experiments that teach concepts to all learners.  
+              </div>
+            </div>
+          </div>
         </p>
       </div>
     </div>

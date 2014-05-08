@@ -4,9 +4,7 @@ from .comment import Comment
 from .thread import Thread
 from .user import User
 from .commentable import Commentable
-
 from .utils import perform_request
-
 import settings
 
 
