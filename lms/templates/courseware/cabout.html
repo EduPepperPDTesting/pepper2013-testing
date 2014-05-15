@@ -4,6 +4,8 @@ from django.core.urlresolvers import reverse
 from time import strftime
 from courseware.courses import course_image_url, get_course_about_section
 from student.models import CourseEnrollment
+from datetime import datetime
+from pytz import UTC
 %>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
@@ -158,17 +160,20 @@ from student.models import CourseEnrollment
 				  </div>
 				  <!--@begin:according to different situation(login/choose the course) to show the button-->
 				  <!--@date:2013-11-02-->
-				  % if user.is_authenticated():
+				  %if user.is_authenticated():
 
-				  % if CourseEnrollment.is_enrolled(request.user, course.id):
+				  %if CourseEnrollment.is_enrolled(request.user, course.id):
 				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
+				  %else:
+                  
+                  %if datetime.strptime(course.start_date_text,"%b %d, %Y").replace(tzinfo=UTC) > datetime.now(UTC):
+				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line disabled">Course Starting Soon!</a>
+                  %else:
+				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line">Sign Up & Start Course</a>
+                  %endif
 
-				  % else:
-
-				  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('about_course', args=[course.id])}" class="register btnx _del_line">Sign Up & Start Course</a>
-
-				   % endif
-				  % endif
+				  %endif
+				  %endif
 				  <!--@end-->
 				</div>
 			</div>
@@ -185,10 +190,17 @@ from student.models import CourseEnrollment
 </form>
 <script type="text/javascript">
   (function() {
+  
   $(".register").click(function(event) {
-  $("#class_enroll_form").submit();
-  event.preventDefault();
+    %if not user.is_staff:
+    if($(this).hasClass("disabled")){
+      return false;
+    }
+    %endif
+    $("#class_enroll_form").submit();
+    event.preventDefault();
   });
+  
   ## making the conditional around this entire JS block for sanity
   %if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
   $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
