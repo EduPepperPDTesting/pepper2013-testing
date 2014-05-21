@@ -282,11 +282,7 @@
 		<section class="course-content about-me-content">
 			<div class="user_express" style="height:auto !important;">
         <div class="tou">
-          % if portfolio_user.profile.photo:
-            <img src="/static/uploads/photos/${ portfolio_user.profile.photo }" alt="photo" />
-          % else:
-            <img src="/static/uploads/photos/photo_temp.png" alt="photo" />
-          % endif
+          <img src="${reverse('user_photo',args=[profile.user.id])}" style="" alt="photo" />
         </div>
         <div class="name">
              <span class="express_inf"><strong style="font-size:16px;color:#000;">My Profile:</strong></span>

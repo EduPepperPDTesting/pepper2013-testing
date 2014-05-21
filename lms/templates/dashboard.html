@@ -393,11 +393,7 @@
             %endif
           </span> 
           <div style="text-align:center;margin-top:5px;">
-                % if curr_user.profile.photo:
-                  <img src="/static/uploads/photos/${ curr_user.profile.photo }" style="" alt="photo" />
-                % else:
-                  <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
-                % endif
+            <img src="${reverse('user_photo',args=[curr_user.id])}" style="" alt="photo" />
           </div>
         </li>
 <!--@end-->
@@ -827,7 +823,7 @@ Add info that you would like to share about yourself here:
       <h2>${_('Add Profile Picture').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
-    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="uploadphoto">
+    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="upload_photo">
       <!--@begin:Shown completed course list-->
       <!--@date:2013-11-24-->
       <div id="change_photo_error" class="modal-form-error"> </div>
@@ -836,11 +832,7 @@ Add info that you would like to share about yourself here:
         <div class="input-group">
           <label>
             <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
-              % if curr_user.profile.photo:
-      			        <img src="/static/uploads/photos/${ curr_user.profile.photo }" style="" alt="photo" />
-      			  % else:
-      			        <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
-      			  % endif		
+              <img src="${reverse('user_photo')}" style="" alt="photo" />
             </div>
           </label>
           <label style="margin:20px 0;display:block;">

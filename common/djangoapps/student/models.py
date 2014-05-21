@@ -332,7 +332,7 @@ class UserProfile(models.Model):
     invite_date=models.DateTimeField(auto_now_add=False, db_index=False)
     activate_date=models.DateTimeField(auto_now_add=False, db_index=False)
 
-    photo = models.CharField(blank=True, max_length=50, db_index=False)
+    # photo = models.CharField(blank=True, max_length=50, db_index=False)
     meta = models.TextField(blank=True)  # JSON dictionary for future expansion
     courseware = models.CharField(blank=True, max_length=255, default='course.xml')
 

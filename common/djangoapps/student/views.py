@@ -74,6 +74,8 @@ from PIL import Image
 import os
 #@end
 
+from StringIO import StringIO
+
 from xblock.fields import Scope
 from courseware.grades import grade
 #@begin:complete_course_survey
@@ -82,9 +84,11 @@ from courseware.module_render import get_module
 #@end
 
 #@begin:login info
-#@data:1024-01-07
+#@data:2014-01-07
 from student.models import CmsLoginInfo
 #@end
+
+from mongo_user_store import MongoUserStore
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -1666,32 +1670,91 @@ def activate_imported_account(post_vars):
 
 #@begin:change photo by Dashboard
 #@date:2013-11-24
-def uploadphoto(request):
-    if request.method == 'POST':
-        up = UserProfile.objects.get(user=request.user)  
-        img_name = up.photo
-        file_img = request.FILES['photo']
+# def uploadphoto(request):
+#     if request.method == 'POST':
+#         up = UserProfile.objects.get(user=request.user)  
+#         img_name = up.photo
+#         file_img = request.FILES['photo']
         
-        if img_name:
-            targetFile = os.path.join('/home/tahoe/edx_all/uploads/photos/', img_name)
-            if os.path.isfile(targetFile):
-                os.remove(targetFile)
+#         if img_name:
+#             targetFile = os.path.join('/home/tahoe/edx_all/uploads/photos/', img_name)
+#             if os.path.isfile(targetFile):
+#                 os.remove(targetFile)
                 
-        if file_img:
-            time_int = int(time.time()*100)    
-            random_int1 = random.randint(10000,100000000)
-            random_int2 = random.randint(10000,100000000)
-            zf1 = '%d' %time_int
-            zf2 = '%d' %random_int1
-            zf3 = '%d' %random_int2
-            filename = file_img.name
-            zf4 = filename.split('.')[-1]
-            img_name = zf1 + zf2 + zf3 + '.' + zf4
-            img = Image.open(file_img)
-            img.thumbnail((110,110),Image.ANTIALIAS)
-            img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
+#         if file_img:
+#             time_int = int(time.time()*100)    
+#             random_int1 = random.randint(10000,100000000)
+#             random_int2 = random.randint(10000,100000000)
+#             zf1 = '%d' %time_int
+#             zf2 = '%d' %random_int1
+#             zf3 = '%d' %random_int2
+#             filename = file_img.name
+#             zf4 = filename.split('.')[-1]
+#             img_name = zf1 + zf2 + zf3 + '.' + zf4
+#             img = Image.open(file_img)
+#             img.thumbnail((110,110),Image.ANTIALIAS)
+#             img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
        
-        up.photo = img_name
-        up.save()
-    return redirect(reverse('dashboard'))
+#         up.photo = img_name
+#         up.save()
+#     return redirect(reverse('dashboard'))
 #@end 
+
+
+def upload_photo(request):
+    options=settings.USERSTORE.get("OPTIONS")
+    
+    us=MongoUserStore(options.get("host"),
+                      options.get("db"),
+                      options.get('user'),
+                      options.get('password'))
+    
+    # img_name = up.photo
+    file_img = request.FILES['photo']
+    id=None
+    old=us.find_one(request.user.id,'photo')
+    
+    if old:
+        id=old.get("id")
+        
+    if file_img:
+        # mime_type = mimetypes.guess_type(image_url)[0]
+
+        img = Image.open(file_img)
+        img.thumbnail((110,110),Image.ANTIALIAS)
+
+        file=StringIO()
+        img.save(file, 'JPEG')
+        file.seek(0)
+
+        content={"id":id,
+                 "user_id":request.user.id,
+                 "type":"photo",
+                 "data":file.getvalue()}
+        
+        us.save(content)
+
+    return redirect(reverse('dashboard'))
+
+def user_photo(request,user_id=None):
+    if not user_id:
+        user_id=request.user.id
+    else:
+        user_id=int(user_id)
+        
+    options=settings.USERSTORE.get("OPTIONS")
+    us=MongoUserStore(options.get("host"),
+                      options.get("db"),
+                      options.get('user'),
+                      options.get('password'))
+
+    content=us.find_one(user_id,'photo')
+
+    response = HttpResponse(content_type='image/JPEG')
+    if content:
+        response.write(content.get("data"))
+    else:
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/staticfiles/lms/images/photos/photo_temp.png','rb')
+        response.write(f.read())
+        f.close()
+    return response

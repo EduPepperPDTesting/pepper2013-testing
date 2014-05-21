@@ -230,11 +230,7 @@
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
           <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
-            % if profile.photo:
-            <img src="/static/uploads/photos/${profile.photo}" style="" alt="photo" />
-            % else:
-            <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
-            % endif                
+            <img src="${reverse('user_photo',args=[profile.user.id])}" style="" alt="photo" />
           </a>
         </span>
         <span class="name_container">

@@ -46,6 +46,15 @@ CONTENTSTORE = {
     }
 }
 
+USERSTORE = {
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'userstore',
+        'user':None,
+        'password':None,
+    }
+}
+
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',

@@ -84,7 +84,12 @@ urlpatterns = (
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
-    url(r'^uploadphoto$', 'student.views.uploadphoto', name="uploadphoto"),
+
+    url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
+
+    url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
+    url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
+    
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     
