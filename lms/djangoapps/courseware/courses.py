@@ -91,7 +91,12 @@ def course_image_url(course):
         _path = StaticContent.get_url_path_from_location(loc)
         return _path
 
-
+def course_author_image_url(course):
+    """Returns the author image url for the course."""
+    loc = course.location._replace(tag='c4x', category='asset', name='course_author_img.jpg')
+    path = StaticContent.get_url_path_from_location(loc)
+    return path
+    
 def find_file(fs, dirs, filename):
     """
     Looks for a filename in a list of dirs on a filesystem, in the specified order.
