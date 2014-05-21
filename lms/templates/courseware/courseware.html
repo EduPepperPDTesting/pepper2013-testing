@@ -1,4 +1,5 @@
 <%! from django.utils.translation import ugettext as _ %>
+<%! from courseware.courses import course_author_image_url %>
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
@@ -262,6 +263,9 @@
       <header id="open_close_accordion">
         <a href="#">${_("close")}</a>
       </header>
+      <div>
+        <img src="${course_author_image_url(course)}" width="100%" alt=""/>
+      </div>
       <div id="accordion" style="display: none">
         <nav>
           ${accordion}
