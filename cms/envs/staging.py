@@ -68,7 +68,6 @@ DATABASES = {
     }
 }
 
-
 LMS_BASE = "www1.pepperpd.com"
 MITX_FEATURES['PREVIEW_LMS_BASE'] = "www1.pepperpd.com:8444"
 
