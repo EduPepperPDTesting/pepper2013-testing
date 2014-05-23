@@ -69,13 +69,37 @@ from courseware.courses import course_image_url, get_course_about_section
 		<!--@end-->
 	</div>
 	<div style="float:left;height:150px;margin:6px;">
+		<!--@begin:read 'new' from overview-->
+		<!--@date:2014-05-22-->
+            <%def name='newish()'>
+              <%
+              	text1=""
+                text2="<div style=font-size:12px;margin:10px;padding:4px;width:27px;></div>"
+                text3=""
+                overview_temp = get_course_about_section(course, "overview")
+                length1 = len(overview_temp.split('</section>'))
+                if length1 > 7:
+                    text1 = overview_temp.split('</section>')[7]
+                length2 = len(text1.split('<section class="newish">'))
+                if length2 > 1:
+                    text3 = text1.split('<section class="newish">')[1]
+                    if text3.strip() == "NEW":
+                      text2 = "<div style=font-size:12px;margin:10px;background:#99cc33;color:#fff;padding:4px;width:27px;>NEW</div>"
+              %>
+              ${text2}
+            </%def>
+			${newish()}
+		<!--@end-->
+		
 		<!--@begin:Change the place and look of New icon in course directory page-->
 		<!--@date:2013-11-02-->
+		<!--
 		%if course.is_newish:
 			<div style="font-size:12px;margin:10px;background:#99cc33;color:#fff;padding:4px;width:27px;">NEW</div>
 		%else:
 			<div style="font-size:12px;margin:10px;padding:4px;width:27px;"></div>
 		%endif 
+		-->
 		<!--@end-->
 	</div>
   <div style="padding:20px 10px 0 60px;font-size:18px;width:580px;height:30px;">
