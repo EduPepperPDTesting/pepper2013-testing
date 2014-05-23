@@ -55,6 +55,7 @@ USERSTORE = {
     'OPTIONS': {
         'db': 'userstore',
         'host': MONGO_HOST,
+        'host': MONGO_PORT,        
         'user':MONGO_USER,
         'password':MONGO_PASSWORD,
     }

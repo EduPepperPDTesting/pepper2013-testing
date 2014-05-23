@@ -1706,17 +1706,13 @@ def upload_photo(request):
     
     us=MongoUserStore(options.get("host"),
                       options.get("db"),
+                      options.get("port"),
                       options.get('user'),
                       options.get('password'))
     
     # img_name = up.photo
     file_img = request.FILES['photo']
-    id=None
-    old=us.find_one(request.user.id,'photo')
-    
-    if old:
-        id=old.get("id")
-        
+    _id={"user_id":request.user.id,"type":"photo"}
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 
@@ -1727,12 +1723,7 @@ def upload_photo(request):
         img.save(file, 'JPEG')
         file.seek(0)
 
-        content={"id":id,
-                 "user_id":request.user.id,
-                 "type":"photo",
-                 "data":file.getvalue()}
-        
-        us.save(content)
+        us.save(_id,file.getvalue())
 
     return redirect(reverse('dashboard'))
 
@@ -1745,6 +1736,7 @@ def user_photo(request,user_id=None):
     options=settings.USERSTORE.get("OPTIONS")
     us=MongoUserStore(options.get("host"),
                       options.get("db"),
+                      options.get("port"),
                       options.get('user'),
                       options.get('password'))
 
@@ -1754,7 +1746,7 @@ def user_photo(request,user_id=None):
     if content:
         response.write(content.get("data"))
     else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/staticfiles/lms/images/photos/photo_temp.png','rb')
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/photos/photo_temp.png','rb')
         response.write(f.read())
         f.close()
     return response
