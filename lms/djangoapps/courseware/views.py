@@ -19,7 +19,7 @@ from markupsafe import escape
 from courseware import grades
 from courseware.access import has_access
 from courseware.courses import (get_courses, get_course_with_access,get_course_by_id,
-                                get_courses_by_university, sort_by_announcement)
+                                get_courses_by_university, sort_by_announcement, sort_by_custom)
 import courseware.tabs as tabs
 from courseware.masquerade import setup_masquerade
 from courseware.model_data import FieldDataCache
@@ -73,7 +73,8 @@ def courses(request):
     Render "find courses" page.  The course selection work is done in courseware.courses.
     """
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
-    courses = sort_by_announcement(courses)
+    #courses = sort_by_announcement(courses)
+    courses = sort_by_custom(courses)
 
     return render_to_response("courseware/courses.html", {'courses': courses})
 

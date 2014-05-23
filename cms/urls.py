@@ -24,6 +24,8 @@ urlpatterns = ('',  # nopep8
     url(r'^unpublish_unit$', 'contentstore.views.unpublish_unit', name='unpublish_unit'),
     url(r'^create_new_course', 'contentstore.views.create_new_course', name='create_new_course'),
     url(r'^reorder_static_tabs', 'contentstore.views.reorder_static_tabs', name='reorder_static_tabs'),
+    url(r'^get_course_list', 'contentstore.views.get_course_list', name='get_course_list'),
+    url(r'^set_course_list', 'contentstore.views.set_course_list', name='set_course_list'),
 
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/course/(?P<name>[^/]+)$',
         'contentstore.views.course_index', name='course_index'),

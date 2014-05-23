@@ -381,6 +381,7 @@ class CourseFields(object):
 
     display_coursenumber = String(help="An optional display string for the course number that will get rendered in the LMS",
                                   scope=Scope.settings)
+    display_sort_number = String(help="Sort the list of courses", default="-1", scope=Scope.settings)
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule

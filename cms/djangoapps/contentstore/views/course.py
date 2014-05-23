@@ -48,6 +48,7 @@ from django_comment_common.utils import seed_permissions_roles
 from student.models import CourseEnrollment
 
 from xmodule.html_module import AboutDescriptor
+from courseware.courses import get_courses, get_course_with_access, sort_by_custom
 __all__ = ['course_index', 'create_new_course', 'course_info',
            'course_info_updates', 'get_course_settings',
            'course_config_graders_page',
@@ -55,7 +56,7 @@ __all__ = ['course_index', 'create_new_course', 'course_info',
            'course_settings_updates',
            'course_grader_updates',
            'course_advanced_updates', 'textbook_index', 'textbook_by_id',
-           'create_textbook']
+           'create_textbook','get_course_list','set_course_list']
 
 
 @login_required
@@ -193,6 +194,29 @@ def create_new_course(request):
 
     return JsonResponse({'id': new_course.location.url()})
 
+@login_required
+@expect_json
+def get_course_list(request):
+    courses = sort_by_custom(get_courses(request.user))
+    returnInfo=[]
+    for course in courses:
+        returnInfo.append({"id":course.id,"name":course.display_name,"location":str(course.location)})
+    return JsonResponse(returnInfo)
+
+@login_required
+@expect_json
+def set_course_list(request):
+    try:
+        course_id = request.POST.getlist("data[]");
+        for i in range(len(course_id)):
+            course = modulestore().get_item(Location(course_id[i]))
+            course.display_sort_number=(i+1)*'1'
+            course.save()
+            get_modulestore(Location(course_id[i])).update_metadata(Location(course_id[i]), course._field_data._kvs._metadata)
+
+        return JsonResponse({"info":"success"})
+    except:
+        return JsonResponse({"info":"fail"})
 
 @login_required
 @ensure_csrf_cookie
