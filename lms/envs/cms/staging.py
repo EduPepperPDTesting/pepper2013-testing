@@ -1,13 +1,14 @@
 from ..dev import *
 
-# ========================================================================
-# ========================================================================
+import os,sys
+sys.path.append("..") # => /home/tahoe/edx_all
+from siteconf import *
 
+
+# ========================================================================
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = False
 
 # ========================================================================
-# ========================================================================
-
 MITX_FEATURES['AUTH_USE_MIT_CERTIFICATES'] = False
 
 SUBDOMAIN_BRANDING['edge'] = 'edge'
@@ -24,8 +25,10 @@ META_UNIVERSITIES = {}
 
 modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
-    'host': 'localhost',
     'db': 'xmodule',
+    'host': MONGO_HOST,
+    'user':MONGO_USER,
+    'password':MONGO_PASSWORD,
     'collection': 'modulestore',
     'fs_root': DATA_DIR,
     'render_template': 'mitxmako.shortcuts.render_to_string',
@@ -41,17 +44,19 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'xcontent',
+        'host': MONGO_HOST,
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,        
     }
 }
 
 USERSTORE = {
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'userstore',
-        'user':None,
-        'password':None,
+        'host': MONGO_HOST,
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 
@@ -64,14 +69,18 @@ DEBUG_TOOLBAR_PANELS += (
    'debug_toolbar_mongo.panel.MongoDebugPanel',
    )
 
-# ========================================================================
-# ========================================================================
-# ========================================================================
-# ========================================================================
-# ========================================================================
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': MYSQL_DB,
+        'USER': MYSQL_USER,
+        'PASSWORD': MYSQL_PASSWORD,
+        'HOST': MYSQL_HOST,
+        'PORT': MYSQL_PORT,
+    }
+}
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-DEBUG = False
 # PIPELINE=False 
 # PIPELINE_ENABLED=False
 STATIC_ROOT = ENV_ROOT / "staticfiles/lms"

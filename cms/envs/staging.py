@@ -6,6 +6,12 @@ This config file runs the simplest dev environment"""
 # pylint: disable=W0401, W0614
 
 from .common import *
+
+import os,sys
+sys.path.append("..") # => /home/tahoe/edx_all
+from siteconf import *
+
+
 from logsettings import get_logger_config
 
 DEBUG = False
@@ -18,8 +24,10 @@ LOGGING = get_logger_config(ENV_ROOT / "log",
 
 modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
-    'host': 'localhost',
     'db': 'xmodule',
+    'host': MONGO_HOST,
+    'user':MONGO_USER,
+    'password':MONGO_PASSWORD,
     'collection': 'modulestore',
     'fs_root': GITHUB_REPO_ROOT,
     'render_template': 'mitxmako.shortcuts.render_to_string',
@@ -46,8 +54,10 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'xcontent',
+        'host': MONGO_HOST,
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     },
     # allow for additional options that can be keyed on a name, e.g. 'trashcan'
     'ADDITIONAL_OPTIONS': {
@@ -60,11 +70,11 @@ CONTENTSTORE = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pepper',
-        'USER': 'pepper',
-        'PASSWORD': 'lebbeb',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': MYSQL_DB,
+        'USER': MYSQL_USER,
+        'PASSWORD': MYSQL_PASSWORD,
+        'HOST': MYSQL_HOST,
+        'PORT': MYSQL_PORT,
     }
 }
 
@@ -162,7 +172,6 @@ DEBUG_TOOLBAR_PANELS = (
     #  'debug_toolbar.panels.profiling.ProfilingDebugPanel',
 )
 
-
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False
 }
@@ -186,7 +195,6 @@ SEGMENT_IO_KEY = os.environ.get('SEGMENT_IO_KEY')
 if SEGMENT_IO_KEY:
     MITX_FEATURES['SEGMENT_IO'] = True
 
-
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 try:
@@ -201,7 +209,6 @@ EMAIL_HOST_USER = 'djangoedx@gmail.com'
 EMAIL_HOST_PASSWORD = 'django123'
 EMAIL_USE_TLS = True
 
-
 import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
@@ -209,6 +216,5 @@ from siteconf import *
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 STATIC_ROOT = ENV_ROOT / "staticfiles/cms"
-
 
 MITX_FEATURES['USE_DJANGO_PIPELINE']=True
