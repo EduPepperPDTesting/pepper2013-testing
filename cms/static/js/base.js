@@ -155,6 +155,7 @@ $(document).ready(function() {
     $('.edit-subsection-publish-settings').on('change', '.start-date, .start-time', function() {
         $('.edit-subsection-publish-settings').find('.save-button').show();
     });
+    $('.course-list-modify-button').bind('click', openCourseList);
 });
 
 function smoothScrollLink(e) {
@@ -601,7 +602,18 @@ function cancelNewSection(e) {
     $('.new-courseware-section-button').removeClass('disabled');
     $(this).parents('section.new-section').remove();
 }
-
+function openCourseList(e) {
+    e.preventDefault();
+    if(coureListWin.exist==undefined)
+    {
+        var cwin = new coureListWin();
+        cwin.draw($body);
+    }
+    else
+    {
+        $('.coure-list-win').show();
+    }
+}
 function addNewCourse(e) {
     e.preventDefault();
     $('.new-course-button').addClass('is-disabled');
@@ -879,4 +891,97 @@ function saveSetSectionScheduleDate(e) {
         hideModal();
         saving.hide();
     });
+}
+//--------------------------------------------------coureList
+function coureListWin()
+{
+    this.window=null;
+    this.header=null;
+    this.container=null;
+    this.saveBtn=null;
+    this.down=0;
+    this.x=0;
+    this.y=0;
+    this.oldX=0;
+    this.oldy=0;
+    this.data=null;
+}
+coureListWin.prototype.draw=function(element)
+{   
+    coureListWin.exist=1;
+    _this=this;
+    this.window=$("<div class='coure-list-win' style='position:absolute;left:300px;top:140px;width:800px;border:1px solid #aaaaaa;z-index:999;background:#ffffff;'>"+
+        "<div class='coure-list-header' style='background:#D4D0C8;font-weight:bold;height:30px;'><span style='margin-left:10px;'></span><span class='ui-button-icon-primary ui-icon ui-icon-closethick' style='float:right;margin:5px; 5px; 0 0'></span></div>"+
+        "<div class='coure-list-save new-button' style='font-size:18px;width:670px;height:20px;margin:10px 10px 0 40px;cursor:pointer;'>Update List</div>"+
+        "<div class='coure-list-container' style='height:600px;background:#ffffff;padding:20px;overflow-y:auto;'></div></div>");
+    this.header=this.window.find(".coure-list-header");
+    this.container=this.window.find(".coure-list-container");
+    this.saveBtn=this.window.find(".coure-list-save");
+    element.append(this.window);
+    $.post('/get_course_list',
+    function(data) {
+        _this.data=data;
+        _this.createList();
+        _this.saveBtn.click(function(event){_this.saveList();});
+   });
+    $(".coure-list-header").mousedown(function(event) {
+        _this.down=1;
+        _this.x=_this.window.offset().left;
+        _this.y=_this.window.offset().top;
+        _this.oldX=event.pageX;
+        _this.oldY=event.pageY;
+    });
+    $("body").mousemove(function(event) {
+
+       if(_this.down)
+        {   
+            _this.window.offset({left:_this.x+(event.pageX-_this.oldX),top:_this.y+(event.pageY-_this.oldY)});
+        }
+    });
+    $("body").mouseup(function(event) {
+        _this.down=0;
+    });
+    $(".ui-icon-closethick").click(function(event) {
+        _this.window.hide();
+    });
+}
+coureListWin.prototype.createList=function()
+{
+    var item=[];
+    _this=this;
+    for(var i=0;i<this.data.length;i++)
+    {
+        item[i]=$("<div style='background:#ffffff;border:1px solid #aaaaaa;margin:5px;padding:5px;cursor:pointer;'><div class='course_list_num' style='width:40px;height:50px;float:left'></div><div class='course_list_title' style='color:#009FE6;font-size:16px;font-weight:bold'></div><div class='course_list_id' style='color:#7F7F7F;font-size:12px;'></div></div>");
+        item[i].find('.course_list_title').html(this.data[i].name);
+        item[i].find('.course_list_id').html(this.data[i].id);
+        item[i].find('.course_list_id').attr('location',this.data[i].location);
+        item[i].find('.course_list_num').text(i+1+".");
+        this.container.append(item[i]);
+    }
+    this.container.sortable({
+        stop: function( event, ui ) {
+            _this.container.find('.course_list_num').each(function(i){
+                $(this).text(i+1+".");
+            });
+        }});
+    this.container.disableSelection();
+}
+coureListWin.prototype.saveList=function()
+{
+    var _data=[];
+    this.container.find('.course_list_id').each(function(){
+        _data.push($(this).attr('location'))
+    });
+    $.post('/set_course_list',{
+        'data':_data
+    },
+    function(data) {
+        if(data.info=="success"){
+            alert("Updated successfully!");
+        }
+        else
+        {
+            alert("Update Failed");
+        }
+   });
 }

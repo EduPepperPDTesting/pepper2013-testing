@@ -302,7 +302,14 @@ def sort_by_announcement(courses):
     courses = sorted(courses, key=key)
 
     return courses
+    
+def sort_by_custom(courses):
+    """
+    Sort according display_sort_number.
+    """
+    courses = sorted(courses, key=lambda course: course.display_sort_number)
 
+    return courses
 
 def get_cms_course_link_by_id(course_id):
     """
