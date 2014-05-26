@@ -27,6 +27,7 @@ modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
     'db': 'xmodule',
     'host': MONGO_HOST,
+    'port': MONGO_PORT,       
     'user':MONGO_USER,
     'password':MONGO_PASSWORD,
     'collection': 'modulestore',
@@ -46,6 +47,7 @@ CONTENTSTORE = {
     'OPTIONS': {
         'db': 'xcontent',
         'host': MONGO_HOST,
+        'port': MONGO_PORT,           
         'user':MONGO_USER,
         'password':MONGO_PASSWORD,        
     }
@@ -55,7 +57,7 @@ USERSTORE = {
     'OPTIONS': {
         'db': 'userstore',
         'host': MONGO_HOST,
-        'host': MONGO_PORT,        
+        'port': MONGO_PORT,        
         'user':MONGO_USER,
         'password':MONGO_PASSWORD,
     }
@@ -81,7 +83,9 @@ DATABASES = {
     }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
 # PIPELINE=False 
 # PIPELINE_ENABLED=False
 STATIC_ROOT = ENV_ROOT / "staticfiles/lms"

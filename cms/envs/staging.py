@@ -26,6 +26,7 @@ modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
     'db': 'xmodule',
     'host': MONGO_HOST,
+    'port': MONGO_PORT,       
     'user':MONGO_USER,
     'password':MONGO_PASSWORD,
     'collection': 'modulestore',
@@ -56,6 +57,7 @@ CONTENTSTORE = {
     'OPTIONS': {
         'db': 'xcontent',
         'host': MONGO_HOST,
+        'port': MONGO_PORT,   
         'user':MONGO_USER,
         'password':MONGO_PASSWORD,
     },
@@ -213,7 +215,8 @@ import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 STATIC_ROOT = ENV_ROOT / "staticfiles/cms"
 
