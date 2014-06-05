@@ -93,7 +93,7 @@ urlpatterns = (
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     
-    url(r'^register$', 'student.views.register_user', name="register_user"),
+    url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]+)/$', 'student.views.register_user', name="register_user"),
     
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),

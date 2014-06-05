@@ -282,7 +282,7 @@ def register_user(request, activation_key=None):
     """
 
     if not activation_key:
-        return return HttpResponse("Invalid Activation Key.")
+        return HttpResponse("Invalid Activation Key.")
 
     regs=Registration.objects.filter(activation_key=activation_key)
 
