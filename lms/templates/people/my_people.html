@@ -106,7 +106,7 @@
       <div class="filters">
         <select name="district_id">
           <option value="">District</option>
-          %for item in District.objects.all():
+          %for item in District.objects.all().order_by('name'):
           <option value="${item.id}">${item.name}</option>
           %endfor            
         </select>
