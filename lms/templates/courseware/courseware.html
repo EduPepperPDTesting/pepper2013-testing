@@ -69,7 +69,19 @@
             theme_advanced_toolbar_location : "top",
             theme_advanced_toolbar_align : "left",
             theme_advanced_statusbar_location : "",
-            theme_advanced_resizing : false
+            theme_advanced_resizing : false,
+            setup : function(ed) {
+              ed.onInit.add(function(ed, evt) {
+                tinyMCE.execCommand('mceSpellCheck');
+                if (document.documentElement.scrollTop==0){
+                  document.body.scrollTop = 0
+                }
+                else{
+                  document.documentElement.scrollTop = 0
+                }
+                
+              });
+            }
             });
           tinyMCE_init_sate=1;
       }
@@ -89,7 +101,19 @@
           theme_advanced_toolbar_location : "top",
           theme_advanced_toolbar_align : "left",
           theme_advanced_statusbar_location : "",
-          theme_advanced_resizing : false
+          theme_advanced_resizing : false,
+          setup : function(ed) {
+              ed.onInit.add(function(ed, evt) {
+                tinyMCE.execCommand('mceSpellCheck');
+                if (document.documentElement.scrollTop==0){
+                  document.body.scrollTop = 0
+                }
+                else{
+                  document.documentElement.scrollTop = 0
+                }
+                
+              });
+            }
           });
     }
      function tinyMCE_sate(val)

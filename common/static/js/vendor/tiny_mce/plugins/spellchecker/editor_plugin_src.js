@@ -167,7 +167,7 @@
 		},
 
 		_getSeparators : function() {
-			var re = '', i, str = this.editor.getParam('spellchecker_word_separator_chars', '\\s!"#$%&()*+,-./:;<=>?@[\]^_{|}§©«®±¶·¸»¼½¾¿×÷¤\u201d\u201c');
+			var re = '', i, str = this.editor.getParam('spellchecker_word_separator_chars', '\\s!"#$%&()*+,-./:;<=>?@[\]^_{|}Â§Â©Â«Â®Â±Â¶Â·Â¸Â»Â¼Â½Â¾Â¿Ã—Ã·Â¤\u201d\u201c');
 
 			// Build word separator regexp
 			for (i=0; i<str.length; i++)
@@ -406,7 +406,7 @@
 			if (t.active) {
 				t.active = 0;
 				t._removeWords();
-
+				t.active = true;
 				if (t._menu)
 					t._menu.hideMenu();
 
