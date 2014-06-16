@@ -262,12 +262,13 @@ def forum_form_discussion(request, course_id):
 
     thread_output = []
     for thread in threads:
-        courseware_context = get_courseware_context(thread, course)
-        if courseware_context:
-            thread.update(courseware_context)
+        #courseware_context = get_courseware_context(thread, course)
+        #if courseware_context:
+        #    thread.update(courseware_context)
         
         if len(thread.get('tags'))>0:
-            if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+            #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+            if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
                 thread_output.append(thread)
     annotated_content_info = utils.get_metadata_for_threads(course_id, thread_output, request.user, user_info)
     if request.is_ajax():
@@ -360,9 +361,9 @@ def single_thread(request, course_id, discussion_id, thread_id):
         course = get_course_with_access(request.user, course_id, 'load_forum')
         thread_output = []
         for thread in threads:
-            courseware_context = get_courseware_context(thread, course)
-            if courseware_context:
-                thread.update(courseware_context)
+            #courseware_context = get_courseware_context(thread, course)
+            #if courseware_context:
+            #    thread.update(courseware_context)
             if thread.get('group_id') and not thread.get('group_name'):
                 thread['group_name'] = get_cohort_by_id(course_id, thread.get('group_id')).name
 
@@ -370,7 +371,8 @@ def single_thread(request, course_id, discussion_id, thread_id):
             if not "pinned" in thread:
                 thread["pinned"] = False
             if len(thread.get('tags'))>0:
-                if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
                     thread_output.append(thread)
         thread_output = [utils.safe_content(thread) for thread in thread_output]
 
@@ -431,12 +433,13 @@ def user_profile(request, course_id, user_id):
         threads, page, num_pages = profiled_user.active_threads(query_params)
         thread_output = []
         for thread in threads:
-            courseware_context = get_courseware_context(thread, course)
-            if courseware_context:
-                thread.update(courseware_context)
+            #courseware_context = get_courseware_context(thread, course)
+            #if courseware_context:
+            #    thread.update(courseware_context)
             
             if len(thread.get('tags'))>0:
-                if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
                     thread_output.append(thread)
         query_params['page'] = page
         query_params['num_pages'] = num_pages

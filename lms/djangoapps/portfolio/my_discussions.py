@@ -23,12 +23,13 @@ def user_discussions_profile(request, course_id, portfolio_user):
         threads, page, num_pages = profiled_user.active_threads(query_params)
         thread_output = []
         for thread in threads:
-            courseware_context = get_courseware_context(thread, course)
-            if courseware_context:
-                thread.update(courseware_context)
+            #courseware_context = get_courseware_context(thread, course)
+            #if courseware_context:
+            #    thread.update(courseware_context)
             
             if len(thread.get('tags'))>0:
-                if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
+                if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
                     thread_output.append(thread)
         query_params['page'] = page
         query_params['num_pages'] = num_pages
