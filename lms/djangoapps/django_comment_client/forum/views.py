@@ -265,6 +265,7 @@ def forum_form_discussion(request, course_id):
         #courseware_context = get_courseware_context(thread, course)
         #if courseware_context:
         #    thread.update(courseware_context)   
+        
         if len(thread.get('tags'))>0:
             #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
             if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
