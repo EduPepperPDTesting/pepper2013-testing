@@ -212,6 +212,12 @@
 	display:block;
 	margin-left:30px;
 }
+.name_container2 {
+	float:left;
+	width:400px;
+	display:block;
+	margin-left:30px;
+}
 .full_name {
 	font-size:24px;
 	color:#3461ad;
