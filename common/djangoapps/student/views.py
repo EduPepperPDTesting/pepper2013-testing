@@ -823,40 +823,35 @@ def create_account(request, post_override=None):
     # TODO: Confirm e-mail is not from a generic domain (mailinator, etc.)? Not sure if
     # this is a good idea
     # TODO: Check password is sane
-#@begin:Check the availability of the following fields as we changed the user registration table fields
-#@date:2013-11-02   
     required_post_vars = ['username', 'email', 'first_name','last_name', 'password', 'terms_of_service']     # 'honor_code'
-#@end
     if tos_not_required:
-#@begin:honor_code is not used in Pepper. Change the following confirmation to comments.
-#@date:2013-11-02           
         required_post_vars = ['username', 'email', 'first_name','last_name', 'password'] # 'honor_code'
-#@end
+        
     for a in required_post_vars:
         if len(post_vars[a]) < 2:
             error_str = {'username': 'Username must be minimum of two characters long.',
                          'email': 'A properly formatted e-mail is required.',
-#@begin:Check the availability of the following fields as we changed the user registration table fields
-#@date:2013-11-02                            
                          'first_name': 'Your first name must be a minimum of two characters long.',
                          'last_name': 'Your last name must be a minimum of two characters long.',
-#@end                         
                          'password': 'A valid password is required.',
                          'terms_of_service': 'Accepting Terms of Service is required.',
-#@begin:honor_code is not used in the registration page
-#@date:2013-11-02                               
                          'honor_code': 'Agreeing to the Honor Code is required.',
                          }
-#@end            
             js['value'] = error_str[a]
             js['field'] = a
             return HttpResponse(json.dumps(js))
-#@begin:Check the availability of the following fields as we changed the user registration table fields
-#@date:2013-11-02  
+
+
+    if post_vars.get('username')==post_vars.get('password'):
+        js['value'] = 'Password and Public Username cannot be the same.'
+        js['field'] = 'password'
+        return HttpResponse(json.dumps(js))        
+        
     required_post_vars_dropdown=['major_subject_area_id','grade_level_id','district_id',
                                  'school_id','years_in_education_id',
                                  'percent_lunch','percent_iep','percent_eng_learner'
                                  ]
+    
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
             error_str = {
@@ -872,7 +867,6 @@ def create_account(request, post_override=None):
             js['value'] = error_str[a] 
             js['field'] = a
             return HttpResponse(json.dumps(js))    
-#@end 
     try:
         validate_email(post_vars['email'])
     except ValidationError:

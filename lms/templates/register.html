@@ -219,12 +219,14 @@ from baseinfo.models import Enum
           <li class="field required password" id="field-password">
             <label for="password">${_('Password')}</label>
             <input id="password" type="password" name="password" value="" required aria-required="true" />
+            <span class="tip tip-input">${_('<b>Cannot</b> be the same as Public Username below.')}</span>
           </li>
           <li class="field required text" id="field-username">
             <label for="username">${_('Public Username')}</label>
             <input id="username" type="text" name="username" value="" placeholder="${_('example: JaneDoe')}" required aria-required="true" />
-            <span class="tip tip-input">${_('Will be shown in any discussions or forums you participate in')}</span>
+            <span class="tip tip-input">${_('<b>Cannot</b> be the same as Password. Will be shown in any discussions or forums you participate in.')}</span>
           </li>
+
 <!--@begin:Registraction page: add more fields-->
 <!--@date:2013-11-02-->
           <li class="field required text" id="field-name">
