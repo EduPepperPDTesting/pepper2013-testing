@@ -11,6 +11,7 @@ from portfolio_utils import get_module_combinedopenended, get_chaper_for_course
 from my_discussions import user_discussions_profile
 from django.contrib.auth.models import User
 from about_me import create_discussion_about_me
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 def get_portfolio_user(request,user_id=None):
     if request.user.id == user_id or user_id==None:
         if request.GET.get('pf_id') != None:
@@ -37,8 +38,17 @@ def journal_and_reflections(request,course_id, user_id, chapter_id=''):
     chapters = get_chaper_for_course(request,course,chapter_id,portfolio_user)
     if chapter_id != '':
         content = get_module_combinedopenended(request,course,chapter_id,portfolio_user)
+    paginator = Paginator(content, 5)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        contacts = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        contacts = paginator.page(paginator.num_pages)
     return render_to_response('portfolio/journal_and_reflections.html', {'curr_user':portfolio_user,'course':course, 'csrf': csrf(request)['csrf_token'],
-        'content':content,'portfolio_user_id':portfolio_user.id,'portfolio_user':portfolio_user,'chapters':chapters,'chapter_id':chapter_id,'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa')})
+        'content':contacts,'portfolio_user_id':portfolio_user.id,'portfolio_user':portfolio_user,'chapters':chapters,'chapter_id':chapter_id,'xqa_server': settings.MITX_FEATURES.get('USE_XQA_SERVER', 'http://xqa:server@content-qa.mitx.mit.edu/xqa')})
 
 def uploads(request,course_id):
     course = get_course_with_access(request.user, course_id, 'load')

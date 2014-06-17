@@ -290,19 +290,39 @@
     </section>
 
     
-      %if len(content)>0:
+       %if len(content.object_list)>0:
         <section class="course-content my-course-work-content">
         <ol class="vert-mod">
-         %for con in content:
+         %for con in content.object_list:
          <li>${con}</li>
          %endfor
+         <p class="page" style="text-align:center;">
+        %if content.has_previous():
+          <a href="?pf_id=${portfolio_user.id}&page=${content.previous_page_number()}" title="Pre" class="up_page"></a>
+        %else:
+          <a href="javascript:void(0);" title="Pre" class="up_page"></a>
+        %endif
+
+        %for p in range(1,content.paginator.num_pages+1):
+          %if p == content.number:
+            <a>${p}</a>        
+          %else:
+            <a href="?page=${p}" class="page_active">${p}</a>
+          %endif
+        %endfor   
+        %if content.has_next():
+        <a href="?pf_id=${portfolio_user.id}&page=${content.next_page_number()}" title="Next" class="next_page"></a>
+         %else:
+          <a href="javascript:void(0);" title="Pre" class="next_page"></a>
+        %endif
+      </p>
       %endif
-       %if len(content)==0 and chapter_id!='':
+       %if len(content.object_list)==0 and chapter_id!='':
         <section class="course-content my-course-work-content">
         <ol class="vert-mod">
         <div style="text-align:center;font-family:open sans;font-size:14.5pt;margin-top:90px;"><img src='/static/tmp-resource/image/PepperIcon_Important.png'/>&nbsp;There are currently no portfolio submissions in this session.</div>
        %endif
-       %if len(content)==0 and chapter_id=='':
+       %if len(content.object_list)==0 and chapter_id=='':
         <section class="course-content my-course-work-content" style="padding:0px;">
         <ol class="vert-mod">
         <!--
