@@ -301,12 +301,12 @@ except ImportError:
 # Sometime we need to unlock the gmail account as new device?
 # https://accounts.google.com/DisplayUnlockCaptch
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'djangoedx@gmail.com'
-# EMAIL_HOST_PASSWORD = 'django123'
-# EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'fclddcn@gmail.com'
+EMAIL_HOST_PASSWORD = '19791129'
+EMAIL_USE_TLS = True
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
@@ -322,10 +322,10 @@ except ImportError:
 # EMAIL_HOST_PASSWORD = 'Pas$w0rd' 
 # EMAIL_USE_TLS = True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+# EMAIL_USE_TLS = False
 
 AWS_ACCESS_KEY_ID = AUTH_TOKENS_PEPPER["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]
@@ -342,4 +342,4 @@ USERS_ONLINE__TIME_OFFLINE = 60*10 # 10 minutes
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 30 * 60
-SESSION_EXPIRY = 30 * 60
+SESSION_EXPIRY = 60 * 60
