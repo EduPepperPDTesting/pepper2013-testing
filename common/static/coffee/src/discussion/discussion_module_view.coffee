@@ -206,4 +206,4 @@ if Backbone?
       event.preventDefault()
       window.history.pushState({}, window.document.title, event.target.href)
       @page = $(event.target).data('page-number')
-      @loadPage($(event.target))
+      @loadPage_default($(event.target))
