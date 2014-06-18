@@ -200,18 +200,36 @@ if Backbone?
     # use of DiscussionThreadView.prototype.delete, and that will break IE8
     # because "delete" is a keyword. So, using an underscore to prevent that.
     _delete: (event) =>
+      deletet_thread = $(".list-item").find(".active")
+      deletet_thread_id=deletet_thread.parent().attr('data-id')
+      next_thread_id = deletet_thread.parent().next().find('a').attr('data-id')
+      prev_thread_id = deletet_thread.parent().prev().find('a').attr('data-id')
+      
       url = @model.urlFor('_delete')
       if not @model.can('can_delete')
         return
       if not confirm "Are you sure to delete thread \"#{@model.get('title')}\"?"
         return
+      
       @model.remove()
       @showView.undelegateEvents()
       @undelegateEvents()
       @$el.empty()
       $elem = $(event.target)
+      
       DiscussionUtil.safeAjax
         $elem: $elem
         url: url
         type: "POST"
         success: (response, textStatus) =>
+          if next_thread_id!=undefined
+            $(".post-list a[data-id='#{next_thread_id}']").click()
+          else if prev_thread_id!=undefined
+            $(".post-list a[data-id='#{prev_thread_id}']").click()
+          else
+            indexPage=window.location.href.split('forum/')
+            url=indexPage[0]+"forum"
+            @template = _.template($("#discussion-home").html())
+            $(".discussion-column").html(@template)
+            #top.window.location=url
+            #$(".course-tabs").find(".active").get(0).click()
