@@ -4,7 +4,6 @@ import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
 
-
 # ========================================================================
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = False
 
@@ -75,13 +74,23 @@ DEBUG_TOOLBAR_PANELS += (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': MYSQL_DB,
-        'USER': MYSQL_USER,
-        'PASSWORD': MYSQL_PASSWORD,
-        'HOST': MYSQL_HOST,
-        'PORT': MYSQL_PORT,
-    }
+        'NAME': MYSQL_DB_W,
+        'USER': MYSQL_USER_W,
+        'PASSWORD': MYSQL_PASSWORD_W,
+        'HOST': MYSQL_HOST_W,
+        'PORT': MYSQL_PORT_W,
+    },
+    'read': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': MYSQL_DB_R,
+        'USER': MYSQL_USER_R,
+        'PASSWORD': MYSQL_PASSWORD_R,
+        'HOST': MYSQL_HOST_R,
+        'PORT': MYSQL_PORT_R,
+    },
 }
+
+DATABASE_ROUTERS = ['dbrouter.RwSplittingRouter']
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
