@@ -1646,7 +1646,7 @@ def activate_imported_account(post_vars):
             registration.activate()
         except Exception as e:
             if "username" in "%s" % e:
-                ret['value'] = "An account with the Public Username '%s' already exists." % post_vars.get('username','')
+                ret['value'] = e
                 ret['field'] = 'username'
             raise e
 

@@ -223,7 +223,7 @@ from baseinfo.models import Enum
           </li>
           <li class="field required text" id="field-username">
             <label for="username">${_('Public Username')}</label>
-            <input id="username" type="text" name="username" value="" placeholder="${_('example: JaneDoe')}" required aria-required="true" />
+            <input id="username" type="text" name="username" value="" placeholder="${_('example: JaneDoe')}" required aria-required="true" maxlength="30"/>
             <span class="tip tip-input">${_('<b>Cannot</b> be the same as Password. Will be shown in any discussions or forums you participate in.')}</span>
           </li>
 
@@ -231,12 +231,12 @@ from baseinfo.models import Enum
 <!--@date:2013-11-02-->
           <li class="field required text" id="field-name">
             <label for="first_name">${_('First Name')}</label>
-            <input id="first_name" type="text" name="first_name" value="" placeholder="${_('example: Jane')}" required aria-required="true" />
+            <input id="first_name" type="text" name="first_name" value="" placeholder="${_('example: Jane')}" required aria-required="true" maxlength="30"/>
             <span class="tip tip-input">${_("Needed for any certificates you may earn")}</span>
           </li>
           <li class="field required text" id="field-name">
             <label for="last_name">${_('Last Name')}</label>
-            <input id="last_name" type="text" name="last_name" value="" placeholder="${_('example: Doe')}" required aria-required="true" />
+            <input id="last_name" type="text" name="last_name" value="" placeholder="${_('example: Doe')}" required aria-required="true" maxlength="30"/>
             <span class="tip tip-input">${_("Needed for any certificates you may earn")}</span>
           </li>
           
