@@ -95,12 +95,18 @@ urlpatterns = (
 
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
-    
+
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
-    
+
+    url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
+    url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
+    url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
+    url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),    
+
+    url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
-    
+
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
     url(r'^email_confirm/(?P<key>[^/]*)$', 'student.views.confirm_email_change'),
@@ -180,6 +186,7 @@ if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
         # Favicon
         (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
         url(r'^submit_feedback$', 'util.views.submit_feedback'),
+        url(r'^notifications$', 'notifications.views.notifications', name="notifications"),        
     )
 # Only enable URLs for those marketing links actually enabled in the
 # settings. Disable URLs by marking them as None.

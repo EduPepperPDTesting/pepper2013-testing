@@ -225,7 +225,7 @@ from pytz import UTC
   if(xhr.status == 200) {
   location.href = "${reverse('dashboard')}";
   } else if (xhr.status == 403) {
-  location.href = "${reverse('register_user')}?course_id=${course.id}&enrollment_action=enroll";
+  location.href = "${reverse('register_user',args=[''])}?course_id=${course.id}&enrollment_action=enroll";
   } else {
   $('#register_error').html(
   (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
