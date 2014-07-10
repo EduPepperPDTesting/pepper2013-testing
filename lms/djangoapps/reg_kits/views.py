@@ -182,14 +182,18 @@ def cohort_form(request,cohort_id=None):
 ##############################################
 # SCHOOL
 ##############################################
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def school(request):
+def filter_school(request):
     data=School.objects.all()
     if request.GET.get('district_id'):
         data=data.filter(district_id=request.GET.get('district_id'))
     if request.GET.get('state_id'):
         data=data.filter(Q(district__state_id=request.GET.get('state_id')))
+    return data
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def school(request):
+    data=filter_school(request)
     data=valid_pager(data,20,request.GET.get('page'))
     return render_to_response('reg_kits/school.html', {"schools":data,"ui":"list","pager_params":pager_params(request)})
 
@@ -238,6 +242,10 @@ def school_form(request,school_id=None):
 ##############################################
 def filter_user(request):
     data=UserProfile.objects.all() #.select_related('owner_object')
+    if request.GET.get('first_name'):
+        data=data.filter(Q(user__first_name=request.GET.get('first_name')))
+    if request.GET.get('last_name'):
+        data=data.filter(Q(user__last_name=request.GET.get('last_name')))
     if request.GET.get('school_id'):
         data=data.filter(school_id=request.GET.get('school_id'))
     if request.GET.get('email'):
@@ -254,22 +262,75 @@ def filter_user(request):
         data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(request.GET.get('invite_days_min'))))
     if request.GET.get('invite_days_max'):
         data=data.filter(invite_date__gte=datetime.datetime.now(UTC)-datetime.timedelta(int(request.GET.get('invite_days_max'))+1))
+
+    desc=""
+    if request.GET.get("desc")=="yes":
+        desc="-"
+
+    if request.GET.get("sortby")=="user_id":
+        data=data.order_by(desc+"user__id")
+
+    if request.GET.get("sortby")=="active_link":
+        data=data.order_by(desc+"user__registration__activation_key")           
+
+    if request.GET.get("sortby")=="first_name":
+        data=data.order_by(desc+"user__first_name")
+
+    if request.GET.get("sortby")=="last_name":
+        data=data.order_by(desc+"user__last_name")
+
+    if request.GET.get("sortby")=="username":
+        data=data.order_by(desc+"user__username")
+        
+    if request.GET.get("sortby")=="email":
+        data=data.order_by(desc+"user__email")
+
+    if request.GET.get("sortby")=="disctrict":
+        data=data.order_by(desc+"disctrict__name")
+
+    if request.GET.get("sortby")=="cohort":
+        data=data.order_by(desc+"cohort__code")
+
+    if request.GET.get("sortby")=="school":
+        data=data.order_by(desc+"school__name")
+
+    if request.GET.get("sortby")=="invite_date":
+        data=data.order_by(desc+"invite_date")        
+                    
+    if request.GET.get("sortby")=="activate_date":
+        data=data.order_by(desc+"activate_date")
+
+    if request.GET.get("sortby")=="subscription_status":
+        data=data.order_by(desc+"subscription_status")        
+        
     return data
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user(request):
+
     data=filter_user(request)
     invite_count=data.filter(subscription_status='Imported').count()
-    data=valid_pager(data,20,request.GET.get('page'))
+
+    size=request.GET.get('size')
+
+    if size and size.isdigit():
+        size=int(size)
+    else:
+        size=20
+    
+    data=valid_pager(data,size,request.GET.get('page'))
+
     for item in data:
         item.days_after_invite=''
         if(item.invite_date):
             item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
+            
     return render_to_response('reg_kits/user.html', {"invite_count":invite_count,
-                                                   "users":data,
-                                                   "ui":"list",
-                                                   "pager_params":pager_params(request)})
+                                                     "users":data,
+                                                     "ui":"list",
+                                                     "pager_params":pager_params(request)})
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_submit(request):
@@ -305,36 +366,35 @@ def user_submit(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_modify_status(request):
-    user=User.objects.get(id=request.POST['id'])
-    profile=UserProfile.objects.get(user_id=request.POST['id'])
-    try:
-        if request.POST['subscription_status']=='Registered':
-            user.is_active=True
-        else:
-            user.is_active=False
-        user.save()
-        
-        profile.subscription_status=request.POST['subscription_status']
-        profile.save()
-        
-    except Exception as e:
-        db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+    for id in request.POST.get("ids").split(","): 
+        user=User.objects.get(id=id)
+        profile=UserProfile.objects.get(user_id=id)
+        try:
+            if request.POST['subscription_status']=='Registered':
+                user.is_active=True
+            else:
+                user.is_active=False
+            user.save()
+            profile.subscription_status=request.POST['subscription_status']
+            profile.save()
+        except Exception as e:
+            db.transaction.rollback()
+            return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def user_delete(request):
-    ids=request.GET.get("ids").split(",")
-    message={'success': True}
-    try:
-        User.objects.filter(id__in=ids).delete()
-        UserProfile.objects.filter(user_id__in=ids).delete()
-        db.transaction.commit()
-    except Exception as e:
-        db.transaction.rollback()
-        message={'success': False,'error':e}
-    return HttpResponse(json.dumps(message))
+# @login_required
+# @user_passes_test(lambda u: u.is_superuser)
+# def user_delete(request):
+#     ids=request.GET.get("ids").split(",")
+#     message={'success': True}
+#     try:
+#         User.objects.filter(id__in=ids).delete()
+#         UserProfile.objects.filter(user_id__in=ids).delete()
+#         db.transaction.commit()
+#     except Exception as e:
+#         db.transaction.rollback()
+#         message={'success': False,'error':e}
+#     return HttpResponse(json.dumps(message))
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -364,6 +424,153 @@ def validate_user_cvs_line(line):
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
         exist=True
     return exist
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_school_csv(request):
+    from StringIO import StringIO
+    FIELDS = ['id',"name","district"]
+    TITLES = ["School ID","School Name", "District"]
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=FIELDS)
+    writer.writerow(dict(zip(FIELDS, TITLES)))
+    data=filter_school(request)
+    for d in data:
+        writer.writerow({
+            "id":d.id,
+            "name":d.name,
+            "district":d.district.name,
+            })
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=schools.csv'
+    output.seek(0)
+    response.write(output.read())
+    output.close()
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_school_excel(request):
+    from StringIO import StringIO
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    FIELDS = ['id',"name","_district"]
+    TITLES = ["School ID","School Name", "District"]    
+    
+    for i,k in enumerate(TITLES): worksheet.write(0,i,k)
+    
+    row=1
+    data=filter_school(request)
+    for d in data:
+        d._district=District.objects.get(id=d.district_id).name + " - " + District.objects.get(id=d.district_id).code
+        for i,k in enumerate(FIELDS):
+            worksheet.write(row,i,getattr(d,k))
+        row=row+1
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=schools.xlsx'
+    workbook.close()
+    response.write(output.getvalue())    
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_user_csv(request):
+    from StringIO import StringIO
+    FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
+              "district","cohort","school","invite_date","activate_date","subscription_status"]
+    
+    TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
+              "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
+
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=FIELDS)
+    
+    writer.writerow(dict(zip(FIELDS, TITLES)))
+    data=filter_user(request)
+
+    domain="http://"+request.META['HTTP_HOST'] 
+    for d in data:
+        key,link="",""
+        if Registration.objects.filter(user_id=d.user_id).count():
+            key=Registration.objects.get(user_id=d.user_id).activation_key
+
+        if key: link=domain+reverse('register_user',args=[key])
+            
+        writer.writerow({
+            "user_id":d.user_id,
+            "activate_link":link,
+            "first_name":d.user.first_name,
+            "last_name":d.user.last_name,
+            "username":d.user.username,
+            "email":d.user.email,            
+            "district":d.cohort.district.name,
+            "cohort":d.cohort.code,
+            "school":d.school.name,
+            "invite_date":d.invite_date,
+            "activate_date":d.activate_date,
+            "subscription_status":d.subscription_status
+            })
+        
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=users.csv'
+    output.seek(0)
+    response.write(output.read())
+    output.close()
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_user_excel(request):
+    from StringIO import StringIO
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    
+    FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
+              "_district","_cohort","_school","_invite_date","_activate_date","subscription_status"]
+    
+    TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
+              "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
+    
+    for i,k in enumerate(TITLES):
+        worksheet.write(0,i,k)
+    row=1
+    data=filter_user(request)
+    domain="http://"+request.META['HTTP_HOST'] 
+    for d in data:
+        if Registration.objects.filter(user_id=d.user_id).count():
+            key=Registration.objects.get(user_id=d.user_id).activation_key
+        else:
+            key=None
+        d.activate_link=""
+        d.username=d.user.username
+        d.first_name=d.user.first_name
+        d.last_name=d.user.last_name
+        d._school=d.school.name
+        d._cohort=d.cohort.code
+        d._district=d.cohort.district.name
+        d.email=d.user.email
+        d._invite_date="%s" % d.invite_date
+        d._activate_date="%s" % d.activate_date
+        
+        for i,k in enumerate(FIELDS):
+            if k=="activate_link" and key:
+                d.activate_link=domain+reverse('register_user',args=[key])
+                worksheet.write_url(row,i,getattr(d,k),None,key)
+            else:
+                worksheet.write(row,i,getattr(d,k))
+
+        row=row+1
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=users.xlsx'
+    workbook.close()
+    response.write(output.getvalue())    
+    return response
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -436,7 +643,7 @@ def send_invite_email(request):
         wait=data[:int(count)]
         for item in wait:
             reg = Registration.objects.get(user_id=item.user_id)
-            d = {'name': "%s %s" % (item.first_name,item.last_name), 'key': reg.activation_key,'district': item.cohort.district.name}
+            d = {'name': "%s %s" % (item.user.first_name,item.user.last_name), 'key': reg.activation_key,'district': item.cohort.district.name}
             subject = render_to_string('emails/activation_email_subject.txt', d)
             subject = ''.join(subject.splitlines())
             message = render_to_string('emails/activation_email.txt', d)

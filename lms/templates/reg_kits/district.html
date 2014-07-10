@@ -9,6 +9,9 @@
    import json
    from student.models import State,District
 %>
+<head>
+  <title>Reg Kits District</title>
+</head>
 <body>
   <%include file="tabs.html" args="active_page='district'" />
   %if ui=='list':
@@ -28,7 +31,7 @@
               %endif
               %endfor
             </select>
-            <input type="submit" value="filter" />
+            <input type="submit" value="Filter" />
           </form>
         </div>
         <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">

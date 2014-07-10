@@ -10,6 +10,9 @@
    from student.models import State,District,Cohort
    import json
    %>
+<head>
+  <title>Reg Kits Transaction</title>
+</head>
 <body>
 <%include file="tabs.html" args="active_page='transaction'" />
 <div style="text-align:center;">
@@ -33,7 +36,7 @@
           <select id="" name="district_id" autocomplate="off">
             <option value="">All</option>
           </select>
-          <input type="submit" name="" value="filter" />
+          <input type="submit" name="" value="Filter" />
         </form>
       </div>
       <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
@@ -45,7 +48,7 @@
           <th>Start Date</th>
           <th>Term Months</th>
         </tr>
-        % for item in transactions:
+        %for item in transactions:
         <tr>
           <td><input type="checkbox" name="id" value="${item.id}" /></td>
           <td><a href="${reverse('transaction_modify',args=[item.id])}">${item.code}</a></td>
@@ -54,7 +57,7 @@
           <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
           <td>${item.term_months}</td>
         </tr>
-        % endfor
+        %endfor
       </table>
       <div style="padding:5px;text-align:right;">
         Total:${transactions.paginator.count} -
@@ -69,45 +72,45 @@
         <input type="button" onclick="window.location='${reverse("transaction_form")}'" value="Add New Transaction" />
         <input type="button" name="delete" value="Delete Selected" />
       </div>
-<script type="text/javascript">
-var form=$("#form_filter");
-$("input[name=page]").keyup(function(e){
-  if(e.keyCode==13){
-    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-    if(/^[1-9]\d*$/.test(p))
-      window.location.href='${reverse('transaction')}?${pager_params}&page='+p
-    else
-      alert("Invalid page number '"+p+"'")
-  }
-});
-// delete transactions
-$("input[type=button][name=delete]").click(function(){
-  var ids=[];
-  $("input[type=checkbox][name=id]:checked").each(function(){
-    ids.push(this.value)
-  });
-  if(!ids.length)return alert("Nothing selected.")
-  if(!confirm("Really delete?")) return;
-  $.get("${reverse('transaction_delete')}",{ids:ids.join(",")},function(r){
-    r=$.parseJSON(r)
-    if(r.success)
-      window.location.href=window.location.href
-    else
-      alert(r.error)
-  })
-})
-// drop events
-form.find("select[name=state_id]").change(function(){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id);
-});
-// init drops
-var state_id="${request.GET.get('state_id') or ''}"
-var district_id="${request.GET.get('district_id') or ''}"
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-});
-</script>
+      <script type="text/javascript">
+        var form=$("#form_filter");
+        $("input[name=page]").keyup(function(e){
+          if(e.keyCode==13){
+            var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+            if(/^[1-9]\d*$/.test(p))
+            window.location.href='${reverse('transaction')}?${pager_params}&page='+p
+            else
+            alert("Invalid page number '"+p+"'")
+          }
+        });
+        // delete transactions
+        $("input[type=button][name=delete]").click(function(){
+          var ids=[];
+          $("input[type=checkbox][name=id]:checked").each(function(){
+            ids.push(this.value)
+          });
+          if(!ids.length)return alert("Nothing selected.")
+          if(!confirm("Really delete?")) return;
+          $.get("${reverse('transaction_delete')}",{ids:ids.join(",")},function(r){
+            r=$.parseJSON(r)
+            if(r.success)
+            window.location.href=window.location.href
+            else
+            alert(r.error)
+          })
+        })
+        // drop events
+        form.find("select[name=state_id]").change(function(){
+          var state_id=$(this).val();
+          dropDistrict(form,state_id);
+        });
+        // init drops
+        var state_id="${request.GET.get('state_id') or ''}"
+        var district_id="${request.GET.get('district_id') or ''}"
+        dropDistrict(form,state_id,function(){
+          $(this).val(district_id)
+        });
+      </script>
       %endif
       %if ui=='form':
       <form id="form" method="post" style="text-align:left;">
@@ -195,58 +198,56 @@ dropDistrict(form,state_id,function(){
           </tr>
         </table>
       </form>
-<script type="text/javascript">
-var form=$("#form");
-// submit form
-form.submit(function(){
-  if(!new FormValidator().check(this))return false;
-  var flds=["id","code","subscription_type","cohort_id","start_date","term_months","csrfmiddlewaretoken"]
-  var data=getFormData(this,flds);
-  $("#message").html("Submiting");
-  $.post('${reverse("transaction_submit")}', data,
-    function(r) {
-      r=$.parseJSON(r)
-      if (r.success) {
-        $(this).resetForm()
-        infoAndWait($("#message"),"Submit success",3,"${reverse('transaction')}");
-      } else {
-        $("#message").show()
-        $("#message").html(r.error);
-      }
-    }
-  );
-  return false;
-});
-// drop events
-form.find("select[name=state_id]").change(function(){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id,function(){
-    dropCohort(form,state_id);
-  });
-})
-form.find("select[name=district_id]").change(function(){
-  var district_id=$(this).val();
-  dropCohort(form,'',district_id,cohort_id);
-})
-// init
-%if cohort:
-var cohort_id="${cohort.id}"
-var district_id="${cohort.district.id}"
-var state_id="${cohort.district.state.id}"
-%else:
-var cohort_id=""
-var district_id=""
-var state_id=""
-%endif
+      <script type="text/javascript">
+        var form=$("#form");
+        // submit form
+        form.submit(function(){
+          if(!new FormValidator().check(this))return false;
+          var flds=["id","code","subscription_type","cohort_id","start_date","term_months","csrfmiddlewaretoken"]
+          var data=getFormData(this,flds);
+          $("#message").html("Submiting");
+          $.post('${reverse("transaction_submit")}', data, function(r) {
+            r=$.parseJSON(r)
+            if (r.success) {
+              $(this).resetForm()
+              infoAndWait($("#message"),"Submit success",3,"${reverse('transaction')}");
+            } else {
+              $("#message").show()
+              $("#message").html(r.error);
+            }
+          });
+          return false;
+        });
+        // drop events
+        form.find("select[name=state_id]").change(function(){
+          var state_id=$(this).val();
+          dropDistrict(form,state_id,function(){
+            dropCohort(form,state_id);
+          });
+        })
+        form.find("select[name=district_id]").change(function(){
+          var district_id=$(this).val();
+          dropCohort(form,'',district_id,cohort_id);
+        })
+        // init
+        %if cohort:
+        var cohort_id="${cohort.id}"
+        var district_id="${cohort.district.id}"
+        var state_id="${cohort.district.state.id}"
+        %else:
+        var cohort_id=""
+        var district_id=""
+        var state_id=""
+        %endif
 
-form.find("select[name=state_id]").val(state_id)
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-})
-dropCohort(form,state_id,district_id,function(){
-  $(this).val(cohort_id)
-})
-</script>
+        form.find("select[name=state_id]").val(state_id)
+        dropDistrict(form,state_id,function(){
+          $(this).val(district_id)
+        })
+        dropCohort(form,state_id,district_id,function(){
+          $(this).val(cohort_id)
+        })
+      </script>
       %endif
     </div>  
   </div>

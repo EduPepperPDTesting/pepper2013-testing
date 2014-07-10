@@ -67,9 +67,6 @@ INSTALLED_APPS += (
     'debug_toolbar_mongo',
     )
 
-DEBUG_TOOLBAR_PANELS += (
-   'debug_toolbar_mongo.panel.MongoDebugPanel',
-   )
 
 DATABASES = {
     'default': {

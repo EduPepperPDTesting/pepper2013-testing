@@ -9,6 +9,9 @@
    import json
    from student.models import District,State
    %>
+<head>
+  <title>Reg Kits School</title>
+</head>
 <body>
 <%include file="tabs.html" args="active_page='school'" />
 %if ui=='list':
@@ -32,7 +35,7 @@
           <select id="" name="district_id" autocomplate="off">
             <option value="">All</option>
           </select>
-          <input type="submit" name="" value="filter" />
+          <input type="submit" name="" value="Filter" />
         </form>
       </div>
       <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
@@ -65,50 +68,81 @@
         %endif        
         <input type="button" onclick="window.location='${reverse('school_form')}'" value="Add New School" />
         <input type="button" name="delete" value="Delete Selected" />
+
+        Download ${schools.paginator.count} School(s) As
+        <input type="button" id="btnDownloadCsv" value="CSV" />
+        <input type="button" id="btnDownloadExcel" value="Excel" />
+        
       </div>
     </div>  
   </div>
 </div>
 <script type="text/javascript">
-var form=$("#form_filter");
+  var form=$("#form_filter");
 
-$("input[name=page]").keyup(function(e){
-  if(e.keyCode==13){
-    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-    if(/^[1-9]\d*$/.test(p))
+  $("input[name=page]").keyup(function(e){
+    if(e.keyCode==13){
+      var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+      if(/^[1-9]\d*$/.test(p))
       window.location.href='${reverse('school')}?${pager_params}&page='+p
-    else
+      else
       alert("Invalid page number '"+p+"'")
-  }
-});
-
-// delete school
-$("input[type=button][name=delete]").click(function(){
-  var ids=[];
-  $("input[type=checkbox][name=id]:checked").each(function(){
-    ids.push(this.value)
+    }
   });
-  if(!ids.length)return alert("Nothing selected.")
-  if(!confirm("Really delete?")) return;
-  $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
-    r=$.parseJSON(r)
-    if(r.success)
+
+  // delete school
+  $("input[type=button][name=delete]").click(function(){
+    var ids=[];
+    $("input[type=checkbox][name=id]:checked").each(function(){
+      ids.push(this.value)
+    });
+    if(!ids.length)return alert("Nothing selected.")
+    if(!confirm("Really delete?")) return;
+    $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
+      r=$.parseJSON(r)
+      if(r.success)
       window.location.href=window.location.href
-    else
+      else
       alert(r.error)
+    })
   })
-})
-// drop events
-form.find("select[name=state_id]").change(function(){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id);
-});
-// init drops
-var state_id="${request.GET.get('state_id') or ''}"
-var district_id="${request.GET.get('district_id') or ''}"
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-});
+  // drop events
+  form.find("select[name=state_id]").change(function(){
+    var state_id=$(this).val();
+    dropDistrict(form,state_id);
+  });
+  // init filter form
+  var state_id="${request.GET.get('state_id') or ''}"
+  var district_id="${request.GET.get('district_id') or ''}"
+  dropDistrict(form,state_id,function(){
+    $(this).val(district_id)
+  });
+  // downloading
+  var curr_filter={state_id:state_id, district_id:district_id}
+  $("#btnDownloadCsv").click(function(){
+    var valid_filter=[];
+    var filter=$.extend({},curr_filter)
+    for(k in filter){
+      var v=filter[k];
+      if(v && v.length){
+        valid_filter.push(k+"="+encodeURI(v));
+      }
+    }
+    window.open("${reverse('download_school_csv')}?"+valid_filter.join("&"));
+  });
+  $("#btnDownloadExcel").click(function(){
+    var valid_filter=[];
+    var h=get_searching();
+    var filter=$.extend({},curr_filter)
+    for(k in filter){
+      var v=filter[k];
+      if(v && v.length){
+        valid_filter.push(k+"="+encodeURI(v));
+      }
+    }
+    window.open("${reverse('download_school_excel')}?"+valid_filter.join("&"));
+  })
+  
 </script>
 %endif
 %if ui=='form':

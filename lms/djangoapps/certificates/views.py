@@ -112,8 +112,8 @@ def course_from_id(course_id):
 def download_certificate(request,course_id,completed_time):
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
-    first_name = request.user.profile.first_name
-    last_name = request.user.profile.last_name
+    first_name = request.user.first_name
+    last_name = request.user.last_name
 
     c_course_name = user_course.display_name_with_default
     c_user_name = first_name + ' ' +last_name

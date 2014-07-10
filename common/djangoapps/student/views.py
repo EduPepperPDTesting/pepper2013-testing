@@ -731,8 +731,8 @@ def _do_create_account(post_vars):
 #@begin:Add new fields to save profile in registration page
 #@date:2013-11-02        
     # profile.name = post_vars['name']
-    profile.first_name = post_vars['first_name']
-    profile.last_name = post_vars['last_name']
+    profile.user.first_name = post_vars['first_name']
+    profile.user.last_name = post_vars['last_name']
 
     profile.major_subject_area_id = post_vars['major_subject_area_id']
     profile.grade_level_id = post_vars['grade_level_id']
@@ -752,6 +752,7 @@ def _do_create_account(post_vars):
         # of asking them to put an integer.
         profile.year_of_birth = None
     try:
+        profile.user.save()
         profile.save()
     except Exception:
         log.exception("UserProfile creation failed for user {id}.".format(id=user.id))
@@ -840,7 +841,6 @@ def create_account(request, post_override=None):
             js['value'] = error_str[a]
             js['field'] = a
             return HttpResponse(json.dumps(js))
-
 
     if post_vars.get('username')==post_vars.get('password'):
         js['value'] = 'Password and Public Username cannot be the same.'
@@ -1283,7 +1283,7 @@ def reactivation_email_for_user(user):
         return HttpResponse(json.dumps({'success': False,
                                         'error': _('No inactive user with this e-mail exists')}))
 
-    d = {'name': "%s %s" % (user.profile.first_name, user.profile.last_name),
+    d = {'name': "%s %s" % (user.first_name, user.last_name),
          'key': reg.activation_key,
          'district':user.profile.cohort.district.name
          }
@@ -1616,8 +1616,8 @@ def activate_imported_account(post_vars):
         
         profile=UserProfile.objects.get(user_id=user_id)
         profile.subscription_status='Registered'
-        profile.first_name=post_vars.get('first_name','')
-        profile.last_name=post_vars.get('last_name','')
+        profile.user.first_name=post_vars.get('first_name','')
+        profile.user.last_name=post_vars.get('last_name','')
         profile.school_id=post_vars.get('school_id','')
         profile.grade_level_id=post_vars.get('grade_level_id','')
         profile.major_subject_area_id=post_vars.get('major_subject_area_id','')
@@ -1630,7 +1630,7 @@ def activate_imported_account(post_vars):
 
         CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
         
-        d={"first_name":profile.first_name,"last_name":profile.last_name,"district":profile.cohort.district.name}
+        d={"first_name":profile.user.first_name,"last_name":profile.user.last_name,"district":profile.cohort.district.name}
 
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
@@ -1693,7 +1693,6 @@ def activate_imported_account(post_vars):
 #         up.save()
 #     return redirect(reverse('dashboard'))
 #@end 
-
 
 def upload_photo(request):
     options=settings.USERSTORE.get("OPTIONS")

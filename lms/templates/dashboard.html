@@ -377,7 +377,7 @@
 <!--@date:2013-11-02-->
           <span class="title">
             <div class="icon name-icon"></div><b>${_("Name")}:</b>
-            <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.first_name | h } ${ curr_user.profile.last_name | h }</span>
+            <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
             
 			<script>
 				var full_name = document.getElementById('full_name_span').textContent;
@@ -1271,9 +1271,9 @@ Add info that you would like to share about yourself here:
 <!--@date:2013-11-02-->            
             <br/><br/>
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">First Name</label>
-            <input id="new_first_name_field" value="${curr_user.profile.first_name}" type="text" autocomplete="off" maxlength="30"/>
+            <input id="new_first_name_field" value="${curr_user.first_name}" type="text" autocomplete="off" maxlength="30"/>
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Last Name</label>
-            <input id="new_last_name_field" value="${curr_user.profile.last_name}" type="text" autocomplete="off" maxlength="30"/>
+            <input id="new_last_name_field" value="${curr_user.last_name}" type="text" autocomplete="off" maxlength="30"/>
 <!--@end-->
             <label>${_("Reason for name change:")}</label>
             <textarea id="name_rationale_field" value=""></textarea>

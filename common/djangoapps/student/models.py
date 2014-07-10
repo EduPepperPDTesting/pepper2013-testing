@@ -323,9 +323,8 @@ class UserProfile(models.Model):
 
     grade_level_id = models.CharField(blank=False, max_length=255, db_index=True) 
 
-
-    first_name = models.CharField(blank=True, max_length=255, db_index=True)
-    last_name = models.CharField(blank=True, max_length=255, db_index=True)
+    # first_name = models.CharField(blank=True, max_length=255, db_index=True)
+    # last_name = models.CharField(blank=True, max_length=255, db_index=True)
     bio = models.CharField(blank=True, max_length=255, db_index=True)    
     subscription_status=models.CharField(blank=False, max_length=20, db_index=False)
     

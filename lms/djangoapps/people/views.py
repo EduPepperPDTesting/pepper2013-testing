@@ -191,16 +191,16 @@ def my_people(request,course_id=None):
     fn=request.GET.get('first_name','') 
     if fn:
         if len(fn)<3:
-            people=people.filter(people__profile__first_name = fn)
+            people=people.filter(people__profile__user__first_name = fn)
         else:
-            people=people.filter(people__profile__first_name__istartswith = fn)
+            people=people.filter(people__profile__user__first_name__istartswith = fn)
 
     ln=request.GET.get('last_name','') 
     if ln:
         if len(ln)<3:
-            people=people.filter(people__profile__last_name = ln)
+            people=people.filter(people__profile__user__last_name = ln)
         else:
-            people=people.filter(people__profile__last_name__istartswith = ln)
+            people=people.filter(people__profile__user__last_name__istartswith = ln)
 
     if search_course_id:
         people=people.filter(people__courseenrollment__course_id = search_course_id, people__courseenrollment__is_active = True)
@@ -221,7 +221,7 @@ def my_people(request,course_id=None):
     if request.GET.get('percent_eng_learner',''):
         people=people.filter(people__profile__percent_eng_learner = request.GET.get('percent_eng_learner',''))
 
-    people=people.order_by('-people__last_login','people__profile__last_name','people__profile__first_name')
+    people=people.order_by('-people__last_login','people__profile__user__last_name','people__profile__user__first_name')
 
     pager=JuncheePaginator(people,prepage,6)
     people=valid_pager(pager,request.GET.get('page'))

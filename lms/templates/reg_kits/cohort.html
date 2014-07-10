@@ -9,6 +9,9 @@
    import json
    from student.models import State,District,Transaction
 %>
+<head>
+  <title>Reg Kits Cohort</title>
+</head>
 <body>
 <%include file="tabs.html" args="active_page='cohort'" />
 %if ui=='list':
@@ -33,7 +36,7 @@
           <select id="" name="district_id" autocomplate="off">
             <option value="">All</option>
           </select>
-          <input type="submit" name="" value="filter" />
+          <input type="submit" name="" value="Filter" />
         </form>
       </div>      
       <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">

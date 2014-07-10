@@ -69,3 +69,25 @@ function dropCohort(form,state_id,district_id,callback){
 function clearOption(drop){
   drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
 }
+function get_searching(){
+  var search=window.location.search;
+  var p=[];
+  var reg=/([^\?&=]+)=([^\?&=]+)/g
+  while(m=reg.exec(search)){
+    p[m[1]]=m[2];
+  }
+  return p;
+}
+function gen_searching(p){
+  var ar=[];
+  for(k in p){
+    v=p[k];
+    ar.push(k+"="+encodeURI(v));
+  }
+  return "?"+ar.join("&")
+}  
+function replace_searching(h){
+  var p=get_searching();
+  for(k in h)p[k]=h[k];
+  return gen_searching(p);
+}

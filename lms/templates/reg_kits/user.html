@@ -9,6 +9,9 @@
    import json
    from student.models import State,District,Transaction,Cohort,School,Registration
 %>
+<head>
+  <title>Reg Kits User</title>
+</head>
 <body>
   <%include file="tabs.html" args="active_page='user'" />
   %if ui=='list':
@@ -17,6 +20,7 @@
       <div style="background:#ddd;padding:20px;text-align:left;">
         <div class="filter">
           <form id="form_filter" method="get">
+            <input type="hidden" name="size" value="${request.GET.get('size','')}"/>
             State:
             <select name="state_id" autocomplate="off">
               <option value="">All</option>
@@ -46,13 +50,19 @@
               <option value="Imported">Imported</option>
               <option value="Unregistered">Unregistered</option>
               <option value="Registered">Registered</option>
+              <option value="Deleted">Deleted</option>
             </select>
-            Email:
-            <input type="input" name="email" size="30" autocomplate="off" />
             Days After Invited:
             <input type="" size="3" name="invite_days_min" value="" /> to 
             <input type="" size="3" name="invite_days_max" value="" />
-            <input type="submit" name="" value="filter" />            
+            <br>
+            Email:
+            <input type="input" name="email" size="30" autocomplate="off" />
+            First Name:
+            <input type="input" name="first_name" size="10" autocomplate="off" />
+            Last Name:
+            <input type="input" name="last_name" size="10" autocomplate="off" />
+            <input type="submit" name="" value="Filter" />
           </form>
         </div>
         <div style="padding-bottom:10px;">
@@ -65,18 +75,20 @@
         <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
           <tr>
             <th></th>
-            <th>User ID</th>
-            <th>Activate Link</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>State</th>
-            <th>District</th>
-            <th>Cohort</th>
-            <th>School</th>
-            <th>Invite Date</th>
-            <th>Days After Invited</th>
-            <th>Activate Date</th>
-            <th>Status</th>
+            <th sortby="user_id">User ID</th>
+            <th sortby="active_link">Activate Link</th>
+            <th sortby="first_name">First Name</th>
+            <th sortby="last_name">Last Name</th>
+            <th sortby="username">Username</th>
+            <th sortby="email">Email</th>
+            <!-- <th>State</th> -->
+            <th sortby="district">District</th>
+            <th sortby="cohort">Cohort</th>
+            <th sortby="school">School</th>
+            <th sortby="invite_date">Invite Date</th>
+            <!-- <th>Days After Invited</th> -->
+            <th sortby="activate_date">Activate Date</th>
+            <th sortby="subscription_status">Status</th>
           </tr>
           %for item in users:
           <tr>
@@ -89,9 +101,11 @@
               </a>
               %endif
             </td>
+            <td>${item.user.first_name}</td>
+            <td>${item.user.last_name}</td>
             <td>${item.user.username}</td>
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
-            <td>${item.cohort.district.state.name}</td>     
+            <!-- <td>${item.cohort.district.state.name}</td> --> 
             <td>${item.cohort.district.name}</td>
             <td>${item.cohort.code}</td>
             %if item.school_id:
@@ -100,19 +114,10 @@
             <td></td>
             %endif
             <td align="center">${item.invite_date}</td>
-            <td align="center">${item.days_after_invite}</td>
+            <!-- <td align="center">${item.days_after_invite}</td> -->
             <td align="center">${item.activate_date}</td>
             <td align="center">
-              <select id="lstStatus${item.user_id}" autocomplate="off">
-                <option value=""></option>
-                <option value="Imported">Imported</option>
-                <option value="Unregistered">Unregistered</option>
-                <option value="Registered">Registered</option>
-              </select>
-              <script type="text/javascript">
-                $("#lstStatus${item.user_id}").val('${item.subscription_status}')
-                $("#lstStatus${item.user_id}").change(function(){modify_status('${item.user_id}',this)})
-              </script>
+              ${item.subscription_status or ""}
             </td>
           </tr>
           %endfor       
@@ -122,115 +127,180 @@
           Page: ${users.number}/${users.paginator.num_pages}
           <input type="text" name="page" value="${users.number}" size="5" maxlength="8"/>
           %if users.has_previous():
-          - <a href="${reverse('user')}?${pager_params}&page=${users.previous_page_number()}">prev</a>
+          <a href="${reverse('user')}?${pager_params}&page=${users.previous_page_number()}">prev</a>
           %endif
           %if users.has_next():
-          - <a href="${reverse('user')}?${pager_params}&page=${users.next_page_number()}">next</a>
+          <a href="${reverse('user')}?${pager_params}&page=${users.next_page_number()}">next</a>
           %endif
-          <input type="button" name="delete" value="Delete Selected" />
+          Items Per Page
+          <select id="lstPageSize" autocomplate="off">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+            <option>100</option>
+            <option>200</option>
+          </select>
+          Batch Modify
+          <select id="lstStatus" autocomplate="off">
+            <option value="">-- Status --</option>
+            <option value="Imported">Imported</option>
+            <option value="Unregistered">Unregistered</option>
+            <option value="Registered">Registered</option>
+            <option value="Deleted">Deleted</option>
+          </select>
+          Download ${users.paginator.count} User(s) As
+          <input type="button" id="btnDownloadCsv" value="CSV" />
+          <input type="button" id="btnDownloadExcel" value="Excel" />
         </div>
       </div>  
     </div>
   </div>
 <script type="text/javascript">
-var form=$("#form_filter");
-$("input[name=page]").keyup(function(e){
-  if(e.keyCode==13){
-    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-    if(/^[1-9]\d*$/.test(p))
-      window.location.href='${reverse('user')}?${pager_params}&page='+p
-    else
-      alert("Invalid page number '"+p+"'")
-  }
-})
-
-// delete users
-$("input[type=button][name=delete]").click(function(){
-  var ids=[];
-  $("input[type=checkbox][name=id]:checked").each(function(){
-    ids.push(this.value)
-  });
-  if(!ids.length)return alert("Nothing selected.")
-  if(!confirm("Really delete?")) return;
-  $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
-    r=$.parseJSON(r)
-    if(r.success)
-      window.location.href=window.location.href
-    else
-      alert(r.error)
-  })
-})
-// drop events
-form.find("select[name=state_id]").change(function(a){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id,district_id);
-  dropSchool(form,state_id,district_id,school_id);
-  dropCohort(form,state_id,district_id,cohort_id);
-});
-form.find("select[name=district_id]").change(function(){
-  var state_id='';
-  var district_id=$(this).val();
-  dropSchool(form,state_id,district_id,school_id);
-  dropCohort(form,state_id,district_id,cohort_id);
-});
-// init drops
-var state_id="${request.GET.get('state_id') or ''}"
-var cohort_id="${request.GET.get('cohort_id') or ''}"
-var district_id="${request.GET.get('district_id') or ''}"
-var school_id="${request.GET.get('school_id') or ''}"
-var subscription_status="${request.GET.get('subscription_status') or ''}"
-var invite_days_min="${request.GET.get('invite_days_min') or ''}"
-var invite_days_max="${request.GET.get('invite_days_max') or ''}"
-var email="${request.GET.get('email') or ''}"
-form.find("input[name=email]").val(email)
-form.find("input[name=invite_days_min]").val(invite_days_min)
-form.find("input[name=invite_days_max]").val(invite_days_max)
-form.find("select[name=subscription_status]").val(subscription_status)
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-});
-dropCohort(form,state_id,district_id,function(){
-  $(this).val(cohort_id)
-});
-dropSchool(form,state_id,district_id,function(){
-  $(this).val(school_id)
-});
-// modify status
-function modify_status(user_id,lst){
-  var status=$(lst).val()
-  $.post("${reverse('user_modify_status')}",
-        {id:user_id,subscription_status:status,csrfmiddlewaretoken:'${csrf_token}'},function(r){
-    if((typeof r)=='string')r=$.parseJSON(r);
-    if(r.success)
-      window.location.href=window.location.href;
-  });
-}
-// send invite email
-function send_invite_email(){
-  var total=${invite_count};
-  if(total<1)return alert("User count is 0.")
-  var flds=["cohort_id","district_id","state_id","school_id","subscription_status","email"]
-  var data=getFormData(form[0],flds);
-  data.count=1
-  var done=0;
-  (function run(){
-    $.get("${reverse('send_invite_email')}",data,function(r){
-      r=$.parseJSON(r);
-      if(!r.success){
-        alert(r.error)
-        return;
-      }
-      done+=r.sent;
-      if((r.remain+done)!=total){
-        alert("Total count changed, please refersh the page.")
-        return;
-      }
-      $("#progress").css("width",(done/total*100)+"%")
-      $("#progress-label").html(done+"/"+total)
-      if(total>done) run()
+  var form=$("#form_filter");
+  // sort table
+  $(".datalist").find("th").each(function(){
+    var sortby=$(this).attr("sortby");
+    if(!sortby)return;
+    var desc="no";
+    var curr_sortby=get_searching()["sortby"];
+    this.style.cursor="pointer"
+    $(this).hover(function(){
+      this.style.textDecoration="underline"
+    },function(){
+      this.style.textDecoration="none"
     });
-  })();
-}
+    if(sortby==curr_sortby){
+      desc=get_searching()["desc"]=="yes"?"no":"yes";
+      this.style.background=(desc=="yes")?"#0a5":"#c47"
+    }
+    $(this).click(function(){
+      window.location.href=replace_searching({sortby:sortby,desc:desc})
+    })
+  });
+  // page input
+  $("input[name=page]").keyup(function(e){
+    if(e.keyCode==13){
+      var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+      if(/^[1-9]\d*$/.test(p))
+      window.location.href='${reverse('user')}?${pager_params}&page='+p
+      else
+      alert("Invalid page number '"+p+"'")
+    }
+  })
+  // drop events
+  form.find("select[name=state_id]").change(function(a){
+    var state_id=$(this).val();
+    dropDistrict(form,state_id,district_id);
+    dropSchool(form,state_id,district_id,school_id);
+    dropCohort(form,state_id,district_id,cohort_id);
+  });
+  form.find("select[name=district_id]").change(function(){
+    var state_id='';
+    var district_id=$(this).val();
+    dropSchool(form,state_id,district_id,school_id);
+    dropCohort(form,state_id,district_id,cohort_id);
+  });
+  // init page size
+  $("#lstPageSize").val("${request.GET.get('size') or '20'}")
+  $("#lstPageSize").change(function(){
+    window.location.href=replace_searching({size:$(this).val()})
+  })
+  // init filter form
+  var state_id="${request.GET.get('state_id') or ''}"
+  var cohort_id="${request.GET.get('cohort_id') or ''}"
+  var district_id="${request.GET.get('district_id') or ''}"
+  var school_id="${request.GET.get('school_id') or ''}"
+  var subscription_status="${request.GET.get('subscription_status') or ''}"
+  var invite_days_min="${request.GET.get('invite_days_min') or ''}"
+  var invite_days_max="${request.GET.get('invite_days_max') or ''}"
+  var email="${request.GET.get('email') or ''}"
+  var first_name="${request.GET.get('first_name') or ''}"
+  var last_name="${request.GET.get('last_name') or ''}"
+  form.find("input[name=email]").val(email)
+  form.find("input[name=last_name]").val(last_name)
+  form.find("input[name=first_name]").val(first_name)
+  form.find("input[name=invite_days_min]").val(invite_days_min)
+  form.find("input[name=invite_days_max]").val(invite_days_max)
+  form.find("select[name=subscription_status]").val(subscription_status)
+  dropDistrict(form,state_id,function(){
+    $(this).val(district_id)
+  });
+  dropCohort(form,state_id,district_id,function(){
+    $(this).val(cohort_id)
+  });
+  dropSchool(form,state_id,district_id,function(){
+    $(this).val(school_id)
+  });
+  var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
+                   subscription_status:subscription_status, invite_days_min:invite_days_min,
+                   invite_days_max:invite_days_max, email:email, first_name:first_name, last_name:last_name}
+
+  $("#btnDownloadCsv").click(function(){
+    var valid_filter=[];
+    var h=get_searching();
+    var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
+    for(k in filter){
+      var v=filter[k];
+      if(v && v.length){
+        valid_filter.push(k+"="+encodeURI(v));
+      }
+    }
+    window.open("${reverse('download_user_csv')}?"+valid_filter.join("&"))
+  })
+
+  $("#btnDownloadExcel").click(function(){
+    var valid_filter=[];
+    var h=get_searching();
+    var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
+    for(k in filter){
+      var v=filter[k];
+      if(v && v.length){
+        valid_filter.push(k+"="+encodeURI(v));
+      }
+    }
+    window.open("${reverse('download_user_excel')}?"+valid_filter.join("&"))
+  })
+
+  // modify status
+  $("#lstStatus").change(function(){
+    var ids=[]
+    $(":checkbox:checked[name=id]").each(function(){
+      ids.push($(this).val())
+    })
+    var status=$(this).val()
+    $.post("${reverse('user_modify_status')}",
+           {ids:ids.join(),subscription_status:status,csrfmiddlewaretoken:'${csrf_token}'},function(r){
+      if((typeof r)=='string')r=$.parseJSON(r);
+      if(r.success)
+      window.location.href=window.location.href;
+    });
+  })
+  // send invite email
+  function send_invite_email(){
+    var total=${invite_count};
+    if(total<1)return alert("User count is 0.")
+    var flds=["cohort_id","district_id","state_id","school_id","subscription_status","email"]
+    var data=curr_filter;
+    data.count=1;
+    var done=0;
+    (function run(){
+      $.get("${reverse('send_invite_email')}",data,function(r){
+        r=$.parseJSON(r);
+        if(!r.success){
+          alert(r.error)
+          return;
+        }
+        done+=r.sent;
+        if((r.remain+done)!=total){
+          alert("Total count changed, please refersh the page.")
+          return;
+        }
+        $("#progress").css("width",(done/total*100)+"%")
+        $("#progress-label").html(done+"/"+total)
+        if(total>done) run()
+      });
+    })();
+  }
 </script>
 %endif
 %if ui=='form':

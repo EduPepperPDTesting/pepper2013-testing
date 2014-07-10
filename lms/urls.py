@@ -45,12 +45,18 @@ urlpatterns = (
     url(r'^reg_kits/user/$', 'reg_kits.views.user',name="user"),
     url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form',name="user_form"),
     url(r'^reg_kits/user/form/(?P<user_id>\d+)$', 'reg_kits.views.user_form',name="user_form"),
-    url(r'^reg_kits/user/delete/$', 'reg_kits.views.user_delete',name="user_delete"),
+    # url(r'^reg_kits/user/delete/$', 'reg_kits.views.user_delete',name="user_delete"),
     url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit',name="user_submit"),
     url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email',name="send_invite_email"),
     url(r'^reg_kits/user/modify_status$', 'reg_kits.views.user_modify_status',name="user_modify_status"),
     
     url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit',name="import_user_submit"),
+
+    url(r'^reg_kits/download_user_csv/$', 'reg_kits.views.download_user_csv',name="download_user_csv"),
+    url(r'^reg_kits/download_user_excel/$', 'reg_kits.views.download_user_excel',name="download_user_excel"),
+
+    url(r'^reg_kits/download_school_csv/$', 'reg_kits.views.download_school_csv',name="download_school_csv"),
+    url(r'^reg_kits/download_school_excel/$', 'reg_kits.views.download_school_excel',name="download_school_excel"),
 
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people/$', 'people.views.people', name="people"),
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
@@ -93,8 +99,7 @@ urlpatterns = (
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
     
-    url(r'^register/$', 'student.views.register_user', name="register_user"),
-    url(r'^register/(?P<activation_key>[^/]+)/$', 'student.views.register_user', name="register_user"),
+    url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
     
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
