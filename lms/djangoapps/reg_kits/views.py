@@ -251,7 +251,7 @@ def filter_user(request):
     if request.GET.get('email'):
         data=data.filter(user__email=request.GET.get('email'))
     if request.GET.get('district_id'):
-        data=data.filter(school_id=request.GET.get('district_id'))
+        data=data.filter(Q(cohort__district_id=request.GET.get('district_id')))
     if request.GET.get('state_id'):
         data=data.filter(Q(cohort__district__state_id=request.GET.get('state_id')))
     if request.GET.get('cohort_id'):
@@ -425,6 +425,17 @@ def validate_user_cvs_line(line):
         exist=True
     return exist
 
+def attstr(obj,attr):
+    r=obj
+    try:
+        for a in attr.split("."):
+            r=getattr(r,a)
+    except:
+        r=""
+
+    if r is None: r=""
+    return r
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def download_school_csv(request):
@@ -439,7 +450,7 @@ def download_school_csv(request):
         writer.writerow({
             "id":d.id,
             "name":d.name,
-            "district":d.district.name,
+            "district":"%s - %s" % (attstr(d,"district.name"), attstr(d,"district.code"))
             })
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=schools.csv'
@@ -465,7 +476,7 @@ def download_school_excel(request):
     row=1
     data=filter_school(request)
     for d in data:
-        d._district=District.objects.get(id=d.district_id).name + " - " + District.objects.get(id=d.district_id).code
+        d._district="%s - %s" % (attstr(d,"district.name"), attstr(d,"district.code"))
         for i,k in enumerate(FIELDS):
             worksheet.write(row,i,getattr(d,k))
         row=row+1
@@ -492,29 +503,30 @@ def download_user_csv(request):
     writer.writerow(dict(zip(FIELDS, TITLES)))
     data=filter_user(request)
 
-    domain="http://"+request.META['HTTP_HOST'] 
+    domain="http://"+request.META['HTTP_HOST']
+
     for d in data:
         key,link="",""
         if Registration.objects.filter(user_id=d.user_id).count():
             key=Registration.objects.get(user_id=d.user_id).activation_key
 
         if key: link=domain+reverse('register_user',args=[key])
-            
+
         writer.writerow({
-            "user_id":d.user_id,
+            "user_id":attstr(d,"user_id"),
             "activate_link":link,
-            "first_name":d.user.first_name,
-            "last_name":d.user.last_name,
-            "username":d.user.username,
-            "email":d.user.email,            
-            "district":d.cohort.district.name,
-            "cohort":d.cohort.code,
-            "school":d.school.name,
-            "invite_date":d.invite_date,
-            "activate_date":d.activate_date,
-            "subscription_status":d.subscription_status
-            })
-        
+            "first_name":attstr(d,"user.first_name"),
+            "last_name":attstr(d,"user.last_name"),
+            "username":attstr(d,"user.username"),
+            "email":attstr(d,"user.email"),       
+            "district":attstr(d,"cohort.district.name"),
+            "cohort":attstr(d,"cohort.code"),
+            "school":attstr(d,"school.name"),
+            "invite_date":attstr(d,"invite_date"),
+            "activate_date":attstr(d,"activate_date"),
+            "subscription_status":attstr(d,"subscription_status")
+                })
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=users.csv'
     output.seek(0)
@@ -548,15 +560,15 @@ def download_user_excel(request):
         else:
             key=None
         d.activate_link=""
-        d.username=d.user.username
-        d.first_name=d.user.first_name
-        d.last_name=d.user.last_name
-        d._school=d.school.name
-        d._cohort=d.cohort.code
-        d._district=d.cohort.district.name
-        d.email=d.user.email
-        d._invite_date="%s" % d.invite_date
-        d._activate_date="%s" % d.activate_date
+        d.username=attstr(d,"user.username")
+        d.first_name=attstr(d,"user.first_name")
+        d.last_name=attstr(d,"user.last_name")
+        d._school=attstr(d,"school.name")
+        d._cohort=attstr(d,"cohort.code")
+        d._district=attstr(d,"cohort.district.name")
+        d.email=attstr(d,"user.email")
+        d._invite_date="%s" % attstr(d,"invite_date")
+        d._activate_date="%s" % attstr(d,"activate_date")
         
         for i,k in enumerate(FIELDS):
             if k=="activate_link" and key:

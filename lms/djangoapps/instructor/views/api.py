@@ -349,12 +349,18 @@ def get_students_features(request, course_id, csv=False):  # pylint: disable=W06
     TO DO accept requests for different attribute sets.
     """
     available_features = analytics.basic.AVAILABLE_FEATURES
-    query_features = ['username', 'name', 'email', 'language', 'location', 'year_of_birth', 'gender',
-                      'level_of_education', 'mailing_address', 'goals']
+    query_features = ['id','activate_link', 'first_name', 'last_name', 'username','email', 
+                      'district','cohort','school','invite_date','activate_date','subscription_status']
 
     student_data = analytics.basic.enrolled_students_features(course_id, query_features)
 
+
+    domain="http://"+request.META['HTTP_HOST']
+
     if not csv:
+        for s in student_data:
+            s['activate_link']="<a href='%s'>%s</a>" % (domain+reverse('register_user',args=[s['activate_key']]),s['activate_key'])
+        
         response_payload = {
             'course_id': course_id,
             'students': student_data,
@@ -364,6 +370,9 @@ def get_students_features(request, course_id, csv=False):  # pylint: disable=W06
         }
         return JsonResponse(response_payload)
     else:
+        for s in student_data:
+            s['activate_link']="%s" % (domain+reverse('register_user',args=[s['activate_key']]))
+            
         header, datarows = analytics.csvs.format_dictlist(student_data, query_features)
         return analytics.csvs.create_csv_response("enrolled_profiles.csv", header, datarows)
 

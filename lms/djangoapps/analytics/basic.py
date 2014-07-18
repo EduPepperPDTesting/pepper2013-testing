@@ -7,10 +7,11 @@ Serve miscellaneous course and student data
 from django.contrib.auth.models import User
 import xmodule.graders as xmgraders
 
+from student.models import Registration
 
-STUDENT_FEATURES = ('username', 'first_name', 'last_name', 'is_staff', 'email')
+STUDENT_FEATURES = ('id','username', 'first_name', 'last_name', 'is_staff', 'email')
 PROFILE_FEATURES = ('name', 'language', 'location', 'year_of_birth', 'gender',
-                    'level_of_education', 'mailing_address', 'goals')
+                    'level_of_education', 'mailing_address', 'goals','invite_date','activate_date','subscription_status')
 AVAILABLE_FEATURES = STUDENT_FEATURES + PROFILE_FEATURES
 
 
@@ -28,7 +29,7 @@ def enrolled_students_features(course_id, features):
     students = User.objects.filter(
         courseenrollment__course_id=course_id,
         courseenrollment__is_active=1,
-    ).order_by('username').select_related('profile')
+    ).order_by('username').select_related('profile').select_related("registration")
 
     def extract_student(student, features):
         """ convert student to dictionary """
@@ -42,6 +43,14 @@ def enrolled_students_features(course_id, features):
             profile_dict = dict((feature, getattr(profile, feature))
                                 for feature in profile_features)
             student_dict.update(profile_dict)
+            student_dict['district']=profile.cohort.district.name
+            student_dict['cohort']=profile.cohort.code
+            student_dict['school']=profile.school.name
+
+
+        student_dict['activate_key']=Registration.objects.get(user_id=student.id).activation_key
+
+        
         return student_dict
 
     return [extract_student(student, features) for student in students]

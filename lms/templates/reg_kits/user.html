@@ -74,7 +74,7 @@
         </div>
         <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
           <tr>
-            <th></th>
+            <th><input type="checkbox" id="check_all_id" autocomplate="off" /></th>
             <th sortby="user_id">User ID</th>
             <th sortby="active_link">Activate Link</th>
             <th sortby="first_name">First Name</th>
@@ -157,6 +157,14 @@
   </div>
 <script type="text/javascript">
   var form=$("#form_filter");
+  // check all
+  $("#check_all_id").change(function(){
+    if($(this).is(":checked")){
+      $("input:checkbox[name=id]").attr("checked","true")
+    }else{
+      $("input:checkbox[name=id]").removeAttr("checked")
+    }
+  })
   // sort table
   $(".datalist").find("th").each(function(){
     var sortby=$(this).attr("sortby");

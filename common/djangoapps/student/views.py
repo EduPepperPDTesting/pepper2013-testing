@@ -1496,8 +1496,9 @@ def accept_name_change_by_id(id):
     up.name = pnc.new_name
 #@begin:Add new field and change the code
 #@date:2013-11-02          
-    up.first_name = pnc.new_first_name
-    up.last_name = pnc.new_last_name
+    u.first_name = pnc.new_first_name
+    u.last_name = pnc.new_last_name
+    u.save()
 #@end
     up.save()
     pnc.delete()
