@@ -14,8 +14,9 @@ PROFILE_FEATURES = ('name', 'language', 'location', 'year_of_birth', 'gender',
                     'level_of_education', 'mailing_address', 'goals','invite_date','activate_date','subscription_status')
 AVAILABLE_FEATURES = STUDENT_FEATURES + PROFILE_FEATURES
 
+from student.views import course_from_id,course_completed
 
-def enrolled_students_features(course_id, features):
+def enrolled_students_features(request, course_id, features):
     """
     Return list of student features as dictionaries.
 
@@ -29,12 +30,14 @@ def enrolled_students_features(course_id, features):
     students = User.objects.filter(
         courseenrollment__course_id=course_id,
         courseenrollment__is_active=1,
-    ).order_by('username').select_related('profile').select_related("registration")
+    ).order_by('username').select_related('profile')
+
+    course=course_from_id(course_id)
 
     def extract_student(student, features):
         """ convert student to dictionary """
         student_features = [x for x in STUDENT_FEATURES if x in features]
-        profile_features = [x for x in PROFILE_FEATURES if x in features]
+        profile_features = [x for x in PROFILE_FEATURES if x in features] 
 
         student_dict = dict((feature, getattr(student, feature))
                             for feature in student_features)
@@ -47,14 +50,23 @@ def enrolled_students_features(course_id, features):
             student_dict['cohort']=profile.cohort.code
             student_dict['school']=profile.school.name
 
+        try:
+            reg=Registration.objects.get(user_id=student.id)
+            student_dict['activate_key']=reg.activation_key
+        except:
+            student_dict['activate_key']=''
 
-        student_dict['activate_key']=Registration.objects.get(user_id=student.id).activation_key
+        try:
+            if course_completed(request,student,course):
+                student_dict['completed']='YES'
+            else:
+                student_dict['completed']='NO'
+        except Exception as e:
+            student_dict['completed']='error'
 
-        
         return student_dict
 
     return [extract_student(student, features) for student in students]
-
 
 def dump_grading_context(course):
     """

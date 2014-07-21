@@ -49,12 +49,13 @@ class DataDownload
               enableCellNavigation: true
               enableColumnReorder: false
               forceFitColumns: true
-              formatter:(row, cell, value, columnDef, dataContext) => 
-                      if value == null
-                        return ''
-                      return value.toString()
 
-            columns = ({id: feature, field: feature, name: feature} for feature in data.queried_features)
+            columns = ({id: feature, field: feature, name: feature, formatter:(row, cell, value, columnDef, dataContext) => 
+             if value == null
+               return ''
+             return value.toString()
+             } for feature in data.queried_features)
+            
             grid_data = data.students
 
             $table_placeholder = $ '<div/>', class: 'slickgrid'

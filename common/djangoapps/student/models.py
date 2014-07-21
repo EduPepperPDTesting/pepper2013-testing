@@ -37,7 +37,6 @@ AUDIT_LOG = logging.getLogger("audit")
 
 from django.db import connection
 
-
 #@begin:user login info model
 #@data:2014-01-07
 #@create table cms_login_info

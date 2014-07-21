@@ -132,15 +132,8 @@ def index(request, extra_context={}, user=None):
     context.update(extra_context)
     return render_to_response('index.html', context)
 
-
-def course_from_id(course_id):
-    """Return the CourseDescriptor corresponding to this course_id"""
-    course_loc = CourseDescriptor.id_to_location(course_id)
-    return modulestore().get_instance(course_id, course_loc)
-
 day_pattern = re.compile(r'\s\d+,\s')
 multimonth_pattern = re.compile(r'\s?\-\s?\S+\s')
-
 
 def _get_date_for_press(publish_date):
     # strip off extra months, and just use the first:
@@ -361,6 +354,17 @@ class StudentModule(models.Model):
     modified = models.DateTimeField(auto_now=True, db_index=True)
     module_id = models.CharField(max_length=255, db_index=True)
 
+def course_completed(request,user,course):
+    field_data_cache = FieldDataCache([course], course.id, user)
+    course_instance = get_module(user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
+    if course_instance.complete_course:
+        return True
+
+def course_from_id(course_id):
+    """Return the CourseDescriptor corresponding to this course_id"""
+    course_loc = CourseDescriptor.id_to_location(course_id)
+    return modulestore().get_instance(course_id, course_loc)
+
 @login_required
 @ensure_csrf_cookie
 def dashboard(request,user_id=None):
@@ -382,20 +386,22 @@ def dashboard(request,user_id=None):
         try:
             c=course_from_id(enrollment.course_id)
             c.student_enrollment_date=enrollment.created
-            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
-            chapter_count=len(model_data_cache.descriptors)
-            model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=2)
-            count_history=0
-            c.is_completed=False
-            chapter_count=len(model_data_cache.descriptors)-chapter_count
-            for m in model_data_cache.descriptors:
-                if m.ispublic:
-                    chapter_count=chapter_count+1
-                if len(StudentModule.objects.filter(student_id=user.id,
-                                                    course_id=c.id,
-                                                    module_type='sequential',
-                                                    module_id=m.location)) > 0:
-                    count_history=count_history+1
+
+            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
+            # chapter_count=len(model_data_cache.descriptors)
+            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=2)
+            # count_history=0
+            # c.is_completed=False
+            # chapter_count=len(model_data_cache.descriptors)-chapter_count
+            # for m in model_data_cache.descriptors:
+            #     if m.ispublic:
+            #         chapter_count=chapter_count+1
+            #     if len(StudentModule.objects.filter(student_id=user.id,
+            #                                         course_id=c.id,
+            #                                         module_type='sequential',
+            #                                         module_id=m.location)) > 0:
+            #         count_history=count_history+1
+
             courses.append(c)
 
             # grade_precent=grade(user,request,c)['percent']
@@ -405,11 +411,10 @@ def dashboard(request,user_id=None):
             #     courses_incomplated.append(c)         
             #@begin:complete_course_survey
             #@data:2013-12-14
-            course_id = enrollment.course_id
-            student = user
-            course_descriptor = course_from_id(course_id)
-            field_data_cache = FieldDataCache([course_descriptor], course_id, student)
-            course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
+
+            field_data_cache = FieldDataCache([c], c.id, user)
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')            
+
             if course_instance.complete_course:
                 c.complete_date = course_instance.complete_date
                 c.student_enrollment_date = course_instance.complete_date
@@ -1744,3 +1749,4 @@ def user_photo(request,user_id=None):
         response.write(f.read())
         f.close()
     return response
+
