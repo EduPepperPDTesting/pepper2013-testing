@@ -350,10 +350,9 @@ def get_students_features(request, course_id, csv=False):  # pylint: disable=W06
     """
     available_features = analytics.basic.AVAILABLE_FEATURES
     query_features = ['id','activate_link', 'first_name', 'last_name', 'username','email', 
-                      'district','cohort','school','invite_date','activate_date','subscription_status','completed']
+                      'district','cohort','school','invite_date','activate_date','subscription_status','completed','progress']
 
     student_data = analytics.basic.enrolled_students_features(request,course_id, query_features)
-
 
     domain="http://"+request.META['HTTP_HOST']
 

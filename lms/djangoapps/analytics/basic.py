@@ -6,7 +6,8 @@ Serve miscellaneous course and student data
 
 from django.contrib.auth.models import User
 import xmodule.graders as xmgraders
-
+from courseware.model_data import FieldDataCache
+from courseware import grades
 from student.models import Registration
 
 STUDENT_FEATURES = ('id','username', 'first_name', 'last_name', 'is_staff', 'email')
@@ -63,6 +64,10 @@ def enrolled_students_features(request, course_id, features):
                 student_dict['completed']='NO'
         except Exception as e:
             student_dict['completed']='error'
+
+        field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course, depth=None)
+        grade_summary = grades.grade(student, request, course, field_data_cache)
+        student_dict['progress']="{totalscore:.0%}".format(totalscore=grade_summary['percent'])
 
         return student_dict
 
