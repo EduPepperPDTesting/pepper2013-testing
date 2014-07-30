@@ -214,7 +214,7 @@
 }
 .name_container2 {
 	float:left;
-	width:400px;
+	width:450px;
 	display:block;
 	margin-left:30px;
 }
@@ -230,10 +230,8 @@
 .btn_container {
 	float:left;
 	width:250px;
-	margin-left:20px;
+	margin-left:0px;
 }
-
-
 .nav {
 	display: block;
 	width: 1200px;
@@ -876,7 +874,6 @@ te
 	float:left;
 	clear:both;
 }
-
 
 .btn_blue {
 	-webkit-border-radius: 2px;

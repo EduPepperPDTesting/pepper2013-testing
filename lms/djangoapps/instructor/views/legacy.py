@@ -79,6 +79,11 @@ def split_by_comma_and_whitespace(a_str):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def instructor_dashboard(request, course_id):
     """Display the instructor dashboard for a course."""
+
+    registered = CourseEnrollment.is_enrolled(request.user, course_id)
+    if not registered:
+        return redirect(reverse('cabout', args=[course_id]))   
+    
     course = get_course_with_access(request.user, course_id, 'staff', depth=None)
 
     instructor_access = has_access(request.user, course, 'instructor')   # an instructor can manage staff lists

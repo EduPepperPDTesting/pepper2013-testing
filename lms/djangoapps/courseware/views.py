@@ -296,6 +296,7 @@ def index(request, course_id, chapter=None, section=None,
 
      - HTTPresponse
     """
+
     user = User.objects.prefetch_related("groups").get(id=request.user.id)
     request.user = user	# keep just one instance of User
     course = get_course_with_access(user, course_id, 'load', depth=2)
@@ -304,7 +305,7 @@ def index(request, course_id, chapter=None, section=None,
     if not registered:
         # TODO (vshnayder): do course instructors need to be registered to see course?
         log.debug('User %s tried to view course %s but is not enrolled' % (user, course.location.url()))
-        return redirect(reverse('about_course', args=[course.id]))
+        return redirect(reverse('cabout', args=[course.id]))
 
     masq = setup_masquerade(request, staff_access)
 
@@ -541,6 +542,10 @@ def static_tab(request, course_id, tab_slug, is_global=None):
     Assumes the course_id is in a valid format.
     """
 
+    registered = CourseEnrollment.is_enrolled(request.user, course_id)
+    if not registered:
+        return redirect(reverse('cabout', args=[course_id]))
+
     if is_global:
       course = get_course_by_id(course_id)
       if not request.user.is_authenticated():
@@ -724,6 +729,11 @@ def progress(request, course_id, student_id=None):
 
     Course staff are allowed to see the progress of students in their class.
     """
+
+    registered = CourseEnrollment.is_enrolled(request.user, course_id)
+    if not registered:
+        return redirect(reverse('cabout', args=[course_id]))
+
     course = get_course_with_access(request.user, course_id, 'load', depth=None)
     staff_access = has_access(request.user, course, 'staff')
 

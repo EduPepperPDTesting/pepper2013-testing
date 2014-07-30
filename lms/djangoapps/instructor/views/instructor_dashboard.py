@@ -16,12 +16,16 @@ from django_comment_client.utils import has_forum_access
 from django_comment_common.models import FORUM_ROLE_ADMINISTRATOR
 from xmodule.modulestore.django import modulestore
 from student.models import CourseEnrollment
-
+from django.shortcuts import redirect
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def instructor_dashboard_2(request, course_id):
     """ Display the instructor dashboard for a course. """
+
+    registered = CourseEnrollment.is_enrolled(request.user, course_id)
+    if not registered:
+        return redirect(reverse('cabout', args=[course_id]))
 
     course = get_course_by_id(course_id, depth=None)
 
@@ -53,7 +57,6 @@ def instructor_dashboard_2(request, course_id):
 
     return render_to_response('instructor/instructor_dashboard_2/instructor_dashboard_2.html', context)
 
-
 """
 Section functions starting with _section return a dictionary of section data.
 
@@ -65,7 +68,6 @@ The dictionary must include at least {
 section_key will be used as a css attribute, javascript tie-in, and template import filename.
 section_display_name will be used to generate link titles in the nav bar.
 """  # pylint: disable=W0105
-
 
 def _section_course_info(course_id):
     """ Provide data for the corresponding dashboard section """
@@ -94,7 +96,6 @@ def _section_course_info(course_id):
 
     return section_data
 
-
 def _section_membership(course_id, access):
     """ Provide data for the corresponding dashboard section """
     section_data = {
@@ -110,7 +111,6 @@ def _section_membership(course_id, access):
     }
     return section_data
 
-
 def _section_student_admin(course_id, access):
     """ Provide data for the corresponding dashboard section """
     section_data = {
@@ -125,7 +125,6 @@ def _section_student_admin(course_id, access):
     }
     return section_data
 
-
 def _section_data_download(course_id):
     """ Provide data for the corresponding dashboard section """
     section_data = {
@@ -135,7 +134,6 @@ def _section_data_download(course_id):
         'get_students_features_url': reverse('get_students_features', kwargs={'course_id': course_id}),
     }
     return section_data
-
 
 def _section_analytics(course_id):
     """ Provide data for the corresponding dashboard section """

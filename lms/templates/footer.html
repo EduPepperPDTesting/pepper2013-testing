@@ -3,83 +3,38 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%namespace name='static' file='static_content.html'/>
 
+<style>
+ .nav-colophon li{line-height:45px;}
+ .nav-colophon a.logo{transition:none !important;border-bottom:none;margin:0 0 0 20px;}
+ .nav-colophon a.logo:hover,.nav-colophon a.logo:active{border:none !important;}
+ .nav-colophon a.logo img{vertical-align:bottom;}
+</style>
+
 <div class="wrapper wrapper-footer" style="border-top:1px solid #8a8c8f;box-shadow:0 -1px 5px 0 rgba(0, 0, 0, 0.1);z-index:11">
   <footer id="page-footer">
     <div class="colophon" style="width:500px;">
       <nav class="nav-colophon">
-      <ol>
-          <!-- <li class="nav-colophon-01"> -->
-          <!-- <a id="about" href="${marketing_link('ABOUT')}"> -->
-          <!--     ${_("About")} -->
-          <!-- </a> -->
-          <!-- </li> -->
-          <!-- <li class="nav-colophon-02"> -->
-          <!-- <a id="jobs" href="${marketing_link('JOBS')}"> -->
-          <!--     ${_("Jobs")} -->
-          <!-- </a> -->
-          <!-- </li> -->
+        <ol>
           <li class="nav-colophon-03">
-          <a id="press" href="/press">
-              ${_("Press")}
-          </a>
+            <a id="press" href="/press"> ${_("Press")} </a>
           </li>
           <li class="nav-colophon-04">
-          <a id="faq" href="/faq">
-              ${_("FAQ")}
-          </a>
+            <a id="faq" href="/faq"> ${_("FAQ")} </a>
           </li>
           <li class="nav-colophon-05">
-          <a id="contact" href="/contact">
-              ${_("Contact")}
-          </a>
+            <a id="contact" href="/contact"> ${_("Contact")} </a>
           </li>
-      </ol>
+          <li>
+            <a href="https://twitter.com/Pepper_PD" target="_blank" class="logo"><img src="/static/images/twitter_bird_logo.png"/></a>
+          </li>
+          <li>
+            <a href="https://www.facebook.com/PepperPD" target="_blank" class="logo"><img src="/static/images/facebook_logo.png"/></a>
+          </li>
+        </ol>
       </nav>
     </div>
     <img style="float:right;" src="${MITX_ROOT_URL}/static/images/pcgeducationdown.jpg" width="285" height="58"/>
     <div class="references">
-      <!-- <nav class="nav-social"> -->
-      <!--   <ul> -->
-      <!--     <li class="nav-social-01"> -->
-      <!--       <a href="http://www.meetup.com/edX-Global-Community/" rel="external"> -->
-      <!--         <img src="${MITX_ROOT_URL}/static/images/social/ico-social-meetup.png" alt="edX on Meetup" /> -->
-      <!--       </a> -->
-      <!--     </li> -->
-      <!--     <li class="nav-social-02"> -->
-      <!--       <a href="http://www.facebook.com/EdxOnline" rel="external"> -->
-      <!--         <img src="${MITX_ROOT_URL}/static/images/social/ico-social-facebook.png" alt="edX on Facebook" /> -->
-      <!--       </a> -->
-      <!--     </li> -->
-      <!--     <li class="nav-social-03"> -->
-      <!--       <a href="https://twitter.com/edXOnline" rel="external"> -->
-      <!--         <img src="${MITX_ROOT_URL}/static/images/social/ico-social-twitter.png" alt="edX on Twitter" /> -->
-      <!--       </a> -->
-      <!--     </li> -->
-      <!--     <li class="nav-social-04"> -->
-      <!--       <a href="https://plus.google.com/108235383044095082735/posts" rel="external"> -->
-      <!--         <img src="${MITX_ROOT_URL}/static/images/social/ico-social-google.png" alt="edX on Google+" /> -->
-      <!--       </a> -->
-      <!--     </li> -->
-      <!--     <li class="nav-social-05"> -->
-      <!--       <a href="http://youtube.com/user/edxonline" rel="external"> -->
-      <!--         <img src="${MITX_ROOT_URL}/static/images/social/ico-social-youtube.png" alt="edX on YouTube" /> -->
-      <!--       </a> -->
-      <!--     </li> -->
-      <!--   </ul> -->
-      <!-- </nav> -->
-      <!-- <p class="copyright">&copy; 2013 pepper</p> -->
-<!--
-      <nav class="nav-legal">
-        <ul>
-          <li class="nav-legal-01">
-            <a href="${marketing_link('TOS')}">${_("Terms of Service and Honor Code")}</a>
-          </li>
-          <li class="nav-legal-02">
-            <a href="${marketing_link('PRIVACY')}">${_("Privacy Policy")}</a>
-          </li>
-        </ul>
-      </nav>
--->
     </div>
   </footer>
 </div>

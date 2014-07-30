@@ -12,6 +12,9 @@ from my_discussions import user_discussions_profile
 from django.contrib.auth.models import User
 from about_me import create_discussion_about_me
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from student.models import CourseEnrollment
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 def get_portfolio_user(request,user_id=None):
     if request.user.id == user_id or user_id==None:
         if request.GET.get('pf_id') != None:
@@ -23,6 +26,11 @@ def get_portfolio_user(request,user_id=None):
         
 @login_required
 def about_me(request,course_id, user_id=None):
+    if not user_id:
+        registered = CourseEnrollment.is_enrolled(request.user, course_id)
+        if not registered:
+            return redirect(reverse('cabout', args=[course_id]))
+
     portfolio_user = get_portfolio_user(request, user_id)
     course = get_course_with_access(portfolio_user, course_id, 'load')
     content = create_discussion_about_me(request, course, portfolio_user)

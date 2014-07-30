@@ -18,6 +18,9 @@ from django_comment_client.utils import (merge_dict, extract, strip_none, get_co
 import django_comment_client.utils as utils
 import comment_client as cc
 
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
+
 THREADS_PER_PAGE = 20
 INLINE_THREADS_PER_PAGE = 20
 PAGES_NEARBY_DELTA = 2
@@ -244,6 +247,12 @@ def forum_form_discussion(request, course_id):
     """
     Renders the main Discussion page, potentially filtered by a search query
     """
+
+    from student.models import UserTestGroup, CourseEnrollment
+    registered=CourseEnrollment.is_enrolled(request.user, course_id)
+    if not registered:
+        return redirect(reverse('cabout', args=[course_id]))
+    
     course = get_course_with_access(request.user, course_id, 'load_forum')
     category_map = utils.get_discussion_category_map(course)
 

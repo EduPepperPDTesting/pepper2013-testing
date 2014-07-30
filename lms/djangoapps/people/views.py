@@ -88,6 +88,11 @@ def remove_people(request):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def people(request,course_id=None):
 
+    if course_id:
+        registered = CourseEnrollment.is_enrolled(request.user, course_id)
+        if not registered:
+            return redirect(reverse('cabout', args=[course_id]))
+
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
@@ -160,6 +165,11 @@ def people(request,course_id=None):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def my_people(request,course_id=None):
+    if course_id:
+        registered = CourseEnrollment.is_enrolled(request.user, course_id)
+        if not registered:
+            return redirect(reverse('cabout', args=[course_id]))   
+    
     if not request.user.is_authenticated():
        return redirect(reverse('signin_user')) 
     prepage=request.GET.get('prepage','')
