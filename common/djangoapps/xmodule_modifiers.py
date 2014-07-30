@@ -35,13 +35,21 @@ def wrap_xmodule(get_html, module, template, context=None):
 
     @wraps(get_html)
     def _get_html():
-        context.update({
-            'content': get_html(),
-            'display_name': module.display_name,
-            'class_': class_name,
-            'module_name': module.js_module_name
-        })
-
+        try: 
+            context.update({
+                'content': get_html(),
+                'display_name': module.display_name,
+                'class_': class_name,
+                'module_name': module.js_module_name,
+                'ajax_url':module.system.ajax_url
+            })
+        except:
+            context.update({
+                'content': get_html(),
+                'display_name': module.display_name,
+                'class_': class_name,
+                'module_name': module.js_module_name
+            })
         return render_to_string(template, context)
     return _get_html
 
