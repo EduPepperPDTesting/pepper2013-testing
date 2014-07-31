@@ -33,11 +33,11 @@ Highlight.prototype.init=function(element)
   element.find('div').each(function(i){
     if($(this).html()==null)
     {
-      wordArr[i] = $(this).text().Trim().split(" ");
+      wordArr[i] = $(this).text().sTrim().split(" ");
     }
     else
     {
-      wordArr[i] = $(this).html().toString().Trim().split(" ");
+      wordArr[i] = $(this).html().toString().sTrim().split(" ");
     }
     
     _this.content[i]=$("<div class='highlight_content' style='float:left;'/>");
@@ -310,7 +310,7 @@ Highlight_Annotation.prototype.hide=function()
   this.element.hide()
 }
 //--------------------------------------------------------------------
-String.prototype.Trim = function() 
+String.prototype.sTrim = function() 
 { 
   return this.replace(/(^\s*)|(\s*$)/g, ""); 
 }

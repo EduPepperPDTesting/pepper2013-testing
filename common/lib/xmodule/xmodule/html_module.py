@@ -3,6 +3,7 @@ from fs.errors import ResourceNotFoundError
 import logging
 import os
 import sys
+import json
 from lxml import etree
 from path import path
 
@@ -30,6 +31,7 @@ class HtmlFields(object):
     )
     data = String(help="Html contents to display for this module", default=u"", scope=Scope.content)
     source_code = String(help="Source code for LaTeX documents. This feature is not well-supported.", scope=Scope.settings)
+    highlight_data = String(help="Save user highlight data",default="",scope=Scope.user_state)
 
 
 class HtmlModule(HtmlFields, XModule):
@@ -40,7 +42,8 @@ class HtmlModule(HtmlFields, XModule):
             resource_string(__name__, 'js/src/html/display.coffee')
         ],
         'js': [
-            resource_string(__name__, 'js/src/html/toggle_bar.js')
+            resource_string(__name__, 'js/src/html/toggle_bar.js'),
+            resource_string(__name__, 'js/src/html/highlight.js'),
         ]
     }
     js_module_name = "HTMLModule"
@@ -51,6 +54,27 @@ class HtmlModule(HtmlFields, XModule):
             return self.data.replace("%%USER_ID%%", self.system.anonymous_student_id)
         return self.data
 
+    def handle_ajax(self, dispatch, data):
+ 
+        handlers = {
+            'update_highlight': self.update_highlight,
+            'get_highlight': self.get_highlight
+        }
+        d=handlers[dispatch](data)
+        return json.dumps(d)
+
+    def update_highlight(self, data):
+        try:
+            self.highlight_data=data['highlight_data']
+            return {"data":"success"};
+        except:
+            return {"data":"fail"};
+
+    def get_highlight(self, data):
+        try:
+            return {"data":self.highlight_data}
+        except:
+            return {"data":"fail"}
 
 class HtmlDescriptor(HtmlFields, XmlDescriptor, EditingDescriptor):
     """
