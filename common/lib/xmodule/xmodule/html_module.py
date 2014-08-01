@@ -3,6 +3,7 @@ from fs.errors import ResourceNotFoundError
 import logging
 import os
 import sys
+import json
 from lxml import etree
 from path import path
 
@@ -74,7 +75,7 @@ class HtmlModule(HtmlFields, XModule):
             return {"data":self.highlight_data}
         except:
             return {"data":"fail"}
-            
+
 class HtmlDescriptor(HtmlFields, XmlDescriptor, EditingDescriptor):
     """
     Module for putting raw html in a course

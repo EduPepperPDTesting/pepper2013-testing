@@ -1,0 +1,10 @@
+---
+metadata:
+    display_name: Highlight Html
+data: |
+    <html>
+        <h2>Example: Highlight Html</h2>
+        <p>
+          <div class="edu_highlight"><div>This is a highlighted text.</div></div>
+        </p>
+    </html>
