@@ -239,7 +239,7 @@
           </span> 
           <span class="name_text">${profile.user.username}</span>
           %if profile.cohort_id and profile.school_id:
-          <span class="name_text">${profile.school.name} ${profile.cohort.district.name}</span>
+          <span class="name_text">${profile.school.name} <br/> ${profile.cohort.district.name}</span>
           %endif
           %if type(profile.years_in_education_id)==int and profile.years_in_education_id > 0:
           <span class="name_text">${profile.years_in_education.name} Years in Education</span>
