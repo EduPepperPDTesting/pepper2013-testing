@@ -68,6 +68,12 @@ if Backbone?
           comments = new Comments(data['content']['children'])
           comments.each @renderResponse
           @trigger "thread:responses:rendered"
+          if window.location.hash!=""
+            hash = window.location.hash.replace("#","")
+            id="#a"+hash
+            if $(id).length>0
+              $(window).scrollTop($(id).offset().top-70)
+
 
     renderResponse: (response) =>
         response.set('thread', @model)
@@ -76,6 +82,7 @@ if Backbone?
         view.on "comment:endorse", @endorseThread
         view.render()
         @$el.find(".responses").append(view.el)
+        $(view.el).prepend('<a id="a'+response.get('id')+'"></a>')
         view.afterInsert()
 
     addComment: =>
@@ -95,7 +102,7 @@ if Backbone?
       comment.set('thread', @model.get('thread'))
       @renderResponse(comment)
       @model.addComment()
-
+      This = @
       DiscussionUtil.safeAjax
         $elem: $(event.target)
         url: url
@@ -106,6 +113,16 @@ if Backbone?
         success: (data, textStatus) =>
           comment.updateInfo(data.annotated_content_info)
           comment.set(data.content)
+          if This.model.get('thread').get('user_id')!=window.user.get("id") and This.interviewerIsEnable()
+            if This.getCommentType()=='discussion'
+              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+            else
+              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+            DiscussionUtil.safeAjax
+                type: 'POST'
+                url: '/interactive_update/save_info'
+                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':window.user.get("id"),'interviewer_name':window.user.get("username"),'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':data.content.created_at,'activate':'false'})}
+                async:false
 
     edit: (event) =>
       @createEditView()
@@ -145,12 +162,10 @@ if Backbone?
               @editView.$(".edit-post-tags").val("")
               @editView.$(".edit-post-tags").importTags("")
               @editView.$(".wmd-preview p").html("")
-
               @model.set
                 title: newTitle
                 body: newBody
                 tags: response.content.tags
-
               @createShowView()
               @renderShowView()
 
@@ -233,3 +248,14 @@ if Backbone?
             $(".discussion-column").html(@template)
             #top.window.location=url
             #$(".course-tabs").find(".active").get(0).click()
+
+    getCommentType:()->
+      if $('body').find('.my-course-work-content').length>0
+        return 'portfolio'
+      else
+        return 'discussion'
+    interviewerIsEnable:()->
+      if $('body').find('.about-me-content').length<1
+        return true
+      else
+        return false

@@ -97,7 +97,6 @@ def create_thread(request, course_id, commentable_id):
         'user_id': request.user.id,
         'tags':'default',
     })
-
     user = cc.User.from_django_user(request.user)
 
     #kevinchugh because the new requirement is that all groups will be determined
@@ -140,6 +139,7 @@ def create_thread(request, course_id, commentable_id):
     data = thread.to_dict()
     if courseware_context:
         data.update(courseware_context)
+    create_comment_auto(request, course_id, thread.id)
     if request.is_ajax():
         return ajax_content_response(request, course_id, data, 'discussion/ajax_create_thread.html')
     else:
@@ -158,6 +158,7 @@ def update_thread(request, course_id, thread_id):
     thread.update_attributes(**{
         'tags':'default',
     })
+   
     thread.save()
     course = get_course_with_access(request.user, course_id, 'load')
     courseware_context = get_courseware_context(thread, course)
@@ -209,6 +210,46 @@ def _create_comment(request, course_id, thread_id=None, parent_id=None):
     else:
         return JsonResponse(utils.safe_content(comment.to_dict()))
 
+@require_POST
+def create_comment_auto(request, course_id, thread_id=None, parent_id=None):
+    """
+    given a course_id, thread_id, and parent_id, create a comment,
+    called from create_comment to do the actual creation
+    """
+    #post = request.POST
+    comment_data={"body":"Let's discuss!"}
+    comment = cc.Comment(**extract(comment_data, ['body']))
+    
+    course = get_course_with_access(request.user, course_id, 'load')
+    '''
+    if course.allow_anonymous:
+        anonymous = post.get('anonymous', 'false').lower() == 'true'
+    else:
+        anonymous = False
+
+    if course.allow_anonymous_to_peers:
+        anonymous_to_peers = post.get('anonymous_to_peers', 'false').lower() == 'true'
+    else:
+        anonymous_to_peers = False
+    '''
+    anonymous = False
+    anonymous_to_peers = False
+    comment.update_attributes(**{
+        'anonymous': anonymous,
+        'anonymous_to_peers': anonymous_to_peers,
+        'user_id': request.user.id,
+        'course_id': course_id,
+        'thread_id': thread_id,
+        'parent_id': parent_id,
+    })
+    comment.save()
+    '''
+    if post.get('auto_subscribe', 'false').lower() == 'true':
+        user = cc.User.from_django_user(request.user)
+        user.follow(comment.thread)
+    '''
+    user = cc.User.from_django_user(request.user)
+    user.follow(comment.thread)
 
 @require_POST
 @login_required
@@ -288,7 +329,6 @@ def openclose_thread(request, course_id, thread_id):
 
 @require_POST
 @login_required
-@permitted
 def create_sub_comment(request, course_id, comment_id):
     """
     given a course_id and comment_id, create a response to a comment

@@ -1,0 +1,357 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<%def name="render_prompt_text(data)">
+    %if data['type']=='discussion':
+        <b>${data['interviewer_name']}</b> has added a comment to your discussion topic or comment in course ${data['course_number']}.
+    %elif data['type']=='portfolio':
+    	<b>${data['interviewer_name']}</b> has commented on your portfolio in course ${data['course_number']}.
+    %elif data['type']=='add_network':
+    	<b>${data['interviewer_name']}</b> has added you to their personal network.
+    %endif
+   
+</%def>
+<%def name="render_item_color(data)">
+    %if data['expired']=='true' or data['activate']=='true':
+    #ffffff
+    %else:
+    #eeeff4
+    %endif
+   
+</%def>
+<%def name="render_notifications_item(data)">
+  
+</%def>
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+  #image_uploading{display:none;}
+</style>
+<script>
+
+	$(function(){
+		var notifications_update_new_day = "";
+		var notifications_update_isload = false;
+		var notifications_update_loadNum = 0;
+		var notifications_update_totalNum = 0;
+		notifications_update(notifications_update_loadNum);
+		function notifications_update(skip)
+	    {
+		    notifications_update_isload = false;
+		    $(".loadInfo").text("Loading ...");
+		    $(".loadInfo").show();
+		    $.post("${reverse('get_interactive_update_range')}",{skip:skip,limit:20},function(data){
+		    	notifications_update_init(data)
+		    });
+	    }
+		function notifications_update_init(data)
+  		{   
+  			notifications_update_totalNum = data.count;
+  			notifications_update_loadNum+=20;
+  		
+	        for(var i=0;i<data.results.length;i++)
+	        {
+	          notifications_update_createItem(data.results[i]);
+	        }
+	        if(notifications_update_loadNum>=notifications_update_totalNum)
+  			{
+  				notifications_update_isload = false;
+  				$(".loadInfo").text("You have reached the end of your notifications.");
+  				$(".loadInfo").show();
+  			}
+  			else
+  			{
+  				notifications_update_isload = true;
+  				$(".loadInfo").hide();
+  			}
+  			if($(window).scrollTop()>0)
+  			{
+  				$(".top_btn").show();
+  			}
+  		}
+		function notifications_update_createItem(data)
+	    {
+	      notifications_update_switchType(data);
+	      var displayDate = notifications_update_dateFormat(data);
+	      var ele=$('<tr height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
+	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><img src="/user_photo/'+data.interviewer_id+'" alt="photo" width="35" height="35"></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span></section></td></tr>');
+		  if(notifications_update_new_day!='')
+	      {
+	      	if(notifications_update_isNewDay(notifications_update_new_day,data.date))
+	      	{
+	      		$('.notifications_container').append(ele);
+	      	}
+	      }
+	  	  else
+	  	  {
+	  	  	$('.notifications_container').append(ele);
+	  	  }
+
+	      $('.notifications_container').append(element);
+	      element.find("a").click(function(){
+	        if(data.activate=='false')
+	        {
+	          notifications_update_activateItem(data);
+	        }
+	        else
+	        {
+	          interactive_update_openWindow(data)
+	        }
+	       
+	      });
+	      notifications_update_new_day = data.date;
+	   }
+	   function notifications_update_switchType(data)
+	   {
+		    switch(data.type)
+		    {
+		      case 'discussion':
+		        data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
+		        break;
+		      case 'portfolio':
+		        data.type_text="<b>"+data.interviewer_name+"</b> has commented on your portfolio in course "+data.course_number+".";
+		        break;
+		      case 'add_network':
+		        data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."
+		        break;
+		      case 'view_portfolio':
+		        data.type_text="<b>"+data.interviewer_name+"</b> is checking out your "+data.course_number+" portfolio."
+		        break;
+		      case 'message':
+		        data.type_text="Personal Message from <b>"+data.interviewer_name+"</b>"
+		        break;
+		    }
+  	    }
+  	    function fillZero(val)
+  		{
+    		return val<10?'0'+val:val;
+  		}
+  	    function notifications_update_dateFormat(data)
+		{
+		    dateinfo={};
+		    interval = interactive_update_getTimeInterval(data);
+		    var darr = new Date(data.date).toString().split(' ');
+		    var sign = 'am';
+		    if(interval<1)
+		    {
+		      dateinfo.date="Today";
+		    }
+		    else if(interval<2)
+		    {
+		      dateinfo.date="Yesterday";
+		    }
+		    else
+		    {
+		      dateinfo.date = darr[1]+" "+darr[2];
+		    }
+		    var timeArr = darr[4].substr(0,5).split(":");
+		    if(timeArr[0]>12 && timeArr[0]<24)
+		    {
+		      timeArr[0]=fillZero(timeArr[0]-12);
+		      sign='pm';
+		    }
+		    var time = timeArr[0]+":"+timeArr[1]+sign;
+		    dateinfo.full_date = dateinfo.date+" at "+time;
+		    dateinfo.time = time;
+		    return dateinfo;
+		}
+		function notifications_update_activateItem(data)
+		{
+		    var user_id = "${curr_user.id}";
+    	    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id},function(rdata){interactive_update_openWindow(data);});
+		}
+		function notifications_update_getActivateStyle(data)
+		{
+			var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
+		    bcolor=((data.activate=='true')||(notifications_update_getTimeInterval(data.date,new Date().toString())>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+		    return {'backgroundColor':bcolor};
+		}
+		function notifications_update_getTimeInterval(date1,date2)
+		{
+			var t1 = new Date(date1);
+		    var d1 = new Date(t1.getFullYear(),t1.getMonth(),t1.getDate());
+		    var t2 = new Date(date2);
+		    var d2 = new Date(t2.getFullYear(),t2.getMonth(),t2.getDate());
+		    return parseInt((d2-d1)/3600000/24);
+		}
+		function notifications_update_isNewDay(new_day,date)
+		{
+			return notifications_update_getTimeInterval(new_day,date)!=0?true:false;
+		}
+		$(window).bind("scroll", function(){
+			var scrollTop = $(this).scrollTop();
+　　		var scrollHeight = $(document).height();
+　　		var windowHeight = $(this).height();
+		    if((scrollTop + windowHeight == scrollHeight) && notifications_update_isload)
+		    {
+		    	notifications_update(notifications_update_loadNum);
+		    }
+		})
+		$(".top_btn").click(function(){
+			$(window).scrollTop(0);
+		})
+		$(".top_btn").mouseover(function(){
+			$(this).find('.top_btn_img_1').hide();
+			$(this).find('.top_btn_img_2').show();
+		})
+		$(".top_btn").mouseout(function(){
+			$(this).find('.top_btn_img_1').show();
+			$(this).find('.top_btn_img_2').hide();
+		})
+	})
+</script>
+<!--@end-->
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Notifications - {username}".format(username=curr_user.username))}</title></%block>
+
+
+<section class="container dashboard" id="container_dashboard">
+	<section class="profile-sidebar">
+		<header class="profile">
+      		<h1 class="user-name">${ curr_user.username }</h1>
+		</header>
+  	
+	  	<section class="user-info">
+			<ul>
+        		<!----username---->
+        		<li>
+		          	<span class="title">
+		            <div class="icon name-icon"></div><b>${_("Name")}:</b>
+		            <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
+					<script>
+						var full_name = document.getElementById('full_name_span').textContent;
+						if(full_name.length>31)
+						{
+							document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
+						}
+				   </script>  
+        		</li>
+
+	        	<!----user photo---->
+	        	<li>
+			        <span class="title">
+				        <div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;"></div>
+				        <b>${_("User Photo")}</b>
+			        </span> 
+			        <div style="text-align:center;margin-top:5px;">
+			        	<img src="${reverse('user_photo',args=[curr_user.id])}" style="" alt="photo" />
+			        </div>
+	        	</li>
+
+	        	<!----My Profile---->
+	        	<li>
+		          <span class="title">
+				  <div style="font-family: 'Open Sans';font-size:12px;">
+		            <div class="" style="padding:0 0 5px 0;"> 
+		              <b style="font-size:14px;color:#000">My Profile:</b>
+		            </div>
+					<div style="line-height:30px;"><b>State:</b>
+			          % if curr_user.profile.cohort_id:
+					  ${curr_user.profile.cohort.district.state.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>District:</b>
+					  % if curr_user.profile.cohort_id:
+					  <br>${curr_user.profile.cohort.district.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>School:</b>
+					  % if curr_user.profile.school_id:
+					  <br>${curr_user.profile.school.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>Grade Level:</b>
+		              <% gn=list() %>
+					  % if curr_user.profile.grade_level_id:
+		              <br>
+					  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+					  % if len(c)>0:
+					  <% gn.append(GradeLevel.objects.get(id=c).name) %>
+					  % endif
+					  % endfor
+					  % endif
+		              ${", ".join(gn)}
+					</div>
+					<div style="line-height:30px;"><b>Major Subject Area:</b>
+					  % if curr_user.profile.major_subject_area_id:
+		              <br>
+					  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>Number of Years Taught:</b>
+					  % if curr_user.profile.years_in_education_id:
+					  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+					  % endif
+					</div>
+
+		            <div style="padding:15px 0 5px 0;"> 
+		              <b style="font-size:14px;color:#000;">My Class Profile:</b>
+		            </div>
+		            
+					<div style="line-height:30px;">
+		              <b>Free/Reduced Lunch:</b>
+					  % if curr_user.profile.percent_lunch:
+					  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+					  % endif
+					</div>
+		            <div style="line-height:30px;">
+		              <b>IEPs:</b>
+					  % if curr_user.profile.percent_iep:
+					  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+					  % endif
+					</div>
+		            <div style="line-height:30px;">
+		              <b>English Learners:</b>
+					  % if curr_user.profile.percent_eng_learner:
+					  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+					  % endif
+					</div>
+		            </span>
+				</li>
+
+				<li>
+		          <span class="title">
+		          <div style="font-family: 'Open Sans';font-size:12px;">
+            		<b style="color:#000;font-size:14px;">Bio:</b>
+<pre style="padding:0;margin-top:10px;">
+%if curr_user.profile.bio:
+${curr_user.profile.bio}
+%else:
+Add info that you would like to share about yourself here:  
+%endif
+</pre>
+		          </div>
+		          </span>
+		        </li>
+	        </ul>
+	  	</section>
+	</section>
+
+
+	<section class="my-courses" style="border:0px solid;" >
+		<header>
+			<h2 style="padding-left:20px;">${_("YOUR NOTIFICATIONS")}</h2>
+		</header>
+		<div style="min-height:30px";>
+			<table width="100%" border="0" style="margin-top:-25px;" class="notifications_container">
+			</table>
+		</div>
+		<div style="height:30px;text-align:center;font-size:14px;padding-top:10px;color:#388e9b;background-color:#EDEFF4" class="loadInfo">Loading ...</div>
+		<div style="height:30px;">
+		</div>
+		<div class="top_btn" style="position:fixed;right:50px;bottom:150px;cursor:pointer;display:none;">
+			<img class="top_btn_img_1" src='/static/images/top_btn_1.png' alt="Top"/>
+			<img class="top_btn_img_2" src='/static/images/top_btn_2.png' alt="Top" style="display:none;"/>
+		</div>
+	</section>
+</section>

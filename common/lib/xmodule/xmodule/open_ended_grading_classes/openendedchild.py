@@ -43,7 +43,7 @@ def upload_to_s3(file_to_upload, keyname, s3_interface):
     bucket = conn.create_bucket(bucketname.lower())
 
     k = Key(bucket)
-    k.key = keyname
+    k.key = 'openended/'+keyname
     k.set_metadata('filename', file_to_upload.name)
     k.set_contents_from_file(file_to_upload)
 
@@ -60,8 +60,8 @@ def delete_s3(keyname, s3_interface):
     bucketname = str(s3_interface['storage_bucket_name'])
     bucket = conn.create_bucket(bucketname.lower())
     k = Key(bucket)
-    k.key = keyname
-    bucket.delete_key(keyname)
+    k.key = 'openended/'+keyname
+    bucket.delete_key('openended/'+keyname)
 #@end
 class OpenEndedChild(object):
     """

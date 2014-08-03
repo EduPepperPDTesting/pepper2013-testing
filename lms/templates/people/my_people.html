@@ -252,9 +252,12 @@
 		<div class="btn_container">
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="remove_people('${p.id}');return false;"></a>
-          <div style="padding-top:10px;width:158px;text-align:center;">
-            <img src="/static/images/imessage.jpg" width="50" />
-          </div>
+          <a href="#show_personalmessage" rel="leanModal">
+            <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile.user.first_name} ${profile.user.last_name}" data-name="${profile.user.username}" data-id="${profile.user.id}" onclick="imessage_click(this);">
+              <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+              <div id="" style="display:none;"></div>
+            </div>
+          </a>
         </div>
       </div>
       %endfor
@@ -336,4 +339,11 @@ form.find("select[name=district_id]").change(function(){
     clearOption(drop)
   }
 })
+function imessage_click(obj)
+{
+  var userInfo=[];
+  userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+  userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+  message_board(userInfo);
+}
 </script>

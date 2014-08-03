@@ -99,10 +99,13 @@ urlpatterns = (
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
 
-    # url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
-    # url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
-    # url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
-    # url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),    
+    url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
+    url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
+    url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
+    url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),
+    url(r'^message_board/get_info$', 'notifications.views.get_message', name="get_message"),
+    url(r'^message_board/save_info$', 'notifications.views.save_message', name="save_message"),
+    url(r'^message_board/upload_image$', 'notifications.views.upload_image', name="upload_message_image"),
 
     url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
@@ -186,7 +189,7 @@ if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
         # Favicon
         (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
         url(r'^submit_feedback$', 'util.views.submit_feedback'),
-        # url(r'^notifications$', 'notifications.views.notifications', name="notifications"),
+        url(r'^notifications$', 'notifications.views.notifications', name="notifications"),
         
     )
 # Only enable URLs for those marketing links actually enabled in the
