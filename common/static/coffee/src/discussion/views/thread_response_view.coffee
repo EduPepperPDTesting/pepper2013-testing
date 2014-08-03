@@ -1,7 +1,8 @@
 if Backbone?
   class @ThreadResponseView extends DiscussionContentView
+    commentList=[]
     tagName: "li"
-
+    
     events:
         "click .discussion-submit-comment": "submitComment"
         "focus .wmd-input": "showEditorChrome"
@@ -10,6 +11,7 @@ if Backbone?
       @$el.find(selector)
 
     initialize: ->
+      @commentList=[]
       @createShowView()
 
     renderTemplate: ->
@@ -53,8 +55,11 @@ if Backbone?
 
     renderComments: ->
       comments = new Comments()
+      This = @
       comments.comparator = (comment) ->
         comment.get('created_at')
+        #alert(comment.get("user_id")+":"+comment.get("body"))
+        This.addCommentList(comment.get("user_id"))
       collectComments = (comment) ->
         comments.add(comment)
         children = new Comments(comment.get('children'))
@@ -69,6 +74,11 @@ if Backbone?
       view = new ResponseCommentView(model: comment)
       view.render()
       @$el.find(".comments .new-comment").before(view.el)
+      if window.location.hash!=""
+        hash = window.location.hash.replace("#","")
+        id="#a"+hash
+        if $(id).length>0
+          $(window).scrollTop($(id).offset().top-70)
       view
 
     submitComment: (event) ->
@@ -77,11 +87,11 @@ if Backbone?
       body = @getWmdContent("comment-body")
       return if not body.trim().length
       @setWmdContent("comment-body", "")
-      comment = new Comment(body: body, created_at: (new Date()).toISOString(), username: window.user.get("username"), abuse_flaggers:[], user_id: window.user.get("id"), id:"unsaved")
+      comment = new Comment(body: body,created_at: (new Date()).toISOString(), username: window.user.get("username"), abuse_flaggers:[], user_id: window.user.get("id"), id:"unsaved")
       view = @renderComment(comment)
       @hideEditorChrome()
       @trigger "comment:add", comment
-
+      This = @
       DiscussionUtil.safeAjax
         $elem: $(event.target)
         url: url
@@ -93,7 +103,29 @@ if Backbone?
           comment.set(response.content)
           comment.set(response.annotated_content_info)
           view.render() # This is just to update the id for the most part, but might be useful in general
-
+          #This.abilityRenderer(response.annotated_scontent_info.ability)
+          user_id=This.$el.find('.posted-by').attr('posted_by_id')
+          if This.getDiscussionType()=='course_discussion'
+            interviewer_id=window.user.get("id")
+            interviewer_name=window.user.get("username")
+          else
+            interviewer_id = response.content.user_id
+            interviewer_name = response.content.username
+          This.addCommentList(user_id)
+          for v,i in This.commentList
+            if (user_id==interviewer_id and user_id==v) or v==interviewer_id
+              This.commentList.splice(i,1)
+          if This.commentList.length>0 and This.interviewerIsEnable()
+            
+            if This.getCommentType()=='discussion'
+              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+            else
+              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+            DiscussionUtil.safeAjax
+                type: 'POST'
+                url: '/interactive_update/save_info'
+                data: {'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':response.content.created_at,'activate':'false'})}
+                async:false
     _delete: (event) =>
       event.preventDefault()
       if not @model.can('can_delete')
@@ -187,3 +219,30 @@ if Backbone?
               @renderShowView()
               @showCommentForm()
 
+    abilityRenderer:(obj) ->
+      if obj.can_delete
+        @$(".action-delete").closest("li").show()
+      else
+        @$(".action-delete").closest("li").hide()
+
+    getCommentType:()->
+      if $('body').find('.my-course-work-content').length>0
+        return 'portfolio'
+      else
+        return 'discussion'
+
+    getDiscussionType:()->
+      if $('body').find('.my-discussion-content').length>0
+        return 'my_discussion'
+      else
+        return 'course_discussion'
+
+    interviewerIsEnable:()->
+      if $('body').find('.about-me-content').length<1
+        return true
+      else
+        return false
+
+    addCommentList:(cid)->
+      if $.inArray(cid,@commentList)==-1
+        @commentList.push(cid)

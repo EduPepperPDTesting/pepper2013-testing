@@ -21,6 +21,7 @@ if Backbone?
       @model.on "change", @updateModelDetails
 
     render: ->
+      #alert(@model.get('courseware_url')==undefined)
       @template = DiscussionUtil.getTemplate("_profile_thread")
       if not @model.has('abbreviatedBody')
         @abbreviateBody()
@@ -33,6 +34,12 @@ if Backbone?
       @renderDogear()
       @renderVoted()
       @renderAttrs()
+      if @model.get('courseware_url')
+        if $('#btn-logged-user').length>0
+          course_url="<span style='padding-left:20px;'>(this post is about <a href='"+@model.get('courseware_url')+"'>"+@model.get('courseware_title')+"</a>)</span>"
+        else
+          course_url="<span style='padding-left:20px;'>(this post is about <span style='color:#366094;'>"+@model.get('courseware_title')+"</span>)</span>"
+        @$el.find('.post-context').html(course_url)
       @$("span.timeago").timeago()
       if $(".my-discussion-content").length>0
         @$el.find('.username').attr('href','javascript:void(0);')
@@ -200,7 +207,9 @@ if Backbone?
       comment.set('thread', @model.get('thread'))
       @renderResponse(comment)
       @model.addComment()
-
+      @.$el.find(".responses").empty()
+      @.renderResponses()
+      This = @
       DiscussionUtil.safeAjax
         $elem: $(event.target)
         url: url
@@ -211,7 +220,19 @@ if Backbone?
         success: (data, textStatus) =>
           comment.updateInfo(data.annotated_content_info)
           comment.set(data.content)
-
+          user_id=data.content.user_id
+          user_name=data.content.username
+          if This.model.get('thread').get('user_id')!=user_id
+            if This.getCommentType()=='discussion'
+              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+            else
+              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+            DiscussionUtil.safeAjax
+                type: 'POST'
+                url: '/interactive_update/save_info'
+                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':user_id,'interviewer_name':user_name,'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':data.content.created_at,'activate':'false'})}
+                async:false
+        
     toggleClosed: (event) ->
       $elem = $(event.target)
       url = @model.urlFor('close')
@@ -231,3 +252,9 @@ if Backbone?
 
     _delete: (event) ->
       @trigger "thread:_delete", event
+
+    getCommentType:()->
+      if $('body').find('.my-course-work-content').length>0
+        return 'portfolio'
+      else
+        return 'discussion'

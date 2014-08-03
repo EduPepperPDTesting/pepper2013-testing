@@ -64,3 +64,21 @@ INSTALLED_APPS += (
 DEBUG_TOOLBAR_PANELS += (
    'debug_toolbar_mongo.panel.MongoDebugPanel',
    )
+
+REMINDSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoRemindStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'rmodule',
+        'collection_aid': 'bulletin_status'
+    }
+}
+MESSAGESTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMessageStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'message_board'
+    }
+}

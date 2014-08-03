@@ -11,6 +11,7 @@
         <div class="post-status-closed bottom-post-status" style="display: none">
           ${_("This thread is closed.")}
         </div>
+        <!--
         % if course is UNDEFINED or has_permission(user, 'create_comment', course.id):
         <form class="discussion-reply-new" data-id="${'<%- id %>'}">
             <h4>${_("Start a new discussion:")}</h4>
@@ -21,6 +22,7 @@
             </div>
         </form>
         % endif
+        -->
     </article>
 </script>
 
@@ -102,7 +104,6 @@
     <div class="discussion-response"></div>
     <ol class="comments">
         <li class="new-comment response-local">
-            % if course is UNDEFINED or has_permission(user, 'create_sub_comment', course.id):
             <form class="comment-form" data-id="${'<%- wmdId %>'}">
                 <ul class="discussion-errors"></ul>
                 <div class="comment-body" data-id="${'<%- wmdId %>'}"
@@ -111,7 +112,7 @@
                     <a class="discussion-submit-comment control-button" href="#">${_("Submit")}</a>
                 </div>
             </form>
-            % endif
+        
         </li>
     </ol>
 </script>
@@ -121,7 +122,7 @@
         <a href="javascript:void(0)" class="vote-btn" data-tooltip="vote"><span class="plus-icon"></span><span class="votes-count-number">${"<%- votes['up_count'] %>"}</span></a>
         <a href="javascript:void(0)" class="endorse-btn${'<% if (endorsed) { %> is-endorsed<% } %>'} action-endorse" style="cursor: default; display: none;" data-tooltip="endorse"><span class="check-icon" style="pointer-events: none; "></span></a>
         ${"<% if (obj.username) { %>"}
-        <a href="${'<%- user_url %>'}" class="posted-by">${'<%- username %>'}</a>
+        <a href="${'<%- user_url %>'}" class="posted-by" posted_by_id="${'<%- user_id %>'}">${'<%- username %>'}</a>
         ${"<% } else {print('<span class=\"anonymous\"><em>anonymous</em></span>');} %>"}
         <p class="posted-details" title="${'<%- created_at %>'}">${'<%- created_at %>'}</p>
     </header>
@@ -149,6 +150,7 @@
 </script>
 
 <script type="text/template" id="response-comment-show-template">
+  <a id="a${'<%- id %>'}"></a>
   <div id="comment_${'<%- id %>'}">
     <div class="response-body">${'<%- body %>'}</div>
     <div class="discussion-flag-abuse notflagged" data-role="thread-flag" data-tooltip="Report Misuse">                
@@ -158,9 +160,9 @@
         <a href="${'<%- user_url %>'}" class="profile-link">${'<%- username %>'}</a>
         ${"<% } else {print('anonymous');} %>"}
     </p>
-  <div class="discussion-response${'<%- id %>'}"></div>
+    <div class="discussion-response${'<%- id %>'}"></div>
     <div style="padding-left:20px;">
-     <ul class="moderator-actions">
+     <ul class="moderator-actions response-local">
           <li style="display: none"><a class="action-edit" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Edit")}</a></li>
           <li style="display: none"><a class="action-delete" href="javascript:void(0)"><span class="delete-icon"></span> ${_("Delete")}</a></li>
           <!--<li style="display: none"><a class="action-openclose" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Close")}</a></li>
@@ -203,7 +205,7 @@
   </td>
   <td class="row-item">
   <i class="icon icon-search"></i>
-  <span class="row-description">Search for specific posts </span>
+  <span class="row-description">Search for specific topics </span>
   </td>
   <td class="row-item">
   <i class="icon icon-sort"></i>
@@ -211,10 +213,10 @@
   </td>
   </tr>
   <tr class="helpgrid-row helpgrid-row-participation">
-  <td class="row-title">Engage with posts</td>
+  <td class="row-title">Engage with topics</td>
   <td class="row-item">
   <i class="icon icon-plus"></i>
-  <span class="row-description">Upvote posts and good responses</span>
+  <span class="row-description">Upvote topics and good responses</span>
   </td>
   <td class="row-item">
   <i class="icon icon-flag"></i>
@@ -222,7 +224,7 @@
   </td>
   <td class="row-item">
   <i class="icon icon-star"></i>
-  <span class="row-description">Follow posts for updates</span>
+  <span class="row-description">Follow topics for updates</span>
   </td>
   </tr>
   <!--

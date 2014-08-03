@@ -198,7 +198,7 @@ class @Problem
   ###
   check_fd: =>
     # If there are no file inputs in the problem, we can fall back on @check
-    if $('input:file').length == 0
+    if $('input:file').length == 0 or $('#message_board_browseFile').length==1
       @check()
       return
 
@@ -218,7 +218,7 @@ class @Problem
     errors = []
 
     @inputs.each (index, element) ->
-      if element.type is 'file'
+      if element.type is 'file' and element.id!='message_board_browseFile'
         required_files = $(element).data("required_files")
         allowed_files  = $(element).data("allowed_files")
         for file in element.files

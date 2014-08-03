@@ -358,6 +358,18 @@
       $('#id_bio')[0].value = "";
     });
 <!--@end-->
+//-----------------------------------------------
+  $(".portfolio-btn").click(function(){
+    var curr_user={};
+    var interviewer={};
+    var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+    interviewer.id="${request.user.id}";
+    interviewer.name="${request.user.username}";
+    interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
+    curr_user.id="${curr_user.id}";
+    var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,'interviewer_fullname':interviewer.fullname,'type':'view_portfolio','course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+    $.post("${reverse('save_interactive_update')}",datainfo,function(){});
+   })
   </script>
 </%block>
 <section class="container dashboard" id="container_dashboard">
@@ -775,7 +787,7 @@ Add info that you would like to share about yourself here:
       		%if curr_user==request.user:              
 			<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			%else:
-            <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+            <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1 portfolio-btn">${_('View Portfolio')}</a>
             %endif
             %if curr_user==request.user:      
             <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>

@@ -61,7 +61,23 @@ USERSTORE = {
         'password':MONGO_PASSWORD,
     }
 }
-
+REMINDSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoRemindStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'rmodule',
+        'collection_aid': 'bulletin_status'
+    }
+}
+MESSAGESTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMessageStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'message_board'
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',

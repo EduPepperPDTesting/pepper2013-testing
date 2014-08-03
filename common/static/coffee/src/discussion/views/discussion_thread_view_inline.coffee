@@ -55,6 +55,8 @@ if Backbone?
       if @expanded
         @makeWmdEditor "reply-body"
         @renderResponses()
+      if window.location.hash!=""
+        @expandPost(null)
       @
     createShowView: () ->
       
@@ -78,6 +80,11 @@ if Backbone?
           comments.each @renderResponse
           @trigger "thread:responses:rendered"
           @$('.loading').remove()
+          if window.location.hash!=""
+            hash = window.location.hash.replace("#","")
+            id="#a"+hash
+            if $(id).length>0
+              $(window).scrollTop($(id).offset().top-70)
 
 
     toggleClosed: (event) ->
