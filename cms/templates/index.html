@@ -5,7 +5,7 @@
 <%block name="title">${_("My Courses")}</%block>
 <%block name="bodyclass">is-signedin index dashboard</%block>
 
-<script src="/static/js/vendor/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 <script src="http://malsup.github.com/jquery.form.js"></script>
 
 <%block name="jsextra">
@@ -49,8 +49,6 @@
           % if course_creator_status=='granted':
           <a href="#" class="button new-button new-course-button"><i class="icon-plus icon-inline"></i>
               ${_("New Course")}</a>
-          <a href="#" class="button new-button course-list-modify-button"><i class="icon-wrench icon-inline"></i>
-              ${_("Course List Modify")}</a>
           % elif course_creator_status=='disallowed_for_this_site' and settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL',''):
           <a href="mailto:${settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL','')}">${_("Email staff to create course")}</a>
           % endif
@@ -211,7 +209,7 @@
 
         <div class="notice notice-incontext notice-instruction notice-instruction-creationrights ui-toggle-target" id="instruction-creationrights">
           <div class="copy">
-            <p>${_('edX Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by edX. Our team will evaluate your request and provide you feedback within 24 hours during the work week.')}</p>
+            <p>${_('Pepper Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by Pepper. Our team will evaluate your request and provide you feedback within 24 hours during the work week.')}</p>
           </div>
 
           <div class="status status-creationrights is-unrequested">
@@ -235,7 +233,7 @@
 
         <div class="notice notice-incontext notice-instruction notice-instruction-creationrights ui-toggle-target" id="instruction-creationrights">
           <div class="copy">
-            <p>${_('edX Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by edX. Our team is has completed evaluating your request.')}</p>
+            <p>${_('Pepper Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by Pepper. Our team is has completed evaluating your request.')}</p>
           </div>
 
           <div class="status status-creationrights has-status is-denied">
@@ -246,7 +244,7 @@
               <dd class="value">
                 <span class="status-indicator"></span>
                 <span class="value-formal">${_('Denied')}</span>
-                <span class="value-description">${_('Your request did not meet the criteria/guidelines specified by edX Staff.')}</span>
+                <span class="value-description">${_('Your request did not meet the criteria/guidelines specified by Pepper Staff.')}</span>
               </dd>
             </dl>
           </div>
@@ -261,7 +259,7 @@
 
         <div class="notice notice-incontext notice-instruction notice-instruction-creationrights ui-toggle-target" id="instruction-creationrights">
           <div class="copy">
-            <p>${_('edX Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by edX. Our team is currently  evaluating your request.')}</p>
+            <p>${_('Pepper Studio is a hosted solution for our xConsortium partners and selected guests. Courses for which you are a team member appear above for you to edit, while course creator privileges are granted by Pepper. Our team is currently  evaluating your request.')}</p>
           </div>
 
           <div class="status status-creationrights has-status is-pending">
@@ -272,7 +270,7 @@
               <dd class="value">
                 <span class="status-indicator"></span>
                 <span class="value-formal">${_('Pending')}</span>
-                <span class="value-description">${_('Your request is currently being reviewed by edX staff and should be updated shortly.')}</span>
+                <span class="value-description">${_('Your request is currently being reviewed by Pepper staff and should be updated shortly.')}</span>
               </dd>
             </dl>
           </div>
@@ -300,7 +298,7 @@
       % if course_creator_status=='disallowed_for_this_site' and settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL',''):
       <div class="bit">
         <h3 class="title title-3">${_('Can I create courses in Studio?')}</h3>
-        <p>${_('In order to create courses in Studio, you must')} <a href="mailto:${settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL','')}">${_("contact edX staff to help you create a course")}</a></p>
+        <p>${_('In order to create courses in Studio, you must')} <a href="mailto:${settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL','')}">${_("contact Pepper staff to help you create a course")}</a></p>
       </div>
       % endif
 
@@ -313,7 +311,7 @@
       % elif course_creator_status == "denied":
       <div class="bit">
         <h3 class="title title-3">${_('Can I create courses in Studio?')}</h3>
-        <p>${_('Your request to author courses in studio has been denied. Please')} <a href="http://help.edge.edx.org/discussion/new" class="show-tender">${_('contact edX Staff with further questions')}</a></p>
+        <p>${_('Your request to author courses in studio has been denied. Please')} <a href="http://help.edge.edx.org/discussion/new" class="show-tender">${_('contact Pepper Staff with further questions')}</a></p>
       </div>
 
       % endif
