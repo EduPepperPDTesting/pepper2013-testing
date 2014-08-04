@@ -103,7 +103,7 @@ DATABASES = {
     },
 }
 
-DATABASE_ROUTERS = ['dbrouter.RwSplittingRouter']
+# DATABASE_ROUTERS = ['dbrouter.RwSplittingRouter']
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
