@@ -1,24 +1,12 @@
 <%! from django.utils.translation import ugettext as _ %>
-<%! from django.core.urlresolvers import reverse %>
-
-<%namespace name='static' file='/static_content.html'/>
 <%inherit file="main.html" />
 
-<style type="text/css" media="screen">
-#btn-dashboard{display:none;}
-</style>
+<%block name="title"><title>${error_title}</title></%block>
 
-<div class="view-passwordreset">
-  <section class="content-wrapper">
-    <section class="passwordreset container">
-      <section class="introduction">
-        <header>
-          <h1>${title} </h1>
-        </header>
-      </section>
-      <section role="main" class="content">
-        <p>${message}</p>
-      </section>
-    </section>
-  </section>
-</div>
+<section class="outside-app">
+  <style type="text/css" media="screen">
+   #btn-dashboard{display:none;}
+  </style>
+  <h1>${error_title}</h1>
+  <p>${error_message}</p>
+</section>
