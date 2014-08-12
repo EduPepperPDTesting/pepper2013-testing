@@ -1,0 +1,12 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%inherit file="main.html" />
+
+<%block name="title"><title>${error_title}</title></%block>
+
+<section class="outside-app">
+  <style type="text/css" media="screen">
+   #btn-dashboard{display:none;}
+  </style>
+  <h1>${error_title}</h1>
+  <p>${error_message}</p>
+</section>

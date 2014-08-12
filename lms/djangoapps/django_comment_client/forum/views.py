@@ -3,11 +3,11 @@ import logging
 import xml.sax.saxutils as saxutils
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404,HttpResponse
 from django.core.context_processors import csrf
 from django.contrib.auth.models import User
 
-from mitxmako.shortcuts import render_to_response
+from mitxmako.shortcuts import render_to_response,render_to_string
 from courseware.courses import get_course_with_access
 from course_groups.cohorts import (is_course_cohorted, get_cohort_id, is_commentable_cohorted,
                                    get_cohorted_commentables, get_course_cohorts, get_cohort_by_id)
@@ -340,7 +340,9 @@ def single_thread(request, course_id, discussion_id, thread_id):
         thread = cc.Thread.find(thread_id).retrieve(recursive=True, user_id=request.user.id)
     except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
         log.error("Error loading single thread.")
-        raise Http404
+        context = {'error_title':'error', 'error_message':'This discussion has been removed.'}
+        return render_to_response('error.html', context)
+        # raise Http404
 
     if request.is_ajax():
         courseware_context = get_courseware_context(thread, course)
