@@ -340,7 +340,7 @@ def single_thread(request, course_id, discussion_id, thread_id):
         thread = cc.Thread.find(thread_id).retrieve(recursive=True, user_id=request.user.id)
     except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
         log.error("Error loading single thread.")
-        context = {'error_title':'error', 'error_message':'This discussion has been removed.'}
+        context = {'error_title':'Page Not Found', 'error_message':'This discussion has been removed.'}
         return render_to_response('error.html', context)
         # raise Http404
 
