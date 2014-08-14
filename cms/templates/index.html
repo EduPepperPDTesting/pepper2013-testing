@@ -49,6 +49,8 @@
           % if course_creator_status=='granted':
           <a href="#" class="button new-button new-course-button"><i class="icon-plus icon-inline"></i>
               ${_("New Course")}</a>
+          <a href="#" class="button new-button course-list-modify-button"><i class="icon-wrench icon-inline"></i>
+              ${_("Course List Modify")}</a>
           % elif course_creator_status=='disallowed_for_this_site' and settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL',''):
           <a href="mailto:${settings.MITX_FEATURES.get('STUDIO_REQUEST_EMAIL','')}">${_("Email staff to create course")}</a>
           % endif
