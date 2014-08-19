@@ -118,7 +118,8 @@ def contact_us_submit(request):
         "gingerj@education2000.com",  
         "mailfcl@126.com",
         "ashardonofsky@pcgus.com", 
-        "jmclaughlin@pcgus.com"
+        "jmclaughlin@pcgus.com",
+        "mmullen@pcgus.com"
         ])
 
     return HttpResponse(json.dumps(ret))
