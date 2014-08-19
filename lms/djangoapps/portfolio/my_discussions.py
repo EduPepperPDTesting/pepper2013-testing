@@ -38,8 +38,8 @@ def user_discussions_profile(request, course_id, portfolio_user):
                           "location": location})
 
                 thread.update({"courseware_url": url, "courseware_title": title})
-                if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
-                    thread_output.append(thread)
+            if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
+                thread_output.append(thread)
         query_params['page'] = page
         query_params['num_pages'] = num_pages
         user_info = cc.User.from_django_user(portfolio_user).to_dict()
