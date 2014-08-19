@@ -164,6 +164,8 @@ site_status_msg = get_site_status_msg(course_id)
     width: 600px;
     z-index: 11000;
 }
+#show_notifications_link:focus { outline: none!important;}
+[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <!--@end-->
 
@@ -276,10 +278,9 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@begin:add iMessage-Icon-->
 <!--@date:2014-06-19-->
 	<li class="imessage_style">
-	<a href="#show_notifications" rel="leanModal">
-   
-		<div style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);">
-			<table class="info_count_btn" width="50" height="50" border="0" cellpadding="0" cellspacing="0" style="display:none;">
+	<a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+		<div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
+			<table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
 				<tr height="26">
 					<td width="19"></td>
 					<td width="31"></td>
@@ -289,9 +290,8 @@ site_status_msg = get_site_status_msg(course_id)
 					<td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
 				</tr>
 			</table>
-
+		</div>
 		<div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);">
-
 		</div>
 	</a>
 	</li>
@@ -516,7 +516,7 @@ site_status_msg = get_site_status_msg(course_id)
         data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
         break;
       case 'portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> has commented on your portfolio in course "+data.course_number+".";
+        data.type_text="<b>"+data.interviewer_name+"</b> has commented on "+(data.portfolio_username||'your')+"'s portfolio in course "+data.course_number+".";
         break;
       case 'add_network':
         data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."
@@ -635,6 +635,26 @@ site_status_msg = get_site_status_msg(course_id)
     {
       window.open(data.location);
       return 0;
+    }
+    if(data.location.indexOf("/my_coursework")>=0)
+    {
+      var curr_user_id = "${curr_user.id}";
+      var user_id = data.location.substring(data.location.indexOf("/my_coursework")+15,data.location.lastIndexOf("/"));
+      if(curr_user_id!=user_id)
+      {
+        window.open(data.location,'_blank');
+        return 0;
+      }
+    }
+    if(data.location.indexOf("/my_discussions")>=0)
+    {
+      var curr_user_id = "${curr_user.id}";
+      var user_id = data.location.substring(data.location.indexOf("/my_discussions")+16,data.location.indexOf("?"));
+      if(curr_user_id!=user_id)
+      {
+        window.open(data.location,'_blank');
+        return 0;
+      }
     }
     if(window.location.href.indexOf("/courses")>=0)
     {

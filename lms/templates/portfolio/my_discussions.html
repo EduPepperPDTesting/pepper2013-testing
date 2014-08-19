@@ -13,7 +13,7 @@
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
-<%block name="title"><title>${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
+<%block name="title"><title course_number="${course.display_number_with_default}">${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
 
 <%block name="headextra">
@@ -264,13 +264,13 @@
   </div>
 </div>
 <div class="main">
-	<section class="container">
+  <section class="container">
   <div class="course-wrapper">
-		<section class="course-index">
-			<div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
-			<a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
-			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
-			<a class="sub_menu xz" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>
+    <section class="course-index">
+      <div class="sub_tit" style="width:auto;margin:0 auto;"><table><tr><td width="50"><div style="padding-left:20px;"><img src="${reverse('user_photo',args=[portfolio_user_id])}" style="width:35px;height:35px;margin:5px 5px 5px 0px;" alt="photo" /></div></td><td><div class="user_name" style="text-overflow:ellipsis;width:170px;text-align:center;overflow:hidden;">${ portfolio_user.username }</div></td></tr></table></div>
+      <a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
+      <a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
+      <a class="sub_menu xz" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a>
       % if threads_num>0: 
       <div class="chapter">
       <ul>
@@ -282,14 +282,22 @@
       </ul>
       </div> 
       %endif
-		</section>
-		
-		
+    </section>
+    
+    
     % if request.GET.get('chapter')=='1' and threads_num>0: 
       <section class="course-content my-discussion-content">
       <ol class="vert-mod">
        <section id="discussion-container" class="container discussion-user-threads" data-roles="${roles}" data-user-id="${django_user.id | escapejs}" data-course-id="${course.id}" data-threads="${threads}" data-user-info="${user_info}" data-flag-moderator="${flag_moderator}">
       </section>
+      <p style="text-align:center;width:auto;" class="page">
+          <!--
+          <a class="up_page" href="javascript:void(0);"></a>
+          <a>1</a>        
+          <a class="page_active" href="?chapter=1&amp;page=2">2</a>
+          <a class="next_page" href="?chapter=1&amp;page=2"></a>
+          -->
+      </p>
     % else:
       <section class="course-content my-discussion-content" style="padding:0px">
       <ol class="vert-mod">
@@ -316,8 +324,8 @@
 </script>
 <%include file="../discussion/_underscore_templates.html" />
   </ol>
-		</section>
-	</div>
+    </section>
+  </div>
 </div>
 <br style="clear:both;">
 <br style="clear:both;">

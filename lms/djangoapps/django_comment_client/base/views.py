@@ -251,6 +251,30 @@ def create_comment_auto(request, course_id, thread_id=None, parent_id=None):
     user = cc.User.from_django_user(request.user)
     user.follow(comment.thread)
 
+def create_comment_auto_load(request, course_id, thread_id=None, thread_user=None, parent_id=None):
+    """
+    given a course_id, thread_id, and parent_id, create a comment,
+    called from create_comment to do the actual creation
+    """
+    comment_data={"body":"Let's discuss!"}
+    comment = cc.Comment(**extract(comment_data, ['body']))
+    
+    course = get_course_with_access(thread_user, course_id, 'load')
+
+    anonymous = False
+    anonymous_to_peers = False
+    comment.update_attributes(**{
+        'anonymous': anonymous,
+        'anonymous_to_peers': anonymous_to_peers,
+        'user_id': thread_user.id,
+        'course_id': course_id,
+        'thread_id': thread_id,
+        'parent_id': parent_id,
+    })
+    comment.save()
+    user = cc.User.from_django_user(thread_user)
+    user.follow(comment.thread)
+
 @require_POST
 @login_required
 @permitted

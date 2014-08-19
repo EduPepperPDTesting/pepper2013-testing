@@ -118,7 +118,7 @@
 		        data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
 		        break;
 		      case 'portfolio':
-		        data.type_text="<b>"+data.interviewer_name+"</b> has commented on your portfolio in course "+data.course_number+".";
+		        data.type_text="<b>"+data.interviewer_name+"</b> has commented on "+(data.portfolio_username||'your')+"'s portfolio in course "+data.course_number+".";
 		        break;
 		      case 'add_network':
 		        data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."

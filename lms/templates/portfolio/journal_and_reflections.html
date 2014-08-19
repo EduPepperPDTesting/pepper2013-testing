@@ -13,7 +13,7 @@
 <%inherit file="/main.html" />
 <%namespace name='static' file='/static_content.html'/>
 <%block name="bodyclass">courseware ${course.css_class}</%block>
-<%block name="title"><title>${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
+<%block name="title"><title course_number="${course.display_number_with_default}">${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
 
 <%block name="headextra">
@@ -125,7 +125,6 @@
       );
   }
   <!---------------- -->
-
   </script>
   <%static:js group='courseware'/>
   <%static:js group='discussion'/>
@@ -271,7 +270,7 @@
 <section class="container">
   <div class="course-wrapper">
     <section class="course-index">
-      <div class="sub_tit" style="width:auto;"><span class="user_name">${ portfolio_user.username }</span></div>
+      <div class="sub_tit" style="width:auto;margin:0 auto;"><table><tr><td width="50"><div style="padding-left:20px;"><img src="${reverse('user_photo',args=[portfolio_user_id])}" style="width:35px;height:35px;margin:5px 5px 5px 0px;" alt="photo" /></div></td><td><div class="user_name" style="text-overflow:ellipsis;width:170px;text-align:center;overflow:hidden;">${ portfolio_user.username }</div></td></tr></table></div>
       <a class="sub_menu" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
       <a class="sub_menu xz" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}?pf_id=${portfolio_user.id}">My Coursework</a> 
       <div class="chapter">
@@ -290,7 +289,7 @@
     </section>
 
     
-       %if len(content.object_list)>0:
+      %if len(content.object_list)>0:
         <section class="course-content my-course-work-content">
         <ol class="vert-mod">
          %for con in content.object_list:
@@ -298,9 +297,9 @@
          %endfor
          <p class="page" style="text-align:center;">
         %if content.has_previous():
-          <a href="?pf_id=${portfolio_user.id}&page=${content.previous_page_number()}" title="Pre" class="up_page"></a>
+          <a href="?pf_id=${portfolio_user.id}&page=${content.previous_page_number()}" class="up_page"></a>
         %else:
-          <a href="javascript:void(0);" title="Pre" class="up_page"></a>
+          <a href="javascript:void(0);" class="up_page"></a>
         %endif
 
         %for p in range(1,content.paginator.num_pages+1):
@@ -311,9 +310,9 @@
           %endif
         %endfor   
         %if content.has_next():
-        <a href="?pf_id=${portfolio_user.id}&page=${content.next_page_number()}" title="Next" class="next_page"></a>
+        <a href="?pf_id=${portfolio_user.id}&page=${content.next_page_number()}" class="next_page"></a>
          %else:
-          <a href="javascript:void(0);" title="Pre" class="next_page"></a>
+          <a href="javascript:void(0);" class="next_page"></a>
         %endif
       </p>
       %endif
@@ -342,9 +341,11 @@
         <img src='/static/tmp-resource/image/my-coursework.png'/>
        %endif
       </ol>
+      
     </section>
   </div>
   </div>
 </div>
+
 <br style="clear:both;">
 <br style="clear:both;">
