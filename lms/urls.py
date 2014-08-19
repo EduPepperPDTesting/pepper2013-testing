@@ -70,7 +70,7 @@ urlpatterns = (
     url(r'^people/$', 'people.views.people', name="people"),
     url(r'^my_people/$', 'people.views.my_people', name="my_people"),
     url(r'^add_people/$', 'people.views.add_people', name="add_people"),
-    url(r'^remove_people/$', 'people.views.remove_people', name="remove_people"),
+    url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
     url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
 

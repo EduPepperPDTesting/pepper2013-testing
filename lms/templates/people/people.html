@@ -169,7 +169,7 @@ padding-bottom:50px !important;
               </select>
             </div>
             <input type="hidden" name="searching" value="1"/>
-            <input type="hidden" name="prepage" value="${prepage}"/>
+            <input type="hidden" name="size" value="${pager['size']}"/>
             <input type="submit" style="display:none"/>
             <div style="float:left;width:240px;height:28px;font-style:italic;font-weight:bold;padding-top:15px;padding-left:25px;font-size:16px;line-height:20px;">
               *Leave fields blank to search for all people
@@ -264,7 +264,7 @@ padding-bottom:50px !important;
             <div class="people_tit" style="margin-right:20px;">People</div>
           %endif
           %for profile in profiles:
-          %if (profile is None) or (not profile.user.is_active):
+          %if profile['is_active']=='0':
           <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
@@ -278,31 +278,43 @@ padding-bottom:50px !important;
           %else:
           <div id="" style="height:130px;margin-right:20px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
-              <a href="${reverse('dashboard',args=[profile.user_id])}" target="_blank">
-                <img src="${reverse('user_photo',args=[profile.user.id])}" style="" alt="photo" />
+              <a href="${reverse('dashboard',args=[profile['user_id']])}" target="_blank">
+                <img src="${reverse('user_photo',args=[profile['user_id']])}" style="" alt="photo" />
               </a>
             </span>
             <span class="name_container2">
               <span class="full_name">
-                <a href="${reverse('dashboard',args=[profile.user_id])}" style="color:rgb(52, 97, 173)" target="_blank">${profile.user.first_name} ${profile.user.last_name}</a>
+                <a href="${reverse('dashboard',args=[profile['user_id']])}" style="color:rgb(52, 97, 173)" target="_blank">${profile['first_name']} ${profile['last_name']}</a>
               </span>
-              <span class="name_text">${profile.user.username}</span>
-              %if profile.cohort_id and profile.school_id:
-              <span class="name_text">${profile.school.name} <br/> ${profile.cohort.district.name}</span>
+              <span class="name_text">${profile['username']}</span>
+              %if profile['cohort_id'] and profile['school_id']:
+              <%
+              school=School.objects.get(id=profile['school_id'])
+              cohort=Cohort.objects.get(id=profile['cohort_id'])
+              %>
+              <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
               %endif
+              %if type(profile['years_in_education_id'])==int and profile['years_in_education_id'] > 0:
+              <%y=YearsInEducation.objects.get(id=profile['years_in_education_id'])%>
+              %if y:
+              <span class="name_text">${y.name} Years in Education</span>
+              %endif
+              %endif
+
               %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif
             </span>
-            %if profile.student_people_id:
+
+            %if request.user.id in profile['people_of']:
             <div class="btn_container btn_container_del">
               <a href="#" class="button_default button-ondark button-icon icon icon-search button-status"
-                 style="-webkit-user-select: none; " people_id="${profile.user_id}">
+                 style="-webkit-user-select: none; " user_id="${profile['user_id']}">
                 <div>In My Network</div>
               </a>
-              <a class="button-del" onclick="remove_people('${profile.student_people_id}',this);return false;"></a>
+              <a class="button-del" onclick="del_people('${profile['user_id']}',this);return false;"></a>
               <a href="#show_personalmessage" rel="leanModal">
-                  <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile.user.first_name} ${profile.user.last_name}" data-name="${profile.user.username}" data-id="${profile.user.id}" onclick="imessage_click(this);">
+                  <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
                     <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
                     <div id="" style="display:none;"></div>
                   </div>
@@ -311,12 +323,12 @@ padding-bottom:50px !important;
             %else:
             <div class="btn_container btn_container_add">
               <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
-                 style="-webkit-user-select: none; " people_id="${profile.user_id}" onclick="add_people(this);return false;">
+                 style="-webkit-user-select: none; " user_id="${profile['user_id']}" onclick="add_people(this);return false;">
                 <div>Add to My Network</div>
               </a>
               <a class="button-del"></a>
               <a href="#show_personalmessage" rel="leanModal">
-                <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile.user.first_name} ${profile.user.last_name}" data-name="${profile.user.username}" data-id="${profile.user.id}" onclick="imessage_click(this);">
+                <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
                   <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
                   <div id="" style="display:none;"></div>
                 </div>
@@ -326,10 +338,11 @@ padding-bottom:50px !important;
           </div>
           %endif
           %endfor
+
           %if len(profiles)>0:
           %if course:
           <div class="page" style="width:850px;" >
-            <span style="float:left;">Total Search Results: ${pager.count}</span>
+            <span style="float:left;">Total Search Results: ${pager['total']}</span>
             <span style="float:right;">
               Items Per Page
               <select id="text_pre_page" autocomplate="off">
@@ -338,38 +351,39 @@ padding-bottom:50px !important;
                 <option>100</option>
                 <option>200</option>
               </select>
-              <a href="${reverse('people',args=[course_id])}?${params}&page=${pager.page_num-1}" class="up_page"></a>
-              %for p in pager.page_range_ext:
-              %if p==pager.page_num:
-              <a href="${reverse('people',args=[course_id])}?${params}&page=${p}" class="page_active">${p}</a>
-              %else:
-              <a href="${reverse('people',args=[course_id])}?${params}&page=${p}">${p}</a>
-              %endif
-              %endfor
-              <a href="${reverse('people',args=[course_id])}?${params}&page=${pager.page_num+1}" class="next_page"></a>             <div style="padding-top:10px;width:158px;text-align:center;">
-              </div>
-            </span>
-          </div>
-          %else:
-          <div class="page" style="width:850px;" >
-            <span style="float:left;">Total Search Results: ${pager.count}</span>
-            <span style="float:right;">
-              Items Per Page
-              <select id="text_pre_page" autocomplate="off">
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-                <option>200</option>
-              </select>
-              <a href="${reverse('people')}?${params}&page=${pager.page_num-1}" class="up_page"></a>
-              %for p in pager.page_range_ext:
-              %if p==pager.page_num:
-              <a href="${reverse('people')}?${params}&page=${p}" class="page_active">${p}</a>
+              <a href="${reverse('people',args=[course_id])}?${params}&page=${pager['page']-1}" class="up_page"></a>
+              %for p in pager['jumps']:
+              %if p=='c':
+              <a href="${reverse('people')}?${params}&page=${pager['page']}" class="page_active">${pager['page']}</a>
               %else:
               <a href="${reverse('people')}?${params}&page=${p}">${p}</a>
               %endif
               %endfor
-              <a href="${reverse('people')}?${params}&page=${pager.page_num+1}" class="next_page"></a>
+              <a href="${reverse('people',args=[course_id])}?${params}&page=${pager['page']+1}" class="next_page"></a>             <div style="padding-top:10px;width:158px;text-align:center;">
+              </div>
+
+            </span>
+          </div>
+          %else:
+          <div class="page" style="width:850px;" >
+            <span style="float:left;">Total Search Results: ${pager['total']}</span>
+            <span style="float:right;">
+              Items Per Page
+              <select id="text_pre_page" autocomplate="off">
+                <option>25</option>
+                <option>50</option>
+                <option>100</option>
+                <option>200</option>
+              </select>
+              <a href="${reverse('people')}?${params}&page=${pager['page']-1}" class="up_page"></a>
+              %for p in pager['jumps']:
+              %if p=='c':
+              <a href="${reverse('people')}?${params}&page=${pager['page']}" class="page_active">${pager['page']}</a>
+              %else:
+              <a href="${reverse('people')}?${params}&page=${p}">${p}</a>
+              %endif
+              %endfor
+              <a href="${reverse('people')}?${params}&page=${pager['page']+1}" class="next_page"></a>
             </span>
           </div>          
           %endif
@@ -381,14 +395,14 @@ padding-bottom:50px !important;
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
-$("#text_pre_page").val("${prepage}")
+$("#text_pre_page").val("${pager['size']}")
 $("#text_pre_page").bind('change', function(e){
   var f=$("#search_form");
-  f.find("input[name=prepage]").val($(this).val());
+  f.find("input[name=size]").val($(this).val());
   f.submit();
 });
 function add_people(btn){
-  var people_id=$(btn).attr('people_id')
+  var people_id=$(btn).attr('user_id')
   var data={people_id:people_id}
   $.post("${reverse('add_people')}",data,function(r){
     if((typeof r) == 'string')r=$.parseJSON(r);
@@ -401,7 +415,7 @@ function add_people(btn){
         $(btn).next(".button-del")[0].onclick=null
         $(btn).next(".button-del").unbind('click')
         $(btn).next(".button-del").click(function(){
-          remove_people(r.id,this);
+          del_people(people_id,this);
           return false;
         })
         var interviewer_id ='${user.id}';
@@ -412,9 +426,9 @@ function add_people(btn){
   })
   btn.onclick=null;
 }
-function remove_people(id,btn){
+function del_people(people_id,btn){
   if(confirm("Are you sure that you would like to remove this person from your network list?")){
-    $.post("${reverse('remove_people')}",{id:id},function(r){
+    $.post("${reverse('del_people')}",{people_id:people_id},function(r){
       if ((typeof r) == 'string') r=$.parseJSON();
       if(r.success){
         $(btn).parent().removeClass("btn_container_del")

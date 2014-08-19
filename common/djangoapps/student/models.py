@@ -320,7 +320,7 @@ class UserProfile(models.Model):
     years_in_education = models.ForeignKey(YearsInEducation,on_delete=models.PROTECT)
     major_subject_area = models.ForeignKey(SubjectArea,on_delete=models.PROTECT)
 
-    grade_level_id = models.CharField(blank=False, max_length=255, db_index=True) 
+    grade_level_id = models.CharField(blank=False, max_length=255, db_index=True)
 
     # first_name = models.CharField(blank=True, max_length=255, db_index=True)
     # last_name = models.CharField(blank=True, max_length=255, db_index=True)
@@ -338,6 +338,8 @@ class UserProfile(models.Model):
     # for users imported from our first class.
     language = models.CharField(blank=True, max_length=255, db_index=True)
     location = models.CharField(blank=True, max_length=255, db_index=True)
+
+    people_of = models.CharField(blank=True, max_length=2048, db_index=True)
 
     # Optional demographic data we started capturing from Fall 2012
     this_year = datetime.now(UTC).year
@@ -1281,11 +1283,48 @@ def log_successful_logout(sender, request, user, **kwargs):
     AUDIT_LOG.info(u"Logout - {0}".format(request.user))
 
 #@begin:Add new functions used in People pages (Global and Course)
-#@date:2013-11-02        
+#@date:2013-11-02
 def get_user_by_id(user_id):
     u = User.objects.get(id=user_id)
     up=None
     up = UserProfile.objects.get(user=u)
-    return u, up    
+    return u, up
 #@end
 
+
+from django.db.models import signals
+
+from people import people_in_es
+
+# alter table auth_user add last_modify datetime;
+
+
+# def update_user_information(sender, instance, created, **kwargs):
+
+def on_user_save(sender, instance, created, **kwargs):
+    user=instance
+    people_in_es.update_user_es_info(user)
+
+    # import logging
+    # log = logging.getLogger("tracking")
+    # log.debug("============modified user===============:%s id: %s" % (sender,instance.id))
+
+def on_profile_save(sender, instance, signal, *args, **kwargs):
+    profile=instance
+    import logging
+    log = logging.getLogger("tracking")
+    log.debug("============modified user profile===============:%s user_id: %s" % (sender,profile.user_id))
+
+    people_in_es.update_user_es_info(profile.user)
+
+def on_profile_delete(sender, instance, signal, *args, **kwargs):
+    profile=instance
+    # import logging
+    # log = logging.getLogger("tracking")
+    # log.debug("============delete user profile===============:%s user_id: %s" % (sender,instance.user_id))
+
+    people_in_es.del_user(profile.user)
+
+signals.post_save.connect(on_user_save, sender=User)
+signals.post_save.connect(on_profile_save, sender=UserProfile)
+signals.post_delete.connect(on_profile_delete, sender=UserProfile)
