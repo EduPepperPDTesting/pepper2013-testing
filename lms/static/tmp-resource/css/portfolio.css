@@ -1282,14 +1282,11 @@ background:#;
 }
 /*20131021追加*/
 .user_name {
-	float:left;
 	color: #333;
 	text-shadow: 0 1px rgba(255, 255, 255, .75);
 	display:block;
-	width:100%;
+	width:auto;
 	line-height:48px;
-	text-align:center;
-	background:url(../image/head.png) no-repeat 25px 12px
 }
 
 a.blue_btn:hover {
