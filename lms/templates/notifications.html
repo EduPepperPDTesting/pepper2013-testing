@@ -83,7 +83,7 @@
 	      notifications_update_switchType(data);
 	      var displayDate = notifications_update_dateFormat(data);
 	      var ele=$('<tr height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
-	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><img src="/user_photo/'+data.interviewer_id+'" alt="photo" width="35" height="35"></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span></section></td></tr>');
+	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span></section></td></tr>');
 		  if(notifications_update_new_day!='')
 	      {
 	      	if(notifications_update_isNewDay(notifications_update_new_day,data.date))
