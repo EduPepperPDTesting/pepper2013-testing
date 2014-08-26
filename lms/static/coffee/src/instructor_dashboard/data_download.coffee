@@ -39,7 +39,7 @@ class DataDownload
           dataType: 'json'
           url: url
           error: std_ajax_err =>
-            @clear_display()f
+            @clear_display()
             @$request_response_error.text "Error getting student list."
           success: (data) =>
             @clear_display()

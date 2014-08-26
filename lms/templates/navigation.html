@@ -495,7 +495,7 @@ site_status_msg = get_site_status_msg(course_id)
     {
       var body=data.body==undefined?'':data.body;
       interactive_update_switchType(data);
-      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
+      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
       $('.info_list').append(element);
       element.click(function(){
        if(data.activate=='false')
@@ -749,7 +749,7 @@ site_status_msg = get_site_status_msg(course_id)
           var interviewer_id = user_info["user"].id.toString();
           var interviewer_name = user_info["user"].name;
           var interviewer_fullname = user_info["user"].fullname;
-          var body = content.text().length>50?content.text().substr(0,50)+"...":content.text();
+          var body = content.text().length>50?content.text().substr(0,50):content.text();
           var messageinfo={'info':JSON.stringify({'user_id':recipient_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'interviewer_fullname':interviewer_fullname,'type':'message','body':body,'date':(new Date()).toISOString(),'activate':'false'})};
           $.post("${reverse('save_interactive_update')}",messageinfo,function(){});
           content.html("");
