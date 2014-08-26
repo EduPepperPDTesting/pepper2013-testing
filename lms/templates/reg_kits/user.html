@@ -51,7 +51,6 @@
               <option value="Imported">Imported</option>
               <option value="Unregistered">Unregistered</option>
               <option value="Registered">Registered</option>
-              <option value="Deleted">Deleted</option>
             </select>
             Days After Invited:
             <input type="" size="3" name="invite_days_min" value="" /> to 
@@ -147,8 +146,9 @@
             <option value="Imported">Imported</option>
             <option value="Unregistered">Unregistered</option>
             <option value="Registered">Registered</option>
-            <option value="Deleted">Deleted</option>
+            <option value="Inactive">Inactive</optio>
           </select>
+          <input type="button" id="btnDelete" value="Delete" />
           Download ${users.paginator.count} User(s) As
           <input type="button" id="btnDownloadCsv" value="CSV" />
           <input type="button" id="btnDownloadExcel" value="Excel" />
@@ -244,6 +244,19 @@
                    subscription_status:subscription_status, invite_days_min:invite_days_min,
                    invite_days_max:invite_days_max, email:email, first_name:first_name, last_name:last_name}
 
+  $("#btnDelete").click(function(){
+    if(!confirm('Really delete?'))return false;
+    var ids=[]
+    $(":checkbox:checked[name=id]").each(function(){
+      ids.push($(this).val())
+    })
+    $.post("${reverse('user_delete')}", {ids:ids.join(),csrfmiddlewaretoken:'${csrf_token}'}, function(r){
+      if((typeof r)=='string')r=$.parseJSON(r);
+      if(r.success)
+         window.location.href=window.location.href;
+    });
+  })
+  
   $("#btnDownloadCsv").click(function(){
     var valid_filter=[];
     var h=get_searching();
@@ -277,6 +290,7 @@
       ids.push($(this).val())
     })
     var status=$(this).val()
+    if(status=="")return;
     $.post("${reverse('user_modify_status')}",
            {ids:ids.join(),subscription_status:status,csrfmiddlewaretoken:'${csrf_token}'},function(r){
       if((typeof r)=='string')r=$.parseJSON(r);

@@ -39,7 +39,7 @@ class DataDownload
           dataType: 'json'
           url: url
           error: std_ajax_err =>
-            @clear_display()
+            @clear_display()f
             @$request_response_error.text "Error getting student list."
           success: (data) =>
             @clear_display()
@@ -50,10 +50,8 @@ class DataDownload
               enableColumnReorder: false
               forceFitColumns: true
 
-            columns = ({id: feature, field: feature, name: feature, formatter:(row, cell, value, columnDef, dataContext) => 
-             if value == null
-               return ''
-             return value.toString()
+            columns = ({id: feature, field: feature, name: feature, formatter:(row, cell, value, columnDef, dataContext) =>
+             return String(value)
              } for feature in data.queried_features)
             
             grid_data = data.students

@@ -47,9 +47,21 @@ def enrolled_students_features(request, course_id, features):
             profile_dict = dict((feature, getattr(profile, feature))
                                 for feature in profile_features)
             student_dict.update(profile_dict)
+
+        try:
             student_dict['district']=profile.cohort.district.name
+        except:
+            pass
+
+        try:
             student_dict['cohort']=profile.cohort.code
+        except:
+            pass
+
+        try:
             student_dict['school']=profile.school.name
+        except:
+            pass
 
         try:
             reg=Registration.objects.get(user_id=student.id)
