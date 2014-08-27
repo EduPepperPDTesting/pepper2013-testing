@@ -749,7 +749,7 @@ site_status_msg = get_site_status_msg(course_id)
           var interviewer_id = user_info["user"].id.toString();
           var interviewer_name = user_info["user"].name;
           var interviewer_fullname = user_info["user"].fullname;
-          var body = content.text().length>50?content.text().substr(0,50):content.text();
+          var body = content.text().length>100?content.text().substr(0,100):content.text();
           var messageinfo={'info':JSON.stringify({'user_id':recipient_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'interviewer_fullname':interviewer_fullname,'type':'message','body':body,'date':(new Date()).toISOString(),'activate':'false'})};
           $.post("${reverse('save_interactive_update')}",messageinfo,function(){});
           content.html("");
