@@ -34,7 +34,7 @@ urlpatterns = ('',  # nopep8
 
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/export/(?P<name>[^/]+)$',
         'contentstore.views.export_course', name='export_course'),
-    url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/generate_export/(?P<name>[^/]+)$',
+    url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/generate_export/(?P<name>[^/]+)/(?P<filename>[^/]+)$',
         'contentstore.views.generate_export_course', name='generate_export_course'),
 
     url(r'^preview/modx/(?P<preview_id>[^/]*)/(?P<location>.*?)/(?P<dispatch>[^/]*)$',
@@ -112,6 +112,8 @@ urlpatterns += (
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/checklists/(?P<name>[^/]+)$', 'contentstore.views.get_checklists', name='checklists'),
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/checklists/(?P<name>[^/]+)/update(/)?(?P<checklist_index>.+)?.*$',
         'contentstore.views.update_checklist', name='checklists_updates'),
+    url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/checklists/(?P<name>[^/]+)/fix(/)?(?P<checklist_index>.+)?.*$',
+        'contentstore.views.fix_checklist', name='checklists_fix'),
     url(r'^howitworks$', 'contentstore.views.howitworks', name='howitworks'),
     url(r'^signup$', 'contentstore.views.signup', name='signup'),
 

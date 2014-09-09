@@ -14,7 +14,7 @@ from ..utils import get_modulestore
 from .access import get_location_and_verify_access
 from xmodule.course_module import CourseDescriptor
 
-__all__ = ['get_checklists', 'update_checklist']
+__all__ = ['get_checklists', 'update_checklist','fix_checklist']
 
 
 @ensure_csrf_cookie
@@ -125,3 +125,24 @@ def expand_checklist_action_urls(course_module):
             modified = True
 
     return checklists, modified
+@login_required
+def fix_checklist(request, org, course, name,checklist_index=None):
+    """
+    Send models, views, and html for displaying the course checklists.
+
+    org, course, name: Attributes of the Location for the item to edit
+    """
+    location = get_location_and_verify_access(request, org, course, name)
+
+    modulestore = get_modulestore(location)
+    course_module = modulestore.get_item(location)
+    checklists = course_module.checklists
+    for checklist in checklists:
+        if checklist.get('short_description').find("edX")>=0:
+            checklist['short_description'] = checklist.get('short_description').replace('edX','Pepper')
+        for item in checklist.get('items'):
+            if item['long_description'].find("edX")>=0 and checklist['short_description']!="Explore Pepper's Support Tools":
+                item['long_description'] = item['long_description'].replace('edX','Pepper')
+    course_module.save()
+    modulestore.update_metadata(location, own_metadata(course_module))
+    return JsonResponse({})

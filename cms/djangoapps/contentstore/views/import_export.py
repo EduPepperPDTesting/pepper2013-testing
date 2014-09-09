@@ -32,7 +32,7 @@ from xmodule.exceptions import SerializationError
 
 from .access import get_location_and_verify_access
 from util.json_request import JsonResponse
-
+import time
 
 __all__ = ['import_course', 'generate_export_course', 'export_course']
 
@@ -232,7 +232,7 @@ def import_course(request, org, course, name):
 
 @ensure_csrf_cookie
 @login_required
-def generate_export_course(request, org, course, name):
+def generate_export_course(request, org, course, name, filename):
     """
     This method will serialize out a course to a .tar.gz file which contains a
     XML-based representation of the course
@@ -240,10 +240,8 @@ def generate_export_course(request, org, course, name):
     location = get_location_and_verify_access(request, org, course, name)
     course_module = modulestore().get_instance(location.course_id, location)
     loc = Location(location)
-    export_file = NamedTemporaryFile(prefix=name + '.', suffix=".tar.gz")
-
+    export_file = NamedTemporaryFile(prefix=filename + '.', suffix=".tar.gz")
     root_dir = path(mkdtemp())
-
     try:
         export_to_xml(modulestore('direct'), contentstore(), loc, root_dir, name, modulestore())
     except SerializationError, e:
@@ -295,7 +293,10 @@ def generate_export_course(request, org, course, name):
         })
 
     logging.debug('tar file being generated at {0}'.format(export_file.name))
-    tar_file = tarfile.open(name=export_file.name, mode='w:gz')
+    fname=export_file.name.split(".")
+    file_name=fname[0]+'.'+time.strftime('%Y%m%d%H%I%M%S',time.localtime(time.time()))+'.tar.gz'
+    os.rename(export_file.name,file_name)
+    tar_file = tarfile.open(name=file_name, mode='w:gz')
     tar_file.add(root_dir / name, arcname=name)
     tar_file.close()
 
@@ -304,8 +305,8 @@ def generate_export_course(request, org, course, name):
 
     wrapper = FileWrapper(export_file)
     response = HttpResponse(wrapper, content_type='application/x-tgz')
-    response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(export_file.name)
-    response['Content-Length'] = os.path.getsize(export_file.name)
+    response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(file_name)
+    response['Content-Length'] = os.path.getsize(file_name)
     return response
 
 
