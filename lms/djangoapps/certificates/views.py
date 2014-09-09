@@ -132,7 +132,8 @@ def download_certificate(request,course_id,completed_time):
         t_m = int(t_time[1])    
         t_d = int(t_time[2])        
     c_completed_time = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
-
+    if len(c_user_name)>25:
+        c_user_name=c_user_name[0:25]+"..."
     user_id_temp = user_id + 15
     temp1 = '821bf6753e09qx4'
     temp2 = '103md94e157wf62a9'

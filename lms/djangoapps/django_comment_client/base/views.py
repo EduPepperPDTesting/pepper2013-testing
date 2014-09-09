@@ -30,8 +30,19 @@ from django_comment_common.models import Role
 from courseware.access import has_access
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import Location
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+import capa.xqueue_interface as xqueue_interface
+from django.conf import settings
+from datetime import datetime
+from pytz import UTC
 log = logging.getLogger(__name__)
 
+s3_interface = {
+            'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', ''),
+            'secret_access_key': getattr(settings, 'AWS_SECRET_ACCESS_KEY', ''),
+            'storage_bucket_name': getattr(settings, 'AWS_STORAGE_BUCKET_NAME', '')
+        }
 
 def permitted(fn):
     @functools.wraps(fn)
@@ -675,7 +686,7 @@ def tags_autocomplete(request, course_id):
         results = cc.tags_autocomplete(value)
     return JsonResponse(results)
 
-
+'''
 @require_POST
 @login_required
 @csrf.csrf_exempt
@@ -750,3 +761,48 @@ def upload(request, course_id):  # ajax upload file to a question or answer
             'file_url': file_url,
         }
     })
+'''
+@require_POST
+@login_required
+@csrf.csrf_exempt
+def upload(request, course_id):  # ajax upload file to a question or answer
+    """view that handles file upload via Ajax
+    """
+    result = 'Good'
+    error = ''
+    try:
+        fd = request.FILES['file-upload']
+        fname = fd.name.split(".")
+        file_key = fname[0] +"_"+datetime.now(UTC).strftime(
+            xqueue_interface.dateformat
+        )+"."+fname[1]
+
+        fd.seek(0)
+        s3_public_url = upload_to_s3(
+            fd, file_key, s3_interface
+        )
+    except Exception:
+        result = ''
+        error = unicode(err)
+    return utils.JsonResponse({
+        'result': {
+            'msg': result,
+            'error': error,
+            'file_url': s3_public_url,
+        }
+    })
+def upload_to_s3(file_to_upload, keyname, s3_interface):
+
+    conn = S3Connection(s3_interface['access_key'], s3_interface['secret_access_key'])
+    bucketname = str(s3_interface['storage_bucket_name'])
+    bucket = conn.create_bucket(bucketname.lower())
+
+    k = Key(bucket)
+    k.key = 'openended/'+keyname
+    k.set_metadata('filename', file_to_upload.name)
+    k.set_contents_from_file(file_to_upload)
+
+    k.set_acl("public-read")
+    public_url = k.generate_url(60 * 60 * 24 * 365) # URL timeout in seconds.
+
+    return public_url

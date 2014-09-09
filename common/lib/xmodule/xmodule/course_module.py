@@ -297,7 +297,7 @@ class CourseFields(object):
                                       "action_url": "CourseOutline",
                                       "action_text": "Edit Course Outline",
                                       "action_external": False}]},
-                          {"short_description": "Explore edX's Support Tools",
+                          {"short_description": "Explore Pepper's Support Tools",
                            "items": [{"short_description": "Explore the Studio Help Forum",
                                       "long_description": "Access the Studio Help forum from the menu that appears when you click your user name in the top right corner of Studio.",
                                       "is_checked": False,
@@ -318,7 +318,7 @@ class CourseFields(object):
                                       "action_external": True}]},
                           {"short_description": "Draft Your Course About Page",
                            "items": [{"short_description": "Draft a Course Description",
-                                      "long_description": "Courses on edX have an About page that includes a course video, description, and more. Draft the text students will read before deciding to enroll in your course.",
+                                      "long_description": "Courses on Pepper have an About page that includes a course video, description, and more. Draft the text students will read before deciding to enroll in your course.",
                                       "is_checked": False,
                                       "action_url": "SettingsDetails",
                                       "action_text": "Edit Course Schedule &amp; Details",
@@ -381,6 +381,7 @@ class CourseFields(object):
 
     display_coursenumber = String(help="An optional display string for the course number that will get rendered in the LMS",
                                   scope=Scope.settings)
+    
     display_sort_number = String(help="Sort the list of courses", default="-1", scope=Scope.settings)
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
