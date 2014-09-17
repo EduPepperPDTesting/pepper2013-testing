@@ -72,16 +72,23 @@ CONTENTSTORE = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': MYSQL_DB,
-        'USER': MYSQL_USER,
-        'PASSWORD': MYSQL_PASSWORD,
-        'HOST': MYSQL_HOST,
-        'PORT': MYSQL_PORT,
-    }
+        'NAME': MYSQL_DB_W,
+        'USER': MYSQL_USER_W,
+        'PASSWORD': MYSQL_PASSWORD_W,
+        'HOST': MYSQL_HOST_W,
+        'PORT': MYSQL_PORT_W,
+    },
+    'read': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': MYSQL_DB_R,
+        'USER': MYSQL_USER_R,
+        'PASSWORD': MYSQL_PASSWORD_R,
+        'HOST': MYSQL_HOST_R,
+        'PORT': MYSQL_PORT_R,
+    },
 }
 
-LMS_BASE = "www1.pepperpd.com"
-MITX_FEATURES['PREVIEW_LMS_BASE'] = "www1.pepperpd.com:8444"
+MITX_FEATURES['PREVIEW_LMS_BASE'] = PREVIEW_LMS_BASE
 
 REPOS = {
     'edx4edx': {
@@ -158,14 +165,14 @@ MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 INTERNAL_IPS = ('127.0.0.1',)
 
 DEBUG_TOOLBAR_PANELS = (
-    'debug_toolbar.panels.version.VersionDebugPanel',
-    'debug_toolbar.panels.timer.TimerDebugPanel',
-    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-    'debug_toolbar.panels.headers.HeaderDebugPanel',
-    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-    'debug_toolbar.panels.sql.SQLDebugPanel',
-    'debug_toolbar.panels.signals.SignalDebugPanel',
-    'debug_toolbar.panels.logger.LoggingPanel',
+    # 'debug_toolbar.panels.version.VersionDebugPanel',
+    # 'debug_toolbar.panels.timer.TimerDebugPanel',
+    # 'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    # 'debug_toolbar.panels.headers.HeaderDebugPanel',
+    # 'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    # 'debug_toolbar.panels.sql.SQLDebugPanel',
+    # 'debug_toolbar.panels.signals.SignalDebugPanel',
+    # 'debug_toolbar.panels.logger.LoggingPanel',
 
     #  Enabling the profiler has a weird bug as of django-debug-toolbar==0.9.4 and
     #  Django=1.3.1/1.4 where requests to views get duplicated (your method gets
