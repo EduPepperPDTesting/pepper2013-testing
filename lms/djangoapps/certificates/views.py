@@ -129,11 +129,9 @@ def download_certificate(request,course_id,completed_time):
     if changdu > 9:
         t_time = completed_time.split('-')
         t_y = int(t_time[0])
-        t_m = int(t_time[1])    
-        t_d = int(t_time[2])        
+        t_m = int(t_time[1])
+        t_d = int(t_time[2])
     c_completed_time = datetime.date(t_y,t_m,t_d).strftime("%B %d, %Y ")
-    if len(c_user_name)>25:
-        c_user_name=c_user_name[0:25]+"..."
     user_id_temp = user_id + 15
     temp1 = '821bf6753e09qx4'
     temp2 = '103md94e157wf62a9'
@@ -213,8 +211,18 @@ def download_certificate(request,course_id,completed_time):
     c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
 
     c.setFillColorRGB(0,0.5,0.85)
-    c.setFont("Nunito", fontsize_username)
-    c.drawString(50,348,c_user_name)
+    if len(c_user_name)<=25:
+        fontsize_username = 45
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,348,c_user_name)
+    elif len(c_user_name)<=40:
+        fontsize_username = 37
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,352,c_user_name)
+    else:
+        fontsize_username = 24
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,356,c_user_name)
     c.setFont("Nunito", fontsize_coursename)
     c.drawString(50,270,c_course_full_name)
 
