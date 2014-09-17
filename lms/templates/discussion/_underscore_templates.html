@@ -68,7 +68,7 @@
       
       ${'<% if (obj.courseware_url) { %>'}
       <div class="post-context">
-          (this post is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'}</a>)
+          (this topic is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'} Welcome to Pepper</a>)
       </div>
       ${'<% } %>'}
 
@@ -82,7 +82,7 @@
 
 <script type="text/template" id="thread-edit-template">
   <div class="discussion-post edit-post-form">
-    <h1>${_("Editing post")}</h1>
+    <h1>${_("Editing topic")}</h1>
     <ul class="edit-post-form-errors"></ul>
     <div class="form-row">
       <input type="text" class="edit-post-title" name="title" value="${"<%-title %>"}" placeholder="Title">
@@ -95,7 +95,7 @@
     ##<div class="form-row">
     ##  <input type="text" class="edit-post-tags" name="tags" placeholder="Tags" value="${"<%- tags %>"}">
     ##</div>
-    <input type="submit" class="post-update" value="${_("Update post")}">
+    <input type="submit" class="post-update" value="${_("Update topic")}">
     <a href="#" class="post-cancel">${_("Cancel")}</a>
   </div>
 </script>

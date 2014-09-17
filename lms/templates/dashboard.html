@@ -358,17 +358,19 @@
       $('#id_bio')[0].value = "";
     });
 <!--@end-->
-//-----------------------------------------------
+  //-----------------------------------------------
   $(".portfolio-btn").click(function(){
     var curr_user={};
     var interviewer={};
-    var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+    //var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+    var course_number=$(this).parent().find("a").attr("course_number");
     interviewer.id="${request.user.id}";
     interviewer.name="${request.user.username}";
     interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
     curr_user.id="${curr_user.id}";
     var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,'interviewer_fullname':interviewer.fullname,'type':'view_portfolio','course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
-    $.post("${reverse('save_interactive_update')}",datainfo,function(){});
+    var url = $(this).attr("link");
+    $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
    })
   </script>
 </%block>
@@ -679,7 +681,7 @@ Add info that you would like to share about yourself here:
                 %if curr_user==request.user:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
-                  <a href="" style="cursor:default;" onclick="return false;">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                  <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %endif
                 % else:
                   <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
@@ -787,7 +789,7 @@ Add info that you would like to share about yourself here:
       		%if curr_user==request.user:              
 			<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			%else:
-            <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1 portfolio-btn">${_('View Portfolio')}</a>
+            <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
             %endif
             %if curr_user==request.user:      
             <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>

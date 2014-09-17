@@ -3,24 +3,24 @@ import logging
 import xml.sax.saxutils as saxutils
 
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404,HttpResponse
 from django.core.context_processors import csrf
 from django.contrib.auth.models import User
 
-from mitxmako.shortcuts import render_to_response
+from mitxmako.shortcuts import render_to_response,render_to_string
 from courseware.courses import get_course_with_access
 from course_groups.cohorts import (is_course_cohorted, get_cohort_id, is_commentable_cohorted,
                                    get_cohorted_commentables, get_course_cohorts, get_cohort_by_id)
 from courseware.access import has_access
 
 from django_comment_client.permissions import cached_has_permission
-from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context)
+from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context, get_discussion_id_map)
 import django_comment_client.utils as utils
 import comment_client as cc
 
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-
+from django_comment_client.base.views import create_comment_auto_load
 THREADS_PER_PAGE = 20
 INLINE_THREADS_PER_PAGE = 20
 PAGES_NEARBY_DELTA = 2
@@ -255,7 +255,7 @@ def forum_form_discussion(request, course_id):
     
     course = get_course_with_access(request.user, course_id, 'load_forum')
     category_map = utils.get_discussion_category_map(course)
-
+    id_map = get_discussion_id_map(course)
     try:
         unsafethreads, query_params = get_threads_tags(request, course_id)   # This might process a search query
         threads = [utils.safe_content(thread) for thread in unsafethreads]
@@ -274,7 +274,16 @@ def forum_form_discussion(request, course_id):
         #courseware_context = get_courseware_context(thread, course)
         #if courseware_context:
         #    thread.update(courseware_context)   
-        
+        id = thread['commentable_id']
+        content_info = None
+        if id in id_map:
+            location = id_map[id]["location"].url()
+            title = id_map[id]["title"]
+
+            url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                      "location": location})
+
+            thread.update({"courseware_url": url, "courseware_title": title})
         if len(thread.get('tags'))>0:
             #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
             if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
@@ -335,13 +344,19 @@ def single_thread(request, course_id, discussion_id, thread_id):
     course = get_course_with_access(request.user, course_id, 'load_forum')
     cc_user = cc.User.from_django_user(request.user)
     user_info = cc_user.to_dict()
-
+    id_map = get_discussion_id_map(course)
     try:
         thread = cc.Thread.find(thread_id).retrieve(recursive=True, user_id=request.user.id)
     except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
         log.error("Error loading single thread.")
-        raise Http404
-
+        context = {'window_title':'Message',
+                   'error_title':'',
+                   'error_message':"This discussion has been deleted. <a href='/dashboard'>Click here</a> to go back to your dashboard. \
+                                    For additional help contact <a href='mailto:PepperSupport@pcgus.com'>PepperSupport@pcgus.com</a>."}
+        return render_to_response('error.html', context)
+        # raise Http404
+    if len(thread.get('children'))<1:
+        create_comment_auto_load(request, course_id, thread_id,User.objects.get(id=thread.get("user_id")))
     if request.is_ajax():
         courseware_context = get_courseware_context(thread, course)
         annotated_content_info = utils.get_annotated_content_infos(course_id, thread, request.user, user_info=user_info)
@@ -373,6 +388,16 @@ def single_thread(request, course_id, discussion_id, thread_id):
             #courseware_context = get_courseware_context(thread, course)
             #if courseware_context:
             #    thread.update(courseware_context)
+            id = thread['commentable_id']
+            content_info = None
+            if id in id_map:
+                location = id_map[id]["location"].url()
+                title = id_map[id]["title"]
+
+                url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                          "location": location})
+
+                thread.update({"courseware_url": url, "courseware_title": title})
             if thread.get('group_id') and not thread.get('group_name'):
                 thread['group_name'] = get_cohort_by_id(course_id, thread.get('group_id')).name
 
@@ -431,6 +456,7 @@ def single_thread(request, course_id, discussion_id, thread_id):
 def user_profile(request, course_id, user_id):
     #TODO: Allow sorting?
     course = get_course_with_access(request.user, course_id, 'load_forum')
+    id_map = get_discussion_id_map(course)
     try:
         profiled_user = cc.User(id=user_id, course_id=course_id)
 
@@ -445,7 +471,16 @@ def user_profile(request, course_id, user_id):
             #courseware_context = get_courseware_context(thread, course)
             #if courseware_context:
             #    thread.update(courseware_context)
-            
+            id = thread['commentable_id']
+            content_info = None
+            if id in id_map:
+                location = id_map[id]["location"].url()
+                title = id_map[id]["title"]
+
+                url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                          "location": location})
+
+                thread.update({"courseware_url": url, "courseware_title": title})
             if len(thread.get('tags'))>0:
                 #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
                 if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':

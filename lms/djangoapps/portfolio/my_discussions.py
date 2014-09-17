@@ -1,7 +1,7 @@
 from courseware.courses import get_course_with_access
 import comment_client as cc
 from mitxmako.shortcuts import render_to_response
-from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context)
+from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context, get_discussion_id_map)
 import django_comment_client.utils as utils
 from django.contrib.auth.models import User
 import xml.sax.saxutils as saxutils
@@ -9,9 +9,11 @@ from django.http import Http404
 import json
 from django_comment_client.permissions import cached_has_permission
 from courseware.access import has_access
+from django.core.urlresolvers import reverse
 escapedict = {'"': '&quot;'}
 def user_discussions_profile(request, course_id, portfolio_user):
     course = get_course_with_access(portfolio_user, course_id, 'load_forum')
+    id_map = get_discussion_id_map(course)
     try:
         profiled_user = cc.User(id=portfolio_user.id, course_id=course_id)
 
@@ -26,11 +28,18 @@ def user_discussions_profile(request, course_id, portfolio_user):
             #courseware_context = get_courseware_context(thread, course)
             #if courseware_context:
             #    thread.update(courseware_context)
-            
-            if len(thread.get('tags'))>0:
-                #if thread.get('tags')[0]!='portfolio' and str(thread.get('courseware_url')).find('__am')<0:
-                if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
-                    thread_output.append(thread)
+            id = thread['commentable_id']
+            content_info = None
+            if id in id_map:
+                location = id_map[id]["location"].url()
+                title = id_map[id]["title"]
+
+                url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                          "location": location})
+
+                thread.update({"courseware_url": url, "courseware_title": title})
+            if thread.get('tags')[0]!='portfolio' and thread.get('tags')[0]!='aboutme':
+                thread_output.append(thread)
         query_params['page'] = page
         query_params['num_pages'] = num_pages
         user_info = cc.User.from_django_user(portfolio_user).to_dict()

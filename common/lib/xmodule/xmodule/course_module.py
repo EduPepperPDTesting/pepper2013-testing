@@ -297,7 +297,7 @@ class CourseFields(object):
                                       "action_url": "CourseOutline",
                                       "action_text": "Edit Course Outline",
                                       "action_external": False}]},
-                          {"short_description": "Explore edX's Support Tools",
+                          {"short_description": "Explore Pepper's Support Tools",
                            "items": [{"short_description": "Explore the Studio Help Forum",
                                       "long_description": "Access the Studio Help forum from the menu that appears when you click your user name in the top right corner of Studio.",
                                       "is_checked": False,
@@ -318,7 +318,7 @@ class CourseFields(object):
                                       "action_external": True}]},
                           {"short_description": "Draft Your Course About Page",
                            "items": [{"short_description": "Draft a Course Description",
-                                      "long_description": "Courses on edX have an About page that includes a course video, description, and more. Draft the text students will read before deciding to enroll in your course.",
+                                      "long_description": "Courses on Pepper have an About page that includes a course video, description, and more. Draft the text students will read before deciding to enroll in your course.",
                                       "is_checked": False,
                                       "action_url": "SettingsDetails",
                                       "action_text": "Edit Course Schedule &amp; Details",
@@ -381,7 +381,16 @@ class CourseFields(object):
 
     display_coursenumber = String(help="An optional display string for the course number that will get rendered in the LMS",
                                   scope=Scope.settings)
+    
     display_sort_number = String(help="Sort the list of courses", default="-1", scope=Scope.settings)
+
+    display_grades = String(help="grade", default="", scope=Scope.settings)
+
+    display_subject = String(help="subject", default="", scope=Scope.settings)
+    
+    display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
+    
+    display_credit = Boolean(help="credit", default=False, scope=Scope.settings)
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
@@ -674,13 +683,13 @@ class CourseDescriptor(CourseFields, SequenceDescriptor):
         announcement and the start dates.
         """
         flag = self.is_new
-        if flag is None:
+        if flag is None or flag is False:
             # Use a heuristic if the course has not been flagged
             announcement, start, now = self._sorting_dates()
             if announcement and (now - announcement).days < 30:
                 # The course has been announced for less that month
                 return True
-            elif (now - start).days < 1:
+            elif (now - start).days < 90:
                 # The course has not started yet
                 return True
             else:

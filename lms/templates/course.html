@@ -49,115 +49,94 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from courseware.courses import course_image_url, get_course_about_section
 %>
+ <%def name='format_grade(grade_id)'>
+  % if grade_id=='0':
+    K-5
+  % elif grade_id=='1':
+    6-8
+  % else:
+    9-12
+  %endif
+</%def>
 <%page args="course" />
 <style type="text/css" media="screen">
   *{font-family: 'Open Sans'}
+  .course-card{
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);
+    float: left;
+    width: 242px;
+    min-height: 242px;
+    margin: 20px;
+    position: relative;
+    cursor: auto!important;
+  }
+  .card-top{position: relative;}
+  .image-style{
+    border-radius: 6px 6px 0px 0px;
+    -moz-border-radius: 6px 6px 0px 0px;
+    -webkit-border-radius: 6px 6px 0px 0px;
+    display: block;
+  }
+  .card-link{
+    display: table-cell;
+    width: 242px;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 22px;
+    color: #FFFFFF;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none!important;
+  }
+  .course-title {
+    display: table;
+    height: 60px;
+    position: absolute;
+    bottom: 0;
+  }
 </style>
-<div id="${course.id}" class="course-block" style="text-align:left;margin-top:25px;width:900px;border:1px solid;position:relative;height:150px;font-family: 'Open Sans';">
-	<div style="border-left:1px solid;height:150px;width:300px;float:right;top:0px;text-align:center;vertical-align:bottom;">
-		<div style="height:111px;">
-			<img style="width:100%;height:100%" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image" />
-		</div>
-		
-		<!--@begin:according to whether the course has a overview to make the button "learn more" enabled-->
-		<!--@date:2013-11-02-->
-		%if get_course_about_section(course, "overview"):
-			<a class="btnx" style="font-size:18px;height:25px;line-height:30px;display:block;color:#fff;text-decoration:none;margin:0px;" href="${reverse('cabout', args=[course.id])}"> Learn More </a>
-		%else:
-			<a class="btnx" style="font-size:18px;height:25px;line-height:30px;display:block;color:#fff;text-decoration:none;margin:0px;" href="#"> Learn More </a>    
-		%endif
-		<!--@end-->
-	</div>
-	<div style="float:left;height:150px;margin:6px;">
-		<!--@begin:read 'new' from overview-->
-		<!--@date:2014-05-22-->
-            <%def name='newish()'>
-              <%
-              	text1=""
-                text2="<div style=font-size:12px;margin:10px;padding:4px;width:27px;></div>"
-                text3=""
-                overview_temp = get_course_about_section(course, "overview")
-                length1 = len(overview_temp.split('</section>'))
-                if length1 > 7:
-                    text1 = overview_temp.split('</section>')[7]
-                length2 = len(text1.split('<section class="newish">'))
-                if length2 > 1:
-                    text3 = text1.split('<section class="newish">')[1]
-                    if text3.strip() == "NEW":
-                      text2 = "<div style=font-size:12px;margin:10px;background:#99cc33;color:#fff;padding:4px;width:27px;>NEW</div>"
-              %>
-              ${text2}
-            </%def>
-			${newish()}
-		<!--@end-->
-		
-		<!--@begin:Change the place and look of New icon in course directory page-->
-		<!--@date:2013-11-02-->
-		<!--
-		%if course.is_newish:
-			<div style="font-size:12px;margin:10px;background:#99cc33;color:#fff;padding:4px;width:27px;">NEW</div>
-		%else:
-			<div style="font-size:12px;margin:10px;padding:4px;width:27px;"></div>
-		%endif 
-		-->
-		<!--@end-->
-	</div>
-  <div style="padding:20px 10px 0 60px;font-size:18px;width:580px;height:30px;">
-    <!--<span style="font-weight:bold;">${course.display_number_with_default | h}</span>:-->
-	${course.display_number_with_default}
-	${get_course_about_section(course, 'title')}
-  </div>
-  
-  <div class="desc" style="width:580px;height:70px;font-size:14px;">
-		<!--@begin:read short_description from overview-->
-		<!--@date:2013-12-09-->
-            <%def name='short_description()'>
-              <%
-              	text1=""
-                text2=""
-                overview_temp = get_course_about_section(course, "overview")
-                length1 = len(overview_temp.split('</section>'))
-                if length1 > 1:
-                    text1 = overview_temp.split('</section>')[1]
-                length2 = len(text1.split('<section class="short_description">'))
-                if length2 > 1:
-                    text2 = text1.split('<section class="short_description">')[1]
-              %>
-              ${text2}
-            </%def>
-            ${short_description()}
-		<!--@end-->
-  </div>
-  
-  <div class="meta-info" style="font-size:13px;width:580px;height:25px;">
-    <div class="university" style="background:#F2F2F2;margin:0px 0px 0px 50px;width:530px;height:25px;">
-		<section style="padding-top:3px;">
-			<span>
-				AUTHORS:
-				<!--@begin:read short_description from overview-->
-				<!--@date:2013-12-09-->
-		            <%def name='authors()'>
-		              <%
-		              	text1=""
-		                text2=""
-		                overview_temp = get_course_about_section(course, "overview")
-		                length1 = len(overview_temp.split('</section>'))
-		                if length1 > 6:
-		                    text1 = overview_temp.split('</section>')[6]
-		                length2 = len(text1.split('<section class="authors">'))
-		                if length2 > 1:
-		                    text2 = text1.split('<section class="authors">')[1]
-		              %>
-		              ${text2}
-		            </%def>
-		            ${authors()}
-				<!--@end-->
-				&#8226; ${get_course_about_section(course, 'university')}
-			</span>
-		</section>
-	</div>
-  </div>
-  <br style="clear:both;"/>
-</div>
+<script>
+  $(function()
+  {
+    $(".card-link").hover(
+      function () {
+        $(this).find("span").html("<span style='margin-right:80px;'>Course Details</span><span>›</span>");
+      },
+      function () {
+        $(this).find("span").html($(this).attr("title"));
+      });
+  })
+</script>
 
-<!--@end-->
+<div class="course-card" style="cursor:pointer;margin-left:45px;">
+  <div class="card-top">
+    <div><div class="field-items"><figure><img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" width="242" height="150" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image"></figure></div></div>
+    <div class="course-title"><div class="field-content"><a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a></div></div>  
+  </div>
+    <div class="card-bottom" style="text-align:left;padding:10px 0 0 20px;">
+    <table><tr>
+    <td height="45"><div class="field-content"><span class="course-org" style="font-size:12px;font-weight:bold;color:#AAAAAA">${course.display_organization}</span> | <span class="course-number" style="font-size:12px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
+    <div class="course-grade" style="font-size:12px;font-weight:bold;">${format_grade(course.display_grades)}</div></td>
+    <td style="text-align:center;">
+      %if course.display_credit:
+      <img src="static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit"/>
+      %endif
+    </td>
+    </tr>
+    <tr>
+    <td width="175">
+      %if course.display_prerequisite:
+        <span style="font-size:12px;">${_("Prerequisite Recommended")}</span>
+      %endif
+    </td>
+    <td width="40" style="text-align:center;">
+      %if course.is_newish:
+        <span style="font-size:10px;background:#99cc33;color:#fff;padding:2px;width:27px;">NEW</span>
+      %endif
+      </td></tr></table>
+</div>
+</div>

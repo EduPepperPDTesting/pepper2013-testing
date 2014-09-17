@@ -42,6 +42,7 @@ def get_interactive_update_range(request):
 def save_interactive_update(request):
     rs = remindstore()
     info = json.loads(request.POST.get('info'))
+    info['date'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     user_id = str(info['user_id']).split(',')
     if len(user_id)>1:
         for v in user_id:
@@ -72,7 +73,9 @@ def get_message(request):
 
 def save_message(request):
     rs = messagestore()
-    rs.insert_item(json.loads(request.POST.get('info')))
+    info = json.loads(request.POST.get('info'))
+    info['date']=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    rs.insert_item(info)
     return utils.JsonResponse({'results':'true'})
 
 def upload_image(request):

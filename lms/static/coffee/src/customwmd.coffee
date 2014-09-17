@@ -142,6 +142,16 @@ $ ->
       ajaxFileUpload = (imageUploadUrl, input, startUploadHandler) ->
         $("#loading").ajaxStart(-> $(this).show()).ajaxComplete(-> $(this).hide())
         $("#upload").ajaxStart(-> $(this).hide()).ajaxComplete(-> $(this).show())
+        files=$('#file-upload')[0].files[0]
+        max_filesize = 1*1000*1000
+        if files != undefined
+          if /\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG|BMP)$/.test(files.name)
+            if files.size > max_filesize
+              alert("File is too large. (1MB limit per attachment)")
+              return false
+          else
+            alert("The file format is not supported.")
+            return false
         $.ajaxFileUpload
           url: imageUploadUrl
           secureuri: false
@@ -150,13 +160,16 @@ $ ->
           success: (data, status) ->
             fileURL = data['result']['file_url']
             error = data['result']['error']
+            $('#file-upload')[0].files = []
             if error != ''
               alert error
               if startUploadHandler
                 $('#file-upload').unbind('change').change(startUploadHandler)
               console.log error
             else
-              $(input).attr('value', fileURL)
+              #$(input).attr('value', fileURL)
+              $("#imageUrlTxt").attr('value', fileURL)
+            $('#file-upload').bind('change').change(startUploadHandler)
           error: (data, status, e) ->
             alert(e)
             if startUploadHandler

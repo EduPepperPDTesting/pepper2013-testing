@@ -115,13 +115,13 @@ if Backbone?
           comment.set(data.content)
           if This.model.get('thread').get('user_id')!=window.user.get("id") and This.interviewerIsEnable()
             if This.getCommentType()=='discussion'
-              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+              location = ('/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')).split("#")[0]+"#"+comment.get('id');
             else
-              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+              location = ('/courses/'+window.location.href.split('/courses/')[1]).split("#")[0]+"#"+comment.get('id');
             DiscussionUtil.safeAjax
                 type: 'POST'
                 url: '/interactive_update/save_info'
-                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':window.user.get("id"),'interviewer_name':window.user.get("username"),'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':data.content.created_at,'activate':'false'})}
+                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':window.user.get("id"),'interviewer_name':window.user.get("username"),'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':data.content.created_at,'activate':'false'})}
                 async:false
 
     edit: (event) =>

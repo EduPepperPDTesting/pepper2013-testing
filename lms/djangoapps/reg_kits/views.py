@@ -130,7 +130,7 @@ def cohort(request):
     data=valid_pager(data,20,request.GET.get('page'))
 
     for item in data:
-        item.licences_exist=UserProfile.objects.filter(cohort_id=item.id).count()
+        item.licences_exist=UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=item.id).count()
         
     return render_to_response('reg_kits/cohort.html', {"cohorts":data,"ui":"list","pager_params":pager_params(request)})
 
@@ -382,19 +382,19 @@ def user_modify_status(request):
             return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))
 
-# @login_required
-# @user_passes_test(lambda u: u.is_superuser)
-# def user_delete(request):
-#     ids=request.GET.get("ids").split(",")
-#     message={'success': True}
-#     try:
-#         User.objects.filter(id__in=ids).delete()
-#         UserProfile.objects.filter(user_id__in=ids).delete()
-#         db.transaction.commit()
-#     except Exception as e:
-#         db.transaction.rollback()
-#         message={'success': False,'error':e}
-#     return HttpResponse(json.dumps(message))
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_delete(request):
+    ids=request.POST.get("ids").split(",")
+    message={'success': True}
+    try:
+        User.objects.filter(id__in=ids).delete()
+        UserProfile.objects.filter(user_id__in=ids).delete()
+        db.transaction.commit()
+    except Exception as e:
+        db.transaction.rollback()
+        message={'success': False,'error':e}
+    return HttpResponse(json.dumps(message))
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -604,7 +604,7 @@ def import_user_submit(request):
             rl.extend(r)
             cohort_id=request.POST.get("cohort_id")
             cohort=Cohort.objects.get(id=cohort_id)
-            if cohort.licences < UserProfile.objects.filter(cohort_id=cohort_id).count() + len(rl):
+            if cohort.licences < UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=cohort_id).count() + len(rl):
                 raise Exception("Licences limit exceeded")
             for line in rl:
                 exist=validate_user_cvs_line(line)

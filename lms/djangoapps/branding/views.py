@@ -104,7 +104,7 @@ def contact_us_submit(request):
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
     d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message}
-    subject="PepperPd Contact Us"
+    subject="PepperPd Contact Us From "+request.META['HTTP_HOST']
     body = render_to_string('emails/contact_us_body.txt', d)
 
     # todo: catch SMTPAuthenticationError and SMTPException
@@ -114,11 +114,13 @@ def contact_us_submit(request):
 
     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [
         settings.SUPPORT_EMAIL,
-        'laura.hescock@hotmail.com',
-        # 'ashardonofsky@pcgus.com',
-        'gingerj@education2000.com ',
-        'mailfcl@126.com'
-        ])  
+        "laura.hescock@hotmail.com",
+        "gingerj@education2000.com",  
+        "mailfcl@126.com",
+        "ashardonofsky@pcgus.com", 
+        "jmclaughlin@pcgus.com",
+        "mmullen@pcgus.com"
+        ])
 
     return HttpResponse(json.dumps(ret))
 

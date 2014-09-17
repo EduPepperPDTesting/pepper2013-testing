@@ -1089,6 +1089,7 @@
 
             // The input text box
             input = doc.createElement("input");
+            input.id = "imageUrlTxt";
             input.type = "text";
             input.value = defaultInputText;
             style = input.style;

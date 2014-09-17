@@ -164,6 +164,8 @@ site_status_msg = get_site_status_msg(course_id)
     width: 600px;
     z-index: 11000;
 }
+#show_notifications_link:focus { outline: none!important;}
+[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <!--@end-->
 
@@ -276,10 +278,9 @@ site_status_msg = get_site_status_msg(course_id)
 <!--@begin:add iMessage-Icon-->
 <!--@date:2014-06-19-->
 	<li class="imessage_style">
-	<a href="#show_notifications" rel="leanModal">
-   
-		<div style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);">
-			<table class="info_count_btn" width="50" height="50" border="0" cellpadding="0" cellspacing="0" style="display:none;">
+	<a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+		<div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
+			<table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
 				<tr height="26">
 					<td width="19"></td>
 					<td width="31"></td>
@@ -289,9 +290,8 @@ site_status_msg = get_site_status_msg(course_id)
 					<td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
 				</tr>
 			</table>
-
+		</div>
 		<div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);">
-
 		</div>
 	</a>
 	</li>
@@ -495,7 +495,7 @@ site_status_msg = get_site_status_msg(course_id)
     {
       var body=data.body==undefined?'':data.body;
       interactive_update_switchType(data);
-      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><img src="/user_photo/'+data.interviewer_id+'"  style="padding-left:5px;padding-top:5px;" alt="photo" width="60" height="60"></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
+      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
       $('.info_list').append(element);
       element.click(function(){
        if(data.activate=='false')
@@ -516,7 +516,7 @@ site_status_msg = get_site_status_msg(course_id)
         data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
         break;
       case 'portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> has commented on your portfolio in course "+data.course_number+".";
+        data.type_text="<b>"+data.interviewer_name+"</b> has commented on "+(data.portfolio_username||'your')+"'s portfolio in course "+data.course_number+".";
         break;
       case 'add_network':
         data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."
@@ -636,6 +636,26 @@ site_status_msg = get_site_status_msg(course_id)
       window.open(data.location);
       return 0;
     }
+    if(data.location.indexOf("/my_coursework")>=0)
+    {
+      var curr_user_id = "${curr_user.id}";
+      var user_id = data.location.substring(data.location.indexOf("/my_coursework")+15,data.location.lastIndexOf("/"));
+      if(curr_user_id!=user_id)
+      {
+        window.open(data.location,'_blank');
+        return 0;
+      }
+    }
+    if(data.location.indexOf("/my_discussions")>=0)
+    {
+      var curr_user_id = "${curr_user.id}";
+      var user_id = data.location.substring(data.location.indexOf("/my_discussions")+16,data.location.indexOf("?"));
+      if(curr_user_id!=user_id)
+      {
+        window.open(data.location,'_blank');
+        return 0;
+      }
+    }
     if(window.location.href.indexOf("/courses")>=0)
     {
       var curr_url = "/courses"+window.location.href.split("/courses")[1].split("#")[0];
@@ -729,7 +749,7 @@ site_status_msg = get_site_status_msg(course_id)
           var interviewer_id = user_info["user"].id.toString();
           var interviewer_name = user_info["user"].name;
           var interviewer_fullname = user_info["user"].fullname;
-          var body = content.text().length>50?content.text().substr(0,50)+"...":content.text();
+          var body = content.text().length>100?content.text().substr(0,100):content.text();
           var messageinfo={'info':JSON.stringify({'user_id':recipient_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'interviewer_fullname':interviewer_fullname,'type':'message','body':body,'date':(new Date()).toISOString(),'activate':'false'})};
           $.post("${reverse('save_interactive_update')}",messageinfo,function(){});
           content.html("");
@@ -751,7 +771,7 @@ site_status_msg = get_site_status_msg(course_id)
   function message_board_createItem(data,_pos)
   {
     pos=_pos||0;
-    var element=$('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><img src="/user_photo/'+data.sender_id+'" style="padding-left:5px;padding-top:5px;" alt="photo" width="60" height="60"></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">'+message_board_user(data).name+'</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">'+interactive_update_dateFormat(data).full_date+'</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">'+data.body+'</div></td></tr></table><div style="height:2px;"></div></div>');
+    var element=$('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.sender_id+');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">'+message_board_user(data).name+'</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">'+interactive_update_dateFormat(data).full_date+'</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">'+data.body+'</div></td></tr></table><div style="height:2px;"></div></div>');
     if(pos)
     {
       $('.message_board_list').prepend(element);
@@ -911,7 +931,7 @@ site_status_msg = get_site_status_msg(course_id)
             </table>
           </div>
         </div>
-        <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="display:none;"/>
+        <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
   </form>
   <br/>
   <!--

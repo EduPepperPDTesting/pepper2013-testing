@@ -55,11 +55,8 @@ if Backbone?
 
     renderComments: ->
       comments = new Comments()
-      This = @
       comments.comparator = (comment) ->
         comment.get('created_at')
-        #alert(comment.get("user_id")+":"+comment.get("body"))
-        This.addCommentList(comment.get("user_id"))
       collectComments = (comment) ->
         comments.add(comment)
         children = new Comments(comment.get('children'))
@@ -70,6 +67,7 @@ if Backbone?
       comments.each (comment) => @renderComment(comment, false, null)
 
     renderComment: (comment) =>
+      @addCommentList(comment.get("user_id"))
       comment.set('thread', @model.get('thread'))
       view = new ResponseCommentView(model: comment)
       view.render()
@@ -116,15 +114,14 @@ if Backbone?
             if (user_id==interviewer_id and user_id==v) or v==interviewer_id
               This.commentList.splice(i,1)
           if This.commentList.length>0 and This.interviewerIsEnable()
-            
             if This.getCommentType()=='discussion'
-              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+              location = ('/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')).split("#")[0]+"#"+comment.get('id');
             else
-              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+              location = ('/courses/'+window.location.href.split('/courses/')[1]).split("#")[0]+"#"+comment.get('id');
             DiscussionUtil.safeAjax
                 type: 'POST'
                 url: '/interactive_update/save_info'
-                data: {'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':response.content.created_at,'activate':'false'})}
+                data: {'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':(new Date()).toISOString(),'activate':'false','portfolio_username':$(".user_name").text()})}
                 async:false
     _delete: (event) =>
       event.preventDefault()

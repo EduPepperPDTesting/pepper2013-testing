@@ -21,7 +21,6 @@ if Backbone?
       @model.on "change", @updateModelDetails
 
     render: ->
-      #alert(@model.get('courseware_url')==undefined)
       @template = DiscussionUtil.getTemplate("_profile_thread")
       if not @model.has('abbreviatedBody')
         @abbreviateBody()
@@ -36,9 +35,9 @@ if Backbone?
       @renderAttrs()
       if @model.get('courseware_url')
         if $('#btn-logged-user').length>0
-          course_url="<span style='padding-left:20px;'>(this post is about <a href='"+@model.get('courseware_url')+"'>"+@model.get('courseware_title')+"</a>)</span>"
+          course_url="<span style='padding-left:20px;'>(this topic is about <a href='"+@model.get('courseware_url')+"'>"+@model.get('courseware_title')+" Welcome to Pepper</a>)</span>"
         else
-          course_url="<span style='padding-left:20px;'>(this post is about <span style='color:#366094;'>"+@model.get('courseware_title')+"</span>)</span>"
+          course_url="<span style='padding-left:20px;'>(this topic is about <span style='color:#366094;'>"+@model.get('courseware_title')+" Welcome to Pepper</span>)</span>"
         @$el.find('.post-context').html(course_url)
       @$("span.timeago").timeago()
       if $(".my-discussion-content").length>0
@@ -53,6 +52,8 @@ if Backbone?
       if @expanded
         @makeWmdEditor "reply-body"
         @renderResponses()
+      if window.location.hash!=""
+        @expandPost(null)
       @
 
     renderDogear: ->
@@ -78,13 +79,18 @@ if Backbone?
     renderResponses: ->
       DiscussionUtil.safeAjax
         url: "/courses/#{$$course_id}/discussion/forum/#{@model.get('commentable_id')}/threads/#{@model.id}"
-        $loading: @$el
+        #$loading: @$el
         success: (data, textStatus, xhr) =>
           @$el.find(".loading").remove()
           Content.loadContentInfos(data['annotated_content_info'])
           comments = new Comments(data['content']['children'])
           comments.each @renderResponse
           @trigger "thread:responses:rendered"
+          if window.location.hash!=""
+            hash = window.location.hash.replace("#","")
+            id="#a"+hash
+            if $(id).length>0
+              $(window).scrollTop($(id).offset().top-70)
 
     renderResponse: (response) =>
       response.set('thread', @model)
@@ -224,13 +230,13 @@ if Backbone?
           user_name=data.content.username
           if This.model.get('thread').get('user_id')!=user_id
             if This.getCommentType()=='discussion'
-              location = '/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')+"#"+comment.get('id');
+              location = ('/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')).split("#")[0]+"#"+comment.get('id');
             else
-              location = '/courses/'+window.location.href.split('/courses/')[1]+"#"+comment.get('id');
+              location = ('/courses/'+window.location.href.split('/courses/')[1]).split("#")[0]+"#"+comment.get('id');
             DiscussionUtil.safeAjax
                 type: 'POST'
                 url: '/interactive_update/save_info'
-                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':user_id,'interviewer_name':user_name,'type':This.getCommentType(),'location':location,'course_number':$('title').text().split(' ')[0],'date':data.content.created_at,'activate':'false'})}
+                data: {'info':JSON.stringify({'user_id':This.model.get('thread').get('user_id'),'interviewer_id':user_id,'interviewer_name':user_name,'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':(new Date()).toISOString(),'activate':'false','portfolio_username':$(".user_name").text()})}
                 async:false
         
     toggleClosed: (event) ->
