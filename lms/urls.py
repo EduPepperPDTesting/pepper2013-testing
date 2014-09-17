@@ -260,6 +260,7 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
+        url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
         url(r'^contact$', 'branding.views.contact', name="contact_us"),

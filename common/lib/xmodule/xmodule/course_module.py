@@ -384,6 +384,14 @@ class CourseFields(object):
     
     display_sort_number = String(help="Sort the list of courses", default="-1", scope=Scope.settings)
 
+    display_grades = String(help="grade", default="", scope=Scope.settings)
+
+    display_subject = String(help="subject", default="", scope=Scope.settings)
+    
+    display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
+    
+    display_credit = Boolean(help="credit", default=False, scope=Scope.settings)
+
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
 
@@ -675,13 +683,13 @@ class CourseDescriptor(CourseFields, SequenceDescriptor):
         announcement and the start dates.
         """
         flag = self.is_new
-        if flag is None:
+        if flag is None or flag is False:
             # Use a heuristic if the course has not been flagged
             announcement, start, now = self._sorting_dates()
             if announcement and (now - announcement).days < 30:
                 # The course has been announced for less that month
                 return True
-            elif (now - start).days < 1:
+            elif (now - start).days < 90:
                 # The course has not started yet
                 return True
             else:
