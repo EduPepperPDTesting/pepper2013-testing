@@ -1,4 +1,14 @@
 <%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+%>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title"><title>${_("Courses")}</title></%block>
@@ -11,46 +21,180 @@
 <style type="text/css" media="screen">
     #page-nav,#page-footer{width:960px;}
     #btn-logged-user{display:none;}
+    .form-select{font-size:14px !important;width:180px;}
+    .card-link{
+      display: table-cell;
+      width: 240px;
+      height: 60px;
+      vertical-align: middle;
+      padding: 0 17px;
+      font-size: 22px;
+      background: rgba(18,111,154,0.95);
+      text-decoration: none!important;
+    }
+    .card-link span{
+     color: #FFFFFF;
+    }
+    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    a.btnx:hover {
+    background:#638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+    }
+    a.btnx {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 2px!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px!important;
+    text-decoration: none!important;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    a.btnx:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
 </style>
-
+<script>
+ function fsubmit(){
+    $("#course_list_form").submit();
+  }
+</script>
 <section class="find-courses" style="text-align:center;background:#F5F5F5;">
-	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
-	<!--@date:2013-11-02-->
-	<div style="margin:0 auto;width:960px;height:195px;background:url(static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
-	<!--@end-->
-	
-		<!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
-		<!--@date:2013-11-02-->
-		<div class="_banner_whatis_title_font">
-			PROFESSIONAL
-			<br/>
-			DEVELOPMENT COURSES
-			<div class="_banner_whatis_title_content_font">
-				to become a specialist in Common Core
-			</div>
-		</div>
-		<!--@end-->
-	</div>
-  <!--
-  <section style="margin:auto;text-align:left;width:960px;background:#E6F5FC;">
-    <div style="padding:20px;color:#666;">
-      <span style="color:#3468A1;font-family: 'Open Sans';">COURSE (${len(courses)})</span> &nbsp;&nbsp;&nbsp;&nbsp;
-      <a href="#">all</a> |
-      <a href="#" style="color:#666">new</a> |
-      <a href="#" style="color:#666">current</a> |
-      <a href="#" style="color:#666">past</a>
+  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+  <!--@date:2013-11-02-->
+  <div style="margin:0 auto;width:960px;height:195px;background:url(static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
+  <!--@end-->
+  
+    <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+    <!--@date:2013-11-02-->
+    <div class="_banner_whatis_title_font">
+      PROFESSIONAL
+      <br/>
+      LEARNING CENTER
+      <div class="_banner_whatis_title_content_font">
+        build and enhance your community of practice
+      </div>
     </div>
+    <!--@end-->
+  </div>
+
+  <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
+     <form method="" id="course_list_form" action="${reverse('course_list')}">
+    <div style="padding:20px;color:#666;display:inline-block;">
+    <!--
+      <span style="color:#3468A1;font-family: 'Open Sans';">COURSE (${len(courses)})</span> &nbsp;&nbsp;&nbsp;&nbsp;
+    -->
+      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&op=find" style="color:#666">all</a> |
+      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&credit=1&op=find" style="color:#666">credit</a> |
+      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" style="color:#666">new</a>
+    </div>
+    <div style="display:inline-block;padding:0 1em 0 0;">
+      <select name="subject_id" class="form-select">
+        <option value="all">All Subjects</option>
+        <option value="ELA">English Language Arts</option>
+        <option value="MA">Mathematics</option>
+        <option value="PEP">Pepper</option>
+      </select>
+    </div>
+    <div style="display:inline-block;padding:0 1em 0 0;">
+      <select name="grade_id" class="form-select">
+        <option value="all">All Grades</option>
+        <option value="0">K-5</option>
+        <option value="1">6-8</option>
+        <option value="2">9-12</option>
+      </select>
+    </div>
+    <div style="display:inline-block;padding:0 1em 0 0;">
+      <select name="author_id" class="form-select">
+        <option value="all">All Authors</option>
+        <option value="PCG Education">PCG Education</option>
+        <option value="WestEd">WestEd</option>
+      </select>
+      <!--<input type="submit" id="edit-submit" name="op" value="find">-->
+    </div>
+    <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
+     <script type="text/javascript">
+        var form=$("#course_list_form");
+        form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
+        form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
+        form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
+      </script>
+    </form>
   </section>
-  -->
-  <section style="margin:auto;width:960px;background:#FFF;">
-    <section style="padding:0 30px 0 30px;" class="courses">
-      <ul class="courses-listing">
-        %for course in courses:
-        <li style="float:none" class="courses-listing-item">
-          <%include file="../course.html" args="course=course" />
-        </li>
-        %endfor
-      </ul>
+
+  <section style="margin:auto;width:960px;background:#E4E4E4;">
+    <section class="courses" style="padding-top:5px!important;">
+      <div class="courses-listing">
+       %if link:
+        <div style="padding-left:25px;">
+        <table width="900" cellpadding="30">
+          <tr>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_K-5.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=all&grade_id=0&author_id=all&op=find" class="card-link"><span>Grades K-5</span></a></div></td>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_6-8.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=all&grade_id=1&author_id=all&op=find" class="card-link"><span>Grades 6-8</span></a></div></td></div></td>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_9-12.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=all&grade_id=2&author_id=all&op=find" class="card-link"><span>Grades 9-12</span></a></div></td></div></td></div></td>
+          </tr>
+          <tr>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link"><span>Mathematics</span></a></div></td></div></td></div></td>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link"><span>English Language Arts</span></a></div></td></div></td></div></td>
+          <td><div style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
+          <div style="height:100px;"></div>
+          <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link"><span>Just Released!</span></a></div></td></div></td></div></td>
+          </tr>
+        </table>
+        </div>
+       %else:
+         %if len(courses[0])>0:
+            <div class="grade_title">K-5 Courses</div>
+            %for course in courses[0]:
+               %for c in course:
+                <%include file="../course.html" args="course=c" />
+              %endfor
+              <div style="float:left;width:900px;"></div>
+            %endfor
+         %endif
+          %if len(courses[1])>0:
+            <div class="grade_title">6-8 Courses</div>
+            %for course in courses[1]:
+              %for c in course:
+                <%include file="../course.html" args="course=c" />
+              %endfor
+              <div style="float:left;width:900px;"></div>
+            %endfor
+         %endif
+          %if len(courses[2])>0:
+            <div class="grade_title">9-12 Courses</div>
+            %for course in courses[2]:
+               %for c in course:
+                <%include file="../course.html" args="course=c" />
+              %endfor
+              <div style="float:left;width:900px;"></div>
+            %endfor
+         %endif
+       %endif
+      </div>
     </section>
   </section>
 </section>

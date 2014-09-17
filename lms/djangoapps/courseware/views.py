@@ -38,7 +38,8 @@ from xmodule.modulestore.search import path_to_location
 from xmodule.course_module import CourseDescriptor
 
 import comment_client
-
+import json
+import pymongo
 log = logging.getLogger("mitx.courseware")
 
 template_imports = {'urllib': urllib}
@@ -76,8 +77,65 @@ def courses(request):
     #courses = sort_by_announcement(courses)
     courses = sort_by_custom(courses)
 
-    return render_to_response("courseware/courses.html", {'courses': courses})
+    return render_to_response("courseware/courses.html", {'courses': courses,'link':True})
 
+def course_filter(course, subject_index, currSubject, g_courses):
+    if course.display_grades=='0':
+        if course.display_subject!=currSubject[0]:
+            currSubject[0]=course.display_subject
+            subject_index[0]+=1
+            g_courses[0].append([])
+                    
+        g_courses[0][subject_index[0]].append(course)
+    elif course.display_grades=='1':
+        if course.display_subject!=currSubject[1]:
+            currSubject[1]=course.display_subject
+            subject_index[1]+=1
+            g_courses[1].append([])
+
+        g_courses[1][subject_index[1]].append(course)
+    elif course.display_grades=='2':
+        if course.display_subject!=currSubject[2]:
+            currSubject[2]=course.display_subject
+            subject_index[2]+=1
+            g_courses[2].append([])
+        g_courses[2][subject_index[2]].append(course)
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def course_list(request):
+    """
+    Render "find courses" page.  The course selection work is done in courseware.courses.
+    """
+    subject_id = request.GET.get('subject_id','')
+    grade_id = request.GET.get('grade_id','')
+    author_id = request.GET.get('author_id','')
+    credit = request.GET.get('credit','')
+    is_new = request.GET.get('is_new','')
+
+    filterDic = {'_id.category':'course'}
+    if subject_id!='all':
+        filterDic['metadata.display_subject'] = subject_id
+    if grade_id!='all':
+        filterDic['metadata.display_grades'] = grade_id
+    if author_id!='all':
+        filterDic['metadata.display_organization'] = author_id
+    if credit!='':
+        filterDic['metadata.display_credit'] = True
+
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject",pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+    subject_index=[-1,-1,-1]
+    currSubject=["","",""]
+    g_courses=[[],[],[]]
+    if is_new!='':
+        for course in courses:
+            if course.is_newish:
+                course_filter(course,subject_index,currSubject,g_courses)
+    else:
+        for course in courses:
+            course_filter(course,subject_index,currSubject,g_courses)
+    return render_to_response("courseware/courses.html", {'courses': g_courses})
 
 def render_accordion(request, course, chapter, section, field_data_cache):
     """
@@ -93,7 +151,7 @@ def render_accordion(request, course, chapter, section, field_data_cache):
 
     # grab the table of contents
     user = User.objects.prefetch_related("groups").get(id=request.user.id)
-    request.user = user	# keep just one instance of User
+    request.user = user # keep just one instance of User
     toc = toc_for_course(user, request, course, chapter, section, field_data_cache)
 
     context = dict([('toc', toc),
@@ -298,7 +356,7 @@ def index(request, course_id, chapter=None, section=None,
     """
 
     user = User.objects.prefetch_related("groups").get(id=request.user.id)
-    request.user = user	# keep just one instance of User
+    request.user = user # keep just one instance of User
     course = get_course_with_access(user, course_id, 'load', depth=2)
     staff_access = has_access(user, course, 'staff')
     registered = registered_for_course(course, user)
