@@ -97,6 +97,7 @@ from courseware.courses import course_image_url, get_course_about_section
     height: 60px;
     position: absolute;
     bottom: 0;
+    font-size:14px;
   }
 </style>
 <script>
@@ -109,6 +110,12 @@ from courseware.courses import course_image_url, get_course_about_section
       function () {
         $(this).find("span").html($(this).attr("title"));
       });
+      $(".card-link").each(function(){
+        if($(this).height()>60)
+        {
+          $(this).css("fontSize","12px");
+        }
+    });
   })
 </script>
 
@@ -119,8 +126,8 @@ from courseware.courses import course_image_url, get_course_about_section
   </div>
     <div class="card-bottom" style="text-align:left;padding:10px 0 0 20px;">
     <table><tr>
-    <td height="45"><div class="field-content"><span class="course-org" style="font-size:12px;font-weight:bold;color:#AAAAAA">${course.display_organization}</span> | <span class="course-number" style="font-size:12px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
-    <div class="course-grade" style="font-size:12px;font-weight:bold;">${format_grade(course.display_grades)}</div></td>
+    <td height="45"><div class="field-content"><span class="course-org" style="font-size:12px;font-weight:bold;color:#146C99">${course.display_organization}</span> | <span class="course-number" style="font-size:12px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
+    <div class="course-grade" style="font-size:12px;font-weight:bold;margin-top:5px;">${format_grade(course.display_grades)}</div></td>
     <td style="text-align:center;">
       %if course.display_credit:
       <img src="static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit"/>

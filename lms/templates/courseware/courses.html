@@ -22,6 +22,18 @@
     #page-nav,#page-footer{width:960px;}
     #btn-logged-user{display:none;}
     .form-select{font-size:14px !important;width:180px;}
+    .image-style{
+      border-radius: 6px 6px 6px 6px;
+      -moz-border-radius: 6px 6px 6px 6px;
+      -webkit-border-radius: 6px 6px 6px 6px;
+      display: block;
+    }
+    .image-bottom-style{
+      border-radius: 0px 0px 6px 6px;
+      -moz-border-radius: 0px 0px 6px 6px;
+      -webkit-border-radius: 0px 0px 6px 6px;
+      display: block;
+    }
     .card-link{
       display: table-cell;
       width: 240px;
@@ -142,26 +154,26 @@
         <div style="padding-left:25px;">
         <table width="900" cellpadding="30">
           <tr>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_K-5.jpg);background-size:100% 100%;">
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_K-5.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=0&author_id=all&op=find" class="card-link"><span>Grades K-5</span></a></div></td>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_6-8.jpg);background-size:100% 100%;">
+          <a href="/courses-list?subject_id=all&grade_id=0&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades K-5</span></a></div></td>
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_6-8.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=1&author_id=all&op=find" class="card-link"><span>Grades 6-8</span></a></div></td></div></td>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/Grades_9-12.jpg);background-size:100% 100%;">
+          <a href="/courses-list?subject_id=all&grade_id=1&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades 6-8</span></a></div></td></div></td>
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_9-12.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=2&author_id=all&op=find" class="card-link"><span>Grades 9-12</span></a></div></td></div></td></div></td>
+          <a href="/courses-list?subject_id=all&grade_id=2&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades 9-12</span></a></div></td></div></td></div></td>
           </tr>
           <tr>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link"><span>Mathematics</span></a></div></td></div></td></div></td>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
+          <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Mathematics</span></a></div></td></div></td></div></td>
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link"><span>English Language Arts</span></a></div></td></div></td></div></td>
-          <td><div style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
+          <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Arts</span></a></div></td></div></td></div></td>
+          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
           <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link"><span>Just Released!</span></a></div></td></div></td></div></td>
+          <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a></div></td></div></td></div></td>
           </tr>
         </table>
         </div>
