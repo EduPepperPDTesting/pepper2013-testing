@@ -390,7 +390,7 @@ class CourseFields(object):
     
     display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
     
-    display_credit = Boolean(help="credit", default=False, scope=Scope.settings)
+    display_credit = Boolean(help="credit", default=True, scope=Scope.settings)
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule

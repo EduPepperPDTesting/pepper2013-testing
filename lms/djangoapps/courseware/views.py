@@ -135,6 +135,9 @@ def course_list(request):
     else:
         for course in courses:
             course_filter(course,subject_index,currSubject,g_courses)
+    for gc in  g_courses:
+        for sc in gc:
+            sc.sort(key=lambda x: x.display_coursenumber)
     return render_to_response("courseware/courses.html", {'courses': g_courses})
 
 def render_accordion(request, course, chapter, section, field_data_cache):
