@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from elasticsearch import Elasticsearch
-from student.models import CourseEnrollment
+from student.models import CourseEnrollment, UserProfile
 
 es=Elasticsearch()
 
@@ -177,10 +177,16 @@ def gen_people_search_query(must=None,must_not=None,should=None,start=0,size=20,
     return cond
 
 def update_user_es_info(user):
+    if not UserProfile.objects.filter(user_id=user.id).exists():
+        return
+    
     body={}
 
-    old=get_user(user.id)
-
+    # try:
+    #     old=get_user(user.id)
+    # except Exception e:
+    #     pass
+        
     def attr(o,k):
         key=k.replace('_lower','')
         if hasattr(o,key):
@@ -208,6 +214,7 @@ def update_user_es_info(user):
     log = logging.getLogger("tracking")    
 
     log.debug('>>>>>>>>>>>>>>>>')
+
     
     if user.profile.people_of:
         body['people_of']=[int(i) for i in user.profile.people_of.split(',')]
