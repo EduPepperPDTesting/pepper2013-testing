@@ -245,13 +245,7 @@
               %>
               <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
               %endif
-              %if type(profile['years_in_education_id'])==int and profile['years_in_education_id'] > 0:
-              <%y=YearsInEducation.objects.get(id=profile['years_in_education_id'])%>
-              %if y:
-              <span class="name_text">${y.name} Years in Education</span>
-              %endif
-              %endif
-
+<
           %if 0:
           <span class="name_text" style="color:#FFC90E;font-weight:bold;">Online Now!</span>              
           %endif
