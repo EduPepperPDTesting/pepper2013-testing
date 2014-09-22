@@ -24,7 +24,13 @@
   [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <!--@end-->
-
+<%block name="header_extras">
+% for template_name in ["image-modal"]:
+<script type="text/template" id="${template_name}-tpl">
+    <%static:include path="js/${template_name}.underscore" />
+</script>
+% endfor
+</%block>
 <%block name="js_extra">
   <script type="text/javascript" src="${static.url('js/vendor/jquery.scrollTo-1.4.2-min.js')}"></script>
   <script type="text/javascript" src="${static.url('js/vendor/flot/jquery.flot.js')}"></script>

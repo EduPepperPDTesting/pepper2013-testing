@@ -43,6 +43,8 @@ class HtmlModule(HtmlFields, XModule):
         ],
         'js': [
             resource_string(__name__, 'js/src/html/toggle_bar.js'),
+            resource_string(__name__, 'js/src/html/imageModal.js'),
+            resource_string(__name__, 'js/common_static/js/vendor/draggabilly.pkgd.js'),
             resource_string(__name__, 'js/src/html/highlight.js'),
         ]
     }
