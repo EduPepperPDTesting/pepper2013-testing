@@ -124,9 +124,9 @@ from courseware.courses import course_image_url, get_course_about_section
     <div><div class="field-items"><figure><img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" width="242" height="150" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image"></figure></div></div>
     <div class="course-title"><div class="field-content"><a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a></div></div>  
   </div>
-    <div class="card-bottom" style="text-align:left;padding:10px 0 0 20px;">
+    <div class="card-bottom" style="text-align:left;padding:10px 0 0 10px;">
     <table><tr>
-    <td height="45"><div class="field-content"><span class="course-org" style="font-size:12px;font-weight:bold;color:#146C99">${course.display_organization}</span> | <span class="course-number" style="font-size:12px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
+    <td height="45"><div class="field-content"><span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${course.display_organization}</span> | <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
     <div class="course-grade" style="font-size:12px;font-weight:bold;margin-top:5px;">${format_grade(course.display_grades)}</div></td>
     <td style="text-align:center;">
       %if course.display_credit:
@@ -135,7 +135,7 @@ from courseware.courses import course_image_url, get_course_about_section
     </td>
     </tr>
     <tr>
-    <td width="175">
+    <td width="190">
       %if course.display_prerequisite:
         <span style="font-size:12px;">${_("Prerequisite Recommended")}</span>
       %endif
