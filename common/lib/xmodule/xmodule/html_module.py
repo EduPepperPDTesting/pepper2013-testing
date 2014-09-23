@@ -43,9 +43,9 @@ class HtmlModule(HtmlFields, XModule):
         ],
         'js': [
             resource_string(__name__, 'js/src/html/toggle_bar.js'),
+            resource_string(__name__, 'js/src/html/highlight.js'),
             resource_string(__name__, 'js/src/html/imageModal.js'),
             resource_string(__name__, 'js/common_static/js/vendor/draggabilly.pkgd.js'),
-            resource_string(__name__, 'js/src/html/highlight.js'),
         ]
     }
     js_module_name = "HTMLModule"
@@ -55,7 +55,7 @@ class HtmlModule(HtmlFields, XModule):
         if self.system.anonymous_student_id:
             return self.data.replace("%%USER_ID%%", self.system.anonymous_student_id)
         return self.data
-
+   
     def handle_ajax(self, dispatch, data):
  
         handlers = {
@@ -78,6 +78,7 @@ class HtmlModule(HtmlFields, XModule):
         except:
             return {"data":"fail"}
 
+   
 class HtmlDescriptor(HtmlFields, XmlDescriptor, EditingDescriptor):
     """
     Module for putting raw html in a course
