@@ -1317,14 +1317,14 @@ def on_profile_save(sender, instance, signal, *args, **kwargs):
 
     people_in_es.update_user_es_info(profile.user)
 
-def on_profile_delete(sender, instance, signal, *args, **kwargs):
-    profile=instance
+def on_user_delete(sender, instance, signal, *args, **kwargs):
+    user=instance
     # import logging
     # log = logging.getLogger("tracking")
     # log.debug("============delete user profile===============:%s user_id: %s" % (sender,instance.user_id))
 
-    people_in_es.del_user(profile.user)
+    people_in_es.del_user(user.id)
 
 signals.post_save.connect(on_user_save, sender=User)
 signals.post_save.connect(on_profile_save, sender=UserProfile)
-signals.post_delete.connect(on_profile_delete, sender=UserProfile)
+signals.post_delete.connect(on_user_delete, sender=User)

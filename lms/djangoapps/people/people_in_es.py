@@ -49,7 +49,7 @@ def create_index(name):
     es.indices.create(name,ignore=400)
 
 def del_user(id):
-    es.remove(index=INDEX_NAME,doc_type=DOC_TYPE, id=id)
+    es.delete(index=INDEX_NAME,doc_type=DOC_TYPE, id=id)
     es.indices.refresh()    
 
 def insert_user(id,body):
