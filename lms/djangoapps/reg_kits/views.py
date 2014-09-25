@@ -393,7 +393,7 @@ def user_delete(request):
         db.transaction.commit()
     except Exception as e:
         db.transaction.rollback()
-        message={'success': False,'error':e}
+        message={'success': False,'error':'%s' % (e)}
     return HttpResponse(json.dumps(message))
 
 @login_required
