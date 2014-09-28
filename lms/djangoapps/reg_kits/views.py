@@ -452,8 +452,9 @@ def download_school_csv(request):
             "name":d.name,
             "district":"%s - %s" % (attstr(d,"district.name"), attstr(d,"district.code"))
             })
+
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=schools.csv'
+    response['Content-Disposition'] = today=datetime.datetime.now().strftime('attachment; filename=schools-%Y-%m-%d-%H-%M-%S.csv')
     output.seek(0)
     response.write(output.read())
     output.close()
@@ -482,7 +483,7 @@ def download_school_excel(request):
         row=row+1
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=schools.xlsx'
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=schools-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
     response.write(output.getvalue())    
     return response
@@ -528,7 +529,7 @@ def download_user_csv(request):
                 })
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=users.csv'
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.csv')
     output.seek(0)
     response.write(output.read())
     output.close()
@@ -579,7 +580,7 @@ def download_user_excel(request):
 
         row=row+1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=users.xlsx'
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
     response.write(output.getvalue())    
     return response
@@ -630,7 +631,7 @@ def import_user_submit(request):
                 # d = {'name': profile.name, 'key': reg.activation_key}
                 # subject = render_to_string('emails/activation_email_subject.txt', d)
                 # subject = ''.join(subject.splitlines())
-                # message = render_to_string('emails/activation_email.txt', d)
+                # message = render_to_string('emails/activation_emailh.txt', d)
             db.transaction.commit()
             message={"success": True,
                 "message":"Success! %s users imported." % (count_success),
