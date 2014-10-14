@@ -14,6 +14,7 @@ MAPPING_STRING={'index':'not_analyzed', 'type':'string'}
 MAPPING_DATE={'index':'not_analyzed', 'type':'date'}
 
 es_fields={
+ '_id':{'mapping':None, 'searching':'term'},   
  'user_id':{'mapping':MAPPING_STRING,'searching':'term'},
  'email_lower':{'mapping':MAPPING_STRING,'searching':'wildcard'},
  'username_lower':{'mapping':MAPPING_STRING,'searching':'prefix'},
@@ -153,7 +154,9 @@ def gen_people_search_query(must=None,must_not=None,should=None,start=0,size=20,
         for k in c:
             f=es_fields.get(k)
 
-            if not f: continue
+            if not f:
+                continue
+            
             if c[k]=='': continue
 
             searching=f['searching']
@@ -202,6 +205,8 @@ def update_user_es_info(user):
                     body[k]=0
                 
     for k in es_fields:
+        if not es_fields[k].get('mapping'):
+            continue
         attr(user,k)
         attr(user.profile,k)
 
@@ -209,12 +214,13 @@ def update_user_es_info(user):
     #     body['people_of']=old['people_of']
     # else:
     #     body['people_of']=[]
-
+    
     import logging
-    log = logging.getLogger("tracking")    
-
+    log = logging.getLogger("tracking")
+    
     log.debug('>>>>>>>>>>>>>>>>')
-
+    
+    body['district_id']=user.profile.cohort.district_id
     
     if user.profile.people_of:
         body['people_of']=[int(i) for i in user.profile.people_of.split(',')]

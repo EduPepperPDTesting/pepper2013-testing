@@ -181,6 +181,12 @@ def people(request,course_id=''):
                 'percent_iep':request.GET.get('percent_iep',''),
                 'percent_eng_learner':request.GET.get('percent_eng_learner','')})
 
+        import logging
+        log = logging.getLogger("tracking")
+        log.debug("++++++++++")
+        log.debug(cond)
+        log.debug("++++++++++")
+
         profiles,total=search_people(cond)
 
         # gether pager params
