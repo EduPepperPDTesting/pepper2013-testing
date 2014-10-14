@@ -370,6 +370,7 @@
               <strong>English Learners:</strong>
               % if portfolio_user.profile.percent_eng_learner:
               ${Enum.objects.get(name="percent_eng_learner",value=portfolio_user.profile.percent_eng_learner).content}
+              % endif
             </span>
             <br style="clear:both;"/>
           </span>
@@ -378,8 +379,7 @@
           </span>
           <br/>
             %if portfolio_user.profile.bio:
-              ${portfolio_user.profile.bio}
-              % endif            
+              ${portfolio_user.profile.bio}          
             %else:
               Add info that you would like to share about yourself here.  
             %endif

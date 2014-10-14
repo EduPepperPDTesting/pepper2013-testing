@@ -72,7 +72,6 @@ class PollCompareModule(PollCompareFields, XModule):
 
 	def definition_from_xml_string(self,data):
 		try:
-			data = data.replace('<br>','&ltbr&gt')
 			xml_object = etree.fromstring(data)
 			if len(xml_object.xpath(self._child_tag_name)) == 0:
 				raise ValueError("poll_compare definition must include at least one 'compare' tag")
@@ -95,20 +94,18 @@ class PollCompareModule(PollCompareFields, XModule):
 				xml_object_copy.remove(element_compare)
 
 			for answers in xml_object_copy.findall(self._child_tag_name_answers):
+				answer_attr={}
 				if answers is not None:
-					answer_1 = answers.get('answer1', None)
-					answer_2 = answers.get('answer2', None)
-					answer_3 = answers.get('answer3', None)
-					answer_4 = answers.get('answer4', None)
-					answer_5 = answers.get('answer5', None)
-					compares.append({'answers':{
-							'answer1':answer_1,
-							'answer2':answer_2,
-							'answer3':answer_3,
-							'answer4':answer_4,
-							'answer5':answer_5
-						}
-					})			
+					for k in answers.attrib:
+						answer_attr[k]=answers.get(k, None)
+					'''
+            		answer_1 = answers.get('answer1', None)
+            		answer_2 = answers.get('answer2', None)
+            		answer_3 = answers.get('answer3', None)
+            		answer_4 = answers.get('answer4', None)
+            		answer_5 = answers.get('answer5', None)
+            		'''
+            		compares.append({'answers':answer_attr})			
 
 			return compares
 		except etree.XMLSyntaxError as err:
@@ -143,14 +140,18 @@ class PollCompareModule(PollCompareFields, XModule):
 					answers_to_display['answers'] = tmp_item
 				else:
 					tmp_item = {}
+					'''
 					tmp_item['answer1'] = "answer1"
 					tmp_item['answer2'] = "answer2"
 					tmp_item['answer3'] = "answer3"
 					tmp_item['answer4'] = "answer4"
 					tmp_item['answer5'] = "answer5"
+					'''
+					for key in answers:
+						tmp_item[key] = key
 					answers_to_display['answers'] = tmp_item
 		
-		_answers = answers_to_display.get('answers',None)
+		_answers = sorted(answers_to_display.get('answers',None).iteritems(),key=lambda k:k[0],reverse=False)
 		_json = json.dumps(compares_to_json, sort_keys=True, indent=2)
 		
 		return _json,_answers
@@ -189,7 +190,7 @@ class PollCompareDescriptor(PollCompareFields, XmlDescriptor, EditingDescriptor)
 		if filename is None:
 			definition_xml = deepcopy(xml_object)
 			cls.clean_metadata_from_xml(definition_xml)
-			return {'data': "<poll_compare>{0}</poll_compare>".format(stringify_children(definition_xml))}, []
+			return {'data': stringify_children(definition_xml)}, []
 		else:
 			# html is special.  cls.filename_extension is 'xml', but
 			# if 'filename' is in the definition, that means to load
@@ -202,7 +203,7 @@ class PollCompareDescriptor(PollCompareFields, XmlDescriptor, EditingDescriptor)
 			)
 			base = path(pointer_path).dirname()
 			# log.debug("base = {0}, base.dirname={1}, filename={2}".format(base, base.dirname(), filename))
-			filepath = "{base}/{name}.xml".format(base=base, name=filename)
+			filepath = "{base}/{name}.html".format(base=base, name=filename)
 			# log.debug("looking for html file for {0} at {1}".format(location, filepath))
 
 			# VS[compat]
