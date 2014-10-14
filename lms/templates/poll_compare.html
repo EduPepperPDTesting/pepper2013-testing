@@ -6,12 +6,10 @@
 <div class="${element_class}_div" id="${element_id}_json" style="display:none;">${poll_compares}</div>
 <div class="poll_compare_table">
 	<ul>
-		<li class="title123 left">&nbsp;&nbsp;</li>
-		<li class="title123">${answers.get('answer1',None) if answers is not None else u''}</li>
-		<li class="title123">${answers.get('answer2',None) if answers is not None else u''}</li>
-		<li class="title123">${answers.get('answer3',None) if answers is not None else u''}</li>
-		<li class="title123">${answers.get('answer4',None) if answers is not None else u''}</li>
-		<li class="title123">${answers.get('answer5',None) if answers is not None else u''}</li>
+		<li class="row_left title123 left">&nbsp;</li>
+		%for k,v in answers:
+			<li class="title123">${v if answers is not None else u''}</li>
+		%endfor
 	</ul>
 </div>
 <div class="poll_compare_table_footer">
