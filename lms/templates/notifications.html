@@ -304,7 +304,7 @@
 					  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
 					  % endif
 					</div>
-					<div style="line-height:30px;"><b>Number of Years Taught:</b>
+					<div style="line-height:30px;"><b>Number of Years in Education:</b>
 					  % if curr_user.profile.years_in_education_id:
 					  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
 					  % endif
