@@ -7,11 +7,12 @@
     handleRemote: function(element) {
       var method = element.attr('method');
       var url = element.attr('action');
-      var data = element.serializeArray();
+      //var data = element.serializeArray();
+      var data = new FormData(element[0]); // for html5 FormData      
       var options = {
         type: method || 'GET',
         data: data,
-        dataType: 'text json',
+        //dataType: 'text json',
         success: function(data, status, xhr) {
           element.trigger("ajax:success", [data, status, xhr]);
         },
@@ -20,7 +21,10 @@
         },
         error: function(xhr, status, error) {
           element.trigger("ajax:error", [xhr, status, error]);
-        }
+        },
+        cache: false,       // for html5 FormData
+        contentType: false, // for html5 FormData
+        processData: false  // for html5 FormData      
       }
       if(url) { options.url = url; }
       return form_ext.ajax(options)

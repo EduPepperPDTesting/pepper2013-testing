@@ -74,11 +74,11 @@
             if(v)vals[v]=1
             })
             var link=document.getElementById("grade_btn"+i)
-            if($(link).hasClass("btn_class_active")){
-            $(link).removeClass("btn_class_active");
+            if($(link).hasClass("btn_grade_level_active")){
+            $(link).removeClass("btn_grade_level_active");
             vals[i]=''
             }else{
-            $(link).addClass("btn_class_active");
+            $(link).addClass("btn_grade_level_active");
             vals[i]=1
             }
             var arVals=[]
@@ -490,7 +490,7 @@
 			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
               %endif
 			</div>
-			<div style="line-height:30px;"><b>Number of Years Taught:</b>
+			<div style="line-height:30px;"><b>Number of Years in Education:</b>
 			  % if curr_user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
 			  % endif
@@ -930,7 +930,7 @@ Add info that you would like to share about yourself here:
             <input id="grade_level_id" type="hidden" name="grade_level_id" value="" autocomplete="off"/>
             %for item in GradeLevel.objects.all():
             <span class="level">
-              <a href="#" id="grade_btn${item.id}" class="btn_class" onclick="click_grade_btn(${item.id});return false">
+              <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
                 ${item.name}
               </a>
             </span>
@@ -961,7 +961,7 @@ Add info that you would like to share about yourself here:
         <div class="input-group">
           <label style="margin:20px 0;display:block;">
             <select id="major_subject_area_id" name="major_subject_area_id" style="width:100%" autocomplete="off">
-              %for item in SubjectArea.objects.all():
+              %for item in SubjectArea.objects.all().order_by('so'):
               <option value="${item.id}">${item.name}</option>
               %endfor
             </select>
@@ -982,7 +982,7 @@ Add info that you would like to share about yourself here:
 <section id="change_years_in_education" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change Number of Years Taught').format()}</h2>
+      <h2>${_('Change Number of Years in Education').format()}</h2>
       <hr/>
     </header>
     <form id="change_years_in_education_form" method="post">

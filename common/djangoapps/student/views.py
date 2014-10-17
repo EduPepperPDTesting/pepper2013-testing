@@ -887,7 +887,7 @@ def create_account(request, post_override=None):
         return HttpResponse(json.dumps(js))
 
     if post_vars.get('activation_key'):
-        return activate_imported_account(post_vars)
+        return activate_imported_account(post_vars,request.FILES.get("photo"))
 
     # Ok, looks like everything is legit.  Create the account.
     ret = _do_create_account(post_vars)
@@ -1614,7 +1614,7 @@ def change_percent_eng_learner(request):
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
 # called by create_account()    
-def activate_imported_account(post_vars):
+def activate_imported_account(post_vars,photo):
     ret={'success': False}
     try:
         registration=Registration.objects.get(activation_key=post_vars.get('activation_key',''))
@@ -1631,6 +1631,7 @@ def activate_imported_account(post_vars):
         profile.percent_lunch=post_vars.get('percent_lunch','')
         profile.percent_iep=post_vars.get('percent_iep','')
         profile.percent_eng_learner=post_vars.get('percent_eng_learner','')
+        profile.bio=post_vars.get('bio','')
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
 
@@ -1640,6 +1641,7 @@ def activate_imported_account(post_vars):
 
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
+        
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         message = render_to_string('emails/welcome_body.txt', d)
@@ -1655,6 +1657,8 @@ def activate_imported_account(post_vars):
                 ret['value'] = e
                 ret['field'] = 'username'
             raise e
+
+        upload_user_photo(profile.user.id, photo)
 
         from mail import send_html_mail
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
@@ -1698,9 +1702,10 @@ def activate_imported_account(post_vars):
 #         up.photo = img_name
 #         up.save()
 #     return redirect(reverse('dashboard'))
-#@end 
+#@end
 
-def upload_photo(request):
+
+def upload_user_photo(user_id, file_img):
     options=settings.USERSTORE.get("OPTIONS")
     
     us=MongoUserStore(options.get("host"),
@@ -1710,8 +1715,7 @@ def upload_photo(request):
                       options.get('password'))
     
     # img_name = up.photo
-    file_img = request.FILES['photo']
-    _id={"user_id":request.user.id,"type":"photo"}
+    _id={"user_id":user_id,"type":"photo"}
     if file_img:
         # mime_type = mimetypes.guess_type(image_url)[0]
 
@@ -1722,7 +1726,10 @@ def upload_photo(request):
         img.save(file, 'JPEG')
         file.seek(0)
 
-        us.save(_id,file.getvalue())
+        us.save(_id,file.getvalue())    
+
+def upload_photo(request):
+    upload_user_photo(request.user.id,request.FILES.get('photo'))
 
     return redirect(reverse('dashboard'))
 

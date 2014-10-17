@@ -95,8 +95,6 @@ from baseinfo.models import Enum
         toggleSubmitButton(true);
       });
       $('#register-form').on('ajax:success', function(event, json, xhr) {
-
-    
        if(json.success) {
           location.href="${reverse('dashboard')}";
        } else {
@@ -152,11 +150,11 @@ from baseinfo.models import Enum
             if(v)vals[v]=1
             })
             var link=document.getElementById("grade_btn"+i)
-            if($(link).hasClass("btn_class_active")){
-            $(link).removeClass("btn_class_active");
+            if($(link).hasClass("btn_grade_level_active")){
+            $(link).removeClass("btn_grade_level_active");
             vals[i]=''
             }else{
-            $(link).addClass("btn_class_active");
+            $(link).addClass("btn_grade_level_active");
             vals[i]=1
             }
             var arVals=[]
@@ -264,7 +262,7 @@ from baseinfo.models import Enum
             <label for="major_subject_area_id">${_('Major Subject Area')}</label>
             <select autocomplete="off" name="major_subject_area_id">
               <option value="">--</option>
-              %for item in SubjectArea.objects.all():
+              %for item in SubjectArea.objects.all().order_by("so"):
               <option value="${item.id}">${item.name}</option>
               %endfor
             </select>
@@ -276,7 +274,7 @@ from baseinfo.models import Enum
             <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
               %for item in GradeLevel.objects.all():
               <span class="level">
-                <a href="#" id="grade_btn${item.id}" class="btn_class" onclick="click_grade_btn(${item.id});return false">
+                <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
                   ${item.name}
                 </a>
               </span>
@@ -294,10 +292,9 @@ from baseinfo.models import Enum
 <!--@end-->
           </li>
 
-            <div style="padding:10px 0 15px 0;"> 
-              <b style="font-size:15px;color:#333;">My Class Profile *</b>
-            </div>
-            
+          <div style="padding:10px 0 15px 0;"> 
+            <b style="font-size:15px;color:#333;">My Class Profile *</b>
+          </div>
           <li class="field required text" id="field-name">
             In my class,
             <select autocomplete="off" name="percent_lunch" style="width:100px;">
@@ -326,6 +323,23 @@ from baseinfo.models import Enum
               %endfor 
             </select>
             of my students are English Learners. <b>*</b>  
+          </li>
+          <div style="padding:10px 0 15px 0;"> 
+            <b style="font-size:15px;color:#333;">About me</b>
+          </div>
+          <li class="field required text" id="field-name">
+              Please upload a photo to use with your profile. <input type="file" name="photo" value=""/>
+          </li>
+          <li class="field required text" id="field-name">
+            Add a bio to your user profile (255 characters max, <span></span> remain) 
+            <textarea maxlength="255" name="bio" id="txBio" rows="" cols="" tabindex=""></textarea>
+            <script type="text/javascript">
+              var txBio=document.getElementById('txBio');
+              txBio.oninput=function(){
+                $(this).prev("span").html(255-this.value.length)
+              }
+              txBio.oninput()
+            </script>
           </li>
         </ol>
         % else:
@@ -488,3 +502,4 @@ from baseinfo.models import Enum
   </aside>
 </section>
 <div/>
+

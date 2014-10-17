@@ -207,22 +207,26 @@ class YearsInEducation(models.Model):
     class Meta:
         db_table = 'years_in_education'
     name = models.CharField(blank=False, max_length=20, db_index=False)
+    so=models.IntegerField(blank=False, null=False, db_index=False)
 
 class GradeLevel(models.Model):
     class Meta:
         db_table = 'grade_level'
     name = models.CharField(blank=False, max_length=20, db_index=False)
+    so=models.IntegerField(blank=False, null=False, db_index=False)
 
 class SubjectArea(models.Model):
     class Meta:
         db_table = 'subject_area'
-    name = models.CharField(blank=False, max_length=20, db_index=False)    
+    name = models.CharField(blank=False, max_length=20, db_index=False)
+    so=models.IntegerField(blank=False, null=False, db_index=False)
 
 class State(models.Model):
     class Meta:
         db_table = 'state'
     name = models.CharField(blank=False, max_length=20, db_index=False)
-
+    so=models.IntegerField(blank=False, null=False, db_index=False)
+    
 class District(models.Model):
     class Meta:
         db_table = 'district'

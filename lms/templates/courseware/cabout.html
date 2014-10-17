@@ -118,7 +118,7 @@ from pytz import UTC
 				  <div style="width:281px;background:#fff;margin:10px 10px 0 10px;padding:10px;">
 					<table cellpadding="10" border="0" style="width:100%;font-size:14px;">
 						<tr style="border-bottom:1px solid #ccc;">
-							<td align="left" width="120">Course code:</td>
+							<td align="left" width="120">Course Code:</td>
 							<th align="right">${course.display_number_with_default | h}</th>
 						</tr>
 						<tr style="border-bottom:1px solid #ccc;">
@@ -126,7 +126,7 @@ from pytz import UTC
 							<th align="right">${_("{start_date}").format(start_date=course.start_date_text)}</th>
 						</tr>
 						<tr>
-							<td align="left">Estimated effort:</td>
+							<td align="left">Estimated Effort:</td>
 							<!--@begin:use code(${get_course_about_section(course, "effort")}) relpace the static html code-->
 							<!--@date:2013-11-02-->
 							<th align="right">${get_course_about_section(course, "effort")}</th>

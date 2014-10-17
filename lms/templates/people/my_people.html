@@ -124,7 +124,7 @@
       <div class="filters">
         <select name="subject_area_id">
           <option value="">Major Subject Area</option>
-          %for item in SubjectArea.objects.all():
+          %for item in SubjectArea.objects.all().order_by('so'):
           <option value="${item.id}">${item.name}</option>
           %endfor
         </select>
