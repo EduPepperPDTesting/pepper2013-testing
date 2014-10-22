@@ -150,10 +150,12 @@ class PollCompareModule(PollCompareFields, XModule):
 					for key in answers:
 						tmp_item[key] = key
 					answers_to_display['answers'] = tmp_item
-		
-		_answers = sorted(answers_to_display.get('answers',None).iteritems(),key=lambda k:k[0],reverse=False)
-		_json = json.dumps(compares_to_json, sort_keys=True, indent=2)
-		
+		if len(answers_to_display)>0:
+			_answers = sorted(answers_to_display.get('answers',None).iteritems(),key=lambda k:k[0],reverse=False)
+			_json = json.dumps(compares_to_json, sort_keys=True, indent=2)
+		else:
+			_answers=answers_to_display
+			_json=compares_to_json
 		return _json,_answers
 
 
