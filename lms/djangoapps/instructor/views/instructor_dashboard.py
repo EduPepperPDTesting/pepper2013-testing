@@ -144,3 +144,27 @@ def _section_analytics(course_id):
         'proxy_legacy_analytics_url': reverse('proxy_legacy_analytics', kwargs={'course_id': course_id}),
     }
     return section_data
+
+def student_course_progress(request, course_id, username):
+    from django.contrib.auth.models import User
+    from courseware.model_data import FieldDataCache
+    from courseware import grades
+    from django.http import Http404, HttpResponse, HttpResponseRedirect
+
+    student=User.objects.filter(username=username)
+    
+    if not student.exists():
+        return HttpResponse("Student '%s' not exists." % username)
+
+    student=student[0]
+
+    try:
+        course=get_course_by_id(course_id)
+    except:
+        return HttpResponse("Course '%s' not exists." % course_id)
+
+    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course, depth=None)
+    grade_summary = grades.grade(student, request, course, field_data_cache)
+    progress="{totalscore:.0%}".format(totalscore=grade_summary['percent'])
+
+    return HttpResponse("course:%s<br>user:%s<br>progress:%s" % (course_id,username,progress))

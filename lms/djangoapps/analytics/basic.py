@@ -51,17 +51,17 @@ def enrolled_students_features(request, course_id, features):
         try:
             student_dict['district']=profile.cohort.district.name
         except:
-            pass
+            student_dict['district']=''
 
         try:
             student_dict['cohort']=profile.cohort.code
         except:
-            pass
+            student_dict['cohort']=''
 
         try:
             student_dict['school']=profile.school.name
         except:
-            pass
+            student_dict['school']=''
 
         try:
             reg=Registration.objects.get(user_id=student.id)
