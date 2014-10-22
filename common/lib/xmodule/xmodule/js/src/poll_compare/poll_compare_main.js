@@ -73,11 +73,47 @@ PollCompareMain.prototype = {
             student_answers_from = value['student_answers']['from_loc'];
             student_answers_to   = value['student_answers']['to_loc'];
             $.each(student_answers_from, function(_index,value){
-                from_num = parseInt(value.split("_")[1])+1;
+               from_num = parseInt(value.split("_")[1])+1;
+                switch(value)
+                {
+                    case "choice_one":
+                        from_num = 1;
+                        break;
+                    case "choice_zeroone":
+                        from_num = 2;
+                        break;
+                    case "choice_zeromore":
+                        from_num = 3;
+                        break;
+                    case "choice_onemore":
+                        from_num = 4;
+                        break;
+                    case "choice_noone":
+                        from_num = 5;
+                        break;
+                }
             });
             
             $.each(student_answers_to,function(_index,value){
                 to_num = parseInt(value.split("_")[1])+1;
+                switch(value)
+                {
+                    case "choice_one":
+                        to_num = 1;
+                        break;
+                    case "choice_zeroone":
+                        to_num = 2;
+                        break;
+                    case "choice_zeromore":
+                        to_num = 3;
+                        break;
+                    case "choice_onemore":
+                        to_num = 4;
+                        break;
+                    case "choice_noone":
+                        to_num = 5;
+                        break;
+                }
             });
 
             ul_rowObj = ul_rowObjS[rowIndex];
@@ -163,7 +199,6 @@ return PollCompareMain;
 
 function PollCompareMain(el) {
     var _this;
-
     this.pollCompareEl = $(el).find('.poll_compare');
     if (this.pollCompareEl.length !== 1) {
         // We require one question DOM element.
