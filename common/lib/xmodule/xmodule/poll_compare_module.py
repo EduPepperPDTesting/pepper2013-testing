@@ -72,6 +72,8 @@ class PollCompareModule(PollCompareFields, XModule):
 
 	def definition_from_xml_string(self,data):
 		try:
+			if data.find("<poll_compare>")==-1 and data!= u'':
+				data="<poll_compare>"+data+"</poll_compare>"
 			xml_object = etree.fromstring(data)
 			if len(xml_object.xpath(self._child_tag_name)) == 0:
 				raise ValueError("poll_compare definition must include at least one 'compare' tag")
@@ -266,6 +268,8 @@ class PollCompareDescriptor(PollCompareFields, XmlDescriptor, EditingDescriptor)
 
 	def get_context(self):
 		_context = EditingDescriptor.get_context(self)
+		if self.data.find("<poll_compare>")==-1 and self.data!= u'':
+			self.data="<poll_compare>"+self.data+"</poll_compare>"
 		_context.update({'test':self.data})
 		if self.data == u'':
 			template_data='<poll_compare><compare compare_id="compare_1" from_loc="i4x://[org]/[course]/[category]/[url_name]" to_loc="i4x://[org]/[course]/[category]/[url_name]" display_name="test1"></compare><compare compare_id="compare_2" from_loc="i4x://[org]/[course]/[category]/[url_name]" to_loc="i4x://[org]/[course]/[category]/[url_name]" display_name="test2"></compare></poll_compare>'
@@ -276,6 +280,8 @@ class PollCompareDescriptor(PollCompareFields, XmlDescriptor, EditingDescriptor)
  	def definition_to_xml(self, resource_fs):
  		if self.data is None:
  			return None
+ 		if self.data.find("<poll_compare>")==-1 and self.data!= u'':
+			self.data="<poll_compare>"+self.data+"</poll_compare>"
  		xml_object = etree.fromstring(self.data)
  		# xml_object.set('display_name', self.display_name)
  		return xml_object
