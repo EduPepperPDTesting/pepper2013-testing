@@ -11,6 +11,7 @@ PollCompareMain.prototype = {
         table_dom = this.pollCompareEl.find('.poll_compare_table');
         logme("post_init_1");
         table_head_num=this.pollCompareEl.find('.poll_compare_table li').length-1;
+        table_colWidth=Math.floor(520/table_head_num);
         var i = 0;
         $.each(this.jsonConfig, function(index,value){
             i++;
@@ -55,7 +56,7 @@ PollCompareMain.prototype = {
             table_row_html+='</ul>';
             table_dom.append(table_row_html);
         }); // end of each
-
+        table_dom.find(".colTitle").width(table_colWidth);
         ul_rowObjS = table_dom.children();
 
         //set display name
