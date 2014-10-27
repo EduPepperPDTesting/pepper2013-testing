@@ -123,11 +123,13 @@ section.poll_compare{
 		  	/*padding-left:5px;*/
 
 		  	/*auto wrapping*/
-			height:60px;
+			min-height:60px;
 			/*line-height:30px;*/
 			width:80px;
 			word-wrap:break-word;
 			/*auto wrapping*/
+			padding-top:5px;
+			padding-bottom:5px;
 		}
 
 		.row_left{

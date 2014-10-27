@@ -56,7 +56,17 @@ PollCompareMain.prototype = {
             table_row_html+='</ul>';
             table_dom.append(table_row_html);
         }); // end of each
-        table_dom.find(".colTitle").width(table_colWidth);
+        var colTitle = table_dom.find(".colTitle");
+        colTitle.width(table_colWidth);
+        var maxHeight=60;
+        colTitle.each(function(index, el) {
+            var h = parseFloat($(el).height())
+            if(h>maxHeight)
+            {
+                maxHeight=h;
+            }
+        });
+        table_dom.find(".title123").height(maxHeight);
         ul_rowObjS = table_dom.children();
 
         //set display name
