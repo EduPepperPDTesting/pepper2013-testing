@@ -146,7 +146,7 @@ PollCompareMain.prototype = {
         var title_cell_width = 0;
         var max_row_height = 0;
         //get max left cell width
-        for(var i = 0;i<ul_rowObjS.length;i++)
+        for(var i = 1;i<ul_rowObjS.length;i++)
         {
             if (ul_rowObjS[i].offsetHeight > max_row_height)
             {
