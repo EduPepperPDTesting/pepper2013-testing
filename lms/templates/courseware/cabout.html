@@ -101,7 +101,7 @@ from pytz import UTC
 		</div>
 	<!--@begin:change image show style-->
 	<!--@date:2014-07-29-->
-    <div style="float:right;" id="div_course_org">
+    <div style="float:right;border:3px solid #8E8E8E;" id="div_course_org">
     </div>
 	<!--@end-->
 
@@ -190,7 +190,7 @@ from pytz import UTC
 <script type="text/javascript">
   (function() {
 	if($(".course_org").html()==null||$(".course_org").html()=="")
-	{$("#div_course_org").html("<img src=/static/images/p5-2.png width=320 height=211/>");}
+	{$("#div_course_org").html("<img src=/static/images/Course_Details_Default.png width=320 height=211/>");}
 	else
 	{$("#div_course_org").html($(".course_org").html());}
   $(".register").click(function(event) {
