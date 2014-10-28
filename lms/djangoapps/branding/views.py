@@ -96,6 +96,11 @@ def contact(request):
 
 def contact_us_submit(request):
     ret={"success":True}
+    
+    if request.POST.get("send_by_js")!='true':
+        ret['success']=False
+        return HttpResponse(json.dumps(ret))
+    
     email=request.POST.get("email")
     fullname=request.POST.get("fullname")
     phone=request.POST.get("phone")

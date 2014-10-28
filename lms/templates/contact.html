@@ -136,6 +136,10 @@ form.submit(function(){
   this.submit.disabled=true;
   var flds=["email","fullname","phone","inquiry_type","message","csrfmiddlewaretoken"];
   var data=easy.form.getFormData(this,flds);
+  data['send_by_js']='true'
+  if(!data['message']){
+    alert("Can't send form, please contact us. ")
+  }
   $("#message").html("Submiting..");
   $.post('${reverse("contact_us_submit")}',data,
   function(r) {
