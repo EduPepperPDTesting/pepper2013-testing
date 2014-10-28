@@ -144,7 +144,7 @@ PollCompareMain.prototype = {
         });// end of each jsconfig
         var max_left_width = 0;
         var title_cell_width = 0;
-        var max_row_height = 0;
+        var max_row_height = 70;
         //get max left cell width
         for(var i = 1;i<ul_rowObjS.length;i++)
         {

@@ -158,7 +158,7 @@ def student_course_progress(request, course_id, username):
 
     student=student[0]
 
-    return HttpResponse(request.session)
+    #return HttpResponse(request.session)
 
     try:
         course=get_course_by_id(course_id)
