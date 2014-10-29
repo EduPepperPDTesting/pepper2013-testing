@@ -3,50 +3,79 @@ metadata:
     display_name: overview
 
 data: |
-    <section class="about">
-      <h2>About This Course</h2>
-      <p>Include your long course description here. The long course description should contain 150-400 words.</p>
+    <section class="title">
+      <h2>Enter Course Name Here</h2>
+    </section>
 
-      <p>This is paragraph 2 of the long course description. Add more paragraphs as needed. Make sure to enclose them in paragraph tags.</p>
+    <section class="short_description">
+      <p>Enter short course description here (2/3 sentences close to 45 characters).</p>
+    </section>
+
+    <br/>
+
+    <section class="about">
+      <h2><b>About This Course</b></h2>
+      <p>Enter long course description here.</p>
+    </section>
+
+
+
+    &nbsp;  
+    <section class="ways">
+      <br/>
+      <h2><b>WAYS TO TAKE THIS COURSE</b></h2>
+      <div>
+        <div style="width:580px;border-top:4px solid #32a5d9;background:#f7f7f7">
+          <p style="font-size:22px;font-weight:bold;px;padding-left:20px;padding-right:20px;padding-top:20px;"><b>Simply Audit this Course</b></p>
+          <p style="padding-left:20px;padding-right:20px;padding-bottom:20px;">Can't commit to all of the lectures, assignments, and tests? Audit this course and have complete access to all of the course material, tests, people, portfolios, and the online discussion forum. You decide what and how much you want to do.</p>
+        </div>
+        <div style="width:580px;height:72px">
+          <img src="/static/images/ppd-cabout-orline.png" style="padding-top:24px;">
+        </div>
+        <div style="width:580px;border-top:4px solid #32a5d9;background:#f7f7f7">
+          <p style="font-size:22px;font-weight:bold;px;padding-left:20px;padding-right:20px;padding-top:20px;">
+            <span style="position:absolute;"></span><b>Try for a Certificate</b>
+            <div style="width:87px;height:77px; position:relative;z-index:99; margin-left:472px; margin-top:-80px;">
+              <img src="/static/images/ppd-cabout-biaozhi.png">
+            </div>
+          </p>
+          <p style="padding-left:20px;padding-right:20px;padding-bottom:20px;">Looking to test your mettle? Participate in all of the course's activities (we use the honor code around here) and if your work meets the 85% requirements, you'll receive a personalized certificate to showcase your achievement. You can also apply for course credit (if desired).</p>
+        </div>
+      </div>
+    </section>
+    <br/>
+    <section class="course-staff">
+      <h2><b>Course Staff</b></h2>
+      <article class="teacher">
+        <div style="float:left;padding-bottom:20px;">
+          <div class="teacher-image" style="width:120px;float:left;">
+            <img src="IMAGE OF ContentAuthor1" align="left" style="margin:0 20 px 0">
+          </div>
+          <div style="float:left;width:460px;">
+            <h3><b>Name of Content Author1</b></h3>
+            <br/>
+            <p>Short Bio of Content Author1.</p>
+          </div>
+        </div>
+        <div style="float:left;padding-bottom:20px;">
+          <div class="teacher-image" style="width:120px;float:left;">
+            <img src="IMAGE OF CONTENTAUTHOR 2" align="left" style="margin:0 20 px 0">
+          </div>
+          <div style="float:left;width:460px;">
+            <h3><b>Name of Content Author2</b></h3>
+            <br/>
+            <p>Short Bio of Content Author2.</p>
+          </div>
+        </div>
+      </article>
     </section>
 
     <section class="prerequisites">
-      <h2>Prerequisites</h2>
-      <p>Add information about course prerequisites here.</p>
+      ENTER PRE-REQUISITE HERE. IF NONE, DELETE.
     </section>
-
-    <section class="course-staff">
-      <h2>Course Staff</h2>
-      <article class="teacher">
-        <div class="teacher-image">
-          <img src="/static/images/pl-faculty.png" align="left" style="margin:0 20 px 0">
-        </div>
-
-        <h3>Staff Member #1</h3>
-        <p>Biography of instructor/staff member #1</p>
-      </article>
-
-      <article class="teacher">
-        <div class="teacher-image">
-          <img src="/static/images/pl-faculty.png" align="left" style="margin:0 20 px 0">
-        </div>
-
-        <h3>Staff Member #2</h3>
-        <p>Biography of instructor/staff member #2</p>
-      </article>
+    <section class="authors">
+      Enter Name of Authors (Author 1 First Name Last Name, Author 2 First Name Last Name)
     </section>
-
-    <section class="faq">
-      <section class="responses">
-        <h2>Frequently Asked Questions</h2>
-        <article class="response">
-          <h3>Do I need to buy a textbook?</h3>
-          <p>No, a free online version of Chemistry: Principles, Patterns, and Applications, First Edition by Bruce Averill and Patricia Eldredge will be available, though you can purchase a printed version (published by FlatWorld Knowledge) if you’d like.</p>
-        </article>
-
-        <article class="response">
-          <h3>Question #2</h3>
-          <p>Your answer would be displayed here.</p>
-        </article>
-      </section>
+    <section class="newish">
+      NEW
     </section>
