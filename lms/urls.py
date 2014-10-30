@@ -430,11 +430,11 @@ if settings.COURSEWARE_ENABLED and settings.MITX_FEATURES.get('ENABLE_INSTRUCTOR
 
 if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     ## Jasmine and admin
-    urlpatterns += (url(r'^admin/', include(admin.site.urls)),)
+    urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
 
 if not settings.DEBUG:
     admin.autodiscover()
-    urlpatterns += (url(r'^admin/', include(admin.site.urls)),)
+    urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
     
 if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
     urlpatterns += (
