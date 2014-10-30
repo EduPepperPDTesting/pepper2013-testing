@@ -24,7 +24,7 @@
             State:
             <select name="state_id" autocomplate="off">
               <option value="">All</option>
-              %for item in State.objects.all():
+              %for item in State.objects.all().order_by('name'):
               %if request.GET.get('state_id')== "%s" % item.id:
               <option value="${item.id}" selected>${item.name}</option>
               %else:
@@ -179,7 +179,7 @@ $("#form_import").submit(function(){
               <td class="label required">State</td><td>
                 <select name="state_id" autocomplate="off" chkMsg="State must be selected." chkType="Require">
                   <option value=""></option>
-                  %for item in State.objects.all():
+                  %for item in State.objects.all().order_by('name'):
                   %if district and item.id== district.state_id:
                   <option value="${item.id}" selected>${item.name}</option>
                   %else:

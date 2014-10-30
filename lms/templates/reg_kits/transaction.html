@@ -25,7 +25,7 @@
           State:
           <select name="state_id" autocomplate="off">
             <option value="">All</option>
-            %for item in State.objects.all():
+            %for item in State.objects.all().order_by('name'):
             %if request.GET.get('state_id')== "%s" % item.id:
             <option value="${item.id}" selected>${item.name}</option>
             %else:
@@ -152,7 +152,7 @@
             <td>
               <select id="state_id" name="state_id" autocomplate="off">
                 <option value=""></option>
-                %for item in State.objects.all():
+                %for item in State.objects.all().order_by('name'):
                 <option value="${item.id}">${item.name}</option>
                 %endfor
               </select>
