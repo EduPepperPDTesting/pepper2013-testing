@@ -68,10 +68,10 @@
         Page: ${cohorts.number}/${cohorts.paginator.num_pages}
         <input type="text" name="page" value="${cohorts.number}" size="5" maxlength="8"/>
         %if cohorts.has_previous():
-        - <a href="${reverse('cohort')}?page=${pager_params}&${cohorts.previous_page_number()}">prev</a>
+        - <a href="${reverse('cohort')}?page=${pager_params}&page=${cohorts.previous_page_number()}">prev</a>
         %endif
         %if cohorts.has_next():
-        - <a href="${reverse('cohort')}?page=${pager_params}&${cohorts.next_page_number()}">next</a>
+        - <a href="${reverse('cohort')}?page=${pager_params}&page=${cohorts.next_page_number()}">next</a>
         %endif        
         <input type="button" onclick="window.location='${reverse('cohort_form')}'" value="Add New Cohort" />
         <input type="button" name="delete" value="Delete Selected" />
