@@ -392,6 +392,8 @@ class CourseFields(object):
     
     display_credit = Boolean(help="credit", default=True, scope=Scope.settings)
 
+    certificates_estimated_effort = String(help="Certificates Estimated Effort", default="10 hours",scope=Scope.settings)
+    
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
 
