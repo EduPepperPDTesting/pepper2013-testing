@@ -22,11 +22,13 @@
     #page-nav,#page-footer{width:960px;}
     #btn-logged-user{display:none;}
     .form-select{font-size:14px !important;width:180px;}
-    .image-style{
+    .image-link-style{
       border-radius: 6px 6px 6px 6px;
       -moz-border-radius: 6px 6px 6px 6px;
       -webkit-border-radius: 6px 6px 6px 6px;
       display: block;
+      float: left;
+      margin: 30px;
     }
     .image-bottom-style{
       border-radius: 0px 0px 6px 6px;
@@ -118,6 +120,7 @@
         <option value="all">All Subjects</option>
         <option value="ELA">English Language Arts</option>
         <option value="MA">Mathematics</option>
+        <option value="SE">Special Education</option>
         <option value="PEP">Pepper</option>
       </select>
     </div>
@@ -127,6 +130,7 @@
         <option value="0">K-5</option>
         <option value="1">6-8</option>
         <option value="2">9-12</option>
+        <option value="3">K-12</option>
       </select>
     </div>
     <div style="display:inline-block;padding:0 1em 0 0;">
@@ -152,34 +156,28 @@
       <div class="courses-listing">
        %if link:
         <div style="padding-left:25px;">
-        <table width="900" cellpadding="30">
-          <tr>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_K-5.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=0&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades K-5</span></a></div></td>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_6-8.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=1&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades 6-8</span></a></div></td></div></td>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_9-12.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=2&author_id=all&op=find" class="card-link image-bottom-style"><span>Grades 9-12</span></a></div></td></div></td></div></td>
-          </tr>
-          <tr>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Mathematics</span></a></div></td></div></td></div></td>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Arts</span></a></div></td></div></td></div></td>
-          <td><div class="image-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
-          <div style="height:100px;"></div>
-          <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a></div></td></div></td></div></td>
-          </tr>
-        </table>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Mathematics</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Arts</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Special_Education.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=SE&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Special Education</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
+          </div>
         </div>
        %else:
-         %if len(courses[0])>0:
-            <div class="grade_title">K-5 Courses</div>
+         %if len(courses)>0:
+            %if len(courses[0])>0:
+              <div class="grade_title">K-5 Courses</div>
+            %endif
             %for course in courses[0]:
                %for c in course:
                 <%include file="../course.html" args="course=c" />
@@ -187,8 +185,10 @@
               <div style="float:left;width:900px;"></div>
             %endfor
          %endif
-          %if len(courses[1])>0:
-            <div class="grade_title">6-8 Courses</div>
+          %if len(courses)>1:
+            %if len(courses[1])>0:
+              <div class="grade_title">6-8 Courses</div>
+            %endif
             %for course in courses[1]:
               %for c in course:
                 <%include file="../course.html" args="course=c" />
@@ -196,9 +196,22 @@
               <div style="float:left;width:900px;"></div>
             %endfor
          %endif
-          %if len(courses[2])>0:
-            <div class="grade_title">9-12 Courses</div>
+          %if len(courses)>2:
+            %if len(courses[2])>0:
+              <div class="grade_title">9-12 Courses</div>
+            %endif
             %for course in courses[2]:
+               %for c in course:
+                <%include file="../course.html" args="course=c" />
+              %endfor
+              <div style="float:left;width:900px;"></div>
+            %endfor
+         %endif
+         %if len(courses)>3:
+            %if len(courses[3])>0:
+              <div class="grade_title">K-12 Courses</div>
+            %endif
+            %for course in courses[3]:
                %for c in course:
                 <%include file="../course.html" args="course=c" />
               %endfor
