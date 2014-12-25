@@ -73,8 +73,9 @@ class MongoRemindStore(object):
                 r.append(data)
             return r
     def items_count(self,user_id=-1):
-        valid_interval = (datetime.datetime.now()-datetime.timedelta(4)).isoformat()
-        count = self.collection.find({'user_id':user_id,'activate':'false','date':{'$gt':str(valid_interval)}}).count()
+        #valid_interval = (datetime.datetime.now()-datetime.timedelta(4)).isoformat()
+        #count = self.collection.find({'user_id':user_id,'activate':'false','date':{'$gt':str(valid_interval)}}).count()
+        count = self.collection.find({'user_id':user_id,'activate':'false'}).count()
         results = self.collection.find({'user_id':0})
         for data in results:
             status = self.collection_aid.find_one({'user_id':user_id,'aid':str(data['_id'])})

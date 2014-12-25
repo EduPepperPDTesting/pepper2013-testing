@@ -543,7 +543,8 @@ site_status_msg = get_site_status_msg(course_id)
       {
         $(".info_btn").hide();
         $(".info_count_btn").show();
-        $(".info_count_btn").find(".info_count").text(data.count);
+        var count=data.count>999?999:data.count;
+        $(".info_count_btn").find(".info_count").text(count);
       }
       $('.info_list').empty();
       for(var i=0;i<data.results.length;i++)
@@ -592,7 +593,8 @@ site_status_msg = get_site_status_msg(course_id)
   function interactive_update_getActivateStyle(data)
   {
     var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
-    bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+    //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+    bcolor=data.activate=='true'?'#ffffff':notActivateColor;
     return {'backgroundColor':bcolor};
   }
   function interactive_update_getTimeInterval(data)

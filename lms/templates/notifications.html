@@ -188,7 +188,8 @@
 		function notifications_update_getActivateStyle(data)
 		{
 			var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
-		    bcolor=((data.activate=='true')||(notifications_update_getTimeInterval(data.date,new Date().toString())>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+		    //bcolor=((data.activate=='true')||(notifications_update_getTimeInterval(data.date,new Date().toString())>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+		    bcolor = data.activate=='true'?'#ffffff':notActivateColor;
 		    return {'backgroundColor':bcolor};
 		}
 		function notifications_update_getTimeInterval(date1,date2)
