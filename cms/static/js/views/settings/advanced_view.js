@@ -31,8 +31,7 @@ CMS.Views.Settings.Advanced = CMS.Views.ValidatingView.extend({
         _.each(_.sortBy(_.keys(this.model.attributes), _.identity),
             function(key) {
                 listEle$.append(self.renderTemplate(key, self.model.get(key)));
-            });
-
+            }); 
         var policyValues = listEle$.find('.json');
         _.each(policyValues, this.attachJSONEditor, this);
         return this;
@@ -43,7 +42,10 @@ CMS.Views.Settings.Advanced = CMS.Views.ValidatingView.extend({
         if ( $(textarea).siblings().hasClass('CodeMirror')) {
             return;
         }
-
+        if($(textarea).parent().prev().children('.policy-key').attr('value')=='display_name')
+        {
+            $(textarea).prev().html('Policy Value (Maximum 60 Characters):');
+        }
         var self = this;
         var oldValue = $(textarea).val();
         CodeMirror.fromTextArea(textarea, {
@@ -66,7 +68,25 @@ CMS.Views.Settings.Advanced = CMS.Views.ValidatingView.extend({
                 var key = $(mirror.getWrapperElement()).closest('.field-group').children('.key').attr('id');
                 var stringValue = $.trim(mirror.getValue());
                 // update CodeMirror to show the trimmed value.
+
                 mirror.setValue(stringValue);
+                if($(textarea).parent().prev().children('.policy-key').attr('value')=='display_name' && stringValue.length>62)
+                {
+                    alert("The course name exceeds 60 characters!");
+                    var firstNonWhite = stringValue.substring(0, 1);
+                    if (firstNonWhite !== "{" && firstNonWhite !== "[" && firstNonWhite !== "'") {
+                        try {
+                            stringValue = '"'+stringValue +'"';
+                            JSONValue = JSON.parse(stringValue);
+                            mirror.setValue(stringValue);
+                        } catch(quotedE) {
+                            // TODO: validation error
+                            // console.log("Error with JSON, even after converting to String.");
+                            // console.log(quotedE);
+                            JSONValue = undefined;
+                        }
+                    }
+                }
                 var JSONValue = undefined;
                 try {
                     JSONValue = JSON.parse(stringValue);
