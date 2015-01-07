@@ -22,8 +22,9 @@
         <div class="filter">
           <form id="form_filter" method="get">
             <input type="hidden" name="size" value="${request.GET.get('size','')}"/>
-            State:
-            <select name="state_id" autocomplate="off">
+
+            <table width="" cellspacing="" cellpadding="" border="0">
+            <tr> <td>State:</td><td><select name="state_id" autocomplete="off">
               <option value="">All</option>
               %for item in State.objects.all().order_by('name'):
               %if request.GET.get('state_id')== "%s" % item.id:
@@ -32,38 +33,31 @@
               <option value="${item.id}">${item.name}</option>
               %endif 
               %endfor
-            </select>
-            District:
-            <select id="" name="district_id" autocomplate="off">
+            </select></td><td>District:</td><td><select id="" name="district_id" autocomplete="off">
               <option value="">All</option>
-            </select>
-            Cohort:
-            <select id="" name="cohort_id" autocomplate="off">
+            </select></td> </tr>
+            <tr> <td>Cohort:</td><td><select id="" name="cohort_id" autocomplete="off">
               <option value="">All</option>
-            </select>
-            School:
-            <select id="" name="school_id" autocomplate="off">
+            </select></td><td>School:</td><td><select id="" name="school_id" autocomplete="off">
               <option value="">All</option>
-            </select>
-            Status:
-            <select id="" name="subscription_status" autocomplate="off">
+            </select></td> </tr>
+            <tr> <td>Status:</td><td><select id="" name="subscription_status" autocomplete="off">
               <option value="">All</option>
               <option value="Imported">Imported</option>
               <option value="Unregistered">Unregistered</option>
               <option value="Registered">Registered</option>
               <option value="Inactive">Inactive</option>
-            </select>
-            Days After Invited:
+            </select></td><td>Days After Invited:</td><td>
             <input type="" size="3" name="invite_days_min" value="" /> to 
-            <input type="" size="3" name="invite_days_max" value="" />
-            <br>
-            Email:
-            <input type="input" name="email" size="30" autocomplate="off" />
-            First Name:
-            <input type="input" name="first_name" size="10" autocomplate="off" />
-            Last Name:
-            <input type="input" name="last_name" size="10" autocomplate="off" />
-            <input type="submit" name="" value="Filter" />
+            <input type="" size="3" name="invite_days_max" value="" /></td> </tr>
+            <tr>
+              <td>First Name:</td><td><input type="input" name="first_name" size="10" autocomplete="off" /></td>
+              <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" />
+              <span style="margin-left:50px">Email: &nbsp;&nbsp;<input type="input" name="email" size="30" autocomplete="off" /></span> </td>
+            </tr>
+            
+            <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
+            </table>
           </form>
         </div>
         <div style="padding-bottom:10px;">

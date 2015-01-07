@@ -1,0 +1,331 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+import json
+from student.models import State,District,Transaction,Cohort,School,Registration,CourseEnrollment,CourseEnrollmentAllowed
+%>
+<head>
+  <title>Reg Kits User Subject</title>
+  <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
+</head>
+<body>
+  <%include file="tabs.html" args="active_page='course_permission'" />
+  <div style="text-align:center;">
+    <div style="margin:auto;" class="container">
+      <div style="background:#ddd;padding:20px;text-align:left;">
+        <div class="filter">
+          <form id="form_filter" method="get">
+            <input type="hidden" name="size" value="${request.GET.get('size','')}"/>
+            <table width="" cellspacing="" cellpadding="" border="0">
+              <tr> <td>State:</td><td><select name="state_id" autocomplete="off">
+                <option value=""></option>
+                %for item in State.objects.all().order_by('name'):
+                %if request.GET.get('state_id')== "%s" % item.id:
+                <option value="${item.id}" selected>${item.name}</option>
+                %else:
+                <option value="${item.id}">${item.name}</option>
+                %endif 
+                %endfor
+              </select></td><td>District:</td><td><select id="" name="district_id" autocomplete="off">
+                <option value=""></option>
+              </select></td> </tr>
+              <tr> <td>Cohort:</td><td><select id="" name="cohort_id" autocomplete="off">
+                <option value=""></option>
+              </select></td><td>School:</td><td><select id="" name="school_id" autocomplete="off">
+                <option value=""></option>
+              </select></td> </tr>
+              <tr> <td>Content Subject:</td><td>
+                <select name="subject_id" autocomplete="off">
+                  <option value=""></option>
+                  <option value="ELA">English Language Arts</option>
+                  <option value="MA">Mathematics</option>
+                  <option value="SE">Special Education</option>
+                  <option value="PEP">Pepper</option>
+                </select>
+              </td><td></td><td></td> </tr>
+              <tr>
+                <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" /></td>
+                <td>First Name:</td><td>
+                  <input type="input" name="first_name" size="10" autocomplete="off" />
+                  <span style="margin-left:50px">Email: &nbsp;&nbsp;<input type="input" name="email" size="30" autocomplete="off" /></span> </td>
+              </tr>
+              <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
+            </table>
+          </form>
+        </div>
+        <style type="text/css" media="screen">
+         input,button,select{
+           vertical-align:middle;
+         }
+         table.table_pro {
+           table-layer:fixed;
+           border-spacing:0;
+           border-top:none;
+           width: 100%;
+           *margin-left: -100px; /*ie7*/
+         }
+         .table_pro th{
+           border-width:1px 1px 1px 0;
+         }
+         .table_pro td{
+           border-width:0 1px 1px 0;
+         }
+         .table_pro td, .table_pro th {
+           vertical-align:middle;
+           padding:5px !important;
+           border-style:solid;
+           border-color:#000;
+           empty-cells: show;
+           white-space:nowrap;
+           /* padding:10px;
+           width:100px; */
+         }
+         .table_pro th label{
+           color:#fff;
+         }         
+         .table_pro th.fixed ,
+         .table_pro td.fixed{
+           vertical-align:middle;
+           /* position:absolute; */
+           *position: relative; /*ie7*/
+           /* left:0; 
+           border-collapse:collapse;
+           height:14px; */
+         }
+         .table_pro th.first, .table_pro td.first{
+           border-left:1px solid #000;
+         }
+         .outer {
+           position:relative;
+         }
+         .inner {
+           overflow-x:scroll;
+           overflow-y:visible;
+         }
+        </style>
+        <div class="outer">
+          <div class="inner">
+            <table class="datalist table_pro" width="100%" cellspacing="0" border="0" style="border-collapse:;">
+              <tr>
+                <th sortby="district" class="fixed first">District</th>
+                <th sortby="last_name" class="fixed">Last Name</th>
+                <th sortby="first_name" class="fixed">First Name</th>
+                <th sortby="email" class="fixed">Email</th>
+                %for c in courses:
+                <% if not c.display_coursenumber: continue %>
+                <th class="subject" style="text-align:left" course_id="${c.id}">
+                  <label><input type="checkbox" name="" value="" style="vertical-align:middle" autocomplete="off"/>
+                    ${c.display_coursenumber}</label>
+                </th>
+                %endfor
+              </tr>
+              %for item in users:
+              <tr>
+                <td class="fixed first">${item.cohort.district.name}</td>
+                <td class="fixed">${item.user.last_name}</td>
+                <td class="fixed">${item.user.first_name}</td>
+                <td class="fixed">${item.user.email}</td>
+                %for c in courses:
+                <% if not c.display_coursenumber: continue %>
+                %if CourseEnrollmentAllowed.objects.filter(email=item.user.email,course_id=c.id,is_active=True).exists():
+                <td class="subject" style="text-align:left"><input type="checkbox" checked="" autocomplete="off" style="vertical-align:middle"/></td>
+                %else:
+                <td class="subject" style="text-align:left"><input type="checkbox" autocomplete="off" style="vertical-align:middle"/></td>
+                %endif
+                %endfor
+              </tr>
+              %endfor       
+            </table>
+          </div>
+        </div>
+        <div style="padding:5px;text-align:right;">
+          <input type="button" name="" value="Save" onclick="save()" style="float:left"/>
+          Total:${users.paginator.count} - 
+          Page: ${users.number}/${users.paginator.num_pages}
+          <input type="text" name="page" value="${users.number}" size="5" maxlength="8"/>
+          %if users.has_previous():
+          <a href="${reverse('course_permission')}?${pager_params}&page=${users.previous_page_number()}">prev</a>
+          %endif
+          %if users.has_next():
+          <a href="${reverse('course_permission')}?${pager_params}&page=${users.next_page_number()}">next</a>
+          %endif
+          Items Per Page
+          <select id="lstPageSize" autocomplete="off">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+            <option>100</option>
+            <option>200</option>
+          </select>
+          Download ${users.paginator.count} User(s) As
+          <input type="button" id="btnDownloadCsv" value="CSV" />
+          <input type="button" id="btnDownloadExcel" value="Excel" />
+        </div>
+      </div>  
+    </div>
+  </div>
+  <script type="text/javascript">
+    setTimeout(function(){
+      var colwidths=[]
+      $(".table_pro").find('th').each(function(i,th){
+        if($(th).hasClass('subject'))
+          $(th).find('input[type=checkbox]').click(function(){
+            $(".table_pro").find('tr td:nth-child('+(i+1)+') input').attr('checked',this.checked)
+          })
+      });
+      $(".table_pro").find('th.fixed').each(function(i,th){
+        var w=$(th).width()
+          colwidths.push(w)
+      });
+      if(colwidths.length && $(".table_pro").find('td.subject').length){
+        $(".table_pro").find('tr').each(function(i,tr){
+          var tw=0;
+          var count=colwidths.length;
+          $(tr).find('td,th').each(function(j,cell){
+            if(j>(colwidths.length-1)) return false;
+            var w=colwidths[j]
+            $(cell).css("position","absolute");
+            $(cell).css("width",w+"px");
+            $(cell).css("height","19px");
+            $(cell).css("line-height","19px");
+            $(cell).css("left",(tw-j-1)+"px");
+            tw+=w+12
+            if(j==0)tw+=1;
+          });
+          $(".inner").css("marginLeft",(tw-colwidths.length-1)+"px");
+        });
+      }
+    },500);
+    // save course permissions
+    function save(){
+      cols=[]
+      data={}
+      $(".table_pro").find('th').each(function(i,th){
+        if($(th).hasClass('subject'))
+          cols.push({col:i+1,course_id:$(th).attr('course_id')})
+          $(".table_pro").find('tr').each(function(i,tr){
+            if(i){
+              var email=$(tr).find('td:nth-child(4)').text()
+                data[email]={}
+              $(cols).each(function(i,c){
+                data[email][c.course_id]=!!($(tr).find('td:nth-child('+c.col+') input[type=checkbox]').attr('checked'));
+              });
+            }
+          });
+      });
+      $.post('${reverse("course_permission_save")}',
+             {data:JSON.stringify(data),csrfmiddlewaretoken:'${csrf_token}'}, function(r) {
+               var r = $.parseJSON(r);
+               if (r.success) {
+                 alert("Submit success");
+               } else {
+                 alert("Error: "+r.error);
+               }
+             });
+    }
+  </script>
+  <script type="text/javascript">
+    var form=$("#form_filter");
+    // sort table
+    $(".datalist").find("th").each(function(){
+      var sortby=$(this).attr("sortby");
+      if(!sortby)return;
+      var desc="no";
+      var curr_sortby=get_searching()["sortby"];
+      this.style.cursor="pointer"
+      $(this).hover(function(){
+        this.style.textDecoration="underline"
+      },function(){
+        this.style.textDecoration="none"
+      });
+      if(sortby==curr_sortby){
+        desc=get_searching()["desc"]=="yes"?"no":"yes";
+        this.style.background=(desc=="yes")?"#0a5":"#c47"
+      }
+      $(this).click(function(){
+        window.location.href=replace_searching({sortby:sortby,desc:desc})
+      })
+    });
+    // page input
+    $("input[name=page]").keyup(function(e){
+      if(e.keyCode==13){
+        var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+        if(/^[1-9]\d*$/.test(p))
+        window.location.href='${reverse('course_permission')}?${pager_params}&page='+p
+        else
+        alert("Invalid page number '"+p+"'")
+      }
+    })
+    // drop events
+    form.find("select[name=state_id]").change(function(a){
+      var state_id=$(this).val();
+      dropDistrict(form,state_id,district_id);
+      dropSchool(form,state_id,district_id,school_id);
+      dropCohort(form,state_id,district_id,cohort_id);
+    });
+    form.find("select[name=district_id]").change(function(){
+      var state_id='';
+      var district_id=$(this).val();
+      dropSchool(form,state_id,district_id,school_id);
+      dropCohort(form,state_id,district_id,cohort_id);
+    });
+    // init page size
+    $("#lstPageSize").val("${request.GET.get('size') or '20'}")
+    $("#lstPageSize").change(function(){
+      window.location.href=replace_searching({size:$(this).val()})
+    })
+    // init filter form
+    var state_id="${request.GET.get('state_id') or ''}"
+    var cohort_id="${request.GET.get('cohort_id') or ''}"
+    var district_id="${request.GET.get('district_id') or ''}"
+    var school_id="${request.GET.get('school_id') or ''}"
+    var email="${request.GET.get('email') or ''}"
+    var first_name="${request.GET.get('first_name') or ''}"
+    var last_name="${request.GET.get('last_name') or ''}"
+    var subject_id="${request.GET.get('subject_id') or ''}"
+    form.find("input[name=email]").val(email)
+    form.find("input[name=last_name]").val(last_name)
+    form.find("input[name=first_name]").val(first_name)
+    form.find("select[name=subject_id]").val(subject_id)
+    dropDistrict(form,state_id,function(){
+      $(this).val(district_id)
+    });
+    dropCohort(form,state_id,district_id,function(){
+      $(this).val(cohort_id)
+    });
+    dropSchool(form,state_id,district_id,function(){
+      $(this).val(school_id)
+    });
+    var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
+                     email:email, first_name:first_name, last_name:last_name,subject_id:subject_id}
+    $("#btnDownloadCsv").click(function(){
+      var valid_filter=[];
+      var h=get_searching();
+      var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
+      for(k in filter){
+        var v=filter[k];
+        if(v && v.length){
+          valid_filter.push(k+"="+encodeURI(v));
+        }
+      }
+      window.open("${reverse('download_course_permission_csv')}?"+valid_filter.join("&"))
+    })
+    $("#btnDownloadExcel").click(function(){
+      var valid_filter=[];
+      var h=get_searching();
+      var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
+      for(k in filter){
+        var v=filter[k];
+        if(v && v.length){
+          valid_filter.push(k+"="+encodeURI(v));
+        }
+      }
+      window.open("${reverse('download_course_permission_excel')}?"+valid_filter.join("&"))
+    })
+  </script>
+</body>

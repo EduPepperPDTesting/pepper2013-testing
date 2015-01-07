@@ -15,7 +15,7 @@ import courseware.views
 from mitxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
 import json
-from student.models import UserProfile,Registration
+from student.models import UserProfile,Registration,CourseEnrollmentAllowed
 from student.models import Transaction,District,Cohort,School,State
 from django import forms
 import csv
@@ -26,6 +26,10 @@ from pytz import UTC
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+
+from courseware.courses import get_courses
+from xmodule.modulestore.django import modulestore
+import pymongo
 
 def valid_pager(all,size,page):
     paginator = Paginator(all, size)
@@ -242,34 +246,44 @@ def school_form(request,school_id=None):
 ##############################################
 def filter_user(request):
     data=UserProfile.objects.all() #.select_related('owner_object')
-    if request.GET.get('first_name'):
-        data=data.filter(Q(user__first_name=request.GET.get('first_name')))
-    if request.GET.get('last_name'):
-        data=data.filter(Q(user__last_name=request.GET.get('last_name')))
-    if request.GET.get('school_id'):
-        data=data.filter(school_id=request.GET.get('school_id'))
-    if request.GET.get('email'):
-        data=data.filter(user__email=request.GET.get('email'))
-    if request.GET.get('district_id'):
-        data=data.filter(Q(cohort__district_id=request.GET.get('district_id')))
-    if request.GET.get('state_id'):
-        data=data.filter(Q(cohort__district__state_id=request.GET.get('state_id')))
-    if request.GET.get('cohort_id'):
-        data=data.filter(cohort_id=request.GET.get('cohort_id'))
-    if request.GET.get('subscription_status'):
-        data=data.filter(subscription_status=request.GET.get('subscription_status'))
-    if request.GET.get('invite_days_min'):
-        data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(request.GET.get('invite_days_min'))))
-    if request.GET.get('invite_days_max'):
-        data=data.filter(invite_date__gte=datetime.datetime.now(UTC)-datetime.timedelta(int(request.GET.get('invite_days_max'))+1))
 
+    filtered=[False]
+    
+    def q(k):
+        v=request.GET.get(k)
+        if v:
+            filtered[0]=True
+        return v 
+        
+    if q('first_name'):
+        data=data.filter(Q(user__first_name=q('first_name')))
+    if q('last_name'):
+        data=data.filter(Q(user__last_name=q('last_name')))
+    if q('school_id'):
+        data=data.filter(school_id=q('school_id'))
+    if q('email'):
+        data=data.filter(user__email=q('email'))
+    if q('district_id'):
+        data=data.filter(Q(cohort__district_id=q('district_id')))
+    if q('state_id'):
+        data=data.filter(Q(cohort__district__state_id=q('state_id')))
+    if q('cohort_id'):
+        data=data.filter(cohort_id=q('cohort_id'))
+    if q('subscription_status'):
+        data=data.filter(subscription_status=q('subscription_status'))
+    if q('invite_days_min'):
+        data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_min'))))
+    if q('invite_days_max'):
+        data=data.filter(invite_date__gte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_max'))+1))
+        
+    # if request.GET.get('course_id'):
+    #     data=data.filter(user__courseenrollment__course_id = request.GET.get('course_id'), user__courseenrollment__is_active = True)
+    
     desc=""
     if request.GET.get("desc")=="yes":
         desc="-"
-
     if request.GET.get("sortby")=="user_id":
         data=data.order_by(desc+"user__id")
-
     if request.GET.get("sortby")=="active_link":
         data=data.order_by(desc+"user__registration__activation_key")           
 
@@ -285,8 +299,8 @@ def filter_user(request):
     if request.GET.get("sortby")=="email":
         data=data.order_by(desc+"user__email")
 
-    if request.GET.get("sortby")=="disctrict":
-        data=data.order_by(desc+"disctrict__name")
+    if request.GET.get("sortby")=="district":
+        data=data.order_by(desc+"cohort__district__name")
 
     if request.GET.get("sortby")=="cohort":
         data=data.order_by(desc+"cohort__code")
@@ -302,14 +316,14 @@ def filter_user(request):
 
     if request.GET.get("sortby")=="subscription_status":
         data=data.order_by(desc+"subscription_status")        
-        
-    return data
+
+    return data,filtered[0]
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user(request):
 
-    data=filter_user(request)
+    data,filtered=filter_user(request)
     invite_count=data.filter(subscription_status='Imported').count()
 
     size=request.GET.get('size')
@@ -327,6 +341,156 @@ def user(request):
             item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
             
     return render_to_response('reg_kits/user.html', {"invite_count":invite_count,
+                                                     "users":data,
+                                                     "ui":"list",
+                                                     "pager_params":pager_params(request)})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_course_permission_csv(request):
+    from StringIO import StringIO
+
+    courses=subject_courses(request.GET.get('subject_id','all'))
+
+    FIELDS = ["district", "last_name", "first_name", "email"]
+    TITLES = ["District", "Last Name", "First Name", "Email"]
+
+    for c in courses:
+        if not c.display_coursenumber:
+            continue
+        FIELDS.append(c.display_coursenumber)
+        TITLES.append(c.display_coursenumber)
+
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=FIELDS)
+    
+    writer.writerow(dict(zip(FIELDS, TITLES)))
+    data=filter_user(request)
+
+    domain="http://"+request.META['HTTP_HOST']
+
+    for d in data:
+        row={
+            "district":attstr(d,"cohort.district.name"),
+            "last_name":attstr(d,"user.last_name"),
+            "first_name":attstr(d,"user.first_name"),
+            "email":attstr(d,"user.email"),       
+            }
+        for c in courses:
+            if not c.display_coursenumber:
+                continue
+            
+            allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+            row[c.display_coursenumber]=allow
+            
+        writer.writerow(row)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=couse-permission-%Y-%m-%d-%H-%M-%S.csv')
+    output.seek(0)
+    response.write(output.read())
+    output.close()
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_course_permission_excel(request):
+    from StringIO import StringIO
+    import xlsxwriter
+
+    courses=subject_courses(request.GET.get('subject_id','all'))
+    
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    
+    FIELDS = ["district", "last_name", "first_name", "email"]
+    TITLES = ["District", "Last Name", "First Name", "Email"]
+
+    for c in courses:
+        if not c.display_coursenumber:
+            continue
+        FIELDS.append(c.display_coursenumber)
+        TITLES.append(c.display_coursenumber)
+    
+    for i,k in enumerate(TITLES):
+        worksheet.write(0,i,k)
+    row=1
+    data=filter_user(request)
+    for d in data:
+
+        for c in courses:
+            if not c.display_coursenumber:
+                continue            
+            allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+            setattr(d,c.display_coursenumber,allow)
+            
+        d.first_name=attstr(d,"user.first_name")
+        d.last_name=attstr(d,"user.last_name")
+        d.district=attstr(d,"cohort.district.name")
+        d.email=attstr(d,"user.email")
+        
+        for i,k in enumerate(FIELDS):
+            worksheet.write(row,i,getattr(d,k))
+
+        row=row+1
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())    
+    return response
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def course_permission_save(request):
+    try:
+        for email,one in json.loads(request.POST['data']).items():
+            for course_id,allowed in one.items():
+                cea,created=CourseEnrollmentAllowed.objects.get_or_create(email=email,course_id=course_id)
+                cea.is_active=allowed
+                cea.save()                
+                #CourseEnrollmentAllowed.objects.filter(email=email,course_id=course_id).update(is_active=allowed)
+
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+    return HttpResponse(json.dumps({'success': True}))     
+
+def subject_courses(subject_id):
+    filterDic = {'_id.category':'course'}
+    if subject_id!='all':
+        filterDic['metadata.display_subject'] = subject_id
+    items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber",pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+    return courses
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def course_permission(request):
+    courses=subject_courses(request.GET.get('subject_id','')) # pass 'all' for all
+
+    data,filtered=filter_user(request)
+
+    if not filtered:
+        data=[]
+
+    size=request.GET.get('size')
+
+    if size and size.isdigit():
+        size=int(size)
+    else:
+        size=20
+    
+    data=valid_pager(data,size,request.GET.get('page'))
+
+    for item in data:
+        item.days_after_invite=''
+        if(item.invite_date):
+            item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
+            
+    return render_to_response('reg_kits/course_permission.html', {
+                                                             "courses":courses,
                                                      "users":data,
                                                      "ui":"list",
                                                      "pager_params":pager_params(request)})
@@ -626,7 +790,14 @@ def import_user_submit(request):
                 profile.cohort_id=cohort_id
                 profile.subscription_status="Imported"
                 profile.save()
+
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+                cea.is_active = True
+                cea.auto_enroll = True
+                cea.save()
+
                 count_success=count_success+1
+
                 # reg = Registration.objects.get(user=user)
                 # d = {'name': profile.name, 'key': reg.activation_key}
                 # subject = render_to_string('emails/activation_email_subject.txt', d)

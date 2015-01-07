@@ -12,7 +12,14 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
     url(r'^reg_kits/$', 'reg_kits.views.district',name="reg_kits"),
-    
+
+    url(r'^reg_kits/course_permission/$', 'reg_kits.views.course_permission',name="course_permission"),
+    url(r'^reg_kits/course_permission_save/$', 'reg_kits.views.course_permission_save',name="course_permission_save"),
+    url(r'^reg_kits/download_course_permission_csv/$', 'reg_kits.views.download_course_permission_csv',name="download_course_permission_csv"),
+    url(r'^reg_kits/download_course_permission_excel/$', 'reg_kits.views.download_course_permission_excel',name="download_course_permission_excel"),
+
+    url(r'^request_course_access$', 'student.views.request_course_access_ajax', name="request_course_access"),
+
     url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts',name="drop_districts"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools',name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts',name="drop_cohorts"),
@@ -25,7 +32,7 @@ urlpatterns = (
     
     url(r'^reg_kits/transaction/$', 'reg_kits.views.transaction',name="transaction"),
     url(r'^reg_kits/transaction/form$', 'reg_kits.views.transaction_form',name="transaction_form"),
-    url(r'^reg_kits/transaction/form/(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form',name="transaction_modify"),
+    url(r'^reg_kits/transaction/form/h(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form',name="transaction_modify"),
     url(r'^reg_kits/transaction/submit$', 'reg_kits.views.transaction_submit',name="transaction_submit"),
     url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete',name="transaction_delete"), 
 

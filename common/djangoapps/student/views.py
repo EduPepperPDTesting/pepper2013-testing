@@ -1635,8 +1635,14 @@ def activate_imported_account(post_vars,photo):
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
 
-        CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
-        
+        ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
+        for cea in ceas:
+            if cea.auto_enroll:
+                CourseEnrollment.enroll(profile.user, cea.course_id)
+
+
+        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
+
         d={"first_name":profile.user.first_name,"last_name":profile.user.last_name,"district":profile.cohort.district.name}
 
         # composes activation email
@@ -1757,3 +1763,30 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
+def request_course_access_ajax(request):
+    from mail import send_html_mail
+    from courseware.courses import get_course_by_id
+    try:
+        course=get_course_by_id(request.POST.get('course_id'))
+        subject="Course Access Request"
+        message="""User: {first_name} {last_name}
+District: {district_name}
+School: {school_name}
+Cohort: {cohort_code}	
+Email: {email}
+Course: {course_number} {course_name}
+Request Date: {date_time}""".format(
+  first_name=request.user.first_name
+  ,last_name=request.user.last_name
+  ,cohort_code=request.user.profile.cohort.code
+  ,district_name=request.user.profile.cohort.district.name
+  ,school_name=request.user.profile.school.name
+  ,email=request.user.email
+  ,course_number=course.display_coursenumber
+  ,course_name=course.display_name
+  ,date_time=datetime.datetime.now()
+)
+        send_html_mail(subject, message, settings.SUPPORT_EMAIL,[settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER])
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+    return HttpResponse(json.dumps({'success': True}))  

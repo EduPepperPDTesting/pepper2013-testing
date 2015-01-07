@@ -126,11 +126,12 @@ h2{
   <div style="margin:auto;"  class="container">
     <div class="nav">
       <a href="/logout" style="background:#fa2;" onclick="return confirm('Really quit?')" >Log out</a>
-      %for tab in ["district","cohort","transaction","school","user"]:
-      %if tab==active_page:
-      <a href="/reg_kits/${tab}">${tab.capitalize()}</a>
+      %for tab in ["district","cohort","transaction","school","user","course permission"]:
+      <% view=tab.replace(' ','_') %>
+      %if view==active_page:
+      <a href="/reg_kits/${view}">${tab.capitalize()}</a>
       %else:
-      <a href="/reg_kits/${tab}" style="background:#0af;color:#fff;">${tab.capitalize()}</a>
+      <a href="/reg_kits/${view}" style="background:#0af;color:#fff;">${tab.capitalize()}</a>
       %endif
       %endfor
     </div>
