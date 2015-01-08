@@ -318,9 +318,9 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         try{
            var course_overview=$('<section>'+this.model.get('overview')+'</section>');
            //var course_name=course_overview.find('.title h2').text();
-           var course_org=course_overview.find('.course_org img').attr('src');
-           
+           var course_org=course_overview.find('.course_org img').attr('src');     
            var short_description=course_overview.find('.short_description').html();
+           course_overview.find('.about h2').remove();
            var about=course_overview.find('.about').html();
            var course_prerequisites=course_overview.find('.prerequisites').html();
            var flip_content=course_overview.find('.flip-content').html();
@@ -365,6 +365,16 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
             //course_overview.find('.flip-content-faq').html(this.codeMirrors_overview['flip-content-faq'].getValue());
             course_overview.find('.short_description').html(tinyMCE.getInstanceById('short_description').getBody().innerHTML);
             course_overview.find('.about').html(tinyMCE.getInstanceById('about').getBody().innerHTML);
+            if(course_overview.find('.about').children('p').length<1)
+            {
+                course_overview.find('.about').html('<p>'+tinyMCE.getInstanceById('about').getBody().innerHTML)+'</p>';
+            }
+            else
+            {
+                course_overview.find('.about').html(tinyMCE.getInstanceById('about').getBody().innerHTML);
+            }
+            course_overview.find('.about h2').remove();
+            course_overview.find('.about').prepend("<h2><b>About This Course</b></h2>");
             course_overview.find('.prerequisites').html(tinyMCE.getInstanceById('prerequisites').getBody().innerHTML);
             course_overview.find('.flip-content').html(tinyMCE.getInstanceById('flip-content').getBody().innerHTML);
             course_overview.find('.flip-content-faq').html(tinyMCE.getInstanceById('flip-content-faq').getBody().innerHTML);
@@ -390,7 +400,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         var _name=name||"";
         var _image_path=image_path||"";
         var _bio=bio||"";
-        var item=$('<div class="author_item"><br/><hr/><div><label for="course-overview">Course Author Name (First Name Last Name):</label><input type="text" autocomplete="off" placeholder="" value="" class="course_author_name input_overview long new-course-image-url"></div><div><label for="course-overview">Course Author Image(URL from Files & Uploads):</label><input type="text" autocomplete="off" placeholder="" value="" class="course_author_image input_overview long new-course-image-url"></div><div><label for="course-overview">Course Author Bio:</label><textarea class="tinymce text-editor course_author_bio mceEditor" mce_editable="true" style="height:200px;"></textarea></div><div><a class="remove-item" href="javascript:void(0);" style="display: block;"><span class="delete-icon"></span>Delete Author</a></div></div>');
+        var item=$('<div class="author_item"><br/><hr/><div><label for="course-overview">Course Author Name (First Name Last Name):</label><input type="text" autocomplete="off" placeholder="" value="" class="course_author_name input_overview long new-course-image-url" style="margin-bottom:40px;"></div><div><label for="course-overview">Course Author Image (size: 100 X 130 pixels)</label><input type="text" autocomplete="off" placeholder="" value="" class="course_author_image input_overview long new-course-image-url" style="margin-bottom:40px;"></div><div><label for="course-overview">Course Author Bio:</label><textarea class="tinymce text-editor course_author_bio mceEditor" mce_editable="true" style="height:200px;"></textarea></div><div><a class="remove-item" href="javascript:void(0);" style="display: block;"><span class="delete-icon"></span>Delete Author</a></div></div>');
         item.attr('id',"author_item_"+new Date().getTime()+Math.floor(Math.random()*999));
         item.find('.course_author_name').val(_name);
         item.find('.course_author_image').val(_image_path);
@@ -455,7 +465,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         var co_flip_title=course_overview.find('.flip-title');
         if(co_pdf.length<1)
         {
-            var pdf_div=$('\n<p style="padding-left:20px;"><img alt="" src="/static/PepperIcon_Download.jpg">&nbsp;<a id="pdf" style="font-family: Arial; font-size: 14pt; line-height: 1.6em;" href="" target="_blank"><b><i>Download Detailed Course Outline</i></b></a></p>\n');
+            var pdf_div=$('\n<p style="padding-left:20px;"><img alt="" src="/static/PepperIcon_Download.jpg">&nbsp;<a id="pdf" style="font-family: Arial; font-size: 14pt; line-height: 1.6em;" href="PDF OF Detailed Course Outline (URL from Files & Uploads)" target="_blank"><b><i>Download Detailed Course Outline</i></b></a></p>\n');
             if(co_flip_title.length>0)
             {
                 co_flip_title.next().next().after(pdf_div);
@@ -498,7 +508,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         var el_outline=this.$el.find('#outline_cbox');
         var el_pdf=this.$el.find('#pdf_cbox');
         var el_faq=this.$el.find('#faq_cbox');
-        if(co_ways.css('display')=='block')
+        if(co_ways.css('display')=='block'||co_ways.css('display')=='')
         {
             el_ways.attr("checked", true);
         }
@@ -506,7 +516,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         {
             el_ways.attr("checked", false);
         }
-        if(co_flip_title.css('display')=='block')
+        if(co_flip_title.css('display')=='block'||co_flip_title.css('display')=='')
         {
             el_outline.attr("checked", true);
         }
@@ -514,7 +524,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         {
             el_outline.attr("checked", false);
         }
-        if(co_pdf.css('display')=='block')
+        if(co_pdf.css('display')=='block'||co_pdf.css('display')=='')
         {
             el_pdf.attr("checked", true);
         }
@@ -522,7 +532,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         {
             el_pdf.attr("checked", false);
         }
-        if(co_flip_title_faq.css('display')=='block')
+        if(co_flip_title_faq.css('display')=='block'||co_flip_title_faq.css('display')=='')
         {
             el_faq.attr("checked", true);
         }
@@ -596,7 +606,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         {
             if(course_overview.find('.course_org').length<1)
             {
-                course_overview.append('<section class="course_org"><img src="" width="320" height="211"></section>');
+                course_overview.append('<section class="course_org"><img src="IMAGE OF Authoring Organization (URL from Files & Uploads)" width="320" height="211"></section>');
             }
             course_overview.find('.course_org img').attr('src',this.$el.find('#overview-course-org-image').val());
         }
@@ -627,7 +637,7 @@ CMS.Views.Settings.Details = CMS.Views.ValidatingView.extend({
         }
         if(course_overview.find('.about').length<1)
         {
-          course_overview.find('.short_description').after('<section class="about"></section>\n');
+          course_overview.find('.short_description').after('<section class="about">\n<h2><b>About This Course</b></h2>\n<p>Enter long course description here.</p></section>\n');
         }
         
     }

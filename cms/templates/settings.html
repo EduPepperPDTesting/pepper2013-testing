@@ -203,7 +203,7 @@ from contentstore import utils
               <div class="overview_general">
                 <ol class="list-input">
                   <li id="field-course-overview" class="field text">
-                    <label for="course-overview">Authoring Organization Image (URL from Files & Uploads):</label>
+                    <label for="course-overview">Authoring Organization Image (size: 320 X 210 pixels)</label>
                     <input type="text" autocomplete="off" placeholder="" value="" id="overview-course-org-image" class="input_overview long new-course-image-url">
                   </li>
                   <li id="field-course-overview" class="field text">
@@ -221,8 +221,10 @@ from contentstore import utils
                   <li id="field-course-overview" class="field text">
                     <input type="checkbox" name="checkbox" id="outline_cbox" class="field-exist"/><label for="course-overview">Course Outline:</label>
                     <textarea class="tinymce text-editor flip-content" id="flip-content" mce_editable="true" style="width:600px;height:200px;"></textarea>
+                  </li>
+                  <li id="field-course-overview" class="field text">
                     <input type="checkbox" name="checkbox" id="pdf_cbox" class="field-exist"/>
-                    <label for="course-overview">Detailed Course Outline PDF (URL from Files & Uploads):</label>
+                    <label for="course-overview">Detailed Course Outline PDF:</label>
                     <input type="text" autocomplete="off" placeholder="" value="" id="overview-outline-pdf" class="input_overview long new-course-image-url">
                   </li>
                   <li id="field-course-overview" class="field text">
@@ -257,7 +259,7 @@ from contentstore import utils
                 % endif
 
                 <li class="field image" id="field-course-image">
-                  <label>${_("Course Image")}</label>
+                  <label>${_("Course Image (size: 650 X 370 pixels)")}</label>
                   <div class="current current-course-image">
                     % if context_course.course_image:
                     <span class="wrapper-course-image">

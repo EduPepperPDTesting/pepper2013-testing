@@ -51,7 +51,7 @@ data: |
     </div>
     </span>
     <div style="height:16px;"></div>  
-    <p style="padding-left: 20px; display: block;"><img alt="" src="/static/PepperIcon_Download.jpg">&nbsp;<a id="pdf" style="font-family: Arial; font-size: 14pt; line-height: 1.6em;" href="" target="_blank"><b><i>Download Detailed Course Outline</i></b></a></p><br/>
+    <p style="padding-left: 20px; display: block;"><img alt="" src="/static/PepperIcon_Download.jpg">&nbsp;<a id="pdf" style="font-family: Arial; font-size: 14pt; line-height: 1.6em;" href="PDF OF Detailed Course Outline (URL from Files & Uploads)" target="_blank"><b><i>Download Detailed Course Outline</i></b></a></p><br/>
     <div style="display: block;" class="flip-title-faq">
       <span class="flip-title-left-faq">FAQ</span><span class="flip-title-right-faq">+ Expand</span>
     </div>
@@ -92,7 +92,7 @@ data: |
       <article class="teacher">
         <div style="float:left;padding-bottom:20px;">
           <div class="teacher-image" style="width:120px;float:left;">
-            <img src="IMAGE OF ContentAuthor1" align="left" style="margin:0 20 px 0">
+            <img src="IMAGE OF Content Author 1 (URL from Files & Uploads)" align="left" style="margin:0 20 px 0">
           </div>
           <div style="float:left;width:460px;">
             <h3><b>Name of Content Author1</b></h3>
@@ -102,7 +102,7 @@ data: |
         </div>
         <div style="float:left;padding-bottom:20px;">
           <div class="teacher-image" style="width:120px;float:left;">
-            <img src="IMAGE OF CONTENTAUTHOR 2" align="left" style="margin:0 20 px 0">
+            <img src="IMAGE OF Content Author 2 (URL from Files & Uploads)" align="left" style="margin:0 20 px 0">
           </div>
           <div style="float:left;width:460px;">
             <h3><b>Name of Content Author2</b></h3>
@@ -121,4 +121,7 @@ data: |
     </section>
     <section class="newish">
       NEW
+    </section>
+    <section class="course_org">
+      <img src="IMAGE OF Authoring Organization (URL from Files & Uploads)" height="211" width="320">
     </section>
