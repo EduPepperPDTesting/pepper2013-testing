@@ -23,7 +23,8 @@ from student.models import State,District,Transaction,Cohort,School,Registration
             <input type="hidden" name="size" value="${request.GET.get('size','')}"/>
             <table width="" cellspacing="" cellpadding="" border="0">
               <tr> <td>State:</td><td><select name="state_id" autocomplete="off">
-                <option value=""></option>
+                <option value="__NONE__"></option>
+                <option value="">all</option>
                 %for item in State.objects.all().order_by('name'):
                 %if request.GET.get('state_id')== "%s" % item.id:
                 <option value="${item.id}" selected>${item.name}</option>
@@ -32,16 +33,20 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 %endif 
                 %endfor
               </select></td><td>District:</td><td><select id="" name="district_id" autocomplete="off">
-                <option value=""></option>
+                <option value="__NONE__"></option>
+                <option value="">all</option>
               </select></td> </tr>
               <tr> <td>Cohort:</td><td><select id="" name="cohort_id" autocomplete="off">
-                <option value=""></option>
+                <option value="__NONE__"></option>
+                <option value="">all</option>
               </select></td><td>School:</td><td><select id="" name="school_id" autocomplete="off">
-                <option value=""></option>
+                <option value="__NONE__"></option>
+                <option value="">all</option>
               </select></td> </tr>
               <tr> <td>Content Subject:</td><td>
                 <select name="subject_id" autocomplete="off">
                   <option value=""></option>
+                  <option value="all">all</option>
                   <option value="ELA">English Language Arts</option>
                   <option value="MA">Mathematics</option>
                   <option value="SE">Special Education</option>
@@ -176,11 +181,11 @@ from student.models import State,District,Transaction,Cohort,School,Registration
         if($(th).hasClass('subject'))
           $(th).find('input[type=checkbox]').click(function(){
             $(".table_pro").find('tr td:nth-child('+(i+1)+') input').attr('checked',this.checked)
-          })
+          });
       });
       $(".table_pro").find('th.fixed').each(function(i,th){
-        var w=$(th).width()
-          colwidths.push(w)
+        var w=$(th).width();
+        colwidths.push(w);
       });
       if(colwidths.length && $(".table_pro").find('td.subject').length){
         $(".table_pro").find('tr').each(function(i,tr){
@@ -203,8 +208,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     },500);
     // save course permissions
     function save(){
-      cols=[]
-      data={}
+      var cols=[], data={}
       $(".table_pro").find('th').each(function(i,th){
         if($(th).hasClass('subject'))
           cols.push({col:i+1,course_id:$(th).attr('course_id')})
@@ -255,12 +259,12 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     $("input[name=page]").keyup(function(e){
       if(e.keyCode==13){
         var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-        if(/^[1-9]\d*$/.test(p))
-        window.location.href='${reverse('course_permission')}?${pager_params}&page='+p
+          if(/^[1-9]\d*$/.test(p))
+          window.location.href='${reverse('course_permission')}?${pager_params}&page='+p
         else
-        alert("Invalid page number '"+p+"'")
+          alert("Invalid page number '"+p+"'")
       }
-    })
+    });
     // drop events
     form.find("select[name=state_id]").change(function(a){
       var state_id=$(this).val();
@@ -269,29 +273,30 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       dropCohort(form,state_id,district_id,cohort_id);
     });
     form.find("select[name=district_id]").change(function(){
-      var state_id='';
+      var state_id=form.find("select[name=state_id]").val()
       var district_id=$(this).val();
       dropSchool(form,state_id,district_id,school_id);
       dropCohort(form,state_id,district_id,cohort_id);
     });
     // init page size
     $("#lstPageSize").val("${request.GET.get('size') or '20'}")
-    $("#lstPageSize").change(function(){
-      window.location.href=replace_searching({size:$(this).val()})
-    })
+      $("#lstPageSize").change(function(){
+        window.location.href=replace_searching({size:$(this).val()})
+      });
     // init filter form
-    var state_id="${request.GET.get('state_id') or ''}"
-    var cohort_id="${request.GET.get('cohort_id') or ''}"
-    var district_id="${request.GET.get('district_id') or ''}"
-    var school_id="${request.GET.get('school_id') or ''}"
-    var email="${request.GET.get('email') or ''}"
-    var first_name="${request.GET.get('first_name') or ''}"
-    var last_name="${request.GET.get('last_name') or ''}"
-    var subject_id="${request.GET.get('subject_id') or ''}"
-    form.find("input[name=email]").val(email)
-    form.find("input[name=last_name]").val(last_name)
-    form.find("input[name=first_name]").val(first_name)
-    form.find("select[name=subject_id]").val(subject_id)
+    var state_id="${request.GET.get('state_id','__NONE__')}";
+    var cohort_id="${request.GET.get('cohort_id','__NONE__')}";
+    var district_id="${request.GET.get('district_id','__NONE__')}";
+    var school_id="${request.GET.get('school_id','__NONE__')}";
+    var subject_id="${request.GET.get('subject_id','__NONE__')}";
+    var email="${request.GET.get('email','')}";
+    var first_name="${request.GET.get('first_name','')}";
+    var last_name="${request.GET.get('last_name','')}";
+    form.find("select[name=state_id]").val(state_id);
+    form.find("input[name=email]").val(email);
+    form.find("input[name=last_name]").val(last_name);
+    form.find("input[name=first_name]").val(first_name);
+    form.find("select[name=subject_id]").val(subject_id);
     dropDistrict(form,state_id,function(){
       $(this).val(district_id)
     });
@@ -302,30 +307,30 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       $(this).val(school_id)
     });
     var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
-                     email:email, first_name:first_name, last_name:last_name,subject_id:subject_id}
+                     email:email, first_name:first_name, last_name:last_name,subject_id:subject_id};
     $("#btnDownloadCsv").click(function(){
       var valid_filter=[];
       var h=get_searching();
       var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
-      for(k in filter){
-        var v=filter[k];
-        if(v && v.length){
-          valid_filter.push(k+"="+encodeURI(v));
+        for(k in filter){
+          var v=filter[k];
+          if(v && v.length){
+            valid_filter.push(k+"="+encodeURI(v));
+          }
         }
-      }
       window.open("${reverse('download_course_permission_csv')}?"+valid_filter.join("&"))
-    })
+    });
     $("#btnDownloadExcel").click(function(){
       var valid_filter=[];
       var h=get_searching();
       var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
-      for(k in filter){
-        var v=filter[k];
-        if(v && v.length){
-          valid_filter.push(k+"="+encodeURI(v));
+        for(k in filter){
+          var v=filter[k];
+          if(v && v.length){
+            valid_filter.push(k+"="+encodeURI(v));
+          }
         }
-      }
       window.open("${reverse('download_course_permission_excel')}?"+valid_filter.join("&"))
-    })
+    });
   </script>
 </body>

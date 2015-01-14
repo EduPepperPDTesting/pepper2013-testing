@@ -22,6 +22,7 @@ function infoAndWait(box,info,seconds,go){
   count();
 }
 function dropDistrict(form,state_id,callback){
+  if(state_id=='__NONE__')state_id='-1';
   $.get('/reg_kits/drop_districts',{state_id:state_id},function(r){
       if((typeof r) == 'string'){
         r=$.parseJSON(r)
@@ -38,6 +39,8 @@ function dropDistrict(form,state_id,callback){
   });
 }
 function dropSchool(form,state_id,district_id,callback){
+  if(state_id=='__NONE__')state_id='-1';
+  if(district_id=='__NONE__')district_id='-1';
   $.get('/reg_kits/drop_schools',{state_id:state_id,district_id:district_id},function(r){
     if((typeof r) == 'string')r=$.parseJSON(r)
     var html="";
@@ -52,6 +55,8 @@ function dropSchool(form,state_id,district_id,callback){
   });
 }
 function dropCohort(form,state_id,district_id,callback){
+  if(state_id=='__NONE__')state_id='-1';
+  if(district_id=='__NONE__')district_id='-1';
   $.get('/reg_kits/drop_cohorts',{state_id:state_id,district_id:district_id},function(r){
     if((typeof r) == 'string')r=$.parseJSON(r)
     var html="";
@@ -67,7 +72,11 @@ function dropCohort(form,state_id,district_id,callback){
   });
 }             
 function clearOption(drop){
-  drop.find("option").filter(function(){return this.getAttribute("value")!=""}).remove()
+  drop.find("option").filter(
+    function(){
+      return this.getAttribute("value")!="" && this.getAttribute("value")!="__NONE__"
+    }
+  ).remove()
 }
 function get_searching(){
   var search=window.location.search;

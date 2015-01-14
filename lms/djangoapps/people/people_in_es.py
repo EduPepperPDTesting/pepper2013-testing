@@ -28,6 +28,7 @@ es_fields={
  'is_active':{'mapping':MAPPING_LONG,'searching':'term'},
  'is_superuser':{'mapping':MAPPING_LONG,'searching':'term'},
  'course':{'mapping':MAPPING_STRING,'searching':'term'},
+ 'state_id':{'mapping':MAPPING_LONG,'searching':'term'},    
  'district_id':{'mapping':MAPPING_LONG,'searching':'term'},
  'school_id':{'mapping':MAPPING_LONG,'searching':'term'},
  'cohort_id':{'mapping':MAPPING_LONG,'searching':'term'},

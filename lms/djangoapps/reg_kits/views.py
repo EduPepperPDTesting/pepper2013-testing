@@ -249,26 +249,34 @@ def filter_user(request):
 
     filtered=[False]
     
-    def q(k):
+    def q(k,none_as_empty=False):
         v=request.GET.get(k)
-        if v:
+        if none_as_empty:
+            empty=(v=='__NONE__')
+        else:
+            empty=(v=='')
+        if (k in request.GET) and (not empty):
             filtered[0]=True
+        if v=='__NONE__':
+            v=None
         return v 
         
     if q('first_name'):
         data=data.filter(Q(user__first_name=q('first_name')))
     if q('last_name'):
         data=data.filter(Q(user__last_name=q('last_name')))
-    if q('school_id'):
-        data=data.filter(school_id=q('school_id'))
     if q('email'):
         data=data.filter(user__email=q('email'))
-    if q('district_id'):
+        
+    if q('school_id',True):
+        data=data.filter(school_id=q('school_id'))
+    if q('district_id',True):
         data=data.filter(Q(cohort__district_id=q('district_id')))
-    if q('state_id'):
+    if q('state_id',True):
         data=data.filter(Q(cohort__district__state_id=q('state_id')))
-    if q('cohort_id'):
+    if q('cohort_id',True):
         data=data.filter(cohort_id=q('cohort_id'))
+        
     if q('subscription_status'):
         data=data.filter(subscription_status=q('subscription_status'))
     if q('invite_days_min'):
@@ -365,25 +373,24 @@ def download_course_permission_csv(request):
     writer = csv.DictWriter(output, fieldnames=FIELDS)
     
     writer.writerow(dict(zip(FIELDS, TITLES)))
-    data=filter_user(request)
+    data,filtered=filter_user(request)
 
-    domain="http://"+request.META['HTTP_HOST']
-
-    for d in data:
-        row={
-            "district":attstr(d,"cohort.district.name"),
-            "last_name":attstr(d,"user.last_name"),
-            "first_name":attstr(d,"user.first_name"),
-            "email":attstr(d,"user.email"),       
-            }
-        for c in courses:
-            if not c.display_coursenumber:
-                continue
-            
-            allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
-            row[c.display_coursenumber]=allow
-            
-        writer.writerow(row)
+    if filtered:
+      for d in data:
+          row={
+              "district":attstr(d,"cohort.district.name"),
+              "last_name":attstr(d,"user.last_name"),
+              "first_name":attstr(d,"user.first_name"),
+              "email":attstr(d,"user.email"),       
+              }
+          for c in courses:
+              if not c.display_coursenumber:
+                  continue
+              
+              allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+              row[c.display_coursenumber]=allow
+              
+          writer.writerow(row)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=couse-permission-%Y-%m-%d-%H-%M-%S.csv')
@@ -412,28 +419,29 @@ def download_course_permission_excel(request):
             continue
         FIELDS.append(c.display_coursenumber)
         TITLES.append(c.display_coursenumber)
-    
+
     for i,k in enumerate(TITLES):
         worksheet.write(0,i,k)
     row=1
-    data=filter_user(request)
-    for d in data:
-
-        for c in courses:
-            if not c.display_coursenumber:
-                continue            
-            allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
-            setattr(d,c.display_coursenumber,allow)
-            
-        d.first_name=attstr(d,"user.first_name")
-        d.last_name=attstr(d,"user.last_name")
-        d.district=attstr(d,"cohort.district.name")
-        d.email=attstr(d,"user.email")
-        
-        for i,k in enumerate(FIELDS):
-            worksheet.write(row,i,getattr(d,k))
-
-        row=row+1
+    data,filtered=filter_user(request)
+    
+    if filtered:
+      for d in data:
+          for c in courses:
+              if not c.display_coursenumber:
+                  continue            
+              allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+              setattr(d,c.display_coursenumber,allow)
+              
+          d.first_name=attstr(d,"user.first_name")
+          d.last_name=attstr(d,"user.last_name")
+          d.district=attstr(d,"cohort.district.name")
+          d.email=attstr(d,"user.email")
+          
+          for i,k in enumerate(FIELDS):
+              worksheet.write(row,i,getattr(d,k))
+      
+          row=row+1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
@@ -475,6 +483,9 @@ def course_permission(request):
     if not filtered:
         data=[]
 
+    print "===================="
+    print data
+    print "===================="
     size=request.GET.get('size')
 
     if size and size.isdigit():
