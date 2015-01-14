@@ -668,6 +668,7 @@ function tinyMCE_cms_init(CMS_Details,name,details)
       theme_advanced_buttons1 : "bold,italic,underline,|,link,unlink,|,bullist,outdent,indent,|,justifyleft,justifycenter,justifyright,justifyfull",
       theme_advanced_resizing : false,
       content_css : "/static/css/tiny-mce.css",
+      popup_css: '/static/js/vendor/tiny_mce/themes/advanced/skins/default/dialog.css',
       setup : function(ed) {
         ed.onInit.add(function(ed, evt) {
             ed.getBody().innerHTML=details;
