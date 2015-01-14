@@ -103,13 +103,25 @@ padding-bottom:50px !important;
               </select>
             </div>
             <div class="filters">
-              <select name="district_id">
-                <option value="">District</option>
-                %for item in District.objects.all().order_by('name'):
+              <select name="state_id">
+                <option value="">State</option>
+                %for item in State.objects.all().order_by('name'):
                 <option value="${item.id}">${item.name}</option>
                 %endfor           
               </select>
+            </div>     
+            
+            <div class="filters">
+              <select name="district_id">
+                <option value="">District</option>
+                %if request.GET.get("state_id"):
+                %for item in District.objects.filter(state_id=request.GET.get("state_id")).order_by('name'):
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+                %endif
+              </select>
             </div>
+            
             <div class="filters">
               <select  id="school_id" name="school_id">
               <option value="">School</option>
@@ -200,6 +212,7 @@ padding-bottom:50px !important;
             form.find("input[name=last_name]").val("${request.GET.get('last_name','')}")
             form.find("select[name=course_id]").val("${search_course_id}")
             form.find("select[name=district_id]").val("${request.GET.get('district_id','')}")
+            form.find("select[name=state_id]").val("${request.GET.get('state_id','')}")
             form.find("select[name=school_id]").val("${request.GET.get('school_id','')}")
             form.find("select[name=subject_area_id]").val("${request.GET.get('subject_area_id','')}")
             form.find("select[name=grade_level_id]").val("${request.GET.get('grade_level_id','')}")
@@ -389,71 +402,82 @@ padding-bottom:50px !important;
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
-$("#text_pre_page").val("${pager['size']}")
-$("#text_pre_page").bind('change', function(e){
-  var f=$("#search_form");
-  f.find("input[name=size]").val($(this).val());
-  f.submit();
-});
-function add_people(btn){
-  var people_id=$(btn).attr('user_id')
-  var data={people_id:people_id}
-  $.post("${reverse('add_people')}",data,function(r){
-    if((typeof r) == 'string')r=$.parseJSON(r);
+  $("#text_pre_page").val("${pager['size']}")
+    $("#text_pre_page").bind('change', function(e){
+      var f=$("#search_form");
+      f.find("input[name=size]").val($(this).val());
+      f.submit();
+    });
+  function add_people(btn){
+    var people_id=$(btn).attr('user_id')
+      var data={people_id:people_id}
+    $.post("${reverse('add_people')}",data,function(r){
+      if((typeof r) == 'string')r=$.parseJSON(r);
       if(r.success){
         $(btn).parent().removeClass("btn_container_add")
-        $(btn).parent().addClass("btn_container_del")
-        $(btn).removeClass("icon-add")
-        $(btn).addClass("icon-search")
-        $(btn).find("div").html("In My Network")
-        $(btn).next(".button-del")[0].onclick=null
+          $(btn).parent().addClass("btn_container_del")
+          $(btn).removeClass("icon-add")
+          $(btn).addClass("icon-search")
+          $(btn).find("div").html("In My Network")
+          $(btn).next(".button-del")[0].onclick=null
         $(btn).next(".button-del").unbind('click')
-        $(btn).next(".button-del").click(function(){
-          del_people(people_id,this);
-          return false;
-        })
-        var interviewer_id ='${user.id}';
+          $(btn).next(".button-del").click(function(){
+            del_people(people_id,this);
+            return false;
+          })
+          var interviewer_id ='${user.id}';
         var interviewer_name ='${user.username}';
         var datainfo={'info':JSON.stringify({'user_id':people_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':'add_network','location':'/dashboard/'+interviewer_id,'course_number':$('title').text().split(' ')[0],'date':(new Date()).toISOString(),'activate':'false'})}
         $.post("${reverse('save_interactive_update')}",datainfo,function(){});
       }
-  })
-  btn.onclick=null;
-}
-function del_people(people_id,btn){
-  if(confirm("Are you sure that you would like to remove this person from your network list?")){
-    $.post("${reverse('del_people')}",{people_id:people_id},function(r){
-      if ((typeof r) == 'string') r=$.parseJSON();
-      if(r.success){
-        $(btn).parent().removeClass("btn_container_del")
-        $(btn).parent().addClass("btn_container_add")
-        $(btn).prev(".button-status").removeClass("icon-search")
-        $(btn).prev(".button-status").addClass("icon-add")
-        $(btn).prev(".button-status").find("div").html("Add to My Network")
-        $(btn).prev(".button-status").unbind('click')
-        $(btn).prev(".button-status").click(function(){
-          add_people(this);
-          return false;
-        })
-      }
-    });
+    })
+      btn.onclick=null;
   }
-}
-var form=$("#search_form");
-form.find("select[name=district_id]").change(function(){
-  var district_id=$(this).val();
-  if(district_id){
-    dropSchool(form,'',district_id);
-  }else{
-    var drop=form.find("select[name=school_id]")
-    clearOption(drop)
+  function del_people(people_id,btn){
+    if(confirm("Are you sure that you would like to remove this person from your network list?")){
+      $.post("${reverse('del_people')}",{people_id:people_id},function(r){
+        if ((typeof r) == 'string') r=$.parseJSON();
+        if(r.success){
+          $(btn).parent().removeClass("btn_container_del")
+            $(btn).parent().addClass("btn_container_add")
+            $(btn).prev(".button-status").removeClass("icon-search")
+            $(btn).prev(".button-status").addClass("icon-add")
+            $(btn).prev(".button-status").find("div").html("Add to My Network")
+            $(btn).prev(".button-status").unbind('click')
+            $(btn).prev(".button-status").click(function(){
+              add_people(this);
+              return false;
+            })
+        }
+      });
+    }
   }
-})
-function imessage_click(obj)
-{
-  var userInfo=[];
-  userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-  userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
-  message_board(userInfo);
-}
+  var form=$("#search_form");
+  form.find("select[name=district_id]").change(function(){
+    var district_id=$(this).val();
+    if(district_id){
+      dropSchool(form,'',district_id);
+    }else{
+      var drop=form.find("select[name=school_id]")
+        clearOption(drop)
+    }
+  });
+  form.find("select[name=state_id]").change(function(a){
+    var district_id="${request.GET.get('district_id','')}"
+    var state_id=$(this).val();
+    if(state_id){
+      dropDistrict(form,state_id,district_id);
+    }else{
+      clearOption(form.find("select[name=district_id]"));
+      clearOption(form.find("select[name=school_id]"));
+    }
+    //dropSchool(form,state_id,district_id,school_id);
+  });  
+  function imessage_click(obj)
+  {
+    var userInfo=[];
+    userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+    userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+    message_board(userInfo);
+  }
 </script>
