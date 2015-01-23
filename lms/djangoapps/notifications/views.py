@@ -82,10 +82,13 @@ def upload_image(request):
     success = True
     try:
         fd = request.FILES.get("image_file",None)
-        fname = fd.name.split(".")
-        file_key = fname[0] +"_"+datetime.now(UTC).strftime(
+        index=fd.name.rfind(".")
+        extensions_name=fd.name[index+1:] 
+        main_name=fd.name[0:index] 
+        #fname = fd.name.split(".")
+        file_key = main_name +"_"+datetime.now(UTC).strftime(
             xqueue_interface.dateformat
-        )+"."+fname[1]
+        )+"."+extensions_name
 
         fd.seek(0)
         s3_public_url = upload_to_s3(
@@ -107,6 +110,6 @@ def upload_to_s3(file_to_upload, keyname, s3_interface):
     k.set_contents_from_file(file_to_upload)
 
     k.set_acl("public-read")
-    public_url = k.generate_url(60 * 60 * 24 * 365) # URL timeout in seconds.
+    public_url = k.generate_url(60 * 60 * 24 * 1825) # URL timeout in seconds.
 
     return public_url

@@ -48,7 +48,7 @@ def upload_to_s3(file_to_upload, keyname, s3_interface):
     k.set_contents_from_file(file_to_upload)
 
     k.set_acl("public-read")
-    public_url = k.generate_url(60 * 60 * 24 * 365) # URL timeout in seconds.
+    public_url = k.generate_url(60 * 60 * 24 * 1825) # URL timeout in seconds.
 
     return public_url
 
@@ -426,11 +426,13 @@ class OpenEndedChild(object):
         file_data: InMemoryUploadedFileObject that responds to read() and seek().
         @return: A URL corresponding to the uploaded object.
         """
-        fname=file_data.name.split(".")
-        file_key = fname[0] +"_"+datetime.now(UTC).strftime(
+        index=file_data.name.rfind(".")
+        extensions_name=file_data.name[index+1:] 
+        main_name=file_data.name[0:index] 
+        #fname = fd.name.split(".")
+        file_key = main_name +"_"+datetime.now(UTC).strftime(
             xqueue_interface.dateformat
-        )+"."+fname[1]
-
+        )+"."+extensions_name
         file_data.seek(0)
         s3_public_url = upload_to_s3(
             file_data, file_key, self.s3_interface
