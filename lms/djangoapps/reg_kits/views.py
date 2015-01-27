@@ -483,9 +483,6 @@ def course_permission(request):
     if not filtered:
         data=[]
 
-    print "===================="
-    print data
-    print "===================="
     size=request.GET.get('size')
 
     if size and size.isdigit():

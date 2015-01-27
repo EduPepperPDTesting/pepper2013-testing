@@ -81,7 +81,7 @@ function clearOption(drop){
 function get_searching(){
   var search=window.location.search;
   var p=[];
-  var reg=/([^\?&=]+)=([^\?&=]+)/g
+  var reg=/([^\?&=]+)=([^\?&=]*)/g
   while(m=reg.exec(search)){
     p[m[1]]=m[2];
   }

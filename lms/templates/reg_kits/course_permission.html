@@ -311,13 +311,12 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     $("#btnDownloadCsv").click(function(){
       var valid_filter=[];
       var h=get_searching();
-      var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
-        for(k in filter){
-          var v=filter[k];
-          if(v && v.length){
-            valid_filter.push(k+"="+encodeURI(v));
-          }
-        }
+      var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter);
+      console.log(filter);
+      for(k in filter){
+        var v=filter[k];
+        valid_filter.push(k+"="+encodeURI(v));
+      }
       window.open("${reverse('download_course_permission_csv')}?"+valid_filter.join("&"))
     });
     $("#btnDownloadExcel").click(function(){
@@ -326,9 +325,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       var filter=$.extend({sortby:h.sortby,desc:h.desc},curr_filter)
         for(k in filter){
           var v=filter[k];
-          if(v && v.length){
-            valid_filter.push(k+"="+encodeURI(v));
-          }
+          valid_filter.push(k+"="+encodeURI(v));
         }
       window.open("${reverse('download_course_permission_excel')}?"+valid_filter.join("&"))
     });
