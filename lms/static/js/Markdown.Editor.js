@@ -1654,11 +1654,17 @@
             link = link.replace(/\?.*$/, function (querypart) {
                 return querypart.replace(/\+/g, " "); // in the query string, a plus and a space are identical
             });
+            url=link.split("?Signature=");
+            var beforeURL=escape(unescape(url[0].split("://")[1]));
+            var afterURL=url[1];
+            link="https://"+beforeURL+"?Signature="+afterURL;
+            /*
             link = decodeURIComponent(link); // unencode first, to prevent double encoding
             link = encodeURI(link).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
             link = link.replace(/\?.*$/, function (querypart) {
                 return querypart.replace(/\+/g, "%2b"); // since we replaced plus with spaces in the query part, all pluses that now appear where originally encoded
             });
+            */
             if (title) {
                 title = title.trim ? title.trim() : title.replace(/^\s*/, "").replace(/\s*$/, "");
                 title = $.trim(title).replace(/"/g, "quot;").replace(/\(/g, "&#40;").replace(/\)/g, "&#41;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
