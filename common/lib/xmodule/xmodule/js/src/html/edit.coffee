@@ -24,7 +24,8 @@ class @HTMLEditingDescriptor
       theme : "advanced",
       skin: 'studio',
       schema: "html5",
-      plugins : "table,advimage-link",
+      plugins : "table,advimage-link,spellchecker",
+      spellchecker_languages : "+English=en",
       # Necessary to preserve relative URLs to our images.
       convert_urls : false,
       # TODO: we should share this CSS with studio (and LMS)
@@ -47,7 +48,7 @@ class @HTMLEditingDescriptor
       #@date:2013-11-02
       theme_advanced_buttons1 : "styleselect,fontselect,fontsizeselect,bold,italic,underline,|,bullist,numlist,|,justifyleft,justifycenter,justifyright",
       theme_advanced_buttons2 : "tablecontrols,|,removeformat,|,link,unlink,|,forecolor,backcolor",
-      theme_advanced_buttons3 : "hr,|,outdent,indent,|,blockquote,wrapAsCode,|,image",
+      theme_advanced_buttons3 : "hr,|,outdent,indent,|,blockquote,wrapAsCode,|,image,spellchecker",
       theme_advanced_toolbar_location : "top",
       theme_advanced_toolbar_align : "left",
       theme_advanced_statusbar_location : "none",
@@ -89,7 +90,9 @@ class @HTMLEditingDescriptor
         # Visual Editor must be marked as dirty or else we won't populate the Advanced Editor from it.
         ed.isNotDirty = false
     })
-
+    ed.onInit.add((ed, evt) -> 
+      tinyMCE.execCommand('mceSpellCheck')
+    )
     ed.onNodeChange.add((editor, command, e) ->
       command.setActive('wrapAsCode', e.nodeName == 'CODE')
     )
