@@ -1,0 +1,71 @@
+.richTableA.outer{
+    /* display:inline-block; */
+    font-size:0;
+    border:1px solid #000;
+    white-space:nowrap;
+    background:#fff;
+}
+.richTableA .cell{
+    display:inline-block;
+    border:0px solid #f00;
+    height:450px;
+    padding-top:26px;
+    position:relative;
+    overflow:hidden;
+}
+.richTableA .cell.right{
+    border-left:1px solid #000;
+}
+.richTableA .cell.right .wrap{
+    overflow:auto;
+}
+.richTableA .wrap{
+    height:450px;
+}
+.richTableA .cell.right thead{
+    white-space:nowrap;
+}
+.richTableA .cell.left thead th{
+    background:#1781A8;
+    font-weight:normal;
+    color:#fff;
+    top:-1px;
+}
+.richTableA .cell.right thead th{
+    background:#1781A8;
+    color:#fff;
+    font-weight:normal;
+    width:350px;
+    top:-1px;
+}
+.richTableA table{
+    border-collapse:collapse;
+    border:0;
+    width:2px;
+}
+.richTableA td,
+.richTableA th{
+    border:1px solid #999;
+    padding:3px;
+    text-align:left;
+    white-space:nowrap;
+    height:25px;
+    line-height:25px;
+}
+.richTableA td{
+    border-width:1px 0;
+}
+.richTableA th{
+    border-width:0px 0;
+}
+.richTableA input{
+    height:25px;
+    line-height:25px;
+    margin:0;
+    padding:0;
+}
+
+.richTableA th label{
+    white-space:nowrap;
+    color:#fff;
+}
