@@ -99,7 +99,8 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
     field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, portfolio_user, section_descriptor, depth=None)
     descriptor = modulestore().get_instance_items(course.id, location,'combinedopenended',depth=None)
     content = []
-    id_map = get_discussion_id_map(course)
+    #id_map = get_discussion_id_map(course)
+    id_map = {}
     for x in range(len(descriptor)):
         module = get_module_for_descriptor(portfolio_user, request, descriptor[x][1], field_data_cache, course.id,
                                          position=None, wrap_xmodule_display=True, grade_bucket_type=None,
@@ -199,6 +200,7 @@ def create_thread(request, course_id, commentable_id, thread_data, portfolio_use
         user.follow(thread)
     #courseware_context = get_courseware_context(thread, course)
     data = thread.to_dict()
+    '''
     id = data['commentable_id']
     content_info = None
     if id in id_map:
@@ -209,6 +211,7 @@ def create_thread(request, course_id, commentable_id, thread_data, portfolio_use
                   "location": location})
 
         data.update({"courseware_url": url, "courseware_title": title})
+    '''
     #if courseware_context:
     #    data.update(courseware_context)  
     return ajax_content_response(request, course_id, data, 'discussion/ajax_create_thread.html')

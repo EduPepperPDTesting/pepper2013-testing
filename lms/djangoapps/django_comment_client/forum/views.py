@@ -344,7 +344,6 @@ def single_thread(request, course_id, discussion_id, thread_id):
     course = get_course_with_access(request.user, course_id, 'load_forum')
     cc_user = cc.User.from_django_user(request.user)
     user_info = cc_user.to_dict()
-    id_map = get_discussion_id_map(course)
     try:
         thread = cc.Thread.find(thread_id).retrieve(recursive=True, user_id=request.user.id)
     except (cc.utils.CommentClientError, cc.utils.CommentClientUnknownError):
@@ -355,9 +354,10 @@ def single_thread(request, course_id, discussion_id, thread_id):
                                     For additional help contact <a href='mailto:PepperSupport@pcgus.com'>PepperSupport@pcgus.com</a>."}
         return render_to_response('error.html', context)
         # raise Http404
+    
     if len(thread.get('children'))<1:
         create_comment_auto_load(request, course_id, thread_id,User.objects.get(id=thread.get("user_id")))
-    if request.is_ajax(): 
+    if request.is_ajax():
         annotated_content_info = utils.get_annotated_content_infos(course_id, thread, request.user, user_info=user_info)
         context = {'thread': thread.to_dict(), 'course_id': course_id}
         # TODO: Remove completely or switch back to server side rendering
@@ -366,16 +366,18 @@ def single_thread(request, course_id, discussion_id, thread_id):
         #courseware_context = get_courseware_context(thread, course)
         #if courseware_context:
         #    content.update(courseware_context)
-        id = content['commentable_id']
-        content_info = None
-        if id in id_map:
-            location = id_map[id]["location"].url()
-            title = id_map[id]["title"]
+        if thread.get('tags')[0]!='portfolio':
+            id_map = get_discussion_id_map(course)
+            id = content['commentable_id']
+            content_info = None
+            if id in id_map:
+                location = id_map[id]["location"].url()
+                title = id_map[id]["title"]
 
-            url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
-                      "location": location})
+                url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                          "location": location})
 
-            content.update({"courseware_url": url, "courseware_title": title})
+                content.update({"courseware_url": url, "courseware_title": title})
         return utils.JsonResponse({
             #'html': html,
             'content': content,
@@ -384,7 +386,7 @@ def single_thread(request, course_id, discussion_id, thread_id):
 
     else:
         category_map = utils.get_discussion_category_map(course)
-
+        id_map = get_discussion_id_map(course)
         try:
             threads, query_params = get_threads_tags(request, course_id)
             threads.append(thread.to_dict())
