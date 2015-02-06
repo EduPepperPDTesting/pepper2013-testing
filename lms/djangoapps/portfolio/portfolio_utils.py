@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import login_required
 from course_groups.cohorts import (is_course_cohorted, get_cohort_id, is_commentable_cohorted,
                                    get_cohorted_commentables, get_course_cohorts, get_cohort_by_id)
-from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context)
+from django_comment_client.utils import (merge_dict, extract, strip_none, get_courseware_context, get_discussion_id_map)
 reload(sys)  
 sys.setdefaultencoding('utf-8')
 DIRECT_ONLY_CATEGORIES = ['course', 'chapter', 'sequential', 'about', 'static_tab', 'course_info']
@@ -99,7 +99,7 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
     field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, portfolio_user, section_descriptor, depth=None)
     descriptor = modulestore().get_instance_items(course.id, location,'combinedopenended',depth=None)
     content = []
-    
+    id_map = get_discussion_id_map(course)
     for x in range(len(descriptor)):
         module = get_module_for_descriptor(portfolio_user, request, descriptor[x][1], field_data_cache, course.id,
                                          position=None, wrap_xmodule_display=True, grade_bucket_type=None,
@@ -115,7 +115,7 @@ def get_module_combinedopenended(request, course, location, portfolio_user):
             #c_info = Get_combinedopenended_info()
             #c_info.feed(con)
             title, body = Get_combinedopenended_info(con)
-            discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body,'tags':'portfolio'},portfolio_user)
+            discussion,visibility=create_discussion(request, course, descriptor[x][1].location[4], location,{'title':title,'body':body,'tags':'portfolio'},portfolio_user,id_map)
             if visibility:
                 content.append(discussion)
 
@@ -142,7 +142,7 @@ def get_discussion_context(request, course, location, parent_location,portfolio_
                                      static_asset_path='')
         return module.runtime.render(module, None, 'student_view').content
 
-def create_thread(request, course_id, commentable_id, thread_data, portfolio_user):
+def create_thread(request, course_id, commentable_id, thread_data, portfolio_user, id_map):
     """
     Given a course and commentble ID, create the thread
     """
@@ -197,10 +197,20 @@ def create_thread(request, course_id, commentable_id, thread_data, portfolio_use
     if thread_data.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(portfolio_user)
         user.follow(thread)
-    courseware_context = get_courseware_context(thread, course)
+    #courseware_context = get_courseware_context(thread, course)
     data = thread.to_dict()
-    if courseware_context:
-        data.update(courseware_context)  
+    id = data['commentable_id']
+    content_info = None
+    if id in id_map:
+        location = id_map[id]["location"].url()
+        title = id_map[id]["title"]
+
+        url = reverse('jump_to', kwargs={"course_id": course.location.course_id,
+                  "location": location})
+
+        data.update({"courseware_url": url, "courseware_title": title})
+    #if courseware_context:
+    #    data.update(courseware_context)  
     return ajax_content_response(request, course_id, data, 'discussion/ajax_create_thread.html')
     '''
     if request.is_ajax():
@@ -315,7 +325,7 @@ def create_comment(request, course_id, comment_data, portfolio_user, thread_id=N
     user.follow(comment.thread)
 
 
-def create_discussion(request, course, ora_id, parent_location, thread_data, portfolio_user):
+def create_discussion(request, course, ora_id, parent_location, thread_data, portfolio_user, id_map):
     category = 'discussion'
     context = ''
     display_name = 'Discussion'
@@ -372,7 +382,7 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
         context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
         did = Get_discussion_id()
         did.feed(context)
-        create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user)
+        create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user, id_map)
         thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
         create_comment(request, course.id, {'body':'Please leave me your feedback by adding a comment below.'}, portfolio_user, thread_id)
     else:
@@ -408,7 +418,7 @@ def create_discussion(request, course, ora_id, parent_location, thread_data, por
                 context = get_discussion_context(request, course, dest_location, parent_location, portfolio_user)
                 did = Get_discussion_id()
                 did.feed(context)
-                create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user)
+                create_thread(request, course.id, did.id_urls[0], thread_data, portfolio_user, id_map)
                 thread_id = get_threads(request, course.id, portfolio_user, did.id_urls[0], per_page=20)[0][0]['id']
                 create_comment(request, course.id, {'body':'Please leave me your feedback by adding a comment below.'}, portfolio_user, thread_id)
         update_thread(request, course.id, thread_id, thread_data)
