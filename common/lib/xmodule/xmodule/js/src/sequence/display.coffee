@@ -125,6 +125,9 @@ class @Sequence
 
       sequence_links = @$('#seq_content a.seqnav')
       sequence_links.click @goto
+      my_chunks = new MyChunks();
+      my_chunks.init(new_position);
+
 
   goto: (event) =>
     event.preventDefault()

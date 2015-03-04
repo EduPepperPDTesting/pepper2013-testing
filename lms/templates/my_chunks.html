@@ -1,0 +1,382 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+  #btn-dashboard{display:none;}
+  #image_uploading{display:none;}
+  .mychunks_linkwin{
+    background:#fff;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    border-radius: 0;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    display: none;
+    left: 50%;
+    padding: 8px;
+    position: absolute;
+    width: 480px;
+    display: none;
+    margin-left:-250px;
+    top: 320px;
+    z-index: 11000;
+    height:200px;
+  }
+  .mychunks_style_button {
+    width:100px;
+    text-align:center;
+    display: block;
+    text-decoration: none!important;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    padding: 3px 3px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    box-shadow: inset 0px 0px 2px #fff;
+    -o-box-shadow: inset 0px 0px 2px #fff;
+    -webkit-box-shadow: inset 0px 0px 2px #fff;
+    -moz-box-shadow: inset 0px 0px 2px #fff;
+    cursor:pointer;
+  }
+  .mychunks_share_list td
+  {
+    vertical-align:middle;
+    padding:10px;
+  }
+  .name_text
+  {
+    font-size:12px;
+    color:#646464;
+    line-height: 1.2em
+  }
+  .mychunks_checkbox
+  {
+    width:30px;
+    height:30px;
+    cursor:pointer; 
+  }
+  .mychunks_checkbox div
+  {
+    width:30px;
+    height:30px;
+  }
+</style>
+<script type="text/javascript" src="${static.url('js/my_content_chunks.js')}"></script>
+<script>
+
+</script>
+<!--@end-->
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("My Chunks - {username}".format(username=curr_user.username))}</title></%block>
+
+
+<section class="container dashboard" id="container_dashboard">
+	<section class="profile-sidebar">
+		<header class="profile">
+      		<h1 class="user-name">${ curr_user.username }</h1>
+		</header>
+  	
+	  	<section class="user-info">
+			<ul>
+        		<!----username---->
+        		<li>
+		          	<span class="title">
+		            <div class="icon name-icon"></div><b>${_("Name")}:</b>
+		            <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
+					<script>
+						var full_name = document.getElementById('full_name_span').textContent;
+						if(full_name.length>31)
+						{
+							document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
+						}
+				   </script>  
+        		</li>
+
+	        	<!----user photo---->
+	        	<li>
+			        <span class="title">
+				        <div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;"></div>
+				        <b>${_("User Photo")}</b>
+			        </span> 
+			        <div style="text-align:center;margin-top:5px;">
+			        	<img src="${reverse('user_photo',args=[curr_user.id])}" style="" alt="photo" />
+			        </div>
+	        	</li>
+
+	        	<!----My Profile---->
+	        	<li>
+		          <span class="title">
+				  <div style="font-family: 'Open Sans';font-size:12px;">
+		            <div class="" style="padding:0 0 5px 0;"> 
+		              <b style="font-size:14px;color:#000">My Profile:</b>
+		            </div>
+					<div style="line-height:30px;"><b>State:</b>
+			          % if curr_user.profile.cohort_id:
+					  ${curr_user.profile.cohort.district.state.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>District:</b>
+					  % if curr_user.profile.cohort_id:
+					  <br>${curr_user.profile.cohort.district.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>School:</b>
+					  % if curr_user.profile.school_id:
+					  <br>${curr_user.profile.school.name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>Grade Level:</b>
+		              <% gn=list() %>
+					  % if curr_user.profile.grade_level_id:
+		              <br>
+					  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+					  % if len(c)>0:
+					  <% gn.append(GradeLevel.objects.get(id=c).name) %>
+					  % endif
+					  % endfor
+					  % endif
+		              ${", ".join(gn)}
+					</div>
+					<div style="line-height:30px;"><b>Major Subject Area:</b>
+					  % if curr_user.profile.major_subject_area_id:
+		              <br>
+					  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+					  % endif
+					</div>
+					<div style="line-height:30px;"><b>Number of Years in Education:</b>
+					  % if curr_user.profile.years_in_education_id:
+					  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+					  % endif
+					</div>
+
+		            <div style="padding:15px 0 5px 0;"> 
+		              <b style="font-size:14px;color:#000;">My Class Profile:</b>
+		            </div>
+		            
+					<div style="line-height:30px;">
+		              <b>Free/Reduced Lunch:</b>
+					  % if curr_user.profile.percent_lunch:
+					  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+					  % endif
+					</div>
+		            <div style="line-height:30px;">
+		              <b>IEPs:</b>
+					  % if curr_user.profile.percent_iep:
+					  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+					  % endif
+					</div>
+		            <div style="line-height:30px;">
+		              <b>English Learners:</b>
+					  % if curr_user.profile.percent_eng_learner:
+					  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+					  % endif
+					</div>
+		            </span>
+				</li>
+
+				<li>
+          <span class="title">
+          <div style="font-family: 'Open Sans';font-size:12px;">
+        		<b style="color:#000;font-size:14px;">Bio:</b>
+            <pre style="padding:0;margin-top:10px;">
+            %if curr_user.profile.bio:
+            ${curr_user.profile.bio}
+            %else:
+            Add info that you would like to share about yourself here:  
+            %endif
+            </pre>
+          </div>
+          </span>
+        </li>
+	        </ul>
+	  	</section>
+	</section>
+
+	<section class="my-courses" style="border:0px solid;" >
+		<header>
+			<h2 style="padding-left:20px;">${_("MY CONTENT CHUNKS")}</h2>
+		</header>
+		<div style="min-height:30px";>
+			<div width="100%" style="margin-top:-25px;" class="mychunks_container">
+			</div>
+		</div>
+		<div style="height:30px;text-align:center;font-size:14px;padding-top:10px;color:#388e9b;background-color:#EDEFF4" class="loadInfo">Loading ...</div>
+		<div style="height:30px;">
+		</div>
+		<div class="top_btn" style="position:fixed;right:50px;bottom:150px;cursor:pointer;display:none;">
+			<img class="top_btn_img_1" src='/static/images/top_btn_1.png' alt="Top"/>
+			<img class="top_btn_img_2" src='/static/images/top_btn_2.png' alt="Top" style="display:none;"/>
+		</div>
+	</section>
+</section>
+<!--
+%for profile in profiles:
+  <div class="people_content">
+    <span class="head_photo" style="background:transparent;">
+      <a href="${reverse('dashboard',args=[profile['user_id']])}" target="_blank">
+        <img src="${reverse('user_photo',args=[profile['user_id']])}" style="" alt="photo" />
+      </a>
+    </span>
+   </div>
+%endfor
+-->
+<section id="show_mychunks" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("NOTES ON MY CHUNK")}</h2>
+      <hr/>
+    </header>
+  <form id="" method="post" style="padding:0px;line-height:18px;">
+        <div style="width:520px;margin:10px;">
+         <div class="mychunks_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p style="color:#D4D0C8">Write a Note ...</p></div>
+
+          <div style="color:black;font-size:12px;color:#aaa;">
+            Maximum to 1000 Characters  (<span id="mychunks_curr_char_num">0</span>)
+          </div>
+          <div style="width:530px;height:20px;">
+            <table width="530" border="0" cellpadding="0" cellspacing="0">
+              <tr height="30" style="color:#000;">
+                <td widht="265" style="vertical-align:middle;">
+                  <span class="mychunks_uploadBtn" style="width:110px;cursor:pointer;">
+                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
+                  </span>
+                  
+                  <span class="mychunks_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
+                      <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                      <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+                  </span>
+                  
+                </td>
+                <td align="right" style="vertical-align:middle;">
+                  <div class="mychunks_ftg_button mychunks_style_button ftg_yellow">Update</div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <input id="mychunks_browseFile" type="file" onchange="mychunks_upload_file()" style="width:0px;"/>
+  </form>
+  <br/>
+    <div class="close-modal" id="mychunks_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="share_mychunks" class="modal" style="width:600px;" user-id="${curr_user.id}"user-name="${curr_user.username}">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("SHARING CHUNKS WITH MY NETWORK")}</h2>
+      <hr/>
+    </header>
+    <form id="" method="post" style="padding:0px;line-height:18px;">
+        <div style="width:540px;margin:10px;">
+          <div style="padding:0 0 10px 25px;"><table><tr><td><div class="select_all_checkbox mychunks_checkbox" ischeck="false">
+            <div class="checkbox_img_false" style="background:url(/static/images/check-box-f.png);background-size:contain;background-repeat:no-repeat;"></div>
+            <div class="checkbox_img_true" style="background:url(/static/images/check-box-t.png);background-size:contain;background-repeat:no-repeat;"></div>
+          </div>
+          </td><td style="vertical-align:middle;"><span style="padding-left:10px;">Select All</span></td></tr></table></div>
+          <div class="mychunks_share_list" style="width:540px;height:400px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:scroll;">
+          <table>
+          %for profile in profiles:
+              <tr style="border-bottom:1px solid #959595;background-color:#ffffff;">
+              <td width="50" height="">
+              <div class="share_checkbox mychunks_checkbox" style="margin-left:5px;margin-top:5px;" user-id="${profile['user_id']}" ischeck="false">  
+                <div class="checkbox_img_false" style="background:url(/static/images/check-box-f.png);background-size:contain;background-repeat:no-repeat;"></div>
+                <div class="checkbox_img_true" style="background:url(/static/images/check-box-t.png);background-size:contain;background-repeat:no-repeat;"></div>
+              </div>
+              </td>
+              <td width="120">
+                <span class="head_photo">
+                    <div style="margin-left:5px;margin-top:5px;width:60px;height:60px;background:url(${reverse('user_photo',args=[profile['user_id']])});background-size:contain;background-repeat:no-repeat;"/>
+                </span>
+              </td>
+              <td width="370">
+                <span class="name_container2">
+                  <div class="full_name">
+                    <a href="${reverse('dashboard',args=[profile['user_id']])}" style="color:rgb(52, 97, 173)" target="_blank">${profile['first_name']} ${profile['last_name']}</a>
+                  </div> 
+
+                  <div class="name_text">${profile['username']}</div>
+                   %if profile['cohort_id'] and profile['school_id']:
+                    <%
+                    school=School.objects.get(id=profile['school_id'])
+                    cohort=Cohort.objects.get(id=profile['cohort_id'])
+                    %>
+                    <div class="name_text">${school.name} <br/> ${cohort.district.name}</div>
+                    %endif
+                  </span>
+              </td>
+            </tr>
+          %endfor
+        </table>
+          </div>
+         <div class="mychunks_share_content" contenteditable="true" style="width:540px;height:80px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;margin-top:10px;"><p style="color:#D4D0C8">Add a Message ...</p></div>
+
+          <div style="color:black;font-size:12px;color:#aaa;">
+            Maximum to 50 Characters  (<span id="message_curr_char_num">0</span>)
+          </div>
+          <div class="mychunks_share_button mychunks_style_button ftg_yellow" style="float:right;">Share</div>
+        </div>
+  </form>
+  <br/>
+    <div class="close-modal" id="mychunks_share_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="del_mychunks" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("DELETE THE CHUNK")}</h2>
+      <hr/>
+    </header>
+  	<form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:560px;margin:10px;">
+        <div style="color:black;font-size:16px;width:540px;height:80px;padding:10px;"><center><b>Are you sure you want to delete this chunk of content?</b></center></div>
+         <center><div class="mychunks_del_button mychunks_style_button ftg_yellow">Delete</div></center>
+        </div>
+        
+    </form>
+  <br/>
+    <div class="close-modal" id="mychunks_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="mychunks_linkwin">
+    <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
+    <hr/>
+    <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
+      <table>
+        <tr>
+          <td style="vertical-align:middle">Insert URL:</td>
+          <td><input type="text" id="mychunks_link_url_val"style="width:100%"></td>
+        </tr>
+        <tr>
+          <td width="100" style="vertical-align:middle">Title:</td>
+          <td width="350"><input id="mychunks_link_title_val" type="text" style="width:100%"></td>
+        </tr>
+      </table>
+      <input id="mychunks_hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
+      <input id="mychunks_hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
+    </form>
+ </div>

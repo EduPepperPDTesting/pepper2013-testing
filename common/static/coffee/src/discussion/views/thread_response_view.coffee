@@ -118,10 +118,14 @@ if Backbone?
               location = ('/courses/'+This.model.get('thread').get('course_id')+"/discussion/forum/"+This.model.get('thread').get('commentable_id')+"/threads/"+This.model.get('thread').get('id')).split("#")[0]+"#"+comment.get('id');
             else
               location = ('/courses/'+window.location.href.split('/courses/')[1]).split("#")[0]+"#"+comment.get('id');
+            if This.commentList.length>1  
+              dataInfo={'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':(new Date()).toISOString(),'activate':'false','multiple':'true','portfolio_username':$(".user_name").text()})}
+            else
+              dataInfo={'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':(new Date()).toISOString(),'activate':'false','portfolio_username':$(".user_name").text()})}
             DiscussionUtil.safeAjax
                 type: 'POST'
                 url: '/interactive_update/save_info'
-                data: {'info':JSON.stringify({'user_id':This.commentList.toString(),'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':This.getCommentType(),'location':location,'course_number':$('title').attr('course_number'),'date':(new Date()).toISOString(),'activate':'false','portfolio_username':$(".user_name").text()})}
+                data: dataInfo
                 async:false
     _delete: (event) =>
       event.preventDefault()

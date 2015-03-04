@@ -175,7 +175,9 @@ site_status_msg = get_site_status_msg(course_id)
   <header class="global" aria-label="${_('Global Navigation')}">
 % endif
   <nav id="page-nav">
-
+<style type="text/css" media="screen">
+  header.global.slim h1.logo::before{top:5px}
+</style>
   <h1 class="logo">
 <!--@begin:Choose the link of the top logo according user's login status-->
 <!--@date:2013-11-02-->
@@ -201,7 +203,7 @@ site_status_msg = get_site_status_msg(course_id)
       <%block name="navigation_logo">
 <!--@begin:Choose the image of the top logo according to user's login status-->      
       % if index != 1:
-        <img src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+        <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
       % endif
 <!--@end-->        
      </%block>
@@ -209,8 +211,7 @@ site_status_msg = get_site_status_msg(course_id)
   </h1>
 
     % if course:
-
-      <h2 style="width:640px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
+      <h2 style="width:640px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
     % endif
       <!--@begin:Top navigation tabs and styles before login-->
       <!--@date:2013-11-02-->
@@ -255,13 +256,15 @@ site_status_msg = get_site_status_msg(course_id)
 
     %if request.user.is_authenticated():
       %if curr_user==request.user:
+      <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
       <li><a href="/resource_library_global" class="main-link">Resource Library</a></li>
       <li><a href="/people" class="main-link">People</a></li>
-      <li><a href="/course_credits" class="main-link">Course Credits</a></li>
+      <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
       %else:
+      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
       <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resource Library</a></li>
       <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li>
+      <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
       %endif
     %endif
 
@@ -308,6 +311,7 @@ site_status_msg = get_site_status_msg(course_id)
       <%block name="navigation_dropdown_menu_links" >
       <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
       </%block>
+      <li><a href="/course_credits" class="main-link">Course Credits</a></li>
       <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
     </ul>
   </li>
@@ -527,6 +531,9 @@ site_status_msg = get_site_status_msg(course_id)
       case 'message':
         data.type_text="Personal Message from <b>"+data.interviewer_name+"</b>"
         break;
+      case 'my_chunks':
+        data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
+        break;
     }
   }
   function interactive_update()
@@ -588,7 +595,7 @@ site_status_msg = get_site_status_msg(course_id)
   function interactive_update_activateItem(data)
   {
     var user_id = "${curr_user.id}";
-    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id},function(rdata){interactive_update_openWindow(data);});
+    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
   }
   function interactive_update_getActivateStyle(data)
   {

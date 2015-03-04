@@ -113,7 +113,11 @@ urlpatterns = (
     url(r'^message_board/get_info$', 'notifications.views.get_message', name="get_message"),
     url(r'^message_board/save_info$', 'notifications.views.save_message', name="save_message"),
     url(r'^message_board/upload_image$', 'notifications.views.upload_image', name="upload_message_image"),
-
+    url(r'^my_chunks$', 'my_chunks.views.mychunks', name="mychunks"),
+    url(r'^my_chunks/get_info_range$', 'my_chunks.views.get_mychunks_range', name="get_mychunks_range"),
+    url(r'^my_chunks/get_info$', 'my_chunks.views.get_mychunk', name="get_mychunk"),
+    url(r'^my_chunks/save_info$', 'my_chunks.views.save_mychunk', name="save_mychunk"),
+    url(r'^my_chunks/del_info$', 'my_chunks.views.del_mychunk', name="del_mychunk"),
     url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
 

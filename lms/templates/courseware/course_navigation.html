@@ -4,6 +4,40 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
+  .mychunks_linkwin{
+    background:#fff;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    border-radius: 0;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    display: none;
+    left: 50%;
+    padding: 8px;
+    position: absolute;
+    width: 480px;
+    display: none;
+    margin-left:-250px;
+    top: 320px;
+    z-index: 11000;
+    height:200px;
+  }
+  .mychunks_style_button {
+    width:100px;
+    text-align:center;
+    display: block;
+    text-decoration: none!important;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    padding: 3px 3px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    box-shadow: inset 0px 0px 2px #fff;
+    -o-box-shadow: inset 0px 0px 2px #fff;
+    -webkit-box-shadow: inset 0px 0px 2px #fff;
+    -moz-box-shadow: inset 0px 0px 2px #fff;
+    cursor:pointer;
+  }
+  .course-tabs li{
+    margin-top:10px;
+  }
 </style>
 <!--@end-->
 
@@ -22,9 +56,20 @@ def url_class(is_active):
   if is_active:
     return "active"
   return ""
+def url_class(tab):
+  s=""
+  if tab.name.strip().lower()=='live hangout!':
+    s="live_hangout"
+  if tab.is_active:
+    s+=" active"
+  return s
 %>
 <%! from courseware.tabs import get_course_tabs %>
 <%! from django.utils.translation import ugettext as _ %>
+<%! from courseware.courses import course_author_image_url %>
+<style>
+  /*nav.course-material ol.course-tabs li a.live_hangout{color:#8C9641;}*/
+</style>
 
 <nav class="${active_page} course-material">
   <div class="inner-wrapper">
@@ -32,10 +77,10 @@ def url_class(is_active):
       % for tab in get_course_tabs(user, course, active_page):
       % if portfolio_user == user and request.GET.get('pf_id')==None or portfolio_user == None and request.GET.get('pf_id')==None or portfolio_user.id == user.id:
     			<li>
-    				% if tab.name!='Course Discussion':
-              <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+    				% if tab.name!='Discussion':
+              <a href="${tab.link | h}" class="${url_class(tab)}">
             % else:
-              <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
+              <a href="${tab.link | h}" class="${url_class(tab)}">
             %endif
     					${tab.name | h}
     					% if tab.is_active == True:
@@ -49,7 +94,7 @@ def url_class(is_active):
       %else:
         %if tab.name=='My Course Portfolio':
           <li>
-          <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab.is_active)}">
+          <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab)}">
             ${tab.name | h}
             % if tab.is_active == True:
                 <span class="sr">, current location</span> 
@@ -74,13 +119,18 @@ def url_class(is_active):
         %endif
       %endif
       % endfor
-  
+    
     <%block name="extratabs" />
         % if masquerade is not UNDEFINED:
           % if staff_access and masquerade is not None:
-          <li style="float:right"><a href="#" id="staffstatus">${_("Staff view")}</a></li>
+          <li><a href="#" id="staffstatus">${_("Staff view")}</a></li>
           % endif
         % endif
+    <li class="my_chunks_nav_icon" style="float:right;display:none;margin-top:0px;">
+      <a style="text-decoration:none !important;padding:5px;display:none;" id="my_chunks_link" href="javascript:void(0);" user_id="${curr_user.id}">
+        <div style="width: 50px; height: 50px; background: url('/static/images/unchuncked.png') repeat scroll 0% 0% transparent;" class="my_chunks_btn"></div>
+      </a>
+    </li>
     </ol>
   </div>
 </nav>
@@ -115,3 +165,115 @@ masq = (function(){
 </script>
   % endif
 % endif
+<section id="show_mychunks" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("ADD THIS CHUNK")}</h2>
+      <hr/>
+    </header>
+  <div class="mychunks_info" style="height:200px;overflow-y:auto;overflow-x:hidden;color:#000000;">
+    <center><div><img width="280" height="100" alt="course author image" src="${course_author_image_url(course)}"></div></center>
+    <div style="margin:10px 0px 10px 30px"><b>Course: </b><span id="mychunks_course_title"></span></div>
+    <div style="margin:10px 0px 10px 30px"><b>Chunk: </b><span id="mychunks_chunk_title"></span></div>
+  </div>
+  <form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:520px;margin:10px;">
+         <div class="mychunks_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p style="color:#D4D0C8">Write a Note ...</p></div>
+
+          <div style="color:black;font-size:12px;color:#aaa;">
+            Maximum to 1000 Characters  (<span id="mychunks_curr_char_num">0</span>)
+          </div>
+          <div style="width:530px;height:20px;">
+            <table width="530" border="0" cellpadding="0" cellspacing="0">
+              <tr height="30" style="color:#000;">
+                <td widht="265" style="vertical-align:middle;">
+                  <span class="mychunks_uploadBtn" style="width:110px;cursor:pointer;">
+                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
+                  </span>
+                  
+                  <span class="mychunks_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
+                      <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                      <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+                  </span>
+                  
+                </td>
+                <td align="right" style="vertical-align:middle;">
+                  <div class="mychunks_ftg_button mychunks_style_button ftg_yellow">Update</div>
+                  <div class="mychunks_delBtn mychunks_style_button ftg_yellow" style="margin-top:10px;display:none;">Delete</div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <input id="mychunks_browseFile" type="file" onchange="mychunks_upload_file()" style="width:0px;"/>
+  </form>
+  <br/>
+    <div class="close-modal" id="mychunks_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="del_mychunks" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("DELETE THE CHUNK")}</h2>
+      <hr/>
+    </header>
+    <form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:560px;margin:10px;">
+        <div style="color:black;font-size:16px;width:540px;height:80px;padding:10px;"><center><b>Are you sure you want to delete this chunk of content?</b></center></div>
+         <center><div class="mychunks_del_button mychunks_style_button ftg_yellow">Delete</div></center>
+        </div>
+    </form>
+  <br/>
+    <div class="close-modal" id="mychunks_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="add_mychunks" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="mychunks_title">${_("CHUNK ADDED")}</h2>
+      <hr/>
+    </header>
+    <form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:560px;margin:10px;">
+        <div style="color:black;font-size:16px;width:540px;height:80px;padding:10px;"><center><b>You have successfully added this chunk to your personal collection.</b></center></div>
+         <center><div class="mychunks_add_button mychunks_style_button ftg_yellow">Done</div></center>
+        </div>
+    </form>
+  <br/>
+    <div class="close-modal" id="mychunks_add_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="mychunks_linkwin">
+    <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
+    <hr/>
+    <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
+      <table>
+        <tr>
+          <td style="vertical-align:middle">Insert URL:</td>
+          <td><input type="text" id="mychunks_link_url_val"style="width:100%"></td>
+        </tr>
+        <tr>
+          <td width="100" style="vertical-align:middle">Title:</td>
+          <td width="350"><input id="mychunks_link_title_val" type="text" style="width:100%"></td>
+        </tr>
+      </table>
+      <input id="mychunks_hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
+      <input id="mychunks_hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
+    </form>
+ </div>

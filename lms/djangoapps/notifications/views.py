@@ -45,10 +45,14 @@ def save_interactive_update(request):
     info['date'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     user_id = str(info['user_id']).split(',')
     if len(user_id)>1:
+        '''
         for v in user_id:
             singleInfo = info.copy()
             singleInfo['user_id'] = v
             rs.insert_item(singleInfo)
+        '''
+        info['user_id']=user_id
+        rs.insert_item(info)
     else:
         rs.insert_item(info)
     return utils.JsonResponse({'results':'true'})
@@ -56,7 +60,7 @@ def save_interactive_update(request):
 def set_interactive_update(request):
     rs = remindstore()
     #info = rs.set_item(request.POST.get('_id'),request.POST.get('_name'),request.POST.get('_value'))
-    info = rs.set_item(request.POST.get('_id'),request.POST.get('_name'),request.POST.get('_value'),request.POST.get('_user_id'),request.POST.get('_record_id'))
+    info = rs.set_item(request.POST.get('_id'),request.POST.get('_name'),request.POST.get('_value'),request.POST.get('_user_id'),request.POST.get('_record_id'),request.POST.get('_ismultiple'))
     return utils.JsonResponse({})
 
 s3_interface = {

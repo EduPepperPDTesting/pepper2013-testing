@@ -312,7 +312,7 @@ def get_course_tabs(user, course, active_page):
         # via feature flags, and things like 'textbook' which might generate
         # multiple tabs.
         if tab['type']=='discussion':
-            tab['name']='Course Discussion'
+            tab['name']='Discussion'
         if tab['type']=='progress':
             tab['name']='My Progress'
         if tab['type']=='wiki':
@@ -348,7 +348,9 @@ def get_course_tabs(user, course, active_page):
                           active_page == 'portfolio'))
     
 #@end
-
+    tabs.append(CourseTab('My Chunks',
+                          reverse('mychunks'),
+                          active_page == 'mychunks'))
     # Move "Live Hangout" to the end.
     n=-1
     for i,t in enumerate(tabs):
@@ -404,7 +406,7 @@ def get_default_tabs(user, course, active_page):
     if discussion_link:
 #@begin:Change the static tag to Discussion
 #@date:2013-11-02        
-        tabs.append(CourseTab('Course Discussion', discussion_link, active_page == 'discussion'))
+        tabs.append(CourseTab('Discussion', discussion_link, active_page == 'discussion'))
 #@end
     tabs.extend(_wiki({'name': 'Wiki', 'type': 'wiki'}, user, course, active_page))
 #@begin:Delete the static tag of Progress

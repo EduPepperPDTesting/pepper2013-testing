@@ -22,6 +22,7 @@
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
   [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+  .course_author_image_div{border-bottom-style:solid;border-bottom-width:1px;border-bottom-color:#aaa;}
 </style>
 <!--@end-->
 <%block name="header_extras">
@@ -37,7 +38,7 @@
 
   ## codemirror
   <script type="text/javascript" src="${static.url('js/vendor/codemirror-compressed.js')}"></script>
-
+  <script type="text/javascript" src="${static.url('js/my_chunks.js')}"></script>
 
   ## alternate codemirror
   ##  <script type="text/javascript" src="${static.url('js/vendor/CodeMirror-2.25/lib/codemirror.js')}"></script>
@@ -297,7 +298,7 @@
       <header id="open_close_accordion">
         <a href="#">${_("close")}</a>
       </header>
-      <div>
+      <div class="course_author_image_div">
         <img src="${course_author_image_url(course)}" width="100%" alt=""/>
       </div>
       <div id="accordion" style="display: none">

@@ -82,3 +82,11 @@ MESSAGESTORE = {
         'collection': 'message_board'
     }
 }
+CHUNKSSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoChunksStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'chunks'
+    }
+}

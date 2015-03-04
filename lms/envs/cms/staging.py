@@ -78,6 +78,14 @@ MESSAGESTORE = {
         'collection': 'message_board'
     }
 }
+CHUNKSSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoChunksStore',
+    'OPTIONS': {
+        'host': 'localhost',
+        'db': 'remind',
+        'collection': 'chunks'
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',

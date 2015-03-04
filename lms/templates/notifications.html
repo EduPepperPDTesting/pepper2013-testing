@@ -131,6 +131,9 @@
 		      case 'message':
 		        data.type_text="Personal Message from <b>"+data.interviewer_name+"</b>";
 		        break;
+		      case 'my_chunks':
+        		data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
+        		break;
 		    }
   	    }
   	    function notifications_update_setMessageReadmore(ele,data)
@@ -183,7 +186,7 @@
 		function notifications_update_activateItem(data)
 		{
 		    var user_id = "${curr_user.id}";
-    	    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id},function(rdata){interactive_update_openWindow(data);});
+    	    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
 		}
 		function notifications_update_getActivateStyle(data)
 		{
