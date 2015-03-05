@@ -76,6 +76,9 @@ $(function () {
         $.post("/interactive_update/save_info",datainfo,function(){});
         $("#share_mychunks").hide();
         $("#lean_overlay").hide();
+        content.html("");
+        mychunks_share_updateMaxCharNum();
+        content.html("<p style='color:#D4D0C8'>Add a Message ...</p>");
       }
       else
       {
@@ -296,7 +299,7 @@ function mychunks_content_createItem(data)
   var data_id=idArr[0]+"/"+idArr[1];
   var ele=$('<div style="padding-bottom:20px;" class="chunks_info"><table cellspacing="10"><tr><td style="padding-top:15px;"><div style="width:280px; height:100px; background:url(/c4x/'+data_id+'/asset/course_author_img.jpg);background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><b>Course:</b> '+data.courseTitle+'</td></tr><tr><td style="padding-top:15px;"><b>My Chunks:</b></td><td></td></tr></table></div>');
   element=$('<div style="padding-bottom:20px;" id="'+ele_id+'" course-id="'+data.course_id+'"><div><a class="chunk_title" course_title="'+data.courseTitle+'" href="'+data.url+'">'+data.chunkTitle+'</a></div><div style="padding:5px 0 0 30px;" data-id="'+data.vertical_id+'"><a href="#" class="noteBtn"><span style="color:#388e9b;font-size:12px;">Notes</span></a> - <a href="#" class="shareBtn"><span style="color:#388e9b;font-size:12px;">Share</span></a> - <a href="#" class="delBtn"><span style="color:#388e9b;font-size:12px;">Delete</span></a></div><hr/></div>');
-  if(cur_course_id==""||cur_course_id!=data.course_id)
+  if(cur_course_id==""||cur_course_id!=data.course_id||$("div[course-id="+"'"+data.course_id+"'"+"]").length<1)
   {
     cur_course_id=data.course_id;
     $('.mychunks_container').append(ele);
