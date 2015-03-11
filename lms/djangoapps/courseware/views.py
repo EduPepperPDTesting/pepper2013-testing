@@ -80,25 +80,25 @@ def courses(request):
     return render_to_response("courseware/courses.html", {'courses': courses,'link':True})
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
-    if course.display_grades=='0' or course.display_grades=='3' and currGrades!='3':
+    if course.display_grades=='K-5' or course.display_grades=='K-12' and currGrades!='K-12':
         if course.display_subject!=currSubject[0]:
             currSubject[0]=course.display_subject
             subject_index[0]+=1
             g_courses[0].append([])
         g_courses[0][subject_index[0]].append(course)
-    if course.display_grades=='1' or course.display_grades=='3' and currGrades!='3':
+    if (course.display_grades=='6-8' or course.display_grades=='K-12' or course.display_grades=='6-12') and currGrades!='K-12' and currGrades!='9-12':
         if course.display_subject!=currSubject[1]:
             currSubject[1]=course.display_subject
             subject_index[1]+=1
             g_courses[1].append([])
         g_courses[1][subject_index[1]].append(course)
-    if course.display_grades=='2' or course.display_grades=='3' and currGrades!='3':
+    if (course.display_grades=='9-12' or course.display_grades=='K-12' or course.display_grades=='6-12') and currGrades!='K-12' and currGrades!='6-8':
         if course.display_subject!=currSubject[2]:
             currSubject[2]=course.display_subject
             subject_index[2]+=1
             g_courses[2].append([])
         g_courses[2][subject_index[2]].append(course)
-    if course.display_grades=='3':
+    if course.display_grades=='K-12':
         if course.display_subject!=currSubject[3]:
             currSubject[3]=course.display_subject
             subject_index[3]+=1
@@ -121,7 +121,10 @@ def course_list(request):
     if subject_id!='all':
         filterDic['metadata.display_subject'] = subject_id
     if grade_id!='all':
-        filterDic['metadata.display_grades'] = grade_id
+        if grade_id=='6-8' or grade_id=='9-12':
+            filterDic['metadata.display_grades'] = {'$in':[grade_id,'6-12']}
+        else:
+            filterDic['metadata.display_grades'] = grade_id
     if author_id!='all':
         filterDic['metadata.display_organization'] = author_id
     if credit!='':
