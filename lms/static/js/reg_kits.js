@@ -21,7 +21,7 @@ function infoAndWait(box,info,seconds,go){
   }
   count();
 }
-function dropDistrict(form,state_id,callback){
+function dropDistrict(form,state_id,callback,no_code){
   if(state_id=='__NONE__')state_id='-1';
   $.get('/reg_kits/drop_districts',{state_id:state_id},function(r){
       if((typeof r) == 'string'){
@@ -32,7 +32,7 @@ function dropDistrict(form,state_id,callback){
       clearOption(drop)
       for(k in r){
         d=r[k];
-        html+="<option value='" + d.id+"'>" + d.name + " - " + d.code + "</option>";
+        html+="<option value='" + d.id+"'>" + d.name + (no_code?'':" - " + d.code) + "</option>";
       }
       drop.append(html)
       if(callback instanceof Function)callback.apply(drop[0]);
