@@ -125,6 +125,8 @@ MyChunks.prototype.init=function(position)
   $(".mychunks_add_button").click(function(){
     $("#add_mychunks").hide();
     $("#show_mychunks").show();
+    $("#mychunks_course_title").html(This.courseTitle);
+    $("#mychunks_chunk_title").html(This.chunkTitle);
   })
   $("#add_mychunks").find(".close-modal").click(function(){
     $("#add_mychunks").hide();
