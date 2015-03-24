@@ -64,26 +64,35 @@ USERSTORE = {
 REMINDSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoRemindStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
         'collection': 'rmodule',
-        'collection_aid': 'bulletin_status'
+        'collection_aid': 'bulletin_status',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 MESSAGESTORE = {
     'ENGINE': 'xmodule.remindstore.MongoMessageStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
-        'collection': 'message_board'
+        'collection': 'message_board',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 CHUNKSSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoChunksStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
-        'collection': 'chunks'
+        'collection': 'chunks',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 INSTALLED_APPS += (

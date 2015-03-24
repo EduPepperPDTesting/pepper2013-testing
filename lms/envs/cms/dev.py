@@ -7,7 +7,7 @@ Settings for the LMS that runs alongside the CMS on AWS
 # pylint: disable=W0401, W0614
 
 from ..dev import *
-
+from siteconf import *
 MITX_FEATURES['AUTH_USE_MIT_CERTIFICATES'] = False
 
 SUBDOMAIN_BRANDING['edge'] = 'edge'
@@ -41,17 +41,21 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'xcontent',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 
 USERSTORE = {
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'userstore',
-        'user':None,
-        'password':None,
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 
@@ -68,25 +72,34 @@ DEBUG_TOOLBAR_PANELS += (
 REMINDSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoRemindStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
         'collection': 'rmodule',
-        'collection_aid': 'bulletin_status'
+        'collection_aid': 'bulletin_status',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 MESSAGESTORE = {
     'ENGINE': 'xmodule.remindstore.MongoMessageStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
-        'collection': 'message_board'
+        'collection': 'message_board',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
 CHUNKSSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoChunksStore',
     'OPTIONS': {
-        'host': 'localhost',
         'db': 'remind',
-        'collection': 'chunks'
+        'collection': 'chunks',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
     }
 }
