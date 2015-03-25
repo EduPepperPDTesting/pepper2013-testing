@@ -99,7 +99,8 @@ class MongoRemindStore(object):
             return r
         else:
             if str(record_id) =='0' or ismultiple=='true':
-                return self.collection_aid.update({'aid':str(id),'user_id':user_id},{'$set':{'user_id':user_id}},True)
+                #return self.collection_aid.update({'aid':str(id),'user_id':user_id},{'$set':{'user_id':user_id}},True)
+                return self.collection_aid.save({'aid':str(id),'user_id':user_id})
             else:
                 return self.collection.update({'_id':ObjectId(id)},{'$set':{name:value}})
     def get_total(self,user_id):
