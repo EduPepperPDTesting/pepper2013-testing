@@ -90,6 +90,10 @@
 			<td><input class="connect_input" name="fullname" size="60" chkType="Require" chkMsg="Full Name is required."></td>
 		  </tr>
 		  <tr>
+			<td>District/LEA: </td>
+			<td><input class="connect_input" name="district_lea" size="60"></td>
+		  </tr>          
+		  <tr>
 			<td>Phone: </td>
 			<td><input class="connect_input" name="phone" size="60"></td>
 		  </tr>
@@ -134,7 +138,7 @@ form.submit(function(){
     return false;
   }
   this.submit.disabled=true;
-  var flds=["email","fullname","phone","inquiry_type","message","csrfmiddlewaretoken"];
+  var flds=["email","fullname","district_lea","phone","inquiry_type","message","csrfmiddlewaretoken"];
   var data=easy.form.getFormData(this,flds);
   data['send_by_js']='true'
   if(!data['message']){

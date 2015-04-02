@@ -1,5 +1,6 @@
 Your Email: ${email}<br/>
 Full Name: ${fullname}<br/>
+District/LEA: ${district_lea}<br/>
 Phone: ${phone}<br/>
 Inquiry Type: ${inquiry_type}<br/>  
 Message: ${message} 

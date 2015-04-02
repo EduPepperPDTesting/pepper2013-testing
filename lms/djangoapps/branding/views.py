@@ -106,9 +106,11 @@ def contact_us_submit(request):
     phone=request.POST.get("phone")
     inquiry_type=request.POST.get("inquiry_type")
     message=request.POST.get("message")
+    district_lea=request.POST.get("district_lea")
+    
     from django.core.mail import send_mail
     from mitxmako.shortcuts import render_to_response, render_to_string
-    d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message}
+    d={"email":email, "fullname":fullname, "phone":phone, "inquiry_type":inquiry_type, "message":message, "district_lea":district_lea}
     subject="PepperPd Contact Us From "+request.META['HTTP_HOST']
     body = render_to_string('emails/contact_us_body.txt', d)
 
