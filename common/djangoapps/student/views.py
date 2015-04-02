@@ -371,7 +371,7 @@ def dashboard(request,user_id=None):
     if user_id:
         user=User.objects.get(id=user_id)
     else:
-        user = request.user
+        user = User.objects.get(id=request.user.id)
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
