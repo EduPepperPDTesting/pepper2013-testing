@@ -4,8 +4,9 @@ var mychunks_content_totalNum = 0;
 var mychunks_focus=0;
 var mychunks_maxCharNum=1000;
 var mychunks_share_focus=0;
-var mychunks_share_maxCharNum=50;
+var mychunks_share_maxCharNum=100;
 var cur_course_id="";
+var mychunks_notes_status="edit";
 $(function () {
     mychunks_content_update(mychunks_content_loadNum);
     $(".top_btn").click(function(){
@@ -32,19 +33,27 @@ $(function () {
     $(".mychunks_ftg_button").click(function(){
       var content=$(".mychunks_content");
       var verticalID=$("#show_mychunks").attr("data-id");
-      if(content.text().length<=mychunks_maxCharNum)
+      if(mychunks_notes_status=="update")
       {
-        var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID})};
-        $.post("/my_chunks/save_info",datainfo,function(data){
-          mychunks_updateMaxCharNum();
-        });
-        $("#show_mychunks").hide();
-        $("#lean_overlay").hide();
+        if(content.text().length<=mychunks_maxCharNum)
+        {
+          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID})};
+          $.post("/my_chunks/save_info",datainfo,function(data){
+            mychunks_updateMaxCharNum();
+          });
+          //$("#show_mychunks").hide();
+          //$("#lean_overlay").hide();
+          mychunks_setNotesStatus("edit");
+        }
+        else
+        {
+          if(content.text().length>mychunks_maxCharNum)
+            alert('Exceed the maximum number of characters.');
+        }
       }
       else
       {
-        if(content.text().length>mychunks_maxCharNum)
-          alert('Exceed the maximum number of characters.');
+        mychunks_setNotesStatus("update");
       }
     });
     $(".mychunks_share_button").click(function(){
@@ -63,7 +72,7 @@ $(function () {
         var interviewer_name=$("#share_mychunks").attr("user-name");
         var course_number=$("#share_mychunks").attr("course_number");
         var data_url=$("#share_mychunks").attr("data-url");
-        var body=mychunks_share_focus>0?content.html():'';
+        var body=mychunks_share_focus>0?content.text():'';
         if (user_id_arr.length>1)
         {
           var datainfo={'info':JSON.stringify({'course_number':course_number,'user_id':user_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':'my_chunks','body':body,'location':data_url,'date':(new Date()).toISOString(),'activate':'false','multiple':'true'})};
@@ -73,7 +82,11 @@ $(function () {
           var datainfo={'info':JSON.stringify({'course_number':course_number,'user_id':user_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'type':'my_chunks','body':body,'location':data_url,'date':(new Date()).toISOString(),'activate':'false'})};
         }
         //console.log(datainfo)
-        $.post("/interactive_update/save_info",datainfo,function(){});
+        $.post("/interactive_update/save_info",datainfo,function(){
+          $("#shared_ok_mychunks").show();
+          $("#lean_overlay").show();
+          $(window).scrollTop(0);
+        });
         $("#share_mychunks").hide();
         $("#lean_overlay").hide();
         content.html("");
@@ -204,6 +217,7 @@ function mychunks_content_init(data)
       $("#show_mychunks").show();
       $("#lean_overlay").show();
       $(window).scrollTop(0);
+      mychunks_setNotesStatus("edit")
       var vertical_id=$(this).parent().attr("data-id");
       $("#show_mychunks").attr("data-id",vertical_id)
       var datainfo={'info':JSON.stringify({'vertical_id':vertical_id})};
@@ -262,6 +276,10 @@ function mychunks_content_init(data)
       $("#share_mychunks").hide();
       $("#lean_overlay").hide();
     })
+    $("#shared_ok_mychunks").find(".close-modal").click(function(){
+      $("#shared_ok_mychunks").hide();
+      $("#lean_overlay").hide();
+    })
     $(".mychunks_del_button").click(function(){
       var eleID=$("#del_mychunks").attr("ele-id");
       var courseID=$("#del_mychunks").attr("course-id");
@@ -276,6 +294,10 @@ function mychunks_content_init(data)
       $("#del_mychunks").hide();
       $("#lean_overlay").hide();
     })
+    $(".mychunks_shared_ok_button").click(function(){
+      $("#shared_ok_mychunks").hide();
+      $("#lean_overlay").hide();
+    }) 
     $("#lean_overlay").click(function(){
       $("#show_mychunks").hide();
       $("#del_mychunks").hide();
@@ -298,7 +320,7 @@ function mychunks_content_createItem(data)
   var idArr=data.course_id.split("/");
   var data_id=idArr[0]+"/"+idArr[1];
   var ele=$('<div style="padding-bottom:20px;" class="chunks_info"><table cellspacing="10"><tr><td style="padding-top:15px;"><div style="width:280px; height:100px; background:url(/c4x/'+data_id+'/asset/course_author_img.jpg);background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><b>Course:</b> '+data.courseTitle+'</td></tr><tr><td style="padding-top:15px;"><b>My Chunks:</b></td><td></td></tr></table></div>');
-  element=$('<div style="padding-bottom:20px;" id="'+ele_id+'" course-id="'+data.course_id+'"><div><a class="chunk_title" course_title="'+data.courseTitle+'" href="'+data.url+'">'+data.chunkTitle+'</a></div><div style="padding:5px 0 0 30px;" data-id="'+data.vertical_id+'"><a href="#" class="noteBtn"><span style="color:#388e9b;font-size:12px;">Notes</span></a> - <a href="#" class="shareBtn"><span style="color:#388e9b;font-size:12px;">Share</span></a> - <a href="#" class="delBtn"><span style="color:#388e9b;font-size:12px;">Delete</span></a></div><hr/></div>');
+  element=$('<div style="padding-bottom:20px;" id="'+ele_id+'" course-id="'+data.course_id+'"><div><a class="chunk_title" course_title="'+data.courseTitle+'" href="'+data.url+'">'+data.chunkTitle+'</a></div><div style="padding:5px 0 0 30px;" data-id="'+data.vertical_id+'"><a href="#" class="noteBtn"><span style="color:#388e9b;font-size:13px;">Notes</span></a> - <a href="#" class="shareBtn"><span style="color:#388e9b;font-size:13px;">Share</span></a> - <a href="#" class="delBtn"><span style="color:#388e9b;font-size:13px;">Delete</span></a></div><hr/></div>');
   if(cur_course_id==""||cur_course_id!=data.course_id||$("div[course-id="+"'"+data.course_id+"'"+"]").length<1)
   {
     cur_course_id=data.course_id;
@@ -405,5 +427,26 @@ mychunks_setShareStatus=function(ele,s)
     ele.children(".checkbox_img_false").show();
     ele.children(".checkbox_img_true").hide();
     ele.attr("ischeck","false");
+  }
+}
+mychunks_setNotesStatus=function(s)
+{
+  if(s=="edit")
+  {
+    mychunks_notes_status="edit";
+    $(".mychunks_ftg_button").html("Edit");
+    $(".mychunks_content").attr("contenteditable","false");
+    $(".mychunks_content").css("backgroundColor","#f6f6f6");
+    $(".mychunks_uploadBtn").hide();
+    $(".mychunks_linkBtn").hide();
+  }
+  else
+  {
+    mychunks_notes_status="update";
+    $(".mychunks_ftg_button").html("Update");
+    $(".mychunks_content").attr("contenteditable","true");
+    $(".mychunks_content").css("backgroundColor","#ffffff");
+    $(".mychunks_uploadBtn").show();
+    $(".mychunks_linkBtn").show();
   }
 }

@@ -47,7 +47,7 @@
                 %if curr_user==request.user:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
-                  <a href="" style="cursor:default;" onclick="return false;">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                  <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %endif         
                 % else:
                   <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
@@ -159,7 +159,7 @@
                 %if curr_user==request.user:              
 				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			    %else:
-                <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+                <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1 portfolio-btn">${_('View Portfolio')}</a>
                 %endif
 
                 %if curr_user==request.user:      

@@ -49,15 +49,15 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from courseware.courses import course_image_url, get_course_about_section
 %>
- <%def name='format_grade(grade_id)'>
-  % if grade_id=='0':
-    K-5
-  % elif grade_id=='1':
-    6-8
-  % elif grade_id=='2':
-    9-12
+<%!
+  correspondOrg={}
+  correspondOrg['CT Core Standards']='CT'
+%>
+<%def name='format_courseOrg(orgStr)'>
+  % if correspondOrg.has_key(orgStr):
+    ${correspondOrg[orgStr]}
   % else:
-    K-12
+    ${orgStr}
   %endif
 </%def>
 <%page args="course" />
@@ -128,7 +128,7 @@ from courseware.courses import course_image_url, get_course_about_section
   </div>
     <div class="card-bottom" style="text-align:left;padding:10px 0 0 10px;">
     <table><tr>
-    <td height="45"><div class="field-content"><span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${course.display_organization}</span> | <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
+    <td height="45"><div class="field-content"><span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${format_courseOrg(course.display_organization)}</span> | <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
     <div class="course-grade" style="font-size:14px;font-weight:bold;margin-top:5px;">${course.display_grades}</div></td>
     <td style="text-align:center;">
       %if course.display_credit:

@@ -11,6 +11,7 @@ MyChunks=function()
   this.iconLink=null;
   this.cur_vertical_link=null;
   this.isExist=false;
+  this.notes_status="edit";
 }
 MyChunks.prototype.init=function(position)
 {
@@ -46,7 +47,16 @@ MyChunks.prototype.init=function(position)
   $("#mychunks_close").unbind("click");
   $("#lean_overlay").unbind("click");
   $(".mychunks_ftg_button").click(function(){
-      This.save(1);
+      if(This.notes_status=="update"){
+        This.save(1);
+        if($(".mychunks_content").text().length<=mychunks_maxCharNum)
+        This.setNotesStatus("edit");
+      }
+      else
+      {
+        This.setNotesStatus("update");
+      }
+      
   });
   $(".mychunks_del_button").click(function(){
       This.delete();
@@ -55,15 +65,16 @@ MyChunks.prototype.init=function(position)
   });
   $(".my_chunks_btn").click(function(event) {
     $("#lean_overlay").show();
-      if(!This.isExist)
-      {
-        This.save(0);
-      }
-      else
-      {
-        $("#show_mychunks").show();
-        This.load();
-      }
+    This.setNotesStatus("edit");
+    if(!This.isExist)
+    {
+      This.save(0);
+    }
+    else
+    {
+      $("#show_mychunks").show();
+      This.load();
+    }
       
   });
   $(".mychunks_content").focusin(function(){
@@ -188,9 +199,10 @@ MyChunks.prototype.save=function(v)
       mychunks_updateMaxCharNum();
       This.setStatus(1);
       This.isExist=true;
+      $(".mychunks_delBtn").show();
     });
-    $("#show_mychunks").hide();
-    $("#lean_overlay").hide();
+    //$("#show_mychunks").hide();
+    //$("#lean_overlay").hide();
     if(!v)
     {
       $("#add_mychunks").show();
@@ -226,6 +238,28 @@ MyChunks.prototype.setStatus=function(s)
     $(".my_chunks_btn").css("backgroundImage","url(/static/images/unchuncked.png)");
   }
 }
+MyChunks.prototype.setNotesStatus=function(s)
+{
+  if(s=="edit")
+  {
+    this.notes_status="edit";
+    $(".mychunks_ftg_button").html("Edit");
+    $(".mychunks_content").attr("contenteditable","false");
+    $(".mychunks_content").css("backgroundColor","#f6f6f6");
+    $(".mychunks_uploadBtn").hide();
+    $(".mychunks_linkBtn").hide();
+  }
+  else
+  {
+    this.notes_status="update";
+    $(".mychunks_ftg_button").html("Update");
+    $(".mychunks_content").attr("contenteditable","true");
+    $(".mychunks_content").css("backgroundColor","#ffffff");
+    $(".mychunks_uploadBtn").show();
+    $(".mychunks_linkBtn").show();
+  }
+}
+
 var mychunks_focus=0;
 var mychunks_maxCharNum=1000;
 function mychunks_upload_file()
@@ -302,6 +336,7 @@ function mychunks_updateMaxCharNum()
   var num = charNum>mychunks_maxCharNum?"<font color='#ff0000'>"+charNum+"</font>":charNum;
   $("#mychunks_curr_char_num").html(num);
 }
+
 function get_chapter_num(str)
 {
   list=str.split("\t");

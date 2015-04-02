@@ -30,7 +30,6 @@ from django.views.decorators.cache import cache_control
 
 logger = logging.getLogger(__name__)
 
-
 @csrf_exempt
 def update_certificate(request):
     """
@@ -110,17 +109,9 @@ def course_from_id(course_id):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def download_certificate(request,course_id,completed_time):
+    certificate_type=[['WestEd','PCG Education'],['CT Core Standards']]
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
-    first_name = request.user.first_name
-    last_name = request.user.last_name
-
-    c_course_name = user_course.display_name_with_default
-    c_user_name = first_name + ' ' +last_name
-    c_organization = ''
-    c_estimated_effort = ''
-    c_course_full_name = user_course.display_number_with_default + " " + c_course_name #course name
-
     t_time = ""
     t_y = ""
     t_m = ""
@@ -147,7 +138,32 @@ def download_certificate(request,course_id,completed_time):
     buffer = BytesIO()
     # Create the PDF object, using the BytesIO object as its "file." Paper size = 'A4'
     c = canvas.Canvas(buffer,pagesize=(841.89,595.27))
+    for i in range(len(certificate_type)):
+        if user_course.display_organization in certificate_type[i]:
+            if i==0:
+                pdf=draw_certificate_default(request,user_course,c_completed_time,buffer,c)
+            else:
+                pdf=draw_certificate_CT(buffer,c)
+    response.write(pdf)
+    return response
 
+@login_required
+def course_credits(request):
+     return render_to_response('course_credits.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def download_certificate_demo(request):
+     return render_to_response('d_certificate_demo.html', {})
+#@end
+def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
+    first_name = request.user.first_name
+    last_name = request.user.last_name
+    c_course_name = user_course.display_name_with_default
+    c_user_name = first_name + ' ' +last_name
+    c_organization = ''
+    c_estimated_effort = ''
+    c_course_full_name = user_course.display_number_with_default + " " + c_course_name #course name
     fontpath = '/home/tahoe/edx_all/edx-platform/lms/static/fonts'
     imagepath = '/home/tahoe/edx_all/edx-platform/lms/static/images/certificate'
     pdfmetrics.registerFont(ttfonts.TTFont('Open Sans',os.path.join(fontpath, 'OpenSans-Regular-webfont.ttf')))
@@ -235,15 +251,116 @@ def download_certificate(request,course_id,completed_time):
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
     buffer.close()
-    response.write(pdf)
-    return response
+    return pdf
 
-@login_required
-def course_credits(request):
-     return render_to_response('course_credits.html', {})
+def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
+    first_name = request.user.first_name
+    last_name = request.user.last_name
+    c_course_name = user_course.display_name_with_default
+    c_user_name = first_name + ' ' +last_name
+    c_organization = ''
+    c_estimated_effort = ''
+    c_course_full_name = user_course.display_number_with_default + " " + c_course_name #course name
+    fontpath = '/home/tahoe/edx_all/edx-platform/lms/static/fonts'
+    imagepath = '/home/tahoe/edx_all/edx-platform/lms/static/images/certificate'
+    pdfmetrics.registerFont(ttfonts.TTFont('Open Sans',os.path.join(fontpath, 'OpenSans-Regular-webfont.ttf')))
+    pdfmetrics.registerFont(ttfonts.TTFont('OpenSans_i',os.path.join(fontpath, 'OpenSans-Italic-webfont.ttf')))
+    pdfmetrics.registerFont(ttfonts.TTFont('OpenSans_b',os.path.join(fontpath, 'OpenSans-Bold-webfont.ttf')))
+    pdfmetrics.registerFont(ttfonts.TTFont('Nunito',os.path.join(fontpath, 'Nunito-Regular.ttf')))
+    fontsize_completedtime = 15
+    fontsize_maincontent = 20
+    fontsize_username = 45
+    fontsize_coursename = 25
+    fontsize_effort = 21
 
-@ensure_csrf_cookie
-@cache_if_anonymous
-def download_certificate_demo(request):
-     return render_to_response('d_certificate_demo.html', {})
-#@end
+    if user_course.display_number_with_default == "PEP101x":
+        c_organization = 'PCG Education'
+        c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = user_course.certificates_estimated_effort
+    else:
+        c_organization = 'WestEd'
+        c.drawImage(imagepath+"/certificate_wested.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = user_course.certificates_estimated_effort
+
+    c.drawImage(imagepath+"/qianzi.jpg",360,50, width=None,height=None,mask=None)
+    #c.drawImage(imagepath+"/pcgeducationdown_logo.jpg",590,75, width=None,height=None,mask=None)
+
+    c.setFillColorRGB(0.5,0.5,0.5)
+    c.setFont("Open Sans", 25)
+    c.drawString(642,490,"CERTIFICATE")
+    c.setFont("OpenSans_i", fontsize_completedtime)
+    c.drawString(652,468,c_completed_time)
+
+    c.setFont("Open Sans", fontsize_maincontent)
+    c.drawString(50,400,'This is to certify that')
+
+    c.drawString(50,313,'Successfully completed')
+
+    c.drawString(50,230,'a course of study offered by ')
+    c.setFont("OpenSans_b", fontsize_maincontent)
+    c.drawString(315,230,c_organization)
+
+    if user_course.display_number_with_default == "PEP101x":
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(460,230,', a partner in ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(584,230,'Pepper')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(655,230,', an online')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(50,205,'learning initiative for ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(247,205,'Common Core Specialists')
+    else:
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(389,230,', a partner in ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(514,230,'Pepper')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(585,230,', an online learning')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(50,205,'initiative for ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(165,205,'Common Core Specialists')
+
+    c.setFont("Open Sans", fontsize_effort)
+    c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
+
+    c.setFillColorRGB(0,0.5,0.85)
+    if len(c_user_name)<=25:
+        fontsize_username = 45
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,348,c_user_name)
+    elif len(c_user_name)<=40:
+        fontsize_username = 37
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,352,c_user_name)
+    else:
+        fontsize_username = 24
+        c.setFont("Nunito", fontsize_username)
+        c.drawString(50,356,c_user_name)
+    c.setFont("Nunito", fontsize_coursename)
+    c.drawString(50,270,c_course_full_name)
+
+    c.showPage()
+    c.save()
+
+    # Get the value of the BytesIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
+def draw_certificate_CT(buffer, c):
+    fontpath = '/home/tahoe/edx_all/edx-platform/lms/static/fonts'
+    imagepath = '/home/tahoe/edx_all/edx-platform/lms/static/images/certificate'
+    pdfmetrics.registerFont(ttfonts.TTFont('Nunito',os.path.join(fontpath, 'Nunito-Regular.ttf')))
+    c.drawImage(imagepath+"/blank_certificate.jpg",0,0, width=841.89,height=595.27,mask=None)
+    fontsize = 40
+    c.setFillColorRGB(0,0.5,0.85)
+    c.setFont("Nunito",fontsize )
+    c.drawString(50,328,'Thank you for completing this module!')
+    c.showPage()
+    c.save()
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
