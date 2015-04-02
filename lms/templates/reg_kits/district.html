@@ -22,7 +22,7 @@
         <div class="filter">
           <form id="form_filter" method="get">
             State:
-            <select name="state_id" autocomplate="off">
+            <select name="state_id" autocomplete="off">
               <option value="">All</option>
               %for item in State.objects.all().order_by('name'):
               %if request.GET.get('state_id')== "%s" % item.id:
@@ -57,6 +57,7 @@
           % endfor          
         </table>
         <div style="padding:5px;text-align:right;">
+          <input id="btnImportDistrict" autocomplete="off" type="button" href="#import_district" value="Import District" style="float:left"/>
           Total:${districts.paginator.count} -
           Page:${districts.number}/${districts.paginator.num_pages}
           <input type="text" name="page" value="${districts.number}" size="5" maxlength="8"/>
@@ -77,14 +78,40 @@
       <header>
         <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import School')}</h2>
       </header>
-      <form id="form_import" method="post" style="margin:0;color:#000;">
+      <form id="form_import_school" method="post" style="margin:0;color:#000;">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
         <input type="hidden" name="district_id" value="">
         <div class="message" style="padding:10px;"></div>
         <fieldset style="margin:0px;">
           <div class="input-group" style="margin:0px;padding:20px;">
             <label style="display:block;margin:0;color:#000;" >
-              <input type="file" id="file" name="file" value="" />
+              <input type="file" id="file" name="file" value="" autocomplete="off"/>
+            </label>
+          </div>
+        </fieldset>
+        <div class="submit" style="padding-top:5px;">
+          <input type="submit" class="btnx" id="submit" value="Upload" />
+        </div>          
+      </form>
+      <div class="close-modal">
+        <div class="inner">
+          <p>&#10005;</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="import_district" class="modal">
+    <div class="inner-wrapper" style="background-color: rgb(245, 245, 245);padding:20px;">
+      <header>
+        <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import District')}</h2>
+      </header>
+      <form id="form_import_district" method="post" style="margin:0;color:#000;">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+        <div class="message" style="padding:10px;"></div>
+        <fieldset style="margin:0px;">
+          <div class="input-group" style="margin:0px;padding:20px;">
+            <label style="display:block;margin:0;color:#000;" >
+              <input type="file" id="file" name="file" value="" autocomplete="off"/>
             </label>
           </div>
         </fieldset>
@@ -100,55 +127,75 @@
     </div>
   </section>
   <script type="text/javascript">
-$("input[name=page]").keyup(function(e){
-  if(e.keyCode==13){
-    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-    if(/^[1-9]\d*$/.test(p))
-      window.location.href='${reverse('district')}?${pager_params}&page='+p
-    else
-      alert("Invalid page number '"+p+"'")
-  }
-})
-// delete districts
-$("input[type=button][name=delete]").click(function(){
-  var ids=[];
-  $("input[type=checkbox][name=id]:checked").each(function(){
-    ids.push(this.value)
-  });
-  if(!ids.length)return alert("Nothing selected.")
-  if(!confirm("Really delete?")) return;
-  $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
-    r=$.parseJSON(r)
-    if(r.success){
-      window.location.href=window.location.href
-    }else
-      alert(r.error)
-  })
-})
-// school import 
-$("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
-$(".import").click(function(){
-   $("#form_import .message").html("")
-   $("#form_import input[name=district_id]").val($(this).attr("district_id"))
-});
-$("#form_import").submit(function(){
-  $(this).ajaxSubmit({
-      type:'post',
-      url:'${reverse('import_school_submit')}',
-      success:function(r, status){
-        r=$.parseJSON(r)
-        if(!r.success)
-          $("#form_import .message").html(r.error)
+    $("input[name=page]").keyup(function(e){
+      if(e.keyCode==13){
+        var p=$(this).val().replace(/^(\s+)|(\s+)$/,'');
+        if(/^[1-9]\d*$/.test(p))
+          window.location.href='${reverse('district')}?${pager_params}&page='+p;
         else
-          $("#form_import .message").html("Importing success.");
-      },
-      error:function(json){
-        $("#form_import .message").html("Server error.");
+          alert("Invalid page number '"+p+"'");
       }
     });
-  return false;
-});
-</script>
+    // delete districts
+    $("input[type=button][name=delete]").click(function(){
+      var ids=[];
+      $("input[type=checkbox][name=id]:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected.");
+      if(!confirm("Really delete?")) return;
+      $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+        if(r.success){
+          window.location.href=window.location.href;
+        }else
+        alert(r.error);
+      });
+    });
+    // school import 
+    $("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
+    $(".import").click(function(){
+      $("#form_import_school .message").html("");
+      $("#form_import_school input[name=district_id]").val($(this).attr("district_id"));
+    });
+    $("#form_import_school").submit(function(){
+      $(this).ajaxSubmit({
+        type:'post',
+        url:'${reverse('import_school_submit')}',
+        success:function(r, status){
+          r=$.parseJSON(r);
+          if(!r.success)
+            $("#form_import_school .message").html(r.error);
+          else
+            $("#form_import_school .message").html(r.message);
+        },
+        error:function(json){
+          $("#form_import_school .message").html("Server error.");
+        }
+      });
+      return false;
+    });
+    // district import 
+    $("#form_import_district").submit(function(){
+      $(this).ajaxSubmit({
+        type:'post',
+        url:'${reverse('import_district_submit')}',
+        success:function(r, status){
+          r=$.parseJSON(r);
+          if(!r.success)
+            $("#form_import_district .message").html(r.error);
+          else
+            $("#form_import_district .message").html(r.message+" <a href=''>Refresh</a>");
+        },
+        error:function(json){
+          $("#form_import_district .message").html("Server error.");
+        }
+      });
+      return false;
+    });
+
+    $("#btnImportDistrict").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
+  </script>
   %endif
   %if ui=='form':
   <div style="text-align:center;">
@@ -177,7 +224,7 @@ $("#form_import").submit(function(){
             </tr>
             <tr>
               <td class="label required">State</td><td>
-                <select name="state_id" autocomplate="off" chkMsg="State must be selected." chkType="Require">
+                <select name="state_id" autocomplete="off" chkMsg="State must be selected." chkType="Require">
                   <option value=""></option>
                   %for item in State.objects.all().order_by('name'):
                   %if district and item.id== district.state_id:

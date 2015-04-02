@@ -23,7 +23,7 @@
       <div class="filter">
         <form id="form_filter" method="get">
           State:
-          <select name="state_id" autocomplate="off">
+          <select name="state_id" autocomplete="off">
             <option value="">All</option>
             %for item in State.objects.all().order_by('name'):
             %if request.GET.get('state_id')== "%s" % item.id:
@@ -34,7 +34,7 @@
             %endfor          
           </select>
           District:
-          <select id="" name="district_id" autocomplate="off">
+          <select id="" name="district_id" autocomplete="off">
             <option value="">All</option>
           </select>
           <input type="submit" name="" value="Filter" />
@@ -64,6 +64,7 @@
         %endfor          
       </table>
       <div style="padding:5px;text-align:right;">
+        <input id="btnImportCohort" autocomplete="off" type="button" href="#import_cohort" value="Import Cohort" style="float:left"/>
         Total:${cohorts.paginator.count} -
         Page: ${cohorts.number}/${cohorts.paginator.num_pages}
         <input type="text" name="page" value="${cohorts.number}" size="5" maxlength="8"/>
@@ -84,14 +85,40 @@
     <header>
       <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import User')}</h2>
     </header>
-    <form id="form_import" method="post" style="margin:0;">
+    <form id="form_import_student" method="post" style="margin:0;">
       <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
       <input type="hidden" name="cohort_id" value="">
       <div class="message" style="padding:10px"></div>
       <fieldset style="margin:0px;">
         <div class="input-group" style="margin:0px;padding:20px;">
           <label style="display:block;margin:0;color:#000;" >
-            <input type="file" id="file" name="file" value="" />
+            <input type="file" id="file" name="file" value="" autocomplete="off"/>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit" style="padding-top:5px;">
+        <input type="submit" class="btnx" id="submit" value="Upload" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="import_cohort" class="modal">
+  <div class="inner-wrapper" style="background-color: rgb(245, 245, 245);padding:20px;">
+    <header>
+      <h2 style="margin:0;padding:0px 10px 20px 10px;">${_('Import Cohort')}</h2>
+    </header>
+    <form id="form_import_cohort" method="post" style="margin:0;color:#000;">
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+      <div class="message" style="padding:10px;"></div>
+      <fieldset style="margin:0px;">
+        <div class="input-group" style="margin:0px;padding:20px;">
+          <label style="display:block;margin:0;color:#000;" >
+            <input type="file" id="file" name="file" value="" autocomplete="off"/>
           </label>
         </div>
       </fieldset>
@@ -107,68 +134,85 @@
   </div>
 </section>
 <script type="text/javascript">
-var form=$("#form_filter");
-$("input[name=page]").keyup(function(e){
-  if(e.keyCode==13){
-    var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
-    if(/^[1-9]\d*$/.test(p))
-      window.location.href='${reverse('cohort')}?${pager_params}&page='+p
-    else
-      alert("Invalid page number '"+p+"'")
-  }
-})
-// delete cohorts
-$("input[type=button][name=delete]").click(function(){
-  var ids=[];
-  $("input[type=checkbox][name=id]:checked").each(function(){
-    ids.push(this.value)
-  });
-  if(!ids.length)return alert("Nothing selected.")
-  if(!confirm("Really delete?")) return;
-  $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
-    r=$.parseJSON(r)
-    if(r.success)
-      window.location.href=window.location.href
-    else
-      alert(r.error)
+  var form=$("#form_filter");
+  $("input[name=page]").keyup(function(e){
+    if(e.keyCode==13){
+      var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+        if(/^[1-9]\d*$/.test(p))
+        window.location.href='${reverse('cohort')}?${pager_params}&page='+p
+      else
+        alert("Invalid page number '"+p+"'")
+    }
   })
-})
-// drop events
-form.find("select[name=state_id]").change(function(){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id);
-});
-// init drops
-var state_id="${request.GET.get('state_id') or ''}"
-var district_id="${request.GET.get('district_id') or ''}"
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-});
-// import user
-$("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
-$(".import").click(function(){
-   $("#form_import .message").html("")
-   $("#form_import input[name=cohort_id]").val($(this).attr("cohort_id"))
-});
-$("#form_import").submit(function(){
-
-  $("#form_import .message").html("")
-  $(this).ajaxSubmit({
-      type:'post',
-      url:'${reverse('import_user_submit')}',
-      success:function(r, status){
+    // delete cohorts
+    $("input[type=button][name=delete]").click(function(){
+      var ids=[];
+      $("input[type=checkbox][name=id]:checked").each(function(){
+        ids.push(this.value)
+      });
+      if(!ids.length)return alert("Nothing selected.")
+        if(!confirm("Really delete?")) return;
+      $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
         r=$.parseJSON(r)
-        if(!r.success)
-          $("#form_import .message").html(r.error)
+          if(r.success)
+          window.location.href=window.location.href
         else
-          $("#form_import .message").html("Importing success.");
+          alert(r.error)
+      })
+    })
+    // drop events
+    form.find("select[name=state_id]").change(function(){
+      var state_id=$(this).val();
+      dropDistrict(form,state_id);
+    });
+  // init drops
+  var state_id="${request.GET.get('state_id') or ''}"
+  var district_id="${request.GET.get('district_id') or ''}"
+  dropDistrict(form,state_id,function(){
+    $(this).val(district_id)
+  });
+  // import user
+  $("a[rel*=leanModal]").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });
+  $(".import").click(function(){
+    $("#form_import_student .message").html("")
+      $("#form_import_student input[name=cohort_id]").val($(this).attr("cohort_id"))
+  });
+  $("#form_import_student").submit(function(){
+    $("#form_import_student .message").html("")
+      $(this).ajaxSubmit({
+        type:'post',
+        url:'${reverse('import_user_submit')}',
+        success:function(r, status){
+          r=$.parseJSON(r)
+            if(!r.success)
+            $("#form_import_student .message").html(r.error)
+            else
+            $("#form_import_student .message").html(r.message);
+        },
+        error:function(r){
+          $("#form_import_student .message").html("Server error.");
+        }
+      });
+    return false;
+  });
+  $("#form_import_cohort").submit(function(){
+    $(this).ajaxSubmit({
+      type:'post',
+      url:'${reverse('import_cohort_submit')}',
+      success:function(r, status){
+        r=$.parseJSON(r);
+        if(!r.success)
+          $("#form_import_cohort .message").html(r.error);
+        else
+          $("#form_import_cohort .message").html(r.message+" <a href=''>Refresh</a>");
       },
-      error:function(r){
-        $("#form_import .message").html("Server error.");
+      error:function(json){
+        $("#form_import_cohort .message").html("Server error.");
       }
     });
-  return false;
-});
+    return false;
+  });
+  $("#btnImportCohort").leanModal({ top : 120, overlay: 1, closeButton: ".close-modal", position: 'absolute' });  
 </script>
 %endif
 %if ui=='form':
@@ -196,7 +240,7 @@ $("#form_import").submit(function(){
             <tr>
               <td class="label">State</td>
               <td>
-                <select id="state_id" name="state_id" autocomplate="off">
+                <select id="state_id" name="state_id" autocomplete="off">
                   <option value=""></option>
                   %for item in State.objects.all().order_by('name'):
                   <option value="${item.id}">${item.name}</option>
@@ -207,7 +251,7 @@ $("#form_import").submit(function(){
             <tr>
               <td class="label required">District</td>
               <td>
-                <select id="district_id" name="district_id" autocomplate="off" chkMsg="District cant't be empty." chkType="Require">
+                <select id="district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
                   <option value=""></option>
                   %for item in District.objects.all():
                   <option value="${item.id}">${item.code}</option>
@@ -225,18 +269,18 @@ $("#form_import").submit(function(){
           <tr>
             <td class="label required">Term Months</td>
             <td>
-             <input type="" name="term_months" value="${cohort.term_months}" chkMsg="Term Months must be a number." chkType="Number"/> 
+              <input type="" name="term_months" value="${cohort.term_months}" chkMsg="Term Months must be a number." chkType="Number"/> 
             </td>
           </tr>
           <tr>
             <td class="label required">Start Date</td>
             <td>
-             %if cohort.start_date:
+              %if cohort.start_date:
               <input id="start_date" name="start_date" value="${'{d:%Y-%m-%d}'.format(d=cohort.start_date)}" chkMsg="Start Date is invalid." chkType="Date"/>
               %else:
               <input id="start_date" name="start_date" value="" chkMsg="Start Date is invalid." chkType="Date"/>
               %endif
-             <span style="color:#999;">Format: YYYY-MM-DD.</span>
+              <span style="color:#999;">Format: YYYY-MM-DD.</span>
             </td>
           </tr>
           <tr>
@@ -247,46 +291,45 @@ $("#form_import").submit(function(){
     </div>  
   </div>
 </div>
-
 <script>
-//submit form
-$("#form").submit(function(){
-  if(!new FormValidator().check(this))return false;
-  var flds=["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
-  var data=getFormData(this,flds);
-  $("#message").html("Submiting");
-  $.post('${reverse("cohort_submit")}',data,
-    function(r) {
-      r=$.parseJSON(r)
-      if (r.success) {
-        //$(this).resetForm()
-        infoAndWait($("#message"),"Submit success",3,"${reverse('cohort')}");
-      } else {
-        $("#message").show()
-        $("#message").html(r.error);
-      }
-    }
-  );
-  return false;
-});
-// drop events
-var form=$("#form");
-form.find("select[name=state_id]").change(function(){
-  var state_id=$(this).val();
-  dropDistrict(form,state_id);
-});
-// init
-%if cohort.district_id:
-var district_id="${cohort.district.id}"
-var state_id="${cohort.district.state.id}"
-%else:
-var district_id=""
-var state_id=""
-%endif
-form.find("select[name=state_id]").val(state_id)
-dropDistrict(form,state_id,function(){
-  $(this).val(district_id)
-})
+  //submit form
+  $("#form").submit(function(){
+    if(!new FormValidator().check(this))return false;
+    var flds=["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
+    var data=getFormData(this,flds);
+    $("#message").html("Submiting");
+    $.post('${reverse("cohort_submit")}',data,
+           function(r) {
+             r=$.parseJSON(r)
+               if (r.success) {
+                 //$(this).resetForm()
+                 infoAndWait($("#message"),"Submit success",3,"${reverse('cohort')}");
+               } else {
+                 $("#message").show()
+                   $("#message").html(r.error);
+               }
+           }
+    );
+    return false;
+  });
+  // drop events
+  var form=$("#form");
+  form.find("select[name=state_id]").change(function(){
+    var state_id=$(this).val();
+    dropDistrict(form,state_id);
+  });
+  // init
+  %if cohort.district_id:
+           var district_id="${cohort.district.id}"
+  var state_id="${cohort.district.state.id}"
+  %else:
+               var district_id=""
+  var state_id=""
+  %endif
+  form.find("select[name=state_id]").val(state_id)
+    dropDistrict(form,state_id,function(){
+      $(this).val(district_id)
+    })
 </script>
 %endif
 </body>

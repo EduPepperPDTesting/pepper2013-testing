@@ -47,7 +47,10 @@ urlpatterns = (
     url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form',name="school_form"),
     url(r'^reg_kits/school/delete/$', 'reg_kits.views.school_delete',name="school_delete"),
     url(r'^reg_kits/school/submit/$', 'reg_kits.views.school_submit',name="school_submit"),
+    
     url(r'^reg_kits/school/import_school_submit/$', 'reg_kits.views.import_school_submit',name="import_school_submit"),
+    url(r'^reg_kits/district/import_district_submit/$', 'reg_kits.views.import_district_submit',name="import_district_submit"),
+    url(r'^reg_kits/cohort/import_cohort_submit/$', 'reg_kits.views.import_cohort_submit',name="import_cohort_submit"),
     
     url(r'^reg_kits/user/$', 'reg_kits.views.user',name="user"),
     url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form',name="user_form"),

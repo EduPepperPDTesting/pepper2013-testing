@@ -577,18 +577,18 @@ def user_form(request,user_id=None):
         c=UserProfile()
     return render_to_response('reg_kits/user.html', {"ui":"form","profile":c})
 
-USER_CVS_COL_EMAIL=0
-USER_CVS_COUNT_COL=1
+USER_CSV_COL_EMAIL=0
+USER_CSV_COUNT_COL=1
 
 def validate_user_cvs_line(line):
-    email=line[USER_CVS_COL_EMAIL]
+    email=line[USER_CSV_COL_EMAIL]
     exist=False
     # check field count
     n=0
     for item in line:
         if len(item.strip()):
             n=n+1
-    if n != USER_CVS_COUNT_COL:
+    if n != USER_CSV_COUNT_COL:
         raise Exception("Wrong fields count")
     validate_email(email)
     
@@ -767,7 +767,6 @@ def import_user_submit(request):
         f=request.FILES['file']
         try:
             count_success=0
-            count_exist=0
             # --- THIS FAILS ON SING COLUMN CVS ---
             # dialect = csv.Sniffer().sniff(f.read(1024), delimiters=";,")
             # f.seek(0)
@@ -783,7 +782,7 @@ def import_user_submit(request):
                 exist=validate_user_cvs_line(line)
                 # if(exist):
                 #     raise Exception("An user already exists, or duplicate lines.")
-                email=line[USER_CVS_COL_EMAIL]
+                email=line[USER_CSV_COL_EMAIL]
                 import random
                 username="".join(random.sample('abcdefg&#%^*f1234567890',20))
                 user = User(username=username, email=email, is_active=False)
@@ -814,7 +813,6 @@ def import_user_submit(request):
             db.transaction.commit()
             message={"success": True,
                 "message":"Success! %s users imported." % (count_success),
-                "count_exist":count_exist,
                 "count_success":count_success,
             }            
         except Exception as e:
@@ -956,22 +954,145 @@ def drop_cohorts(request):
     return HttpResponse(json.dumps(r))
 
 ##############################################
-# Import School 
+# Import Cohort 
 ##############################################
-SCHOOL_CVS_COL_NAME=0
-SCHOOL_CVS_COUNT_COL=1  
-def validate_school_cvs_line(line,district_id):
-    name=line[SCHOOL_CVS_COL_NAME]
+COHORT_CSV_COLS=5
+
+COHORT_CSV_COL_DISTRICT_CODE=0
+COHORT_CSV_COL_CODE=1
+COHORT_CSV_COL_LICENSES=2
+COHORT_CSV_COL_TERM_MONTHS=3
+COHORT_CSV_COL_START_DATE=4
+
+def validate_cohort_cvs_line(line):
     exist=False
     # check field count
     n=0
     for item in line:
         if len(item.strip()):
             n=n+1
-    if n != SCHOOL_CVS_COUNT_COL:
-        raise Exception("Wrong fields count")
+
+    if n != COHORT_CSV_COLS:
+        raise Exception("Wrong column count %s" % n)
+
+    code=line[COHORT_CSV_COL_CODE]
+    
+    if len(Cohort.objects.filter(code=code)) > 0:
+        raise Exception("A cohort '{code}' already exists".format(code=code))
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_cohort_submit(request):
+    message={"success": True}
+
+    if request.method == 'POST':
+        f=request.FILES['file']
+        count_success=0
+        try:
+            r=csv.reader(f,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for i,line in enumerate(r):
+                district_code=line[COHORT_CSV_COL_DISTRICT_CODE]
+                district_id=District.objects.get(code=district_code).id
+
+                validate_cohort_cvs_line(line)
+                cohort=Cohort()
+                cohort.code=line[COHORT_CSV_COL_CODE]
+                cohort.district_id=district_id
+                cohort.licences=int(line[COHORT_CSV_COL_LICENSES])
+                cohort.term_months=int(line[COHORT_CSV_COL_TERM_MONTHS])
+                cohort.start_date=line[COHORT_CSV_COL_START_DATE]
+                cohort.save()
+                count_success=count_success+1
+                
+            db.transaction.commit()
+            message={"success": True,
+                "message":"Success! %s cohort(s) imported." % (count_success),
+                "count_success":count_success
+                }     
+        except Exception as e:
+            
+            db.transaction.rollback()
+            message={'success': False,'error':'Import error: %s. At cvs line: %s, Nothing impored.' % (e,count_success+1)}
+    
+    return HttpResponse(json.dumps(message))
+
+##############################################
+# Import District 
+##############################################
+DISTRICT_CSV_COLS=3
+
+DISTRICT_CSV_COL_STATE_NAME=0
+DISTRICT_CSV_COL_NAME=1
+DISTRICT_CSV_COL_CODE=2
+
+def validate_district_cvs_line(line):
+    exist=False
+    # check field count
+    n=0
+    for item in line:
+        if len(item.strip()):
+            n=n+1
+    if n != DISTRICT_CSV_COLS:
+        raise Exception("Wrong column count %s" % n)
+
+    name=line[DISTRICT_CSV_COL_NAME]
+    code=line[DISTRICT_CSV_COL_CODE]
+    
+    if len(District.objects.filter(name=name,code=code)) > 0:
+        raise Exception("A district named '{name}' already exists".format(name=name))
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_district_submit(request):
+    message={"success": True}
+
+    if request.method == 'POST':
+        f=request.FILES['file']
+        count_success=0
+        try:
+            r=csv.reader(f,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for i,line in enumerate(r):
+                state_name=line[DISTRICT_CSV_COL_STATE_NAME]
+                state_id=State.objects.get(name=state_name).id
+                
+                validate_district_cvs_line(line)
+                district=District()
+                district.code=line[DISTRICT_CSV_COL_CODE]
+                district.name=line[DISTRICT_CSV_COL_NAME]
+                district.state_id=state_id
+                district.save()
+                count_success=count_success+1
+                
+            db.transaction.commit()
+            message={"success": True,
+                "message":"Success! %s district(s) imported." % (count_success),
+                "count_success":count_success
+                }     
+        except Exception as e:
+            
+            db.transaction.rollback()
+            message={'success': False,'error':'Import error: %s. At cvs line: %s, Nothing impored.' % (e,count_success+1)}
+    
+    return HttpResponse(json.dumps(message))
+##############################################
+# Import School 
+##############################################
+SCHOOL_CSV_COLS=1
+
+SCHOOL_CSV_COL_NAME=0
+
+def validate_school_cvs_line(line,district_id):
+    name=line[SCHOOL_CSV_COL_NAME]
+    exist=False
+    # check field count
+    n=0
+    for item in line:
+        if len(item.strip()):
+            n=n+1
+    if n != SCHOOL_CSV_COLS:
+        raise Exception("Wrong column count")
     if len(School.objects.filter(name=name,district_id=district_id)) > 0:
-        raise Exception("A school named '{name}' already exists in this district".format(name=name))
+        raise Exception("A school named '{name}' already exists in the district".format(name=name))
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -980,7 +1101,6 @@ def import_school_submit(request):
         f=request.FILES['file']
         district_id=request.POST.get('district_id')
         count_success=0
-        count_exist=0
         try:
             # --- THIS FAILS ON SING COLUMN CVS ---
             # dialect = csv.Sniffer().sniff(f.read(1024), delimiters=";,\t",quotechar='\n')
@@ -989,10 +1109,7 @@ def import_school_submit(request):
             r=csv.reader(f,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for i,line in enumerate(r):
                 exist=validate_school_cvs_line(line,district_id)
-                if(exist):
-                    count_exist=count_exist+1
-                    continue
-                school_name=line[SCHOOL_CVS_COL_NAME]
+                school_name=line[SCHOOL_CSV_COL_NAME]
                 school = School()
                 school.name=school_name
                 school.district_id=district_id
@@ -1003,7 +1120,6 @@ def import_school_submit(request):
             # success information
             message={"success": True,
                 "message":"Success! %s school(s) imported." % (count_success),
-                "count_exist":count_exist,
                 "count_success":count_success
                 }                   
         except Exception as e:

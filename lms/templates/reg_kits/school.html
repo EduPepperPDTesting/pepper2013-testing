@@ -22,7 +22,7 @@
       <div class="filter">
         <form id="form_filter" method="get">
           State:
-          <select name="state_id" autocomplate="off">
+          <select name="state_id" autocomplete="off">
             <option value="">All</option>
             %for item in State.objects.all().order_by('name'):
             %if request.GET.get('state_id')== "%s" % item.id:
@@ -33,7 +33,7 @@
             %endfor
           </select>
           District:
-          <select id="" name="district_id" autocomplate="off">
+          <select id="" name="district_id" autocomplete="off">
             <option value="">All</option>
           </select>
           <input type="submit" name="" value="Filter" />
@@ -170,7 +170,7 @@
             <tr>
               <td class="label">State</td>
               <td>
-                <select id="state_id" name="state_id" autocomplate="off">
+                <select id="state_id" name="state_id" autocomplete="off">
                   <option value=""></option>
                   %for item in State.objects.all().order_by('name'):
                   <option value="${item.id}">${item.name}</option>
@@ -181,7 +181,7 @@
             <tr>
               <td class="label required">District</td>
               <td>
-                <select id="district_id" name="district_id" autocomplate="off" chkMsg="District cant't be empty." chkType="Require">
+                <select id="district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
                   <option value=""></option>
                   %for item in District.objects.all():
                   %if item.id==school.district_id:

@@ -23,7 +23,7 @@
       <div class="filter">
         <form id="form_filter" method="get">
           State:
-          <select name="state_id" autocomplate="off">
+          <select name="state_id" autocomplete="off">
             <option value="">All</option>
             %for item in State.objects.all().order_by('name'):
             %if request.GET.get('state_id')== "%s" % item.id:
@@ -34,7 +34,7 @@
             %endfor
           </select>
           District:
-          <select id="" name="district_id" autocomplate="off">
+          <select id="" name="district_id" autocomplete="off">
             <option value="">All</option>
           </select>
           <input type="submit" name="" value="Filter" />
@@ -134,7 +134,7 @@
           <tr>
             <td class="label required">Subscription Type</td>
             <td>
-              <select id="subscription_type" name="subscription_type" autocomplate="off" chkMsg="Subscription Type cant't be empty." chkType="Require">
+              <select id="subscription_type" name="subscription_type" autocomplete="off" chkMsg="Subscription Type cant't be empty." chkType="Require">
                 <option></option>
                 %for item in ["cohort"]:
                 %if item == transaction.subscription_type:
@@ -150,7 +150,7 @@
           <tr>
             <td class="label">State</td>
             <td>
-              <select id="state_id" name="state_id" autocomplate="off">
+              <select id="state_id" name="state_id" autocomplete="off">
                 <option value=""></option>
                 %for item in State.objects.all().order_by('name'):
                 <option value="${item.id}">${item.name}</option>
@@ -161,7 +161,7 @@
           <tr>
             <td class="label">District</td>
             <td>
-              <select id="district_id" name="district_id" autocomplate="off">
+              <select id="district_id" name="district_id" autocomplete="off">
                 <option value=""></option>
     
               </select>
@@ -170,7 +170,7 @@
           <tr>
             <td class="label required">Cohort</td>
             <td>
-              <select id="cohort_id" name="cohort_id" autocomplate="off" chkMsg="Cohort cant't be empty." chkType="Require">
+              <select id="cohort_id" name="cohort_id" autocomplete="off" chkMsg="Cohort cant't be empty." chkType="Require">
                 <option value=""></option>
               </select>
             </td>

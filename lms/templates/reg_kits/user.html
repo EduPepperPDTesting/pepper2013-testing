@@ -69,7 +69,7 @@
         </div>
         <table class="datalist" width="100%" border="1" style="border-collapse:collapse;">
           <tr>
-            <th><input type="checkbox" id="check_all_id" autocomplate="off" /></th>
+            <th><input type="checkbox" id="check_all_id" autocomplete="off" /></th>
             <th sortby="user_id">User ID</th>
             <th sortby="active_link">Activate Link</th>
             <th sortby="first_name">First Name</th>
@@ -87,7 +87,7 @@
           </tr>
           %for item in users:
           <tr>
-            <td><input type="checkbox" name="id" value="${item.user_id}" autocomplate="off" /></td>
+            <td><input type="checkbox" name="id" value="${item.user_id}" autocomplete="off" /></td>
             <td>${item.user_id}</td>
             <td>
               %if Registration.objects.filter(user_id=item.user_id).count():
@@ -128,7 +128,7 @@
           <a href="${reverse('user')}?${pager_params}&page=${users.next_page_number()}">next</a>
           %endif
           Items Per Page
-          <select id="lstPageSize" autocomplate="off">
+          <select id="lstPageSize" autocomplete="off">
             <option>10</option>
             <option>20</option>
             <option>50</option>
@@ -136,7 +136,7 @@
             <option>200</option>
           </select>
           Batch Modify
-          <select id="lstStatus" autocomplate="off">
+          <select id="lstStatus" autocomplete="off">
             <option value="">-- Status --</option>
             <option value="Imported">Imported</option>
             <option value="Unregistered">Unregistered</option>
@@ -339,7 +339,7 @@
             <tr>
               <td class="label">State</td>
               <td>
-                <select id="district_id" name="state_id" autocomplate="off">
+                <select id="district_id" name="state_id" autocomplete="off">
                   <option value=""></option>
                   %for item in State.objects.all().order_by('name'):
                   <option value="${item.id}">${item.name}</option>
@@ -350,7 +350,7 @@
             <tr>
               <td class="label">District</td>
               <td>
-                <select id="district_id" name="district_id" autocomplate="off">
+                <select id="district_id" name="district_id" autocomplete="off">
                   <option value=""></option>
                 </select>
               </td>
@@ -358,7 +358,7 @@
            <tr>
               <td class="label required">Cohort</td>
               <td>
-                <select id="cohort_id" name="cohort_id" autocomplate="off" chkMsg="Cohort can't be empty." chkType="Require">
+                <select id="cohort_id" name="cohort_id" autocomplete="off" chkMsg="Cohort can't be empty." chkType="Require">
                   <option value=""></option>
                 </select>
               </td>
@@ -366,7 +366,7 @@
             <tr>
               <td class="label">School</td>
               <td>
-                <select id="school_id" name="school_id" autocomplate="off">
+                <select id="school_id" name="school_id" autocomplete="off">
                   <option value=""></option>
                 </select>
               </td>
@@ -375,7 +375,7 @@
           <tr>
             <td class="label required">Status</td>
             <td>
-              <select id="" name="subscription_status" autocomplate="off" chkMsg="Status is invalid." chkType="Require">
+              <select id="" name="subscription_status" autocomplete="off" chkMsg="Status is invalid." chkType="Require">
                 <option value=""></option>
                 <option value="Imported">Imported</option>
                 <option value="Unregistered">Unregistered</option>
