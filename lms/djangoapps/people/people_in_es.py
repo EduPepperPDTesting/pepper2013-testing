@@ -222,7 +222,15 @@ def update_user_es_info(user):
     log.debug('>>>>>>>>>>>>>>>>')
     
     body['district_id']=user.profile.cohort.district_id
+
+    if user.last_login:
+        body['last_login']=user.last_login.strftime('%Y-%m-%dT%H:%M:%S+00:00')
     
+    if body['district_id']:
+        body['state_id']=user.profile.cohort.district.state_id
+    else:
+        body['state_id']=0
+
     if user.profile.people_of:
         body['people_of']=[int(i) for i in user.profile.people_of.split(',')]
     else:
