@@ -129,44 +129,40 @@ from baseinfo.models import Enum
   </script>
 </%block>
 
-   <script type="text/javascript">
-            var json_school="[]";
-            
-            function reload_school_dropdown(district_id){
-            var drop=document.getElementById("school_id");
-            $(drop).find("option").filter(function(){return $.trim(this.value)!=''}).remove();
-            if(district_id=='') return;
-            
-            $.each(json_school,function(i,school){
-
-            if(school.district_id==district_id)
-            $(drop).append("<option value='"+school.id+"'>"+school.name+"</option>");
-            })
-
-            }
-            function click_grade_btn(i){
-            var vals={}
-            $.each($("#grade_level_id").val().split(","),function(i,v){
-            if(v)vals[v]=1
-            })
-            var link=document.getElementById("grade_btn"+i)
-            if($(link).hasClass("btn_grade_level_active")){
-            $(link).removeClass("btn_grade_level_active");
-            vals[i]=''
-            }else{
-            $(link).addClass("btn_grade_level_active");
-            vals[i]=1
-            }
-            var arVals=[]
-            $.each(vals,function(i,v){
-            if(v)arVals.push(i)
-            })
-            arVals.sort(function(a,b){
-            return parseInt(a)-parseInt(b)
-            })
-            $("#grade_level_id").val(arVals.join());
-            }
-          </script>
+  <script type="text/javascript">
+    var json_school="[]";
+    function reload_school_dropdown(district_id){
+      var drop=document.getElementById("school_id");
+      $(drop).find("option").filter(function(){return $.trim(this.value)!=''}).remove();
+      if(district_id=='') return;
+      $.each(json_school,function(i,school){
+        if(school.district_id==district_id)
+          $(drop).append("<option value='"+school.id+"'>"+school.name+"</option>");
+      });
+    }
+    function click_grade_btn(i){
+      var vals={};
+      $.each($("#grade_level_id").val().split(","),function(i,v){
+        if(v)vals[v]=1;
+      });
+      var link=document.getElementById("grade_btn"+i);
+      if($(link).hasClass("btn_grade_level_active")){
+        $(link).removeClass("btn_grade_level_active");
+        vals[i]='';
+      }else{
+        $(link).addClass("btn_grade_level_active");
+        vals[i]=1;
+      }
+      var arVals=[];
+      $.each(vals,function(i,v){
+        if(v)arVals.push(i);
+      });
+      arVals.sort(function(a,b){
+        return parseInt(a)-parseInt(b);
+      });
+      $("#grade_level_id").val(arVals.join());
+    }
+  </script>
 
 <!--@begin:Change the banding image in Login page-->
 <!--@date:2013-11-02-->
@@ -253,7 +249,7 @@ from baseinfo.models import Enum
             <label for="school_id">${_('School')}</label>
             <select autocomplete="off" id="school_id" name="school_id">
               <option value="">--</option>
-              %for item in School.objects.filter(district_id=profile.cohort.district_id):
+              %for item in School.objects.filter(district_id=profile.cohort.district_id).order_by("name"):
               <option value="${item.id}">${item.name}</option>
               %endfor
             </select>

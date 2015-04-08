@@ -674,7 +674,7 @@ def download_user_csv(request):
     writer = csv.DictWriter(output, fieldnames=FIELDS)
     
     writer.writerow(dict(zip(FIELDS, TITLES)))
-    data=filter_user(request)
+    data,filtered=filter_user(request)
 
     domain="http://"+request.META['HTTP_HOST']
 
@@ -725,7 +725,7 @@ def download_user_excel(request):
     for i,k in enumerate(TITLES):
         worksheet.write(0,i,k)
     row=1
-    data=filter_user(request)
+    data,filtered=filter_user(request)
     domain="http://"+request.META['HTTP_HOST'] 
     for d in data:
         if Registration.objects.filter(user_id=d.user_id).count():
@@ -826,7 +826,7 @@ from mail import send_html_mail
 @user_passes_test(lambda u: u.is_superuser)
 def send_invite_email(request):
     try:
-        data=filter_user(request)
+        data,filtered=filter_user(request)
         data=data.filter(subscription_status='Imported')
         remain=request.GET.get('remain')
         count=request.GET.get('count')
@@ -925,6 +925,7 @@ def drop_districts(request):
     data=District.objects.all()
     if request.GET.get('state_id'):
         data=data.filter(state_id=request.GET.get('state_id'))
+    data=data.order_by("name")        
     r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name,"code":item.code})        

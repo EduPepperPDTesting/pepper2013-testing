@@ -894,7 +894,7 @@ Add info that you would like to share about yourself here:
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
               	% if curr_user.profile.cohort:
-                %for item in School.objects.filter(district_id=curr_user.profile.cohort.district.id):
+                %for item in School.objects.filter(district_id=curr_user.profile.cohort.district.id).order_by("name"):
                 <option value="${item.id}">${item.name}</option>
                 %endfor
               	% endif
