@@ -1786,7 +1786,7 @@ Request Date: {date_time}""".format(
   ,course_name=course.display_name
   ,date_time=datetime.datetime.now()
 )
-        send_html_mail(subject, message, settings.SUPPORT_EMAIL,[settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER])
+        send_html_mail(subject, message, settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER ,[])
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))  
