@@ -84,7 +84,7 @@
 	      notifications_update_switchType(data);
 	      var displayDate = notifications_update_dateFormat(data);
 	      var ele=$('<tr height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
-	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><table><tr><td width="635"><div class="message_body" style="color:#000;text-overflow:ellipsis;overflow:hidden;width:630px;white-space:nowrap;">'+body+'</div></td><td class="body_read_more"></td></tr></table></section></td></tr>');
+	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><table><tr><td width="635">'+notifications_update_setMessageBody(data)+'</td><td class="body_read_more"></td></tr></table></section></td></tr>');
 	      notifications_update_setMessageReadmore(element,data);
 		  if(notifications_update_new_day!='')
 	      {
@@ -135,6 +135,20 @@
         		data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
         		break;
 		    }
+  	    }
+  	    function notifications_update_setMessageBody(data)
+  	    {
+  	       var body_element="";
+	       switch(data.type)
+		   {
+		   		case 'message':
+		        	body_element='<div class="message_body" style="color:#000;text-overflow:ellipsis;overflow:hidden;width:630px;white-space:nowrap;">'+data.body+'</div>';
+		        break;
+		      	case 'my_chunks':
+        			body_element='<div class="message_body" style="color:#000;white-space:nowrap;">'+data.body+'</div>';
+        		break;
+		   }
+		   return body_element
   	    }
   	    function notifications_update_setMessageReadmore(ele,data)
   	    {

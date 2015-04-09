@@ -283,11 +283,15 @@ Add info that you would like to share about yourself here:
     <div style="color:black;font-size:14px;padding:20px;">Can't find someone? Go to "People" and add them to your personal network to share this chunk.</div>
     <form id="" method="post" style="padding:0px;line-height:18px;">
         <div style="width:540px;margin:10px;">
-          <div style="padding:0 0 10px 25px;"><table><tr><td><div class="select_all_checkbox mychunks_checkbox" ischeck="false">
+          <div style="padding:0 0 10px 25px;"><table>
+            %if len(profiles)>1:
+            <tr><td><div class="select_all_checkbox mychunks_checkbox" ischeck="false">
             <div class="checkbox_img_false" style="background:url(/static/images/check-box-f.png);background-size:contain;background-repeat:no-repeat;"></div>
             <div class="checkbox_img_true" style="background:url(/static/images/check-box-t.png);background-size:contain;background-repeat:no-repeat;"></div>
           </div>
-          </td><td style="vertical-align:middle;"><span style="padding-left:10px;">Select All</span></td></tr></table></div>
+          </td><td style="vertical-align:middle;"><span style="padding-left:10px;">Select All</span></td></tr>
+          %endif
+          </table></div>
           <div class="mychunks_share_list" style="width:540px;height:400px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:scroll;">
           <table>
           %for profile in profiles:
