@@ -7,6 +7,7 @@ var mychunks_share_focus=0;
 var mychunks_share_maxCharNum=100;
 var cur_course_id="";
 var mychunks_notes_status="edit";
+var mychunks_notes_text='';
 $(function () {
     mychunks_content_update(mychunks_content_loadNum);
     $(".top_btn").click(function(){
@@ -31,15 +32,19 @@ $(function () {
       }
     })
     $(".mychunks_ftg_button").click(function(){
+      var This=this;
       var content=$(".mychunks_content");
       var verticalID=$("#show_mychunks").attr("data-id");
       if(mychunks_notes_status=="update")
       {
         if(content.text().length<=mychunks_maxCharNum)
         {
+          $(this).hide();
           var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID})};
           $.post("/my_chunks/save_info",datainfo,function(data){
             mychunks_updateMaxCharNum();
+            mychunks_notes_text=content.html();
+            $(This).show();
           });
           //$("#show_mychunks").hide();
           //$("#lean_overlay").hide();
@@ -147,7 +152,6 @@ $(function () {
       $(".mychunks_linkwin").hide();
       var content = $('.mychunks_content');
       content.html("");
-      content.html("<p style='color:#D4D0C8'>Write a Note ...</p>");
       mychunks_updateMaxCharNum();
     })
     $("#mychunks_share_close").click(function(){
@@ -216,15 +220,25 @@ function mychunks_content_init(data)
     $(".noteBtn").click(function(){
       $("#show_mychunks").show();
       $("#lean_overlay").show();
+      $(".mychunks_ftg_button").hide();
       $(window).scrollTop(0);
       mychunks_setNotesStatus("edit")
       var vertical_id=$(this).parent().attr("data-id");
       $("#show_mychunks").attr("data-id",vertical_id)
       var datainfo={'info':JSON.stringify({'vertical_id':vertical_id})};
       $.post("/my_chunks/get_info",datainfo,function(data){
-      mychunks_focus=1;
-      $(".mychunks_content").html(data['results'][0].note);
-      mychunks_updateMaxCharNum();
+        mychunks_focus=1;
+        if(data['results'][0].note=="")
+        {
+          $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
+        }
+        else
+        {
+          $(".mychunks_content").html(data['results'][0].note);
+        }
+        mychunks_notes_text=data['results'][0].note;
+        $(".mychunks_ftg_button").show();
+        mychunks_updateMaxCharNum();
       });
     })
     $(".delBtn").click(function(){
@@ -302,6 +316,7 @@ function mychunks_content_init(data)
       $("#show_mychunks").hide();
       $("#del_mychunks").hide();
       $("#share_mychunks").hide();
+      $("#shared_ok_mychunks").hide();
       $(".linkwin").hide();
       $(this).hide();
     })
@@ -448,5 +463,9 @@ mychunks_setNotesStatus=function(s)
     $(".mychunks_content").css("backgroundColor","#ffffff");
     $(".mychunks_uploadBtn").show();
     $(".mychunks_linkBtn").show();
+    if(mychunks_notes_text=='')
+    {
+      $(".mychunks_content").html('');
+    }
   }
 }

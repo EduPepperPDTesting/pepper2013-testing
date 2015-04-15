@@ -159,7 +159,7 @@
                 %if curr_user==request.user:              
 				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			    %else:
-                <a href="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}" class="enter-course dashboard-btn1 portfolio-btn">${_('View Portfolio')}</a>
+                <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
 
                 %if curr_user==request.user:      

@@ -12,6 +12,7 @@ MyChunks=function()
   this.cur_vertical_link=null;
   this.isExist=false;
   this.notes_status="edit";
+  this.notes_text="";
 }
 MyChunks.prototype.init=function(position)
 {
@@ -113,7 +114,6 @@ MyChunks.prototype.init=function(position)
     $(".mychunks_linkwin").hide();
     var content = $('.mychunks_content');
     content.html("");
-    content.html("<p style='color:#D4D0C8'>Write a Note ...</p>");
     mychunks_updateMaxCharNum();
   })
   if($(".modal").css("zIndex")<10000)
@@ -152,6 +152,7 @@ MyChunks.prototype.init=function(position)
     {
       $("#add_mychunks").hide();
       $("#show_mychunks").show();
+      $(this).show();
     }
   })
   this.load();
@@ -162,6 +163,8 @@ MyChunks.prototype.load=function()
   $("#mychunks_course_title").html("");
   $("#mychunks_chunk_title").html("");
   $(".mychunks_content").html("");
+  $(".mychunks_ftg_button").hide();
+  $(".mychunks_delBtn").hide();
   var datainfo={'info':JSON.stringify({'user_id':this.userID,'vertical_id':this.verticalID})};
   $.post("/my_chunks/get_info",datainfo,function(data){
     $("#my_chunks_link").show();
@@ -173,7 +176,15 @@ MyChunks.prototype.load=function()
       mychunks_focus=1;
       This.isExist=true;
       $(".mychunks_delBtn").show();
-      $(".mychunks_content").html(data['results'][0].note);
+      if(data['results'][0].note=="")
+      {
+        $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
+      }
+      else
+      {
+        $(".mychunks_content").html(data['results'][0].note);
+      }
+      This.notes_text=data['results'][0].note;
       mychunks_updateMaxCharNum();
     }
     else
@@ -183,6 +194,8 @@ MyChunks.prototype.load=function()
       This.isExist=false;
       $(".mychunks_delBtn").hide();
     }
+    $(".mychunks_ftg_button").show();
+    $(".mychunks_delBtn").show();
   });
 }
 MyChunks.prototype.save=function(v)
@@ -193,12 +206,16 @@ MyChunks.prototype.save=function(v)
   if(v)note=content.html();
   if(content.text().length<=mychunks_maxCharNum)
   {
+    $(".mychunks_ftg_button").hide();
+    $(".mychunks_delBtn").hide();
     var sort_key=generate_sort_key(this.chunkTitle);
     var datainfo={'info':JSON.stringify({'note':note,'user_id':this.userID,'vertical_id':this.verticalID,'courseTitle':this.courseTitle,'chunkTitle':this.chunkTitle,'course_id':this.course_id,'sort_key':sort_key,'url':this.URL})};
     $.post("/my_chunks/save_info",datainfo,function(data){
       mychunks_updateMaxCharNum();
       This.setStatus(1);
       This.isExist=true;
+      This.notes_text=note;
+      $(".mychunks_ftg_button").show();
       $(".mychunks_delBtn").show();
     });
     //$("#show_mychunks").hide();
@@ -207,6 +224,7 @@ MyChunks.prototype.save=function(v)
     {
       $("#add_mychunks").show();
       $("#lean_overlay").show();
+      $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
     }
   }
   else
@@ -257,7 +275,12 @@ MyChunks.prototype.setNotesStatus=function(s)
     $(".mychunks_content").css("backgroundColor","#ffffff");
     $(".mychunks_uploadBtn").show();
     $(".mychunks_linkBtn").show();
+    if(this.notes_text=='')
+    {
+      $(".mychunks_content").html('');
+    }
   }
+
 }
 
 var mychunks_focus=0;
