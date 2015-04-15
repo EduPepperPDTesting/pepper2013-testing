@@ -182,11 +182,11 @@ def people(request,course_id=''):
                 'percent_iep':request.GET.get('percent_iep',''),
                 'percent_eng_learner':request.GET.get('percent_eng_learner','')})
 
-        import logging
-        log = logging.getLogger("tracking")
-        log.debug("++++++++++")
-        log.debug(cond)
-        log.debug("++++++++++")
+        # import logging
+        # log = logging.getLogger("tracking")
+        # log.debug("++++++++++")
+        # log.debug(cond)
+        # log.debug("++++++++++")
 
         profiles,total=search_people(cond)
 
@@ -294,7 +294,9 @@ def my_people(request,course_id=''):
     
     courses=list()
     courses=get_courses(request.user, request.META.get('HTTP_HOST'))
-    courses=sorted(courses, key=lambda course: course.number.lower())
+    
+    courses=sorted(courses, key=lambda course: course.display_name.lower())
+    
     context['courses']=courses
     course=None
     if course_id:

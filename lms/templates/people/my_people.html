@@ -358,7 +358,7 @@
     var district_id="${request.GET.get('district_id','')}"
     var state_id=$(this).val();
     if(state_id){
-      dropDistrict(form,state_id,null,false);
+      dropDistrict(form,state_id,null,true);
     }else{
       clearOption(form.find("select[name=district_id]"));
       clearOption(form.find("select[name=school_id]"));

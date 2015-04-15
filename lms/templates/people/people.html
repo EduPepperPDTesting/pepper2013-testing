@@ -110,7 +110,6 @@ padding-bottom:50px !important;
                 %endfor           
               </select>
             </div>     
-            
             <div class="filters">
               <select name="district_id">
                 <option value="">District</option>
@@ -121,7 +120,6 @@ padding-bottom:50px !important;
                 %endif
               </select>
             </div>
-            
             <div class="filters">
               <select  id="school_id" name="school_id">
               <option value="">School</option>
@@ -307,12 +305,10 @@ padding-bottom:50px !important;
               %>
               <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
               %endif
-
               %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif
             </span>
-
             %if request.user.id in profile['people_of']:
             <div class="btn_container btn_container_del">
               <a href="#" class="button_default button-ondark button-icon icon icon-search button-status"
@@ -345,7 +341,6 @@ padding-bottom:50px !important;
           </div>
           %endif
           %endfor
-
           %if len(profiles)>0:
           %if course:
           <div class="page" style="width:850px;" >
@@ -368,7 +363,6 @@ padding-bottom:50px !important;
               %endfor
               <a href="${reverse('people',args=[course_id])}?${params}&page=${pager['page']+1}" class="next_page"></a>             <div style="padding-top:10px;width:158px;text-align:center;">
               </div>
-
             </span>
           </div>
           %else:

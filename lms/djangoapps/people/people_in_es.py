@@ -96,7 +96,6 @@ def del_user_people_of(user,owner_id):
     log.debug("============")
     log.debug(owner_id)
 
-
     if owner_id in people_of:
         log.debug('<<<<<')
         people_of=filter(lambda a: a != owner_id, people_of)
@@ -104,7 +103,7 @@ def del_user_people_of(user,owner_id):
         # update db
 
         user.profile.people_of=','.join(people_of)
-  
+
         user.profile.save()
 
 def add_user_people_of(user,owner_id):

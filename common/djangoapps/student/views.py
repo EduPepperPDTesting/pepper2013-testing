@@ -89,6 +89,7 @@ from student.models import CmsLoginInfo
 #@end
 
 from mongo_user_store import MongoUserStore
+from courseware.views import course_filter
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -366,26 +367,78 @@ def course_from_id(course_id):
     return modulestore().get_instance(course_id, course_loc)
 
 @login_required
+def more_courses_available(request):
+    # allowed course_id list
+    allowed=list(CourseEnrollmentAllowed.objects.filter(email=request.user.email,is_active=True).values_list('course_id',flat=True))
+
+    # remove enrolled course_id
+    for enrollment in CourseEnrollment.enrollments_for_user(request.user):
+        if enrollment.course_id in allowed:
+            allowed.remove(enrollment.course_id)
+
+    # fetch courses
+    courses=[]
+    for course_id in allowed:
+        try:
+            course=course_from_id(course_id)
+            courses.append(course)
+        except:
+            pass
+
+    # sort courses
+    courses.sort(cmp=lambda x,y: cmp(x.display_subject.lower(),y.display_subject.lower()))  
+
+    # group courses by grade
+    subject_index=[-1,-1,-1,-1]
+    currSubject=["","","",""]
+    g_courses=[[],[],[],[]]
+
+    for course in courses:
+        course_filter(course,subject_index,currSubject,g_courses,'')
+
+    for gc in  g_courses:
+        for sc in gc:
+            sc.sort(key=lambda x: x.display_coursenumber)
+
+    context = {'courses':g_courses}
+    
+    return render_to_response('more_courses_available.html', context)
+
+@login_required
 @ensure_csrf_cookie
 def dashboard(request,user_id=None):
     if user_id:
         user=User.objects.get(id=user_id)
     else:
-        user = User.objects.get(id=request.user.id)
+        user=User.objects.get(id=request.user.id)
 
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
-    
-#@begin:Fetch out courses complated/incomplated seprately.
-#@date:2013-11-08    
+ 
     courses_complated = []
     courses_incomplated = []
     courses=[]
+
+    exists=0
+    # get none enrolled course count for current login user 
+    if user_id != request.user.id:
+      allowed=CourseEnrollmentAllowed.objects.filter(email=user.email,is_active=True).values_list('course_id', flat=True)
+      # make sure the course exists
+      for course_id in allowed:
+          try:
+              course=course_from_id(course_id)
+              exists=exists+1
+          except:
+              pass
+    
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             c=course_from_id(enrollment.course_id)
             c.student_enrollment_date=enrollment.created
+
+            if enrollment.course_id in allowed:
+                exists=exists-1
 
             # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
             # chapter_count=len(model_data_cache.descriptors)
@@ -408,10 +461,10 @@ def dashboard(request,user_id=None):
             # if count_history==chapter_count and grade_precent >= 0.85:
             #     courses_complated.append(c)
             # else:
-            #     courses_incomplated.append(c)         
+            #     courses_incomplated.append(c)
+            
             #@begin:complete_course_survey
             #@data:2013-12-14
-
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')            
 
@@ -422,6 +475,7 @@ def dashboard(request,user_id=None):
             else:
                 courses_incomplated.append(c)
             #@end
+            
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
@@ -464,9 +518,10 @@ def dashboard(request,user_id=None):
         'show_courseware_links_for': show_courseware_links_for,
         'cert_statuses': cert_statuses,
         'exam_registrations': exam_registrations,
-        'curr_user':user
+        'curr_user':user,
+        'havent_enroll':exists
         }
-#@end
+    
     return render_to_response('dashboard.html', context)
 
 def try_change_enrollment(request):
@@ -1640,7 +1695,6 @@ def activate_imported_account(post_vars,photo):
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
 
-
         # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
 
         d={"first_name":profile.user.first_name,"last_name":profile.user.last_name,"district":profile.cohort.district.name}
@@ -1709,7 +1763,6 @@ def activate_imported_account(post_vars,photo):
 #         up.save()
 #     return redirect(reverse('dashboard'))
 #@end
-
 
 def upload_user_photo(user_id, file_img):
     options=settings.USERSTORE.get("OPTIONS")

@@ -625,6 +625,17 @@ Add info that you would like to share about yourself here:
   </header>
 </section>
 <!--@end-->
+
+% if curr_user==request.user:
+% if havent_enroll > 0:
+<section class="my-courses" style="padding:20px 0 20px 0;text-align:right;" >
+  <a href="/more_courses_available" class="btnx dashboard-btn1">
+    ${havent_enroll} More Course(s) Available For You
+  </a>
+</section>
+% endif
+% endif
+
 <section class="my-courses" style="" >
     <header>
       <h2>${_("Current Courses")}</h2>
