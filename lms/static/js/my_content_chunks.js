@@ -228,7 +228,7 @@ function mychunks_content_init(data)
       var datainfo={'info':JSON.stringify({'vertical_id':vertical_id})};
       $.post("/my_chunks/get_info",datainfo,function(data){
         mychunks_focus=1;
-        if(data['results'][0].note=="")
+        if(data['results'][0].note==""||data['results'][0].note=="<br>")
         {
           $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
         }
@@ -463,9 +463,10 @@ mychunks_setNotesStatus=function(s)
     $(".mychunks_content").css("backgroundColor","#ffffff");
     $(".mychunks_uploadBtn").show();
     $(".mychunks_linkBtn").show();
-    if(mychunks_notes_text=='')
+    if(mychunks_notes_text==''||mychunks_notes_text=='<br>')
     {
       $(".mychunks_content").html('');
     }
+    mychunks_updateMaxCharNum();
   }
 }

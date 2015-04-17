@@ -176,7 +176,7 @@ MyChunks.prototype.load=function()
       mychunks_focus=1;
       This.isExist=true;
       $(".mychunks_delBtn").show();
-      if(data['results'][0].note=="")
+      if(data['results'][0].note==""||data['results'][0].note=="<br>")
       {
         $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
       }
@@ -275,10 +275,11 @@ MyChunks.prototype.setNotesStatus=function(s)
     $(".mychunks_content").css("backgroundColor","#ffffff");
     $(".mychunks_uploadBtn").show();
     $(".mychunks_linkBtn").show();
-    if(this.notes_text=='')
+    if(this.notes_text==''||this.notes_text=='<br>')
     {
       $(".mychunks_content").html('');
     }
+    mychunks_updateMaxCharNum();
   }
 
 }
