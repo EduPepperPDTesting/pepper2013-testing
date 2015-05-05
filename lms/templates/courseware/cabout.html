@@ -242,17 +242,19 @@ from pytz import UTC
 				  <!--@begin:according to different situation(login/choose the course) to show the button-->
 				  <!--@date:2013-11-02-->
 			      %if user.is_authenticated():
-                  %if not CourseEnrollmentAllowed.objects.filter(email=user.email,course_id=course.id,is_active=True).exists():
-                  <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="" class="btnx _del_line request_access">Request Access</a>
-			      %elif CourseEnrollment.is_enrolled(request.user, course.id):
-			      <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
-			      %else:
-                  %if datetime.strptime(course.start_date_text,"%b %d, %Y").replace(tzinfo=UTC) > datetime.now(UTC):
-			      <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line disabled">Course Starting Soon!</a>
+                    %if not CourseEnrollmentAllowed.objects.filter(email=user.email,course_id=course.id,is_active=True).exists():
+                      <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="" class="btnx _del_line request_access">Request Access</a>
+			        %elif CourseEnrollment.is_enrolled(request.user, course.id):
+			          <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
+			        %else:
+                      %if datetime.strptime(course.start_date_text,"%b %d, %Y").replace(tzinfo=UTC) > datetime.now(UTC):
+			            <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line disabled">Course Starting Soon!</a>
+                      %else:
+			            <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line">Sign Up & Start Course</a>
+                      %endif
+			        %endif
                   %else:
-			      <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line">Sign Up & Start Course</a>
-                  %endif
-			      %endif
+                    <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="/contact" class="btnx _del_line">Request Info</a>
 			      %endif
 				  <!--@end-->
 				</div>

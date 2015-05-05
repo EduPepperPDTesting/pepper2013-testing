@@ -620,6 +620,73 @@ def accounts_login(request, error=""):
         return redirect(reverse('cas-login'))
     return render_to_response('login.html', {'error': error})
 
+
+
+import requests
+import json
+
+def sso(request, error=""):
+    method='post'
+    
+    token=request.GET.get('easyieptoken')
+    url=request.GET.get('auth_link')
+
+    data_or_params={'token':token}
+
+    if method=='post':
+      response = requests.request(method, url, data=data_or_params, timeout=5)
+    else:
+      response = requests.request(method, url, params=data_or_params, timeout=5)
+
+    text=response.text
+
+    text='''{
+    "CustomerName": "inpepper", 
+    "SchoolSystem": "Indiana Demo Corporation District", 
+    "SchoolSystemCode": "PEPPERTEST1", 
+    "State": "Indiana", 
+    "User": {
+        "Email": "testuser1@test.com", 
+        "FirstName": "Pepper", 
+        "GradeCodes": [
+            "1"
+        ], 
+        "ID": 486, 
+        "LastName": "User1", 
+        "MiddleName": "Test", 
+        "SchoolCodes": [
+            "CSOS"
+        ], 
+        "Suffix": null, 
+        "UserCode": "PTU1"
+    }
+}'''
+
+
+    parsed = json.loads(text)
+
+    sso_error=parsed.get('lErrors')
+    if sso_error:
+        return HttpResponse(sso_error)
+
+    sso_user=parsed.get('User')
+
+    if not sso_user:
+        return HttpResponse(u"No sso user found")
+
+    sso_email=sso_user.get('Email')
+
+    try:
+        user = User.objects.get(email=sso_email)
+    except User.DoesNotExist:
+        return HttpResponse(u"Login failed - Unknown user email: '{0}'".format(sso_email))
+
+    request.url=''
+    login(request, user)
+    #return redirect(reverse('dashboard'))
+
+    return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
+
 # Need different levels of logging
 @ensure_csrf_cookie
 def login_user(request, error=""):
@@ -1713,8 +1780,8 @@ def activate_imported_account(post_vars,photo):
             profile.user.save()
             registration.activate()
         except Exception as e:
-            if "username" in "%s" % e:
-                ret['value'] = e
+            if "for key 'username'" in "%s" % e:
+                ret['value'] = "Username '%s' already exists" % profile.user.username
                 ret['field'] = 'username'
             raise e
 
