@@ -52,7 +52,16 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                   <option value="SE">Special Education</option>
                   <option value="PEP">Pepper</option>
                 </select>
-              </td><td></td><td></td> </tr>
+              </td>
+              <td>
+                Content Author:
+              </td><td>
+                <select name="author">
+                  <option></option>
+                  <option value="all">all</option>
+
+                </select>
+              </td> </tr>
               <tr>
                 <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" /></td>
                 <td>First Name:</td><td>
@@ -63,9 +72,6 @@ from student.models import State,District,Transaction,Cohort,School,Registration
             </table>
           </form>
         </div>
-  
-
-
         <div class="richTableA outer">
           <div class="cell left">
             <div class="wrap">
@@ -76,6 +82,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                     <th sortby="last_name" >Last Name</th>
                     <th sortby="first_name" >First Name</th>
                     <th sortby="email" >Email</th>
+                    <th>Check Row</th>
                   </tr>
                 </thead>
                 <tbody style="" id="ttt">
@@ -85,6 +92,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                     <td >${item.user.last_name}</td>
                     <td >${item.user.first_name}</td>
                     <td >${item.user.email}</td>
+                    <td ><input type="checkbox" class="checkrow" autocomplete="off" style="margin-left:50px;"/></td>
                   </tr>
                   %endfor           
                 </tbody>
@@ -150,10 +158,16 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       </div>  
     </div>
     <script type="text/javascript">
+      $(".checkrow").each(function(i){
+        $(this).click(function(){
+         $("#table2").find('tbody tr:nth('+(i)+') input').prop('checked',this.checked);
+        });
+      });
+
       setTimeout(function(){
         $('.richTableA').richTableA()
           $(".richTableA table").each(function(){
-              var $table=$(this);
+            var $table=$(this);
             $(this).find('th').each(function(i,th){
               if($(th).hasClass('batch'))
                 $(th).find('input[type=checkbox]').click(function(){
@@ -193,7 +207,6 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       
     </script>
 
-    
   <script type="text/javascript">
     var form=$("#form_filter");
     // sort table
@@ -253,11 +266,15 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     var email="${request.GET.get('email','')}";
     var first_name="${request.GET.get('first_name','')}";
     var last_name="${request.GET.get('last_name','')}";
+    var author="${request.GET.get('author','')}";
+    
     form.find("select[name=state_id]").val(state_id);
     form.find("input[name=email]").val(email);
     form.find("input[name=last_name]").val(last_name);
     form.find("input[name=first_name]").val(first_name);
     form.find("select[name=subject_id]").val(subject_id);
+    form.find("select[name=author]").val(author);
+    
     dropDistrict(form,state_id,function(){
       $(this).val(district_id)
     });

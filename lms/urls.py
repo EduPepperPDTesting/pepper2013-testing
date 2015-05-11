@@ -127,6 +127,9 @@ urlpatterns = (
     url(r'^my_chunks/del_info$', 'my_chunks.views.del_mychunk', name="del_mychunk"),
     url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
+
+    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
 
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
