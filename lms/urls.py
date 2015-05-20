@@ -11,9 +11,10 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
-
     url(r'^more_courses_available/$', 'student.views.more_courses_available',name="more_courses_available"),
-    
+
+    url(r'^sso/$', 'student.views.sso', name="sso"),
+
     url(r'^reg_kits/$', 'reg_kits.views.district',name="reg_kits"),
 
     url(r'^reg_kits/course_permission/$', 'reg_kits.views.course_permission',name="course_permission"),
@@ -124,8 +125,13 @@ urlpatterns = (
     url(r'^my_chunks/get_info$', 'my_chunks.views.get_mychunk', name="get_mychunk"),
     url(r'^my_chunks/save_info$', 'my_chunks.views.save_mychunk', name="save_mychunk"),
     url(r'^my_chunks/del_info$', 'my_chunks.views.del_mychunk', name="del_mychunk"),
+    url(r'^my_chunks/set_rate$', 'my_chunks.views.set_rate', name="set_rate"),
+    url(r'^my_chunks/get_integrate_rate$', 'my_chunks.views.get_integrate_rate', name="get_integrate_rate"),
     url(r'^register/$', 'student.views.register_user', name="register_user"),
     url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
+
+    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
 
     url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
     url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
