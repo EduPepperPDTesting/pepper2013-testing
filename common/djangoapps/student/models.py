@@ -358,7 +358,10 @@ class UserProfile(models.Model):
     percent_lunch = models.IntegerField(blank=False, null=False, db_index=False,default=0)
     percent_iep = models.IntegerField(blank=False, null=False, db_index=False,default=0)
     percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False,default=0)
-    
+
+    sso_idp=models.CharField(blank=True, max_length=50, null=True)
+    sso_identifier=models.CharField(blank=True, max_length=255, null=True)
+
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
     # ('p_se', 'Doctorate in science or engineering'),
@@ -1297,13 +1300,11 @@ def get_user_by_id(user_id):
     return u, up
 #@end
 
-
 from django.db.models import signals
 
 from people import people_in_es
 
 # alter table auth_user add last_modify datetime;
-
 
 # def update_user_information(sender, instance, created, **kwargs):
 

@@ -627,12 +627,69 @@ import json
 from django import db
 from student.models import Transaction,District,Cohort,School,State,SubjectArea,YearsInEducation,GradeLevel
 
+def update_sso_usr(user, json, update_first_name=True):
+    profile=user.profile
+
+    sso_user=json.get('User')
+    sso_cohort=json.get('CustomerName')
+    sso_district=json.get('SchoolSystem')
+    sso_district_code=json.get('SchoolSystemCode')
+    sso_email=sso_user.get('Email','')
+
+    #** user
+    user.set_password('EasyIEPSSO')
+    user.email=sso_email
+    if update_first_name:
+        user.first_name=sso_user.get('FirstName','')
+    user.last_name=sso_user.get('LastName','')
+    user.save()
+
+    # #** grade level
+    # def parse_grade_levels(src):
+    #     dest=[]
+    #     for s in src:
+    #         try:
+    #             g=GradeLevel.objects.get(name=s)
+    #             dest.append(str(g.id))
+    #         except:
+    #             pass
+    #     return ','.join(dest)    
+    # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
+
+    #** cohort
+    try:
+        cohort=Cohort.objects.get(code=sso_cohort)
+    except Cohort.DoesNotExist:
+        cohort=Cohort()
+        cohort.code=sso_cohort
+        cohort.licences=1000000000
+        cohort.term_months=12
+        cohort.start_date=datetime.datetime.now(UTC)
+        cohort.district=District.objects.get(name=sso_district)
+        cohort.save()
+
+    profile.cohort=cohort
+
+    #** school
+    if len(sso_user['SchoolCodes'])==1:
+        school=School.objects.get(code=sso_user['SchoolCodes'][0])
+    else:
+        school=School.objects.get(name='Multiple Schools')
+    # school.district=District.objects.get(name=sso_district)
+    school.save()
+    
+    profile.school=school
+
+    #** save
+    profile.save()
+
 def sso(request, error=""):
     method='post'
     
     token=request.GET.get('easyieptoken')
     url=request.GET.get('auth_link')
 
+    #** request json
     # url='https://staging1.pcgeducation.com/easyiep.plx?op=external_application_validate_token&CustomerName=inpepper'
 
     data_or_params={'token':token}
@@ -650,13 +707,13 @@ def sso(request, error=""):
 #     "SchoolSystemCode": "PEPPERTEST1", 
 #     "State": "Indiana", 
 #     "User": {
-#         "Email": "testuser34@test.com", 
+#         "Email": "testuser39@test.com", 
 #         "FirstName": "Pepper", 
 #         "GradeCodes": [
 #             "1", 
 #             "2"
 #         ], 
-#         "ID": 487, 
+#         "ID": 488, 
 #         "LastName": "User2", 
 #         "MiddleName": "Test", 
 #         "SchoolCodes": [
@@ -667,6 +724,7 @@ def sso(request, error=""):
 #     }
 # }'''
 
+    #** parse json
     parsed = json.loads(text)
 
     sso_error=parsed.get('lErrors')
@@ -674,78 +732,46 @@ def sso(request, error=""):
         return HttpResponse(sso_error)
 
     sso_user=parsed.get('User')
-    sso_cohort=parsed.get('CustomerName')
-    sso_district=parsed.get('SchoolSystem')
+    sso_email=sso_user.get('Email','')
 
     if not sso_user:
         return HttpResponse(u"No sso user found")
 
-    sso_email=sso_user.get('Email','')
-
     if sso_email=='':
         return HttpResponse(u"Invalid email")
 
+    #** fetch the user
     try:
-        user = User.objects.get(email=sso_email)
-    except User.DoesNotExist:
+        profile = UserProfile.objects.get(sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+        user=profile.user
+    except UserProfile.DoesNotExist:
         user = None
-
-    def parse_grade_levels(src):
-        dest=[]
-        for s in src:
-            try:
-                g=GradeLevel.objects.get(name=s)
-                dest.append(str(g.id))
-            except:
-                pass
-        return ','.join(dest)
 
     if not user:
         try:
-            username='EasyIEP'+sso_email[:sso_email.index('@')]
+            username="EasyIEP%s" % random.randint(10000000000,99999999999)
+            
             #** user
             user=User(username=username, email=sso_email, is_active=False)
-            user.set_password('EasyIEPSSO')
-            #*** firstname
-            user.first_name=sso_user.get('FirstName','')
-            #*** lastname
-            user.last_name=sso_user.get('LastName','')
             user.save()
+            
             #** registration
             registration = Registration()
             registration.register(user)
+            
             #** profile
-            profile=UserProfile(user=user)
-            # db.transaction.rollback()
-            #*** cohort
-            try:
-              profile.cohort=Cohort.objects.get(name=sso_cohort)
-            except:
-              cohort=Cohort()
-              cohort.code=sso_cohort
-              cohort.licences=1000000000
-              cohort.term_months=12
-              cohort.start_date=datetime.datetime.now(UTC)
-              cohort.district=District.objects.get(name=sso_district)
-              cohort.save()
-              profile.cohort=cohort
-            #*** school
-            # alter table school add code varchar(50)
-            # todo: modify school importing, add code field
-            # return HttpResponse("%s" % len(sso_user['SchoolCodes']))
-            if len(sso_user['SchoolCodes'])==1:
-              profile.school=School.objects.get(code=sso_user['SchoolCodes'][0])
-            else:
-              profile.school=School.objects.get(name='Multiple Schools')
-
-            #*** save
-            profile.save()
+            profile=UserProfile(user=user,sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+            user.profile=profile
+            
+            #** update user
+            update_sso_usr(user,parsed)
 
             #** allow courses
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=sso_email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
+            
             #** add courses above (cause user will not finish registration himself to trigger auto course enroll)
             CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
 
@@ -758,13 +784,24 @@ def sso(request, error=""):
     elif not user.is_active:
         registration=Registration.objects.get(user_id=user.id)
         return redirect(reverse('register_user_easyiep',args=[registration.activation_key]))
-        
+    else:
+        #** update user
+        try:
+            update_sso_usr(user,parsed,False)
+        except Exception as e:
+            db.transaction.rollback()
+            return HttpResponse("Failed to update user, %s" % e)            
+
+        # CREATE INDEX `cohort_65da3d2c` ON `cohort` (`code`);
+
+        # alter table auth_userprofile add `sso_idp` varchar(50);
+        # alter table auth_userprofile add `sso_identifier` varchar(255);
+
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     # user = authenticate(username=post_vars['username'], password=post_vars['password'])
     login(request, user)
     return redirect(reverse('dashboard'))
     # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
-
 
 def register_user_easyiep(request,activation_key):
     
@@ -780,7 +817,6 @@ def register_user_easyiep(request,activation_key):
     
     return render_to_response('register_easyiep.html',context)
 
-    
 # Need different levels of logging
 @ensure_csrf_cookie
 def login_user(request, error=""):
@@ -1930,13 +1966,15 @@ def activate_easyiep_account(request):
         return HttpResponse(json.dumps(js))
 
     #** validate fields
-    required_post_vars_dropdown=['major_subject_area_id','grade_level_id', 'years_in_education_id'
+    required_post_vars_dropdown=['major_subject_area_id',
+                                 # 'grade_level_id',
+                                 'years_in_education_id'
                                  ,'percent_lunch','percent_iep','percent_eng_learner']
     for a in required_post_vars_dropdown:
         if len(vars[a]) < 1:
             error_str = {
                 'major_subject_area_id':'Major Subject Area is required',
-                'grade_level_id':'Grade Level-heck is required',
+                # 'grade_level_id':'Grade Level-heck is required',
                 'years_in_education_id':'Number of Years in Education is required',
                 'percent_lunch':'Free/Reduced Lunch is required',
                 'percent_iep':'IEPs is required',
@@ -1957,7 +1995,7 @@ def activate_easyiep_account(request):
         profile.subscription_status='Registered'
         profile.major_subject_area_id=vars.get('major_subject_area_id','')
         profile.years_in_education_id=vars.get('years_in_education_id','')
-        profile.grade_level_id=vars.get('grade_level_id','')
+        # profile.grade_level_id=vars.get('grade_level_id','')
         profile.percent_lunch=vars.get('percent_lunch','')
         profile.percent_iep=vars.get('percent_iep','')
         profile.percent_eng_learner=vars.get('percent_eng_learner','')

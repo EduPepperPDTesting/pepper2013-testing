@@ -231,7 +231,7 @@ from baseinfo.models import Enum
           </li>
           <li class="field required text" id="field-name">
             <label for="last_name">${_('Last Name')}</label>
-            ${profile.user.first_name}
+            ${profile.user.last_name}
           </li>
           
           <li class="field required text" id="field-name">
@@ -271,7 +271,17 @@ from baseinfo.models import Enum
               </span>
               %endfor
               </div>
-          </li>            
+          </li>
+
+          <!-- 
+          <script type="text/javascript">
+          $.each( '${profile.grade_level_id}'.split(',') ,function(i,v){
+          if($.trim(v))
+          click_grade_btn(v);
+          });
+          
+          </script> -->
+
          <li class="field required text" id="field-name">
             <label for="years_in_education_id">${_('Number of Years in Education')}</label>
             <select autocomplete="off" name="years_in_education_id" style="width:100px;">
@@ -280,8 +290,8 @@ from baseinfo.models import Enum
               <option value="${item.id}">${item.name}</option>
               %endfor                
             </select>
-<!--@end-->
-          </li>
+            <!--@end-->
+         </li>
 
           <div style="padding:10px 0 15px 0;"> 
             <b style="font-size:15px;color:#333;">My Class Profile *</b>

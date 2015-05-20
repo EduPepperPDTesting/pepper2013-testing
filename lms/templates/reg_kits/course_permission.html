@@ -13,6 +13,13 @@ from student.models import State,District,Transaction,Cohort,School,Registration
   <title>Reg Kits User Subject</title>
   <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
 </head>
+
+<style type="text/css" media="screen">
+#filter tr td:nth-of-type(odd)
+{
+  text-align:right;
+}
+  </style>
 <body>
   <%include file="tabs.html" args="active_page='course_permission'" />
   <div style="text-align:center;">
@@ -21,7 +28,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
         <div class="filter">
           <form id="form_filter" method="get">
             <input type="hidden" name="size" value="${request.GET.get('size','')}"/>
-            <table width="" cellspacing="" cellpadding="" border="0">
+            <table width="" cellspacing="" cellpadding="" border="0" id="filter">
               <tr> <td>State:</td><td><select name="state_id" autocomplete="off">
                 <option value="__NONE__"></option>
                 <option value="">all</option>
@@ -43,30 +50,37 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 <option value="__NONE__"></option>
                 <option value="">all</option>
               </select></td> </tr>
-              <tr> <td>Content Subject:</td><td>
-                <select name="subject_id" autocomplete="off">
-                  <option value=""></option>
-                  <option value="all">all</option>
-                  <option value="ELA">English Language Arts</option>
-                  <option value="MA">Mathematics</option>
-                  <option value="SE">Special Education</option>
-                  <option value="PEP">Pepper</option>
-                </select>
-              </td>
-              <td>
-                Content Author:
-              </td><td>
-                <select name="author">
-                  <option></option>
-                  <option value="all">all</option>
-
-                </select>
-              </td> </tr>
+              <tr>
+                <td>Content Subject:</td>
+                <td>
+                  <select name="subject_id" autocomplete="off">
+                    <option value=""></option>
+                    <option value="all">all</option>
+                    <option value="ELA">English Language Arts</option>
+                    <option value="MA">Mathematics</option>
+                    <option value="SE">Special Education</option>
+                    <option value="PEP">Pepper</option>
+                  </select>
+                </td>
+                <td>Author: </td>
+                <td>
+                  <select name="author_id" autocomplete="off">
+                    <option></option>
+                    <option value="all">all</option>
+                    <option value="A.L.L.">A.L.L.</option>
+                    <option value="CT Core Standards">CT Core Standards</option>
+                    <option value="PCG Education">PCG Education</option>
+                    <option value="WestEd">WestEd</option>                  
+                  </select>
+                </td>
+              </tr>
               <tr>
                 <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" /></td>
                 <td>First Name:</td><td>
                   <input type="input" name="first_name" size="10" autocomplete="off" />
-                  <span style="margin-left:50px">Email: &nbsp;&nbsp;<input type="input" name="email" size="30" autocomplete="off" /></span> </td>
+                </td>
+                <td>Email: </td>
+                <td><input type="input" name="email" size="30" autocomplete="off" /></td>
               </tr>
               <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
             </table>
@@ -131,7 +145,6 @@ from student.models import State,District,Transaction,Cohort,School,Registration
             </div>
           </div>
         </div>
-        
         <div style="padding:5px;text-align:right;">
           <input type="button" name="" value="Save" onclick="save()" style="float:left"/>
           Total:${users.paginator.count} - 
@@ -163,7 +176,6 @@ from student.models import State,District,Transaction,Cohort,School,Registration
          $("#table2").find('tbody tr:nth('+(i)+') input').prop('checked',this.checked);
         });
       });
-
       setTimeout(function(){
         $('.richTableA').richTableA()
           $(".richTableA table").each(function(){
@@ -176,7 +188,6 @@ from student.models import State,District,Transaction,Cohort,School,Registration
             });
           });
       },500);
-      
       // save course permissions
       function save(){
         var cols=[], data={}
@@ -204,9 +215,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
               alert("Error: "+r.error);
             }});
       }
-      
     </script>
-
   <script type="text/javascript">
     var form=$("#form_filter");
     // sort table
@@ -266,15 +275,13 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     var email="${request.GET.get('email','')}";
     var first_name="${request.GET.get('first_name','')}";
     var last_name="${request.GET.get('last_name','')}";
-    var author="${request.GET.get('author','')}";
-    
+    var author_id="${request.GET.get('author_id','')}";
     form.find("select[name=state_id]").val(state_id);
     form.find("input[name=email]").val(email);
     form.find("input[name=last_name]").val(last_name);
     form.find("input[name=first_name]").val(first_name);
     form.find("select[name=subject_id]").val(subject_id);
-    form.find("select[name=author]").val(author);
-    
+    form.find("select[name=author_id]").val(author_id);
     dropDistrict(form,state_id,function(){
       $(this).val(district_id)
     });
