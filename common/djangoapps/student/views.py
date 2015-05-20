@@ -620,6 +620,203 @@ def accounts_login(request, error=""):
         return redirect(reverse('cas-login'))
     return render_to_response('login.html', {'error': error})
 
+
+
+import requests
+import json
+from django import db
+from student.models import Transaction,District,Cohort,School,State,SubjectArea,YearsInEducation,GradeLevel
+
+def update_sso_usr(user, json, update_first_name=True):
+    profile=user.profile
+
+    sso_user=json.get('User')
+    sso_cohort=json.get('CustomerName')
+    sso_district=json.get('SchoolSystem')
+    sso_district_code=json.get('SchoolSystemCode')
+    sso_email=sso_user.get('Email','')
+
+    #** user
+    user.set_password('EasyIEPSSO')
+    user.email=sso_email
+    if update_first_name:
+        user.first_name=sso_user.get('FirstName','')
+    user.last_name=sso_user.get('LastName','')
+    user.save()
+
+    # #** grade level
+    # def parse_grade_levels(src):
+    #     dest=[]
+    #     for s in src:
+    #         try:
+    #             g=GradeLevel.objects.get(name=s)
+    #             dest.append(str(g.id))
+    #         except:
+    #             pass
+    #     return ','.join(dest)    
+    # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
+
+    #** cohort
+    try:
+        cohort=Cohort.objects.get(code=sso_cohort)
+    except Cohort.DoesNotExist:
+        cohort=Cohort()
+        cohort.code=sso_cohort
+        cohort.licences=1000000000
+        cohort.term_months=12
+        cohort.start_date=datetime.datetime.now(UTC)
+        cohort.district=District.objects.get(name=sso_district)
+        cohort.save()
+
+    profile.cohort=cohort
+
+    #** school
+    if len(sso_user['SchoolCodes'])==1:
+        school=School.objects.get(code=sso_user['SchoolCodes'][0])
+    else:
+        school=School.objects.get(name='Multiple Schools')
+    # school.district=District.objects.get(name=sso_district)
+    school.save()
+    
+    profile.school=school
+
+    #** save
+    profile.save()
+
+def sso(request, error=""):
+    method='post'
+    
+    token=request.GET.get('easyieptoken')
+    url=request.GET.get('auth_link')
+
+    #** request json
+    # url='https://staging1.pcgeducation.com/easyiep.plx?op=external_application_validate_token&CustomerName=inpepper'
+
+    data_or_params={'token':token}
+
+    if method=='post':
+      response = requests.request(method, url, data=data_or_params, timeout=15)
+    else:
+      response = requests.request(method, url, params=data_or_params, timeout=15)
+
+    text=response.text
+
+#     text='''{
+#     "CustomerName": "inpepper", 
+#     "SchoolSystem": "Indiana Demo Corporation District", 
+#     "SchoolSystemCode": "PEPPERTEST1", 
+#     "State": "Indiana", 
+#     "User": {
+#         "Email": "testuser39@test.com", 
+#         "FirstName": "Pepper", 
+#         "GradeCodes": [
+#             "1", 
+#             "2"
+#         ], 
+#         "ID": 488, 
+#         "LastName": "User2", 
+#         "MiddleName": "Test", 
+#         "SchoolCodes": [
+#             "456"
+#         ], 
+#         "Suffix": null, 
+#         "UserCode": "PTU2"
+#     }
+# }'''
+
+    #** parse json
+    parsed = json.loads(text)
+
+    sso_error=parsed.get('lErrors')
+    if sso_error:
+        return HttpResponse(sso_error)
+
+    sso_user=parsed.get('User')
+    sso_email=sso_user.get('Email','')
+
+    if not sso_user:
+        return HttpResponse(u"No sso user found")
+
+    if sso_email=='':
+        return HttpResponse(u"Invalid email")
+
+    #** fetch the user
+    try:
+        profile = UserProfile.objects.get(sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+        user=profile.user
+    except UserProfile.DoesNotExist:
+        user = None
+
+    if not user:
+        try:
+            username="EasyIEP%s" % random.randint(10000000000,99999999999)
+            
+            #** user
+            user=User(username=username, email=sso_email, is_active=False)
+            user.save()
+            
+            #** registration
+            registration = Registration()
+            registration.register(user)
+            
+            #** profile
+            profile=UserProfile(user=user,sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+            user.profile=profile
+            
+            #** update user
+            update_sso_usr(user,parsed)
+
+            #** allow courses
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=sso_email)
+            cea.is_active = True
+            cea.auto_enroll = True
+            cea.save()
+            
+            #** add courses above (cause user will not finish registration himself to trigger auto course enroll)
+            CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
+
+        except Exception as e:
+            db.transaction.rollback()
+            return HttpResponse("Failed to create user, %s" % e)
+
+        return redirect(reverse('register_user_easyiep',args=[registration.activation_key]))
+    
+    elif not user.is_active:
+        registration=Registration.objects.get(user_id=user.id)
+        return redirect(reverse('register_user_easyiep',args=[registration.activation_key]))
+    else:
+        #** update user
+        try:
+            update_sso_usr(user,parsed,False)
+        except Exception as e:
+            db.transaction.rollback()
+            return HttpResponse("Failed to update user, %s" % e)            
+
+        # CREATE INDEX `cohort_65da3d2c` ON `cohort` (`code`);
+
+        # alter table auth_userprofile add `sso_idp` varchar(50);
+        # alter table auth_userprofile add `sso_identifier` varchar(255);
+
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    # user = authenticate(username=post_vars['username'], password=post_vars['password'])
+    login(request, user)
+    return redirect(reverse('dashboard'))
+    # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
+
+def register_user_easyiep(request,activation_key):
+    
+    registration=Registration.objects.get(activation_key=activation_key)
+    user_id=registration.user_id
+        
+    profile=UserProfile.objects.get(user_id=user_id)
+
+    context = {
+        'profile': profile,
+        'activation_key': activation_key
+        }
+    
+    return render_to_response('register_easyiep.html',context)
+
 # Need different levels of logging
 @ensure_csrf_cookie
 def login_user(request, error=""):
@@ -1713,8 +1910,8 @@ def activate_imported_account(post_vars,photo):
             profile.user.save()
             registration.activate()
         except Exception as e:
-            if "username" in "%s" % e:
-                ret['value'] = e
+            if "for key 'username'" in "%s" % e:
+                ret['value'] = "Username '%s' already exists" % profile.user.username
                 ret['field'] = 'username'
             raise e
 
@@ -1731,6 +1928,95 @@ def activate_imported_account(post_vars,photo):
         ret['error']="%s" % e
         
     return HttpResponse(json.dumps(ret))
+
+from django.db.models import Q
+def activate_easyiep_account(request):
+    vars=request.POST
+
+    #** fetch user by activation_key
+    registration=Registration.objects.get(activation_key=vars.get('activation_key',''))
+    user_id=registration.user_id
+    profile=UserProfile.objects.get(user_id=user_id)
+
+    #** validate terms_of_service
+    tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
+                       and settings.MITX_FEATURES.get('SHIB_DISABLE_TOS') \
+                       and DoExternalAuth and ("shib" in eamap.external_domain)
+    if not tos_not_required:
+        if vars.get('terms_of_service', 'false') != u'true':
+            js = {'success': False}
+            js['value'] = _("You must accept the terms of service.")
+            js['field'] = 'terms_of_service'
+            return HttpResponse(json.dumps(js))    
+
+    #** validate username
+    try:
+        validate_slug(vars['username'])
+    except ValidationError:
+        js = {'success': False}
+        js['value'] = _("Username should only consist of A-Z and 0-9, with no spaces.")
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js))
+    
+    #** validate if user exists
+    if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
+        js = {'success': False}
+        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js))
+
+    #** validate fields
+    required_post_vars_dropdown=['major_subject_area_id',
+                                 # 'grade_level_id',
+                                 'years_in_education_id'
+                                 ,'percent_lunch','percent_iep','percent_eng_learner']
+    for a in required_post_vars_dropdown:
+        if len(vars[a]) < 1:
+            error_str = {
+                'major_subject_area_id':'Major Subject Area is required',
+                # 'grade_level_id':'Grade Level-heck is required',
+                'years_in_education_id':'Number of Years in Education is required',
+                'percent_lunch':'Free/Reduced Lunch is required',
+                'percent_iep':'IEPs is required',
+                'percent_eng_learner':'English Learners is required'
+                }
+            js = {'success': False}
+            js['value'] = error_str[a] 
+            js['field'] = a
+            return HttpResponse(json.dumps(js))            
+
+    try:
+        #** update user
+        profile.user.username=vars.get('username','')
+        profile.user.is_active=True
+        profile.user.save()
+        
+        #** update profile
+        profile.subscription_status='Registered'
+        profile.major_subject_area_id=vars.get('major_subject_area_id','')
+        profile.years_in_education_id=vars.get('years_in_education_id','')
+        # profile.grade_level_id=vars.get('grade_level_id','')
+        profile.percent_lunch=vars.get('percent_lunch','')
+        profile.percent_iep=vars.get('percent_iep','')
+        profile.percent_eng_learner=vars.get('percent_eng_learner','')
+        profile.bio=vars.get('bio','')
+        profile.activate_date=datetime.datetime.now(UTC)
+        profile.save()
+        
+        #** upload photo 
+        photo=request.FILES.get("photo")
+        upload_user_photo(profile.user.id, photo)
+        js={'success': True}
+    except Exception as e:
+        transaction.rollback()
+        js = {'success': False}
+        js['error']="%s" % e
+
+    #** log the user in
+    profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, profile.user)
+        
+    return HttpResponse(json.dumps(js))
 
 #@begin:change photo by Dashboard
 #@date:2013-11-24

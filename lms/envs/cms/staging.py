@@ -26,7 +26,7 @@ modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
     'db': 'xmodule',
     'host': MONGO_HOST,
-    'port': MONGO_PORT,       
+    'port': MONGO_PORT,
     'user':MONGO_USER,
     'password':MONGO_PASSWORD,
     'collection': 'modulestore',
@@ -130,3 +130,12 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 STATIC_ROOT = ENV_ROOT / "staticfiles/lms"
 
 # MITX_FEATURES['USE_DJANGO_PIPELINE']=True
+
+
+SESSION_SAVE_EVERY_REQUEST=True 
+
+#-----------------------------------------------------------------------------
+# disable django debug toolbars
+DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+INSTALLED_APPS = tuple([app for app in INSTALLED_APPS if not app.startswith('debug_toolbar')])
+MIDDLEWARE_CLASSES = tuple([mcl for mcl in MIDDLEWARE_CLASSES if not mcl.startswith('debug_toolbar')])

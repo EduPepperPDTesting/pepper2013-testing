@@ -22,74 +22,73 @@
 <!--@begin:Add new page style-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #submit:hover,#submit_email_change:hover,#photo_submit:hover {
-  background:#6e8194;
-  transition-delay: 0s, 0s, 0s;
-  transition-duration: 0.25s, 0.25s, 0.25s;
-  transition-property:color, background,​ box-shadow;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  transition-duration:0.25s,​ 0.25s,​ 0.25s;
-  color:#fff;
-  }
-  #submit,#submit_email_change,#photo_submit {
-  border-width:0;
-  background:#556370;
-  text-decoration: none;
-  padding-bottom: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 7px;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: #949494 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
-  background:#126F9A;
-  text-decoration: none;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
+ #submit:hover,#submit_email_change:hover,#photo_submit:hover {
+   background:#6e8194;
+   transition-delay: 0s, 0s, 0s;
+   transition-duration: 0.25s, 0.25s, 0.25s;
+   transition-property:color, background,​ box-shadow;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+   transition-duration:0.25s,​ 0.25s,​ 0.25s;
+   color:#fff;
+ }
+ #submit,#submit_email_change,#photo_submit {
+   border-width:0;
+   background:#556370;
+   text-decoration: none;
+   padding-bottom: 7px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 7px;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
+   background:#126F9A;
+   text-decoration: none;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
 </style>
 <!--@end-->
 <%block name="js_extra">
-  <script type="text/javascript">
-/*@begin:Click the round button in grade_level table*/
-/*@date:2013-11-02*/
-     function click_grade_btn(i){
-            var vals={}
-            $.each($("#grade_level_id").val().split(","),function(i,v){
-            if(v)vals[v]=1
-            })
-            var link=document.getElementById("grade_btn"+i)
-            if($(link).hasClass("btn_grade_level_active")){
-            $(link).removeClass("btn_grade_level_active");
-            vals[i]=''
-            }else{
-            $(link).addClass("btn_grade_level_active");
-            vals[i]=1
-            }
-            var arVals=[]
-            $.each(vals,function(i,v){
-            if(v)arVals.push(i)
-            })
-            arVals.sort(function(a,b){
-               return parseInt(a)-parseInt(b)})
-            $("#grade_level_id").val(arVals.join());
-            }
-/*@end*/
+<script type="text/javascript">
+  /*@begin:Click the round button in grade_level table*/
+  /*@date:2013-11-02*/
+  function click_grade_btn(i){
+    var vals={}
+    $.each($("#grade_level_id").val().split(","),function(i,v){
+      if(v)vals[v]=1;
+    });
+    var link=document.getElementById("grade_btn"+i);
+    if($(link).hasClass("btn_grade_level_active")){
+      $(link).removeClass("btn_grade_level_active");
+      vals[i]='';
+    }else{
+      $(link).addClass("btn_grade_level_active");
+      vals[i]=1;
+    }
+    var arVals=[];
+    $.each(vals,function(i,v){
+      if(v)arVals.push(i)
+    });
+    arVals.sort(function(a,b){return parseInt(a)-parseInt(b)});
+    $("#grade_level_id").val(arVals.join());
+  }
+  /*@end*/
   (function() {
     $(".email-settings").click(function(event) {
       $("#email_settings_course_id").val( $(event.target).data("course-id") );
@@ -120,38 +119,38 @@
              function(data){
                //$("#password_reset_complete_link").click();
              });
-        return false;
+      return false;
     });
     $("#change_email_form").submit(function(){
       var new_email = $('#new_email_field').val();
-/*@begin:Do not need to confirm passowrd when changing email*/
-/*@date:2013-11-02*/
+      /*@begin:Do not need to confirm passowrd when changing email*/
+      /*@date:2013-11-02*/
       //var new_password = $('#new_email_password').val();
       $.post('${reverse("change_email")}',
-               {"new_email" : new_email, "password" : ""},
-/*@end*/
-               function(data) {
-                 if (data.success) {
-                   $("#change_email_title").html("Please verify your new email");
-                   $("#change_email_form").html("<p>You'll receive a confirmation in your " +
-                                                "in-box. Please click the link in the " +
-                                                "email to confirm the email change.</p>");
-                   $("#change_email_form").html("<p>${_('You\'ll receive a confirmation in your in-box. Please click the link in the email to confirm the email change.')}</p>");
-                 } else {
-                   $("#change_email_error").html(data.error).stop().css("display", "block");
-                 }
-               });
+             {"new_email" : new_email, "password" : ""},
+             /*@end*/
+             function(data) {
+               if (data.success) {
+                 $("#change_email_title").html("Please verify your new email");
+                 $("#change_email_form").html("<p>You'll receive a confirmation in your " +
+                                              "in-box. Please click the link in the " +
+                                              "email to confirm the email change.</p>");
+                 $("#change_email_form").html("<p>${_('You\'ll receive a confirmation in your in-box. Please click the link in the email to confirm the email change.')}</p>");
+               } else {
+                 $("#change_email_error").html(data.error).stop().css("display", "block");
+               }
+             });
       return false;
     });
     $("#change_name_form").submit(function(){
-/*@begin:Change the name to two fileds*/
-/*@date:2013-11-02*/
+      /*@begin:Change the name to two fileds*/
+      /*@date:2013-11-02*/
       var new_first_name = $('#new_first_name_field').val();
       var new_last_name = $('#new_last_name_field').val();
       var rationale = $('#name_rationale_field').val();
       $.post('${reverse("change_name")}',
              {"new_first_name":new_first_name, "new_last_name":new_last_name,"rationale":rationale},
-/*@end*/
+             /*@end*/
              function(data) {
                if(data.success) {
                  location.reload();
@@ -160,7 +159,7 @@
                  $("#change_name_error").html(data.error).stop().css("display", "block");
                }
              });
-       return false;
+      return false;
     });
 <!--@begin:Process the newly added fields in dashboard-->
 <!--@date:2013-11-02-->
@@ -178,11 +177,11 @@
              });
        return false;
     });
-     $.each( '${curr_user.profile.grade_level_id}'.split(',') ,function(i,v){
-     if($.trim(v))
-     click_grade_btn(v)
-     })
-   $("#change_grade_level_form").submit(function(){
+    $.each( '${curr_user.profile.grade_level_id}'.split(',') ,function(i,v){
+      if($.trim(v))
+        click_grade_btn(v);
+    });
+    $("#change_grade_level_form").submit(function(){
       var grade_level_id = $(this.grade_level_id).val();
       $.post('${reverse("change_grade_level")}',
              {"grade_level_id":grade_level_id},
@@ -193,82 +192,82 @@
                  $("#change_grade_level_error").html(data.error).stop().css("display", "block");
                }
              });
-       return false;
+      return false;
     });
-  // change_percent_lunch submit
-  $("#change_percent_lunch_form").find("select[name='percent_lunch']").val('${curr_user.profile.percent_lunch}')
-  $("#change_percent_lunch_form").submit(function(){
-      var percent_lunch = $(this.percent_lunch).val();
-      $.post('${reverse("change_percent_lunch")}',
-             {"percent_lunch":percent_lunch},
-             function(data) {
-               if(data.success) {
-                 location.reload();
-               } else {
-                 $("#change_percent_lunch_error").html(data.error).stop().css("display", "block");
-               }
-             });
-       return false;
-    });
-  // change_percent_iep submit
-  $("#change_percent_iep_form").find("select[name='percent_iep']").val('${curr_user.profile.percent_iep}')
-  $("#change_percent_iep_form").submit(function(){
-      var percent_iep = $(this.percent_iep).val();
-      $.post('${reverse("change_percent_iep")}',
-             {"percent_iep":percent_iep},
-             function(data) {
-               if(data.success) {
-                 location.reload();
-               } else {
-                 $("#change_percent_iep_error").html(data.error).stop().css("display", "block");
-               }
-             });
-       return false;
-    });
-  // change_percent_eng_learner submit
-  $("#change_percent_eng_learner_form").find("select[name='percent_eng_learner']").val('${curr_user.profile.percent_eng_learner}')
-  $("#change_percent_eng_learner_form").submit(function(){
-      var percent_eng_learner = $(this.percent_eng_learner).val();
-      $.post('${reverse("change_percent_eng_learner")}',
-             {"percent_eng_learner":percent_eng_learner},
-             function(data) {
-               if(data.success) {
-                 location.reload();
-               } else {
-                 $("#change_percent_eng_learner_error").html(data.error).stop().css("display", "block");
-               }
-             });
-       return false;
-    });
-   $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${curr_user.profile.major_subject_area_id}')
-   $("#change_major_subject_area_form").submit(function(){
-      var major_subject_area_id = $(this.major_subject_area_id).val();
-      $.post('${reverse("change_major_subject_area")}',
-             {"major_subject_area_id":major_subject_area_id},
-             function(data) {
-               if(data.success) {
-                 location.reload();
-               } else {
-                 $("#change_major_subject_area_error").html(data.error).stop().css("display", "block");
-               }
-             });
-       return false;
-    });
-     $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${curr_user.profile.years_in_education_id}')
-   $("#change_years_in_education_form").submit(function(){
-      var years_in_education_id = $(this.years_in_education_id).val();
-      $.post('${reverse("change_years_in_education")}',
-             {"years_in_education_id":years_in_education_id},
-             function(data) {
-               if(data.success) {
-                 location.reload();
-               } else {
-                 $("#change_years_in_education_error").html(data.error).stop().css("display", "block");
-               }
-             });
-       return false;
-    });
-  $("#change_bio_form").submit(function(){
+    // change_percent_lunch submit
+    $("#change_percent_lunch_form").find("select[name='percent_lunch']").val('${curr_user.profile.percent_lunch}')
+      $("#change_percent_lunch_form").submit(function(){
+        var percent_lunch = $(this.percent_lunch).val();
+        $.post('${reverse("change_percent_lunch")}',
+               {"percent_lunch":percent_lunch},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_lunch_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    // change_percent_iep submit
+    $("#change_percent_iep_form").find("select[name='percent_iep']").val('${curr_user.profile.percent_iep}')
+      $("#change_percent_iep_form").submit(function(){
+        var percent_iep = $(this.percent_iep).val();
+        $.post('${reverse("change_percent_iep")}',
+               {"percent_iep":percent_iep},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_iep_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    // change_percent_eng_learner submit
+    $("#change_percent_eng_learner_form").find("select[name='percent_eng_learner']").val('${curr_user.profile.percent_eng_learner}')
+      $("#change_percent_eng_learner_form").submit(function(){
+        var percent_eng_learner = $(this.percent_eng_learner).val();
+        $.post('${reverse("change_percent_eng_learner")}',
+               {"percent_eng_learner":percent_eng_learner},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_eng_learner_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${curr_user.profile.major_subject_area_id}')
+      $("#change_major_subject_area_form").submit(function(){
+        var major_subject_area_id = $(this.major_subject_area_id).val();
+        $.post('${reverse("change_major_subject_area")}',
+               {"major_subject_area_id":major_subject_area_id},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_major_subject_area_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${curr_user.profile.years_in_education_id}')
+      $("#change_years_in_education_form").submit(function(){
+        var years_in_education_id = $(this.years_in_education_id).val();
+        $.post('${reverse("change_years_in_education")}',
+               {"years_in_education_id":years_in_education_id},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_years_in_education_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_bio_form").submit(function(){
       var bio = $(this.bio).val();
       $.post('${reverse("change_bio")}',
              {"bio":bio},
@@ -279,9 +278,9 @@
                  $("#change_bio_error").html(data.error).stop().css("display", "block");
                }
              });
-       return false;
+      return false;
     });
-<!--@end-->
+    <!--@end-->
     $("#email_settings_form").submit(function(){
       $.ajax({
         type: "POST",
@@ -368,7 +367,9 @@
     interviewer.name="${request.user.username}";
     interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
     curr_user.id="${curr_user.id}";
-    var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,'interviewer_fullname':interviewer.fullname,'type':'view_portfolio','course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+    var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
+                                         'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
+                                         'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
     var url = $(this).attr("link");
     $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
    })

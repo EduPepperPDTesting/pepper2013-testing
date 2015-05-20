@@ -43,6 +43,7 @@
         <tr>
           <th></th>
           <th>School ID</th>
+          <th>School Code</th>
           <th>School Name</th>
           <th>District</th>
           <th>Users</th>
@@ -51,6 +52,7 @@
         <tr>
           <td><input type="checkbox" name="id" value="${item.id}"/></td>
           <td>${item.id}</td>
+          <td>${item.code or ''}</td>
           <td><a href="${reverse('school_form',args=[item.id])}">${item.name}</a></td>
           <td>${District.objects.get(id=item.district_id).name} - ${District.objects.get(id=item.district_id).code}</td>
           <td align="center"><a href="${reverse('user')}?school_id=${item.id}">Show Users</a></td>
@@ -166,6 +168,12 @@
               <input type="" name="name" value="${school.name}" chkMsg="Name cant't be empty." chkType="Require"/>
             </td>
           </tr>
+          <tr>
+            <td class="label">Code</td>
+            <td>
+              <input type="" name="code" value="${school.code or ''}"/>
+            </td>
+          </tr>          
           <tbody style="background:#eee;">
             <tr>
               <td class="label">State</td>
@@ -207,7 +215,7 @@ var form=$("#form");
 // submit form
 form.submit(function(){
   if(!new FormValidator().check(this))return false;
-  var flds=["id","name","district_id","csrfmiddlewaretoken"];
+  var flds=["id","name","district_id","code","csrfmiddlewaretoken"];
   var data=getFormData(this,flds);
   $("#message").html("Submiting");
   $.post('${reverse("school_submit")}',data,

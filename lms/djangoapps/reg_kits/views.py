@@ -212,6 +212,7 @@ def school_submit(request):
         else:
             d=School()
         d.name=request.POST['name']
+        d.code=request.POST['code']
         d.district_id=request.POST['district_id']
         d.save()
     except Exception as e:
@@ -358,7 +359,7 @@ def user(request):
 def download_course_permission_csv(request):
     from StringIO import StringIO
 
-    courses=subject_courses(request.GET.get('subject_id','all'))
+    courses=filter_courses(request.GET.get('subject_id','all'),request.GET.get('author_id',''))
 
     FIELDS = ["district", "last_name", "first_name", "email"]
     TITLES = ["District", "Last Name", "First Name", "Email"]
@@ -405,7 +406,7 @@ def download_course_permission_excel(request):
     from StringIO import StringIO
     import xlsxwriter
 
-    courses=subject_courses(request.GET.get('subject_id','all'))
+    courses=filter_courses(request.GET.get('subject_id','all'),request.GET.get('author_id',''))
     
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -465,10 +466,15 @@ def course_permission_save(request):
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))     
 
-def subject_courses(subject_id):
+def filter_courses(subject_id='all',author_id='all'):
     filterDic = {'_id.category':'course'}
+    
     if subject_id!='all':
         filterDic['metadata.display_subject'] = subject_id
+
+    if author_id!='all':
+        filterDic['metadata.display_organization'] = author_id        
+        
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber",pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
     return courses
@@ -476,7 +482,7 @@ def subject_courses(subject_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def course_permission(request):
-    courses=subject_courses(request.GET.get('subject_id','')) # pass 'all' for all
+    courses=filter_courses(request.GET.get('subject_id',''),request.GET.get('author_id','')) # pass 'all' for all
 
     data,filtered=filter_user(request)
 
@@ -1078,9 +1084,10 @@ def import_district_submit(request):
 ##############################################
 # Import School 
 ##############################################
-SCHOOL_CSV_COLS=1
+SCHOOL_CSV_COLS=2
 
 SCHOOL_CSV_COL_NAME=0
+SCHOOL_CSV_COL_CODE=1
 
 def validate_school_cvs_line(line,district_id):
     name=line[SCHOOL_CSV_COL_NAME]
@@ -1111,8 +1118,10 @@ def import_school_submit(request):
             for i,line in enumerate(r):
                 exist=validate_school_cvs_line(line,district_id)
                 school_name=line[SCHOOL_CSV_COL_NAME]
+                school_code=line[SCHOOL_CSV_COL_CODE]
                 school = School()
                 school.name=school_name
+                school.code=school_code
                 school.district_id=district_id
                 school.save()
                 count_success=count_success+1
@@ -1122,7 +1131,7 @@ def import_school_submit(request):
             message={"success": True,
                 "message":"Success! %s school(s) imported." % (count_success),
                 "count_success":count_success
-                }                   
+                }    
         except Exception as e:
             db.transaction.rollback()
             # failure information

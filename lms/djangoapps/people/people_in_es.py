@@ -4,6 +4,10 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from student.models import CourseEnrollment, UserProfile
 
+
+import logging
+log = logging.getLogger("tracking")
+
 es=Elasticsearch()
 
 INDEX_NAME = 'people'
@@ -64,8 +68,12 @@ def insert_user(id,body):
 
 def index_user(id,body):
     # update, create if id not exists
-    es.index(index=INDEX_NAME,doc_type=DOC_TYPE, body=body, id=id)
-    es.indices.refresh()
+    try:
+        es.index(index=INDEX_NAME,doc_type=DOC_TYPE, body=body, id=id)
+        es.indices.refresh()
+    except:
+        log.debug("Failed to index user(id=%s)" % id)
+        pass
 
 def full_update_user(id,body):
     es.index(index=INDEX_NAME,doc_type=DOC_TYPE, body=body, id=id)
@@ -91,19 +99,14 @@ def del_user_people_of(user,owner_id):
     
     # people_of=rec['people_of']
 
-    import logging
-    log = logging.getLogger("tracking")
-    log.debug("============")
-    log.debug(owner_id)
+    # log.debug("============")
+    # log.debug(owner_id)
 
     if owner_id in people_of:
-        log.debug('<<<<<')
         people_of=filter(lambda a: a != owner_id, people_of)
         # update_user_fields(user_id,{'people_of':people_of})
         # update db
-
         user.profile.people_of=','.join(people_of)
-
         user.profile.save()
 
 def add_user_people_of(user,owner_id):
@@ -115,19 +118,12 @@ def add_user_people_of(user,owner_id):
     if user.profile.people_of:
         people_of=user.profile.people_of.split(',')
 
-    import logging
-    log = logging.getLogger("tracking")
-
     # people_of=rec['people_of']
     if not owner_id in people_of:
         people_of.append(owner_id)
         # update_user_fields(user_id,{'people_of':people_of})
         # update db
         
-        log.debug("============>>>>")
-        log.debug(owner_id)
-        
-        log.debug(people_of)
         user.profile.people_of=','.join(people_of)
         user.profile.save()
 
@@ -214,12 +210,7 @@ def update_user_es_info(user):
     #     body['people_of']=old['people_of']
     # else:
     #     body['people_of']=[]
-    
-    import logging
-    log = logging.getLogger("tracking")
-    
-    log.debug('>>>>>>>>>>>>>>>>')
-    
+
     body['district_id']=user.profile.cohort.district_id
 
     if user.last_login:
