@@ -109,7 +109,7 @@ def course_from_id(course_id):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def download_certificate(request,course_id,completed_time):
-    certificate_type=[['WestEd','PCG Education'],['CT Core Standards']]
+    certificate_type=[['WestEd','PCG Education','A.L.L.'],['CT Core Standards']]
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
     t_time = ""
@@ -156,6 +156,7 @@ def course_credits(request):
 def download_certificate_demo(request):
      return render_to_response('d_certificate_demo.html', {})
 #@end
+'''
 def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
     first_name = request.user.first_name
     last_name = request.user.last_name
@@ -252,7 +253,7 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
-
+'''
 def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
     first_name = request.user.first_name
     last_name = request.user.last_name
@@ -277,9 +278,13 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c_organization = 'PCG Education'
         c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
         c_estimated_effort = user_course.certificates_estimated_effort
-    else:
+    elif user_course.display_organization=='WestEd':
         c_organization = 'WestEd'
         c.drawImage(imagepath+"/certificate_wested.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = user_course.certificates_estimated_effort
+    elif user_course.display_organization=='A.L.L.':
+        c_organization = 'Accelerated Literacy Learning'
+        c.drawImage(imagepath+"/certificate_A.L.L.jpg",0,0, width=841.89,height=595.27,mask=None)
         c_estimated_effort = user_course.certificates_estimated_effort
 
     c.drawImage(imagepath+"/qianzi.jpg",360,50, width=None,height=None,mask=None)
@@ -308,10 +313,8 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(655,230,', an online')
         c.setFont("Open Sans", fontsize_maincontent)
-        c.drawString(50,205,'learning initiative for ')
-        c.setFont("OpenSans_b", fontsize_maincontent)
-        c.drawString(247,205,'Common Core Specialists')
-    else:
+        c.drawString(50,205,'learning community.')
+    elif user_course.display_organization=='WestEd':
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(389,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -322,6 +325,15 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.drawString(50,205,'initiative for ')
         c.setFont("OpenSans_b", fontsize_maincontent)
         c.drawString(165,205,'Common Core Specialists')
+    elif user_course.display_organization=='A.L.L.':
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(613,230,', a partner in ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(737,230,'Pepper')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(50,205,', an online')
+        c.setFont("Open Sans", fontsize_maincontent)
+        c.drawString(152,205,'learning community.')
 
     c.setFont("Open Sans", fontsize_effort)
     c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
