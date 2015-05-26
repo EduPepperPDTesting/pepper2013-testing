@@ -331,9 +331,10 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.setFont("OpenSans_b", fontsize_maincontent)
         c.drawString(737,230,'Pepper')
         c.setFont("Open Sans", fontsize_maincontent)
-        c.drawString(50,205,', an online')
+        c.drawString(807,230,',')
+        c.drawString(50,205,'an online')
         c.setFont("Open Sans", fontsize_maincontent)
-        c.drawString(152,205,'learning community.')
+        c.drawString(144,205,'learning community.')
 
     c.setFont("Open Sans", fontsize_effort)
     c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
