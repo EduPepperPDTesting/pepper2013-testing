@@ -274,7 +274,7 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
     fontsize_coursename = 25
     fontsize_effort = 21
 
-    if user_course.display_number_with_default == "PEP101x":
+    if user_course.display_organization == "PCG Education":
         c_organization = 'PCG Education'
         c.drawImage(imagepath+"/certificate_pcg.jpg",0,0, width=841.89,height=595.27,mask=None)
         c_estimated_effort = user_course.certificates_estimated_effort
@@ -305,7 +305,7 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
     c.setFont("OpenSans_b", fontsize_maincontent)
     c.drawString(315,230,c_organization)
 
-    if user_course.display_number_with_default == "PEP101x":
+    if user_course.display_organization == "PCG Education":
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(460,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -331,9 +331,10 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.setFont("OpenSans_b", fontsize_maincontent)
         c.drawString(737,230,'Pepper')
         c.setFont("Open Sans", fontsize_maincontent)
-        c.drawString(50,205,', an online')
+        c.drawString(807,230,',')
+        c.drawString(50,205,'an online')
         c.setFont("Open Sans", fontsize_maincontent)
-        c.drawString(152,205,'learning community.')
+        c.drawString(144,205,'learning community.')
 
     c.setFont("Open Sans", fontsize_effort)
     c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
