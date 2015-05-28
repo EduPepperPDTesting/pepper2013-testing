@@ -164,6 +164,20 @@ site_status_msg = get_site_status_msg(course_id)
     width: 600px;
     z-index: 11000;
 }
+.message_board_txt_prompt
+{
+  color:#646464;
+  font-style:italic;
+  font-weight:bold;
+}
+.message_board_empty_info
+{
+  color:#000000;
+  margin-top:80px;
+  text-align:center;
+  font-weight:bold;
+}
+
 #show_notifications_link:focus { outline: none!important;}
 [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
@@ -457,7 +471,7 @@ site_status_msg = get_site_status_msg(course_id)
       content.html("");
       message_board_updateMaxCharNum();
       $('.message_board_listCon').scrollTop(0);
-      content.html("<p style='color:#D4D0C8'>Write a Message ...</p>");
+      content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
 
     })
 //-----------------------------------------------------------------
@@ -719,6 +733,15 @@ site_status_msg = get_site_status_msg(course_id)
     message_board_loadNum +=6;
     message_board_totalNum = data.count;
     $(".message_board_full_name").text(message_people.fullname);
+    $('.message_board_empty_info').remove();
+    if(data.results.length==0)
+    {
+      $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with '+message_people.fullname.split(' ')[0]+'.</div>');
+    }
+    else
+    {
+      $('.message_board_empty_info').remove();
+    }
     for(var i=0;i<data.results.length;i++)
     {
       message_board_createItem(data.results[i],1);
@@ -752,6 +775,10 @@ site_status_msg = get_site_status_msg(course_id)
       var recipient_id = msReturnVal?0:message_people.id.toString();
       var datainfo={'info':JSON.stringify({'sender_id':'${user.id}','recipient_id':recipient_id,'date':(new Date()).toISOString(),'body':content.html()})};
       $.post("${reverse('save_message')}",datainfo,function(rdata){
+          if($(".message_board_list").find('.message_board_empty_info').length>0)
+          {
+            $('.message_board_empty_info').remove();
+          }
           message_board_createItem(JSON.parse(datainfo.info));
           $('.message_board_listCon').scrollTop($(".message_board_list").height());
           message_board_updateMaxCharNum();
@@ -912,7 +939,7 @@ site_status_msg = get_site_status_msg(course_id)
   <form id="" method="post" style="padding:0px;line-height:18px;">
    
         <div style="width:520px;margin:10px;">
-         <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p style="color:#D4D0C8">Write a Message ...</p></div>
+         <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
 
           <div style="color:black;font-size:12px;color:#aaa;">
             Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
