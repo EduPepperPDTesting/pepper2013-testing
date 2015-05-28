@@ -178,7 +178,7 @@ MyChunks.prototype.load=function()
       $(".mychunks_delBtn").show();
       if(data['results'][0].note==""||data['results'][0].note=="<br>")
       {
-        $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
+        $(".mychunks_content").html('<p class="message_board_txt_prompt">Please click the "Edit" button to add notes, pictures and links.</p>');
       }
       else
       {
@@ -224,7 +224,7 @@ MyChunks.prototype.save=function(v)
     {
       $("#add_mychunks").show();
       $("#lean_overlay").show();
-      $(".mychunks_content").html('<p style="color:#646464">Please click the "Edit" button to add notes, pictures and links.</p>');
+      $(".mychunks_content").html('<p class="message_board_txt_prompt">Please click the "Edit" button to add notes, pictures and links.</p>');
     }
   }
   else

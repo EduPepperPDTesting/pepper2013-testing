@@ -67,8 +67,63 @@
     width:30px;
     height:30px;
   }
+  .rate_num,.rate_num span
+  {
+    font-size:12px;
+    color:#1994CD;
+  }
+  a.btnx:hover {
+  background: linear-gradient(#1e8bbe, #0e72a1); 
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:
+  cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  text-decoration:none;
+  }
+  a.btnx {
+  background-clip: padding-box;
+  border:1ps solid rgb(13, 114, 162);
+  background-color:rgb(29, 157, 217);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1d9dd9), color-stop(100%, #0e7cb0));
+  background-image: -webkit-linear-gradient(#1d9dd9, #0e7cb0);
+  background-image: linear-gradient(#1d9dd9, #0e7cb0);
+  border: 1px solid #0d72a2;
+  box-shadow: inset 0 1px 0 0 #61b8e1;
+  text-decoration: none;
+  padding:6px 32px 7px 32px;
+  line-height:26px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  .mychunks_txt_prompt
+  {
+    color:#646464;
+    font-style:italic;
+    font-weight:bold;
+  }
 </style>
 <script type="text/javascript" src="${static.url('js/my_content_chunks.js')}"></script>
+<script type="text/javascript" src="${static.url('js/vendor/raty/lib/jquery.raty.min.js')}"></script>
 <script>
 
 </script>
@@ -327,7 +382,7 @@ Add info that you would like to share about yourself here:
           %endfor
         </table>
           </div>
-         <div class="mychunks_share_content" contenteditable="true" style="width:540px;height:80px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;margin-top:10px;"><p style="color:#D4D0C8">Add a Message ...</p></div>
+         <div class="mychunks_share_content" contenteditable="true" style="width:540px;height:80px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;margin-top:10px;"><p class="mychunks_txt_prompt">Add a Message ...</p></div>
 
           <div style="color:black;font-size:12px;color:#aaa;">
             Maximum to 100 Characters  (<span id="message_curr_char_num">0</span>)
@@ -389,7 +444,34 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </section>
-
+<section id="rate_results" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="rate_title">${_("Rate Results")}</h2>
+      <hr/>
+    </header>
+    <form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:560px;margin:10px;">
+          <div style="color:black;font-size:16px;width:540px;height:80px;padding:10px;">
+          <center>
+            <div class="rate_results_normal">
+              <table cellPadding=5><tr><td width="240">High-Quality Rating</td><td><div class="hq_rate rateItem" data-name="hq_rate"></td><td><div class="rate_num"><span id="hq_rate_num">0</span>&nbsp;Ratings</div></td></tr><tr><td>Interactive & Engaging Rating</td><td><div class="ie_rate rateItem" data-name="ie_rate"></div></td><td><div class="rate_num"><span id="ie_rate_num">0</span>&nbsp;Ratings</div></td></tr><tr><td>Practical Application Rating</td><td><div class="pa_rate rateItem" data-name="pa_rate"></div></td><td><div class="rate_num"><span id="pa_rate_num">0</span>&nbsp;Ratings</div></td></tr></table>
+            </div>
+           <div class="rate_results_warn" style="display:none;"><b>Please select one rating for the chunk in order to see results.</b></div>
+          </center>
+          </div>
+        </div>
+        
+    </form>
+  <br/>
+    <div class="close-modal" id="rate_results_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
 <div class="mychunks_linkwin">
     <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
     <hr/>

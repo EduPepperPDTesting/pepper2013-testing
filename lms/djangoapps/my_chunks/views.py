@@ -87,6 +87,19 @@ def del_mychunk(request):
     rs.delete_item(str(request.user.id),info['vertical_id'])
     return utils.JsonResponse({'results':'true'})
 
+def set_rate(request):
+    rs = chunksstore()
+    info = json.loads(request.POST.get('info'))
+    info['user_id']=str(request.user.id)
+    rs.set_rate(info)
+    return utils.JsonResponse({'results':'true'})
+
+def get_integrate_rate(request):
+    rs = chunksstore()
+    info = json.loads(request.POST.get('info'))
+    rate_results=rs.get_integrate_rate(info)
+    return utils.JsonResponse(rate_results)
+    
 def upload_image(request):
     success = True
     try:

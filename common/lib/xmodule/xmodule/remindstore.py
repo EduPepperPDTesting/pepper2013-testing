@@ -201,6 +201,35 @@ class MongoChunksStore(object):
     def get_total(self,user_id):
         return self.collection.find({'user_id':user_id}).count()
 
+    def set_rate(self, item):
+        self.collection.update({'user_id':item['user_id'],'vertical_id':item['vertical_id']},{'$set':{item['rate_name']:item['rate_value']}})
+
+    def get_integrate_rate(self, item):
+        rate_results=self.collection.find({'vertical_id':item['vertical_id']})
+        r={}
+        hq_score=0
+        ie_score=0
+        pa_score=0
+        r['hq_rate']={'sum':0,'count':0}
+        r['ie_rate']={'sum':0,'count':0}
+        r['pa_rate']={'sum':0,'count':0}
+        for data in rate_results:
+            if data.has_key('hq_rate'):
+                r['hq_rate']['sum']=r['hq_rate']['sum']+int(data['hq_rate'])
+                r['hq_rate']['count']=r['hq_rate']['count']+1;
+            if data.has_key('ie_rate'):
+                r['ie_rate']['sum']=r['ie_rate']['sum']+int(data['ie_rate'])
+                r['ie_rate']['count']=r['ie_rate']['count']+1;
+            if data.has_key('pa_rate'):
+                r['pa_rate']['sum']=r['pa_rate']['sum']+int(data['pa_rate'])
+                r['pa_rate']['count']=r['pa_rate']['count']+1;
+        if r['hq_rate']['count']>0:
+            hq_score=r['hq_rate']['sum']/float(r['hq_rate']['count'])
+        if r['ie_rate']['count']>0:
+            ie_score=r['ie_rate']['sum']/float(r['ie_rate']['count'])
+        if r['pa_rate']['count']>0:
+            pa_score=r['pa_rate']['sum']/float(r['pa_rate']['count'])
+        return {'hq_rate':{'score':hq_score,'count':r['hq_rate']['count']},'ie_rate':{'score':ie_score,'count':r['ie_rate']['count']},'pa_rate':{'score':pa_score,'count':r['pa_rate']['count']}}
 
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
