@@ -358,7 +358,7 @@ def user(request):
 def download_course_permission_csv(request):
     from StringIO import StringIO
 
-    courses=subject_courses(request.GET.get('subject_id','all'))
+    courses=filter_courses(request.GET.get('subject_id','all'),request.GET.get('author_id',''))
 
     FIELDS = ["district", "last_name", "first_name", "email"]
     TITLES = ["District", "Last Name", "First Name", "Email"]
@@ -405,7 +405,7 @@ def download_course_permission_excel(request):
     from StringIO import StringIO
     import xlsxwriter
 
-    courses=subject_courses(request.GET.get('subject_id','all'))
+    courses=filter_courses(request.GET.get('subject_id','all'),request.GET.get('author_id',''))
     
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -465,10 +465,14 @@ def course_permission_save(request):
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))     
 
-def subject_courses(subject_id):
+def filter_courses(subject_id='all',author_id='all'):
     filterDic = {'_id.category':'course'}
     if subject_id!='all':
         filterDic['metadata.display_subject'] = subject_id
+
+    if author_id!='all':
+        filterDic['metadata.display_organization'] = author_id
+
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber",pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
     return courses
@@ -476,7 +480,7 @@ def subject_courses(subject_id):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def course_permission(request):
-    courses=subject_courses(request.GET.get('subject_id','')) # pass 'all' for all
+    courses=filter_courses(request.GET.get('subject_id',''),request.GET.get('author_id','')) # pass 'all' for all
 
     data,filtered=filter_user(request)
 
