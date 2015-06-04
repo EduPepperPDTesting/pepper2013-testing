@@ -335,7 +335,8 @@ function mychunks_content_createItem(data)
     $("#share_mychunks").show();
     $("#lean_overlay").show();
     var chunk_title = $(this).parent().parent().find(".chunk_title");
-    var chapter_num
+    var chapter_num;
+    var content=$(".mychunks_share_content");
     if(chunk_title.text().indexOf(":")>=0)
     {
       chapter_num=" "+chunk_title.text().split(':')[0];
@@ -346,6 +347,9 @@ function mychunks_content_createItem(data)
     }
     $("#share_mychunks").attr("course_number",chunk_title.attr("course_title").split(" ")[0]+chapter_num);
     $("#share_mychunks").attr("data-url",chunk_title.attr("href"));
+    content.html("");
+    mychunks_share_updateMaxCharNum();
+    content.html("<p class='mychunks_txt_prompt'>Add a Message ...</p>");
     $(window).scrollTop(0);
     mychunks_share_init();
   })

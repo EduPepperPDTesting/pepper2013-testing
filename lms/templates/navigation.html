@@ -642,6 +642,11 @@ site_status_msg = get_site_status_msg(course_id)
         $(".linkwin").hide();
         $("#lean_overlay").hide();
       })
+      var content = $('.message_board_content');
+      content.html("");
+      message_board_updateMaxCharNum();
+      $('.message_board_listCon').scrollTop(0);
+      content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
       $("#lean_overlay").click(function(){
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
