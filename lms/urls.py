@@ -11,10 +11,12 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
+    url(r'^sso/$', 'student.views.sso', name="sso"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
+    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
+    
     url(r'^more_courses_available/$', 'student.views.more_courses_available',name="more_courses_available"),
-
     url(r'^reg_kits/$', 'reg_kits.views.district',name="reg_kits"),
-
     url(r'^reg_kits/course_permission/$', 'reg_kits.views.course_permission',name="course_permission"),
     url(r'^reg_kits/course_permission_save/$', 'reg_kits.views.course_permission_save',name="course_permission_save"),
     url(r'^reg_kits/download_course_permission_csv/$', 'reg_kits.views.download_course_permission_csv',name="download_course_permission_csv"),
