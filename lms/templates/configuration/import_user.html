@@ -1,0 +1,111 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from student.models import State,District,School
+%>
+
+<%inherit file="../main.html" />
+
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+
+<style type="text/css" media="screen">
+ #btn-dashboard{display:none;}
+ section.content-wrapper{background:transparent !important;}
+ .list{padding:0;}
+ .list li{list-style-type:none;}
+ div.filter{padding:10px 0; }
+ div.filter h2{color:#f90}
+ div.expand_title{color:#08a;font-size:20px;padding:10px 0;cursor:pointer;}
+ div.expand_title .icon{display:inline-block;width:10px;height:11px;background: url(/static/images/configuration/arrow_up.png);}
+ div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_div{display:none}
+</style>
+
+<%namespace name='static' file='../static_content.html'/>
+
+<div>
+  <div class="main" style="margin:auto;width:1180px;padding:10px;">
+    <div class="expand_title expand_title_collapse">
+      User Data Import <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="">
+        <div class="filter">
+          <h2>Filter</h2>
+          <select id="" name="state_id" autocomplete="off">
+            <option value="">Select State</option>
+            %for item in State.objects.all().order_by('name'):
+            <option value="${item.id}">${item.name}</option>
+            %endfor
+          </select>
+          <select id="" name="district_id" autocomplete="off">
+            <option value="">Select District</option>
+          </select>
+          <select id="" name="school_id" autocomplete="off">
+            <option value="">Select School</option>
+          </select>
+        </div>
+        <ul class="list"">
+          <li>
+            <label>
+              <input type="radio" name="import_task" value="0" checked="true"/>
+              Import the users from csv file
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio" name="import_task" value="1" />
+              Import users from csv file and send out registration email
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio" name="import_task" value="2" />
+              Send out registration email based on filtered users (eg by District or School)
+            </label>
+          </li>
+        </ul>
+      </form>
+      <div class="">
+        <input class="form_submit" type="submit" name="" value="Import Users" />
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  var form=$("#filter_form");
+  // change district dropdown
+  form.find("select[name=district_id]").change(function(){
+    var district_id=$(this).val();
+    if(district_id){
+      dropSchool(form,'',district_id);
+    }else{
+      var drop=form.find("select[name=school_id]");
+      clearOption(drop);
+    }
+  });
+  // change state dropdown
+  form.find("select[name=state_id]").change(function(a){
+    var district_id="${request.GET.get('district_id','')}"
+    var state_id=$(this).val();
+    clearOption(form.find("select[name=district_id]"));
+    clearOption(form.find("select[name=school_id]"));
+    dropDistrict(form,state_id,null,true);
+  });
+  $(".expand_title").click(function(){
+    var $div=$(this).next("div.expand_div");
+    if($div.is(':visible')){
+      $div.hide();
+      $(this).removeClass('expand_title_expanded');
+    }else{
+      $div.show();
+      $(this).addClass('expand_title_expanded');
+    }
+  });
+</script>
