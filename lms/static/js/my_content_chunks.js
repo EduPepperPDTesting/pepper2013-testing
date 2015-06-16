@@ -231,6 +231,7 @@ $(function () {
       $("#shared_ok_mychunks").hide();
       $("#rate_results").hide();
       $(".linkwin").hide();
+      $(".mychunks_content").html("");
       $(this).hide();
     })
     
@@ -492,7 +493,7 @@ mychunks_setNotesStatus=function(s)
 function rate_init(element)
 {
   $.fn.raty.defaults.path = '/static/js/vendor/raty/lib/img';
-  element.find('.rateItem').raty({click: function(score, evt) {
+  element.find('.rateItem').raty({hints:['Poor','Fair','Average','Good','Great'],click: function(score, evt) {
       var This=this;
       var datainfo={'info':JSON.stringify({'rate_name':$(this).attr('data-name'),'rate_value':score,'vertical_id':$(this).parent().parent().parent().parent().parent().attr('data-id')})};
       $(this).parent().parent().parent().parent().find('.rateItem').raty('readOnly',true);
@@ -514,6 +515,7 @@ function rate_integrate_init(element,rate_ele,vertical_id)
   var hq_score=element.find('.hq_rate').raty("score");
   var ie_score=element.find('.ie_rate').raty("score");
   var pa_score=element.find('.pa_rate').raty("score");
+  var hints=['Poor','Fair','Average','Good','Great'];
   if(hq_score!=undefined||ie_score!=undefined||pa_score!=undefined)
   {
     $(".rate_results_normal").show();
@@ -536,7 +538,19 @@ function rate_integrate_init(element,rate_ele,vertical_id)
       rate_ele.find('#pa_rate_num').text(data.pa_rate.count);
       rate_ele.find('.hq_rate').raty('set',{starOn:'star-on-blue.png',starHalf:'star-half-blue.png'});
       rate_ele.find('.ie_rate').raty('set',{starOn:'star-on-green.png',starHalf:'star-half-green.png'});
-      rate_ele.find('.pa_rate').raty('set',{starOn:'star-on-orange.png',starHalf:'star-half-orange.png'});  
+      rate_ele.find('.pa_rate').raty('set',{starOn:'star-on-orange.png',starHalf:'star-half-orange.png'});
+      rate_ele.find('.hq_rate').attr('title','');
+      rate_ele.find('.ie_rate').attr('title','');
+      rate_ele.find('.pa_rate').attr('title','');
+      rate_ele.find('.hq_rate img').each(function(index, el) {
+        $(el).attr('title',hints[index]);
+      });
+      rate_ele.find('.ie_rate img').each(function(index, el) {
+        $(el).attr('title',hints[index]);
+      });
+      rate_ele.find('.pa_rate img').each(function(index, el) {
+        $(el).attr('title',hints[index]);
+      });
     });
   }
   else
