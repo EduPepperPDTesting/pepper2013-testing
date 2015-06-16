@@ -84,3 +84,7 @@ def index(request):
 	static_content = StaticContent.objects.get(name="Resource Library")
 	static_html_content = static_content.content if static_content else 'sorry for maintain...'
 	return render_to_response('access_resource_library_.html',{'static_content':static_html_content})
+
+@login_required
+def index_list(request):
+	return render_to_response('access_resource_library_list.html')

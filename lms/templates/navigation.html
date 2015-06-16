@@ -467,12 +467,7 @@ site_status_msg = get_site_status_msg(course_id)
     })
     $("#message_board_close").click(function(){
       $(".linkwin").hide();
-      var content = $('.message_board_content');
-      content.html("");
-      message_board_updateMaxCharNum();
-      $('.message_board_listCon').scrollTop(0);
-      content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
-
+      message_board_clearContent();
     })
 //-----------------------------------------------------------------
     $(".message_board_content").focusin(function(){
@@ -642,11 +637,7 @@ site_status_msg = get_site_status_msg(course_id)
         $(".linkwin").hide();
         $("#lean_overlay").hide();
       })
-      var content = $('.message_board_content');
-      content.html("");
-      message_board_updateMaxCharNum();
-      $('.message_board_listCon').scrollTop(0);
-      content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
+      message_board_clearContent();
       $("#lean_overlay").click(function(){
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
@@ -723,6 +714,7 @@ site_status_msg = get_site_status_msg(course_id)
     message_board_loadNum = 0;
     message_board_totalNum = 0;
     message_board_focus = 0;
+    message_board_clearContent();
     message_board_multiplayerSend_init();
     message_board_getMessage(message_board_loadNum);
   }
@@ -925,6 +917,14 @@ site_status_msg = get_site_status_msg(course_id)
   {
     var msCBox = $("#multiplayer_send_div").find("input");
     return (msCBox.is(":visible") && msCBox.is(":checked"))?true:false;
+  }
+  function message_board_clearContent()
+  {
+    var content = $('.message_board_content');
+    content.html("");
+    message_board_updateMaxCharNum();
+    $('.message_board_listCon').scrollTop(0);
+    content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
   }
 </script>
 <!--@end-->

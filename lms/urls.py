@@ -86,7 +86,8 @@ urlpatterns = (
     url(r'^add_people/$', 'people.views.add_people', name="add_people"),
     url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
-    url(r'^resource_library_global$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     

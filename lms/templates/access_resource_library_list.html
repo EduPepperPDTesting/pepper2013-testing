@@ -1,0 +1,133 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+%>
+
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Resource Library")}</title></%block>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+<style type="text/css" media="screen">
+    
+    #btn-dashboard{display:none;}
+    .form-select{font-size:14px !important;width:180px;}
+    .image-link-style{
+      border-radius: 6px 6px 6px 6px;
+      -moz-border-radius: 6px 6px 6px 6px;
+      -webkit-border-radius: 6px 6px 6px 6px;
+      display: block;
+      float: left;
+      margin: 30px;
+    }
+    .image-bottom-style{
+      border-radius: 0px 0px 6px 6px;
+      -moz-border-radius: 0px 0px 6px 6px;
+      -webkit-border-radius: 0px 0px 6px 6px;
+      display: block;
+    }
+    .card-link{
+      display: table-cell;
+      width: 240px;
+      height: 60px;
+      vertical-align: middle;
+      padding: 0 17px;
+      font-size: 22px;
+      background: rgba(18,111,154,0.95);
+      text-decoration: none!important;
+    }
+    .card-link span{
+     color: #FFFFFF;
+    }
+    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    a.btnx:hover {
+    background:#638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+    }
+    a.btnx {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 2px!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px!important;
+    text-decoration: none!important;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    a.btnx:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+</style>
+<section class="find-courses" style="text-align:center;background:#F5F5F5;">
+  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+  <!--@date:2013-11-02-->
+  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-resourcelibrary-banner.jpg);border-bottom:1px solid #000;">
+  <!--@end-->
+  
+    <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+    <!--@date:2013-11-02-->
+    <div class="_banner_whatis_title_font" style="padding-top:20px;">
+      RESOURCE LIBRARY
+      <div class="_banner_whatis_title_content_font" style="color:#000;">
+        Professional learning tools, curriculum,
+        <br/>
+        and open education resources
+      </div>
+    </div>
+    <!--@end-->
+  </div>
+  <section style="margin:auto;width:960px;background:#E4E4E4;">
+    <section class="courses" style="padding-top:5px!important;">
+      <div class="courses-listing">
+        <div style="padding-left:25px;">
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb1_engageny.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="https://www.engageny.org/ccss-library" target="_blank" class="card-link image-bottom-style"><span>Common Core Library</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb2_CommonSenseGraphite.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="https://www.graphite.org/" target="_blank" class="card-link image-bottom-style"><span>Digital Tools for the Classroom</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb3_BL.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="http://betterlesson.com/" target="_blank" class="card-link image-bottom-style"><span>Better Lesson: What works</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb4_STEMBuilder.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="http://www.k12builder.com/reference/grade/ref-6-gid-37-mima-012f96911-yh-PepperPD-lj-1" target="_blank" class="card-link image-bottom-style"><span>STEM Curriculum Resources</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb5_smarterbalanced.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="http://sbac.portal.airast.org/practice-test/" target="_blank" class="card-link image-bottom-style"><span>Practice Assessments</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb6_PARCC.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="http://parcc.pearson.com/practice-tests/" target="_blank" class="card-link image-bottom-style"><span>Practice Assessments</span></a>
+          </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb7_Pepper.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Course Libraries</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</section>
