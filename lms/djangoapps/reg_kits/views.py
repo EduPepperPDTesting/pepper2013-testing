@@ -473,8 +473,8 @@ def filter_courses(subject_id='all',author_id='all'):
         filterDic['metadata.display_subject'] = subject_id
 
     if author_id!='all':
-        filterDic['metadata.display_organization'] = author_id        
-        
+        filterDic['metadata.display_organization'] = author_id   
+
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber",pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
     return courses

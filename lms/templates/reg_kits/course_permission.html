@@ -12,6 +12,11 @@ from student.models import State,District,Transaction,Cohort,School,Registration
 <head>
   <title>Reg Kits User Subject</title>
   <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
+  <style type="text/css" media="screen">
+   #filter tr td:nth-of-type(odd) {
+     text-align:right;
+   }
+  </style>
 </head>
 
 <style type="text/css" media="screen">
@@ -82,6 +87,10 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 </td>
                 <td>Email: </td>
                 <td><input type="input" name="email" size="30" autocomplete="off" /></td>
+<<<<<<< HEAD
+=======
+                 
+>>>>>>> 744c5d75c8f0aa31adfdad2e07b9263c20e41d04
               </tr>
               <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
             </table>
@@ -98,6 +107,10 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                     <th sortby="first_name" >First Name</th>
                     <th sortby="email" >Email</th>
                     <th>Check Row</th>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 744c5d75c8f0aa31adfdad2e07b9263c20e41d04
                   </tr>
                 </thead>
                 <tbody style="" id="ttt">
@@ -172,11 +185,20 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       </div>  
     </div>
     <script type="text/javascript">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 744c5d75c8f0aa31adfdad2e07b9263c20e41d04
       $(".checkrow").each(function(i){
         $(this).click(function(){
          $("#table2").find('tbody tr:nth('+(i)+') input').prop('checked',this.checked);
         });
       });
+<<<<<<< HEAD
+=======
+
+      
+>>>>>>> 744c5d75c8f0aa31adfdad2e07b9263c20e41d04
       setTimeout(function(){
         $('.richTableA').richTableA()
           $(".richTableA table").each(function(){
