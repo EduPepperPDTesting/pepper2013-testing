@@ -224,10 +224,10 @@ padding-bottom:50px !important;
   %if course:
     <section>
   %else:
-    <section class="course-content" style="padding-left:20px;">
+    <section class="course-content">
   %endif
       %if not request.GET.get('searching'):
-        <div class="people_tit" style="margin-right:20px;">People</div>
+        <div class="people_tit">People</div>
       <!--hide this div after press btn'search'----------------------------------------------------------->
       <div id="" class="people_default">
         <div style="width:341px;height:126px;margin:0 auto;">
@@ -272,11 +272,11 @@ padding-bottom:50px !important;
             We are sorry, it appears there are no results for this search. <br>Please expand your search criteria and try again.
           </div>
           %else:
-            <div class="people_tit" style="margin-right:20px;">People</div>
+            <div class="people_tit">People</div>
           %endif
           %for profile in profiles:
           %if profile['is_active']=='0':
-          <div id="" style="height:130px;margin-right:20px;" class="people_content">
+          <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <img src="/static/uploads/photos/photo_temp.png" style="" alt="photo" />
             </span>
@@ -287,7 +287,7 @@ padding-bottom:50px !important;
             </span>
           </div>            
           %else:
-          <div id="" style="height:130px;margin-right:20px;" class="people_content">
+          <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
               <a href="${reverse('dashboard',args=[profile['user_id']])}" target="_blank">
                 <img src="${reverse('user_photo',args=[profile['user_id']])}" style="" alt="photo" />
@@ -341,9 +341,13 @@ padding-bottom:50px !important;
           </div>
           %endif
           %endfor
+
+          <style type="text/css" media="screen">
+          .people_content
+            </style>
           %if len(profiles)>0:
           %if course:
-          <div class="page" style="width:850px;" >
+          <div class="page" style="width:830px;margin-right:40px;" >
             <span style="float:left;">Total Search Results: ${pager['total']}</span>
             <span style="float:right;">
               Items Per Page
@@ -366,7 +370,7 @@ padding-bottom:50px !important;
             </span>
           </div>
           %else:
-          <div class="page" style="width:850px;" >
+          <div class="page" style="width:830px;margin-right:40px;" >
             <span style="float:left;">Total Search Results: ${pager['total']}</span>
             <span style="float:right;">
               Items Per Page
