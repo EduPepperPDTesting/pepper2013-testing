@@ -17,20 +17,22 @@ from student.models import State,District,School
 <style type="text/css" media="screen">
  #btn-dashboard{display:none;}
  section.content-wrapper{background:transparent !important;}
- .list{padding:0;}
+ .list{padding:0px 5px;}
  .list li{list-style-type:none;}
- div.filter{padding:10px 0; }
+ div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
  div.filter h2{color:#f90}
- div.expand_title{color:#08a;font-size:20px;padding:10px 0;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:10px;height:11px;background: url(/static/images/configuration/arrow_up.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+ div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
  div.expand_div{display:none}
+ div.filter{}
 </style>
 
 <%namespace name='static' file='../static_content.html'/>
 
-<div>
-  <div class="main" style="margin:auto;width:1180px;padding:10px;">
+<div style="padding:20px 0">
+  
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
       User Data Import <div class="icon"></div>
     </div>
@@ -51,7 +53,7 @@ from student.models import State,District,School
             <option value="">Select School</option>
           </select>
         </div>
-        <ul class="list"">
+        <ul class="list">
           <li>
             <label>
               <input type="radio" name="import_task" value="0" checked="true"/>
@@ -72,7 +74,7 @@ from student.models import State,District,School
           </li>
         </ul>
       </form>
-      <div class="">
+      <div style="padding:10px 5px">
         <input class="form_submit" type="submit" name="" value="Import Users" />
       </div>
     </div>
