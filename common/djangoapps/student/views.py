@@ -2125,7 +2125,14 @@ Request Date: {date_time}""".format(
   ,course_name=course.display_name
   ,date_time=datetime.datetime.now()
 )
-        send_html_mail(subject, message, settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER ,[settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER,"gingerj@education2000.com"])
+        send_html_mail(subject, message, settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER ,[
+            settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER,
+            # "gingerj@education2000.com",
+            "jmclaughlin@pepperpd.com",
+            "acoffman@pepperpd.com",
+            "mmullen@pepperpd.com"
+            ])
+        
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))  
