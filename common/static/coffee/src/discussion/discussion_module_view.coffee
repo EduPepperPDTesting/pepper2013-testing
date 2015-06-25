@@ -23,8 +23,12 @@ if Backbone?
       if $(".my-course-work-content").length<1
         @toggleDiscussionBtn.hide()
         @toggleDiscussionDefaultBtn.show()
+        '''
         @toggleDiscussionDefaultBtn.addClass('shown')
         @toggleDiscussionDefaultBtn.find('.button-text').html("Show Discussion")
+        '''
+        @showed = false
+        @toggleDiscussion_default()
       else
         @toggleDiscussionBtn.show()
         @toggleDiscussionDefaultBtn.hide()
@@ -32,7 +36,7 @@ if Backbone?
         @loadPage $elem
       if $(".about-me-content").length>0
         @toggleDiscussionDefaultBtn.html('<span>&nbsp;</span>')
-        @showed = false
+        @showed = true
         @toggleDiscussion_default()
     toggleNewPost: (event) ->
       event.preventDefault()
