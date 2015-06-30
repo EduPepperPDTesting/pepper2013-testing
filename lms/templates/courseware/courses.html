@@ -119,7 +119,9 @@
       <select name="subject_id" class="form-select">
         <option value="all">All Subjects</option>
         <option value="ELA">English Language Arts</option>
+        <option value="ELL">English Language Learners</option>
         <option value="MA">Mathematics</option>
+        <option value="SC">Science</option>
         <option value="SE">Special Education</option>
         <option value="PEP">Pepper</option>
         <option value="WR">Writing and Poetry</option>
@@ -169,7 +171,8 @@
           </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Science.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>Science</span></a>
+            <!--<a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>Science</span></a>-->
+            <a href="/courses-list?subject_id=SC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Science</span></a>
           </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Special_Education.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
@@ -185,7 +188,7 @@
           </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>English Language Learners</span></a>
+            <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
           </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
