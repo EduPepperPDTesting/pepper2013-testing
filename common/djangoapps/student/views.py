@@ -2128,9 +2128,9 @@ Request Date: {date_time}""".format(
         send_html_mail(subject, message, settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER ,[
             settings.MAIL_REQUEST_COURSE_ACCESS_RECEIVER,
             # "gingerj@education2000.com",
-            "jmclaughlin@pepperpd.com",
-            "acoffman@pepperpd.com",
-            "mmullen@pepperpd.com"
+            # "acoffman@pcgus.com",
+            # "mmullen@pcgus.com",
+            # "jmclaughlin@pcgus.com"
             ])
         
     except Exception as e:
