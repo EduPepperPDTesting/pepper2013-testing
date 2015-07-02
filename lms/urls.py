@@ -4,7 +4,7 @@ from ratelimitbackend import admin
 from django.conf.urls.static import static
 
 import django.contrib.auth.views
-
+y
 # Uncomment the next two lines to enable the admin:
 if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
