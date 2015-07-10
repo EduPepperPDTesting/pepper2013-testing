@@ -174,13 +174,13 @@
 		              <b style="font-size:14px;color:#000">My Profile:</b>
 		            </div>
 					<div style="line-height:30px;"><b>State:</b>
-			          % if curr_user.profile.cohort_id:
-					  ${curr_user.profile.cohort.district.state.name}
+			          % if curr_user.profile.district_id:
+					  ${curr_user.profile.district.state.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>District:</b>
-					  % if curr_user.profile.cohort_id:
-					  <br>${curr_user.profile.cohort.district.name}
+					  % if curr_user.profile.district_id:
+					  <br>${curr_user.profile.district.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>School:</b>
@@ -369,12 +369,12 @@ Add info that you would like to share about yourself here:
                   </div> 
 
                   <div class="name_text">${profile['username']}</div>
-                   %if profile['cohort_id'] and profile['school_id']:
+                   %if profile['district_id'] and profile['school_id']:
                     <%
                     school=School.objects.get(id=profile['school_id'])
-                    cohort=Cohort.objects.get(id=profile['cohort_id'])
+                    district=District.objects.get(id=profile['district_id'])
                     %>
-                    <div class="name_text">${school.name} <br/> ${cohort.district.name}</div>
+                    <div class="name_text">${school.name} <br/> ${district.name}</div>
                     %endif
                   </span>
               </td>

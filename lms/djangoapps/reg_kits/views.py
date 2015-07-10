@@ -272,9 +272,9 @@ def filter_user(request):
     if q('school_id',True):
         data=data.filter(school_id=q('school_id'))
     if q('district_id',True):
-        data=data.filter(Q(cohort__district_id=q('district_id')))
+        data=data.filter(Q(district_id=q('district_id')))
     if q('state_id',True):
-        data=data.filter(Q(cohort__district__state_id=q('state_id')))
+        data=data.filter(Q(district__state_id=q('state_id')))
     if q('cohort_id',True):
         data=data.filter(cohort_id=q('cohort_id'))
         
@@ -309,7 +309,7 @@ def filter_user(request):
         data=data.order_by(desc+"user__email")
 
     if request.GET.get("sortby")=="district":
-        data=data.order_by(desc+"cohort__district__name")
+        data=data.order_by(desc+"district__name")
 
     if request.GET.get("sortby")=="cohort":
         data=data.order_by(desc+"cohort__code")
@@ -379,7 +379,7 @@ def download_course_permission_csv(request):
     if filtered:
       for d in data:
           row={
-              "district":attstr(d,"cohort.district.name"),
+              "district":attstr(d,"district.name"),
               "last_name":attstr(d,"user.last_name"),
               "first_name":attstr(d,"user.first_name"),
               "email":attstr(d,"user.email"),       
@@ -436,7 +436,7 @@ def download_course_permission_excel(request):
               
           d.first_name=attstr(d,"user.first_name")
           d.last_name=attstr(d,"user.last_name")
-          d.district=attstr(d,"cohort.district.name")
+          d.district=attstr(d,"district.name")
           d.email=attstr(d,"user.email")
           
           for i,k in enumerate(FIELDS):
@@ -533,6 +533,7 @@ def user_submit(request):
         profile.user_id=user.id
         profile.school_id=request.POST['school_id']
         profile.cohort_id=request.POST['cohort_id']
+        profile.district_id=request.POST['district_id']
         profile.subscription_status=request.POST['subscription_status']
         profile.save()
 
@@ -698,7 +699,7 @@ def download_user_csv(request):
             "last_name":attstr(d,"user.last_name"),
             "username":attstr(d,"user.username"),
             "email":attstr(d,"user.email"),       
-            "district":attstr(d,"cohort.district.name"),
+            "district":attstr(d,"district.name"),
             "cohort":attstr(d,"cohort.code"),
             "school":attstr(d,"school.name"),
             "invite_date":attstr(d,"invite_date"),
@@ -744,7 +745,7 @@ def download_user_excel(request):
         d.last_name=attstr(d,"user.last_name")
         d._school=attstr(d,"school.name")
         d._cohort=attstr(d,"cohort.code")
-        d._district=attstr(d,"cohort.district.name")
+        d._district=attstr(d,"district.name")
         d.email=attstr(d,"user.email")
         d._invite_date="%s" % attstr(d,"invite_date")
         d._activate_date="%s" % attstr(d,"activate_date")
@@ -839,7 +840,7 @@ def send_invite_email(request):
         wait=data[:int(count)]
         for item in wait:
             reg = Registration.objects.get(user_id=item.user_id)
-            d = {'name': "%s %s" % (item.user.first_name,item.user.last_name), 'key': reg.activation_key,'district': item.cohort.district.name}
+            d = {'name': "%s %s" % (item.user.first_name,item.user.last_name), 'key': reg.activation_key,'district': item.district.name}
             subject = render_to_string('emails/activation_email_subject.txt', d)
             subject = ''.join(subject.splitlines())
             message = render_to_string('emails/activation_email.txt', d)

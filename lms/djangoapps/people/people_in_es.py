@@ -211,13 +211,13 @@ def update_user_es_info(user):
     # else:
     #     body['people_of']=[]
 
-    body['district_id']=user.profile.cohort.district_id
+    body['district_id']=user.profile.district_id
 
     if user.last_login:
         body['last_login']=user.last_login.strftime('%Y-%m-%dT%H:%M:%S+00:00')
     
     if body['district_id']:
-        body['state_id']=user.profile.cohort.district.state_id
+        body['state_id']=user.profile.district.state_id
     else:
         body['state_id']=0
 

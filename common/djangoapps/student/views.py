@@ -670,6 +670,9 @@ def update_sso_usr(user, json, update_first_name=True):
 
     profile.cohort=cohort
 
+    #** district
+    profile.district=District.objects.get(name=sso_district)
+
     #** school
     if len(sso_user['SchoolCodes'])==1:
         school=School.objects.get(code=sso_user['SchoolCodes'][0])
