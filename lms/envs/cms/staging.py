@@ -67,6 +67,7 @@ REMINDSTORE = {
         'db': 'remind',
         'collection': 'rmodule',
         'collection_aid': 'bulletin_status',
+        'collection_status': 'rmodule_status',
         'host': MONGO_HOST,
         'port': MONGO_PORT,        
         'user':MONGO_USER,
