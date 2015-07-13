@@ -118,6 +118,7 @@ urlpatterns = (
     url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
     url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
     url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),
+    url(r'^interactive_update/del_info$', 'notifications.views.del_interactive_update', name="del_interactive_update"),
     url(r'^message_board/get_info$', 'notifications.views.get_message', name="get_message"),
     url(r'^message_board/save_info$', 'notifications.views.save_message', name="save_message"),
     url(r'^message_board/upload_image$', 'notifications.views.upload_image', name="upload_message_image"),
