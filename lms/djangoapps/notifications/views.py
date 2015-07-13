@@ -29,6 +29,7 @@ def notifications(request,user_id=None):
     
 def get_interactive_update(request):
     rs = remindstore()
+    rs.createGlobalInfo(str(request.user.id))
     count = rs.items_count(str(request.user.id))
     info  = rs.return_items(str(request.user.id))
     return utils.JsonResponse({'results': info,'count': count})
@@ -63,6 +64,11 @@ def set_interactive_update(request):
     info = rs.set_item(request.POST.get('_id'),request.POST.get('_name'),request.POST.get('_value'),request.POST.get('_user_id'),request.POST.get('_record_id'),request.POST.get('_ismultiple'))
     return utils.JsonResponse({})
 
+def del_interactive_update(request):
+    rs = remindstore()
+    info = rs.del_item(request.POST.get('_id'),request.POST.get('_record_id'),request.POST.get('_user_id'),request.POST.get('_ismultiple'))
+    return utils.JsonResponse({})
+    
 s3_interface = {
             'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', ''),
             'secret_access_key': getattr(settings, 'AWS_SECRET_ACCESS_KEY', ''),
