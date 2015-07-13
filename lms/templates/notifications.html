@@ -72,7 +72,7 @@
 		function notifications_update_init(data)
   		{   
   			notifications_update_totalNum = data.count;
-  			notifications_update_loadNum+=20;
+  			//notifications_update_loadNum+=20;
   		
 	        for(var i=0;i<data.results.length;i++)
 	        {
@@ -264,6 +264,7 @@
 　　		var windowHeight = $(this).height();
 		    if((scrollTop + windowHeight == scrollHeight) && notifications_update_isload)
 		    {
+		    	notifications_update_loadNum=$(".notification_item").length;
 		    	notifications_update(notifications_update_loadNum);
 		    }
 		})
