@@ -35,14 +35,16 @@ def import_user_submit(request):
     # p = Process(target = do_import, args = ('A',))
     # p.start()
 
+
     # subprocess.call(["/home/tahoe/tmp/test.sh"])
     p=subprocess.Popen(["/home/tahoe/tmp/test.sh"])
 
-    out, err = p.communicate() 
-    result = out.split('\n')
-    for lin in result:
-        if not lin.startswith('#'):
-            log.debug(lin)    
+    # out, err = p.communicate() 
+    # result = out.split('\n')
+    # for lin in result:
+    #     if not lin.startswith('#'):
+    #         log.debug(lin)  
+            
     
     log.debug('B')
     return HttpResponse(json.dumps({'success': True}))
