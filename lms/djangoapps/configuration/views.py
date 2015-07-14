@@ -19,37 +19,42 @@ def import_user(request):
     return render_to_response('configuration/import_user.html', {})
 
 from multiprocessing import Process
-from multiprocessing import Pool
 import logging
 log = logging.getLogger("tracking")
 
-
 import subprocess
+
+from gevent.pool import Pool,Greenlet
+from gevent import monkey; monkey.patch_socket()
+
+# Stackless
+
+from greenlet import greenlet
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
-    # from gevent import monkey
-    # monkey.patch_all(thread=False, socket=False, select=False)
-
-    # p = Process(target = do_import, args = ('A',))
-    # p.start()
-
-
-    # subprocess.call(["/home/tahoe/tmp/test.sh"])
-    p=subprocess.Popen(["/home/tahoe/tmp/test.sh"])
-
-    # out, err = p.communicate() 
-    # result = out.split('\n')
-    # for lin in result:
-    #     if not lin.startswith('#'):
-    #         log.debug(lin)  
-            
+    # num_worker_threads=2
+    # pool = Pool(num_worker_threads)
+    # g=pool.apply_async(do_import, args=('A',))
+    # # pool.start(g)
+    # pool.join()
+    
+    g=Greenlet(do_import,'A')
+    g.start_later(2)
     
     log.debug('B')
+
     return HttpResponse(json.dumps({'success': True}))
 
-def do_import(x):
+def do_import():
+
+    from multiprocessing import Process
+    import logging
+    log = logging.getLogger("tracking")
+
+    log.debug('C')
+    
     curr=""
     while 1:
         now=time.strftime("%Y-%m-%d %X", time.localtime() )
