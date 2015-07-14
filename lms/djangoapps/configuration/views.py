@@ -24,7 +24,10 @@ import logging
 log = logging.getLogger("tracking")
 
 
+# Celery, RQ
+
 import subprocess
+import gipc
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -32,22 +35,18 @@ def import_user_submit(request):
     # from gevent import monkey
     # monkey.patch_all(thread=False, socket=False, select=False)
 
-    # p = Process(target = do_import, args = ('A',))
-    # p.start()
+    # p = gipc.start_process(target = do_import, args = ('A',))
 
-    # subprocess.call(["/home/tahoe/tmp/test.sh"])
-    p=subprocess.Popen(["/home/tahoe/tmp/test.sh"])
+    if request.method == 'POST':
+        f=request.FILES['file']
+        
+    p = Process(target = do_import, args = (f,))
+    p.start()
 
-    out, err = p.communicate() 
-    result = out.split('\n')
-    for lin in result:
-        if not lin.startswith('#'):
-            log.debug(lin)    
-    
     log.debug('B')
     return HttpResponse(json.dumps({'success': True}))
 
-def do_import(x):
+def do_import(f):
     curr=""
     while 1:
         now=time.strftime("%Y-%m-%d %X", time.localtime() )
