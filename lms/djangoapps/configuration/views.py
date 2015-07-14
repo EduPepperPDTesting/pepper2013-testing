@@ -6,24 +6,56 @@ from mitxmako.shortcuts import render_to_response
 from student.models import ResourceLibrary,StaticContent
 from collections import deque
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+import time
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
+import json
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def import_user(request):
     return render_to_response('configuration/import_user.html', {})
 
 from multiprocessing import Process
+from multiprocessing import Pool
 import logging
 log = logging.getLogger("tracking")
 
+
+import subprocess
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
-    log.debug('')
-    p = Process(target = do_import, args = ('A',))
-    p.start()
+    # from gevent import monkey
+    # monkey.patch_all(thread=False, socket=False, select=False)
+
+    # p = Process(target = do_import, args = ('A',))
+    # p.start()
+
+    # subprocess.call(["/home/tahoe/tmp/test.sh"])
+    p=subprocess.Popen(["/home/tahoe/tmp/test.sh"])
+
+    out, err = p.communicate() 
+    result = out.split('\n')
+    for lin in result:
+        if not lin.startswith('#'):
+            log.debug(lin)    
+    
     log.debug('B')
+    return HttpResponse(json.dumps({'success': True}))
 
 def do_import(x):
+    curr=""
     while 1:
-        log.debug(x)
-        pass
+        now=time.strftime("%Y-%m-%d %X", time.localtime() )
+        if now!=curr:
+            log.debug(now)
+            curr=now
+        # time.sleep(1)            
+        # log.debug(now)
 
     # message={}
     # if request.method == 'POST':

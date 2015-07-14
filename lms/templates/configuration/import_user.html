@@ -12,7 +12,15 @@ from student.models import State,District,School
 
 <%inherit file="../main.html" />
 
+
+
+    <script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
+
+
+
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+
+
 
 <style type="text/css" media="screen">
  #btn-dashboard{display:none;}
@@ -28,10 +36,10 @@ from student.models import State,District,School
  div.filter{}
 </style>
 
-<%namespace name='static' file='../static_content.html'/>
+
+
 
 <div style="padding:20px 0">
-  
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
       User Data Import <div class="icon"></div>
@@ -53,6 +61,12 @@ from student.models import State,District,School
             <option value="">Select School</option>
           </select>
         </div>
+
+
+        <div id="">
+          <input type="file" name="user_csv" value="" />
+        </div>
+        
         <ul class="list">
           <li>
             <label>
@@ -73,17 +87,19 @@ from student.models import State,District,School
             </label>
           </li>
         </ul>
+        <div style="padding:10px 5px">
+          <input class="form_submit" type="submit" name="" value="Import Users" />
+        </div>
       </form>
-      <div style="padding:10px 5px">
-        <input class="form_submit" type="submit" name="" value="Import Users" />
-      </div>
     </div>
   </div>
 </div>
+
+
 <script type="text/javascript">
-  var form=$("#filter_form");
+  var $form=$("#filter_form");
   // change district dropdown
-  form.find("select[name=district_id]").change(function(){
+  $form.find("select[name=district_id]").change(function(){
     var district_id=$(this).val();
     if(district_id){
       dropSchool(form,'',district_id);
@@ -93,12 +109,12 @@ from student.models import State,District,School
     }
   });
   // change state dropdown
-  form.find("select[name=state_id]").change(function(a){
+  $form.find("select[name=state_id]").change(function(a){
     var district_id="${request.GET.get('district_id','')}"
     var state_id=$(this).val();
-    clearOption(form.find("select[name=district_id]"));
-    clearOption(form.find("select[name=school_id]"));
-    dropDistrict(form,state_id,null,true);
+    clearOption($form.find("select[name=district_id]"));
+    clearOption($form.find("select[name=school_id]"));
+    dropDistrict($form,state_id,null,true);
   });
   $(".expand_title").click(function(){
     var $div=$(this).next("div.expand_div");
@@ -109,5 +125,15 @@ from student.models import State,District,School
       $div.show();
       $(this).addClass('expand_title_expanded');
     }
+  });
+</script>
+
+<script type="text/javascript">
+  $("#filter_form").submit(function(){
+    var self=this;
+    $.post("/configuration/import_user_submit/",{csrfmiddlewaretoken:"${csrf_token}"},function(r){
+      alert(r)
+    });
+    return false;
   });
 </script>
