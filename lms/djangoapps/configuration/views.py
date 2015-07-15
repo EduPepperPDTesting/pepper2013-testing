@@ -11,6 +11,18 @@ import time
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 
+
+
+from threading import Thread
+
+def postpone(function):
+    def decorator(*args, **kwargs):
+        t = Thread(target = function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    return decorator
+
+
 import json
 
 @login_required
@@ -34,24 +46,11 @@ from greenlet import greenlet
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
-    # num_worker_threads=2
-    # pool = Pool(num_worker_threads)
-    # g=pool.apply_async(do_import, args=('A',))
-    # # pool.start(g)
-    # pool.join()
-    
-    g=Greenlet(do_import,'A')
-    g.start_later(2)
-    
-    log.debug('B')
-
+    do_import()
     return HttpResponse(json.dumps({'success': True}))
 
+@postpone
 def do_import():
-
-    from multiprocessing import Process
-    import logging
-    log = logging.getLogger("tracking")
 
     log.debug('C')
     
