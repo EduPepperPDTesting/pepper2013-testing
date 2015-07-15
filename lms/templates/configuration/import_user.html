@@ -14,7 +14,7 @@ from student.models import State,District,School
 
 
 
-    <script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
 
 
 
@@ -35,9 +35,6 @@ from student.models import State,District,School
  div.expand_div{display:none}
  div.filter{}
 </style>
-
-
-
 
 <div style="padding:20px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
@@ -62,9 +59,8 @@ from student.models import State,District,School
           </select>
         </div>
 
-
         <div id="">
-          <input type="file" name="user_csv" value="" />
+          <input type="file" id="csv" name="csv" value="" />
         </div>
         
         <ul class="list">
@@ -94,7 +90,6 @@ from student.models import State,District,School
     </div>
   </div>
 </div>
-
 
 <script type="text/javascript">
   var $form=$("#filter_form");
@@ -130,10 +125,55 @@ from student.models import State,District,School
 
 <script type="text/javascript">
   $("#filter_form").submit(function(){
-    var self=this;
-    $.post("/configuration/import_user_submit/",{csrfmiddlewaretoken:"${csrf_token}"},function(r){
-      alert(r)
-    });
+    
+    /* var self=this;
+       $.post("/configuration/import_user_submit/",{csrfmiddlewaretoken:"${csrf_token}"},function(r){
+       alert(r)
+       });
+     */
+
+
+    import_submit();
+    
     return false;
+
+
+
+
+
+
+    
   });
+
+
+  function import_submit(){
+    var fd = new FormData();    
+    fd.append( 'file', $("input#csv")[0].files[0]);
+
+    $.ajax({
+      url: "${reverse('configuration_import_user_submit')}",
+      data: fd,
+      processData: false,
+      contentType: false,
+      type: 'POST',
+
+      //Before 1.5.1 you had to do this:
+      /* beforeSend: function (x) {
+         if (x && x.overrideMimeType) {
+         x.overrideMimeType("multipart/form-data");
+         }
+         }, */
+      
+      enctype: 'multipart/form-data',
+      mimeType: 'multipart/form-data',
+      
+      success: function(data){
+        alert(data);
+      }
+    });
+
+  }
+
+  
+
 </script>
