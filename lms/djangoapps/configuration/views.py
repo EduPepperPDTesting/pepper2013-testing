@@ -59,19 +59,19 @@ def do_import_user(file):
     
     #** ==================== importing
     # message={}
-    try:
-        count_success=0
-        r=csv.reader(file,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        rl = []
-        rl.extend(r)
+    count_success=0
+    r=csv.reader(file,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    rl = []
+    rl.extend(r)
 
-        #** import into cohort
-        # cohort_id=request.POST.get("cohort_id")
-        # cohort=Cohort.objects.get(id=cohort_id)
-        # if cohort.licences < UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=cohort_id).count() + len(rl):
-        #     raise Exception("Licences limit exceeded")
-        
-        for line in rl:
+    #** import into cohort
+    # cohort_id=request.POST.get("cohort_id")
+    # cohort=Cohort.objects.get(id=cohort_id)
+    # if cohort.licences < UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=cohort_id).count() + len(rl):
+    #     raise Exception("Licences limit exceeded")
+
+    for line in rl:
+        try:
             validate_user_cvs_line(line)
 
             email=line[USER_CSV_COLS.index('email')]
@@ -111,10 +111,10 @@ def do_import_user(file):
             #** count success
             count_success=count_success+1
             
-        db.transaction.commit()
-    except Exception as e:
-        db.transaction.rollback()
-        log.debug("import error: %s" % e)
+            db.transaction.commit()
+        except Exception as e:
+            db.transaction.rollback()
+            log.debug("import error: %s" % e)
 
 def validate_user_cvs_line(line):
     #** check field count
