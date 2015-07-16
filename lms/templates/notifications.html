@@ -59,6 +59,8 @@
 		var notifications_update_loadNum = 0;
 		var notifications_update_totalNum = 0;
 		var notifications_update_currDelItem={};
+        var notifications_update_load_height=271;
+        var notifications_update_window_top=0;
 		notifications_update(notifications_update_loadNum);
 		function notifications_update(skip)
 	    {
@@ -127,11 +129,11 @@
 	       
 	      });
 	      element.find(".delBtn").click(function(){
+            notifications_update_window_top=$(window).scrollTop();
 	        $("#del_notification").show();
 	        $("#lean_overlay").show();
 	        notifications_update_currDelItem.ele=$(this).parent().parent().parent().parent();
 	        notifications_update_currDelItem.data=data;
-
 	      });
 	      notifications_update_new_day = data.date;
 	   }
@@ -237,6 +239,13 @@
 	    	   		notifications_update_currDelItem={};
 	    	   		$("#del_notification").hide();
 					$("#lean_overlay").hide();
+                    $(window).scrollTop(notifications_update_window_top);
+                    if($(".wrapper-footer").offset().top-$(".notifications_container").height()>notifications_update_load_height)
+                    {
+                        notifications_update_loadNum=$(".notification_item").length;
+                        notifications_update(notifications_update_loadNum);
+                    }
+
     	    });
 		}
 		function notifications_update_getActivateStyle(data)
@@ -292,6 +301,7 @@
     	$("#del_notification").find(".close-modal").click(function(){
 			$("#del_notification").hide();
 			$("#lean_overlay").hide();
+            $(window).scrollTop(notifications_update_window_top);
   		})
   		$(".notification_del_button").click(function(){
   			notifications_update_delItem(notifications_update_currDelItem);
