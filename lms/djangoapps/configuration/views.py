@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
-from mitxmako.shortcuts import render_to_response
+from mitxmako.shortcuts import render_to_response, render_to_string
 from student.models import ResourceLibrary,StaticContent
 from collections import deque
 from django.contrib.auth.decorators import login_required
@@ -19,7 +19,9 @@ import json
 import time
 import logging
 import csv
-from multiprocessing import Process
+
+import multiprocessing
+from multiprocessing import Process,Queue,Pipe
 from django.core.validators import validate_email, validate_slug, ValidationError
 
 log = logging.getLogger("tracking")
@@ -34,28 +36,62 @@ def postpone(function):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user(request):
+    from django.contrib.sessions.models import Session
     return render_to_response('configuration/import_user.html', {})
+
+import gevent
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
     if request.method == 'POST':
-        do_import_user(request.FILES['file'])
+        task_mark=random_mark(20)
+        output_pipe,input_pipe=multiprocessing.Pipe()
+        request.session['task']=''
+
+        gevent.sleep(0.1)
+        do_import_user(request.FILES.get('file'),request.session.session_key)
+        
         return HttpResponse(json.dumps({'success': True}))
     else:
         return HttpResponse('')
 
 USER_CSV_COLS=('email',)
 
+def random_mark(length):
+    assert(length>0)
+    return "".join(random.sample('abcdefg&#%^*1234567890',length))
+
+def task_status(request):
+    task=request.session.get('task')
+    if task:
+        j=json.dumps({'task':task}) #output_pipe.recv()
+    else:
+        j=json.dumps({'task':'no'})
+    return HttpResponse(j)
+
 @postpone
-def do_import_user(file):
+def do_import_user(file,session_key):
+    from django.contrib.sessions.models import Session
+    
+    # http://stackoverflow.com/questions/8242837/django-multiprocessing-and-database-connections
+    from django.db import connection 
+    connection.close()
+    
     #** ==================== testing 
-    # curr=""
-    # while 1:
-    #     now=time.strftime("%Y-%m-%d %X", time.localtime() )
-    #     if now!=curr:
-    #         log.debug(now)
-    #         curr=now
+    curr=""
+    while 1:
+        now=time.strftime("%Y-%m-%d %X", time.localtime())
+        if now!=curr:
+            session = Session.objects.get(session_key=session_key)
+            data=session.get_decoded()
+            
+            data['task']=now
+            session.session_data =  Session.objects.encode(data)
+            session.save()
+    
+            log.debug(now)
+            curr=now
     
     #** ==================== importing
     # message={}
@@ -77,7 +113,7 @@ def do_import_user(file):
             email=line[USER_CSV_COLS.index('email')]
 
             #** generating origin username
-            username="".join(random.sample('abcdefg&#%^*1234567890',20))
+            username=random_mark(20)
 
             #** user
             user = User(username=username, email=email, is_active=False)
@@ -101,11 +137,12 @@ def do_import_user(file):
             cea.save()
 
             #** email
-            # reg = Registration.objects.get(user=user)
-            # d = {'name': profile.name, 'key': reg.activation_key}
+            reg = Registration.objects.get(user=user)
+            # d = {'name': "%s %s" % (item.user.first_name,item.user.last_name),
+            #      'key': reg.activation_key,'district': item.district.name}
             # subject = render_to_string('emails/activation_email_subject.txt', d)
             # subject = ''.join(subject.splitlines())
-            # message = render_to_string('emails/activation_emailh.txt', d)
+            # body = render_to_string('emails/activation_emailh.txt', d)
             # send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
 
             #** count success
