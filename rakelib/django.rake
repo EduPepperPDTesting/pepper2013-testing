@@ -9,18 +9,18 @@ task :predjango => :install_python_prereqs do
 end
 
 
-task :fastlms do
-    # this is >2 times faster that rake [lms], and does not need web, good for local dev
-    sh("./manage.py lms runserver --traceback")
-end
+#task :fastlms do
+#    # this is >2 times faster that rake [lms], and does not need web, good for local dev
+#    sh("./manage.py lms runserver --traceback")
+#end
 
 # Start :system locally with the specified :env and :options.
 #
 # This task should be invoked via the wrapper below, so we don't
 # include a description to keep it from showing up in rake -T.
-task :runserver, [:system, :env, :options] => [:install_prereqs, 'assets:_watch', :predjango] do |t, args|
-    sh(django_admin(args.system, args.env, 'runserver', args.options))
-end
+#task :runserver, [:system, :env, :options] => [:install_prereqs, 'assets:_watch', :predjango] do |t, args|
+#    sh(django_admin(args.system, args.env, 'runserver', args.options))
+#end
 
 [:lms, :cms].each do |system|
     desc <<-desc
@@ -29,7 +29,7 @@ end
         desc
     task system, [:env, :options] do |t, args|
         args.with_defaults(:env => 'dev', :options => default_options[system])
-        Rake::Task[:runserver].invoke(system, args.env, args.options)
+        #Rake::Task[:runserver].invoke(system, args.env, args.options)
     end
 
     desc "Start #{system} Celery worker"
@@ -55,7 +55,7 @@ task :resetdb, [:env] do |t, args|
     sh(django_admin(:lms, args.env, 'migrate'))
 end
 
-task :runserver => :lms
+#task :runserver => :lms
 
 desc "Run django-admin <action> against the specified system and environment"
 task "django-admin", [:action, :system, :env, :options] do |t, args|
