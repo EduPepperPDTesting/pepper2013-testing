@@ -24,7 +24,16 @@ import multiprocessing
 from multiprocessing import Process,Queue,Pipe
 from django.core.validators import validate_email, validate_slug, ValidationError
 
+import gevent
+from django import db
+from models import *
+from StringIO import StringIO
+from student.models import Transaction,District,Cohort,School,State
+from mail import send_html_mail
+
 log = logging.getLogger("tracking")
+
+from gevent import monkey
 
 def postpone(function):
     def decorator(*args, **kwargs):
@@ -39,20 +48,40 @@ def import_user(request):
     from django.contrib.sessions.models import Session
     return render_to_response('configuration/import_user.html', {})
 
-import gevent
-
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
+    # monkey.patch_all(socket=False)
+    
     if request.method == 'POST':
-        task_mark=random_mark(20)
-        output_pipe,input_pipe=multiprocessing.Pipe()
-        request.session['task']=''
+        district_id=request.POST.get("district_id")
 
-        gevent.sleep(0.1)
-        do_import_user(request.FILES.get('file'),request.session.session_key)
+        # output_pipe,input_pipe=multiprocessing.Pipe()
+        # request.session['task']=''
+
+        #** readlines from csv
+        file=request.FILES.get('file')
+        r=csv.reader(file, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        rl = []
+        rl.extend(r)
+
+        #** create task
+        task=ImportTask()
+        task.filename=file.name
+        # task.total_lines=100
+        task.total_lines=len(rl);
+        task.save()
+        db.transaction.commit()
+
+        #** close connection before import
+        # http://stackoverflow.com/questions/8242837/django-multiprocessing-and-database-connections
+        from django.db import connection 
+        connection.close()
+
+        #** begin import
+        do_import_user(task.id, rl, district_id, request.POST.get('send_registration_email')=='true')
         
-        return HttpResponse(json.dumps({'success': True}))
+        return HttpResponse(json.dumps({'success': True,'taskId':task.id}))
     else:
         return HttpResponse('')
 
@@ -63,50 +92,46 @@ def random_mark(length):
     return "".join(random.sample('abcdefg&#%^*1234567890',length))
 
 def task_status(request):
-    task=request.session.get('task')
+    task=ImportTask.objects.get(id=request.POST.get('taskId'))
+    
     if task:
-        j=json.dumps({'task':task}) #output_pipe.recv()
+        j=json.dumps({'task':task.filename,'precent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}) #output_pipe.recv()
     else:
         j=json.dumps({'task':'no'})
     return HttpResponse(j)
 
 @postpone
-def do_import_user(file,session_key):
-    from django.contrib.sessions.models import Session
-    
-    # http://stackoverflow.com/questions/8242837/django-multiprocessing-and-database-connections
-    from django.db import connection 
-    connection.close()
-    
+def do_import_user(taskid,lines,district_id,send_registration_email):
+    gevent.sleep(0)
+
     #** ==================== testing 
     curr=""
-    while 1:
-        now=time.strftime("%Y-%m-%d %X", time.localtime())
-        if now!=curr:
-            session = Session.objects.get(session_key=session_key)
-            data=session.get_decoded()
+    process=0
+    task=ImportTask.objects.get(id=taskid);
+
+    # while 1:
+    #     now=time.strftime("%Y-%m-%d %X", time.localtime())
+    #     if now!=curr:
+    #         process=process+1
+
+    #         task.filename=now
+    #         task.process_lines=process
+    #         task.save()
+    #         db.transaction.commit()
             
-            data['task']=now
-            session.session_data =  Session.objects.encode(data)
-            session.save()
-    
-            log.debug(now)
-            curr=now
+    #         log.debug(now)
+    #         curr=now
     
     #** ==================== importing
-    # message={}
     count_success=0
-    r=csv.reader(file,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-    rl = []
-    rl.extend(r)
-
-    #** import into cohort
-    # cohort_id=request.POST.get("cohort_id")
-    # cohort=Cohort.objects.get(id=cohort_id)
-    # if cohort.licences < UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=cohort_id).count() + len(rl):
-    #     raise Exception("Licences limit exceeded")
-
-    for line in rl:
+ 
+    #** import into district
+    district=District.objects.get(id=district_id)
+    for i,line in enumerate(lines):
+        #** record lines process
+        task.process_lines=i+1
+        task.save()
+        db.transaction.commit()
         try:
             validate_user_cvs_line(line)
 
@@ -126,7 +151,7 @@ def do_import_user(file,session_key):
 
             #** profile
             profile=UserProfile(user=user)
-            # profile.cohort_id=cohort_id
+            profile.district=district
             profile.subscription_status="Imported"
             profile.save()
 
@@ -136,22 +161,53 @@ def do_import_user(file,session_key):
             cea.auto_enroll = True
             cea.save()
 
-            #** email
-            reg = Registration.objects.get(user=user)
-            # d = {'name': "%s %s" % (item.user.first_name,item.user.last_name),
-            #      'key': reg.activation_key,'district': item.district.name}
-            # subject = render_to_string('emails/activation_email_subject.txt', d)
-            # subject = ''.join(subject.splitlines())
-            # body = render_to_string('emails/activation_emailh.txt', d)
-            # send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
-
+            #** send activation email if required
+            if send_registration_email:
+                try:
+                    reg = Registration.objects.get(user=user)
+                    props = {'key': reg.activation_key, 'district': district.name}
+                    subject = render_to_string('emails/activation_email_subject.txt', props)
+                    subject = ''.join(subject.splitlines())
+                    body = render_to_string('emails/activation_email.txt', props)
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email,'mailfcl@126.com'])
+                except Exception as e:
+                    raise Exception("Faild to send registration email")
+                
             #** count success
             count_success=count_success+1
-            
+            task.success_lines=count_success
+            task.save()
+                            
             db.transaction.commit()
         except Exception as e:
             db.transaction.rollback()
+
+            error=ImportTaskError()
+            error.line=i+1
+            error.error="%s" % e
+            error.import_task=task;
+            error.save()
+            db.transaction.commit()
+            
             log.debug("import error: %s" % e)
+
+    #** post process
+    errors=ImportTaskError.objects.filter(import_task=task)
+    if len(errors):
+        FIELDS = ["line", "error"]
+        TITLES = ["Line", "Error"]
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=FIELDS)
+        writer.writerow(dict(zip(FIELDS, TITLES)))
+        for d in errors:
+            row={"line":d.line,"error":d.error}
+            writer.writerow(row)
+        output.seek(0)
+        attachs=[{'filename':'error.csv','minetype':'text/csv','data':output.read()}]
+        send_html_mail("User Data Import Error Report",
+                       "Error occored through importing, filename: %s" % task.filename,
+                       settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
+        output.close()
 
 def validate_user_cvs_line(line):
     #** check field count

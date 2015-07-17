@@ -12,7 +12,6 @@ from student.models import State,District,School
 
 <%inherit file="../main.html" />
 
-
 <script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
@@ -28,125 +27,6 @@ from student.models import State,District,School
  div.expand_div{display:none;}
  div.filter{}
 </style>
-<div style="padding:20px 0">
-  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
-    <div class="expand_title expand_title_collapse">
-      User Data Import <div class="icon"></div>
-    </div>
-    <div class="expand_div">
-      <form method="" id="filter_form" action="">
-        <div class="filter">
-          <h2>Filter</h2>
-          <select id="" name="state_id" autocomplete="off">
-            <option value="">Select State</option>
-            %for item in State.objects.all().order_by('name'):
-            <option value="${item.id}">${item.name}</option>
-            %endfor
-          </select>
-          <select id="" name="district_id" autocomplete="off">
-            <option value="">Select District</option>
-          </select>
-          <select id="" name="school_id" autocomplete="off">
-            <option value="">Select School</option>
-          </select>
-        </div>
-        <ul class="list">
-          <li>
-            <label>
-              <input type="checkbox" name="send_registration_email" value="1" />
-              Send registration emails to imported users
-            </label>
-          </li>
-        </ul>
-        <div style="padding:7px;">
-          CSV File: <input type="file" id="csv" name="csv" value="" />
-        </div>
-        <div style="padding:10px 5px">
-          <input class="form_submit" type="submit" name="" value="Import Users" />
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<script type="text/javascript">
-  var $form=$("#filter_form");
-  // change district dropdown
-  $form.find("select[name=district_id]").change(function(){
-    var district_id=$(this).val();
-    if(district_id){
-      dropSchool($form,'',district_id);
-    }else{
-      var drop=form.find("select[name=school_id]");
-      clearOption(drop);
-    }
-  });
-  // change state dropdown
-  $form.find("select[name=state_id]").change(function(a){
-    var district_id="${request.GET.get('district_id','')}"
-    var state_id=$(this).val();
-    clearOption($form.find("select[name=district_id]"));
-    clearOption($form.find("select[name=school_id]"));
-    dropDistrict($form,state_id,null,true);
-  });
-  $(".expand_title").click(function(){
-    var $div=$(this).next("div.expand_div");
-    if($div.is(':visible')){
-      $div.hide();
-      $(this).removeClass('expand_title_expanded');
-    }else{
-      $div.show();
-      $(this).addClass('expand_title_expanded');
-    }
-  });
-</script>
-<script type="text/javascript">
-  $("#filter_form").submit(function(){
-    // input checking
-    if(!$(this.state_id).val() || !$(this.district_id).val()){
-      new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
-      return false;
-    }
-    // submit
-    var fd = new FormData();    
-    fd.append( 'file', $("input#csv")[0].files[0]);
-    $.ajax({
-      url: "${reverse('configuration_import_user_submit')}",
-      data: fd,
-      processData: false,
-      contentType: false,
-      type: 'POST',
-      //Before 1.5.1 you had to do this:
-      /* beforeSend: function (x) {
-         if (x && x.overrideMimeType) {
-         x.overrideMimeType("multipart/form-data");
-         }
-         }, */
-      enctype: 'multipart/form-data',
-      mimeType: 'multipart/form-data',
-      success: function(data){
-        alert(data.task);
-      }
-    });
-    var dialog=new Dialog($('#dialog'));
-    
-    dialog.show('Info',"Importing Users...<div class='progressbar'><div class='progressbar_flow'></div></div>");
-    
-    (function getStatus(){
-      setTimeout(function(){
-        $.post("${reverse('configuration_import_task_status')}",{},function(r){
-          dialog.setTitle(r.task);
-          getStatus();
-        });
-      },1000);
-
-    })();
-
-
-    
-    return false;
-  });
-
-</script>
 <style type="text/css" media="screen">
  .lean_overlay {
    background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
@@ -210,9 +90,49 @@ from student.models import State,District,School
    height:30px;
    background:#2a5;
    border-radius:5px;
-   width:20px;
+   width:0px;
  } 
 </style>
+<div style="padding:20px 0">
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+    <div class="expand_title expand_title_collapse">
+      User Data Import <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="">
+        <div class="filter">
+          <h2>Filter</h2>
+          <select id="" name="state_id" autocomplete="off">
+            <option value="">Select State</option>
+            %for item in State.objects.all().order_by('name'):
+            <option value="${item.id}">${item.name}</option>
+            %endfor
+          </select>
+          <select id="" name="district_id" autocomplete="off">
+            <option value="">Select District</option>
+          </select>
+          <select id="" name="school_id" autocomplete="off">
+            <option value="">Select School</option>
+          </select>
+        </div>
+        <ul class="list">
+          <li>
+            <label>
+              <input type="checkbox" name="send_registration_email" value="true" />
+              Send registration emails to imported users
+            </label>
+          </li>
+        </ul>
+        <div style="padding:7px;">
+          CSV File: <input type="file" name="file" value="" />
+        </div>
+        <div style="padding:10px 5px">
+          <input class="form_submit" type="submit" name="" value="Import Users" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
@@ -222,6 +142,106 @@ from student.models import State,District,School
     <div class="content"></div>
   </div>
 </div>
+<script type="text/javascript">
+  var $form=$("#filter_form");
+  // change district dropdown
+  $form.find("select[name=district_id]").change(function(){
+    var district_id=$(this).val();
+    if(district_id){
+      dropSchool($form,'',district_id);
+    }else{
+      var drop=form.find("select[name=school_id]");
+      clearOption(drop);
+    }
+  });
+  // change state dropdown
+  $form.find("select[name=state_id]").change(function(a){
+    var district_id="${request.GET.get('district_id','')}"
+    var state_id=$(this).val();
+    clearOption($form.find("select[name=district_id]"));
+    clearOption($form.find("select[name=school_id]"));
+    dropDistrict($form,state_id,null,true);
+  });
+  $(".expand_title").click(function(){
+    var $div=$(this).next("div.expand_div");
+    if($div.is(':visible')){
+      $div.hide();
+      $(this).removeClass('expand_title_expanded');
+    }else{
+      $div.show();
+      $(this).addClass('expand_title_expanded');
+    }
+  });
+</script>
+<script type="text/javascript">
+  var userData={}
+  userData.$form=$("#filter_form");
+  userData.submit=function(form){
+    var self=this
+    var form=this.$form[0];
+
+    
+    // input checking
+    var state_id=$(form.state_id).val();
+    var district_id=$(form.district_id).val();
+    //var send_registration_email=$(form.send_registration_email).val();
+    if(!state_id || !district_id){
+      new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
+      return false;
+    }
+    // submit
+    var fd = new FormData(form);    
+    /* fd.append( 'file', form.file.files[0]);
+       fd.append( 'state_id', state_id);
+       fd.append( 'district_id', district_id);
+       fd.append( 'send_registration_email', send_registration_email); */
+    $.ajax({
+      url: "${reverse('configuration_import_user_submit')}",
+      data: fd,
+      processData: false,
+      contentType: false,
+      type: 'POST',
+      //Before 1.5.1 you had to do this:
+      /* beforeSend: function (x) {
+         if (x && x.overrideMimeType) {
+         x.overrideMimeType("multipart/form-data");
+         }
+         }, */
+      enctype: 'multipart/form-data',
+      mimeType: 'multipart/form-data',
+      success: function(data){
+        self.renderProgress(data.taskId);
+      }
+    });
+  }
+  userData.renderProgress=function(taskId){
+    var dialog=new Dialog($('#dialog'));
+    dialog.show('User Data Import',"<span class='progressinfo'></span> \
+<div class='progressbar'><div class='progressbar_flow'></div></div>");
+    (function getStatus(){
+      setTimeout(function(){
+        $.post("${reverse('configuration_import_task_status')}",{taskId:taskId},function(r){
+          dialog.setTitle();
+          $(".modal .progressbar_flow").css('width',r.precent+'%');
+          if(r.precent<100){
+            $(".modal .progressinfo").html('importing users...<br>'+Math.round(r.precent)+'%');
+            getStatus();
+          }else{
+           dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Import Complete</p><br>If there were any errors, you will receive them in an email.");
+          }
+        });
+      },1000);
+    })();
+  }
+  userData.bindEvents=function(){
+    var self=this;
+    this.$form.submit(function(){
+      self.submit();
+      return false;
+    });
+  }
+  userData.bindEvents();
+</script>
 <script type="text/javascript">
   function Dialog(el){
     this.$dialog=$(el);
