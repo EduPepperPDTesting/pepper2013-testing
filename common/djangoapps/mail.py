@@ -10,9 +10,12 @@ def strip_tags(html):
     parse.close()
     return "".join(result)
 
-def send_html_mail(subject, html, fr, to):
+def send_html_mail(subject, html, fr, to, attachs=None):
     from django.core.mail import EmailMultiAlternatives
     text=strip_tags(html)
     msg = EmailMultiAlternatives(subject, text, fr, to)
     msg.attach_alternative(html, "text/html")
+    if attachs:
+        for a in attachs:
+            msg.attach(a['filename'], a.data, a.minetype)
     msg.send()
