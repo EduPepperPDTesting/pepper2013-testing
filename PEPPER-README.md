@@ -5,6 +5,8 @@ This version of Pepper has tweaks to allow it to install cleanly with some newer
 
 As such, it requires a different set of steps to get it running in a local instance. Below, the steps will be laid out as gleaned from the vagrant script that we set up.
 
+All steps in this document should be carried out as a regular user with sudo privileges. It might work if installed as root or some other super user, but it has not been tested.
+
 LMS and CMS
 ===========
 
@@ -272,3 +274,118 @@ nohup ./manage.py lms runserver 0.0.0.0:8111 > /dev/null 2>&1 &
 nohup ./manage.py cms runserver 0.0.0.0:8222 > /dev/null 2>&1 &
 ```
 
+ORA
+===
+
+Get the Code
+------------
+
+The version of ORA we are using is a bit older, so the easiest way to get the code is to copy it from Dev:
+```
+cd /opt/edx
+scp -r tahoe@69.175.21.194:~/edx_all/edx-ora ./
+```
+
+Setup
+-----
+
+We create a virtual environment for it:
+```
+cd edx-ora
+mkvirtualenv edx-ora
+```
+
+Now we install all the requirements:
+```
+sed -i s/1\.2\.4/1.2.5/g base_requirements.txt
+bash install_system_req.sh
+pip install -r requirements.txt
+```
+
+The first line above updates the MySQL python package to 1.2.5 from 1.2.4, as the old version is incompatible with newer versions of pip.
+
+No we get the DB set up:
+```
+mysql -u root -p
+CREATE DATABASE essay;
+GRANT ALL PRIVILEGES ON essay.* TO 'pepper'@'localhost';
+```
+
+And populate the DB:
+```
+./manage.py syncdb --settings=edx_ora.settings --pythonpath=.
+./manage.py migrate --settings=edx_ora.settings --pythonpath=.
+```
+
+Get ORA Up and Running
+----------------------
+
+```
+nohup ./manage.py runserver 127.0.0.1:3033 --settings=edx_ora.settings --pythonpath=. > /dev/null 2>&1 &
+```
+
+Discussions
+===========
+
+Install elasticsearch
+---------------------
+
+```
+cd ~
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.3.4.deb
+sudo dpkg -i elasticsearch-1.3.4.deb
+sudo update-rc.d elasticsearch defaults 95 10
+sudo service elasticsearch start
+```
+
+Get the Code
+------------
+
+```
+cd /opt/edx
+git clone https://github.com/edx/cs_comments_service.git
+```
+
+Setup
+-----
+
+First we set up the RVM:
+```
+rvm install ruby-1.9.3-p551
+rvm rvmrc warning ignore /opt/edx/cs_comments_service/.rvmrc
+cd cs_comments_service/
+gem install criteria
+rvm use 1.9.3-p551
+rvm gemset create 'cs_comments_service'
+rvm use 1.9.3-p551@cs_comments_service
+bundle install
+```
+
+Then we get the DB set up:
+```
+bundle exec rake db:init
+bundle exec rake db:seed
+```
+
+Get Discussions Up and Running
+------------------------------
+
+```
+nohup ruby app.rb > /dev/null 2>&1 &
+```
+
+Sync User Info
+--------------
+
+```
+workon edx-platform
+cd /opt/edx/edx-platform
+./manage.py lms --settings cms.dev sync_user_info
+```
+
+Install elasticsearch head
+--------------------------
+
+```
+sudo /usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
+```
