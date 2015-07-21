@@ -45,6 +45,13 @@ def postpone(function):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user(request):
+    # reg = Registration.objects.get(user=request.user)
+    # props = {'key': reg.activation_key, 'district': request.user.profile.district.name}
+    # subject = render_to_string('emails/activation_email_subject.txt', props)
+    # subject = ''.join(subject.splitlines())
+    # body = render_to_string('emails/activation_email.txt', props)
+    # send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
+
     from django.contrib.sessions.models import Session
     return render_to_response('configuration/import_user.html', {})
 
@@ -55,6 +62,7 @@ def import_user_submit(request):
     
     if request.method == 'POST':
         district_id=request.POST.get("district_id")
+        school_id=request.POST.get("school_id")
 
         # output_pipe,input_pipe=multiprocessing.Pipe()
         # request.session['task']=''
@@ -79,7 +87,7 @@ def import_user_submit(request):
         connection.close()
 
         #** begin import
-        do_import_user(task.id, rl, district_id, request.POST.get('send_registration_email')=='true')
+        do_import_user(task.id, rl, district_id, school_id, request.POST.get('send_registration_email')=='true')
         
         return HttpResponse(json.dumps({'success': True,'taskId':task.id}))
     else:
@@ -101,7 +109,7 @@ def task_status(request):
     return HttpResponse(j)
 
 @postpone
-def do_import_user(taskid,lines,district_id,send_registration_email):
+def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
     gevent.sleep(0)
 
     #** ==================== testing 
@@ -153,6 +161,8 @@ def do_import_user(taskid,lines,district_id,send_registration_email):
             profile=UserProfile(user=user)
             profile.district=district
             profile.subscription_status="Imported"
+            if school_id:
+                profile.school=School.objects.get(id=school_id)
             profile.save()
 
             #** course enroll
@@ -169,7 +179,7 @@ def do_import_user(taskid,lines,district_id,send_registration_email):
                     subject = render_to_string('emails/activation_email_subject.txt', props)
                     subject = ''.join(subject.splitlines())
                     body = render_to_string('emails/activation_email.txt', props)
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email,'mailfcl@126.com'])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com'])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
                 
@@ -205,8 +215,8 @@ def do_import_user(taskid,lines,district_id,send_registration_email):
         output.seek(0)
         attachs=[{'filename':'error.csv','minetype':'text/csv','data':output.read()}]
         send_html_mail("User Data Import Error Report",
-                       "Error occored through importing, filename: %s" % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
+                       "Error occored through importing %s, see attachment." % task.filename,
+                       settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com'], attachs)
         output.close()
 
 def validate_user_cvs_line(line):

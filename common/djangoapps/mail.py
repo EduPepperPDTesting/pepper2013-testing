@@ -17,5 +17,5 @@ def send_html_mail(subject, html, fr, to, attachs=None):
     msg.attach_alternative(html, "text/html")
     if attachs:
         for a in attachs:
-            msg.attach(a['filename'], a.data, a.minetype)
+            msg.attach(a['filename'], a['data'], a['minetype'])
     msg.send()
