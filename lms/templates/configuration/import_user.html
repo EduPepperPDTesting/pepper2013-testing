@@ -125,6 +125,7 @@ from student.models import State,District,School
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
+          <div>CSV file should contain the following column (email adrress).</div>
         </div>
         <div style="padding:10px 5px">
           <input class="form_submit" type="submit" name="" value="Import Users" />
@@ -179,34 +180,25 @@ from student.models import State,District,School
   userData.submit=function(form){
     var self=this
     var form=this.$form[0];
-
-    
     // input checking
     var state_id=$(form.state_id).val();
     var district_id=$(form.district_id).val();
-    //var send_registration_email=$(form.send_registration_email).val();
     if(!state_id || !district_id){
       new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
       return false;
     }
+    if(!((/\.csv/i).test(form.file.value))){
+      new Dialog($('#dialog')).show('Error','Please select a CSV file.');
+      return false;
+    }    
     // submit
     var fd = new FormData(form);    
-    /* fd.append( 'file', form.file.files[0]);
-       fd.append( 'state_id', state_id);
-       fd.append( 'district_id', district_id);
-       fd.append( 'send_registration_email', send_registration_email); */
     $.ajax({
       url: "${reverse('configuration_import_user_submit')}",
       data: fd,
       processData: false,
       contentType: false,
       type: 'POST',
-      //Before 1.5.1 you had to do this:
-      /* beforeSend: function (x) {
-         if (x && x.overrideMimeType) {
-         x.overrideMimeType("multipart/form-data");
-         }
-         }, */
       enctype: 'multipart/form-data',
       mimeType: 'multipart/form-data',
       success: function(data){
@@ -247,7 +239,7 @@ from student.models import State,District,School
     this.$dialog=$(el);
   }
   Dialog.prototype.showOverlay=function(){
-    this.$overlay=$("<div style='opacity:0.5;display:block' class='lean_overlay'></div>");
+    this.$overlay=$("<div class='lean_overlay'></div>");
     this.$overlay.appendTo(document.body);
     this.$overlay.css('display','block');
   }
