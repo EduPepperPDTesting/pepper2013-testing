@@ -368,6 +368,10 @@ site_status_msg = get_site_status_msg(course_id)
       <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
     </ul>
     %endif
+    <ul class="admin-dropdown-menu">
+      <li><a href="#">Configuration</a></li>
+      <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
+    </ul>
   </li>
 
 	<li class="imessage_style" style="margin-right:5px;">
@@ -484,8 +488,7 @@ site_status_msg = get_site_status_msg(course_id)
       <h2>${_("notifications")}</h2>
       <hr/>
     </header>
-	
- 
+
   <div class="info_list"></div>
   <br/>
 	<br/>
@@ -1004,7 +1007,6 @@ site_status_msg = get_site_status_msg(course_id)
   }
 </script>
 <!--@end-->
-
 
 <!--@begin:show_personalmessage-->
 <!--@date:2014-06-30-->

@@ -450,13 +450,13 @@
               <b style="font-size:14px;color:#000">My Profile:</b>
             </div>
 			<div style="line-height:30px;"><b>State:</b>
-	          % if curr_user.profile.cohort_id:
-			  ${curr_user.profile.cohort.district.state.name}
+	          % if curr_user.profile.district_id:
+			  ${curr_user.profile.district.state.name}
 			  % endif
 			</div>
 			<div style="line-height:30px;"><b>District:</b>
-			  % if curr_user.profile.cohort_id:
-			  <br>${curr_user.profile.cohort.district.name}
+			  % if curr_user.profile.district_id:
+			  <br>${curr_user.profile.district.name}
 			  % endif
 			</div>
 			<div style="line-height:30px;"><b>School:</b>
@@ -905,8 +905,8 @@ Add info that you would like to share about yourself here:
             <label>School:</label>
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
-              	% if curr_user.profile.cohort:
-                %for item in School.objects.filter(district_id=curr_user.profile.cohort.district.id).order_by("name"):
+              	% if curr_user.profile.district_id:
+                %for item in School.objects.filter(district_id=curr_user.profile.district.id).order_by("name"):
                 <option value="${item.id}">${item.name}</option>
                 %endfor
               	% endif

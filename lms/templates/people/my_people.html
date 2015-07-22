@@ -252,9 +252,9 @@
               %if profile['cohort_id'] and profile['school_id']:
               <%
               school=School.objects.get(id=profile['school_id'])
-              cohort=Cohort.objects.get(id=profile['cohort_id'])
+              district=District.objects.get(id=profile['district_id'])
               %>
-              <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
+              <span class="name_text">${school.name} <br/> ${district.name}</span>
               %endif
 
           %if 0:

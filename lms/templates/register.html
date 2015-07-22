@@ -236,20 +236,20 @@ from baseinfo.models import Enum
           
           <li class="field required text" id="field-name">
             <label for="school_id">${_('State')}</label>
-            ${profile.cohort.district.state.name}
+            ${profile.district.state.name}
           </li>
 
          <li class="field required text" id="field-name">
             <label for="school_id">${_('District')}</label>
-            <input type="hidden" name="district_id" value="${profile.cohort.district.id}" />
-            ${profile.cohort.district.name}
+            <input type="hidden" name="district_id" value="${profile.district.id}" />
+            ${profile.district.name}
           </li>
           
           <li class="field required text" id="field-name">
             <label for="school_id">${_('School')}</label>
             <select autocomplete="off" id="school_id" name="school_id">
               <option value="">--</option>
-              %for item in School.objects.filter(district_id=profile.cohort.district_id).order_by("name"):
+              %for item in School.objects.filter(district_id=profile.district_id).order_by("name"):
               <option value="${item.id}">${item.name}</option>
               %endfor
             </select>

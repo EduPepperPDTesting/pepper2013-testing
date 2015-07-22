@@ -319,8 +319,9 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
 
-    school = models.ForeignKey(School,on_delete=models.PROTECT,blank=True)
-    cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT)
+    school = models.ForeignKey(School,on_delete=models.PROTECT)
+    cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT,default=0)
+    district = models.ForeignKey(District,on_delete=models.PROTECT)
 
     years_in_education = models.ForeignKey(YearsInEducation,on_delete=models.PROTECT)
     major_subject_area = models.ForeignKey(SubjectArea,on_delete=models.PROTECT)

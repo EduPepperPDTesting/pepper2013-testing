@@ -303,7 +303,15 @@ padding-bottom:50px !important;
               school=School.objects.get(id=profile['school_id'])
               cohort=Cohort.objects.get(id=profile['cohort_id'])
               %>
-              <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
+              <span class="name_text">
+                %if school:
+                  ${school.name}
+                %endif
+                <br/>
+                %if district:
+                  ${district.name}
+                %endif
+              </span>
               %endif
               %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
