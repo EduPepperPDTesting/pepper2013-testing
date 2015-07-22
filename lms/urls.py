@@ -12,7 +12,7 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
     url(r'^configuration/import_user/$', 'configuration.views.import_user', name="configuration_import_user"),
-    
+        
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
@@ -120,6 +120,7 @@ urlpatterns = (
     url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
     url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
     url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),
+    url(r'^interactive_update/del_info$', 'notifications.views.del_interactive_update', name="del_interactive_update"),
     url(r'^message_board/get_info$', 'notifications.views.get_message', name="get_message"),
     url(r'^message_board/save_info$', 'notifications.views.save_message', name="save_message"),
     url(r'^message_board/upload_image$', 'notifications.views.upload_image', name="upload_message_image"),

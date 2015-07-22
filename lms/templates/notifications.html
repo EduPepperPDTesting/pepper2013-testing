@@ -35,6 +35,21 @@
 <style type="text/css" media="screen">
   #btn-dashboard{display:none;}
   #image_uploading{display:none;}
+  .notification_style_button {
+    width:100px;
+    text-align:center;
+    display: block;
+    text-decoration: none!important;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    padding: 3px 3px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    box-shadow: inset 0px 0px 2px #fff;
+    -o-box-shadow: inset 0px 0px 2px #fff;
+    -webkit-box-shadow: inset 0px 0px 2px #fff;
+    -moz-box-shadow: inset 0px 0px 2px #fff;
+    cursor:pointer;
+  }
 </style>
 <script>
 
@@ -43,6 +58,9 @@
 		var notifications_update_isload = false;
 		var notifications_update_loadNum = 0;
 		var notifications_update_totalNum = 0;
+		var notifications_update_currDelItem={};
+        var notifications_update_load_height=271;
+        var notifications_update_window_top=0;
 		notifications_update(notifications_update_loadNum);
 		function notifications_update(skip)
 	    {
@@ -56,7 +74,7 @@
 		function notifications_update_init(data)
   		{   
   			notifications_update_totalNum = data.count;
-  			notifications_update_loadNum+=20;
+  			//notifications_update_loadNum+=20;
   		
 	        for(var i=0;i<data.results.length;i++)
 	        {
@@ -83,8 +101,8 @@
 	      var body=data.body==undefined?'':data.body;
 	      notifications_update_switchType(data);
 	      var displayDate = notifications_update_dateFormat(data);
-	      var ele=$('<tr height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
-	      element=$('<tr height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><table><tr><td width="635">'+notifications_update_setMessageBody(data)+'</td><td class="body_read_more"></td></tr></table></section></td></tr>');
+	      var ele=$('<tr class="date_col" height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
+	      element=$('<tr class="notification_item" height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a class="type_link" href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><span><span style="padding-left:8px;"/><a class="delBtn" href="#" sytle="color:#388e9b;font-size:12px;">Delete</a></span><table><tr><td width="635">'+notifications_update_setMessageBody(data)+'</td><td class="body_read_more"></td></tr></table></section></td></tr>');
 	      notifications_update_setMessageReadmore(element,data);
 		  if(notifications_update_new_day!='')
 	      {
@@ -99,7 +117,7 @@
 	  	  }
 
 	      $('.notifications_container').append(element);
-	      element.find("a").click(function(){
+	      element.find(".type_link").click(function(){
 	        if(data.activate=='false')
 	        {
 	          notifications_update_activateItem(data);
@@ -109,6 +127,13 @@
 	          interactive_update_openWindow(data)
 	        }
 	       
+	      });
+	      element.find(".delBtn").click(function(){
+            notifications_update_window_top=$(window).scrollTop();
+	        $("#del_notification").show();
+	        $("#lean_overlay").show();
+	        notifications_update_currDelItem.ele=$(this).parent().parent().parent().parent();
+	        notifications_update_currDelItem.data=data;
 	      });
 	      notifications_update_new_day = data.date;
 	   }
@@ -202,6 +227,27 @@
 		    var user_id = "${curr_user.id}";
     	    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
 		}
+		function notifications_update_delItem(item)
+		{
+		    var user_id = "${curr_user.id}";
+    	    $.post("${reverse('del_interactive_update')}",{_id:item.data._id,_record_id:item.data.user_id,_user_id:user_id,_ismultiple:item.data.multiple},function(rdata){
+    	    		if(item.ele.prev().prop("className")=="date_col"&&item.ele.next().prop("className")=="date_col")
+	    	    	{
+	    	    		item.ele.prev().remove();
+	    	    	}
+	    	   		item.ele.remove();
+	    	   		notifications_update_currDelItem={};
+	    	   		$("#del_notification").hide();
+					$("#lean_overlay").hide();
+                    $(window).scrollTop(notifications_update_window_top);
+                    if($(".wrapper-footer").offset().top-$(".notifications_container").height()>notifications_update_load_height)
+                    {
+                        notifications_update_loadNum=$(".notification_item").length;
+                        notifications_update(notifications_update_loadNum);
+                    }
+
+    	    });
+		}
 		function notifications_update_getActivateStyle(data)
 		{
 			var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
@@ -227,6 +273,7 @@
 　　		var windowHeight = $(this).height();
 		    if((scrollTop + windowHeight == scrollHeight) && notifications_update_isload)
 		    {
+		    	notifications_update_loadNum=$(".notification_item").length;
 		    	notifications_update(notifications_update_loadNum);
 		    }
 		})
@@ -241,6 +288,24 @@
 			$(this).find('.top_btn_img_1').show();
 			$(this).find('.top_btn_img_2').hide();
 		})
+		if($(".modal").css("zIndex")<10000)
+	    {
+	      $(".modal").addClass("leanmodalStyle");
+	      $(".modal").hide();
+	    }
+	    $("#lean_overlay").click(function(){
+	    	$("#del_notification").hide();
+	    	$("#show_personalmessage").hide();
+	    	$(this).hide();
+    	})
+    	$("#del_notification").find(".close-modal").click(function(){
+			$("#del_notification").hide();
+			$("#lean_overlay").hide();
+            $(window).scrollTop(notifications_update_window_top);
+  		})
+  		$(".notification_del_button").click(function(){
+  			notifications_update_delItem(notifications_update_currDelItem);
+  		})
 	})
 </script>
 <!--@end-->
@@ -388,4 +453,25 @@ Add info that you would like to share about yourself here:
 			<img class="top_btn_img_2" src='/static/images/top_btn_2.png' alt="Top" style="display:none;"/>
 		</div>
 	</section>
+</section>
+<section id="del_notification" class="modal" style="width:600px;">
+  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <header>
+      <h2 class="notification_title">${_("DELETE THE NOTIFICATION")}</h2>
+      <hr/>
+    </header>
+  	<form id="" method="post" style="padding:0px;line-height:18px;">
+   
+        <div style="width:560px;margin:10px;">
+        <div style="color:black;font-size:16px;width:540px;height:80px;padding:10px;"><center><b>Are you sure you want to delete this notification?</b></center></div>
+         <center><div class="notification_del_button notification_style_button ftg_yellow">Delete</div></center>
+        </div>
+    </form>
+  <br/>
+    <div class="close-modal" id="notification_del_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
 </section>
