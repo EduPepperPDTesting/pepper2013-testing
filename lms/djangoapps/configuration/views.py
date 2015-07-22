@@ -30,6 +30,8 @@ from models import *
 from StringIO import StringIO
 from student.models import Transaction,District,Cohort,School,State
 from mail import send_html_mail
+import datetime
+from pytz import UTC
 
 log = logging.getLogger("tracking")
 
@@ -45,13 +47,6 @@ def postpone(function):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user(request):
-    # reg = Registration.objects.get(user=request.user)
-    # props = {'key': reg.activation_key, 'district': request.user.profile.district.name}
-    # subject = render_to_string('emails/activation_email_subject.txt', props)
-    # subject = ''.join(subject.splitlines())
-    # body = render_to_string('emails/activation_email.txt', props)
-    # send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
-
     from django.contrib.sessions.models import Session
     return render_to_response('configuration/import_user.html', {})
 
@@ -140,13 +135,23 @@ def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
         task.process_lines=i+1
         task.save()
         db.transaction.commit()
+
+        tasklog=ImportTaskLog()
+
+        email=line[USER_CSV_COLS.index('email')]
+
+        #** generating origin username
+        username=random_mark(20)
+            
+        tasklog.username=username
+        tasklog.email=email
+        tasklog.create_date=datetime.datetime.now(UTC)
+        tasklog.district=district
+        tasklog.line=i+1
+        tasklog.import_task=task
+              
         try:
             validate_user_cvs_line(line)
-
-            email=line[USER_CSV_COLS.index('email')]
-
-            #** generating origin username
-            username=random_mark(20)
 
             #** user
             user = User(username=username, email=email, is_active=False)
@@ -187,35 +192,41 @@ def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
             count_success=count_success+1
             task.success_lines=count_success
             task.save()
+
+            tasklog.save()
                             
             db.transaction.commit()
         except Exception as e:
             db.transaction.rollback()
 
-            error=ImportTaskError()
-            error.line=i+1
-            error.error="%s" % e
-            error.import_task=task;
-            error.save()
+            tasklog.error="%s" % e
+            tasklog.save()
+            
             db.transaction.commit()
             
             log.debug("import error: %s" % e)
 
     #** post process
-    errors=ImportTaskError.objects.filter(import_task=task)
-    if len(errors):
-        FIELDS = ["line", "error"]
-        TITLES = ["Line", "Error"]
+    tasklogs=ImportTaskLog.objects.filter(import_task=task)
+    if len(tasklogs):
+        FIELDS = ["line", "username", "email", "district", "create_date", "error"]
+        TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=FIELDS)
         writer.writerow(dict(zip(FIELDS, TITLES)))
-        for d in errors:
-            row={"line":d.line,"error":d.error}
+        for d in tasklogs:
+            row={"line":d.line,
+                 "username":d.username,
+                 "email":d.email,
+                 "district":d.district.name,
+                 "create_date":d.create_date,
+                 "error":d.error
+                 }
             writer.writerow(row)
         output.seek(0)
-        attachs=[{'filename':'error.csv','minetype':'text/csv','data':output.read()}]
-        send_html_mail("User Data Import Error Report",
-                       "Error occored through importing %s, see attachment." % task.filename,
+        attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
+        send_html_mail("User Data Import Report",
+                       "Report of importing %s, see attachment." % task.filename,
                        settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com'], attachs)
         output.close()
 
