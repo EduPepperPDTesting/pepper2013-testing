@@ -49,7 +49,7 @@ def enrolled_students_features(request, course_id, features):
             student_dict.update(profile_dict)
 
         try:
-            student_dict['district']=profile.cohort.district.name
+            student_dict['district']=profile.district.name
         except:
             student_dict['district']=''
 

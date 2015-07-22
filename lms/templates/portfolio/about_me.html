@@ -297,7 +297,7 @@
             <span>
               <strong>State:</strong>
               % if portfolio_user.profile.cohort_id:
-              ${portfolio_user.profile.cohort.district.state.name}
+              ${portfolio_user.profile.district.state.name}
               % endif
             </span>
           </span>
@@ -306,7 +306,7 @@
             <span>
               <strong>District:</strong> 
               % if portfolio_user.profile.cohort_id:
-              ${portfolio_user.profile.cohort.district.name}
+              ${portfolio_user.profile.district.name}
               % endif
             </span>
           </span>

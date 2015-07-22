@@ -356,12 +356,12 @@
 		            </div>
 					<div style="line-height:30px;"><b>State:</b>
 			          % if curr_user.profile.cohort_id:
-					  ${curr_user.profile.cohort.district.state.name}
+					  ${curr_user.profile.district.state.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>District:</b>
 					  % if curr_user.profile.cohort_id:
-					  <br>${curr_user.profile.cohort.district.name}
+					  <br>${curr_user.profile.district.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>School:</b>

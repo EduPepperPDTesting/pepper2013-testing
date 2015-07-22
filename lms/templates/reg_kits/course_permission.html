@@ -57,7 +57,9 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                     <option value=""></option>
                     <option value="all">all</option>
                     <option value="ELA">English Language Arts</option>
+                    <option value="ELL">English Language Learners</option>
                     <option value="MA">Mathematics</option>
+                    <option value="SC">Science</option>
                     <option value="SE">Special Education</option>
                     <option value="PEP">Pepper</option>
                     <option value="WR">Writing and Poetry</option>
@@ -103,7 +105,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 <tbody style="" id="ttt">
                   %for item in users:
                   <tr>
-                    <td >${item.cohort.district.name}</td>
+                    <td >${item.district.name}</td>
                     <td >${item.user.last_name}</td>
                     <td >${item.user.first_name}</td>
                     <td >${item.user.email}</td>
