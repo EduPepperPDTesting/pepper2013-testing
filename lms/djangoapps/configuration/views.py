@@ -82,7 +82,7 @@ def import_user_submit(request):
         connection.close()
 
         #** begin import
-        do_import_user(task.id, rl, district_id, school_id, request.POST.get('send_registration_email')=='true')
+        do_import_user(task.id, rl, request)
         
         return HttpResponse(json.dumps({'success': True,'taskId':task.id}))
     else:
@@ -104,8 +104,12 @@ def task_status(request):
     return HttpResponse(j)
 
 @postpone
-def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
+def do_import_user(taskid,csv_lines,request):
     gevent.sleep(0)
+
+    district_id=request.POST.get("district_id")
+    school_id=request.POST.get("school_id")
+    send_registration_email=request.POST.get('send_registration_email')=='true'
 
     #** ==================== testing 
     curr=""
@@ -130,8 +134,8 @@ def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
  
     #** import into district
     district=District.objects.get(id=district_id)
-    for i,line in enumerate(lines):
-        #** record lines process
+    for i,line in enumerate(csv_lines):
+        #** record csv lines process
         task.process_lines=i+1
         task.save()
         db.transaction.commit()
@@ -184,7 +188,7 @@ def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
                     subject = render_to_string('emails/activation_email_subject.txt', props)
                     subject = ''.join(subject.splitlines())
                     body = render_to_string('emails/activation_email.txt', props)
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com'])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
                 
@@ -227,7 +231,7 @@ def do_import_user(taskid,lines,district_id,school_id,send_registration_email):
         attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com'], attachs)
+                       settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email], attachs)
         output.close()
 
 def validate_user_cvs_line(line):
