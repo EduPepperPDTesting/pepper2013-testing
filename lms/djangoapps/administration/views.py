@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Q
 
 from django.contrib.auth.models import User
 from student.models import UserProfile,Registration,CourseEnrollmentAllowed
@@ -45,9 +46,9 @@ def postpone(function):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def import_user(request):
+def main(request):
     from django.contrib.sessions.models import Session
-    return render_to_response('configuration/import_user.html', {})
+    return render_to_response('administration/main.html', {})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -55,8 +56,8 @@ def import_user_submit(request):
     # monkey.patch_all(socket=False)
     
     if request.method == 'POST':
-        district_id=request.POST.get("district_id")
-        school_id=request.POST.get("school_id")
+        district_id=request.POST.get("district")
+        school_id=request.POST.get("school")
 
         # output_pipe,input_pipe=multiprocessing.Pipe()
         # request.session['task']=''
@@ -106,8 +107,8 @@ def task_status(request):
 def do_import_user(taskid,csv_lines,request):
     gevent.sleep(0)
 
-    district_id=request.POST.get("district_id")
-    school_id=request.POST.get("school_id")
+    district_id=request.POST.get("district")
+    school_id=request.POST.get("school")
     send_registration_email=request.POST.get('send_registration_email')=='true'
     task=ImportTask.objects.get(id=taskid);
 
@@ -187,7 +188,7 @@ def do_import_user(taskid,csv_lines,request):
                     subject = render_to_string('emails/activation_email_subject.txt', props)
                     subject = ''.join(subject.splitlines())
                     body = render_to_string('emails/activation_email.txt', props)
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email,email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
                 
@@ -250,3 +251,106 @@ def validate_user_cvs_line(line):
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
 
+
+##############################################
+# Dropdown List
+##############################################
+
+def drop_states(request):
+    data=State.objects.all()
+    data=data.order_by("name")        
+    r=list()
+    for item in data:
+        r.append({"id":item.id,"name":item.name})        
+    return HttpResponse(json.dumps(r))
+
+def drop_districts(request):
+    data=District.objects.all()
+    if request.GET.get('state'):
+        data=data.filter(state=request.GET.get('state'))
+    data=data.order_by("name")        
+    r=list()
+    for item in data:
+        r.append({"id":item.id,"name":item.name,"code":item.code})        
+    return HttpResponse(json.dumps(r))
+
+def drop_schools(request):
+    data=School.objects.all()
+    if request.GET.get('district'):
+        data=data.filter(district=request.GET.get('district'))
+    elif request.GET.get('state'):
+        data=data.filter(district__state=request.GET.get('state'))
+    r=list()
+    data=data.order_by("name")
+    for item in data:
+        r.append({"id":item.id,"name":item.name})        
+    return HttpResponse(json.dumps(r))
+
+def drop_cohorts(request):
+    data=Cohort.objects.all()
+    if request.GET.get('district'):
+        data=data.filter(district=request.GET.get('district'))
+    elif request.GET.get('state'):
+        data=data.filter(district__state=request.GET.get('state'))
+    r=list()
+    for item in data:
+        r.append({"id":item.id,"code":item.code})
+    return HttpResponse(json.dumps(r))
+
+from django.core.paginator import Paginator,InvalidPage, EmptyPage
+
+def paging(all,size,page):
+    try:
+        page=int(page)
+    except Exception:
+        page=1
+    try:
+        size=int(size)
+    except Exception:
+        size=1
+    paginator = Paginator(all, size)
+    if page<1: page=1
+    if page>paginator.num_pages: page=paginator.num_pages
+    data=paginator.page(page)
+    return data
+
+def registration_table(request):
+    data=UserProfile.objects.all().select_related('User')
+
+    if request.GET.get('state',None):
+        data=data.filter(Q(district__state_id=request.GET.get('state')))
+        
+    if request.GET.get('district',None):
+        data=data.filter(Q(district_id=request.GET.get('district')))
+        
+    if request.GET.get('school',None):
+        data=data.filter(Q(school_id=request.GET.get('school')))
+    
+    page=request.GET.get('page')
+    size=request.GET.get('size')
+    data=paging(data,size,page)
+
+    rows=[]
+    pagingInfo={'page':data.number,'pages':data.paginator.num_pages}
+
+    for p in data:
+        date=p.activate_date.strftime('%b-%d-%y %H:%M:%S') if p.activate_date else ''
+            
+        rows.append({'email':p.user.email
+                    ,'first_name':p.user.first_name
+                    ,'last_name':p.user.last_name
+                    ,'district_name':p.district.name
+                    ,'enrollment_start':date})
+
+    return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
+    
+def favorite_filter_load(request):
+    favs=[
+        {'id':1,'name':'Alabama','filter':{'state':1,'district':34,'school':1406}}
+        ]
+    return HttpResponse(json.dumps(favs))
+
+def favorite_filter_save(request):
+    pass
+def favorite_filter_delete(request):
+    pass

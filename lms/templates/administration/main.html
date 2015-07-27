@@ -1,0 +1,270 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from student.models import State,District,School
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+
+<style type="text/css" media="screen">
+ .lean_overlay {
+   background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+   display: block;
+   height: 100%;
+   left: 0px;
+   position: fixed;
+   top: 0px;
+   width: 100%;
+   z-index: 100;
+ }
+ .modal{
+   display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
+   background: none repeat scroll 0% 0% rgba(255,255,255, 1);
+   /* border: 1px solid rgba(150, 150, 150, 0.9); */
+   border-radius: 5px;
+   box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+   padding: 0 0 8px 0;
+   width: 480px;
+   display:none;
+ }
+ .modal .close-modal {
+   border-radius: 2px;
+   cursor: pointer;
+   display: inline-block;
+   vertical-align: baseline;
+   padding: 10px;
+   position: absolute;
+   right: 2px;
+   top: 0px;
+   z-index: 3;
+   color:#333;
+ }
+ .modal .titlebar{
+   background:#fff;
+   height:70px;
+   background:#ccc;
+ }
+ td.label{
+   text-align:right;padding-right:10px;width:45px;
+   vertical-align:top;
+   padding-top:13px;
+ }
+ .modal .dialog-title{
+   margin:0;padding:20px 0 0 30px;color:#666;
+ }
+ .modal .content{
+   color:#333;
+   text-align:center;
+   font-size:16px;
+   padding:20px 10px;
+   line-height:20px;
+ }
+ .modal .progressbar{
+   height:30px;
+   background:#ddd;
+   border-radius:5px;
+   margin-top:10px;
+ }
+ .modal .progressbar_flow{
+   height:30px;
+   background:#2a5;
+   border-radius:5px;
+   width:0px;
+ }
+
+ section.content-wrapper{background:transparent !important;}
+ .list{padding:0px 5px;}
+ .list li{list-style-type:none;}
+ div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+ div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+ div.expand_div{display:none;}
+ 
+ /* filter */
+ div.control.filter{
+   padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
+ }
+ div.control.filter h2{
+   color:#f90;
+ }
+ div.control.filter span.patterns{
+   float:right;
+ }
+ div.control.filter span.patterns input{
+   font-size:12px;height:2em;line-height:2em;padding:0 10px;margin:5px 5px 0 0;
+ }
+
+ div.control.filter input[type=button].small{
+   font-size:12px;height:2em;line-height:2em;padding:0 10px;
+   margin:5px 5px 0 0;
+ }
+
+ div.control.filter input[type=button].load{
+   font-size:12px;height:2em;line-height:2em;padding:0 10px;
+ }
+
+ 
+ /* table */
+ div.control.table{
+   padding:5px 5px 5px 5px;
+ }
+ div.control.table table{
+   width:100%;
+   text-align:left;
+   border-collapse:collapse;
+   border:1px solid #aaa;
+ }
+ div.control.table td,div.control.table th{
+   padding:6px;
+   border:1px solid #aaa;
+   font-size:12px;
+ }
+ div.control.table th{
+   background:#99BFE6;
+ }
+ div.control.table th.checkboxCol{
+   width:15px;
+ }
+ div.control.table div.paging{
+   padding:5px;
+   text-align:right;
+ }
+ div.control.table div.paging a{
+   margin-left:5px;
+ }
+ div.control.table div.paging input{
+   margin-right:5px;
+   width:50px;
+   text-align:right;
+ }
+</style>
+<!-- User Data Import -->
+<div style="padding-top:20px">
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+    <div class="expand_title expand_title_collapse">
+      User Data Import <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="">
+        <div class="control filter" fields="state,district,school">
+          <textarea class="setting">
+            {
+            "fields":{
+            "state":{"require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            },
+      "urls":{
+               "favorite_load":"/admin/favorite_filter_load",
+               "favorite_save":"/admin/favorite_filter_save",
+               "favorite_delete":"/admin/favorite_filter_delete"
+            }
+            }
+          </textarea>          
+          <span class="body"></span>
+        </div>
+        <ul class="list">
+          <li>
+            <label>
+              <input type="checkbox" name="send_registration_email" value="true" />
+              Send registration emails to imported users
+            </label>
+          </li>
+        </ul>
+        <div style="padding:7px;">
+          CSV File: <input type="file" name="file" value="" />
+          <p style="margin-top:1em;">
+            <label style="font-style:normal;color:#555">
+            * CSV file should contain the following column (email adrress).
+            </label>
+          </p>
+        </div>
+        <div style="padding:10px 5px">
+          <input class="form_submit" type="submit" name="" value="Import Users" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div style="padding:0px 0">
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+    <div class="expand_title expand_title_collapse">
+      User Registration <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="" onsubmit="return false;">
+        <div class="control filter" id="fltUserRegistration">
+          <span class="body"></span>
+          <textarea class="setting">
+            {
+            "fields":{
+            "state":{"require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            },
+            "urls":{
+               "favorite_load":"/admin/favorite_filter_load",
+               "favorite_save":"/admin/favorite_filter_save",
+               "favorite_delete":"/admin/favorite_filter_delete"
+            }
+            }
+          </textarea>
+          <input type="button" name="" value="LOAD"
+                 class="load"
+                 onclick="filterUserRegistration()"/>
+        </div>
+        <div class="control table" id="tblUserRegistration">
+          <span class="body"></span>
+          <textarea class="setting">
+            {
+            "fields":{
+            "district_name":{"display":"District","sort":"+"},
+            "last_name":{"display":"Last Name","sort":"+"},
+            "first_name":{"display":"First Name","sort":"+"},
+            "email":{"display":"Email","sort":"+"},
+            "enrollment_start":{"display":"Enrollment Start","sort":"+"}
+            },
+            "urls":{
+            "data":"/admin/registration/table"
+            },
+            "paging":{
+            "size":20
+            }
+            }
+          </textarea>
+        </div>
+        <div style="padding:5px;">
+          <input type="submit" name="" value="SEND REGISTRATION EMAILS" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+<script type="text/javascript" src="/static/js/admin.js"></script>
+<script type="text/javascript">
+  $(".control.filter").each(function(){new FilterControl(this)});
+  $(".control.table").each(function(){new TableControl(this)});
+  function filterUserRegistration(){
+    var filter=$('#fltUserRegistration')[0].control.getFilter();
+
+    console.log(filter)
+    $('#tblUserRegistration')[0].control.updateFilter(filter);
+  }
+</script>

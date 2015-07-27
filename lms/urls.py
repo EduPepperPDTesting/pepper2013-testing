@@ -11,9 +11,20 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
-    url(r'^configuration/import_user/$', 'configuration.views.import_user', name="configuration_import_user"),
-    url(r'^configuration/import_user_submit/$', 'configuration.views.import_user_submit', name="configuration_import_user_submit"),
-    url(r'^configuration/task_status/$', 'configuration.views.task_status', name="configuration_import_task_status"),
+    url(r'^admin/main/$', 'administration.views.main', name="admin_main"),
+    url(r'^admin/import_user_submit/$', 'administration.views.import_user_submit', name="admin_import_user_submit"),
+    url(r'^admin/task_status/$', 'administration.views.task_status', name="admin_import_task_status"),
+
+    url(r'^admin/drop_districts$', 'administration.views.drop_districts',name="admin_drop_districts"),
+    url(r'^admin/drop_states$', 'administration.views.drop_states',name="admin_drop_states"),
+    url(r'^admin/drop_schools$', 'administration.views.drop_schools',name="admin_drop_schools"),
+    url(r'^admin/drop_cohorts$', 'administration.views.drop_cohorts',name="admin_drop_cohorts"),
+
+    url(r'^admin/registration/table$', 'administration.views.registration_table',name="admin_registration_table"),
+
+    url(r'^admin/favorite_filter_load$', 'administration.views.favorite_filter_load',name="admin_favorite_filter_load"),
+    url(r'^admin/favorite_filter_save$', 'administration.views.favorite_filter_save',name="admin_favorite_filter_save"),
+    url(r'^admin/favorite_filter_delete$', 'administration.views.favorite_filter_delete',name="admin_favorite_filter_delete"),
 
 ####### Ancestor
 
@@ -31,6 +42,7 @@ urlpatterns = (
     url(r'^request_course_access$', 'student.views.request_course_access_ajax', name="request_course_access"),
 
     url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts',name="drop_districts"),
+    url(r'^reg_kits/drop_states$', 'reg_kits.views.drop_states',name="drop_states"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools',name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts',name="drop_cohorts"),
     
