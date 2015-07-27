@@ -293,8 +293,8 @@ def register_user(request, activation_key=None):
     if profile.subscription_status=='Registered':
         return HttpResponse("User already registered.")
 
-    if not profile.cohort_id:
-       return HttpResponse("Invalid cohort.")
+    # if not profile.cohort_id:
+    #    return HttpResponse("Invalid cohort.")
         
     context = {
         'profile': profile,
@@ -1545,7 +1545,7 @@ def reactivation_email_for_user(user):
 
     d = {'name': "%s %s" % (user.first_name, user.last_name),
          'key': reg.activation_key,
-         'district':user.profile.cohort.district.name
+         'district':user.profile.district.name
          }
 
     subject = render_to_string('emails/activation_email_subject.txt', d)
@@ -1897,7 +1897,7 @@ def activate_imported_account(post_vars,photo):
 
         # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
 
-        d={"first_name":profile.user.first_name,"last_name":profile.user.last_name,"district":profile.cohort.district.name}
+        d={"first_name":profile.user.first_name,"last_name":profile.user.last_name,"district":profile.district.name}
 
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
@@ -2121,7 +2121,7 @@ Request Date: {date_time}""".format(
   first_name=request.user.first_name
   ,last_name=request.user.last_name
   ,cohort_code=request.user.profile.cohort.code
-  ,district_name=request.user.profile.cohort.district.name
+  ,district_name=request.user.profile.district.name
   ,school_name=request.user.profile.school.name
   ,email=request.user.email
   ,course_number=course.display_coursenumber
