@@ -187,7 +187,7 @@ def do_import_user(taskid,csv_lines,request):
                     subject = render_to_string('emails/activation_email_subject.txt', props)
                     subject = ''.join(subject.splitlines())
                     body = render_to_string('emails/activation_email.txt', props)
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email, email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
                 
