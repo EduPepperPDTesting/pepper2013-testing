@@ -10,7 +10,6 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 
-
 from django.contrib.auth.models import User
 from student.models import UserProfile,Registration,CourseEnrollmentAllowed
 from django import db
@@ -110,11 +109,11 @@ def do_import_user(taskid,csv_lines,request):
     district_id=request.POST.get("district_id")
     school_id=request.POST.get("school_id")
     send_registration_email=request.POST.get('send_registration_email')=='true'
+    task=ImportTask.objects.get(id=taskid);
 
     #** ==================== testing 
-    curr=""
-    process=0
-    task=ImportTask.objects.get(id=taskid);
+    # curr=""
+    # process=0
 
     # while 1:
     #     now=time.strftime("%Y-%m-%d %X", time.localtime())
