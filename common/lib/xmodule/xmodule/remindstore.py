@@ -13,6 +13,7 @@ from django.conf import settings
 from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger(__name__)
 from bson import ObjectId
+from django.contrib.auth.models import User
 # TODO (cpennington): This code currently operates under the assumption that
 # there is only one revision for each item. Once we start versioning inside the CMS,
 # that assumption will have to change
@@ -20,7 +21,7 @@ from bson import ObjectId
 class MongoRemindStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
-    def __init__(self, host, db, collection,collection_aid,port=27017, default_class=None,
+    def __init__(self, host, db, collection,collection_aid,collection_status,port=27017, default_class=None,
                  user=None, password=None, mongo_options=None, **kwargs):
 
         super(MongoRemindStore, self).__init__(**kwargs)
@@ -40,13 +41,19 @@ class MongoRemindStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_aid]
-
+        self.collection_status = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection_status]
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_aid.database.authenticate(user, password)
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_aid.safe = True
+        self.collection_status.safe = True
 
 
     def _find_one(self):
@@ -57,54 +64,87 @@ class MongoRemindStore(object):
 
     def return_items(self,user_id=-1,skip=0,limit=5):
         if user_id==-1:
-            results = self.collection.find().skip(skip).limit(limit)
+            results = self.collection_status.find().skip(skip).limit(limit)
         else:
-            results = self.collection.find({'$or':[{'user_id':str(user_id)},{'user_id':0}]}).sort("date",pymongo.DESCENDING).skip(skip).limit(limit)
+            results = self.collection_status.find({'user_id':str(user_id),'del_sign':'false'}).sort("date",pymongo.DESCENDING).skip(skip).limit(limit)
             r=[]
-            for data in results:
-                data['_id']=str(data['_id'])
-                try:
-                    ismultiple=data['multiple']
-                except:
-                    ismultiple='false'
-                    data['multiple']='false'
-                if str(data['user_id'])=='0' or ismultiple=='true':
-                    status = self.collection_aid.find_one({'user_id':str(user_id),'aid':data['_id']})
-                    if status!=None:
-                        data['activate'] = 'true'
-                    else:
-                        data['activate'] = 'false'
+            for d in results:
+                data = self.collection.find_one({'_id':ObjectId(d['aid'])})
+                data['_id']=str(d['_id'])
+                data['activate']=d['activate']
                 r.append(data)
             return r
+    
     def items_count(self,user_id=-1):
         #valid_interval = (datetime.datetime.now()-datetime.timedelta(4)).isoformat()
         #count = self.collection.find({'user_id':user_id,'activate':'false','date':{'$gt':str(valid_interval)}}).count()
-        count = self.collection.find({'user_id':str(user_id),'activate':'false','multiple':{'$exists':False}}).count()
-        results = self.collection.find({'$or':[{'user_id':str(user_id),'multiple':{'$exists':True}},{'user_id':0}]})
-        for data in results:
-            status = self.collection_aid.find_one({'user_id':user_id,'aid':str(data['_id'])})
-            if status == None:
-                count+=1
+        count = self.collection_status.find({'user_id':str(user_id),'activate':'false','del_sign':'false'}).count()
         return count
+
     def insert_item(self,item):
         self.collection.insert(item)
+        if isinstance(item['user_id'],list):
+            for uid in item['user_id']:
+                self.collection_status.insert({'aid':str(item['_id']),'user_id':uid,'date':item['date'],'activate':'false','del_sign':'false'})
+        elif str(item['user_id'])=='0':
+            users = list(User.objects.all())
+            usersIDArr=[]
+            for u in users:
+                self.collection_status.insert({'aid':str(item['_id']),'user_id':str(u.id),'date':item['date'],'activate':'false','del_sign':'false','group':'0'})
+        else:
+            self.collection_status.insert({'aid':str(item['_id']),'user_id':item['user_id'],'date':item['date'],'activate':'false','del_sign':'false'})
 
     def set_item(self,id,name,value,user_id,record_id,ismultiple,return_item=False):
         if return_item==True:
-            self.collection.update({'_id':ObjectId(id)},{'$set':{name:value}})
-            results = self.collection.find({'_id':ObjectId(id)})
+            self.collection_status.update({'_id':ObjectId(id)},{'$set':{name:value}})
+            results = self.collection_status.find({'_id':ObjectId(id)})
             r=[]
             for data in results:
                 r.append(data)
             return r
         else:
-            if str(record_id) =='0' or ismultiple=='true':
-                #return self.collection_aid.update({'aid':str(id),'user_id':user_id},{'$set':{'user_id':user_id}},True)
-                return self.collection_aid.save({'aid':str(id),'user_id':user_id})
-            else:
-                return self.collection.update({'_id':ObjectId(id)},{'$set':{name:value}})
+            return self.collection_status.update({'_id':ObjectId(id)},{'$set':{name:value}})
+   
+    def del_item(self,id,record_id,user_id,ismultiple):
+        return self.collection_status.update({'_id':ObjectId(id)},{'$set':{'del_sign':'true'}})
+
     def get_total(self,user_id):
-        return self.collection.find({'$or':[{'user_id':str(user_id)},{'user_id':0}]}).count()
+        count=self.collection_status.find({'user_id':str(user_id),'del_sign':'false'}).count()
+        return count
+    
+    def createGlobalInfo(self,user_id):
+        globalInfoNum = self.collection_status.find({'user_id':str(user_id),'group':'0'}).count()
+        if globalInfoNum<1:
+            globalInfoResults = self.collection.find({'user_id':0})
+            for data in globalInfoResults:
+                self.collection_status.insert({'aid':str(data['_id']),'user_id':str(user_id),'date':data['date'],'activate':'false','del_sign':'false','group':'0'})
+    
+    def treat_data(self):
+        results = self.collection.find()
+        users = list(User.objects.all())
+        usersIDArr=[]
+        for u in users:
+            usersIDArr.append(str(u.id))
+
+        for data in results:
+            try:
+                ismultiple=data['multiple']
+            except:
+                ismultiple='false'
+                data['multiple']='false'
+            if str(data['user_id'])=='0' or ismultiple=='true':
+                if str(data['user_id'])=='0':
+                    for uid in usersIDArr:
+                        self.collection_status.save({'aid':str(data['_id']),'user_id':uid,'date':data['date'],'activate':'false','del_sign':'false','group':'0'})
+                else:
+                    for uid in data['user_id']:
+                        self.collection_status.save({'aid':str(data['_id']),'user_id':uid,'date':data['date'],'activate':'false','del_sign':'false'})
+
+            else:
+                self.collection_status.save({'aid':str(data['_id']),'user_id':data['user_id'],'date':data['date'],'activate':data['activate'],'del_sign':'false'})
+        activate_status = self.collection_aid.find()
+        for status in activate_status:
+            self.collection_status.update({'aid':status['aid'],'user_id':status['user_id']},{'$set':{'activate':'true','del_sign':'false'}})
 
 
 class MongoMessageStore(object):
@@ -198,7 +238,7 @@ class MongoChunksStore(object):
     def delete_item(self, user_id, vertical_id):
         self.collection.remove({'user_id':user_id,'vertical_id':vertical_id})
 
-    def get_total(self,user_id):
+    def get_total(self, user_id):
         return self.collection.find({'user_id':user_id}).count()
 
     def set_rate(self, item):

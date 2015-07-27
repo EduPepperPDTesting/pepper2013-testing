@@ -74,13 +74,18 @@
 
 </head>
 
+<%!
+navbar_show_extended=True
+%>
+
 <body class="<%block name='bodyclass'/>">
 
 % if theme_enabled():
   <%include file="theme-header.html" />
 % elif not suppress_toplevel_navigation:
-  <%include file="navigation.html" />
+  <%include file="navigation.html" args="show_extended=self.attr.navbar_show_extended"/>
 % endif
+  
 <!--@begin:Main module page, change the bottom margin in the body text-->
 <!--@date:2013-11-02-->
   <section class="content-wrapper" style="padding-bottom:0px;">

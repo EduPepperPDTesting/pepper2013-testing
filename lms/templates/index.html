@@ -3,9 +3,10 @@
 <%! from time import strftime %>
 
 <%inherit file="main.html" />
+
+<%! navbar_show_extended=False %>
+
 <%namespace name='static' file='static_content.html'/>
-<!--@begin:Add new page style-->
-<!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <style type="text/css" media="screen">
   #btn-logged-user{display:none;}
@@ -73,7 +74,6 @@
   $(window).load(function() {$('#signup_action').trigger("click");});
 </script>
 % endif
-<!--@end-->
 
 <!--@begin:Two illustrations-->
 <!--@date:2013-11-02-->
@@ -134,7 +134,6 @@
 		Work at your own pace to become a Common Core specialist.
 	  </div>
 	  <!--@end-->
-	  
 
 	  <!--@begin:modify button position,button content-->
 	  <!--@date:2013-11-02-->
