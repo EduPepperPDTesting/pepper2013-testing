@@ -27,6 +27,7 @@ from student.models import State,District,School
  div.filter{}
 </style>
 <style type="text/css" media="screen">
+label{cursor:default;}
  .lean_overlay {
    background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
    display: block;
@@ -116,7 +117,7 @@ from student.models import State,District,School
         </div>
         <ul class="list">
           <li>
-            <label>
+            <label style="cursor:normal !important;">
               <input type="checkbox" name="send_registration_email" value="true" />
               Send registration emails to imported users
             </label>
@@ -124,7 +125,7 @@ from student.models import State,District,School
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
-          <p style="margin-top:1em;"><label style="font-style:normal;color:#555">* CSV file should contain the following column (email adrress).</label></p>
+          <p style="margin-top:1em;"><label style="font-style:normal;color:#555;">* CSV file should contain the following column (email adrress).</label></p>
           
         </div>
         <div style="padding:10px 5px">
@@ -267,3 +268,4 @@ from student.models import State,District,School
     this.$dialog.fadeIn(200);
   }
 </script>
+

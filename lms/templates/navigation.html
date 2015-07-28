@@ -367,7 +367,7 @@ site_status_msg = get_site_status_msg(course_id)
           </style>
           
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;">
-            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Administration &#9662;</a>
+            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
               <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
@@ -403,7 +403,7 @@ site_status_msg = get_site_status_msg(course_id)
             <a href="${reverse('dashboard')}" class="user-link" style="">
               <span class="avatar"></span>
               <span class="sr">${_("Dashboard for:")} </span>
-              <span style="max-width:135px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;line-height:12px;font-weight:bold;">${curr_user.username}</span>
+              <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;line-height:12px;font-weight:bold;">${curr_user.username}</span>
             </a>
           </li>
           <li class="primary">
