@@ -109,7 +109,7 @@ def course_from_id(course_id):
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def download_certificate(request,course_id,completed_time):
-    certificate_type=[['WestEd','PCG Education','A.L.L.'],['CT Core Standards']]
+    certificate_type=[['WestEd','PCG Education','A.L.L.','Understanding Language Initiative at Stanford'],['CT Core Standards']]
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
     t_time = ""
@@ -286,6 +286,10 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c_organization = 'Accelerated Literacy Learning'
         c.drawImage(imagepath+"/certificate_A.L.L.jpg",0,0, width=841.89,height=595.27,mask=None)
         c_estimated_effort = user_course.certificates_estimated_effort
+    elif user_course.display_organization=='Understanding Language Initiative at Stanford':
+        c_organization = 'Understanding Language Initiative at Stanford'
+        c.drawImage(imagepath+"/certificate_ULStanford.jpg",0,0, width=841.89,height=595.27,mask=None)
+        c_estimated_effort = user_course.certificates_estimated_effort
 
     c.drawImage(imagepath+"/qianzi.jpg",360,50, width=None,height=None,mask=None)
     #c.drawImage(imagepath+"/pcgeducationdown_logo.jpg",590,75, width=None,height=None,mask=None)
@@ -301,11 +305,11 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
 
     c.drawString(50,313,'Successfully completed')
 
-    c.drawString(50,230,'a course of study offered by ')
-    c.setFont("OpenSans_b", fontsize_maincontent)
-    c.drawString(315,230,c_organization)
 
     if user_course.display_organization == "PCG Education":
+        c.drawString(50,230,'a course of study offered by ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(315,230,c_organization)
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(460,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -315,6 +319,9 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(50,205,'learning community.')
     elif user_course.display_organization=='WestEd':
+        c.drawString(50,230,'a course of study offered by ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(315,230,c_organization)
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(389,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -326,6 +333,9 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.setFont("OpenSans_b", fontsize_maincontent)
         c.drawString(165,205,'Common Core Specialists')
     elif user_course.display_organization=='A.L.L.':
+        c.drawString(50,230,'a course of study offered by ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(315,230,c_organization)
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(613,230,', a partner in ')
         c.setFont("OpenSans_b", fontsize_maincontent)
@@ -335,7 +345,12 @@ def draw_certificate_default(request, user_course, c_completed_time, buffer, c):
         c.drawString(50,205,'an online')
         c.setFont("Open Sans", fontsize_maincontent)
         c.drawString(144,205,'learning community.')
-
+    elif user_course.display_organization=='Understanding Language Initiative at Stanford':
+        c.drawString(50,230,'a course which is part of Pepper, an online learning community. Content for this ')
+        c.drawString(50,205,'course was created by the ')
+        c.setFont("OpenSans_b", fontsize_maincontent)
+        c.drawString(302,205,c_organization)
+        c.drawString(50,180,"University.")
     c.setFont("Open Sans", fontsize_effort)
     c.drawString(50,50,'Estimated Effort: ' + c_estimated_effort)
 
