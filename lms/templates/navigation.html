@@ -38,8 +38,6 @@ site_status_msg = get_site_status_msg(course_id)
 % endif
 </%block>
 
-<!--@begin:New added page style-->
-<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
  *{font-family:"open sans" !important;}
  p{font-family:"open sans" !important;}
@@ -183,7 +181,73 @@ site_status_msg = get_site_status_msg(course_id)
  #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
-<!--@end-->
+
+<style type="text/css" media="screen">
+ a.configuration{
+   color:#646464;
+   font-family:'open sans';
+   font-size:16px;
+ }
+ a.configuration:hover{
+   text-decoration:none;
+   color:#1d9dd9;
+ }
+ ul.admin-dropdown-menu.expanded {
+   display: block;
+ }
+ ul.admin-dropdown-menu {
+   background: #FCFCFC none repeat scroll 0% 0%;
+   border-radius: 4px;
+   box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
+   border: 1px solid #646464;
+   display: none;
+   padding: 5px 10px;
+   position: absolute;
+   right: 0px;
+   top: 34px;
+   width: 170px;
+   z-index: 3;
+ }
+ ul.admin-dropdown-menu li {
+   display: block;
+   border-top: 1px dotted #C8C8C8;
+   box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
+ }
+ ul.admin-dropdown-menu li > a {
+   border: 1px solid transparent;
+   border-radius: 3px;
+   box-sizing: border-box;
+   color: #1D9DD9;
+   cursor: pointer;
+   display: block;
+   margin: 5px 0px;
+   overflow: hidden;
+   padding: 3px 5px 4px;
+   text-overflow: ellipsis;
+   transition: padding 0.15s linear 0s;
+   white-space: nowrap;
+   width: 100%;
+ }
+ ul.admin-dropdown-menu li:first-child {
+   border: medium none;
+   box-shadow: none;
+ }
+ ul.admin-dropdown-menu:before {
+   background: transparent none repeat scroll 0% 0%;
+   border-width: 6px;
+   border-style: solid;
+   border-color: #FCFCFC #FCFCFC transparent transparent;
+   box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
+   content: "";
+   display: block;
+   height: 0px;
+   position: absolute;
+   transform: rotate(-45deg);
+   right: 12px;
+   top: -6px;
+   width: 0px;
+ }
+</style>
 
 % if course:
 <header class="global slim" aria-label="${_('Global Navigation')}">
@@ -295,77 +359,9 @@ site_status_msg = get_site_status_msg(course_id)
 
         %if curr_user==request.user:
 
+        <ol class="user admin" >
         %if show_extended and curr_user.is_superuser:
         <!-- Administration -->
-
-        <ol class="user admin" >
-          <style type="text/css" media="screen">
-           a.configuration{
-             color:#646464;
-             font-family:'open sans';
-             font-size:16px;
-           }
-           a.configuration:hover{
-             text-decoration:none;
-             color:#1d9dd9;
-           }
-           ul.admin-dropdown-menu.expanded {
-             display: block;
-           }
-           ul.admin-dropdown-menu {
-             background: #FCFCFC none repeat scroll 0% 0%;
-             border-radius: 4px;
-             box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
-             border: 1px solid #646464;
-             display: none;
-             padding: 5px 10px;
-             position: absolute;
-             right: 0px;
-             top: 34px;
-             width: 170px;
-             z-index: 3;
-           }
-           ul.admin-dropdown-menu li {
-             display: block;
-             border-top: 1px dotted #C8C8C8;
-             box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
-           }
-           ul.admin-dropdown-menu li > a {
-             border: 1px solid transparent;
-             border-radius: 3px;
-             box-sizing: border-box;
-             color: #1D9DD9;
-             cursor: pointer;
-             display: block;
-             margin: 5px 0px;
-             overflow: hidden;
-             padding: 3px 5px 4px;
-             text-overflow: ellipsis;
-             transition: padding 0.15s linear 0s;
-             white-space: nowrap;
-             width: 100%;
-           }
-           ul.admin-dropdown-menu li:first-child {
-             border: medium none;
-             box-shadow: none;
-           }
-           ul.admin-dropdown-menu:before {
-             background: transparent none repeat scroll 0% 0%;
-             border-width: 6px;
-             border-style: solid;
-             border-color: #FCFCFC #FCFCFC transparent transparent;
-             box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
-             content: "";
-             display: block;
-             height: 0px;
-             position: absolute;
-             transform: rotate(-45deg);
-             right: 12px;
-             top: -6px;
-             width: 0px;
-           }
-          </style>
-          
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;">
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
