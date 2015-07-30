@@ -105,7 +105,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 <tbody style="" id="ttt">
                   %for item in users:
                   <tr>
-                    <td >${item.cohort.district.name}</td>
+                    <td >${item.district.name}</td>
                     <td >${item.user.last_name}</td>
                     <td >${item.user.first_name}</td>
                     <td >${item.user.email}</td>

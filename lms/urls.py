@@ -11,6 +11,12 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
+    url(r'^configuration/import_user/$', 'configuration.views.import_user', name="configuration_import_user"),
+    url(r'^configuration/import_user_submit/$', 'configuration.views.import_user_submit', name="configuration_import_user_submit"),
+    url(r'^configuration/task_status/$', 'configuration.views.task_status', name="configuration_import_task_status"),
+
+####### Ancestor
+
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),

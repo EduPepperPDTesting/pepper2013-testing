@@ -9,14 +9,12 @@
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
 %>
+<%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title"><title>${_("Courses")}</title></%block>
 
-<!--@begin:add css link-->
-<!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
-<!--@end-->
 
 <style type="text/css" media="screen">
     #page-nav,#page-footer{width:960px;}

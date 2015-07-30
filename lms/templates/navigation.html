@@ -39,46 +39,46 @@ site_status_msg = get_site_status_msg(course_id)
 </%block>
 
 <style type="text/css" media="screen">
-  *{font-family:"open sans" !important;}
-  p{font-family:"open sans" !important;}
-  
-  a.blue{
-  color:#556370 !important;
-  }
-  
-  a.blue-underline{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.blue-underline:normal{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.blue-underline:hover{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.main-link{
-  font-family:'open sans';
-  font-size:16px;
-  text-transform:none;
-  font-weight:normal !important;
-  }
-  .imessage_style{
-	margin-right: 0px;
-	display: block;
-    float: left;
-	margin: 0px;
-	padding: 5px 8px 7px 8px;
-	margin-top:-14px;
-	}
-	
+ *{font-family:"open sans" !important;}
+ p{font-family:"open sans" !important;}
+ 
+ a.blue{
+   color:#556370 !important;
+ }
+ 
+ a.blue-underline{
+   color:#556370 !important;
+   text-decoration:underline !important;
+   border:none;
+ }
+ 
+ a.blue-underline:normal{
+   color:#556370 !important;
+   text-decoration:underline !important;
+   border:none;
+ }
+ 
+ a.blue-underline:hover{
+   color:#556370 !important;
+   text-decoration:underline !important;
+   border:none;
+ }
+ 
+ a.main-link{
+   font-family:'open sans';
+   font-size:16px;
+   text-transform:none;
+   font-weight:normal !important;
+ }
+ .imessage_style{
+   margin-right: 0px;
+   display: block;
+   float: left;
+   margin: 0px;
+   padding: 5px 8px 7px 8px;
+   margin-top:-14px;
+ }
+ 
  #view_all_note:hover {
    background:#6e8194;
    transition-delay: 0s, 0s, 0s;
@@ -248,6 +248,7 @@ site_status_msg = get_site_status_msg(course_id)
    width: 0px;
  }
 </style>
+<<<<<<< HEAD
 
 % if course:
 <header class="global slim" aria-label="${_('Global Navigation')}">
@@ -263,6 +264,23 @@ site_status_msg = get_site_status_msg(course_id)
         <!--@date:2013-11-02-->
 
 
+=======
+
+% if course:
+<header class="global slim" aria-label="${_('Global Navigation')}">
+  % else:
+  <header class="global" aria-label="${_('Global Navigation')}">
+    % endif
+    <nav id="page-nav">
+      <style type="text/css" media="screen">
+       header.global.slim h1.logo::before{top:5px}
+      </style>
+      <h1 class="logo">
+        <!--@begin:Choose the link of the top logo according user's login status-->
+        <!--@date:2013-11-02-->
+
+
+>>>>>>> www0
         %if context.get("curr_user"):
         <% curr_user=context.get("curr_user") %>
         %else:
@@ -362,11 +380,16 @@ site_status_msg = get_site_status_msg(course_id)
         <ol class="user admin" >
         %if show_extended and curr_user.is_superuser:
         <!-- Administration -->
+<<<<<<< HEAD
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;">
+=======
+          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+>>>>>>> www0
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
               <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
+<<<<<<< HEAD
             </ul>
           </li>
           %endif
@@ -422,6 +445,71 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         </ol>
         %endif
+=======
+              <script type="text/javascript">
+                $(document).on('click', function(event) {
+                  if (!$(event.target).closest('.admin-menu-holder').length) {
+                    $(".admin-dropdown-menu").hide();
+                  }
+                });
+              </script>
+            </ul>
+          </li>
+          %endif
+
+          %if show_extended:
+          <!-- Notifications -->
+          <li class="imessage_style" style="margin-right:5px;">
+	        <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+	          <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
+		        <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
+		          <tr height="26">
+			        <td width="19"></td>
+			        <td width="31"></td>
+		          </tr>
+		          <tr height="24">
+			        <td width="19" >&nbsp;</td>
+			        <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
+		          </tr>
+		        </table>
+	          </div>
+	          <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);">
+	          </div>
+	        </a>
+          </li>
+          %endif
+
+          %if show_extended:
+          <!-- Dashboard button with dropdown -->
+          <li class="primary">
+            <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;">
+              <span class="avatar"></span>
+              <span class="sr">${_("Dashboard for:")} </span>
+              <span style="display:block;max-width:90px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+            </a>
+          </li>
+          <li class="primary">
+            <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+            <ul class="dropdown-menu">
+              <%block name="navigation_dropdown_menu_links" >
+              <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
+              </%block>
+              <li><a href="/course_credits" class="main-link">Course Credits</a></li>
+              <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+            </ul>
+          </li>
+        </ol>
+        %endif
+        
+        %endif
+        %if not show_extended:
+        <ol class="right nav-courseware" id="btn-dashboard">
+          <li class="nav-courseware-01">
+            <a class="cta cta-login" href="/dashboard">Dashboard</a>
+          </li>
+        </ol>
+        %endif
+>>>>>>> www0
         % else:
         <%block name="navigation_global_links">
         % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
@@ -463,8 +551,13 @@ site_status_msg = get_site_status_msg(course_id)
           % else:
           <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
           <!--@end-->                
+<<<<<<< HEAD
           % endif
           % endif
+=======
+          % endif
+          % endif
+>>>>>>> www0
         </li>
       </ol>
       % endif
@@ -653,6 +746,7 @@ site_status_msg = get_site_status_msg(course_id)
     function fillZero(val)
     {
       return val<10?'0'+val:val;
+<<<<<<< HEAD
     }
     function interactive_update_dateFormat(data)
     {
@@ -685,6 +779,40 @@ site_status_msg = get_site_status_msg(course_id)
     }
     function interactive_update_activateItem(data)
     {
+=======
+    }
+    function interactive_update_dateFormat(data)
+    {
+      dateinfo={};
+      interval = interactive_update_getTimeInterval(data);
+      var darr = new Date(data.date).toString().split(' ');
+      var sign = 'am';
+      if(interval<1)
+      {
+        dateinfo.date="Today";
+      }
+      else if(interval<2)
+      {
+        dateinfo.date="Yesterday";
+      }
+      else
+      {
+        dateinfo.date = darr[1]+" "+darr[2];
+      }
+      var timeArr = darr[4].substr(0,5).split(":");
+      if(timeArr[0]>12 && timeArr[0]<24)
+      {
+        timeArr[0]=fillZero(timeArr[0]-12);
+        sign='pm';
+      }
+      var time = timeArr[0]+":"+timeArr[1]+sign;
+      dateinfo.full_date = dateinfo.date+" at "+time;
+      dateinfo.time = time;
+      return dateinfo;
+    }
+    function interactive_update_activateItem(data)
+    {
+>>>>>>> www0
       var user_id = "${curr_user.id}";
       $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
     }
