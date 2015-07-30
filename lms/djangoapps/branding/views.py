@@ -143,3 +143,18 @@ def tos(request):
 def privacy(request):
     return render_to_response('static_templates/privacy.html', {})
 #@end
+#demo temp page
+@ensure_csrf_cookie
+@cache_if_anonymous
+def demo1(request):
+    return render_to_response('demo1.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def demo2(request):
+    return render_to_response('demo2.html', {})
+
+@ensure_csrf_cookie
+@cache_if_anonymous
+def demo3(request):
+    return render_to_response('demo3.html', {})
