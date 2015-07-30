@@ -203,7 +203,7 @@ site_status_msg = get_site_status_msg(course_id)
    display: none;
    padding: 5px 10px;
    position: absolute;
-   right: 0px;
+   right: -12px;
    top: 34px;
    width: 170px;
    z-index: 3;
@@ -362,11 +362,18 @@ site_status_msg = get_site_status_msg(course_id)
         <ol class="user admin" >
         %if show_extended and curr_user.is_superuser:
         <!-- Administration -->
-          <li style="display:block;float:left;padding-top:10px;margin-right:0px;">
+          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
               <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
+              <script type="text/javascript">
+                $(document).on('click', function(event) {
+                  if (!$(event.target).closest('.admin-menu-holder').length) {
+                    $(".admin-dropdown-menu").hide();
+                  }
+                });
+              </script>
             </ul>
           </li>
           %endif
@@ -396,14 +403,14 @@ site_status_msg = get_site_status_msg(course_id)
           %if show_extended:
           <!-- Dashboard button with dropdown -->
           <li class="primary">
-            <a href="${reverse('dashboard')}" class="user-link" style="">
+            <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
               <span class="avatar"></span>
               <span class="sr">${_("Dashboard for:")} </span>
-              <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;line-height:12px;font-weight:bold;">${curr_user.username}</span>
+              <span style="display:block;max-width:90px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
             </a>
           </li>
           <li class="primary">
-            <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+            <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
             <ul class="dropdown-menu">
               <%block name="navigation_dropdown_menu_links" >
               <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
@@ -414,6 +421,7 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         </ol>
         %endif
+        
         %endif
         %if not show_extended:
         <ol class="right nav-courseware" id="btn-dashboard">
