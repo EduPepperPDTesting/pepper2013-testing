@@ -289,12 +289,26 @@ site_status_msg = get_site_status_msg(course_id)
         </li>
       </%block>
    </ol>
-<!--@end-->
+   <!--@end-->
+
 %if curr_user==request.user:
 <ol class="user" id="btn-logged-user">
-<!--@begin:add iMessage-Icon-->
-<!--@date:2014-06-19-->
-	<li class="imessage_style">
+  <!--@begin:add iMessage-Icon-->
+  <!--@date:2014-06-19-->
+
+  <style type="text/css" media="screen">
+    a.configuration{color:#646464;font-family:'open sans';font-size:16px;}
+    a.configuration:hover{text-decoration:none;color:#1d9dd9}
+    
+  </style>
+
+  <li style="display:block;float:left;padding-top:10px;margin-right:0px;">
+    %if curr_user.is_superuser:
+    <a href="${reverse('configuration_import_user')}" class="configuration" style="">Configruation</a>
+    %endif
+  </li>
+
+	<li class="imessage_style" style="margin-right:5px;">
 	<a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
 		<div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
 			<table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
@@ -430,6 +444,7 @@ site_status_msg = get_site_status_msg(course_id)
  %endif
 
 <script>
+  var interactive_update_window_top=0;
   $(function(){
 //-----------------------------------------------------------------
     interactive_update();
@@ -636,12 +651,14 @@ site_status_msg = get_site_status_msg(course_id)
         $("#show_personalmessage").hide();
         $(".linkwin").hide();
         $("#lean_overlay").hide();
+        $(window).scrollTop(interactive_update_window_top);
       })
       message_board_clearContent();
       $("#lean_overlay").click(function(){
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
           $(this).hide();
+          $(window).scrollTop(interactive_update_window_top);
         })
       var userInfo=[];
       var data_ele=$("#show_notifications");
