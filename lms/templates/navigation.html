@@ -525,6 +525,7 @@ site_status_msg = get_site_status_msg(course_id)
   %endif
 
   <script>
+    var interactive_update_window_top=0;
     $(function(){
       //-----------------------------------------------------------------
       interactive_update();
@@ -732,12 +733,14 @@ site_status_msg = get_site_status_msg(course_id)
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
           $("#lean_overlay").hide();
+          $(window).scrollTop(interactive_update_window_top);
         })
           message_board_clearContent();
         $("#lean_overlay").click(function(){
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
           $(this).hide();
+          $(window).scrollTop(interactive_update_window_top);
         })
           var userInfo=[];
         var data_ele=$("#show_notifications");
