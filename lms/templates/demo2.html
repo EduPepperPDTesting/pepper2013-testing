@@ -1,0 +1,593 @@
+<head>
+
+  <title>Demo2</title>
+
+  <script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script><script src="/jsi18n/" type="text/javascript"></script>
+
+  <link href="/static/images/favicon.8efa5a4bfe93.ico" type="image/x-icon" rel="icon">
+  <link type="text/css" rel="stylesheet" href="/static/css/lms-application.71464ae0f479.css">
+  <script charset="utf-8" src="/static/js/lms-main_vendor.922a156aeac1.js" type="text/javascript"></script>
+
+  <!--[if lt IE 9]>
+  <script src="/static/js/html5shiv.d5e37d8ee1a4.js"></script>
+  <![endif]-->
+
+  <!--[if lte IE 9]>
+  
+    <link href="/static/css/lms-ie.acf44714cbfe.css" rel="stylesheet" type="text/css" />
+
+  <![endif]-->
+  <meta content="" name="path_prefix">
+  <meta content="_mipQ4AtZQDNmbtOkwehQDOgCxUUV2fb_C0b6wbiRHY" name="google-site-verification">
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-35248639-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+
+  <!-- dummy segment.io -->
+<script type="text/javascript">
+  var analytics = {
+    track: function() { return; },
+    pageview: function() { return; }
+  };
+</script>
+<!-- end dummy segment.io -->
+
+
+</head>
+<style media="screen" type="text/css">
+  *{font-family:"open sans" !important;}
+  p{font-family:"open sans" !important;}
+  
+  a.blue{
+  color:#556370 !important;
+  }
+  
+  a.blue-underline{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.blue-underline:normal{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.blue-underline:hover{
+  color:#556370 !important;
+  text-decoration:underline !important;
+  border:none;
+  }
+  
+  a.main-link{
+  font-family:'open sans';
+  font-size:16px;
+  text-transform:none;
+  font-weight:normal !important;
+  }
+  .imessage_style{
+  margin-right: 0px;
+  display: block;
+  float: left;
+  margin: 0px;
+  padding: 5px 8px 7px 8px;
+  margin-top:-14px;
+  }
+  
+ #view_all_note:hover {
+  background:#6e8194;
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,? box-shadow;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,? 0.25s,? 0.25s;
+  color:#fff;
+  }
+  #view_all_note{
+  border-width:0;
+  background:#556370;
+  text-decoration: none;
+  padding-bottom: 10px;
+  padding-left: 90px;
+  padding-right: 90px;
+  padding-top: 10px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: #949494 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  #view_all_note:normal {
+  background:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  .ftg_button {
+  width:100px;
+  text-align:center;
+  display: block;
+  text-decoration: none!important;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  padding: 3px 3px;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  box-shadow: inset 0px 0px 2px #fff;
+  -o-box-shadow: inset 0px 0px 2px #fff;
+  -webkit-box-shadow: inset 0px 0px 2px #fff;
+  -moz-box-shadow: inset 0px 0px 2px #fff;
+}
+.ftg_yellow {
+  color: #fff;
+  border: 1px solid #57c4be;
+  background-color: #57c4be;
+}
+.linkwin{
+  background:#fff;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  border-radius: 0;
+  box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+  display: none;
+  left: 50%;
+  padding: 8px;
+  position: absolute;
+  width: 480px;
+  display: none;
+  margin-left:-250px;
+  top: 320px;
+  z-index: 11000;
+  height:200px;
+  }
+  .leanmodalStyle {
+    display: block;
+    left: 50%;
+    margin-left: -309px;
+    opacity: 1;
+    position: absolute;
+    top: 120px;
+    width: 600px;
+    z-index: 11000;
+}
+.message_board_txt_prompt
+{
+  color:#646464;
+  font-style:italic;
+  font-weight:bold;
+}
+.message_board_empty_info
+{
+  color:#000000;
+  margin-top:80px;
+  text-align:center;
+  font-weight:bold;
+}
+
+#show_notifications_link:focus { outline: none!important;}
+[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+</style>
+<header aria-label="Global Navigation" class="global">
+  <nav id="page-nav">
+<style media="screen" type="text/css">
+  header.global.slim h1.logo::before{top:5px}
+</style>
+  <h1 class="logo">
+<!--@begin:Choose the link of the top logo according user's login status-->
+<!--@date:2013-11-02-->
+
+
+  
+  
+    <a href="/dashboard">
+<!--@end-->
+
+      
+<!--@begin:Choose the image of the top logo according to user's login status-->      
+        <img alt="{settings.PLATFORM_NAME} home" src="/static/images/header-logo.png" style="height:auto;vertical-align:top">
+<!--@end-->        
+     
+    </a>
+  </h1>
+
+      <!--@begin:Top navigation tabs and styles before login-->
+      <!--@date:2013-11-02-->
+      <style>
+        ol.nav-left li a{
+        color:#555;
+        padding-top:20px;
+        }
+
+      </style>
+
+
+      <ol class="left nav-global authenticated">
+
+      <li><a class="main-link" href="/demo1">Dashboard</a></li>
+      <li><a class="main-link" href="" style="cursor:default;" onclick="return false;">Assessments</a></li>
+      <li><a class="main-link" href="" style="cursor:default;" onclick="return false;">Reporting</a></li>
+      <li><a class="main-link" href="" style="cursor:default;" onclick="return false;">Learning</a></li>
+      <li><a class="main-link" href="" style="cursor:default;" onclick="return false;">Resources</a></li>
+
+        <li style="display:none;" class="nav-global-01">
+          <a href="/courses">Find Courses</a>
+        </li>
+      
+   </ol>
+<!--@end-->
+<ol id="btn-logged-user" class="user">
+<!--@begin:add iMessage-Icon-->
+<!--@date:2014-06-19-->
+  <li class="imessage_style">
+  <a style="text-decoration:none !important;" id="show_notifications_link" rel="leanModal" href="#show_notifications">
+
+    <div style="width: 50px; height: 50px; background: transparent url(&quot;/static/images/ppd-iMessage-none.jpg&quot;) repeat scroll 0% 0%;" class="info_btn">
+    </div>
+  </a>
+  </li>
+<!--@end-->
+  <li class="primary">
+    <a class="user-link" href="/dashboard">
+      <span class="avatar"></span>
+      <span class="sr">Dashboard for: </span> Smokeyjack
+    </a>
+  </li>
+  <li class="primary">
+    <a class="dropdown" href="#"><span class="sr">More options dropdown</span> ▾</a>
+    <ul class="dropdown-menu">
+      
+      <li><a target="_blank" href="/static/resource/Pepper_User_Guide_Version_I.pdf">Help</a></li>
+      
+      <li><a class="main-link" href="/course_credits">Course Credits</a></li>
+      <li><a href="/logout">Log Out</a></li>
+    </ul>
+  </li>
+</ol>
+
+  </nav>
+</header>
+
+
+<section id="container_dashboard" class="container dashboard">
+  <section class="profile-sidebar">
+    <header class="profile">
+      <h1 class="user-name">SmokeyJack</h1>
+    </header>
+    <section class="user-info">
+      <ul>
+        <li>
+<!--@begin:Profile：username-->
+<!--@date:2013-11-02-->
+          <span class="title">
+            <div class="icon name-icon"></div><b>Name:</b>
+            <span style="display:inline;margin-left:0;font-weight:normal;" class="data" id="full_name_span">Dr. Jack McLaughlin</span>
+            
+     
+      
+            (<a class="edit-name" rel="leanModal" href="#apply_name_change">edit</a>)
+<!--@end-->          
+        </span></li>
+<!--@begin:Profile：user photo-->
+<!--@date:2013-11-02-->
+        <li>
+          <span class="title"><div style="background-image:url(/static/images/portal-icons/photo.png) !important;" class="icon email-icon">
+            </div><b>User Photo</b>
+            (<a class="edit-photo" rel="leanModal" href="#change_photo">edit</a>)
+          </span> 
+          <div style="text-align:center;margin-top:5px;">
+            <img alt="photo" style="" src="/user_photo/24">
+          </div>
+        </li>
+<!--@end-->
+        <!-- <li> -->
+        <!--   <span class="title"><div class="icon email-icon"></div>Email -->
+        <!--     %if curr_user==request.user: -->
+        <!--     % if external_auth_map is None or 'shib' not in external_auth_map.external_domain: -->
+        <!--     <\!-- (<a href="#change_email" rel="leanModal" class="edit-email">edit</a>) -\-> -->
+        <!--     % endif -->
+        <!--     %endif -->
+        <!--   </span> <span class="data">drsmokeyjack@hotmail.com</span> -->
+        <!-- </li> -->
+        <li>
+          <span class="title"><a id="pwd_reset_button" rel="leanModal" href="#password_reset_complete">Reset Password</a></span>
+          <form action="/password_reset/" data-remote="true" method="post" id="password_reset_form">
+            <input type="hidden" value="drsmokeyjack@hotmail.com" maxlength="75" name="email" id="id_email">
+            <!-- <input type="submit" id="pwd_reset_button" value="Reset Password" /> -->
+          </form>
+        </li>
+<!--@begin:Add some profile info-->
+<!--@date:2013-11-02-->  
+    <li>
+          <span class="title">
+      <div style="font-family: 'Open Sans';font-size:12px;">
+            <div style="padding:0 0 5px 0;" class=""> 
+              <b style="font-size:14px;color:#000">My Profile:</b>
+            </div>
+      <div style="line-height:30px;"><b>State:</b>
+        Massachusetts
+      </div>
+      <div style="line-height:30px;"><b>District:</b>
+        <br>Public Consulting Group
+      </div>
+      <div style="line-height:30px;"><b>School:</b>
+        <br>Pepper Team
+        (<a rel="leanModal" href="#change_school">edit</a>)
+      </div>
+      <div style="line-height:30px;"><b>Grade Level:</b>
+              
+              <br>
+        
+              5
+        (<a rel="leanModal" href="#change_grade_level">edit</a>)
+      </div>
+      <div style="line-height:30px;"><b>Major Subject Area:</b>
+              <br>
+        Multiple Subjects
+        (<a rel="leanModal" href="#change_major_subject_area">edit</a>)
+      </div>
+      <div style="line-height:30px;"><b>Number of Years in Education:</b>
+        5
+              (<a rel="leanModal" href="#change_years_in_education">edit</a>)
+      </div>
+
+            <div style="padding:15px 0 5px 0;"> 
+              <b style="font-size:14px;color:#000;">My Class Profile:</b>
+            </div>
+            
+      <div style="line-height:30px;">
+              <b>Free/Reduced Lunch:</b>
+        6-10%
+              (<a rel="leanModal" href="#change_percent_lunch">edit</a>)
+      </div>
+            <div style="line-height:30px;">
+              <b>IEPs:</b>
+              (<a rel="leanModal" href="#change_percent_iep">edit</a>)
+      </div>
+            <div style="line-height:30px;">
+              <b>English Learners:</b>
+              (<a rel="leanModal" href="#change_percent_eng_learner">edit</a>)
+      </div>
+            
+    </div></span></li>
+        <li>
+          <span class="title">
+          <div style="font-family: 'Open Sans';font-size:12px;">
+            <b style="color:#000;font-size:14px;">Bio:</b>
+            (<a rel="leanModal" href="#change_bio">edit</a>)
+<pre style="padding:0;margin-top:10px;">I taught for five years in the elementary school setting before becoming an administrator of curriculum and instruction for the Santa Cruz County Office of Education.
+</pre>
+          </div>
+          </span>
+        </li>
+<!--@end-->        
+      </ul>
+<!--@begin: Remove some profile info-->
+<!--@date:2013-11-02-->  
+         <!-- <div style="width:180px">  <span>City:Aptos</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>State:Ca</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Zip:96003</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Address:(none)</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:180px"><span>Phone:(none)</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div><p/></div> -->
+         <!-- <div style="width:180px"><span>District:Really big</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:220px"><span>School:Ver Little School</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:240px"><span>Role tale in school:Teacher</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+         <!-- <div style="width:230px"><span>Focus Grade(s)4,5,and 6</span>  <span style="float:right;padding-right:0px;">(<a href="" class="">edit</a>)</span></div> -->
+       
+<!--@end-->      
+    </section>
+  </section>
+<!--@begin:The styles used only in Dashboard-->
+<!--@date:2013-11-02-->
+<style media="screen" type="text/css">
+  a.btnx:hover {
+  background: linear-gradient(#1e8bbe, #0e72a1); 
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,&#8203; box-shadow;
+  transition-timing-function:
+  cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,&#8203; 0.25s,&#8203; 0.25s;
+  text-decoration:none;
+  }
+  a.btnx {
+  background-clip: padding-box;
+  border:1ps solid rgb(13, 114, 162);
+  background-color:rgb(29, 157, 217);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1d9dd9), color-stop(100%, #0e7cb0));
+  background-image: -webkit-linear-gradient(#1d9dd9, #0e7cb0);
+  background-image: linear-gradient(#1d9dd9, #0e7cb0);
+  border: 1px solid #0d72a2;
+  box-shadow: inset 0 1px 0 0 #61b8e1;
+  text-decoration: none;
+  padding:6px 32px 7px 32px;
+  line-height:26px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+</style>
+
+<style type="text/css" media="screen">
+    
+    #btn-dashboard{display:none;}
+    .form-select{font-size:14px !important;width:180px;}
+    .image-link-style{
+     {
+      width:240px;
+      height:200px;
+      display: block;
+      float: left;
+      margin: 15px;
+    
+    }
+    .image-bottom-style{
+      
+      display: block;
+    }
+    .card-link{
+
+      width: 240px;
+      height: 60px;
+      vertical-align: middle;
+      padding: 0 17px;
+      font-size: 22px;
+      text-decoration: none!important;
+    }
+    .card-link span{
+     color: #000000;
+    }
+    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    a.btnx:hover {
+    background:#638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+    }
+    a.btnx {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 2px!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px!important;
+    text-decoration: none!important;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    a.btnx:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+</style>
+<!--@end-->
+<!--@begin:Add lastnew in Dashboard-->
+<!--@date:2013-11-02-->
+
+<section class="my-courses">
+    <header>
+      <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">Student Assessment System</h2>
+    </header>
+    <section style="margin:auto;width:960px;">
+    <section class="courses" style="padding-top:5px!important;">
+      <div class="courses-listing">
+        <div>
+          <div class="image-link-style" style="padding:5px;border:3px solid #ddd;width:370px;height:380px;display: block;float:left;margin:15px;">
+          <a href="/demo3" target="_blank" class="card-link image-bottom-style" style="text-decoration: none!important;">
+          <div style="width:370px;height:278px;background-image: url(/static/images/demo-test/demo2-1.jpg);background-size:100% 100%;">
+          </div>
+          <div style="width:370px;height:50px;text-align:center;margin-top:33px;">
+            <span style="font-weight:bold;color:#1d9dd9;">CREATE ASSESSMENT</span></a>
+          </div>
+          </div>
+          <div class="image-link-style" style="padding:5px;border:3px solid #ddd;width:370px;height:380px;display: block;float:left;margin:15px;">
+          <a href="javascript:void(0);" class="card-link image-bottom-style" style="text-decoration: none!important;cursor:default;">
+          <div style="width:370px;height:278px;background-image: url(/static/images/demo-test/demo2-2.jpg);background-size:100% 100%;">
+          </div>
+          <div style="width:370px;height:50px;text-align:center;margin-top:33px;">
+            <span style="font-weight:bold;color:#1d9dd9;">DELIVER ASSESSMENT</span></a>
+          </div>
+        </div>
+        <div class="image-link-style" style="padding:5px;border:3px solid #ddd;width:370px;height:380px;display: block;float:left;margin:15px;">
+          <a href="javascript:void(0);" class="card-link image-bottom-style" style="text-decoration: none!important;cursor:default;">
+          <div style="width:370px;height:278px;background-image: url(/static/images/demo-test/demo2-3.jpg);background-size:100% 100%;">
+          </div>
+          <div style="width:370px;height:50px;text-align:center;margin-top:33px;">
+            <span style="font-weight:bold;color:#1d9dd9;">RE-TEACH, ENRICH & EARLY WARNING</span></a>
+          </div>
+        </div>
+        <div class="image-link-style" style="padding:5px;border:3px solid #ddd;width:370px;height:380px;display: block;float:left;margin:15px;">
+          <a href="/resource_library_global" target="_blank" class="card-link image-bottom-style" style="text-decoration: none!important;">
+          <div style="width:370px;height:278px;background-image: url(/static/images/demo-test/demo1-4.jpg);background-size:100% 100%;">
+          </div>
+          <div style="width:370px;height:50px;text-align:center;margin-top:33px;">
+            <span style="font-weight:bold;color:#1d9dd9;">OPEN EDUCATIONAL RESOURCES</span></a>
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</section>
+</section>
+
+<div style="border-top:1px solid #8a8c8f;box-shadow:0 -1px 5px 0 rgba(0, 0, 0, 0.1);z-index:11" class="wrapper wrapper-footer">
+  <footer id="page-footer">
+    <div style="width:600px;" class="colophon">
+      <nav class="nav-colophon">
+        <ol>
+          <li class="nav-colophon-03">
+            <a href="/press" id="press"> Press </a>
+          </li>
+          <li class="nav-colophon-04">
+            <a href="/faq" id="faq"> FAQ </a>
+          </li>
+          <li class="nav-colophon-05">
+            <a href="/contact" id="contact"> Contact </a>
+          </li>
+          <li>
+            <a class="logo" target="_blank" href="https://twitter.com/Pepper_PD"><img width="50" src="/static/images/twitter_bird_logo.png"></a>
+          </li>
+          <li>
+            <a class="logo" target="_blank" href="https://www.facebook.com/PepperPD"><img width="50" src="/static/images/facebook_logo.png"></a>
+          </li>
+          <li>
+            <a class="logo" target="_blank" href="https://www.linkedin.com/groups?mostRecent=&amp;gid=6742057&amp;trk=my_groups-tile-flipgrp"><img width="50" src="/static/images/linkedin-logo.jpg"></a>
+          </li>
+          <li>
+            <a class="logo" target="_blank" href="https://www.youtube.com/channel/UCIgkrFJRifhIN5Thpw5MUFQ"><img width="50" src="/static/images/new_youtube_logo.png"></a>
+          </li>
+        </ol>
+      </nav>
+    </div>
+    <img width="285" height="58" src="/static/images/pcgeducationdown.jpg" style="float:right;">
+    <div class="references">
+    </div>
+  </footer>
+</div>
