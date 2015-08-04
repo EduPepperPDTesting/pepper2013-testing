@@ -31,7 +31,11 @@ FilterControl.prototype.createFavorite=function(){
   });
   $container.append("<br/>");
   var $delete=$("<input type='button' class='small' value='Delete'>").appendTo($container);
-  $delete.click(function(){self.deleteFavorite($(this).val())});
+  $delete.click(function(){
+    if(id=data[$drop.val()].id){
+      self.deleteFavorite(id);  
+    }
+  });
   var $save=$("<input type='button' class='small' value='Save'>").appendTo($container);
   $save.click(function(){self.saveFavorite()});
 }
@@ -51,8 +55,10 @@ FilterControl.prototype.onFavoriteChange=function(filterItem){
   });
 }
 FilterControl.prototype.deleteFavorite=function(id){
+  console.log(id)
   $.get(this.setting.urls.favorite_delete,{'id':id},function(r){
     if((typeof r) == 'string')r=$.parseJSON(r);
+    
   });
 }
 FilterControl.prototype.saveFavorite=function(){
