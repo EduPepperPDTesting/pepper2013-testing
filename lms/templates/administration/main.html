@@ -94,23 +94,16 @@ from student.models import State,District,School
  div.control.filter h2{
    color:#f90;
  }
- div.control.filter span.patterns{
+ div.control.filter div.favorite{
    float:right;
  }
- div.control.filter span.patterns input{
-   font-size:12px;height:2em;line-height:2em;padding:0 10px;margin:5px 5px 0 0;
- }
-
  div.control.filter input[type=button].small{
    font-size:12px;height:2em;line-height:2em;padding:0 10px;
    margin:5px 5px 0 0;
  }
-
  div.control.filter input[type=button].load{
    font-size:12px;height:2em;line-height:2em;padding:0 10px;
  }
-
- 
  /* table */
  div.control.table{
    padding:5px 5px 5px 5px;
@@ -263,8 +256,6 @@ from student.models import State,District,School
   $(".control.table").each(function(){new TableControl(this)});
   function filterUserRegistration(){
     var filter=$('#fltUserRegistration')[0].control.getFilter();
-
-    console.log(filter)
     $('#tblUserRegistration')[0].control.updateFilter(filter);
   }
 </script>

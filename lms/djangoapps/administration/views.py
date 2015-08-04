@@ -343,14 +343,35 @@ def registration_table(request):
                     ,'enrollment_start':date})
 
     return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
-    
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)    
 def favorite_filter_load(request):
-    favs=[
-        {'id':1,'name':'Alabama','filter':{'state':1,'district':34,'school':1406}}
-        ]
+    favs=[]
+    
+    # favs=[{'id':1,'name':'Alabama','filter':{'state':1,'district':34,'school':1406}}]
+
+    for ff in FilterFavorite.objects.filter(user=request.user).order_by('name'):
+        favs.append({
+            'id':ff.id
+            ,'name':ff.name
+            ,'filter':ff.filter_json
+            })
+    
     return HttpResponse(json.dumps(favs))
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_save(request):
-    pass
+    ff=FilterFavorite()
+    ff.user=request.user
+    ff.name=request.GET.get('name')
+    ff.filter_json=request.GET.get('filter')
+    ff.save()
+    return HttpResponse(json.dumps({'success': True}))    
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_delete(request):
-    pass
+    FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
+    return HttpResponse(json.dumps({'success': True}))

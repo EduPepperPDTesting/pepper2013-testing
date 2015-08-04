@@ -832,6 +832,8 @@ INSTALLED_APPS = (
     # Different Course Modes
     'course_modes',
 
+    'administration'
+
 )
 
 ######################### MARKETING SITE ###############################

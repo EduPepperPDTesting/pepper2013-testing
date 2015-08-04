@@ -15,15 +15,13 @@ FilterControl.prototype.parseSetting=function(){
 FilterControl.prototype.createFavorite=function(){
   var self=this;
   this.$el.addClass("clearfix");
-  var $container=$("<div></div>").appendTo(this.$el);
+  var $container=$("<div class='favorite'></div>").appendTo(this.$el);
   $container.css('float','right');
   var $drop=$("<select><option value=''></option></select>").appendTo($container);
-
   var data=[]
   $drop.change(function(){
     self.onFavoriteChange(data[$(this).val()]);
   });
-
   $.get(this.setting.urls.favorite_load,{},function(r){
     data=r;
     if((typeof data) == 'string')data=$.parseJSON(r);
@@ -31,7 +29,6 @@ FilterControl.prototype.createFavorite=function(){
       $("<option value='"+i+"'>"+item.name+"</option>").appendTo($drop);
     });
   });
-  
   $container.append("<br/>");
   var $delete=$("<input type='button' class='small' value='Delete'>").appendTo($container);
   $delete.click(function(){self.deleteFavorite($(this).val())});
@@ -40,8 +37,16 @@ FilterControl.prototype.createFavorite=function(){
 }
 FilterControl.prototype.onFavoriteChange=function(filterItem){
   var self=this;
-  this.filter=filterItem.filter;
-  $.each(filterItem.filter,function(k,v){
+  this.filter=$.parseJSON((filterItem && filterItem.filter)||"{}");
+  //** clear all
+  $.each(this.setting.fields,function(k,f){
+    if(f.require.length)
+      self.clearDropItems(self.getDrop(k));
+    else
+      self.getDrop(k).val('');
+  });
+  //** load all (if required ready)
+  $.each(this.filter,function(k,v){
     self.loadDropItems(self.getDrop(k));
   });
 }
@@ -51,9 +56,19 @@ FilterControl.prototype.deleteFavorite=function(id){
   });
 }
 FilterControl.prototype.saveFavorite=function(){
-  var filter=this.getFilter();
-  $.get(this.setting.urls.favorite_save,{'filter':filter},function(r){
-    if((typeof r) == 'string')r=$.parseJSON(r);
+  var self=this;
+  var $content=$("<div></div>")
+  $content.append("Please entry a name of the filter.<br>");
+  var $text=$("<input>").appendTo($content);
+  var $save=$("<input type=button value=save>").appendTo($content);
+  var dialog=new Dialog($('#dialog'))
+  dialog.show('Save Filter',$content);
+  $save.click(function(){
+    var filter=self.getFilter();
+    $.get(self.setting.urls.favorite_save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
+      if((typeof r) == 'string')r=$.parseJSON(r);
+      dialog.hide();
+    });
   });
 }
 FilterControl.prototype.createFields=function(){
@@ -65,7 +80,6 @@ FilterControl.prototype.createFields=function(){
       self.onDropChanged($drop);
     });
   });
-  
   $.each(this.setting.fields,function(k,f){
     if(!f.require.length){
       self.loadDropItems(self.getDrop(k));
@@ -93,7 +107,7 @@ FilterControl.prototype.formatOption=function(s,item){
   });
 }
 FilterControl.prototype.clearDropItems=function($drop){
-    var self=this;
+  var self=this;
   $drop.find("option").filter(
     function(){return this.getAttribute("value")!=""}
   ).remove();
@@ -243,7 +257,8 @@ Dialog.prototype.setTitle=function(title){
   this.$dialog.find('.dialog-title').html(title);
 }
 Dialog.prototype.setContent=function(content){
-  this.$dialog.find('.content').html(content);  
+  this.$dialog.find('.content').html("");
+  this.$dialog.find('.content').append(content);  
 }
 Dialog.prototype.show=function(title,content){
   var self=this;
