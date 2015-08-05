@@ -15,6 +15,7 @@ FilterControl.prototype.parseSetting=function(){
 FilterControl.prototype.createFavorite=function(){
   var self=this;
   this.$el.addClass("clearfix");
+  this.$el.find(".favorite").remove();
   var $container=$("<div class='favorite'></div>").appendTo(this.$el);
   $container.css('float','right');
   var $drop=$("<select><option value=''></option></select>").appendTo($container);
@@ -32,8 +33,10 @@ FilterControl.prototype.createFavorite=function(){
   $container.append("<br/>");
   var $delete=$("<input type='button' class='small' value='Delete'>").appendTo($container);
   $delete.click(function(){
-    if(id=data[$drop.val()].id){
-      self.deleteFavorite(id);  
+    if($drop.val()){
+      if(id=data[$drop.val()].id){
+        self.deleteFavorite(id);
+      }
     }
   });
   var $save=$("<input type='button' class='small' value='Save'>").appendTo($container);
@@ -55,18 +58,23 @@ FilterControl.prototype.onFavoriteChange=function(filterItem){
   });
 }
 FilterControl.prototype.deleteFavorite=function(id){
-  console.log(id)
-  $.get(this.setting.urls.favorite_delete,{'id':id},function(r){
-    if((typeof r) == 'string')r=$.parseJSON(r);
-    
+  var self=this;
+  new Dialog($('#dialog')).yesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
+    if(r){
+      $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
+        if((typeof r) == 'string')r=$.parseJSON(r);
+
+        self.createFavorite();
+      });
+    }
   });
 }
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
   var $content=$("<div></div>")
-  $content.append("Please entry a name of the filter.<br>");
+  $content.append("<div style='margin:0 0 15px 0'>Please entry a name of the filter.</div>");
   var $text=$("<input>").appendTo($content);
-  var $save=$("<input type=button value=save>").appendTo($content);
+  var $save=$("<input type=button value=save >").appendTo($content);
   var dialog=new Dialog($('#dialog'))
   dialog.show('Save Filter',$content);
   $save.click(function(){
@@ -179,13 +187,42 @@ TableControl.prototype.parseSetting=function(){
   $holder.remove();
 }
 TableControl.prototype.createTable=function(){
+  var self=this;
   this.$table=$("<table></table>").appendTo(this.$body);
-  var $head=$("<tr></tr>").appendTo(this.$table);
+  this.$thead=$("<tr></tr>").appendTo(this.$table);
   this.$tbody=$("<tbody></tbody>").appendTo(this.$table);
   $.each(this.setting.fields,function(k,f){
-    $("<th>"+f.display+"</th>").appendTo($head);
+    var $th=$("<th>"+f.display+"</th>").appendTo(self.$thead);
+    if(!f.show)$th.hide();
   });
-  $("<th class='checkboxCol'>M</th>").appendTo($head);
+  var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
+  var $button=$("<span>M</span>").appendTo($thMenu);
+  this.createFieldsSelector($thMenu,$button);
+}
+TableControl.prototype.createFieldsSelector=function($container,$button){
+  var self=this;
+  var items=[];
+  this.fieldsSelector=new ContextMenu($container,$button)
+  $.each(this.setting.fields,function(k,f){
+    var $el=$("<label></label>");
+    self.fieldsSelector.createItem($el);
+    $("<input type='checkbox' "+(f.show?'checked':'')+"/>").appendTo($el).click(function(){
+      self.toggleColumn(k);
+    });
+    $el.append(" "+f.display);
+  });
+}
+TableControl.prototype.toggleColumn=function(name){
+  var self=this;
+  var n=0;
+  $.each(this.setting.fields,function(k,f){
+    if(k==name){
+      self.$thead.find("th").eq(n).toggle();
+      console.log(self.$tbody.find("tr td:nth-child("+n+")").length)
+      self.$tbody.find("tr td:nth-child("+(n+1)+")").toggle();
+    }
+    n++;
+  });
 }
 TableControl.prototype.createFooter=function(){
   this.$footer=$("<div class='paging'></div>").appendTo(this.$body);
@@ -199,8 +236,9 @@ TableControl.prototype.loadData=function(page){
     self.$tbody.html(""); 
     $.each(r.rows,function(i,row){
       var $row=$("<tr></tr>").appendTo(self.$tbody);
-      $.each(self.setting.fields,function(k){
-        $("<td>"+row[k]+"</td>").appendTo($row);
+      $.each(self.setting.fields,function(k,f){
+        var $td=$("<td>"+row[k]+"</td>").appendTo($row);
+        if(!f.show)$td.hide();
       });
       $("<td><input type='checkbox'/></td>").appendTo($row);
     });
@@ -248,7 +286,7 @@ function Dialog(el){
   this.$dialog=$(el);
 }
 Dialog.prototype.showOverlay=function(){
-  this.$overlay=$("<div class='lean_overlay'></div>");
+  this.$overlay=$("<div class='lean-overlay'></div>");
   this.$overlay.appendTo(document.body);
   this.$overlay.css('display','block');
 }
@@ -266,6 +304,20 @@ Dialog.prototype.setContent=function(content){
   this.$dialog.find('.content').html("");
   this.$dialog.find('.content').append(content);  
 }
+Dialog.prototype.yesNo=function(title,content,callback){
+  var self=this;
+  this.show(title,content);
+  var $content=this.$dialog.find('.content');
+  var $buttons=$("<div></div>").appendTo($content)
+  $("<input type='button' value='Yes'>").appendTo($buttons).click(function(){
+    self.hide();
+    callback(true);
+  });
+  $("<input type='button' value='No'>").appendTo($buttons).click(function(){
+    self.hide();
+    callback(false);
+  });
+}
 Dialog.prototype.show=function(title,content){
   var self=this;
   this.showOverlay();
@@ -276,6 +328,25 @@ Dialog.prototype.show=function(title,content){
   });
   this.$dialog.fadeIn(200);
 }
+//////////////////////////////////////////////////////////////////
+function ContextMenu($container,$button){
+  var self=this;
+  this.$container=$("<ul class='context-menu'></ul>").appendTo($container);
+  $(document).on('click', function(event) {
+    if (!$(event.target).is($button[0]) && !$(event.target).closest(".context-menu").length) {
+      $(".context-menu").hide();
+    }
+  });
+  $button.click(function(){self.toggle()});
+}
+ContextMenu.prototype.createItem=function($el){
+  var $li=$("<li></li>").appendTo(this.$container);
+  $li.append($el);
+}
+ContextMenu.prototype.toggle=function(){
+  this.$container.toggle();
+}
+
 //////////////////////////////////////////////////////////////////
 var userData={}
 userData.$form=$("#filter_form");
