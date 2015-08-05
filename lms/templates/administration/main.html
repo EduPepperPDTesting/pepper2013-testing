@@ -98,6 +98,10 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  div.control.filter h2{
    color:#f90;
  }
+ div.control.filter .body select,
+ div.control.filter .body input{
+   margin:5px 5px 0 0;
+ }
  div.control.filter div.favorite{
    float:right;
  }
@@ -107,6 +111,7 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  }
  div.control.filter input[type=button].load{
    font-size:12px;height:2em;line-height:2em;padding:0 10px;
+   margin:5px 5px 0 0;
  }
  /* table */
  div.control.table{
@@ -130,6 +135,11 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:15px;
    overflow:visible;
  }
+
+ div.control.table th.checkbox-col span{
+   cursor:pointer;
+ }
+ 
  div.control.table div.paging{
    padding:5px;
    text-align:right;
@@ -156,7 +166,10 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    list-style:none;
  }
 
-
+input,select{-ms-box-sizing:content-box;
+  box-sizing:border-box;
+}
+ 
 </style>
 <!-- User Data Import -->
 <div style="padding-top:20px">
@@ -170,11 +183,11 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
           <textarea class="setting">
             {
             "fields":{
-            "state":{"require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "district":{"require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
-            "school":{"require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
             },
-      "urls":{
+            "urls":{
                "favorite_load":"/admin/favorite_filter_load",
                "favorite_save":"/admin/favorite_filter_save",
                "favorite_delete":"/admin/favorite_filter_delete"
@@ -215,13 +228,13 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
     <div class="expand_div">
       <form method="" id="filter_form" action="" onsubmit="return false;">
         <div class="control filter" id="fltUserRegistration">
-          <span class="body"></span>
+          <span class="body" style="display:inline-block;"></span>
           <textarea class="setting">
             {
             "fields":{
-            "state":{"require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "district":{"require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
-            "school":{"require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
             },
             "urls":{
                "favorite_load":"/admin/favorite_filter_load",
@@ -255,12 +268,62 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
           </textarea>
         </div>
         <div style="padding:5px;">
-          <input type="submit" name="" value="SEND REGISTRATION EMAILS" />
+          <input type="submit" name="" value="SEND REGISTRATION EMAILS" onclick="sendRegistrationEmails()"/>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+
+
+
+<!-- user data reporting -->
+<div style="padding:0px 0">
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+    <div class="expand_title expand_title_collapse">
+      User Data Reporting <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="" onsubmit="return false;">
+        <div class="control filter" id="fltUserRegistration">
+          <span class="body"></span>
+          <textarea class="setting">
+            {
+            "fields":{
+            "report":{"display":"Report","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "course":{"display":"Course","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "user_status":{"display":"Status","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "activate_date":{"display":"Enrollment Start","type":"text"},
+            "first_name":{"display":"First Name","type":"text"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "end_date":{"display":"Enrollment End","type":"text"},
+            "last_name":{"display":"Last Name","type":"text"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"},
+            "completion_date":{"display":"Completion Date","type":"text"},
+            "email":{"display":"Email","type":"text"},
+            "cohort":{"display":"Cohort","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "content_subject":{"display":"Content Subject","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"}
+            },
+            "urls":{
+               "favorite_load":"/admin/favorite_filter_load",
+               "favorite_save":"/admin/favorite_filter_save",
+               "favorite_delete":"/admin/favorite_filter_delete"
+            }
+            }
+          </textarea>
+          <input type="button" name="" value="LOAD"
+                 class="load"
+                 onclick="filterUserRegistration()"/>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+</div>
+<!-- dialog -->
+
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
@@ -277,5 +340,11 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
   function filterUserRegistration(){
     var filter=$('#fltUserRegistration')[0].control.getFilter();
     $('#tblUserRegistration')[0].control.updateFilter(filter);
+  }
+  function sendRegistrationEmails(){
+    var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+    $.post('/admin/registration/send_email',{ids:ids},function(){
+
+    });
   }
 </script>

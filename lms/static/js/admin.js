@@ -46,10 +46,15 @@ FilterControl.prototype.onFavoriteChange=function(filterItem){
   var self=this;
   this.filter=$.parseJSON((filterItem && filterItem.filter)||"{}");
   $.each(this.setting.fields,function(k,f){
-    self.clearDropItems(self.getDrop(k));
+    self.getFieldArea(k).val("")
+    if(f.type=='drop')
+      self.clearDropItems(self.getFieldArea(k));
   });
-  $.each(this.filter,function(k,v){
-    self.loadDropItems(self.getDrop(k));
+  $.each(this.setting.fields,function(k,f){
+    var value=self.filter[k];
+    self.getFieldArea(k).val(value)
+    if(f.type=='drop')
+      self.loadDropItems(self.getFieldArea(k));
   });
 }
 FilterControl.prototype.deleteFavorite=function(id){
@@ -81,27 +86,35 @@ FilterControl.prototype.saveFavorite=function(){
 }
 FilterControl.prototype.createFields=function(){
   var self=this;
+  var n=0;
   $.each(this.setting.fields,function(k,f){
-    var Name=k.replace(/^\w/,function(s){return s.toUpperCase()});
-    var $drop=$("<select name='"+k+"'><option value=''>Select "+Name+"</option></select>").appendTo(self.$body);
-    $drop.change(function(){
-      self.onDropChanged($drop);
-    });
+    if(f.type=="drop"){
+      var $drop=$("<select name='"+k+"'><option value=''>Select "+f.display+"</option></select>").appendTo(self.$body);
+      $drop.change(function(){
+        self.onDropChanged($drop);
+      });
+    }else if(f.type=="text"){
+      var $text=$("<input name='"+k+"' placeholder='"+f.display+"'/>").appendTo(self.$body);
+    }
+
+    self.getFieldArea(k).css('width','200px');
+    
+    if(++n%3==0)self.$body.append("<br>")
   });
   $.each(this.setting.fields,function(k,f){
-    if(!f.require.length){
-      self.loadDropItems(self.getDrop(k));
+    if(f.type=="drop" && !f.require.length){
+      self.loadDropItems(self.getFieldArea(k));
     }
   });
 }
-FilterControl.prototype.getDrop=function(name){
-  return this.$el.find("select[name="+name+"]");
+FilterControl.prototype.getFieldArea=function(name){
+  return this.$el.find("*[name="+name+"]");
 }
 FilterControl.prototype.getDropLoadingArgs=function($drop){
   var self=this;
   var data={};
   $.each(this.setting.fields[$drop.prop('name')].require,function(i,name){
-    data[name]=self.getDrop(name).val();
+    data[name]=self.getFieldArea(name).val();
     if(data[name]==''){
       data=null;
       return false;
@@ -136,6 +149,9 @@ FilterControl.prototype.loadDropItems=function($drop){
       $drop.append(self.formatOption(f.format,item));
     });
     var fv=self.filter[name];
+    
+    self.filter[name]="";
+    
     if(fv!==undefined && fv!=""){
       $drop.val(fv);
       $drop.change();
@@ -152,8 +168,8 @@ FilterControl.prototype.onDropChanged=function($drop){
 FilterControl.prototype.callByRequire=function(name,fn){
   var self=this;
   $.each(this.setting.fields,function(k,f){
-    if(f.require.indexOf(name)>-1){
-      fn(self.getDrop(k));
+    if(f.type=="drop" && f.require.indexOf(name)>-1){
+      fn(self.getFieldArea(k));
     }
   });
 }
@@ -161,7 +177,7 @@ FilterControl.prototype.getFilter=function(){
   var self=this;
   var data={};
   $.each(this.setting.fields,function(k){
-    data[k]=self.getDrop(k).val();
+    data[k]=self.getFieldArea(k).val();
   });
   return data;
 }
@@ -243,7 +259,7 @@ TableControl.prototype.loadData=function(page){
         var $td=$("<td>"+row[k]+"</td>").appendTo($row);
         if(!f.show)$td.hide();
       });
-      $("<td><input type='checkbox' value='"+row.id+"'/></td>").appendTo($row);
+      $("<td><input type='checkbox' class='check-row' value='"+row.id+"'/></td>").appendTo($row);
     });
     self.updatePager(r.paging);
   });
@@ -283,6 +299,13 @@ TableControl.prototype.updatePager=function(info){
 TableControl.prototype.updateFilter=function(f){
   this.filter=f;
   this.loadData(1);
+}
+TableControl.prototype.getCheckedValues=function(){
+  var ar=[];
+  this.$tbody.find("input.check-row").each(function(){
+    if(this.checked) ar.push(this.value)
+  });
+  return ar;
 }
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
