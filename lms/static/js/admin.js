@@ -96,9 +96,7 @@ FilterControl.prototype.createFields=function(){
     }else if(f.type=="text"){
       var $text=$("<input name='"+k+"' placeholder='"+f.display+"'/>").appendTo(self.$body);
     }
-
-    self.getFieldArea(k).css('width','200px');
-    
+    self.getFieldArea(k).css('width','250px');
     if(++n%3==0)self.$body.append("<br>")
   });
   $.each(this.setting.fields,function(k,f){
@@ -149,9 +147,7 @@ FilterControl.prototype.loadDropItems=function($drop){
       $drop.append(self.formatOption(f.format,item));
     });
     var fv=self.filter[name];
-    
     self.filter[name]="";
-    
     if(fv!==undefined && fv!=""){
       $drop.val(fv);
       $drop.change();
@@ -205,7 +201,7 @@ TableControl.prototype.createTable=function(){
   $.each(this.setting.fields,function(k,f){
     var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
     var order='';
-    $("<span style='float:right;cursor:pointer;'>+</span>").appendTo($th).click(function(){
+    $("<span class='sort'></span>").appendTo($th).click(function(){
       order=(order=='asc'?'desc':'asc');
       self.sort={sortField:k,sortOrder:order};
       self.loadData(self.currentPage);
@@ -213,7 +209,7 @@ TableControl.prototype.createTable=function(){
     if(!f.show)$th.hide();
   });
   var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
-  var $button=$("<span>M</span>").appendTo($thMenu);
+  var $button=$("<span></span>").appendTo($thMenu);
   this.createFieldsSelector($thMenu,$button);
 }
 TableControl.prototype.createFieldsSelector=function($container,$button){

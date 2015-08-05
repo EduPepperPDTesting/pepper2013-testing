@@ -129,6 +129,7 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    font-size:12px;
  }
  div.control.table th{
+      padding:5px;
    background:#99BFE6;
  }
  div.control.table th.checkbox-col{
@@ -137,7 +138,14 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  }
 
  div.control.table th.checkbox-col span{
+   margin-top:2px;
    cursor:pointer;
+   display:inline-block;
+   vertical-align:top;
+   width:18px;
+   height:20px;
+   line-height:12px;
+   background:url("/static/images/configuration/table_menu.png")
  }
  
  div.control.table div.paging{
@@ -151,6 +159,17 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    margin-right:5px;
    width:50px;
    text-align:right;
+ }
+
+ div.control.table .sort{
+   margin-top:3px;
+   vertical-align:top;
+   float:right;
+   cursor:pointer;
+   display:inline-block;
+   width:9px;
+   height:17px;
+   background:url("/static/images/configuration/table_arrow_sort.png")
  }
  ul.context-menu{
    position:absolute;
