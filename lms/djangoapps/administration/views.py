@@ -325,6 +325,12 @@ def registration_table(request):
         
     if request.GET.get('school',None):
         data=data.filter(Q(school_id=request.GET.get('school')))
+
+    if request.GET.get('sortField',None):
+        if request.GET.get('sortOrder')=='desc':
+            data=data.order_by("-"+request.GET.get('sortField'))
+        else:
+            data=data.order_by(request.GET.get('sortField'))
     
     page=request.GET.get('page')
     size=request.GET.get('size')
@@ -335,12 +341,13 @@ def registration_table(request):
 
     for p in data:
         date=p.activate_date.strftime('%b-%d-%y %H:%M:%S') if p.activate_date else ''
-            
-        rows.append({'email':p.user.email
-                    ,'first_name':p.user.first_name
-                    ,'last_name':p.user.last_name
-                    ,'district_name':p.district.name
-                    ,'enrollment_start':date})
+
+        rows.append({'id':p.user.id
+                     ,'user__email':p.user.email
+                     ,'user__first_name':p.user.first_name
+                     ,'user__last_name':p.user.last_name
+                     ,'district':p.district.name
+                     ,'activate_date':date})
 
     return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
 

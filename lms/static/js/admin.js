@@ -45,14 +45,9 @@ FilterControl.prototype.createFavorite=function(){
 FilterControl.prototype.onFavoriteChange=function(filterItem){
   var self=this;
   this.filter=$.parseJSON((filterItem && filterItem.filter)||"{}");
-  //** clear all
   $.each(this.setting.fields,function(k,f){
-    if(f.require.length)
-      self.clearDropItems(self.getDrop(k));
-    else
-      self.getDrop(k).val('');
+    self.clearDropItems(self.getDrop(k));
   });
-  //** load all (if required ready)
   $.each(this.filter,function(k,v){
     self.loadDropItems(self.getDrop(k));
   });
@@ -63,7 +58,6 @@ FilterControl.prototype.deleteFavorite=function(id){
     if(r){
       $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
         if((typeof r) == 'string')r=$.parseJSON(r);
-
         self.createFavorite();
       });
     }
@@ -176,6 +170,7 @@ function TableControl(el){
   el.control=this;
   this.$el=$(el);
   this.parseSetting();
+  this.sort={};
   this.$body=$(el).find(".body");
   this.createTable();
   this.createFooter();
@@ -192,7 +187,13 @@ TableControl.prototype.createTable=function(){
   this.$thead=$("<tr></tr>").appendTo(this.$table);
   this.$tbody=$("<tbody></tbody>").appendTo(this.$table);
   $.each(this.setting.fields,function(k,f){
-    var $th=$("<th>"+f.display+"</th>").appendTo(self.$thead);
+    var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
+    var order='';
+    $("<span style='float:right;cursor:pointer;'>+</span>").appendTo($th).click(function(){
+      order=(order=='asc'?'desc':'asc');
+      self.sort={sortField:k,sortOrder:order};
+      self.loadData(self.currentPage);
+    });
     if(!f.show)$th.hide();
   });
   var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
@@ -215,6 +216,7 @@ TableControl.prototype.createFieldsSelector=function($container,$button){
 TableControl.prototype.toggleColumn=function(name){
   var self=this;
   var n=0;
+  this.setting.fields[name].show=!this.setting.fields[name].show;
   $.each(this.setting.fields,function(k,f){
     if(k==name){
       self.$thead.find("th").eq(n).toggle();
@@ -228,9 +230,10 @@ TableControl.prototype.createFooter=function(){
   this.$footer=$("<div class='paging'></div>").appendTo(this.$body);
 }
 TableControl.prototype.loadData=function(page){
+  this.currentPage=page;
   var self=this;
-  var args={size:this.setting.paging.size,page:page}
-  var args=$.extend(args,this.filter)
+  var args={size:this.setting.paging.size,page:page};
+  var args=$.extend(args,this.filter,this.sort);
   $.get(this.setting.urls.data,args,function(r){
     if((typeof r) == 'string')r=$.parseJSON(r);
     self.$tbody.html(""); 
@@ -240,7 +243,7 @@ TableControl.prototype.loadData=function(page){
         var $td=$("<td>"+row[k]+"</td>").appendTo($row);
         if(!f.show)$td.hide();
       });
-      $("<td><input type='checkbox'/></td>").appendTo($row);
+      $("<td><input type='checkbox' value='"+row.id+"'/></td>").appendTo($row);
     });
     self.updatePager(r.paging);
   });
@@ -346,7 +349,6 @@ ContextMenu.prototype.createItem=function($el){
 ContextMenu.prototype.toggle=function(){
   this.$container.toggle();
 }
-
 //////////////////////////////////////////////////////////////////
 var userData={}
 userData.$form=$("#filter_form");
