@@ -59,7 +59,7 @@ FilterControl.prototype.onFavoriteChange=function(filterItem){
 }
 FilterControl.prototype.deleteFavorite=function(id){
   var self=this;
-  new Dialog($('#dialog')).yesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
+  new Dialog($('#dialog')).shoYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
     if(r){
       $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
         if((typeof r) == 'string')r=$.parseJSON(r);
@@ -326,7 +326,7 @@ Dialog.prototype.setContent=function(content){
   this.$dialog.find('.content').html("");
   this.$dialog.find('.content').append(content);  
 }
-Dialog.prototype.yesNo=function(title,content,callback){
+Dialog.prototype.showYesNo=function(title,content,callback){
   var self=this;
   this.show(title,content);
   var $content=this.$dialog.find('.content');
@@ -339,6 +339,18 @@ Dialog.prototype.yesNo=function(title,content,callback){
     self.hide();
     callback(false);
   });
+}
+Dialog.prototype.showProgress=function(title,content){
+  var self=this;
+  this.show(title,content);
+  var $content=this.$dialog.find('.content');
+  var $progress=$("<div class='progressbar'>\
+<div class='progressbar_text'>0%</div>\
+<div class='progressbar_flow'></div></div>").appendTo($content)
+  this.setProgress=function(precent){
+    $progress.find(".progressbar_text").text(precent+"%")
+    $progress.find(".progressbar_flow").css('width',precent+'%');
+  }
 }
 Dialog.prototype.show=function(title,content){
   var self=this;
@@ -429,6 +441,7 @@ userData.bindEvents=function(){
   });
 }
 userData.bindEvents();
+//////////////////////////////////////////////////////////////////
 $(".expand_title").click(function(){
   var $div=$(this).next("div.expand_div");
   if($div.is(':visible')){
@@ -439,3 +452,4 @@ $(".expand_title").click(function(){
     $(this).addClass('expand_title_expanded');
   }
 });
+//////////////////////////////////////////////////////////////////

@@ -79,7 +79,14 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    height:30px;
    background:#2a5;
    border-radius:5px;
-   width:0px;
+   width:50px;
+ }
+ .modal .progressbar_text{
+   position:absolute;
+   height:30px;
+   line-height:30px;
+   right:0px;
+   left:0px;
  }
  section.content-wrapper{background:transparent !important;}
  .list{padding:0px 5px;}
@@ -319,9 +326,7 @@ input,select{-ms-box-sizing:content-box;
             }
             }
           </textarea>
-          <input type="button" name="" value="LOAD"
-                 class="load"
-                 onclick="filterUserRegistration()"/>
+          <input type="button" name="" value="LOAD" class="load" onclick="filterUserRegistration()"/>
         </div>
       </form>
     </div>
@@ -347,7 +352,12 @@ input,select{-ms-box-sizing:content-box;
   }
   function sendRegistrationEmails(){
     var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+    if(!ids.length){
+      new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
+      return; 
+    }
     $.post('/admin/registration/send_email',{ids:ids},function(){
+      
     });
-  }
+  }  
 </script>

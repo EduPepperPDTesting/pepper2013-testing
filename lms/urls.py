@@ -26,6 +26,8 @@ urlpatterns = (
     url(r'^admin/favorite_filter_save$', 'administration.views.favorite_filter_save',name="admin_favorite_filter_save"),
     url(r'^admin/favorite_filter_delete$', 'administration.views.favorite_filter_delete',name="admin_favorite_filter_delete"),
 
+    url(r'^admin/registration/send_email$', 'administration.views.send_registration_email',name="admin_send_registration_email"),
+
 ####### Ancestor
 
     url(r'^sso/$', 'student.views.sso', name="sso"),

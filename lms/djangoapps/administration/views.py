@@ -382,3 +382,9 @@ def favorite_filter_save(request):
 def favorite_filter_delete(request):
     FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
     return HttpResponse(json.dumps({'success': True}))
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def send_registration_email(request):
+    return HttpResponse(json.dumps({'success': True}))    
+    
