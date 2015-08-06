@@ -209,8 +209,8 @@ TableControl.prototype.createTable=function(){
     if(!f.show)$th.hide();
   });
   var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
-  var $button=$("<span></span>").appendTo($thMenu);
-  this.createFieldsSelector($thMenu,$button);
+  var $trigger=$("<span class='menu-trigger'></span>").appendTo($thMenu);
+  this.createFieldsSelector($thMenu,$trigger);
 }
 TableControl.prototype.createFieldsSelector=function($container,$button){
   var self=this;
@@ -351,15 +351,18 @@ Dialog.prototype.show=function(title,content){
   this.$dialog.fadeIn(200);
 }
 //////////////////////////////////////////////////////////////////
-function ContextMenu($container,$button){
+function ContextMenu($container,$trigger){
   var self=this;
   this.$container=$("<ul class='context-menu'></ul>").appendTo($container);
   $(document).on('click', function(event) {
-    if (!$(event.target).is($button[0]) && !$(event.target).closest(".context-menu").length) {
+    if (!$(event.target).hasClass('menu-trigger') && !$(event.target).closest(".context-menu").length) {
+      console.log(123)
       $(".context-menu").hide();
     }
   });
-  $button.click(function(){self.toggle()});
+  $trigger.click(function(){
+    self.toggle();
+  });
 }
 ContextMenu.prototype.createItem=function($el){
   var $li=$("<li></li>").appendTo(this.$container);

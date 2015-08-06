@@ -12,7 +12,6 @@ from student.models import State,District,School
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
-
 <style type="text/css" media="screen">
  input[type=button].small{
 font-size:12px;height:2em;line-height:2em;padding:0 10px;
@@ -82,7 +81,6 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    border-radius:5px;
    width:0px;
  }
-
  section.content-wrapper{background:transparent !important;}
  .list{padding:0px 5px;}
  .list li{list-style-type:none;}
@@ -90,7 +88,6 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
  div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
  div.expand_div{display:none;}
- 
  /* filter */
  div.control.filter{
    padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
@@ -136,7 +133,6 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:15px;
    overflow:visible;
  }
-
  div.control.table th.checkbox-col span{
    margin-top:2px;
    cursor:pointer;
@@ -147,7 +143,6 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    line-height:12px;
    background:url("/static/images/configuration/table_menu.png")
  }
- 
  div.control.table div.paging{
    padding:5px;
    text-align:right;
@@ -160,7 +155,6 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:50px;
    text-align:right;
  }
-
  div.control.table .sort{
    margin-top:3px;
    vertical-align:top;
@@ -184,11 +178,9 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    line-height:30px;
    list-style:none;
  }
-
 input,select{-ms-box-sizing:content-box;
   box-sizing:border-box;
 }
- 
 </style>
 <!-- User Data Import -->
 <div style="padding-top:20px">
@@ -213,7 +205,7 @@ input,select{-ms-box-sizing:content-box;
             }
             }
           </textarea>          
-          <span class="body"></span>
+          <span class="body" style="display:inline-block;"></span>
         </div>
         <ul class="list">
           <li>
@@ -238,7 +230,6 @@ input,select{-ms-box-sizing:content-box;
     </div>
   </div>
 </div>
-
 <div style="padding:0px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
@@ -293,10 +284,6 @@ input,select{-ms-box-sizing:content-box;
     </div>
   </div>
 </div>
-
-
-
-
 <!-- user data reporting -->
 <div style="padding:0px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
@@ -306,7 +293,7 @@ input,select{-ms-box-sizing:content-box;
     <div class="expand_div">
       <form method="" id="filter_form" action="" onsubmit="return false;">
         <div class="control filter" id="fltUserRegistration">
-          <span class="body"></span>
+          <span class="body" style="display:inline-block;""></span>
           <textarea class="setting">
             {
             "fields":{
@@ -336,13 +323,11 @@ input,select{-ms-box-sizing:content-box;
                  class="load"
                  onclick="filterUserRegistration()"/>
         </div>
-        
       </form>
     </div>
   </div>
 </div>
 <!-- dialog -->
-
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
@@ -363,7 +348,6 @@ input,select{-ms-box-sizing:content-box;
   function sendRegistrationEmails(){
     var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
     $.post('/admin/registration/send_email',{ids:ids},function(){
-
     });
   }
 </script>
