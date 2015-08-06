@@ -33,8 +33,6 @@
   
 </%def>
 <style type="text/css" media="screen">
-
-
   .notification_style_button {
     width:100px;
     text-align:center;
@@ -60,7 +58,7 @@
 		var notifications_update_totalNum = 0;
 		var notifications_update_currDelItem={};
         var notifications_update_load_height=271;
-		notifications_update(notifications_update_loadNum);
+        notifications_update(notifications_update_loadNum);
 		function notifications_update(skip)
 	    {
 		    notifications_update_isload = false;
@@ -101,7 +99,9 @@
 	      notifications_update_switchType(data);
 	      var displayDate = notifications_update_dateFormat(data);
 	      var ele=$('<tr class="date_col" height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
+
 	      element=$('<tr class="notification_item" height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a class="open_win_link" href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><span><span style="padding-left:8px;"/><a class="delBtn" href="#" sytle="color:#388e9b;font-size:12px;">Delete</a></span><table><tr><td width="635">'+notifications_update_setMessageBody(data)+'</td><td class="body_read_more"></td></tr></table></section></td></tr>');
+
 	      notifications_update_setMessageReadmore(element,data);
 		  if(notifications_update_new_day!='')
 	      {
@@ -116,6 +116,7 @@
 	  	  }
 
 	      $('.notifications_container').append(element);
+
 	      element.find(".open_win_link").click(function(){
             interactive_update_window_top=$(window).scrollTop();
 	        if(data.activate=='false')
@@ -126,7 +127,7 @@
 	        {
 	          interactive_update_openWindow(data)
 	        }
-	       
+	        
 	      });
 	      element.find(".delBtn").click(function(){
             interactive_update_window_top=$(window).scrollTop();
@@ -239,7 +240,9 @@
 	    	   		notifications_update_currDelItem={};
 	    	   		$("#del_notification").hide();
 					$("#lean_overlay").hide();
+
                     $(window).scrollTop(interactive_update_window_top);
+
                     if($(".wrapper-footer").offset().top-$(".notifications_container").height()>notifications_update_load_height)
                     {
                         notifications_update_loadNum=$(".notification_item").length;
@@ -297,11 +300,16 @@
 	    	$("#del_notification").hide();
 	    	$("#show_personalmessage").hide();
 	    	$(this).hide();
+
+            $(window).scrollTop(interactive_update_window_top);
+
     	})
     	$("#del_notification").find(".close-modal").click(function(){
 			$("#del_notification").hide();
 			$("#lean_overlay").hide();
+
             $(window).scrollTop(interactive_update_window_top);
+
   		})
   		$(".notification_del_button").click(function(){
   			notifications_update_delItem(notifications_update_currDelItem);

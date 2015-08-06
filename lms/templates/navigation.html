@@ -262,7 +262,6 @@ site_status_msg = get_site_status_msg(course_id)
         <!--@begin:Choose the link of the top logo according user's login status-->
         <!--@date:2013-11-02-->
 
-
         %if context.get("curr_user"):
         <% curr_user=context.get("curr_user") %>
         %else:
@@ -362,11 +361,14 @@ site_status_msg = get_site_status_msg(course_id)
         <ol class="user admin" >
         %if show_extended and curr_user.is_superuser:
         <!-- Administration -->
+
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
               <li><a href="${reverse('configuration_import_user')}">PepConn</a></li>
+
               <script type="text/javascript">
                 $(document).on('click', function(event) {
                   if (!$(event.target).closest('.admin-menu-holder').length) {
@@ -430,6 +432,7 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         </ol>
         %endif
+
         % else:
         <%block name="navigation_global_links">
         % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
@@ -471,7 +474,7 @@ site_status_msg = get_site_status_msg(course_id)
           % else:
           <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
           <!--@end-->                
-          % endif
+
           % endif
         </li>
       </ol>
