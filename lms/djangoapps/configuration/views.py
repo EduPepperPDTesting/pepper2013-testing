@@ -187,7 +187,7 @@ def do_import_user(taskid,csv_lines,request):
                     subject = render_to_string('emails/activation_email_subject.txt', props)
                     subject = ''.join(subject.splitlines())
                     body = render_to_string('emails/activation_email.txt', props)
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email, email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
                 
@@ -230,7 +230,7 @@ def do_import_user(taskid,csv_lines,request):
         attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email], attachs)
+                       settings.SUPPORT_EMAIL, [request.user.email], attachs)
         output.close()
 
 def validate_user_cvs_line(line):
