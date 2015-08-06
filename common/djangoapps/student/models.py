@@ -360,8 +360,8 @@ class UserProfile(models.Model):
     percent_iep = models.IntegerField(blank=False, null=False, db_index=False,default=0)
     percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False,default=0)
 
-    # sso_idp=models.CharField(blank=True, max_length=50, null=True)
-    # sso_identifier=models.CharField(blank=True, max_length=255, null=True)
+    sso_idp=models.CharField(blank=True, max_length=50, null=True)
+    sso_identifier=models.CharField(blank=True, max_length=255, null=True)
 
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
