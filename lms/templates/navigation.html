@@ -183,6 +183,73 @@ site_status_msg = get_site_status_msg(course_id)
  #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
+<style type="text/css" media="screen">
+ a.configuration{
+   color:#646464;
+   font-family:'open sans';
+   font-size:16px;
+ }
+ a.configuration:hover{
+   text-decoration:none;
+   color:#1d9dd9;
+ }
+ ul.admin-dropdown-menu.expanded {
+   display: block;
+ }
+ ul.admin-dropdown-menu {
+   background: #FCFCFC none repeat scroll 0% 0%;
+   border-radius: 4px;
+   box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
+   border: 1px solid #646464;
+   display: none;
+   padding: 5px 10px;
+   position: absolute;
+   right: -12px;
+   top: 34px;
+   width: 170px;
+   z-index: 3;
+ }
+ ul.admin-dropdown-menu li {
+   display: block;
+   border-top: 1px dotted #C8C8C8;
+   box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
+ }
+ ul.admin-dropdown-menu li > a {
+   border: 1px solid transparent;
+   border-radius: 3px;
+   box-sizing: border-box;
+   color: #1D9DD9;
+   cursor: pointer;
+   display: block;
+   margin: 5px 0px;
+   overflow: hidden;
+   padding: 3px 5px 4px;
+   text-overflow: ellipsis;
+   transition: padding 0.15s linear 0s;
+   white-space: nowrap;
+   width: 100%;
+ }
+ ul.admin-dropdown-menu li:first-child {
+   border: medium none;
+   box-shadow: none;
+ }
+ ul.admin-dropdown-menu:before {
+   background: transparent none repeat scroll 0% 0%;
+   border-width: 6px;
+   border-style: solid;
+   border-color: #FCFCFC #FCFCFC transparent transparent;
+   box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
+   content: "";
+   display: block;
+   height: 0px;
+   position: absolute;
+   transform: rotate(-45deg);
+   right: 12px;
+   top: -6px;
+   width: 0px;
+ }
+</style>
+
 <!--@end-->
 
 % if course:
@@ -299,88 +366,20 @@ site_status_msg = get_site_status_msg(course_id)
         <!-- Administration -->
 
         <ol class="user admin" >
-          <style type="text/css" media="screen">
-           a.configuration{
-             color:#646464;
-             font-family:'open sans';
-             font-size:16px;
-           }
-           a.configuration:hover{
-             text-decoration:none;
-             color:#1d9dd9;
-           }
-           ul.admin-dropdown-menu.expanded {
-             display: block;
-           }
-           ul.admin-dropdown-menu {
-             background: #FCFCFC none repeat scroll 0% 0%;
-             border-radius: 4px;
-             box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
-             border: 1px solid #646464;
-             display: none;
-             padding: 5px 10px;
-             position: absolute;
-             right: 0px;
-             top: 34px;
-             width: 170px;
-             z-index: 3;
-           }
-           ul.admin-dropdown-menu li {
-             display: block;
-             border-top: 1px dotted #C8C8C8;
-             box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
-           }
-           ul.admin-dropdown-menu li > a {
-             border: 1px solid transparent;
-             border-radius: 3px;
-             box-sizing: border-box;
-             color: #1D9DD9;
-             cursor: pointer;
-             display: block;
-             margin: 5px 0px;
-             overflow: hidden;
-             padding: 3px 5px 4px;
-             text-overflow: ellipsis;
-             transition: padding 0.15s linear 0s;
-             white-space: nowrap;
-             width: 100%;
-           }
-           ul.admin-dropdown-menu li:first-child {
-             border: medium none;
-             box-shadow: none;
-           }
-           ul.admin-dropdown-menu:before {
-             background: transparent none repeat scroll 0% 0%;
-             border-width: 6px;
-             border-style: solid;
-             border-color: #FCFCFC #FCFCFC transparent transparent;
-             box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
-             content: "";
-             display: block;
-             height: 0px;
-             position: absolute;
-             transform: rotate(-45deg);
-             right: 12px;
-             top: -6px;
-             width: 0px;
-           }
-          </style>
-          
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
-              <li><a href="${reverse('admin_main')}">PepConn</a></li>
+              <li><a href="${reverse('pepconn')}">PepConn</a></li>
+              <script type="text/javascript">
+                $(document).on('click', function(event) {
+                  if (!$(event.target).closest('.admin-menu-holder').length) {
+                    $(".admin-dropdown-menu").hide();
+                  }
+                });
+              </script>
             </ul>
           </li>
-
-          <script type="text/javascript">
-            $(document).on('click', function(event) {
-              if (!$(event.target).closest('.admin-menu-holder').length) {
-                $(".admin-dropdown-menu").hide();
-              }
-            });
-          </script>
           %endif
 
           %if show_extended:
@@ -407,14 +406,14 @@ site_status_msg = get_site_status_msg(course_id)
           %if show_extended:
           <!-- Dashboard button with dropdown -->
           <li class="primary">
-            <a href="${reverse('dashboard')}" class="user-link" style="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
+            <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
               <span class="avatar"></span>
               <span class="sr">${_("Dashboard for:")} </span>
               <span style="display:block;max-width:90px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
             </a>
           </li>
           <li class="primary">
-            <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+            <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
             <ul class="dropdown-menu">
               <%block name="navigation_dropdown_menu_links" >
               <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>

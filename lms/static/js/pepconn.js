@@ -31,16 +31,16 @@ FilterControl.prototype.createFavorite=function(){
     });
   });
   $container.append("<br/>");
-  var $delete=$("<input type='button' class='small' value='Delete'>").appendTo($container);
-  $delete.click(function(){
-    if($drop.val()){
-      if(id=data[$drop.val()].id){
-        self.deleteFavorite(id);
+  $("<input type='button' class='small' value='Delete'>").appendTo($container)
+    .click(function(){
+      if($drop.val()){
+        if(id=data[$drop.val()].id){
+          self.deleteFavorite(id);
+        }
       }
-    }
-  });
-  var $save=$("<input type='button' class='small' value='Save'>").appendTo($container);
-  $save.click(function(){self.saveFavorite()});
+    });
+  $("<input type='button' class='small' value='Save'>").appendTo($container)
+    .click(function(){self.saveFavorite()});
 }
 FilterControl.prototype.onFavoriteChange=function(filterItem){
   var self=this;
@@ -70,7 +70,7 @@ FilterControl.prototype.deleteFavorite=function(id){
 }
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
-  var $content=$("<div></div>")
+  var $content=$("<div></div>");
   $content.append("<div style='margin:0 0 15px 0'>Please entry a name of the filter.</div>");
   var $text=$("<input>").appendTo($content);
   var $save=$("<input type=button value=save >").appendTo($content);
@@ -81,6 +81,7 @@ FilterControl.prototype.saveFavorite=function(){
     $.get(self.setting.urls.favorite_save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
       if((typeof r) == 'string')r=$.parseJSON(r);
       dialog.hide();
+      self.createFavorite();
     });
   });
 }
@@ -446,10 +447,10 @@ $(".expand_title").click(function(){
   var $div=$(this).next("div.expand_div");
   if($div.is(':visible')){
     $div.hide();
-    $(this).removeClass('expand_title_expanded');
+    $(this).removeClass("expand_title_expanded");
   }else{
     $div.show();
-    $(this).addClass('expand_title_expanded');
+    $(this).addClass("expand_title_expanded");
   }
 });
 //////////////////////////////////////////////////////////////////

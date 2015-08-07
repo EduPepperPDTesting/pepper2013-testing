@@ -11,22 +11,22 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 urlpatterns = (
     '',  # nopep8
-    url(r'^admin/main/$', 'administration.views.main', name="admin_main"),
-    url(r'^admin/import_user_submit/$', 'administration.views.import_user_submit', name="admin_import_user_submit"),
-    url(r'^admin/task_status/$', 'administration.views.task_status', name="admin_import_task_status"),
+    url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
+    url(r'^pepconn/import_user_submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
+    url(r'^pepconn/task_status/$', 'administration.pepconn.task_status', name="pepconn_import_task_status"),
 
-    url(r'^admin/drop_districts$', 'administration.views.drop_districts',name="admin_drop_districts"),
-    url(r'^admin/drop_states$', 'administration.views.drop_states',name="admin_drop_states"),
-    url(r'^admin/drop_schools$', 'administration.views.drop_schools',name="admin_drop_schools"),
-    url(r'^admin/drop_cohorts$', 'administration.views.drop_cohorts',name="admin_drop_cohorts"),
+    url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts',name="pepconn_drop_districts"),
+    url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states',name="pepconn_drop_states"),
+    url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools',name="pepconn_drop_schools"),
+    url(r'^pepconn/drop_cohorts$', 'administration.pepconn.drop_cohorts',name="pepconn_drop_cohorts"),
 
-    url(r'^admin/registration/table$', 'administration.views.registration_table',name="admin_registration_table"),
+    url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table',name="pepconn_registration_table"),
 
-    url(r'^admin/favorite_filter_load$', 'administration.views.favorite_filter_load',name="admin_favorite_filter_load"),
-    url(r'^admin/favorite_filter_save$', 'administration.views.favorite_filter_save',name="admin_favorite_filter_save"),
-    url(r'^admin/favorite_filter_delete$', 'administration.views.favorite_filter_delete',name="admin_favorite_filter_delete"),
+    url(r'^pepconn/favorite_filter_load$', 'administration.pepconn.favorite_filter_load',name="pepconn_favorite_filter_load"),
+    url(r'^pepconn/favorite_filter_save$', 'administration.pepconn.favorite_filter_save',name="pepconn_favorite_filter_save"),
+    url(r'^pepconn/favorite_filter_delete$', 'administration.pepconn.favorite_filter_delete',name="pepconn_favorite_filter_delete"),
 
-    url(r'^admin/registration/send_email$', 'administration.views.send_registration_email',name="admin_send_registration_email"),
+    url(r'^pepconn/registration/send_email$', 'administration.pepconn.send_registration_email',name="pepconn_send_registration_email"),
 
 ####### Ancestor
 

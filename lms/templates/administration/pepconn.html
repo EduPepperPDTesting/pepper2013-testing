@@ -201,14 +201,14 @@ input,select{-ms-box-sizing:content-box;
           <textarea class="setting">
             {
             "fields":{
-            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
-            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            "state":{"display":"State","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/pepconn/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/pepconn/drop_schools","format":"<option value='{id}'>{name}</option>"}
             },
             "urls":{
-               "favorite_load":"/admin/favorite_filter_load",
-               "favorite_save":"/admin/favorite_filter_save",
-               "favorite_delete":"/admin/favorite_filter_delete"
+               "favorite_load":"/pepconn/favorite_filter_load",
+               "favorite_save":"/pepconn/favorite_filter_save",
+               "favorite_delete":"/pepconn/favorite_filter_delete"
             }
             }
           </textarea>          
@@ -249,14 +249,14 @@ input,select{-ms-box-sizing:content-box;
           <textarea class="setting">
             {
             "fields":{
-            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
-            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"}
+            "state":{"display":"State","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/pepconn/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/pepconn/drop_schools","format":"<option value='{id}'>{name}</option>"}
             },
             "urls":{
-               "favorite_load":"/admin/favorite_filter_load",
-               "favorite_save":"/admin/favorite_filter_save",
-               "favorite_delete":"/admin/favorite_filter_delete"
+               "favorite_load":"/pepconn/favorite_filter_load",
+               "favorite_save":"/pepconn/favorite_filter_save",
+               "favorite_delete":"/pepconn/favorite_filter_delete"
             }
             }
           </textarea>
@@ -276,7 +276,7 @@ input,select{-ms-box-sizing:content-box;
             "activate_date":{"display":"Enrollment Start","sort":"+","show":1}
             },
             "urls":{
-            "data":"/admin/registration/table"
+            "data":"/pepconn/registration/table"
             },
             "paging":{
             "size":20
@@ -304,25 +304,25 @@ input,select{-ms-box-sizing:content-box;
           <textarea class="setting">
             {
             "fields":{
-            "report":{"display":"Report","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "course":{"display":"Course","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "user_status":{"display":"Status","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "state":{"display":"State","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "report":{"display":"Report","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "course":{"display":"Course","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "user_status":{"display":"Status","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "state":{"display":"State","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
             "activate_date":{"display":"Enrollment Start","type":"text"},
             "first_name":{"display":"First Name","type":"text"},
-            "district":{"display":"District","type":"drop","require":["state"],"url":"/admin/drop_districts","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"/pepconn/drop_districts","format":"<option value='{id}'>{name}</option>"},
             "end_date":{"display":"Enrollment End","type":"text"},
             "last_name":{"display":"Last Name","type":"text"},
-            "school":{"display":"School","type":"drop","require":["district"],"url":"/admin/drop_schools","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"/pepconn/drop_schools","format":"<option value='{id}'>{name}</option>"},
             "completion_date":{"display":"Completion Date","type":"text"},
             "email":{"display":"Email","type":"text"},
-            "cohort":{"display":"Cohort","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"},
-            "content_subject":{"display":"Content Subject","type":"drop","require":[],"url":"/admin/drop_states","format":"<option value='{id}'>{name}</option>"}
+            "cohort":{"display":"Cohort","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"},
+            "content_subject":{"display":"Content Subject","type":"drop","require":[],"url":"/pepconn/drop_states","format":"<option value='{id}'>{name}</option>"}
             },
             "urls":{
-               "favorite_load":"/admin/favorite_filter_load",
-               "favorite_save":"/admin/favorite_filter_save",
-               "favorite_delete":"/admin/favorite_filter_delete"
+               "favorite_load":"/pepconn/favorite_filter_load",
+               "favorite_save":"/pepconn/favorite_filter_save",
+               "favorite_delete":"/pepconn/favorite_filter_delete"
             }
             }
           </textarea>
@@ -342,7 +342,7 @@ input,select{-ms-box-sizing:content-box;
     <div class="content"></div>
   </div>
 </div>
-<script type="text/javascript" src="/static/js/admin.js"></script>
+<script type="text/javascript" src="/static/js/pepconn.js"></script>
 <script type="text/javascript">
   $(".control.filter").each(function(){new FilterControl(this)});
   $(".control.table").each(function(){new TableControl(this)});
@@ -356,7 +356,7 @@ input,select{-ms-box-sizing:content-box;
       new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
       return; 
     }
-    $.post('/admin/registration/send_email',{ids:ids},function(){
+    $.post('/pepconn/registration/send_email',{ids:ids},function(){
       
     });
   }  

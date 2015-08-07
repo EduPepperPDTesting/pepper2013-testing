@@ -48,7 +48,7 @@ def postpone(function):
 @user_passes_test(lambda u: u.is_superuser)
 def main(request):
     from django.contrib.sessions.models import Session
-    return render_to_response('administration/main.html', {})
+    return render_to_response('administration/pepconn.html', {})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -388,3 +388,4 @@ def favorite_filter_delete(request):
 def send_registration_email(request):
     return HttpResponse(json.dumps({'success': True}))    
     
+
