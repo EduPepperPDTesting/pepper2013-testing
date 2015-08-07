@@ -10,21 +10,37 @@ from xmodule.modulestore.django import modulestore
 from student.models import State,District,School
 %>
 
+<%
+import os
+workdir = os.getcwd()
+base_path = workdir + '/lms/templates/emails/'
+subject_path = base_path + 'activation_email_subject.txt'
+email_path = base_path + 'activation_email.txt'
+f = open(subject_path, 'r')
+subject_to_edit = f.read()
+f.close()
+f = open(email_path, 'r')
+email_to_edit = f.read()
+f.close()
+%>
+
 <%inherit file="../main.html"/>
 
 <script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
- section.content-wrapper{background:transparent !important;}
- .list{padding:0px 5px;}
- .list li{list-style-type:none;}
- div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
- div.filter h2{color:#f90}
- div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
- div.expand_div{display:none;}
- div.filter{}
+  section.content-wrapper{background:transparent !important;}
+  .list{padding:0px 5px;}
+  .list li{list-style-type:none;}
+  div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
+  div.filter h2{color:#f90}
+  div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+  div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+  div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+  div.expand_div{display:none;}
+  div.filter{}
+  .custom-email input{width: 400px;}
+  .custom-email textarea{height: 300px;}
 </style>
 <style type="text/css" media="screen">
 label{cursor:default;}
@@ -91,7 +107,7 @@ label{cursor:default;}
    background:#2a5;
    border-radius:5px;
    width:0px;
- } 
+ }
 </style>
 <div style="padding:20px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
@@ -122,11 +138,27 @@ label{cursor:default;}
               Send registration emails to imported users
             </label>
           </li>
+          <li>
+            <label style="cursor:normal !important;">
+              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" />
+              Customize registration email
+            </label>
+          </li>
+          <li class="custom-email" style="display: none;">
+            <label style="cursor:normal !important;">
+              Subject:<br />
+              <input type="text" name="custom_email_subject" value="${subject_to_edit}" />
+            </label>
+            <label style="cursor:normal !important;">
+              <br />Custom Email:<br />
+              <textarea name="custom_email" cols="80">${email_to_edit}</textarea>
+            </label>
+          </li>
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;"><label style="font-style:normal;color:#555;">* CSV file should contain the following column (email address).</label></p>
-          
+
         </div>
         <div style="padding:10px 5px">
           <input class="form_submit" type="submit" name="" value="Import Users" />
@@ -174,6 +206,16 @@ label{cursor:default;}
       $(this).addClass('expand_title_expanded');
     }
   });
+  $(".custom-email-checkbox").click(function(){
+    var textarea = $(this).parent().parent().next(".custom-email");
+    if ($(this).prop('checked')){
+      console.log('checked');
+      textarea.show();
+    } else {
+      console.log('unchecked');
+      textarea.hide();
+    }
+  });
 </script>
 <script type="text/javascript">
   var userData={}
@@ -191,9 +233,9 @@ label{cursor:default;}
     if(!((/\.csv/i).test(form.file.value))){
       new Dialog($('#dialog')).show('Error','Please select a CSV file.');
       return false;
-    }    
+    }
     // submit
-    var fd = new FormData(form);    
+    var fd = new FormData(form);
     $.ajax({
       url: "${reverse('configuration_import_user_submit')}",
       data: fd,
@@ -255,7 +297,7 @@ label{cursor:default;}
     this.$dialog.find('.dialog-title').html(title);
   }
   Dialog.prototype.setContent=function(content){
-    this.$dialog.find('.content').html(content);  
+    this.$dialog.find('.content').html(content);
   }
   Dialog.prototype.show=function(title,content){
     var self=this;

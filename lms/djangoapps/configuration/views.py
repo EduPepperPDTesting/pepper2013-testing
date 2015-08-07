@@ -1,7 +1,10 @@
 from django.conf import settings
+from django.template import Context
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
+import mako
+import mitxmako
 from mitxmako.shortcuts import render_to_response, render_to_string
 from student.models import ResourceLibrary, StaticContent
 from collections import deque
@@ -192,9 +195,17 @@ def do_import_user(taskid, csv_lines, request):
                 try:
                     reg = Registration.objects.get(user=user)
                     props = {'key': reg.activation_key, 'district': district.name}
-                    subject = render_to_string('emails/activation_email_subject.txt', props)
+                    use_custom = request.POST.get("customize_email")
+                    if use_custom == 'true':
+                        custom_email = request.POST.get("custom_email")
+                        custom_email_subject = request.POST.get("custom_email_subject")
+                        subject = render_from_string(custom_email_subject, props)
+                        body = render_from_string(custom_email, props)
+                    else:
+                        subject = render_to_string('emails/activation_email_subject.txt', props)
+                        body = render_to_string('emails/activation_email.txt', props)
+
                     subject = ''.join(subject.splitlines())
-                    body = render_to_string('emails/activation_email.txt', props)
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
                 except Exception as e:
                     raise Exception("Failed to send registration email")
@@ -259,3 +270,24 @@ def validate_user_cvs_line(line):
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
 
+
+def render_from_string(template_string, dictionary, context=None, namespace='main'):
+    context_instance = Context(dictionary)
+    # add dictionary to context_instance
+    context_instance.update(dictionary or {})
+    # collapse context_instance to a single dictionary for mako
+    context_dictionary = {}
+    context_instance['settings'] = settings
+    context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+
+    # In various testing contexts, there might not be a current request context.
+    if mitxmako.middleware.requestcontext is not None:
+        for d in mitxmako.middleware.requestcontext:
+            context_dictionary.update(d)
+    for d in context_instance:
+        context_dictionary.update(d)
+    if context:
+        context_dictionary.update(context)
+    # fetch and render template
+    raw_template = mako.Template(text=template_string)
+    return raw_template.render_unicode(**context_dictionary)
