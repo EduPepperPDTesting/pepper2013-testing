@@ -1,3 +1,18 @@
+function RegistrationEmailEditor(){
+  el.control=this;
+  this.$body=$(el).find(".body");
+  this.parseSetting();
+  
+}
+
+RegistrationEmailEditor.prototype.parseSetting=function(){
+  var $holder=this.$el.find("textarea.setting");
+  this.setting=$.parseJSON($holder.val());
+  $holder.remove();
+}
+
+
+//////////////////////////////////////////////////////////////////
 function FilterControl(el){
   el.control=this;
   this.filter={};
@@ -29,6 +44,7 @@ FilterControl.prototype.createFavorite=function(){
     $.each(data,function(i,item){
       $("<option value='"+i+"'>"+item.name+"</option>").appendTo($drop);
     });
+    $drop.val('');
   });
   $container.append("<br/>");
   $("<input type='button' class='small' value='Delete'>").appendTo($container)
@@ -59,14 +75,18 @@ FilterControl.prototype.onFavoriteChange=function(filterItem){
 }
 FilterControl.prototype.deleteFavorite=function(id){
   var self=this;
-  new Dialog($('#dialog')).shoYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
+  new Dialog($('#dialog')).showYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
     if(r){
       $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
         if((typeof r) == 'string')r=$.parseJSON(r);
         self.createFavorite();
+        self.onFavoriteServerUpdated();
       });
     }
   });
+}
+FilterControl.prototype.onFavoriteServerUpdated=function(){
+  if(fn=this.$el[0].onFavoriteServerUpdated)fn();
 }
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
@@ -82,6 +102,7 @@ FilterControl.prototype.saveFavorite=function(){
       if((typeof r) == 'string')r=$.parseJSON(r);
       dialog.hide();
       self.createFavorite();
+      self.onFavoriteServerUpdated();
     });
   });
 }
@@ -369,7 +390,6 @@ function ContextMenu($container,$trigger){
   this.$container=$("<ul class='context-menu'></ul>").appendTo($container);
   $(document).on('click', function(event) {
     if (!$(event.target).hasClass('menu-trigger') && !$(event.target).closest(".context-menu").length) {
-      console.log(123)
       $(".context-menu").hide();
     }
   });

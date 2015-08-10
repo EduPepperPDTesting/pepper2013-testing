@@ -82,7 +82,7 @@ def import_user_submit(request):
         connection.close()
 
         #** begin import
-        do_import_user(task.id, rl, request)
+        do_import_user(task, rl, request)
         
         return HttpResponse(json.dumps({'success': True,'taskId':task.id}))
     else:
@@ -92,7 +92,7 @@ USER_CSV_COLS=('email',)
 
 def random_mark(length):
     assert(length>0)
-    return "".join(random.sample('abcdefg&#%^*1234567890',length))
+    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
 
 def task_status(request):
     task=ImportTask.objects.get(id=request.POST.get('taskId'))
@@ -104,13 +104,12 @@ def task_status(request):
     return HttpResponse(j)
 
 @postpone
-def do_import_user(taskid,csv_lines,request):
+def do_import_user(task,csv_lines,request):
     gevent.sleep(0)
 
     district_id=request.POST.get("district")
     school_id=request.POST.get("school")
     send_registration_email=request.POST.get('send_registration_email')=='true'
-    task=ImportTask.objects.get(id=taskid);
 
     #** ==================== testing 
     # curr=""
@@ -150,7 +149,7 @@ def do_import_user(taskid,csv_lines,request):
         tasklog.username=username
         tasklog.email=email
         tasklog.create_date=datetime.datetime.now(UTC)
-        tasklog.district=district
+        tasklog.district_name=district.name
         tasklog.line=i+1
         tasklog.import_task=task
               
@@ -191,23 +190,16 @@ def do_import_user(taskid,csv_lines,request):
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email,email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
-                
-            #** count success
+            
+        except Exception as e:
+            db.transaction.rollback()
+            tasklog.error="%s" % e
+        finally:
             count_success=count_success+1
             task.success_lines=count_success
             task.save()
-
             tasklog.save()
-                            
             db.transaction.commit()
-        except Exception as e:
-            db.transaction.rollback()
-
-            tasklog.error="%s" % e
-            tasklog.save()
-            
-            db.transaction.commit()
-            
             log.debug("import error: %s" % e)
 
     #** post process
@@ -257,33 +249,31 @@ def validate_user_cvs_line(line):
 ##############################################
 
 def drop_states(request):
+    r=list()
     data=State.objects.all()
     data=data.order_by("name")        
-    r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name})        
     return HttpResponse(json.dumps(r))
 
 def drop_districts(request):
-    data=District.objects.all()
-    if request.GET.get('state'):
-        data=data.filter(state=request.GET.get('state'))
-    data=data.order_by("name")        
     r=list()
-    for item in data:
-        r.append({"id":item.id,"name":item.name,"code":item.code})        
+    if request.GET.get('state'):
+        data=District.objects.all()
+        data=data.filter(state=request.GET.get('state'))
+        data=data.order_by("name")        
+        for item in data:
+            r.append({"id":item.id,"name":item.name,"code":item.code})        
     return HttpResponse(json.dumps(r))
 
 def drop_schools(request):
-    data=School.objects.all()
-    if request.GET.get('district'):
-        data=data.filter(district=request.GET.get('district'))
-    elif request.GET.get('state'):
-        data=data.filter(district__state=request.GET.get('state'))
     r=list()
-    data=data.order_by("name")
-    for item in data:
-        r.append({"id":item.id,"name":item.name})        
+    if request.GET.get('district'):
+        data=School.objects.all()
+        data=data.filter(district=request.GET.get('district'))
+        data=data.order_by("name")
+        for item in data:
+            r.append({"id":item.id,"name":item.name})        
     return HttpResponse(json.dumps(r))
 
 def drop_cohorts(request):
@@ -386,6 +376,68 @@ def favorite_filter_delete(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def send_registration_email(request):
-    return HttpResponse(json.dumps({'success': True}))    
-    
+    ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
 
+    task=EmailTask()
+    task.total_emails=len(ids)
+    task.save()
+    
+    do_send_registration_email(task,ids,request)
+    return HttpResponse(json.dumps({'success': True,'ids':ids}))    
+
+@postpone
+def do_send_registration_email(task,user_ids,request):
+    gevent.sleep(0)
+
+    count_success=0
+    for user_id in user_ids:
+        tasklog=EmailTaskLog()
+        tasklog.task=task
+        tasklog.send_date=datetime.datetime.now(UTC)
+        try:
+            user=User.objects.get(id=user_id)
+            tasklog.username=user.username
+            tasklog.email=user.email
+            tasklog.district_name=user.profile.district.name
+            
+            reg = Registration.objects.get(user=user)
+            props = {'key': reg.activation_key, 'district': user.profile.district.name}
+            subject = render_to_string('emails/activation_email_subject.txt', props)
+            subject = ''.join(subject.splitlines())
+            body = render_to_string('emails/activation_email.txt', props)
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',user.email])        
+        except Exception as e:
+            db.transaction.rollback()
+            tasklog.error="%s" % e
+
+            log.debug("========== %s" % e)
+        finally:
+            count_success=count_success+1
+            task.success_emails=count_success
+            task.save()
+            tasklog.save()
+            db.transaction.commit()
+
+    #** post process
+    tasklogs=EmailTaskLog.objects.filter(email_task=task)
+    if len(tasklogs):
+        FIELDS = ["username", "email", "district", "send_date", "error"]
+        TITLES = ["Username", "Email", "District", "Send Date", "Error"]
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=FIELDS)
+        writer.writerow(dict(zip(FIELDS, TITLES)))
+        for d in tasklogs:
+            row={
+                 "username":d.username,
+                 "email":d.email,
+                 "district":d.district.name,
+                 "send_date":d.send_date,
+                 "error":d.error
+                 }
+            writer.writerow(row)
+        output.seek(0)
+        attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
+        send_html_mail("Registration Email Sending Report",
+                       "Report of sending registration email, see attachment." % task.filename,
+                       settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email], attachs)
+        output.close()

@@ -332,6 +332,26 @@ input,select{-ms-box-sizing:content-box;
     </div>
   </div>
 </div>
+
+
+<div style="padding:0px 0">
+  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+    <div class="expand_title expand_title_collapse">
+      User Data Reporting <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="filter_form" action="" onsubmit="return false;">
+        <div class="control registrationEmailEditor" id="fltUserRegistration">
+         <span class="body" style="display:inline-block;""></span>
+         <textarea class="setting">
+{}
+         </textarea>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+          
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -344,8 +364,19 @@ input,select{-ms-box-sizing:content-box;
 </div>
 <script type="text/javascript" src="/static/js/pepconn.js"></script>
 <script type="text/javascript">
-  $(".control.filter").each(function(){new FilterControl(this)});
+  $(".control.filter").each(function(){
+    var el=this;
+    new FilterControl(this);
+    this.onFavoriteServerUpdated=function(){
+      $(".control.filter").each(function(){
+        if(!$(el).is(this)) this.control.createFavorite();
+      });
+    }
+  });
   $(".control.table").each(function(){new TableControl(this)});
+  
+  $(".control.registrationEmailEditor").each(function(){new RegistrationEmailEditorControl(this)});
+  
   function filterUserRegistration(){
     var filter=$('#fltUserRegistration')[0].control.getFilter();
     $('#tblUserRegistration')[0].control.updateFilter(filter);
@@ -356,7 +387,7 @@ input,select{-ms-box-sizing:content-box;
       new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
       return; 
     }
-    $.post('/pepconn/registration/send_email',{ids:ids},function(){
+    $.post('/pepconn/registration/send_email',{ids:ids.join()},function(){
       
     });
   }  
