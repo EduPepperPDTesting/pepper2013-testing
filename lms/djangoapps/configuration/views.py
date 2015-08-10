@@ -104,12 +104,11 @@ def random_mark(length):
 
 
 def task_status(request):
-    task = ImportTask.objects.get(id=request.POST.get('taskId'))
-
-    if task:
+    try:
+        task = ImportTask.objects.get(id=request.POST.get('taskId'))
         j = json.dumps({'task': task.filename, 'percent': '%.2f' % ((float(task.process_lines) / float(task.total_lines)) * 100)})  # output_pipe.recv()
-    else:
-        j = json.dumps({'task': 'no'})
+    except DoesNotExist:
+        j = json.dumps({'task': 'no', 'percent': 100})
     return HttpResponse(j, content_type="application/json")
 
 
