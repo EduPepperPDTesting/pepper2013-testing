@@ -826,7 +826,8 @@ def login_user(request, error=""):
     """AJAX request to log in the user."""
     if 'email' not in request.POST or 'password' not in request.POST:
         return HttpResponse(json.dumps({'success': False,
-                                        'value': _('There was an error receiving your login information. Please email us.')}))  # TODO: User error message
+                                        'value': _('There was an error receiving your login information. Please email us.')}),
+                                        content_type="application/json")  # TODO: User error message
 
     email = request.POST['email']
     password = request.POST['password']
@@ -853,14 +854,16 @@ def login_user(request, error=""):
     # this occurs when there are too many attempts from the same IP address
     except RateLimitException:
         return HttpResponse(json.dumps({'success': False,
-                                        'value': _('Too many failed login attempts. Try again later.')}))
+                                        'value': _('Too many failed login attempts. Try again later.')}),
+                                        content_type="application/json")
     if user is None:
         # if we didn't find this username earlier, the account for this email
         # doesn't exist, and doesn't have a corresponding password
         if username != "":
             AUDIT_LOG.warning(u"Login failed - password for {0} is invalid".format(email))
         return HttpResponse(json.dumps({'success': False,
-                                        'value': _('Email or password is incorrect.')}))
+                                        'value': _('Email or password is incorrect.')}),
+                                        content_type="application/json")
 
     if user is not None and user.is_active:
         try:
@@ -909,7 +912,8 @@ def login_user(request, error=""):
     # reactivation_email_for_user(user)
     not_activated_msg = _("You do not have an active Pepper account. Please click <a href='{0}'>here</a> to contact Pepper Support.".format(reverse('contact_us')))
     return HttpResponse(json.dumps({'success': False,
-                                    'value': not_activated_msg}))
+                                    'value': not_activated_msg}),
+                                    content_type="application/json")
 
 @ensure_csrf_cookie
 def logout_user(request):
