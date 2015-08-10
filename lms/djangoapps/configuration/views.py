@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
 from mako.template import Template
 import mitxmako
-from mitxmako.shortcuts import render_to_response, render_to_string
+from mitxmako.shortcuts import render_to_response, render_to_string, marketing_link
 from student.models import ResourceLibrary, StaticContent
 from collections import deque
 from django.contrib.auth.decorators import login_required
@@ -195,6 +195,7 @@ def do_import_user(taskid, csv_lines, request):
                 try:
                     reg = Registration.objects.get(user=user)
                     props = {'key': reg.activation_key, 'district': district.name}
+
                     use_custom = request.POST.get("customize_email")
                     if use_custom == 'true':
                         custom_email = request.POST.get("custom_email")
@@ -208,7 +209,7 @@ def do_import_user(taskid, csv_lines, request):
                     subject = ''.join(subject.splitlines())
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
                 except Exception as e:
-                    raise Exception("Failed to send registration email")
+                    raise Exception("Failed to send registration email: " + str(e))
 
             # ** count success
             count_success = count_success + 1
@@ -279,6 +280,7 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
     context_dictionary = {}
     context_instance['settings'] = settings
     context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+    context_instance['marketing_link'] = marketing_link
 
     # In various testing contexts, there might not be a current request context.
     if mitxmako.middleware.requestcontext is not None:
