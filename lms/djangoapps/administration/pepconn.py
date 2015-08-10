@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.template import Context
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
@@ -32,6 +33,9 @@ from student.models import Transaction,District,Cohort,School,State
 from mail import send_html_mail
 import datetime
 from pytz import UTC
+
+import mako
+import mitxmako
 
 log = logging.getLogger("tracking")
 
@@ -102,6 +106,27 @@ def task_status(request):
     else:
         j=json.dumps({'task':'no'})
     return HttpResponse(j)
+
+def render_from_string(template_string, dictionary, context=None, namespace='main'):
+    context_instance = Context(dictionary)
+    # add dictionary to context_instance
+    context_instance.update(dictionary or {})
+    # collapse context_instance to a single dictionary for mako
+    context_dictionary = {}
+    context_instance['settings'] = settings
+    context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+
+    # In various testing contexts, there might not be a current request context.
+    if mitxmako.middleware.requestcontext is not None:
+        for d in mitxmako.middleware.requestcontext:
+            context_dictionary.update(d)
+    for d in context_instance:
+        context_dictionary.update(d)
+    if context:
+        context_dictionary.update(context)
+    # fetch and render template
+    raw_template = mako.Template(text=template_string)
+    return raw_template.render_unicode(**context_dictionary)
 
 @postpone
 def do_import_user(task,csv_lines,request):
@@ -184,9 +209,20 @@ def do_import_user(task,csv_lines,request):
                 try:
                     reg = Registration.objects.get(user=user)
                     props = {'key': reg.activation_key, 'district': district.name}
-                    subject = render_to_string('emails/activation_email_subject.txt', props)
+
+                    use_custom = request.POST.get("customize_email")
+                    if use_custom == 'true':
+                        custom_email = request.POST.get("custom_email")
+                        custom_email_subject = request.POST.get("custom_email_subject")
+                        subject = render_from_string(custom_email_subject, props)
+                        body = render_from_string(custom_email, props)
+                    else:
+                        subject = render_to_string('emails/activation_email_subject.txt', props)
+                        body = render_to_string('emails/activation_email.txt', props)
+
                     subject = ''.join(subject.splitlines())
-                    body = render_to_string('emails/activation_email.txt', props)
+
+                    
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email,email])
                 except Exception as e:
                     raise Exception("Faild to send registration email")
@@ -405,7 +441,7 @@ def do_send_registration_email(task,user_ids,request):
             subject = render_to_string('emails/activation_email_subject.txt', props)
             subject = ''.join(subject.splitlines())
             body = render_to_string('emails/activation_email.txt', props)
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',user.email])        
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',user.email])
         except Exception as e:
             db.transaction.rollback()
             tasklog.error="%s" % e

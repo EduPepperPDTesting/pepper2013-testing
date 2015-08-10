@@ -2,16 +2,12 @@ function RegistrationEmailEditor(){
   el.control=this;
   this.$body=$(el).find(".body");
   this.parseSetting();
-  
 }
-
 RegistrationEmailEditor.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
 }
-
-
 //////////////////////////////////////////////////////////////////
 function FilterControl(el){
   el.control=this;

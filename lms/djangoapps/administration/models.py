@@ -42,7 +42,6 @@ class EmailTaskLog(models.Model):
 class FilterFavorite(models.Model):
     class Meta:
         db_table = 'admin_filter_favorite'
-    
     user = models.ForeignKey(User)
     name = models.CharField(blank=False, max_length=150, db_index=True)
     filter_json = models.CharField(blank=False, max_length=4096, db_index=True)

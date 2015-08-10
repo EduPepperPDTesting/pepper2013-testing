@@ -10,6 +10,22 @@ from xmodule.modulestore.django import modulestore
 from student.models import State,District,School
 %>
 
+
+<%
+import os
+workdir = os.getcwd()
+base_path = workdir + '/lms/templates/emails/'
+subject_path = base_path + 'activation_email_subject.txt'
+email_path = base_path + 'activation_email.txt'
+f = open(subject_path, 'r')
+subject_to_edit = f.read()
+f.close()
+f = open(email_path, 'r')
+email_to_edit = f.read()
+f.close()
+%>
+
+
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
@@ -187,7 +203,21 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  }
 input,select{-ms-box-sizing:content-box;
   box-sizing:border-box;
-}
+ }
+
+ /* email editor*/
+ section.content-wrapper{background:transparent !important;}
+ .list{padding:0px 5px;}
+ .list li{list-style-type:none;}
+ div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
+ div.filter h2{color:#f90}
+ div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+ div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+ div.expand_div{display:none;}
+ div.filter{}
+ .custom-email input{width: 400px;}
+ .custom-email textarea{height: 300px;} 
 </style>
 <!-- User Data Import -->
 <div style="padding-top:20px">
@@ -197,6 +227,7 @@ input,select{-ms-box-sizing:content-box;
     </div>
     <div class="expand_div">
       <form method="" id="filter_form" action="">
+        <!-- 
         <div class="control filter">
           <textarea class="setting">
             {
@@ -214,6 +245,7 @@ input,select{-ms-box-sizing:content-box;
           </textarea>          
           <span class="body" style="display:inline-block;"></span>
         </div>
+         -->
         <ul class="list">
           <li>
             <label>
@@ -221,6 +253,22 @@ input,select{-ms-box-sizing:content-box;
               Send registration emails to imported users
             </label>
           </li>
+          <li>
+            <label style="cursor:normal !important;">
+              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" />
+              Customize registration email
+            </label>
+          </li>
+          <li class="custom-email" style="display: none;">
+            <label style="cursor:normal !important;">
+              Subject:<br />
+              <input type="text" name="custom_email_subject" value="${subject_to_edit}" />
+            </label>
+            <label style="cursor:normal !important;">
+              <br />Custom Email:<br />
+              <textarea name="custom_email" cols="80">${email_to_edit}</textarea>
+            </label>
+          </li>          
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
@@ -292,6 +340,7 @@ input,select{-ms-box-sizing:content-box;
   </div>
 </div>
 <!-- user data reporting -->
+<!--
 <div style="padding:0px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
@@ -332,26 +381,8 @@ input,select{-ms-box-sizing:content-box;
     </div>
   </div>
 </div>
+-->
 
-
-<div style="padding:0px 0">
-  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
-    <div class="expand_title expand_title_collapse">
-      User Data Reporting <div class="icon"></div>
-    </div>
-    <div class="expand_div">
-      <form method="" id="filter_form" action="" onsubmit="return false;">
-        <div class="control registrationEmailEditor" id="fltUserRegistration">
-         <span class="body" style="display:inline-block;""></span>
-         <textarea class="setting">
-{}
-         </textarea>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-          
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -374,9 +405,6 @@ input,select{-ms-box-sizing:content-box;
     }
   });
   $(".control.table").each(function(){new TableControl(this)});
-  
-  $(".control.registrationEmailEditor").each(function(){new RegistrationEmailEditorControl(this)});
-  
   function filterUserRegistration(){
     var filter=$('#fltUserRegistration')[0].control.getFilter();
     $('#tblUserRegistration')[0].control.updateFilter(filter);
@@ -388,7 +416,16 @@ input,select{-ms-box-sizing:content-box;
       return; 
     }
     $.post('/pepconn/registration/send_email',{ids:ids.join()},function(){
-      
     });
-  }  
+  }
+  $(".custom-email-checkbox").click(function(){
+    var textarea = $(this).parent().parent().next(".custom-email");
+    if ($(this).prop('checked')){
+      console.log('checked');
+      textarea.show();
+    } else {
+      console.log('unchecked');
+      textarea.hide();
+    }
+  });  
 </script>
