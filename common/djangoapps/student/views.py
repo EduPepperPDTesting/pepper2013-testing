@@ -127,7 +127,7 @@ def index(request, extra_context={}, user=None):
     courses = get_courses(None, domain=domain)
     courses = sort_by_announcement(courses)
 #@begin:Hide Dashboard button when the current page is homepage
-#@date:2013-11-02        
+#@date:2013-11-02
     context = {'courses': courses,'index':True}
 #@end
     context.update(extra_context)
@@ -295,7 +295,7 @@ def register_user(request, activation_key=None):
 
     # if not profile.cohort_id:
     #    return HttpResponse("Invalid cohort.")
-        
+
     context = {
         'profile': profile,
         'activation_key': activation_key,
@@ -386,7 +386,7 @@ def more_courses_available(request):
             pass
 
     # sort courses
-    courses.sort(cmp=lambda x,y: cmp(x.display_subject.lower(),y.display_subject.lower()))  
+    courses.sort(cmp=lambda x,y: cmp(x.display_subject.lower(),y.display_subject.lower()))
 
     # group courses by grade
     subject_index=[-1,-1,-1,-1]
@@ -401,7 +401,7 @@ def more_courses_available(request):
             sc.sort(key=lambda x: x.display_coursenumber)
 
     context = {'courses':g_courses}
-    
+
     return render_to_response('more_courses_available.html', context)
 
 @login_required
@@ -415,13 +415,13 @@ def dashboard(request,user_id=None):
     # Build our courses list for the user, but ignore any courses that no longer
     # exist (because the course IDs have changed). Still, we don't delete those
     # enrollments, because it could have been a data push snafu.
- 
+
     courses_complated = []
     courses_incomplated = []
     courses=[]
 
     exists=0
-    # get none enrolled course count for current login user 
+    # get none enrolled course count for current login user
     if user_id != request.user.id:
       allowed=CourseEnrollmentAllowed.objects.filter(email=user.email,is_active=True).values_list('course_id', flat=True)
       # make sure the course exists
@@ -431,7 +431,7 @@ def dashboard(request,user_id=None):
               exists=exists+1
           except:
               pass
-    
+
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             c=course_from_id(enrollment.course_id)
@@ -462,11 +462,11 @@ def dashboard(request,user_id=None):
             #     courses_complated.append(c)
             # else:
             #     courses_incomplated.append(c)
-            
+
             #@begin:complete_course_survey
             #@data:2013-12-14
             field_data_cache = FieldDataCache([c], c.id, user)
-            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')            
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
             if course_instance.complete_course:
                 c.complete_date = course_instance.complete_date
@@ -475,14 +475,14 @@ def dashboard(request,user_id=None):
             else:
                 courses_incomplated.append(c)
             #@end
-            
+
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
 
     courses_complated=sorted(courses_complated, key=lambda x:x.complete_date,reverse=True)
     courses_incomplated=sorted(courses_incomplated, key=lambda x:x.student_enrollment_date,reverse=True)
-            
+
     course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
     message = ""
     if not user.is_active:
@@ -497,7 +497,7 @@ def dashboard(request,user_id=None):
 
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
-    
+
     cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
 
@@ -521,7 +521,7 @@ def dashboard(request,user_id=None):
         'curr_user':user,
         'havent_enroll':exists
         }
-    
+
     return render_to_response('dashboard.html', context)
 
 def try_change_enrollment(request):
@@ -653,7 +653,7 @@ def update_sso_usr(user, json, update_first_name=True):
     #             dest.append(str(g.id))
     #         except:
     #             pass
-    #     return ','.join(dest)    
+    #     return ','.join(dest)
     # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
 
     #** cohort
@@ -680,7 +680,7 @@ def update_sso_usr(user, json, update_first_name=True):
         school=School.objects.get(name='Multiple Schools')
     # school.district=District.objects.get(name=sso_district)
     school.save()
-    
+
     profile.school=school
 
     #** save
@@ -688,7 +688,7 @@ def update_sso_usr(user, json, update_first_name=True):
 
 def sso(request, error=""):
     method='post'
-    
+
     token=request.GET.get('easyieptoken')
     url=request.GET.get('auth_link')
 
@@ -705,24 +705,24 @@ def sso(request, error=""):
     text=response.text
 
 #     text='''{
-#     "CustomerName": "inpepper", 
-#     "SchoolSystem": "Indiana Demo Corporation District", 
-#     "SchoolSystemCode": "PEPPERTEST1", 
-#     "State": "Indiana", 
+#     "CustomerName": "inpepper",
+#     "SchoolSystem": "Indiana Demo Corporation District",
+#     "SchoolSystemCode": "PEPPERTEST1",
+#     "State": "Indiana",
 #     "User": {
-#         "Email": "testuser39@test.com", 
-#         "FirstName": "Pepper", 
+#         "Email": "testuser39@test.com",
+#         "FirstName": "Pepper",
 #         "GradeCodes": [
-#             "1", 
+#             "1",
 #             "2"
-#         ], 
-#         "ID": 488, 
-#         "LastName": "User2", 
-#         "MiddleName": "Test", 
+#         ],
+#         "ID": 488,
+#         "LastName": "User2",
+#         "MiddleName": "Test",
 #         "SchoolCodes": [
 #             "456"
-#         ], 
-#         "Suffix": null, 
+#         ],
+#         "Suffix": null,
 #         "UserCode": "PTU2"
 #     }
 # }'''
@@ -753,19 +753,19 @@ def sso(request, error=""):
     if not user:
         try:
             username="EasyIEP%s" % random.randint(10000000000,99999999999)
-            
+
             #** user
             user=User(username=username, email=sso_email, is_active=False)
             user.save()
-            
+
             #** registration
             registration = Registration()
             registration.register(user)
-            
+
             #** profile
             profile=UserProfile(user=user,sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
             user.profile=profile
-            
+
             #** update user
             update_sso_usr(user,parsed)
 
@@ -774,7 +774,7 @@ def sso(request, error=""):
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
-            
+
             #** add courses above (cause user will not finish registration himself to trigger auto course enroll)
             CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
 
@@ -783,7 +783,7 @@ def sso(request, error=""):
             return HttpResponse("Failed to create user, %s" % e)
 
         return redirect(reverse('register_user_easyiep',args=[registration.activation_key]))
-    
+
     elif not user.is_active:
         registration=Registration.objects.get(user_id=user.id)
         return redirect(reverse('register_user_easyiep',args=[registration.activation_key]))
@@ -793,7 +793,7 @@ def sso(request, error=""):
             update_sso_usr(user,parsed,False)
         except Exception as e:
             db.transaction.rollback()
-            return HttpResponse("Failed to update user, %s" % e)            
+            return HttpResponse("Failed to update user, %s" % e)
 
         # CREATE INDEX `cohort_65da3d2c` ON `cohort` (`code`);
 
@@ -807,17 +807,17 @@ def sso(request, error=""):
     # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
 
 def register_user_easyiep(request,activation_key):
-    
+
     registration=Registration.objects.get(activation_key=activation_key)
     user_id=registration.user_id
-        
+
     profile=UserProfile.objects.get(user_id=user_id)
 
     context = {
         'profile': profile,
         'activation_key': activation_key
         }
-    
+
     return render_to_response('register_easyiep.html',context)
 
 # Need different levels of logging
@@ -881,7 +881,7 @@ def login_user(request, error=""):
         try_change_enrollment(request)
 
         statsd.increment("common.student.successful_login")
-        response = HttpResponse(json.dumps({'success': True}))
+        response = HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
         # set the login cookie for the edx marketing site
         # we want this cookie to be accessed via javascript
@@ -989,7 +989,7 @@ def _do_create_account(post_vars):
 
     profile = UserProfile(user=user)
 #@begin:Add new fields to save profile in registration page
-#@date:2013-11-02        
+#@date:2013-11-02
     # profile.name = post_vars['name']
     profile.user.first_name = post_vars['first_name']
     profile.user.last_name = post_vars['last_name']
@@ -999,7 +999,7 @@ def _do_create_account(post_vars):
     profile.district_id = post_vars['district_id']
     profile.school_id = post_vars['school_id']
     profile.years_in_education_id = post_vars['years_in_education_id']
-#@end    
+#@end
     profile.level_of_education = post_vars.get('level_of_education')
     profile.gender = post_vars.get('gender')
     profile.mailing_address = post_vars.get('mailing_address')
@@ -1039,29 +1039,29 @@ def create_account(request, post_override=None):
             email = eamap.external_email
         except ValidationError:
             email = post_vars.get('email', '')
-            
+
         if eamap.external_name.strip() == '':
 #@begin: Change user registration table field and show the name by combining first_name and last_name
-#@date:2013-11-02        
+#@date:2013-11-02
             name = post_vars.get('first_name', '') + post_vars.get('last_name', '')
-#@end            
+#@end
         else:
             name = eamap.external_name
-            
+
         password = eamap.internal_password
         post_vars = dict(post_vars.items())
         post_vars.update(dict(email=email, name=name, password=password))
         log.debug(u'In create_account with external_auth: user = %s, email=%s', name, email)
 
-    # Confirm we have a properly formed request          
+    # Confirm we have a properly formed request
     for a in ['username', 'email', 'password', 'first_name','last_name']:
         if a not in post_vars:
             js['value'] = _("Error (401 {field}). E-mail us.").format(field=a)
             js['field'] = a
             return HttpResponse(json.dumps(js))
-        
+
 #@begin:honor_code is not used in Pepper. Change the following confirmation to comments.
-#@date:2013-11-02   
+#@date:2013-11-02
     # if post_vars.get('honor_code', 'false') != u'true':
     #     js['value'] = _("To enroll, you must follow the honor code.").format(field=a)
     #     js['field'] = 'honor_code'
@@ -1087,7 +1087,7 @@ def create_account(request, post_override=None):
     required_post_vars = ['username', 'email', 'first_name','last_name', 'password', 'terms_of_service']     # 'honor_code'
     if tos_not_required:
         required_post_vars = ['username', 'email', 'first_name','last_name', 'password'] # 'honor_code'
-        
+
     for a in required_post_vars:
         if len(post_vars[a]) < 2:
             error_str = {'username': 'Username must be minimum of two characters long.',
@@ -1105,13 +1105,13 @@ def create_account(request, post_override=None):
     if post_vars.get('username')==post_vars.get('password'):
         js['value'] = 'Password and Public Username cannot be the same.'
         js['field'] = 'password'
-        return HttpResponse(json.dumps(js))        
-        
+        return HttpResponse(json.dumps(js))
+
     required_post_vars_dropdown=['major_subject_area_id','grade_level_id','district_id',
                                  'school_id','years_in_education_id',
                                  'percent_lunch','percent_iep','percent_eng_learner'
                                  ]
-    
+
     for a in required_post_vars_dropdown:
         if len(post_vars[a]) < 1:
             error_str = {
@@ -1124,9 +1124,9 @@ def create_account(request, post_override=None):
                 'percent_iep':'IEPs is required',
                 'percent_eng_learner':'English Learners is required'
                 }
-            js['value'] = error_str[a] 
+            js['value'] = error_str[a]
             js['field'] = a
-            return HttpResponse(json.dumps(js))    
+            return HttpResponse(json.dumps(js))
     try:
         validate_email(post_vars['email'])
     except ValidationError:
@@ -1153,7 +1153,7 @@ def create_account(request, post_override=None):
 #@date:2013-11-02
     d = {'first_name': post_vars['first_name'],
          'last_name': post_vars['last_name'],
-#@end          
+#@end
          'key': registration.activation_key,
          }
 
@@ -1493,8 +1493,8 @@ def password_reset(request):
 
         if profile.subscription_status!='Registered':
             return HttpResponse(json.dumps({'success': False,
-                                        'error': _("You do not have an active Pepper account. Please click <a href='{0}'>here</a> to contact Pepper Support.".format(reverse('contact_us')))}))            
-        
+                                        'error': _("You do not have an active Pepper account. Please click <a href='{0}'>here</a> to contact Pepper Support.".format(reverse('contact_us')))}))
+
         form.save(use_https=request.is_secure(),
                   from_email=settings.DEFAULT_FROM_EMAIL,
                   request=request,
@@ -1502,7 +1502,7 @@ def password_reset(request):
 
         # registration=Registration.objects.get(user_id=profile.user_id)
         # registration.activate()
-        
+
         return HttpResponse(json.dumps({'success': True,
                                         'value': render_to_string('registration/password_reset_done.html', {})}))
     else:
@@ -1524,7 +1524,7 @@ def password_reset_confirm_wrapper(
 
         if not user.is_active:
             return render_to_response("inactivate_reset_pwd.html", {})
-            
+
         user.is_active = True
         user.save()
     except (ValueError, User.DoesNotExist):
@@ -1570,7 +1570,7 @@ def change_email_request(request):
 
     user = request.user
 #@begin:User doesnt need to confirm password when changing email address
-#@date:2013-11-02  
+#@date:2013-11-02
     # if not user.check_password(request.POST['password']):
     #     return HttpResponse(json.dumps({'success': False,
     #                                     'error': _('Invalid password')}))
@@ -1686,13 +1686,13 @@ def change_name_request(request):
         pnc = PendingNameChange()
     pnc.user = request.user
 #@begin:Add new field and change the code
-#@date:2013-11-02        
+#@date:2013-11-02
     pnc.new_first_name = request.POST['new_first_name']
     pnc.new_last_name = request.POST['new_last_name']
 #@end
     pnc.rationale = request.POST['rationale']
 #@begin:Add new field and change the code
-#@date:2013-11-02      
+#@date:2013-11-02
     if len(pnc.new_first_name) < 2:
         return HttpResponse(json.dumps({'success': False, 'error': _('First Name required')}))
     if len(pnc.new_last_name) < 2:
@@ -1755,7 +1755,7 @@ def accept_name_change_by_id(id):
 
     up.name = pnc.new_name
 #@begin:Add new field and change the code
-#@date:2013-11-02          
+#@date:2013-11-02
     u.first_name = pnc.new_first_name
     u.last_name = pnc.new_last_name
     u.save()
@@ -1800,7 +1800,7 @@ def change_email_settings(request):
 
     return HttpResponse(json.dumps({'success': True}))
 #@begin:Add more editable fields in the Dashboard
-#@date:2013-11-02        
+#@date:2013-11-02
 def download_certificate(request):
     return render_to_response("download_certificate.html", {})
 
@@ -1808,7 +1808,7 @@ def latest_news(request):
     return render_to_response("latest_news.html", {})
 
 def change_school_request(request):
-    up = UserProfile.objects.get(user=request.user)  
+    up = UserProfile.objects.get(user=request.user)
     if 'school_id' in request.POST:
         up.school_id = request.POST['school_id']
     up.save()
@@ -1816,7 +1816,7 @@ def change_school_request(request):
                                     'location': up.location}))
 
 def change_grade_level_request(request):
-    up = UserProfile.objects.get(user=request.user) 
+    up = UserProfile.objects.get(user=request.user)
     if 'grade_level_id' in request.POST:
         up.grade_level_id = request.POST['grade_level_id']
     up.save()
@@ -1824,7 +1824,7 @@ def change_grade_level_request(request):
                                     'location': up.location}))
 
 def change_major_subject_area_request(request):
-    up = UserProfile.objects.get(user=request.user) 
+    up = UserProfile.objects.get(user=request.user)
     if 'major_subject_area_id' in request.POST:
         up.major_subject_area_id = request.POST['major_subject_area_id']
     up.save()
@@ -1832,7 +1832,7 @@ def change_major_subject_area_request(request):
                                     'location': up.location}))
 
 def change_years_in_education_request(request):
-    up = UserProfile.objects.get(user=request.user) 
+    up = UserProfile.objects.get(user=request.user)
     if 'years_in_education_id' in request.POST:
         up.years_in_education_id = request.POST['years_in_education_id']
     up.save()
@@ -1854,7 +1854,7 @@ def change_percent_lunch(request):
     up.save()
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
-    
+
 def change_percent_iep(request):
     up=UserProfile.objects.get(user=request.user)
     up.percent_iep=request.POST.get("percent_iep")
@@ -1868,13 +1868,13 @@ def change_percent_eng_learner(request):
     up.save()
     return HttpResponse(json.dumps({'success': True,
                                     'location': up.location, }))
-# called by create_account()    
+# called by create_account()
 def activate_imported_account(post_vars,photo):
     ret={'success': False}
     try:
         registration=Registration.objects.get(activation_key=post_vars.get('activation_key',''))
         user_id=registration.user_id
-        
+
         profile=UserProfile.objects.get(user_id=user_id)
         profile.subscription_status='Registered'
         profile.user.first_name=post_vars.get('first_name','')
@@ -1901,7 +1901,7 @@ def activate_imported_account(post_vars,photo):
 
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
-        
+
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         message = render_to_string('emails/welcome_body.txt', d)
@@ -1922,14 +1922,14 @@ def activate_imported_account(post_vars,photo):
 
         from mail import send_html_mail
         # send_html_mail(subject, message, settings.SUPPORT_EMAIL,[profile.user.email])
-        
+
         ret={'success': True}
     except Exception as e:
         # transaction.rollback()
-        
+
         ret['success']=False
         ret['error']="%s" % e
-        
+
     return HttpResponse(json.dumps(ret))
 
 from django.db.models import Q
@@ -1950,7 +1950,7 @@ def activate_easyiep_account(request):
             js = {'success': False}
             js['value'] = _("You must accept the terms of service.")
             js['field'] = 'terms_of_service'
-            return HttpResponse(json.dumps(js))    
+            return HttpResponse(json.dumps(js))
 
     #** validate username
     try:
@@ -1960,7 +1960,7 @@ def activate_easyiep_account(request):
         js['value'] = _("Username should only consist of A-Z and 0-9, with no spaces.")
         js['field'] = 'username'
         return HttpResponse(json.dumps(js))
-    
+
     #** validate if user exists
     if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
         js = {'success': False}
@@ -1984,16 +1984,16 @@ def activate_easyiep_account(request):
                 'percent_eng_learner':'English Learners is required'
                 }
             js = {'success': False}
-            js['value'] = error_str[a] 
+            js['value'] = error_str[a]
             js['field'] = a
-            return HttpResponse(json.dumps(js))            
+            return HttpResponse(json.dumps(js))
 
     try:
         #** update user
         profile.user.username=vars.get('username','')
         profile.user.is_active=True
         profile.user.save()
-        
+
         #** update profile
         profile.subscription_status='Registered'
         profile.major_subject_area_id=vars.get('major_subject_area_id','')
@@ -2005,8 +2005,8 @@ def activate_easyiep_account(request):
         profile.bio=vars.get('bio','')
         profile.activate_date=datetime.datetime.now(UTC)
         profile.save()
-        
-        #** upload photo 
+
+        #** upload photo
         photo=request.FILES.get("photo")
         upload_user_photo(profile.user.id, photo)
         js={'success': True}
@@ -2018,24 +2018,24 @@ def activate_easyiep_account(request):
     #** log the user in
     profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, profile.user)
-        
+
     return HttpResponse(json.dumps(js))
 
 #@begin:change photo by Dashboard
 #@date:2013-11-24
 # def uploadphoto(request):
 #     if request.method == 'POST':
-#         up = UserProfile.objects.get(user=request.user)  
+#         up = UserProfile.objects.get(user=request.user)
 #         img_name = up.photo
 #         file_img = request.FILES['photo']
-        
+
 #         if img_name:
 #             targetFile = os.path.join('/home/tahoe/edx_all/uploads/photos/', img_name)
 #             if os.path.isfile(targetFile):
 #                 os.remove(targetFile)
-                
+
 #         if file_img:
-#             time_int = int(time.time()*100)    
+#             time_int = int(time.time()*100)
 #             random_int1 = random.randint(10000,100000000)
 #             random_int2 = random.randint(10000,100000000)
 #             zf1 = '%d' %time_int
@@ -2047,7 +2047,7 @@ def activate_easyiep_account(request):
 #             img = Image.open(file_img)
 #             img.thumbnail((110,110),Image.ANTIALIAS)
 #             img.save('/home/tahoe/edx_all/uploads/photos/'+img_name)
-       
+
 #         up.photo = img_name
 #         up.save()
 #     return redirect(reverse('dashboard'))
@@ -2055,13 +2055,13 @@ def activate_easyiep_account(request):
 
 def upload_user_photo(user_id, file_img):
     options=settings.USERSTORE.get("OPTIONS")
-    
+
     us=MongoUserStore(options.get("host"),
                       options.get("db"),
                       options.get("port"),
                       options.get('user'),
                       options.get('password'))
-    
+
     # img_name = up.photo
     _id={"user_id":user_id,"type":"photo"}
     if file_img:
@@ -2074,7 +2074,7 @@ def upload_user_photo(user_id, file_img):
         img.save(file, 'JPEG')
         file.seek(0)
 
-        us.save(_id,file.getvalue())    
+        us.save(_id,file.getvalue())
 
 def upload_photo(request):
     upload_user_photo(request.user.id,request.FILES.get('photo'))
@@ -2086,7 +2086,7 @@ def user_photo(request,user_id=None):
         user_id=request.user.id
     else:
         user_id=int(user_id)
-        
+
     options=settings.USERSTORE.get("OPTIONS")
     us=MongoUserStore(options.get("host"),
                       options.get("db"),
@@ -2114,7 +2114,7 @@ def request_course_access_ajax(request):
         message="""User: {first_name} {last_name}
 District: {district_name}
 School: {school_name}
-Cohort: {cohort_code}	
+Cohort: {cohort_code}
 Email: {email}
 Course: {course_number} {course_name}
 Request Date: {date_time}""".format(
@@ -2135,7 +2135,7 @@ Request Date: {date_time}""".format(
             # "mmullen@pcgus.com",
             # "jmclaughlin@pcgus.com"
             ])
-        
+
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
-    return HttpResponse(json.dumps({'success': True}))  
+    return HttpResponse(json.dumps({'success': True}))
