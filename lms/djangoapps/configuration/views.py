@@ -107,8 +107,9 @@ def task_status(request):
     try:
         task = ImportTask.objects.get(id=request.POST.get('taskId'))
         j = json.dumps({'task': task.filename, 'percent': '%.2f' % ((float(task.process_lines) / float(task.total_lines)) * 100)})  # output_pipe.recv()
-    except DoesNotExist:
+    except Exception as e:
         j = json.dumps({'task': 'no', 'percent': 100})
+        log.debug("task_status error: %s" % e)
     return HttpResponse(j, content_type="application/json")
 
 
