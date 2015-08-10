@@ -107,10 +107,10 @@ def task_status(request):
     task = ImportTask.objects.get(id=request.POST.get('taskId'))
 
     if task:
-        j = json.dumps({'task': task.filename, 'precent': '%.2f' % ((float(task.process_lines) / float(task.total_lines)) * 100)})  # output_pipe.recv()
+        j = json.dumps({'task': task.filename, 'percent': '%.2f' % ((float(task.process_lines) / float(task.total_lines)) * 100)})  # output_pipe.recv()
     else:
         j = json.dumps({'task': 'no'})
-    return HttpResponse(j)
+    return HttpResponse(j, content_type="application/json")
 
 
 @postpone

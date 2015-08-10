@@ -263,9 +263,9 @@ label{cursor:default;}
       setTimeout(function(){
         $.post("${reverse('configuration_import_task_status')}",{taskId:taskId},function(r){
           dialog.setTitle();
-          $(".modal .progressbar_flow").css('width',r.precent+'%');
-          if(r.precent<100){
-            $(".modal .progressinfo").html('importing users...<br>'+Math.round(r.precent)+'%');
+          $(".modal .progressbar_flow").css('width',r.percent+'%');
+          if(r.percent<100){
+            $(".modal .progressinfo").html('importing users...<br>'+Math.round(r.percent)+'%');
             getStatus();
           }else{
            dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Import Complete</p><br>If there were any errors, you will receive them in an email.");
