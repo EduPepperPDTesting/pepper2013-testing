@@ -3,7 +3,7 @@ from django.template import Context
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
-import mako
+from mako.template import Template
 import mitxmako
 from mitxmako.shortcuts import render_to_response, render_to_string
 from student.models import ResourceLibrary, StaticContent
@@ -289,5 +289,5 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
     if context:
         context_dictionary.update(context)
     # fetch and render template
-    raw_template = mako.Template(text=template_string)
+    raw_template = Template(template_string)
     return raw_template.render_unicode(**context_dictionary)
