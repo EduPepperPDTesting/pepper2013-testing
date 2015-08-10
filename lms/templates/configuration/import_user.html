@@ -134,11 +134,11 @@ label{cursor:default;}
         <ul class="list">
           <li>
             <label style="cursor:normal !important;">
-              <input type="checkbox" name="send_registration_email" value="true" />
+              <input class="send-email" type="checkbox" name="send_registration_email" value="true" />
               Send registration emails to imported users
             </label>
           </li>
-          <li>
+          <li style="display: none;">
             <label style="cursor:normal !important;">
               <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" />
               Customize registration email
@@ -206,14 +206,20 @@ label{cursor:default;}
       $(this).addClass('expand_title_expanded');
     }
   });
+  $(".send-email").click(function(){
+    var checkbox = $(this).parent().parent().next("li");
+    if ($(this).prop('checked')){
+      checkbox.slideDown();
+    } else {
+      checkbox.slideUp();
+    }
+  });
   $(".custom-email-checkbox").click(function(){
     var textarea = $(this).parent().parent().next(".custom-email");
     if ($(this).prop('checked')){
-      console.log('checked');
-      textarea.show();
+      textarea.slideDown();
     } else {
-      console.log('unchecked');
-      textarea.hide();
+      textarea.slideUp();
     }
   });
 </script>
