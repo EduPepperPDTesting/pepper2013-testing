@@ -26,6 +26,7 @@ f.close()
 
 <%inherit file="../main.html"/>
 
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/lms-main_vendor.922a156aeac1.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
@@ -126,6 +127,9 @@ f.close()
   .variable-key ul li {
     line-height: 130%;
   }
+  div.cke {
+    width: 640px;
+  }
 </style>
 <div style="padding:20px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
@@ -165,7 +169,10 @@ f.close()
           <li class="custom-email">
             <div class="variable-key">
               <h3><strong>Email Variables:</strong></h3>
-              <p>You may use the following variables in the subject and email text. Simply copy and paste them, and the correct data will be put in the variable's place when the email is sent.</p>
+              <p>
+                You may use the following variables in the subject and email text.
+                Simply click the <img src="/static/js/ckeditor/plugins/token/icons/token.png" alt="T" /> button, select the token to insert, and the correct data will be put in the variable's place when the email is sent.
+              </p>
               <ul>
                 <li>
                   <strong><%text>${email}</%text></strong> &mdash; The user's email address.
@@ -190,7 +197,7 @@ f.close()
             </label>
             <label style="cursor:normal !important;">
               <br />Custom Email:<br />
-              <textarea name="custom_email" cols="80">${email_to_edit}</textarea>
+              <textarea class="email-editor" name="custom_email">${email_to_edit}</textarea>
             </label>
           </li>
         </ul>
@@ -216,6 +223,23 @@ f.close()
   </div>
 </div>
 <script type="text/javascript">
+  CKEDITOR.replaceAll(function(textarea, config){
+    if (textarea.className == 'email-editor') {
+      // Add token plugin
+	  config.extraPlugins = 'token';
+
+	  // Configure available tokens
+	  config.availableTokens = [
+	                            ["",""],
+								["email","email"],
+								["district","district"],
+								["site","site"],
+								["key","key"]
+							   ];
+	  return true;
+	}
+	return false;
+  });
   var $form=$("#filter_form");
   // change district dropdown
   $form.find("select[name=district_id]").change(function(){
