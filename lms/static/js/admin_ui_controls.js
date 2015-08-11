@@ -365,9 +365,9 @@ Dialog.prototype.showProgress=function(title,content){
   var $progress=$("<div class='progressbar'>\
 <div class='progressbar_text'>0%</div>\
 <div class='progressbar_flow'></div></div>").appendTo($content)
-  this.setProgress=function(precent){
-    $progress.find(".progressbar_text").text(precent+"%")
-    $progress.find(".progressbar_flow").css('width',precent+'%');
+  this.setProgress=function(percent){
+    $progress.find(".progressbar_text").text(percent+"%")
+    $progress.find(".progressbar_flow").css('width',percent+'%');
   }
 }
 Dialog.prototype.show=function(title,content){
@@ -400,73 +400,3 @@ ContextMenu.prototype.createItem=function($el){
 ContextMenu.prototype.toggle=function(){
   this.$container.toggle();
 }
-//////////////////////////////////////////////////////////////////
-var userData={}
-userData.$form=$("#filter_form");
-userData.submit=function(form){
-  var self=this
-  var form=this.$form[0];
-  // input checking
-  var state_id=$(form.state_id).val();
-  var district_id=$(form.district_id).val();
-  if(!state_id || !district_id){
-    new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
-    return false;
-  }
-  if(!((/\.csv/i).test(form.file.value))){
-    new Dialog($('#dialog')).show('Error','Please select a CSV file.');
-    return false;
-  }    
-  // submit
-  var fd = new FormData(form);    
-  $.ajax({
-    url: "/configuration/import_user_submit/",
-    data: fd,
-    processData: false,
-    contentType: false,
-    type: 'POST',
-    enctype: 'multipart/form-data',
-    mimeType: 'multipart/form-data',
-    success: function(data){
-      self.renderProgress(data.taskId);
-    }
-  });
-}
-userData.renderProgress=function(taskId){
-  var dialog=new Dialog($('#dialog'));
-  dialog.show('User Data Import',"<span class='progressinfo'></span> <div class='progressbar'><div class='progressbar_flow'></div></div>");
-  (function getStatus(){
-    setTimeout(function(){
-      $.post("/configuration/task_status/",{taskId:taskId},function(r){
-        dialog.setTitle();
-        $(".modal .progressbar_flow").css('width',r.precent+'%');
-        if(r.precent<100){
-          $(".modal .progressinfo").html('importing users...<br>'+Math.round(r.precent)+'%');
-          getStatus();
-        }else{
-          dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Import Complete</p><br>If there were any errors, you will receive them in an email.");
-        }
-      });
-    },1000);
-  })();
-}
-userData.bindEvents=function(){
-  var self=this;
-  this.$form.submit(function(){
-    self.submit();
-    return false;
-  });
-}
-userData.bindEvents();
-//////////////////////////////////////////////////////////////////
-$(".expand_title").click(function(){
-  var $div=$(this).next("div.expand_div");
-  if($div.is(':visible')){
-    $div.hide();
-    $(this).removeClass("expand_title_expanded");
-  }else{
-    $div.show();
-    $(this).addClass("expand_title_expanded");
-  }
-});
-//////////////////////////////////////////////////////////////////

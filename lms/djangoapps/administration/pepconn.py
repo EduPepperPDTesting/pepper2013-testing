@@ -3,7 +3,7 @@ from django.template import Context
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
-from mitxmako.shortcuts import render_to_response, render_to_string
+from mitxmako.shortcuts import render_to_response, render_to_string, marketing_link
 from student.models import ResourceLibrary,StaticContent
 from collections import deque
 from django.contrib.auth.decorators import login_required
@@ -34,7 +34,7 @@ from mail import send_html_mail
 import datetime
 from pytz import UTC
 
-import mako
+from mako.template import Template
 import mitxmako
 
 log = logging.getLogger("tracking")
@@ -58,6 +58,11 @@ def main(request):
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
     # monkey.patch_all(socket=False)
+
+    # send_html_mail("aaa",
+    #                "bbb",
+    #                settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
+
     
     if request.method == 'POST':
         district_id=request.POST.get("district")
@@ -92,20 +97,19 @@ def import_user_submit(request):
     else:
         return HttpResponse('')
 
-USER_CSV_COLS=('email',)
+USER_CSV_COLS=('email','state_name','district_name',)
 
 def random_mark(length):
     assert(length>0)
     return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
 
-def task_status(request):
-    task=ImportTask.objects.get(id=request.POST.get('taskId'))
-    
-    if task:
-        j=json.dumps({'task':task.filename,'precent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}) #output_pipe.recv()
-    else:
-        j=json.dumps({'task':'no'})
-    return HttpResponse(j)
+def user_import_progress(request):
+    try:
+        task=ImportTask.objects.get(id=request.POST.get('taskId'))
+        j=json.dumps({'task':task.filename,'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)})
+    except Exception as e:
+        j=json.dumps({'task':'no', 'percent':100})
+    return HttpResponse(j, content_type="application/json")
 
 def render_from_string(template_string, dictionary, context=None, namespace='main'):
     context_instance = Context(dictionary)
@@ -115,6 +119,7 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
     context_dictionary = {}
     context_instance['settings'] = settings
     context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+    context_instance['marketing_link'] = marketing_link
 
     # In various testing contexts, there might not be a current request context.
     if mitxmako.middleware.requestcontext is not None:
@@ -125,15 +130,19 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
     if context:
         context_dictionary.update(context)
     # fetch and render template
-    raw_template = mako.Template(text=template_string)
+    raw_template = Template(template_string)
     return raw_template.render_unicode(**context_dictionary)
 
 @postpone
 def do_import_user(task,csv_lines,request):
     gevent.sleep(0)
 
-    district_id=request.POST.get("district")
-    school_id=request.POST.get("school")
+    # district_id=request.POST.get("district")
+    # school_id=request.POST.get("school")
+
+    #** import into district
+    # district=District.objects.get(id=district_id)
+    
     send_registration_email=request.POST.get('send_registration_email')=='true'
 
     #** ==================== testing 
@@ -155,9 +164,7 @@ def do_import_user(task,csv_lines,request):
     
     #** ==================== importing
     count_success=0
- 
-    #** import into district
-    district=District.objects.get(id=district_id)
+    
     for i,line in enumerate(csv_lines):
         #** record csv lines process
         task.process_lines=i+1
@@ -167,6 +174,8 @@ def do_import_user(task,csv_lines,request):
         tasklog=ImportTaskLog()
 
         email=line[USER_CSV_COLS.index('email')]
+        state_name=line[USER_CSV_COLS.index('state_name')]
+        district_name=line[USER_CSV_COLS.index('district_name')]
 
         #** generating origin username
         username=random_mark(20)
@@ -174,12 +183,14 @@ def do_import_user(task,csv_lines,request):
         tasklog.username=username
         tasklog.email=email
         tasklog.create_date=datetime.datetime.now(UTC)
-        tasklog.district_name=district.name
+        tasklog.district_name=district_name
         tasklog.line=i+1
-        tasklog.import_task=task
+        tasklog.task=task
               
         try:
             validate_user_cvs_line(line)
+
+            district=District.objects.get(state__name=state_name,name=district_name)
 
             #** user
             user = User(username=username, email=email, is_active=False)
@@ -194,8 +205,8 @@ def do_import_user(task,csv_lines,request):
             profile=UserProfile(user=user)
             profile.district=district
             profile.subscription_status="Imported"
-            if school_id:
-                profile.school=School.objects.get(id=school_id)
+            # if school_id:
+            #     profile.school=School.objects.get(id=school_id)
             profile.save()
 
             #** course enroll
@@ -222,24 +233,24 @@ def do_import_user(task,csv_lines,request):
 
                     subject = ''.join(subject.splitlines())
 
-                    
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email,email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email,email])
                 except Exception as e:
-                    raise Exception("Faild to send registration email")
+                    raise Exception("Faild to send registration email %s" % e)
             
         except Exception as e:
             db.transaction.rollback()
             tasklog.error="%s" % e
+            log.debug("import error: %s" % e)
+
         finally:
             count_success=count_success+1
             task.success_lines=count_success
             task.save()
             tasklog.save()
             db.transaction.commit()
-            log.debug("import error: %s" % e)
 
     #** post process
-    tasklogs=ImportTaskLog.objects.filter(import_task=task)
+    tasklogs=ImportTaskLog.objects.filter(task=task)
     if len(tasklogs):
         FIELDS = ["line", "username", "email", "district", "create_date", "error"]
         TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
@@ -250,7 +261,7 @@ def do_import_user(task,csv_lines,request):
             row={"line":d.line,
                  "username":d.username,
                  "email":d.email,
-                 "district":d.district.name,
+                 "district":d.district_name,
                  "create_date":d.create_date,
                  "error":d.error
                  }
@@ -259,7 +270,7 @@ def do_import_user(task,csv_lines,request):
         attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com','gingerj@education2000.com',request.user.email], attachs)
+                       settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email], attachs)
         output.close()
 
 def validate_user_cvs_line(line):
@@ -278,7 +289,6 @@ def validate_user_cvs_line(line):
     #** check user exists
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
-
 
 ##############################################
 # Dropdown List
@@ -445,7 +455,6 @@ def do_send_registration_email(task,user_ids,request):
         except Exception as e:
             db.transaction.rollback()
             tasklog.error="%s" % e
-
             log.debug("========== %s" % e)
         finally:
             count_success=count_success+1
@@ -455,7 +464,7 @@ def do_send_registration_email(task,user_ids,request):
             db.transaction.commit()
 
     #** post process
-    tasklogs=EmailTaskLog.objects.filter(email_task=task)
+    tasklogs=EmailTaskLog.objects.filter(task=task)
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
@@ -466,14 +475,14 @@ def do_send_registration_email(task,user_ids,request):
             row={
                  "username":d.username,
                  "email":d.email,
-                 "district":d.district.name,
+                 "district":d.district_name,
                  "send_date":d.send_date,
                  "error":d.error
                  }
             writer.writerow(row)
         output.seek(0)
         attachs=[{'filename':'log.csv','minetype':'text/csv','data':output.read()}]
-        send_html_mail("Registration Email Sending Report",
-                       "Report of sending registration email, see attachment." % task.filename,
+        send_html_mail("Sending Registration Email Report",
+                       "Report of sending registration email, see attachment.",
                        settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email], attachs)
         output.close()

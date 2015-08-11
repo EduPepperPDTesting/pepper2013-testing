@@ -13,7 +13,7 @@ urlpatterns = (
     '',  # nopep8
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user_submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
-    url(r'^pepconn/task_status/$', 'administration.pepconn.task_status', name="pepconn_import_task_status"),
+    url(r'^pepconn/user_import_progress/$', 'administration.pepconn.user_import_progress', name="pepconn_user_import_progress"),
 
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts',name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states',name="pepconn_drop_states"),
