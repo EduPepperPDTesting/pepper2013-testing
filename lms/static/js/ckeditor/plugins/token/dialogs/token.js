@@ -11,7 +11,6 @@ CKEDITOR.dialog.add( 'token', function( editor ) {
 	var tokens = [["",""]];
 	if (typeof editor.config.availableTokens != "undefined") {
 		tokens = editor.config.availableTokens;
-		console.log("CUSTOM!");
 	}
 
 	return {

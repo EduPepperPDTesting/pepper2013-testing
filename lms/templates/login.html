@@ -94,7 +94,6 @@
       });
 
       $('#login-form').on('ajax:success', function(event, json, xhr) {
-        console.log(json);
         if (json.success) {
           if ($('#remember-yes').attr("checked"))
           {
