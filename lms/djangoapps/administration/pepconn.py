@@ -373,7 +373,7 @@ def registration_table(request):
     data=paging(data,size,page)
 
     rows=[]
-    pagingInfo={'page':data.number,'pages':data.paginator.num_pages}
+    pagingInfo={'page':data.number,'pages':data.paginator.num_pages,'total':data.paginator.count}
 
     for p in data:
         date=p.activate_date.strftime('%b-%d-%y %H:%M:%S') if p.activate_date else ''
@@ -422,15 +422,29 @@ def favorite_filter_delete(request):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def send_registration_email(request):
-    ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
+def registration_send_email(request):
+    ids=[]
+    if request.POST.get('ids'):
+        ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
+    else:
+        data=User.objects.all()
+        if request.POST.get('state',None):
+            data=data.filter(district__state_id=request.POST.get('state'))
+
+        if request.POST.get('district',None):
+            data=data.filter(district_id=request.POST.get('district'))
+
+        if request.POST.get('school',None):
+            data=data.filter(school_id=request.POST.get('school'))            
+        
+        ids=data.values_list('id',flat=True)
 
     task=EmailTask()
     task.total_emails=len(ids)
     task.save()
     
-    do_send_registration_email(task,ids,request)
-    return HttpResponse(json.dumps({'success': True,'ids':ids}))    
+    # do_send_registration_email(task,ids,request)
+    return HttpResponse(json.dumps({'success': True,'taskId':task.id,'ids':ids}),content_type="application/json")    
 
 @postpone
 def do_send_registration_email(task,user_ids,request):
@@ -487,3 +501,26 @@ def do_send_registration_email(task,user_ids,request):
                        "Report of sending registration email, see attachment.",
                        settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email], attachs)
         output.close()
+
+def registration_email_progress(request):
+    try:
+        task=EmailTask.objects.get(id=request.POST.get('taskId'))
+        j=json.dumps({'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)})
+    except Exception as e:
+        j=json.dumps({'percent':100})
+    return HttpResponse(j, content_type="application/json")    
+
+def registration_invite_count(request):
+    data=UserProfile.objects.all().select_related('User')
+
+    if request.POST.get('state',None):
+        data=data.filter(Q(district__state_id=request.POST.get('state')))
+        
+    if request.POST.get('district',None):
+        data=data.filter(Q(district_id=request.POST.get('district')))
+        
+    if request.POST.get('school',None):
+        data=data.filter(Q(school_id=request.POST.get('school')))
+            
+    count=data.filter(subscription_status='Imported').count()
+    return HttpResponse(json.dumps({'success': True,'count':count}), content_type="application/json")    

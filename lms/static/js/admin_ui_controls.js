@@ -309,6 +309,7 @@ TableControl.prototype.updatePager=function(info){
       });
     }
   }
+  this.$footer.append(" Total: "+info.total);
 }
 TableControl.prototype.updateFilter=function(f){
   this.filter=f;
@@ -369,6 +370,7 @@ Dialog.prototype.showProgress=function(title,content){
     $progress.find(".progressbar_text").text(percent+"%")
     $progress.find(".progressbar_flow").css('width',percent+'%');
   }
+  this.setProgress(0);
 }
 Dialog.prototype.show=function(title,content){
   var self=this;

@@ -12,22 +12,23 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
-    url(r'^pepconn/import_user_submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
-    url(r'^pepconn/user_import_progress/$', 'administration.pepconn.user_import_progress', name="pepconn_user_import_progress"),
+    url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
+    url(r'^pepconn/import_user/progress/$', 'administration.pepconn.user_import_progress', name="pepconn_import_user_progress"),
 
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts',name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states',name="pepconn_drop_states"),
     url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools',name="pepconn_drop_schools"),
     url(r'^pepconn/drop_cohorts$', 'administration.pepconn.drop_cohorts',name="pepconn_drop_cohorts"),
 
-    url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table',name="pepconn_registration_table"),
-
     url(r'^pepconn/favorite_filter_load$', 'administration.pepconn.favorite_filter_load',name="pepconn_favorite_filter_load"),
     url(r'^pepconn/favorite_filter_save$', 'administration.pepconn.favorite_filter_save',name="pepconn_favorite_filter_save"),
     url(r'^pepconn/favorite_filter_delete$', 'administration.pepconn.favorite_filter_delete',name="pepconn_favorite_filter_delete"),
 
-    url(r'^pepconn/registration/send_email$', 'administration.pepconn.send_registration_email',name="pepconn_send_registration_email"),
-
+    url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table',name="pepconn_registration_table"),
+    url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email',name="pepconn_registration_send_email"),
+    url(r'^pepconn/registration/email_progress$', 'administration.pepconn.registration_email_progress',name="pepconn_registration_email_progress"),
+    url(r'^pepconn/registration/invite_count/$', 'administration.pepconn.registration_invite_count', name="pepconn_registration_invite_count"),
+    
 ####### Ancestor
 
     url(r'^sso/$', 'student.views.sso', name="sso"),
