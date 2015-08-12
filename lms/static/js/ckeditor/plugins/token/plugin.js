@@ -5,12 +5,16 @@
 
 'use strict';
 
+function escapeRegExp(string){
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 ( function() {
 	CKEDITOR.plugins.add( 'token', {
 		requires: 'widget,dialog',
-		lang: 'af,ar,bg,ca,cs,cy,da,de,el,en,en-gb,eo,es,et,eu,fa,fi,fr,fr-ca,gl,he,hr,hu,id,it,ja,km,ko,ku,lv,nb,nl,no,pl,pt,pt-br,ru,si,sk,sl,sq,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
-		icons: 'token', // %REMOVE_LINE_CORE%
-		hidpi: true, // %REMOVE_LINE_CORE%
+		lang: 'en',
+		icons: 'token',
+		hidpi: true,
 
 		onLoad: function() {
 			// Register styles for token widget frame.
@@ -20,6 +24,16 @@
 		init: function( editor ) {
 
 			var lang = editor.lang.token;
+			var tokenStart = '${';
+            var tokenEnd = '}';
+            if (typeof editor.config.tokenStart != 'undefined') {
+                tokenStart = editor.config.tokenStart;
+            }
+            if (typeof editor.config.tokenEnd != 'undefined') {
+                tokenEnd = editor.config.tokenEnd;
+            }
+            var tokenStartNum = tokenStart.length;
+            var tokenEndNum = 0 - tokenEnd.length;
 
 			// Register dialog.
 			CKEDITOR.dialog.add( 'token', this.path + 'dialogs/token.js' );
@@ -31,19 +45,19 @@
 				pathName: lang.pathName,
 				// We need to have wrapping element, otherwise there are issues in
 				// add dialog.
-				template: '<span class="cke_token">${}</span>',
+				template: '<span class="cke_token">' + tokenStart + tokenEnd + '</span>',
 
 				downcast: function() {
-					return new CKEDITOR.htmlParser.text( '${' + this.data.name + '}' );
+					return new CKEDITOR.htmlParser.text( tokenStart + this.data.name + tokenEnd );
 				},
 
 				init: function() {
 					// Note that token markup characters are stripped for the name.
-					this.setData( 'name', this.element.getText().slice( 2, -1 ) );
+					this.setData( 'name', this.element.getText().slice( tokenStartNum, tokenEndNum ) );
 				},
 
 				data: function() {
-					this.element.setText( '${' + this.data.name + '}' );
+					this.element.setText( tokenStart + this.data.name + tokenEnd );
 				}
 			} );
 
@@ -56,7 +70,18 @@
 		},
 
 		afterInit: function( editor ) {
-			var tokenReplaceRegex = /\$\{([^\$\{\}])+\}/g;
+
+            var tokenStart = '${';
+            var tokenEnd = '}';
+            if (typeof editor.config.tokenStart != 'undefined') {
+                tokenStart = editor.config.tokenStart;
+            }
+            if (typeof editor.config.tokenEnd != 'undefined') {
+                tokenEnd = editor.config.tokenEnd;
+            }
+            var tokenStartRegex = escapeRegExp(tokenStart);
+            var tokenEndRegex = escapeRegExp(tokenEnd);
+			var tokenReplaceRegex = new RegExp(tokenStartRegex + '([^' + tokenStartRegex + tokenEndRegex +'])+' + tokenEndRegex, 'g');
 
 			editor.dataProcessor.dataFilter.addRules( {
 				text: function( text, node ) {
