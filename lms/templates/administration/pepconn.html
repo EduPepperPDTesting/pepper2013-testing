@@ -321,7 +321,8 @@ input,select{-ms-box-sizing:content-box;
             "user__last_name":{"display":"Last Name","sort":"+","show":1},
             "user__first_name":{"display":"First Name","sort":"+","show":1},
             "user__email":{"display":"Email","sort":"+","show":1},
-            "activate_date":{"display":"Enrollment Start","sort":"+","show":1}
+            "activate_date":{"display":"Enrollment Start","sort":"+","show":1},
+            "subscription_status":{"display":"Status","sort":"+","show":1}
             },
             "urls":{
             "data":"/pepconn/registration/table"
@@ -403,7 +404,6 @@ input,select{-ms-box-sizing:content-box;
       checkbox.slideUp();
     }
   });
-  
   $(".control.filter").each(function(){
     var el=this;
     new FilterControl(this);
@@ -505,5 +505,4 @@ userData.submit=function(form){
     }
   });
   //////////////////////////////////////////////////////////////////
-  
 </script>

@@ -383,7 +383,8 @@ def registration_table(request):
                      ,'user__first_name':p.user.first_name
                      ,'user__last_name':p.user.last_name
                      ,'district':p.district.name
-                     ,'activate_date':date})
+                     ,'activate_date':date
+                     ,"subscription_status":p.subscription_status})
 
     return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
 
