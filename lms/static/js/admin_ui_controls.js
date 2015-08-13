@@ -276,7 +276,18 @@ TableControl.prototype.loadData=function(page){
       $("<td><input type='checkbox' class='check-row' value='"+row.id+"'/></td>").appendTo($row);
     });
     self.updatePager(r.paging);
+    self.$el[0].onDataLoaded && self.$el[0].onDataLoaded();
   });
+}
+TableControl.prototype.getFieldCells=function(name){
+  var n=0;
+  $.each(this.setting.fields,function(k,f){
+    n++;
+    if(k==name){
+      return false;
+    }
+  });
+  return this.$tbody.find("tr td:nth-child("+n+")");
 }
 TableControl.prototype.updatePager=function(info){
   var self=this;
