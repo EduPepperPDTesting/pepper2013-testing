@@ -427,7 +427,7 @@ def registration_send_email(request):
     if request.POST.get('ids'):
         ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
-        data=User.objects.all()
+        data=UserProfile.objects.all()
         if request.POST.get('state',None):
             data=data.filter(district__state_id=request.POST.get('state'))
 
@@ -437,14 +437,14 @@ def registration_send_email(request):
         if request.POST.get('school',None):
             data=data.filter(school_id=request.POST.get('school'))            
         
-        ids=data.values_list('id',flat=True)
+        ids=data.values_list('user_id',flat=True)
 
     task=EmailTask()
     task.total_emails=len(ids)
     task.save()
     
-    # do_send_registration_email(task,ids,request)
-    return HttpResponse(json.dumps({'success': True,'taskId':task.id,'ids':ids}),content_type="application/json")    
+    do_send_registration_email(task,ids,request)
+    return HttpResponse(json.dumps({'success': True,'taskId':task.id}),content_type="application/json")    
 
 @postpone
 def do_send_registration_email(task,user_ids,request):
@@ -463,14 +463,23 @@ def do_send_registration_email(task,user_ids,request):
             
             reg = Registration.objects.get(user=user)
             props = {'key': reg.activation_key, 'district': user.profile.district.name}
-            subject = render_to_string('emails/activation_email_subject.txt', props)
+
+            use_custom = request.POST.get("customize_email")
+            if use_custom == 'true':
+                custom_email = request.POST.get("custom_email")
+                custom_email_subject = request.POST.get("custom_email_subject")
+                subject = render_from_string(custom_email_subject, props)
+                body = render_from_string(custom_email, props)
+            else:
+                subject = render_to_string('emails/activation_email_subject.txt', props)
+                body = render_to_string('emails/activation_email.txt', props)
+            
             subject = ''.join(subject.splitlines())
-            body = render_to_string('emails/activation_email.txt', props)
+            
             send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',user.email])
         except Exception as e:
             db.transaction.rollback()
             tasklog.error="%s" % e
-            log.debug("========== %s" % e)
         finally:
             count_success=count_success+1
             task.success_emails=count_success

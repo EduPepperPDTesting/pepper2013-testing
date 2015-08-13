@@ -10,7 +10,6 @@ from xmodule.modulestore.django import modulestore
 from student.models import State,District,School
 %>
 
-
 <%
 import os
 workdir = os.getcwd()
@@ -24,7 +23,6 @@ f = open(email_path, 'r')
 email_to_edit = f.read()
 f.close()
 %>
-
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
@@ -166,14 +164,14 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    line-height:12px;
    background:url("/static/images/configuration/table_menu.png")
  }
- div.control.table div.paging{
+ div.control.table .footer{
    padding:5px;
-   text-align:right;
+   text-align:left;
  }
- div.control.table div.paging a{
+ div.control.table .paging a{
    margin-left:5px;
  }
- div.control.table div.paging input{
+ div.control.table .paging input{
    margin-right:5px;
    width:50px;
    text-align:right;
@@ -291,7 +289,7 @@ input,select{-ms-box-sizing:content-box;
       User Registration <div class="icon"></div>
     </div>
     <div class="expand_div">
-      <form method="" id="filter_form" action="" onsubmit="return false;">
+      <form method="" id="usrRegistrationForm" action="" onsubmit="return false;">
         <div class="control filter" id="fltUserRegistration">
           <span class="body" style="display:inline-block;"></span>
           <textarea class="setting">
@@ -310,15 +308,45 @@ input,select{-ms-box-sizing:content-box;
           </textarea>
           <input type="button" name="" value="LOAD" class="load" onclick="userRegistration.filterUserRegistration()"/>
         </div>
-        <div class="control table" id="tblUserRegistration">
+        <div class="" style="padding:5px;">
+          <label style="cursor:normal !important;">
+            <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+            Customize registration email
+          </label>            
+        </div>
+        <div class="custom-email" style="display: none;padding:5px;">
+          <label style="cursor:normal !important;">
+            Subject:<br />
+            <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/>
+          </label>
+          <label style="cursor:normal !important;">
+            <br />Custom Email:<br />
+            <textarea name="custom_email" cols="80" autocomplete="off">${email_to_edit}</textarea>
+          </label>
+        </div>
+        <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
-            <label style="cursor:normal !important;">
-              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
-              Customize registration email
-            </label>            
+            <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+              Send registration email to: <span class="count"></span> users(haven't invited).
+            </a>
+            <label style="float:right;font-weight:bold;font-style:normal">
+              Select All <input type="checkbox" name="" value="" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
+            </label> 
           </div>
-          <div class="" style="padding:5px;"><a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">Send registration email to: <span class="count"></span> users(haven't invited).</a></div>
           <span class="body"></span>
+          <div class="footer">
+            <span class="paging"></span>
+            Batch Modify
+            <select id="" name="" autocomplate="off">
+              <option value="">--Status--</option>
+            </select>
+            <input type="button" name="" value="Delete" class="small"/>
+            <span class="download">
+              Download <span class="total"></span> Users(s) As
+              <input type="button" name="" value="CSV" class="small"/>
+              <input type="button" name="" value="Excel" class="small"/>
+            </span>
+          </div>
           <textarea class="setting">
             {
             "fields":{
@@ -333,19 +361,19 @@ input,select{-ms-box-sizing:content-box;
             "data":"${reverse('pepconn_registration_table')}"
             },
             "paging":{
-            "size":20
+            "size":20,
+            "sizes":[10,20,50,100,200]
             }
             }
           </textarea>
         </div>
         <div style="padding:5px;">
-          <input type="submit" name="" value="SEND REGISTRATION EMAILS" onclick="userRegistration.sendRegistrationEmails('ids')"/>
+          <input type="button" name="" value="SEND REGISTRATION EMAILS" onclick="userRegistration.sendRegistrationEmails('ids')"/>
         </div>
       </form>
     </div>
   </div>
 </div>
-
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -409,6 +437,7 @@ input,select{-ms-box-sizing:content-box;
       this.updateInviteNumber(filter);
     },
     sendRegistrationEmails:function(type){
+      var self=this;
       if(type=='ids'){
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
         if(!ids.length){
@@ -419,10 +448,40 @@ input,select{-ms-box-sizing:content-box;
       }else if(type=='filter'){
         var filter=$('#fltUserRegistration')[0].control.getFilter();
       }
-      new InviteEmailSender().send(filter);
+      var usrRegistrationForm=$("#usrRegistrationForm")[0];
+      var data={
+        'customize_email':$(usrRegistrationForm.customize_email).val(),
+        'custom_email':$(usrRegistrationForm.custom_email).val(),
+        'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
+      }
+      data=$.extend(data,filter);
+      this.dialog=new Dialog($('#dialog'));
+      this.dialog.showProgress("Sending Registration Emails","Please wait...");
+      $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
+        if(r.success){
+          self.taskId=r.taskId;
+          self.updateProgress();
+        }
+      });          
+    },
+    updateProgress:function(){
+      var self=this;
+      $.post("${reverse('pepconn_registration_email_progress')}",{taskId:this.taskId},function(r){
+        self.dialog.setProgress(r.percent);
+        if(r.percent<100){
+          self.updateProgress();
+        }else{
+          self.dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Email sending Complete</p>\
+<br>If there were any errors, you will receive them in an email.");
+          self.updateInviteNumber({});
+        }
+      });
     },
     init:function(){
       this.updateInviteNumber({});
+      $('#tblUserRegistration')[0].onDataLoaded=function(){
+        $(this).find(".download .total").html(this.control.getPagingInfo().total);
+      }
     }
   }
   userRegistration.init();
@@ -486,35 +545,4 @@ input,select{-ms-box-sizing:content-box;
     }
   }
   userDataImport.init();
-  //* class for send invite email by filter
-  function InviteEmailSender(){}
-  InviteEmailSender.prototype.send=function(filter){
-    var self=this;
-    this.dialog=new Dialog($('#dialog'));
-    this.dialog.showProgress("Sending Registration Emails","Please wait...");
-    $.post("${reverse('pepconn_registration_send_email')}",safeJSON(filter),function(r){
-      if(r.success){
-        self.taskId=r.taskId;
-        self.updateProgress();
-      }
-    });    
-  }
-  InviteEmailSender.prototype.updateProgress=function(){
-    var self=this;
-    $.post("${reverse('pepconn_registration_email_progress')}",{taskId:this.taskId},function(r){
-      self.dialog.setProgress(r.percent);
-      if(r.percent<100){
-        self.updateProgress();
-      }else{
-        self.dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Email sending Complete</p>\
-<br>If there were any errors, you will receive them in an email.");
-        self.onProgress && self.onProgress();
-      }
-    });
-  }
-  /* $('#tblUserRegistration')[0].onDataLoaded=function(){
-     $.each(this.control.getFieldCells('district'),function(i,cell){
-     console.log(this.innerHTML)
-     });
-     } */
 </script>

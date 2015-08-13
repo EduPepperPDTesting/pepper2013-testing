@@ -202,8 +202,8 @@ function TableControl(el){
   this.parseSetting();
   this.sort={};
   this.$body=$(el).find(".body");
+  this.$paging=$(el).find(".paging");
   this.createTable();
-  this.createFooter();
   this.loadData(1);
 }
 TableControl.prototype.parseSetting=function(){
@@ -218,12 +218,14 @@ TableControl.prototype.createTable=function(){
   this.$tbody=$("<tbody></tbody>").appendTo(this.$table);
   $.each(this.setting.fields,function(k,f){
     var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
-    var order='';
-    $("<span class='sort'></span>").appendTo($th).click(function(){
-      order=(order=='asc'?'desc':'asc');
-      self.sort={sortField:k,sortOrder:order};
-      self.loadData(self.currentPage);
-    });
+    if(f.sort){
+      var order=(f.sort=='-'?'asc':'desc');
+      $("<span class='sort'></span>").appendTo($th).click(function(){
+        order=(order=='asc'?'desc':'asc');
+        self.sort={sortField:k,sortOrder:order};
+        self.loadData(self.currentPage);
+      });
+    }
     if(!f.show)$th.hide();
   });
   var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
@@ -256,9 +258,6 @@ TableControl.prototype.toggleColumn=function(name){
     n++;
   });
 }
-TableControl.prototype.createFooter=function(){
-  this.$footer=$("<div class='paging'></div>").appendTo(this.$body);
-}
 TableControl.prototype.loadData=function(page){
   this.currentPage=page;
   var self=this;
@@ -280,47 +279,64 @@ TableControl.prototype.loadData=function(page){
   });
 }
 TableControl.prototype.getFieldCells=function(name){
-  var n=0;
-  $.each(this.setting.fields,function(k,f){
+  var n=0,col=0;
+  $.each(this.setting.fields,function(k){
     n++;
     if(k==name){
-      return false;
+      col=n; return false;
     }
   });
-  return this.$tbody.find("tr td:nth-child("+n+")");
+  if(col) return this.$tbody.find("tr td:nth-child("+col+")");
+}
+TableControl.prototype.getPagingInfo=function(){
+  return this.pagingInfo;
 }
 TableControl.prototype.updatePager=function(info){
   var self=this;
-  this.$footer.html("");
-  var $input=$("<input value='"+info.page+"'>").appendTo(this.$footer);
+  this.pagingInfo=info;
+  this.$paging.html("");
+  this.$paging.append(" Total: "+info.total+" ");
+  var $input=$("<input value='"+info.page+"'>").appendTo(this.$paging);
   $input.keyup(function(e){
     if(e.keyCode==13){
       var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
       if(/^[1-9]\d*$/.test(p)){
         self.loadData(p);
       }else{
-        alert("Invalid page number '"+p+"'")
+        $(this).val(info.page)
       }
     }
   });  
-  $("<span>"+"/"+info.pages+"</span>").appendTo(this.$footer);
+  $("<span>"+"/"+info.pages+"</span>").appendTo(this.$paging);
   if(info.pages>1){
     if(info.page>1){
-      var $prev=$("<a href='#'>Prev</a>").appendTo(self.$footer);
+      var $prev=$("<a href='#'>Prev</a>").appendTo(this.$paging);
       $prev.click(function(){
         self.loadData(info.page-1);
         return false;
       });
     }
     if(info.page<info.pages){
-      var $next=$("<a href='#'>Next</a>").appendTo(self.$footer);
+      var $next=$("<a href='#'>Next</a>").appendTo(this.$paging);
       $next.click(function(){
         self.loadData(info.page+1);
         return false;
       });
     }
   }
-  this.$footer.append(" Total: "+info.total);
+  var sizes=this.setting.paging.sizes;
+  if(sizes && sizes.length){
+    this.$paging.append(" Items Per Page ");
+    var $select=$("<select></select>").appendTo(this.$paging);
+    $select.change(function(){
+      self.setting.paging.size=$(this).val();
+      self.loadData(1);
+    })
+    $.each(sizes,function(i,size){
+      $("<option>"+size+"</option>").appendTo($select);
+    });
+    $select.val(self.setting.paging.size);
+  }
 }
 TableControl.prototype.updateFilter=function(f){
   this.filter=f;
@@ -332,6 +348,11 @@ TableControl.prototype.getCheckedValues=function(){
     if(this.checked) ar.push(this.value)
   });
   return ar;
+}
+TableControl.prototype.checkAll=function(b){
+  this.$tbody.find("input.check-row").each(function(){
+    this.checked=b;
+  });
 }
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
