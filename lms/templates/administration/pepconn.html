@@ -347,8 +347,8 @@ input,select{-ms-box-sizing:content-box;
             <input type="button" id="btnDeleteUsers" name="" value="Delete" class="small"/>
             <span class="download">
               Download <span class="total"></span> Users(s) As
-              <input type="button" name="" value="CSV" class="small"/>
-              <input type="button" name="" value="Excel" class="small"/>
+              <input type="button" name="" value="CSV" class="small" id="btnDownloadUserCsv"/>
+              <input type="button" name="" value="Excel" class="small" id="btnDownloadUserExcel"/>
             </span>
           </div>
           <textarea class="setting">
@@ -503,6 +503,32 @@ input,select{-ms-box-sizing:content-box;
         });
       }
     },
+    postToNewTab: function(url, params) {
+      var form = document.createElement("form");
+      form.setAttribute("method", "post");
+      form.setAttribute("action", url);
+      form.setAttribute("target", "_blank");
+      for (var i in params) {
+        if (params.hasOwnProperty(i)) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = i;
+          input.value = params[i];
+          form.appendChild(input);
+        }
+      }
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    },    
+    downloadUserCsv:function(){
+      var filter=$('#fltUserRegistration')[0].control.getFilter();
+      this.postToNewTab("${reverse('pepconn_registration_download_csv')}",safeJSON(filter));
+    },
+    downloadUserExcel:function(){
+      var filter=$('#fltUserRegistration')[0].control.getFilter();
+      this.postToNewTab("${reverse('pepconn_registration_download_excel')}",safeJSON(filter));
+    },
     init:function(){
       var self=this;
       this.updateInviteNumber({});
@@ -515,6 +541,15 @@ input,select{-ms-box-sizing:content-box;
         self.modifyUserStatus(status);
         $(this).val('');
       });
+
+      $("#btnDownloadUserCsv").click(function(){
+        self.downloadUserCsv();
+      });
+
+      $("#btnDownloadUserExcel").click(function(){
+        self.downloadUserExcel();
+      });      
+      
       $("#btnDeleteUsers").click(function(){
         self.deleteUsers();
       });

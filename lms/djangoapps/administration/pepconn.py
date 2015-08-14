@@ -41,6 +41,58 @@ log = logging.getLogger("tracking")
 
 from gevent import monkey
 
+def attstr(obj,attr):
+    r=obj
+    try:
+        for a in attr.split("."):
+            r=getattr(r,a)
+    except:
+        r=""
+
+    if r is None: r=""
+    return r
+
+def render_from_string(template_string, dictionary, context=None, namespace='main'):
+    context_instance = Context(dictionary)
+    # add dictionary to context_instance
+    context_instance.update(dictionary or {})
+    # collapse context_instance to a single dictionary for mako
+    context_dictionary = {}
+    context_instance['settings'] = settings
+    context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
+    context_instance['marketing_link'] = marketing_link
+
+    # In various testing contexts, there might not be a current request context.
+    if mitxmako.middleware.requestcontext is not None:
+        for d in mitxmako.middleware.requestcontext:
+            context_dictionary.update(d)
+    for d in context_instance:
+        context_dictionary.update(d)
+    if context:
+        context_dictionary.update(context)
+    # fetch and render template
+    raw_template = Template(template_string)
+    return raw_template.render_unicode(**context_dictionary)
+
+def random_mark(length):
+    assert(length>0)
+    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
+
+def paging(all,size,page):
+    try:
+        page=int(page)
+    except Exception:
+        page=1
+    try:
+        size=int(size)
+    except Exception:
+        size=1
+    paginator = Paginator(all, size)
+    if page<1: page=1
+    if page>paginator.num_pages: page=paginator.num_pages
+    data=paginator.page(page)
+    return data
+
 def postpone(function):
     def decorator(*args, **kwargs):
         p = Process(target = function, args=args, kwargs=kwargs)
@@ -53,6 +105,8 @@ def postpone(function):
 def main(request):
     from django.contrib.sessions.models import Session
     return render_to_response('administration/pepconn.html', {})
+
+#* -------------- User Data Import -------------
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -99,10 +153,6 @@ def import_user_submit(request):
 
 USER_CSV_COLS=('email','state_name','district_name',)
 
-def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
-
 def user_import_progress(request):
     try:
         task=ImportTask.objects.get(id=request.POST.get('taskId'))
@@ -110,28 +160,6 @@ def user_import_progress(request):
     except Exception as e:
         j=json.dumps({'task':'no', 'percent':100})
     return HttpResponse(j, content_type="application/json")
-
-def render_from_string(template_string, dictionary, context=None, namespace='main'):
-    context_instance = Context(dictionary)
-    # add dictionary to context_instance
-    context_instance.update(dictionary or {})
-    # collapse context_instance to a single dictionary for mako
-    context_dictionary = {}
-    context_instance['settings'] = settings
-    context_instance['MITX_ROOT_URL'] = settings.MITX_ROOT_URL
-    context_instance['marketing_link'] = marketing_link
-
-    # In various testing contexts, there might not be a current request context.
-    if mitxmako.middleware.requestcontext is not None:
-        for d in mitxmako.middleware.requestcontext:
-            context_dictionary.update(d)
-    for d in context_instance:
-        context_dictionary.update(d)
-    if context:
-        context_dictionary.update(context)
-    # fetch and render template
-    raw_template = Template(template_string)
-    return raw_template.render_unicode(**context_dictionary)
 
 @postpone
 def do_import_user(task,csv_lines,request):
@@ -290,9 +318,7 @@ def validate_user_cvs_line(line):
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
 
-##############################################
-# Dropdown List
-##############################################
+#* -------------- Dropdown List -------------
 
 def drop_states(request):
     r=list()
@@ -335,32 +361,11 @@ def drop_cohorts(request):
 
 from django.core.paginator import Paginator,InvalidPage, EmptyPage
 
-def paging(all,size,page):
-    try:
-        page=int(page)
-    except Exception:
-        page=1
-    try:
-        size=int(size)
-    except Exception:
-        size=1
-    paginator = Paginator(all, size)
-    if page<1: page=1
-    if page>paginator.num_pages: page=paginator.num_pages
-    data=paginator.page(page)
-    return data
-
 def registration_table(request):
     data=UserProfile.objects.all().select_related('User')
 
-    if request.GET.get('state',None):
-        data=data.filter(Q(district__state_id=request.GET.get('state')))
-        
-    if request.GET.get('district',None):
-        data=data.filter(Q(district_id=request.GET.get('district')))
-        
-    if request.GET.get('school',None):
-        data=data.filter(Q(school_id=request.GET.get('school')))
+    data=UserProfile.objects.all()
+    data=registration_filter_user(request.GET,data)
 
     if request.GET.get('sortField',None):
         if request.GET.get('sortOrder')=='desc':
@@ -387,6 +392,8 @@ def registration_table(request):
                      ,"subscription_status":p.subscription_status})
 
     return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}), content_type="application/json")
+
+#* -------------- Favorite Filter -------------
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)    
@@ -420,6 +427,17 @@ def favorite_filter_delete(request):
     FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
+#* -------------- Registration -------------
+
+def registration_filter_user(vars,data):
+    if vars.get('state',None):
+        data=data.filter(Q(district__state_id=vars.get('state')))
+    if vars.get('district',None):
+        data=data.filter(Q(district_id=vars.get('district')))
+    if vars.get('school',None):
+        data=data.filter(Q(school_id=vars.get('school')))
+    return data
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
@@ -428,15 +446,7 @@ def registration_send_email(request):
         ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data=UserProfile.objects.all()
-        if request.POST.get('state',None):
-            data=data.filter(district__state_id=request.POST.get('state'))
-
-        if request.POST.get('district',None):
-            data=data.filter(district_id=request.POST.get('district'))
-
-        if request.POST.get('school',None):
-            data=data.filter(school_id=request.POST.get('school'))            
-        
+        data=registration_filter_user(request.POST,data)
         ids=data.values_list('user_id',flat=True)
 
     task=EmailTask()
@@ -521,15 +531,7 @@ def registration_email_progress(request):
 
 def registration_invite_count(request):
     data=UserProfile.objects.all().select_related('User')
-
-    if request.POST.get('state',None):
-        data=data.filter(Q(district__state_id=request.POST.get('state')))
-        
-    if request.POST.get('district',None):
-        data=data.filter(Q(district_id=request.POST.get('district')))
-        
-    if request.POST.get('school',None):
-        data=data.filter(Q(school_id=request.POST.get('school')))
+    data=registration_filter_user(request.POST,data)
             
     count=data.filter(subscription_status='Imported').count()
     return HttpResponse(json.dumps({'success': True,'count':count}), content_type="application/json")    
@@ -565,3 +567,105 @@ def registration_delete_users(request):
         db.transaction.rollback()
         message={'success': False,'error':'%s' % (e)}
     return HttpResponse(json.dumps(message), content_type="application/json")    
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def registration_download_csv(request):
+    from StringIO import StringIO
+    FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
+              "district","cohort","school","invite_date","activate_date","subscription_status"]
+    
+    TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
+              "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
+
+    output = StringIO()
+    writer = csv.DictWriter(output, fieldnames=FIELDS)
+    
+    writer.writerow(dict(zip(FIELDS, TITLES)))
+
+    data=UserProfile.objects.all()
+    data=registration_filter_user(request.POST,data)
+
+    domain="http://"+request.META['HTTP_HOST']
+
+    for d in data:
+        key,link="",""
+        if Registration.objects.filter(user_id=d.user_id).count():
+            key=Registration.objects.get(user_id=d.user_id).activation_key
+
+        if key: link=domain+reverse('register_user',args=[key])
+
+        writer.writerow({
+            "user_id":attstr(d,"user_id"),
+            "activate_link":link,
+            "first_name":attstr(d,"user.first_name"),
+            "last_name":attstr(d,"user.last_name"),
+            "username":attstr(d,"user.username"),
+            "email":attstr(d,"user.email"),       
+            "district":attstr(d,"district.name"),
+            "cohort":attstr(d,"cohort.code"),
+            "school":attstr(d,"school.name"),
+            "invite_date":attstr(d,"invite_date"),
+            "activate_date":attstr(d,"activate_date"),
+            "subscription_status":attstr(d,"subscription_status")
+            })
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.csv')
+    output.seek(0)
+    response.write(output.read())
+    output.close()
+    return response
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def registration_download_excel(request):
+    from StringIO import StringIO
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    
+    FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
+              "_district","_cohort","_school","_invite_date","_activate_date","subscription_status"]
+    
+    TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
+              "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
+    
+    for i,k in enumerate(TITLES):
+        worksheet.write(0,i,k)
+    row=1
+
+    data=UserProfile.objects.all()
+    data=registration_filter_user(request.POST,data)
+    
+    domain="http://"+request.META['HTTP_HOST'] 
+    for d in data:
+        if Registration.objects.filter(user_id=d.user_id).count():
+            key=Registration.objects.get(user_id=d.user_id).activation_key
+        else:
+            key=None
+        d.activate_link=""
+        d.username=attstr(d,"user.username")
+        d.first_name=attstr(d,"user.first_name")
+        d.last_name=attstr(d,"user.last_name")
+        d._school=attstr(d,"school.name")
+        d._cohort=attstr(d,"cohort.code")
+        d._district=attstr(d,"district.name")
+        d.email=attstr(d,"user.email")
+        d._invite_date="%s" % attstr(d,"invite_date")
+        d._activate_date="%s" % attstr(d,"activate_date")
+        
+        for i,k in enumerate(FIELDS):
+            if k=="activate_link" and key:
+                d.activate_link=domain+reverse('register_user',args=[key])
+                worksheet.write_url(row,i,getattr(d,k),None,key)
+            else:
+                worksheet.write(row,i,getattr(d,k))
+
+        row=row+1
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())    
+    return response
