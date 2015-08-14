@@ -489,15 +489,19 @@ input,select{-ms-box-sizing:content-box;
       });
     },
     deleteUsers:function(){
-      new Dialog($('#dialog')).showYesNo('Delete Users','Do you really want to delete the seleced user(s)?',function(confirmed){
-        if(confirmed){
-          var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
-          var args={ids:ids.join()};
-          $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
-            if(r.success) $('#tblUserRegistration')[0].control.reload();
-          });      
-        }
-      });
+      var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+      if(ids.length){
+        new Dialog($('#dialog')).showYesNo('Delete Users',
+                                           'Do you really want to delete the seleced user(s)?',
+                                           function(confirmed){
+          if(confirmed){
+            var args={ids:ids.join()};
+            $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
+              if(r.success) $('#tblUserRegistration')[0].control.reload();
+            });      
+          }
+        });
+      }
     },
     init:function(){
       var self=this;
