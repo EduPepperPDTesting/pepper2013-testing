@@ -223,7 +223,7 @@ TableControl.prototype.createTable=function(){
       $("<span class='sort'></span>").appendTo($th).click(function(){
         order=(order=='asc'?'desc':'asc');
         self.sort={sortField:k,sortOrder:order};
-        self.loadData(self.currentPage);
+        self.reload();
       });
     }
     if(!f.show)$th.hide();
@@ -244,6 +244,9 @@ TableControl.prototype.createFieldsSelector=function($container,$button){
     });
     $el.append(" "+f.display);
   });
+}
+TableControl.prototype.reload=function(){
+  this.loadData(this.currentPage);
 }
 TableControl.prototype.toggleColumn=function(name){
   var self=this;

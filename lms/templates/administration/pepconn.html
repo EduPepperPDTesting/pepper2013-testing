@@ -337,10 +337,14 @@ input,select{-ms-box-sizing:content-box;
           <div class="footer">
             <span class="paging"></span>
             Batch Modify
-            <select id="" name="" autocomplate="off">
+            <select id="lstModifyStatus" name="" autocomplete="off">
               <option value="">--Status--</option>
+              <option value="Imported">Imported</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Registered">Registered</option>
+              <option value="Inactive">Inactive</optio>              
             </select>
-            <input type="button" name="" value="Delete" class="small"/>
+            <input type="button" id="btnDeleteUsers" name="" value="Delete" class="small"/>
             <span class="download">
               Download <span class="total"></span> Users(s) As
               <input type="button" name="" value="CSV" class="small"/>
@@ -477,11 +481,39 @@ input,select{-ms-box-sizing:content-box;
         }
       });
     },
+    modifyUserStatus:function(status){
+      var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+      var args={ids:ids.join(),subscription_status:status};
+      $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
+        if(r.success) $('#tblUserRegistration')[0].control.reload();
+      });
+    },
+    deleteUsers:function(){
+      new Dialog($('#dialog')).showYesNo('Delete Users','Do you really want to delete the seleced user(s)?',function(confirmed){
+        if(confirmed){
+          var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+          var args={ids:ids.join()};
+          $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
+            if(r.success) $('#tblUserRegistration')[0].control.reload();
+          });      
+        }
+      });
+    },
     init:function(){
+      var self=this;
       this.updateInviteNumber({});
       $('#tblUserRegistration')[0].onDataLoaded=function(){
         $(this).find(".download .total").html(this.control.getPagingInfo().total);
       }
+      $("#lstModifyStatus").change(function(){
+        var status=$(this).val();
+        if(status=="")return;
+        self.modifyUserStatus(status);
+        $(this).val('');
+      });
+      $("#btnDeleteUsers").click(function(){
+        self.deleteUsers();
+      });
     }
   }
   userRegistration.init();

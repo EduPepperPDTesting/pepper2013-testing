@@ -28,7 +28,8 @@ urlpatterns = (
     url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email',name="pepconn_registration_send_email"),
     url(r'^pepconn/registration/email_progress$', 'administration.pepconn.registration_email_progress',name="pepconn_registration_email_progress"),
     url(r'^pepconn/registration/invite_count/$', 'administration.pepconn.registration_invite_count', name="pepconn_registration_invite_count"),
-    
+    url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
+    url(r'^pepconn/registration/delete_users/$', 'administration.pepconn.registration_delete_users', name="pepconn_registration_delete_users"),
 ####### Ancestor
 
     url(r'^sso/$', 'student.views.sso', name="sso"),

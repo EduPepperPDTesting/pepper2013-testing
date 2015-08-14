@@ -101,7 +101,7 @@
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
             <td>${item.district.name}</td>
             <td>
-              %if item.cohort_id:
+              %if Cohort.objects.filter(id=item.cohort_id).count():
               ${item.cohort.code}
               %endif
             </td>

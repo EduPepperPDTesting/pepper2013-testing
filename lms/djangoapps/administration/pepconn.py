@@ -93,9 +93,9 @@ def import_user_submit(request):
         #** begin import
         do_import_user(task, rl, request)
         
-        return HttpResponse(json.dumps({'success': True,'taskId':task.id}))
+        return HttpResponse(json.dumps({'success': True,'taskId':task.id}), content_type="application/json")
     else:
-        return HttpResponse('')
+        return HttpResponse(json.dumps({'success': False}), content_type="application/json")
 
 USER_CSV_COLS=('email','state_name','district_name',)
 
@@ -300,7 +300,7 @@ def drop_states(request):
     data=data.order_by("name")        
     for item in data:
         r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r), content_type="application/json")
 
 def drop_districts(request):
     r=list()
@@ -310,7 +310,7 @@ def drop_districts(request):
         data=data.order_by("name")        
         for item in data:
             r.append({"id":item.id,"name":item.name,"code":item.code})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r), content_type="application/json")
 
 def drop_schools(request):
     r=list()
@@ -320,7 +320,7 @@ def drop_schools(request):
         data=data.order_by("name")
         for item in data:
             r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r), content_type="application/json")
 
 def drop_cohorts(request):
     data=Cohort.objects.all()
@@ -331,7 +331,7 @@ def drop_cohorts(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"code":item.code})
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r), content_type="application/json")
 
 from django.core.paginator import Paginator,InvalidPage, EmptyPage
 
@@ -386,7 +386,7 @@ def registration_table(request):
                      ,'activate_date':date
                      ,"subscription_status":p.subscription_status})
 
-    return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
+    return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)    
@@ -402,7 +402,7 @@ def favorite_filter_load(request):
             ,'filter':ff.filter_json
             })
     
-    return HttpResponse(json.dumps(favs))
+    return HttpResponse(json.dumps(favs), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -412,13 +412,13 @@ def favorite_filter_save(request):
     ff.name=request.GET.get('name')
     ff.filter_json=request.GET.get('filter')
     ff.save()
-    return HttpResponse(json.dumps({'success': True}))    
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")    
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_delete(request):
     FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -514,10 +514,10 @@ def do_send_registration_email(task,user_ids,request):
 def registration_email_progress(request):
     try:
         task=EmailTask.objects.get(id=request.POST.get('taskId'))
-        j=json.dumps({'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)})
+        message={'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}
     except Exception as e:
-        j=json.dumps({'percent':100})
-    return HttpResponse(j, content_type="application/json")    
+        message={'percent':100}
+    return HttpResponse(json.dumps(message), content_type="application/json")    
 
 def registration_invite_count(request):
     data=UserProfile.objects.all().select_related('User')
@@ -533,3 +533,35 @@ def registration_invite_count(request):
             
     count=data.filter(subscription_status='Imported').count()
     return HttpResponse(json.dumps({'success': True,'count':count}), content_type="application/json")    
+
+def registration_modify_user_status(request):
+    message={'success': True}
+    for id in request.POST.get("ids").split(","): 
+        user=User.objects.get(id=id)
+        profile=UserProfile.objects.get(user_id=id)
+        try:
+            if request.POST['subscription_status']=='Registered':
+                user.is_active=True
+            else:
+                user.is_active=False
+            user.save()
+            profile.subscription_status=request.POST['subscription_status']
+            profile.save()
+        except Exception as e:
+            db.transaction.rollback()
+            message={'success': False}
+            break
+            
+    return HttpResponse(json.dumps(message), content_type="application/json")
+
+def registration_delete_users(request):
+    message={'success': True}
+    ids=request.POST.get("ids").split(",")
+    try:
+        User.objects.filter(id__in=ids).delete()
+        UserProfile.objects.filter(user_id__in=ids).delete()
+        db.transaction.commit()
+    except Exception as e:
+        db.transaction.rollback()
+        message={'success': False,'error':'%s' % (e)}
+    return HttpResponse(json.dumps(message), content_type="application/json")    
