@@ -218,7 +218,8 @@ def do_import_user(task,csv_lines,request):
         try:
             validate_user_cvs_line(line)
 
-            district=District.objects.get(state__name=state_name,name=district_name)
+            state=State.objects.get(name=state_name)
+            district=District.objects.get(state=state,name=district_name)
 
             #** user
             user = User(username=username, email=email, is_active=False)

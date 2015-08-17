@@ -492,7 +492,7 @@ input,select{-ms-box-sizing:content-box;
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
       if(ids.length){
         new Dialog($('#dialog')).showYesNo('Delete Users',
-                                           'Do you really want to delete the seleced user(s)?',
+                                           'Do you really want to delete the selected user(s)?',
                                            function(confirmed){
           if(confirmed){
             var args={ids:ids.join()};
@@ -541,15 +541,12 @@ input,select{-ms-box-sizing:content-box;
         self.modifyUserStatus(status);
         $(this).val('');
       });
-
       $("#btnDownloadUserCsv").click(function(){
         self.downloadUserCsv();
       });
-
       $("#btnDownloadUserExcel").click(function(){
         self.downloadUserExcel();
-      });      
-      
+      });
       $("#btnDeleteUsers").click(function(){
         self.deleteUsers();
       });
