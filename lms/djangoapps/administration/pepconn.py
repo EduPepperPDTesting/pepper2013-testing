@@ -102,7 +102,7 @@ def postpone(function):
 
 def log_task_execturor(user,operation):
     exectuor_log=TaskExecutorLog()
-    exectuor_log.user=request.user
+    exectuor_log.user=user
     exectuor_log.operation=operation
     exectuor_log.execute_date=datetime.datetime.now(UTC)
     exectuor_log.save()
