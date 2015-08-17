@@ -25,7 +25,7 @@ f.close()
 %>
 
 <%inherit file="../main.html"/>
-<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
  input[type=button].small{
 font-size:12px;height:2em;line-height:2em;padding:0 10px;
@@ -215,7 +215,12 @@ input,select{-ms-box-sizing:content-box;
  div.expand_div{display:none;}
  div.filter{}
  .custom-email input{width: 400px;}
- .custom-email textarea{height: 300px;} 
+ .custom-email textarea{height: 300px;}
+
+ /* ckeditor */
+ div.cke {
+   width: 640px;
+ }
 </style>
 <!-- User Data Import -->
 <div style="padding-top:20px">
@@ -257,16 +262,7 @@ input,select{-ms-box-sizing:content-box;
               Customize registration email
             </label>
           </li>
-          <li class="custom-email" style="display: none;">
-            <label style="cursor:normal !important;">
-              Subject:<br />
-              <input type="text" name="custom_email_subject" value="${subject_to_edit}" />
-            </label>
-            <label style="cursor:normal !important;">
-              <br />Custom Email:<br />
-              <textarea name="custom_email" cols="80">${email_to_edit}</textarea>
-            </label>
-          </li>          
+    <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
@@ -314,16 +310,7 @@ input,select{-ms-box-sizing:content-box;
             Customize registration email
           </label>            
         </div>
-        <div class="custom-email" style="display: none;padding:5px;">
-          <label style="cursor:normal !important;">
-            Subject:<br />
-            <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/>
-          </label>
-          <label style="cursor:normal !important;">
-            <br />Custom Email:<br />
-            <textarea name="custom_email" cols="80" autocomplete="off">${email_to_edit}</textarea>
-          </label>
-        </div>
+        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
         <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
             <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
@@ -390,6 +377,24 @@ input,select{-ms-box-sizing:content-box;
 </div>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript">
+  if (typeof CKEDITOR != 'undefined') {
+      CKEDITOR.replaceAll(function (textarea, config) {
+          if (textarea.className == 'email-editor') {
+              // Add token plugin
+              config.extraPlugins = 'token';
+              // Configure available tokens
+              config.availableTokens = [
+                  ["", ""],
+                  ["email", "email"],
+                  ["district", "district"],
+                  ["site", "site"],
+                  ["key", "key"]
+              ];
+              return true;
+          }
+          return false;
+      });
+  }
   //* global
   //** add csrf token to json
   function safeJSON(j){
