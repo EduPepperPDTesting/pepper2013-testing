@@ -46,4 +46,9 @@ class FilterFavorite(models.Model):
     name = models.CharField(blank=False, max_length=150, db_index=True)
     filter_json = models.CharField(blank=False, max_length=4096, db_index=True)
     
-    
+class TaskExecutorLog(models.Model):
+    class Meta:
+        db_table = 'admin_task_executor_log'
+    user = models.ForeignKey(User)
+    operation = models.CharField(blank=False, max_length=150, db_index=True)
+    execute_date = models.DateTimeField(auto_now_add=True, db_index=False)

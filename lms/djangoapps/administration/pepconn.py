@@ -100,6 +100,13 @@ def postpone(function):
         p.start()
     return decorator
 
+def log_task_execturor(user,operation):
+    exectuor_log=TaskExecutorLog()
+    exectuor_log.user=request.user
+    exectuor_log.operation=operation
+    exectuor_log.execute_date=datetime.datetime.now(UTC)
+    exectuor_log.save()
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def main(request):
@@ -111,12 +118,10 @@ def main(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
+
+    log_task_execturor(request.user,'user data import')
+    
     # monkey.patch_all(socket=False)
-
-    # send_html_mail("aaa",
-    #                "bbb",
-    #                settings.SUPPORT_EMAIL, ['mailfcl@126.com'])
-
     
     if request.method == 'POST':
         district_id=request.POST.get("district")
@@ -173,23 +178,6 @@ def do_import_user(task,csv_lines,request):
     
     send_registration_email=request.POST.get('send_registration_email')=='true'
 
-    #** ==================== testing 
-    # curr=""
-    # process=0
-
-    # while 1:
-    #     now=time.strftime("%Y-%m-%d %X", time.localtime())
-    #     if now!=curr:
-    #         process=process+1
-
-    #         task.filename=now
-    #         task.process_lines=process
-    #         task.save()
-    #         db.transaction.commit()
-            
-    #         log.debug(now)
-    #         curr=now
-    
     #** ==================== importing
     count_success=0
     
@@ -442,6 +430,8 @@ def registration_filter_user(vars,data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
+    log_task_execturor(request.user,'send registration email')
+    
     ids=[]
     if request.POST.get('ids'):
         ids=[int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
