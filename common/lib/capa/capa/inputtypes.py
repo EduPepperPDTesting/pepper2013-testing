@@ -376,6 +376,7 @@ class ChoiceGroup(InputTypeBase):
             raise Exception("ChoiceGroup: unexpected tag {0}".format(self.tag))
 
         self.choices = self.extract_choices(self.xml)
+        self.answer_column_num=self.xml.get("answer_column_num")
 
     @classmethod
     def get_attributes(cls):
@@ -385,7 +386,8 @@ class ChoiceGroup(InputTypeBase):
     def _extra_context(self):
         return {'input_type': self.html_input_type,
                 'choices': self.choices,
-                'name_array_suffix': self.suffix}
+                'name_array_suffix': self.suffix,
+                'answer_column_num':self.answer_column_num}
 
     @staticmethod
     def extract_choices(element):
@@ -400,7 +402,7 @@ class ChoiceGroup(InputTypeBase):
         '''
 
         choices = []
-
+        index = 0
         for choice in element:
             if choice.tag != 'choice':
                 raise Exception(
@@ -411,7 +413,8 @@ class ChoiceGroup(InputTypeBase):
                 # TODO: fix order?
                 choice_text += choice.text
 
-            choices.append((choice.get("name"), choice_text, choice.get("edu_show_me_id")))
+            choices.append((choice.get("name"), choice_text, choice.get("edu_show_me_id"), index))
+            index+=1
 
         return choices
 

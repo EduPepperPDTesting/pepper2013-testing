@@ -180,15 +180,27 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:50px;
    text-align:right;
  }
- div.control.table .sort{
-   margin-top:3px;
+ div.control.table .sort,div.control.table .sort_up,div.control.table .sort_dn{
    vertical-align:top;
    float:right;
-   cursor:pointer;
    display:inline-block;
-   width:9px;
-   height:17px;
-   background:url("/static/images/configuration/table_arrow_sort.png")
+   width:21px;
+   height:9px;
+ }
+ div.control.table th.sort_head{
+   cursor:pointer;
+ }
+ div.control.table .sort{
+   margin-top:7px;
+   background:url("/static/images/configuration/sort.gif") no-repeat;
+ }
+ div.control.table .sort_up{
+   margin-top:9px;
+   background:url("/static/images/configuration/sort_up.gif") no-repeat;
+ }
+ div.control.table .sort_dn{
+   margin-top:9px;
+   background:url("/static/images/configuration/sort_dn.gif") no-repeat;
  }
  ul.context-menu{
    position:absolute;
@@ -266,7 +278,7 @@ input,select{-ms-box-sizing:content-box;
               Customize registration email
             </label>
           </li>
-    <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
@@ -321,7 +333,7 @@ input,select{-ms-box-sizing:content-box;
               Send registration email to: <span class="count"></span> users(haven't invited).
             </a>
             <label style="float:right;font-weight:bold;font-style:normal">
-              Select All <input type="checkbox" name="" value="" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
+              Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
             </label> 
           </div>
           <span class="body"></span>
@@ -543,6 +555,7 @@ input,select{-ms-box-sizing:content-box;
       this.updateInviteNumber({});
       $('#tblUserRegistration')[0].onDataLoaded=function(){
         $(this).find(".download .total").html(this.control.getPagingInfo().total);
+        $(this).find(".check_all").prop("checked",false)
       }
       $("#lstModifyStatus").change(function(){
         var status=$(this).val();
@@ -581,7 +594,8 @@ input,select{-ms-box-sizing:content-box;
       $.ajax({
         url: "${reverse('pepconn_import_user_submit')}",
         data: new FormData(form), processData: false, contentType: false, type: 'POST',
-        enctype: 'multipart/form-data', mimeType: 'multipart/form-data',
+        /* enctype: 'multipart/form-data',
+           mimeType: 'multipart/form-data', */
         success: function(data){
           self.renderProgress(data.taskId);
         }

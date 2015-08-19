@@ -220,10 +220,13 @@ TableControl.prototype.createTable=function(){
     var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
     if(f.sort){
       var order=(f.sort=='-'?'asc':'desc');
-      $("<span class='sort'></span>").appendTo($th).click(function(){
+      var $arrow=$("<span class='sort'></span>").appendTo($th)
+      $th.addClass("sort_head");
+      $th.click(function(){
         order=(order=='asc'?'desc':'asc');
         self.sort={sortField:k,sortOrder:order};
         self.reload();
+        $arrow[0].className=(order=='asc'?'sort_up':'sort_dn');
       });
     }
     if(!f.show)$th.hide();

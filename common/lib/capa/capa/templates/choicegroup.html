@@ -12,51 +12,101 @@
         % endif
     % endif
     </div>
-
     <fieldset>
+        % if answer_column_num is None:
+            % for choice_id, choice_description, edu_show_me_id, index in choices:
+            <label for="input_${id}_${choice_id}" edu_show_me_id="${edu_show_me_id}"
+                ## If the student has selected this choice...
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                <%
+                    if status == 'correct':
+                        correctness = 'correct'
+                    elif status == 'incorrect':
+                        correctness = 'incorrect'
+                    else:
+                        correctness = None
+                %>
+                % if correctness and not show_correctness=='never':
+                class="choicegroup_${correctness}"
+                % endif
+                % endif
+                >
+                <input type="${input_type}" name="input_${id}${name_array_suffix}" id="input_${id}_${choice_id}" aria-describedby="answer_${id}" value="${choice_id}"
+                ## If the student selected this choice...
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                checked="true"
+                % elif input_type != 'radio' and choice_id in value:
+                checked="true"
+                % endif
 
-        % for choice_id, choice_description, edu_show_me_id in choices:
-        <label for="input_${id}_${choice_id}" edu_show_me_id="${edu_show_me_id}"
-            ## If the student has selected this choice...
-            % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
-            <%
-                if status == 'correct':
-                    correctness = 'correct'
-                elif status == 'incorrect':
-                    correctness = 'incorrect'
-                else:
-                    correctness = None
-            %>
-            % if correctness and not show_correctness=='never':
-            class="choicegroup_${correctness}"
-            % endif
-            % endif
-            >
-            <input type="${input_type}" name="input_${id}${name_array_suffix}" id="input_${id}_${choice_id}" aria-describedby="answer_${id}" value="${choice_id}"
-            ## If the student selected this choice...
-            % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
-            checked="true"
-            % elif input_type != 'radio' and choice_id in value:
-            checked="true"
-            % endif
+                /> ${choice_description}
 
-            /> ${choice_description}
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                <%
+                    if status == 'correct':
+                        correctness = 'correct'
+                    elif status == 'incorrect':
+                        correctness = 'incorrect'
+                    else:
+                        correctness = None
+                %>
+                % if correctness and not show_correctness=='never':
+                <span class="sr" aria-describedby="input_${id}_${choice_id}">Status: ${correctness}</span>
+                % endif
+                % endif
+            </label>
+            % endfor
+        % else:
+            % for choice_id, choice_description, edu_show_me_id, index in choices:
+                % if index%int(answer_column_num)==0:
+                    % if index>0:
+                    </div>
+                    % endif
+                <div style="float:left;width:auto;margin:10px;">
+                % endif
+                <label for="input_${id}_${choice_id}" edu_show_me_id="${edu_show_me_id}"
+                ## If the student has selected this choice...
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                <%
+                    if status == 'correct':
+                        correctness = 'correct'
+                    elif status == 'incorrect':
+                        correctness = 'incorrect'
+                    else:
+                        correctness = None
+                %>
+                % if correctness and not show_correctness=='never':
+                class="choicegroup_${correctness}"
+                % endif
+                % endif
+                >
+                <input type="${input_type}" name="input_${id}${name_array_suffix}" id="input_${id}_${choice_id}" aria-describedby="answer_${id}" value="${choice_id}"
+                ## If the student selected this choice...
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                checked="true"
+                % elif input_type != 'radio' and choice_id in value:
+                checked="true"
+                % endif
 
-            % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
-            <%
-                if status == 'correct':
-                    correctness = 'correct'
-                elif status == 'incorrect':
-                    correctness = 'incorrect'
-                else:
-                    correctness = None
-            %>
-            % if correctness and not show_correctness=='never':
-            <span class="sr" aria-describedby="input_${id}_${choice_id}">Status: ${correctness}</span>
-            % endif
-            % endif
-        </label>
-        % endfor
+                /> ${choice_description}
+
+                % if input_type == 'radio' and ( (isinstance(value, basestring) and (choice_id == value))  or  (not isinstance(value, basestring) and choice_id in value) ):
+                <%
+                    if status == 'correct':
+                        correctness = 'correct'
+                    elif status == 'incorrect':
+                        correctness = 'incorrect'
+                    else:
+                        correctness = None
+                %>
+                % if correctness and not show_correctness=='never':
+                <span class="sr" aria-describedby="input_${id}_${choice_id}">Status: ${correctness}</span>
+                % endif
+                % endif
+                </label>               
+            % endfor
+            </div>
+        % endif
         <span id="answer_${id}"></span>
     </fieldset>
 

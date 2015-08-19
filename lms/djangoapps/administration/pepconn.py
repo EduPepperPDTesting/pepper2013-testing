@@ -118,7 +118,6 @@ def main(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
-
     log_task_execturor(request.user,'user data import')
     
     # monkey.patch_all(socket=False)
@@ -148,6 +147,8 @@ def import_user_submit(request):
         # http://stackoverflow.com/questions/8242837/django-multiprocessing-and-database-connections
         from django.db import connection 
         connection.close()
+
+
 
         #** begin import
         do_import_user(task, rl, request)
@@ -250,7 +251,7 @@ def do_import_user(task,csv_lines,request):
 
                     subject = ''.join(subject.splitlines())
 
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',request.user.email,email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com',email])
                 except Exception as e:
                     raise Exception("Faild to send registration email %s" % e)
             

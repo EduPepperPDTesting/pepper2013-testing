@@ -38,8 +38,6 @@ site_status_msg = get_site_status_msg(course_id)
 % endif
 </%block>
 
-<!--@begin:New added page style-->
-<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
  *{font-family:"open sans" !important;}
  p{font-family:"open sans" !important;}
@@ -183,6 +181,7 @@ site_status_msg = get_site_status_msg(course_id)
  #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
+
 <style type="text/css" media="screen">
  a.configuration{
    color:#646464;
@@ -250,8 +249,6 @@ site_status_msg = get_site_status_msg(course_id)
  }
 </style>
 
-<!--@end-->
-
 % if course:
 <header class="global slim" aria-label="${_('Global Navigation')}">
   % else:
@@ -264,7 +261,6 @@ site_status_msg = get_site_status_msg(course_id)
       <h1 class="logo">
         <!--@begin:Choose the link of the top logo according user's login status-->
         <!--@date:2013-11-02-->
-
 
         %if context.get("curr_user"):
         <% curr_user=context.get("curr_user") %>
@@ -362,11 +358,12 @@ site_status_msg = get_site_status_msg(course_id)
 
         %if curr_user==request.user:
 
+        <ol class="user admin" >
         %if show_extended and curr_user.is_superuser:
         <!-- Administration -->
 
-        <ol class="user admin" >
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
@@ -424,6 +421,7 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         </ol>
         %endif
+        
         %endif
         %if not show_extended:
         <ol class="right nav-courseware" id="btn-dashboard">
@@ -432,6 +430,7 @@ site_status_msg = get_site_status_msg(course_id)
           </li>
         </ol>
         %endif
+
         % else:
         <%block name="navigation_global_links">
         % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
@@ -522,6 +521,7 @@ site_status_msg = get_site_status_msg(course_id)
   %endif
 
   <script>
+    var interactive_update_window_top=0;
     $(function(){
       //-----------------------------------------------------------------
       interactive_update();
@@ -728,12 +728,14 @@ site_status_msg = get_site_status_msg(course_id)
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
           $("#lean_overlay").hide();
+          $(window).scrollTop(interactive_update_window_top);
         })
           message_board_clearContent();
         $("#lean_overlay").click(function(){
           $("#show_personalmessage").hide();
           $(".linkwin").hide();
           $(this).hide();
+          $(window).scrollTop(interactive_update_window_top);
         })
           var userInfo=[];
         var data_ele=$("#show_notifications");
