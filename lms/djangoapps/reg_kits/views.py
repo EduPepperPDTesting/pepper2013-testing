@@ -928,6 +928,15 @@ def transaction_delete(request):
 ##############################################
 # Dropdown List
 ##############################################
+def drop_states(request):
+    data=State.objects.all()
+  
+    data=data.order_by("name")        
+    r=list()
+    for item in data:
+        r.append({"id":item.id,"name":item.name})        
+    return HttpResponse(json.dumps(r))
+
 def drop_districts(request):
     data=District.objects.all()
     if request.GET.get('state_id'):

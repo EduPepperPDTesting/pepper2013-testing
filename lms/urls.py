@@ -10,12 +10,33 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8
-    url(r'^configuration/import_user/$', 'configuration.views.import_user', name="configuration_import_user"),
-    url(r'^configuration/import_user_submit/$', 'configuration.views.import_user_submit', name="configuration_import_user_submit"),
-    url(r'^configuration/task_status/$', 'configuration.views.task_status', name="configuration_import_task_status"),
-
+    '',  # nopep8  
+    
 ####### Ancestor
+
+    url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
+    url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
+    url(r'^pepconn/import_user/progress/$', 'administration.pepconn.user_import_progress', name="pepconn_import_user_progress"),
+
+    url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts',name="pepconn_drop_districts"),
+    url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states',name="pepconn_drop_states"),
+    url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools',name="pepconn_drop_schools"),
+    url(r'^pepconn/drop_cohorts$', 'administration.pepconn.drop_cohorts',name="pepconn_drop_cohorts"),
+
+    url(r'^pepconn/favorite_filter_load$', 'administration.pepconn.favorite_filter_load',name="pepconn_favorite_filter_load"),
+    url(r'^pepconn/favorite_filter_save$', 'administration.pepconn.favorite_filter_save',name="pepconn_favorite_filter_save"),
+    url(r'^pepconn/favorite_filter_delete$', 'administration.pepconn.favorite_filter_delete',name="pepconn_favorite_filter_delete"),
+
+    url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table',name="pepconn_registration_table"),
+    url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email',name="pepconn_registration_send_email"),
+    url(r'^pepconn/registration/email_progress$', 'administration.pepconn.registration_email_progress',name="pepconn_registration_email_progress"),
+    url(r'^pepconn/registration/invite_count/$', 'administration.pepconn.registration_invite_count', name="pepconn_registration_invite_count"),
+  
+    url(r'^pepconn/registration/delete_users/$', 'administration.pepconn.registration_delete_users', name="pepconn_registration_delete_users"),
+    url(r'^pepconn/registration/download_csv/$', 'administration.pepconn.registration_download_csv', name="pepconn_registration_download_csv"),
+    url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
+
+    url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
@@ -31,6 +52,7 @@ urlpatterns = (
     url(r'^request_course_access$', 'student.views.request_course_access_ajax', name="request_course_access"),
 
     url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts',name="drop_districts"),
+    url(r'^reg_kits/drop_states$', 'reg_kits.views.drop_states',name="drop_states"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools',name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts',name="drop_cohorts"),
     

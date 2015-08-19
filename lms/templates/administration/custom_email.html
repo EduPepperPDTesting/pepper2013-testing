@@ -1,0 +1,36 @@
+<%page args="subject_to_edit=None,email_to_edit=None" />
+
+<div class="custom-email" style="display: none;padding:5px;">
+  <div class="variable-key">
+    <h3><strong>Email Variables:</strong></h3>
+    <p>
+      You may use the following variables in the subject and email text.
+      Simply click the <img src="/static/js/ckeditor/plugins/token/icons/token.png" alt="T" /> button, select the token to insert, and the correct data will be put in the variable's place when the email is sent.
+    </p>
+    <ul>
+      <li>
+        <strong><%text>${email}</%text></strong> &mdash; The user's email address.
+                </listye>
+                <li>
+                  <strong><%text>${district}</%text></strong> &mdash; The district the user has been invited by.
+                </li>
+                <li>
+                  <strong><%text>${site}</%text></strong> &mdash; The current site's URL (e.g. ${site})
+                </li>
+                <li>
+                  <strong><%text>${key}</%text></strong> &mdash; The key for identifying the user to the registration form.
+                </li>
+    </ul>
+    <p>The <%text>${site} and ${key}</%text> variables are generally used to create the registration URL, like so:</p>
+    <pre><%text>https://<strong>${site}</strong>/register/<strong>${key}</strong></%text></pre>
+    <p>See the default template for an example of how it should be used.</p>
+  </div>          
+  <label style="cursor:normal !important;">
+    Subject:<br />
+    <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/>
+  </label>
+  <label style="cursor:normal !important;">
+    <br />Custom Email:<br />
+    <textarea class="email-editor" name="custom_email" cols="80" autocomplete="off">${email_to_edit}</textarea>
+  </label>
+</div>
