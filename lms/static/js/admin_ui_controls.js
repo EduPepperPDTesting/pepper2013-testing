@@ -216,17 +216,22 @@ TableControl.prototype.createTable=function(){
   this.$table=$("<table></table>").appendTo(this.$body);
   this.$thead=$("<tr></tr>").appendTo(this.$table);
   this.$tbody=$("<tbody></tbody>").appendTo(this.$table);
-
   var fnRevert=null;
   $.each(this.setting.fields,function(k,f){
     var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
     if(f.sort){
-      var order=(f.sort=='-'?'asc':'desc');
+      var default_order=(f.sort=='-'?'asc':'desc')
+      var order=default_order;
       var $arrow=$("<span class='sort'></span>").appendTo($th);
       $th.addClass("sort_head");
       $th.click(function(){
-        fnRevert && fnRevert();
-        fnRevert=function(){$arrow[0].className='sort';}
+        fnRevert && fnRevert(k);
+        fnRevert=function(fieldName){
+          if(k!=fieldName){
+            $arrow[0].className='sort';
+            order=default_order;
+          }
+        }
         order=(order=='asc'?'desc':'asc');
         self.sort={sortField:k,sortOrder:order};
         self.reload();
@@ -235,7 +240,6 @@ TableControl.prototype.createTable=function(){
     }
     if(!f.show)$th.hide();
   });
-  
   var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
   var $trigger=$("<span class='menu-trigger'></span>").appendTo($thMenu);
   this.createFieldsSelector($thMenu,$trigger);
