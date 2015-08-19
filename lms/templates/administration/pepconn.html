@@ -180,16 +180,30 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:50px;
    text-align:right;
  }
- div.control.table .sort{
-   margin-top:3px;
+ div.control.table .sort,div.control.table .sort_up,div.control.table .sort_dn{
    vertical-align:top;
    float:right;
    cursor:pointer;
    display:inline-block;
-   width:9px;
-   height:17px;
-   background:url("/static/images/configuration/table_arrow_sort.png")
+   width:21px;
+   height:9px;
  }
+
+ div.control.table .sort{
+   margin-top:7px;
+   background:url("/static/images/configuration/sort.gif") no-repeat;
+ }
+
+ div.control.table .sort_up{
+   margin-top:9px;
+   background:url("/static/images/configuration/sort_up.gif") no-repeat;
+ }
+
+ div.control.table .sort_dn{
+   margin-top:9px;
+   background:url("/static/images/configuration/sort_dn.gif") no-repeat;
+ }
+
  ul.context-menu{
    position:absolute;
    background:#fff;

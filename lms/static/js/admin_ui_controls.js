@@ -224,6 +224,7 @@ TableControl.prototype.createTable=function(){
         order=(order=='asc'?'desc':'asc');
         self.sort={sortField:k,sortOrder:order};
         self.reload();
+        this.className=(order=='asc'?'sort_up':'sort_dn');
       });
     }
     if(!f.show)$th.hide();
