@@ -233,6 +233,10 @@ input,select{-ms-box-sizing:content-box;
  .custom-email input{width: 400px;}
  .custom-email textarea{height: 300px;}
 
+ .custom-email, .customize-email {
+     display: none;
+ }
+
  /* variable-key */
  .variable-key {
    float: right;
@@ -292,7 +296,7 @@ input,select{-ms-box-sizing:content-box;
               Send registration emails to imported users
             </label>
           </li>
-          <li style="display: none;">
+          <li class="customize-email">
             <label style="cursor:normal !important;">
               <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
@@ -639,21 +643,30 @@ input,select{-ms-box-sizing:content-box;
       })();
     },
     init:function(){
-      var self=this;
-      this.$form=$("#userDataImportForm");
-      $(".send-email").click(function(){
-        var checkbox = $(this).parent().parent().next("li");
-        if ($(this).prop('checked')){
-          checkbox.slideDown();
-        } else {
-          checkbox.slideUp();
+        function pcSlider(clicked, target) {
+            if (clicked.prop('checked')){
+                target.slideDown();
+            } else {
+                target.slideUp();
+            }
         }
-      });
-      this.$form.submit(function(){
-        self.submit();
-        return false;
-      });
+        var self=this;
+        this.$form=$("#userDataImportForm");
+        $(".send-email").click(function(){
+            var checkboxArea = $(this).parent().parent().next(".customize-email");
+            var checkbox = $(checkboxArea).children("label").children(".custom-email-checkbox");
+            if (checkbox.prop('checked')) {
+                checkbox.removeProp('checked');
+                var textarea = checkbox.parent().parent().next(".custom-email");
+                pcSlider(checkbox, textarea);
+            }
+            pcSlider($(this), checkboxArea);
+        });
+        this.$form.submit(function(){
+            self.submit();
+            return false;
+        });
     }
-  }
+  };
   userDataImport.init();
 </script>

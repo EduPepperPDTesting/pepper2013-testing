@@ -237,7 +237,7 @@ def do_import_user(task,csv_lines,request):
             if send_registration_email:
                 try:
                     reg = Registration.objects.get(user=user)
-                    props = {'key': reg.activation_key, 'district': district.name}
+                    props = {'key': reg.activation_key, 'district': district.name, 'email': email}
 
                     use_custom = request.POST.get("customize_email")
                     if use_custom == 'true':
