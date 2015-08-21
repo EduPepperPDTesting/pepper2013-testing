@@ -532,23 +532,30 @@ input,select{-ms-box-sizing:content-box;
     modifyUserStatus:function(status){
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
       var args={ids:ids.join(),subscription_status:status};
-      $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
-        if(r.success) $('#tblUserRegistration')[0].control.reload();
-      });
+      if(ids.length){
+        $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
+          if(r.success) $('#tblUserRegistration')[0].control.reload();
+        });
+      }else{
+        new Dialog($('#dialog')).show('Modify User Status','No users selected.');
+      }
     },
     deleteUsers:function(){
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
       if(ids.length){
-        new Dialog($('#dialog')).showYesNo('Delete Users',
-                                           'Do you really want to delete the selected user(s)?',
-                                           function(confirmed){
-          if(confirmed){
-            var args={ids:ids.join()};
-            $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
-              if(r.success) $('#tblUserRegistration')[0].control.reload();
-            });      
-          }
-        });
+        new Dialog($('#dialog')).showYesNo(
+          'Delete Users',
+          'Do you really want to delete the selected user(s)?',
+          function(confirmed){
+            if(confirmed){
+              var args={ids:ids.join()};
+              $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
+                if(r.success) $('#tblUserRegistration')[0].control.reload();
+              });
+            }
+          });
+      }else{
+        new Dialog($('#dialog')).show('Delete Users','No users selected.');
       }
     },
     postToNewTab: function(url, params) {
