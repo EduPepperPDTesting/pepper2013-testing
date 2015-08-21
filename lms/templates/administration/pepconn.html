@@ -275,10 +275,13 @@ input,select{-ms-box-sizing:content-box;
             "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('pepconn_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
             "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('pepconn_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
             },
-            "urls":{
-               "favorite_load":"${reverse('pepconn_favorite_filter_load')}",
-               "favorite_save":"${reverse('pepconn_favorite_filter_save')}",
-               "favorite_delete":"${reverse('pepconn_favorite_filter_delete')}"
+            "favorite":{
+               "show":true,
+               "urls":{
+                  "load":"${reverse('pepconn_favorite_filter_load')}",
+                  "save":"${reverse('pepconn_favorite_filter_save')}",
+                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                }
             }
             }
           </textarea>       
@@ -303,7 +306,7 @@ input,select{-ms-box-sizing:content-box;
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
-            <label style="font-style:normal;color:#555">
+            <label style="font-style:normal;color:#555;cursor:default;">
             * CSV file should contain the following columns (email address, state, district).
             </label>
           </p>
