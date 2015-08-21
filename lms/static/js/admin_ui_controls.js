@@ -278,7 +278,8 @@ TableControl.prototype.loadData=function(page){
         var $td=$("<td>"+row[k]+"</td>").appendTo($row);
         if(!f.show)$td.hide();
       });
-      $("<td><input type='checkbox' class='check-row' value='"+row.id+"'/></td>").appendTo($row);
+      var identifier=self.setting.field_row_identifier;
+      $("<td><input type='checkbox' class='check-row' value='"+row[identifier]+"'/></td>").appendTo($row);
     });
     self.updatePager(r.paging);
     self.$el[0].onDataLoaded && self.$el[0].onDataLoaded();
