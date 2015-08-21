@@ -1,12 +1,37 @@
-function RegistrationEmailEditor(){
+//////////////////////////////////////////////////////////////////
+function TaskShortcutControl(el){
+  var self=this;
   el.control=this;
-  this.$body=$(el).find(".body");
+  this.$el=$(el);
   this.parseSetting();
+  this.$body=$(el).find(".body");
+  this.loadCount();
+  this.$el.click(function(){
+    self.showProgressDialog();
+  });
 }
-RegistrationEmailEditor.prototype.parseSetting=function(){
+TaskShortcutControl.prototype.showProgressDialog=function(){
+  var dialog=new Dialog($('#dialog'))
+  dialog.show('User Data Import Tasks',this.count+' task(s) found.')
+  dialog.addProgress("1.csv");
+  dialog.setProgress(90,1);
+  dialog.addProgress("user.csv");
+  dialog.setProgress(20,2);
+  dialog.addProgress("100.csv");
+  dialog.setProgress(50,3);
+}
+TaskShortcutControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
+}
+TaskShortcutControl.prototype.loadCount=function(){
+  var self=this;
+  $.get(this.setting.urls.count,function(r){
+    self.count=r.count;
+    self.$body.html(r.count+" task(s)");
+    setTimeout(function(){self.loadCount()},self.setting.interval)
+  });
 }
 //////////////////////////////////////////////////////////////////
 function FilterControl(el){
@@ -431,18 +456,28 @@ Dialog.prototype.showYesNo=function(title,content,callback){
     callback.apply(self,[false]);
   });
 }
-Dialog.prototype.showProgress=function(title,content){
+Dialog.prototype.showProgress=function(title,content,name){
   var self=this;
   this.show(title,content);
+  this.addProgress(name);
+}
+Dialog.prototype.addProgress=function(name){
+  name=name?name+": ":"";
   var $content=this.$dialog.find('.content');
   var $progress=$("<div class='progressbar'>\
-<div class='progressbar_text'>0%</div>\
-<div class='progressbar_flow'></div></div>").appendTo($content)
-  this.setProgress=function(percent){
-    $progress.find(".progressbar_text").text(percent+"%")
+<div class='progressbar_text'>\
+<span>"+name+"</span>\
+<span class='progressbar_perc'></span></div>\
+<div class='progressbar_flow'></div></div>").appendTo($content);
+  function set($p,percent){
+    $progress.find(".progressbar_perc").text(percent+"%")
     $progress.find(".progressbar_flow").css('width',percent+'%');
   }
-  this.setProgress(0);
+  this.setProgress=function(percent,id){
+    if(typeof id=='undefined')id=1;
+    set($content.find(".progressbar_text").eq(id),percent);
+  }
+  set($progress,0);
 }
 Dialog.prototype.showButtons=function(title,content,labels,callback){
   var self=this;

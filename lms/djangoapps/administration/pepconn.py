@@ -148,8 +148,6 @@ def import_user_submit(request):
         from django.db import connection 
         connection.close()
 
-
-
         #** begin import
         do_import_user(task, rl, request)
         
@@ -159,7 +157,7 @@ def import_user_submit(request):
 
 USER_CSV_COLS=('email','state_name','district_name',)
 
-def user_import_progress(request):
+def import_user_progress(request):
     try:
         task=ImportTask.objects.get(id=request.POST.get('taskId'))
         j=json.dumps({'task':task.filename,'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)})
@@ -308,6 +306,11 @@ def validate_user_cvs_line(line):
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
 
+from django.db.models import F
+def import_user_task_count(request):
+    count=ImportTask.objects.filter(process_lines__lt=F('total_lines')).count()
+    return HttpResponse(json.dumps({'success': True, 'count':count}), content_type="application/json")
+    
 #* -------------- Dropdown List -------------
 
 def drop_states(request):
@@ -663,3 +666,4 @@ def registration_download_excel(request):
     workbook.close()
     response.write(output.getvalue())    
     return response
+

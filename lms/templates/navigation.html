@@ -205,7 +205,7 @@ site_status_msg = get_site_status_msg(course_id)
    position: absolute;
    right: -12px;
    top: 34px;
-   width: 170px;
+   width: 200px;
    z-index: 3;
  }
  ul.admin-dropdown-menu li {
@@ -356,21 +356,32 @@ site_status_msg = get_site_status_msg(course_id)
         </ol>
         <!--@end-->
 
+        <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+        <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+
         %if curr_user==request.user:
 
         <ol class="user admin" >
-        %if show_extended and curr_user.is_superuser:
-        <!-- Administration -->
-
+          %if show_extended and curr_user.is_superuser:
+          <!-- Administration -->
           <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
-              <li><a href="${reverse('pepconn')}">PepConn</a></li>
+              <li>
+                <a href="${reverse('pepconn')}" style="display:inline-block;width:80px;">PepConn</a>
+                <a href="#" style="display:inline-block;width:110px;" class="control task_shortcut outside_menu">
+                  <span class="body" ></span>
+                  <textarea class="setting">
+                    {"interval":5000,"urls":{"count":"${reverse('pepconn_import_user_task_count')}"}}
+                  </textarea>
+                </a>
+              </li>
               <script type="text/javascript">
                 $(document).on('click', function(event) {
-                  if (!$(event.target).closest('.admin-menu-holder').length) {
+                  if(!$(event.target).closest('.admin-menu-holder').length){
+                    $(".admin-dropdown-menu").hide();
+                  }else if($(event.target).closest(".outside_menu").length){
                     $(".admin-dropdown-menu").hide();
                   }
                 });
@@ -378,6 +389,10 @@ site_status_msg = get_site_status_msg(course_id)
             </ul>
           </li>
           %endif
+
+          <script type="text/javascript">
+            $(".control.task_shortcut").each(function(){new TaskShortcutControl(this)});
+          </script>
 
           %if show_extended:
           <!-- Notifications -->
@@ -1104,3 +1119,12 @@ site_status_msg = get_site_status_msg(course_id)
   </div>
   <!--@end-->
 
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
