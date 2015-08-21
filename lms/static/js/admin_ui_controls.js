@@ -16,14 +16,16 @@ function FilterControl(el){
   this.$body=$(el).find(".body");
   this.parseSetting();
   this.createFields();
-  this.createFavorite();
+  this.initFavorite();
 }
 FilterControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
 }
-FilterControl.prototype.createFavorite=function(){
+FilterControl.prototype.initFavorite=function(){
+  if(!this.setting.favorite.show) return;
+  
   var self=this;
   this.$el.addClass("clearfix");
   this.$el.find(".favorite").remove();
@@ -34,7 +36,7 @@ FilterControl.prototype.createFavorite=function(){
   $drop.change(function(){
     self.onFavoriteChange(data[$(this).val()]);
   });
-  $.get(this.setting.urls.favorite_load,{},function(r){
+  $.get(this.setting.favorite.urls.load,{},function(r){
     data=r;
     if((typeof data) == 'string')data=$.parseJSON(r);
     $.each(data,function(i,item){
@@ -73,9 +75,9 @@ FilterControl.prototype.deleteFavorite=function(id){
   var self=this;
   new Dialog($('#dialog')).showYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
     if(r){
-      $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
+      $.get(self.setting.favorite.urls.remove,{'id':id},function(r){
         if((typeof r) == 'string')r=$.parseJSON(r);
-        self.createFavorite();
+        self.initFavorite();
         self.onFavoriteServerUpdated();
       });
     }
@@ -94,10 +96,10 @@ FilterControl.prototype.saveFavorite=function(){
   dialog.show('Save Filter',$content);
   $save.click(function(){
     var filter=self.getFilter();
-    $.get(self.setting.urls.favorite_save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
+    $.get(self.setting.favorite.urls.save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
       if((typeof r) == 'string')r=$.parseJSON(r);
       dialog.hide();
-      self.createFavorite();
+      self.initFavorite();
       self.onFavoriteServerUpdated();
     });
   });
