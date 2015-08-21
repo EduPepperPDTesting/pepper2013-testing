@@ -88,21 +88,45 @@ FilterControl.prototype.onFavoriteServerUpdated=function(){
 }
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
+  var dialog=new Dialog($('#dialog'))
   var $content=$("<div></div>");
   $content.append("<div style='margin:0 0 15px 0'>Please entry a name of the filter.</div>");
   var $text=$("<input>").appendTo($content);
   var $save=$("<input type=button value=save >").appendTo($content);
-  var dialog=new Dialog($('#dialog'))
-  dialog.show('Save Filter',$content);
-  $save.click(function(){
+  function showInputName(){
+    $save.click(function(){
+      var name=$text.val();
+      if(!name){
+        dialog.showButtons("Save Filter", "Invalid name.");
+        return;
+      }
+      var exists=self.$el.find(".favorite select option").filter(function(){
+        return $(this).html()==name;
+      }).length>0;
+      if(exists)
+        dialog.showButtons(
+          "Save Filter"
+          , "The same name filter exists, do you want to overwrite it?"
+          , ["Rename","Overwrite","Cancel"]
+          , function(choice){
+            if(choice==0) showInputName(); else if (choice==1) save(); else this.hide();
+          });
+      else
+        save();
+    });
+    dialog.show('Save Filter',$content);
+  }
+  function save(){
+    var name=$text.val();
     var filter=self.getFilter();
-    $.get(self.setting.favorite.urls.save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
+    $.get(self.setting.favorite.urls.save,{name:name,'filter':JSON.stringify(filter)},function(r){
       if((typeof r) == 'string')r=$.parseJSON(r);
-      dialog.hide();
+      this.hide();
       self.initFavorite();
       self.onFavoriteServerUpdated();
     });
-  });
+  }
+  showInputName();
 }
 FilterControl.prototype.createFields=function(){
   var self=this;
@@ -365,15 +389,24 @@ TableControl.prototype.checkAll=function(b){
 }
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
+  var self=this;
   this.$dialog=$(el);
+  this.$dialog.find('.close-modal').off("click").click(function(){
+    self.hide();
+  });
 }
 Dialog.prototype.showOverlay=function(){
-  this.$overlay=$("<div class='lean-overlay'></div>");
-  this.$overlay.appendTo(document.body);
+  if(!this.$overlay){
+    this.$overlay=$("<div class='lean-overlay'></div>");
+    this.$overlay.appendTo(document.body);
+  }
   this.$overlay.css('display','block');
 }
 Dialog.prototype.hideOverlay=function(){
-  this.$overlay.remove();
+  if(this.$overlay){
+    this.$overlay.remove();
+    this.$overlay=null;
+  }
 }
 Dialog.prototype.hide=function(){
   this.$dialog.css('display','none');
@@ -392,12 +425,10 @@ Dialog.prototype.showYesNo=function(title,content,callback){
   var $content=this.$dialog.find('.content');
   var $buttons=$("<div></div>").appendTo($content)
   $("<input type='button' value='Yes'>").appendTo($buttons).click(function(){
-    self.hide();
-    callback(true);
+    callback.apply(self,[true]);
   });
   $("<input type='button' value='No'>").appendTo($buttons).click(function(){
-    self.hide();
-    callback(false);
+    callback.apply(self,[false]);
   });
 }
 Dialog.prototype.showProgress=function(title,content){
@@ -413,14 +444,22 @@ Dialog.prototype.showProgress=function(title,content){
   }
   this.setProgress(0);
 }
+Dialog.prototype.showButtons=function(title,content,labels,callback){
+  var self=this;
+  this.show(title,content);
+  var $content=this.$dialog.find('.content');
+  var $buttons=$("<div></div>").appendTo($content)
+  $.each(labels,function(i,label){
+    $("<input type='button' value='"+label+"'>").appendTo($buttons).click(function(){
+      callback.apply(self,[i]);
+    });  
+  });
+}
 Dialog.prototype.show=function(title,content){
   var self=this;
   this.showOverlay();
   this.setTitle(title);
   this.setContent(content);
-  this.$dialog.find('.close-modal').click(function(){
-    self.hide();
-  });
   this.$dialog.fadeIn(200);
 }
 //////////////////////////////////////////////////////////////////

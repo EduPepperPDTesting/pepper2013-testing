@@ -404,9 +404,11 @@ def favorite_filter_load(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_save(request):
+    name=request.GET.get('name')
+    FilterFavorite.objects.filter(name=name).delete()
     ff=FilterFavorite()
     ff.user=request.user
-    ff.name=request.GET.get('name')
+    ff.name=name
     ff.filter_json=request.GET.get('filter')
     ff.save()
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")    
