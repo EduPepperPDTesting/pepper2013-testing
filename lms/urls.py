@@ -17,7 +17,7 @@ urlpatterns = (
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
-    url(r'^pepconn/import_user/task_count$', 'administration.pepconn.import_user_task_count',name="pepconn_import_user_task_count"),
+    url(r'^pepconn/import_user/tasks$', 'administration.pepconn.import_user_tasks',name="pepconn_import_user_tasks"),
 
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts',name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states',name="pepconn_drop_states"),

@@ -360,7 +360,7 @@ site_status_msg = get_site_status_msg(course_id)
         <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-
+        
         <ol class="user admin" >
           %if show_extended and curr_user.is_superuser:
           <!-- Administration -->
@@ -373,7 +373,7 @@ site_status_msg = get_site_status_msg(course_id)
                 <a href="#" style="display:inline-block;width:110px;" class="control task_shortcut outside_menu">
                   <span class="body" ></span>
                   <textarea class="setting">
-                    {"interval":5000,"urls":{"count":"${reverse('pepconn_import_user_task_count')}"}}
+                    {"interval":5000,"urls":{"count":"${reverse('pepconn_import_user_tasks')}"}}
                   </textarea>
                 </a>
               </li>
@@ -391,7 +391,7 @@ site_status_msg = get_site_status_msg(course_id)
           %endif
 
           <script type="text/javascript">
-            $(".control.task_shortcut").each(function(){new TaskShortcutControl(this)});
+            $(".control.task_shortcut").each(function(){new TasksShortcutControl(this)});
           </script>
 
           %if show_extended:

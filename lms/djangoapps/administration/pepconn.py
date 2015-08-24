@@ -160,7 +160,7 @@ USER_CSV_COLS=('email','state_name','district_name',)
 def import_user_progress(request):
     try:
         task=ImportTask.objects.get(id=request.POST.get('taskId'))
-        j=json.dumps({'task':task.filename,'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)})
+        j=json.dumps({'task':task.filename,'percent':'%.2f' % (task.process_lines*100/task.total_lines)})
     except Exception as e:
         j=json.dumps({'task':'no', 'percent':100})
     return HttpResponse(j, content_type="application/json")
@@ -307,9 +307,13 @@ def validate_user_cvs_line(line):
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
 
 from django.db.models import F
-def import_user_task_count(request):
-    count=ImportTask.objects.filter(process_lines__lt=F('total_lines')).count()
-    return HttpResponse(json.dumps({'success': True, 'count':count}), content_type="application/json")
+def import_user_tasks(request):
+    tasks=[]
+    
+    for t in ImportTask.objects.filter(process_lines__lt=F('total_lines')).order_by("-id"):
+        tasks.append({"id":t.id,"filename":t.filename,"progress":t.process_lines*100/t.total_lines})
+     
+    return HttpResponse(json.dumps({'success': True, 'tasks':tasks}), content_type="application/json")
     
 #* -------------- Dropdown List -------------
 
