@@ -13,7 +13,15 @@ urlpatterns = (
     '',  # nopep8  
     
 ####### Ancestor
-
+    url(r'^configuration/$', 'administration.configuration.main', name="configuration"),
+    url(r'^configuration/drop_association_type$', 'administration.configuration.drop_association_type',name="drop_association_type"),
+    url(r'^configuration/drop_association$', 'administration.configuration.drop_association',name="drop_association"),
+    url(r'^configuration/drop_publish_association$', 'administration.configuration.drop_publish_association',name="drop_publish_association"),
+    url(r'^configuration/certificate/table$', 'administration.configuration.certificate_table',name="configuration_certificate_table"),
+    url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete',name="configuration_certificate_delete"),
+    url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save',name="configuration_certificate_save"),
+    url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData',name="configuration_certificate_loadData"),
+    
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.user_import_progress', name="pepconn_import_user_progress"),

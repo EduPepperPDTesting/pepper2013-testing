@@ -1,0 +1,722 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from student.models import State,District,School
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script src="/static/js/certificate-editor.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<link href="/static/js/tablesorter/css/theme.default.min.css" rel="stylesheet">
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<!-- Tablesorter: optional -->
+  <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+  <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<style type="text/css" media="screen">
+ input[type=button].small{
+    font-size:12px;height:2em;line-height:2em;padding:0 10px;
+ }
+ input[type=button]{
+    font-size:14px;height:2em;line-height:2em;padding:0 10px;margin:10px;
+ }
+ .lean-overlay {
+   background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+   display: block;
+   height: 100%;
+   left: 0px;
+   position: fixed;
+   top: 0px;
+   width: 100%;
+   z-index: 100;
+ }
+ .modal{
+   display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
+   background: none repeat scroll 0% 0% rgba(255,255,255, 1);
+   /* border: 1px solid rgba(150, 150, 150, 0.9); */
+   border-radius: 5px;
+   box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+   padding: 0 0 8px 0;
+   width: 480px;
+   display:none;
+    position: fixed;
+ }
+ .modal .close-modal {
+   border-radius: 2px;
+   cursor: pointer;
+   display: inline-block;
+   vertical-align: baseline;
+   padding: 10px;
+   position: absolute;
+   right: 2px;
+   top: 0px;
+   z-index: 3;
+   color:#333;
+ }
+ .modal .titlebar{
+   background:#fff;
+   height:70px;
+   background:#ccc;
+ }
+ td.label{
+   text-align:right;padding-right:10px;width:45px;
+   vertical-align:top;
+   padding-top:13px;
+ }
+ .modal .dialog-title{
+   margin:0;padding:20px 0 0 30px;color:#666;
+ }
+ .modal .content{
+   color:#333;
+   text-align:center;
+   font-size:16px;
+   padding:20px 10px;
+   line-height:20px;
+ }
+ .modal .progressbar{
+   height:30px;
+   background:#ddd;
+   border-radius:5px;
+   margin-top:10px;
+ }
+ .modal .progressbar_flow{
+   height:30px;
+   background:#2a5;
+   border-radius:5px;
+   width:50px;
+ }
+ .modal .progressbar_text{
+   position:absolute;
+   height:30px;
+   line-height:30px;
+   right:0px;
+   left:0px;
+ }
+ .favorite{
+  display:none;
+ }
+
+ section.content-wrapper{background:transparent !important;}
+ .list{padding:0px 5px;}
+ .list li{list-style-type:none;}
+ div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+ div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+ div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+ div.expand_div{display:none;}
+ /* filter */
+ div.control.filter{
+   padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
+ }
+ div.control.filter h2{
+   color:#f90;
+ }
+ div.control.filter .body select,
+ div.control.filter .body input{
+   margin:5px 5px 0 0;
+ }
+ div.control.filter div.favorite{
+   float:right;
+ }
+ div.control.filter input[type=button].small{
+   font-size:12px;height:2em;line-height:2em;padding:0 10px;
+   margin:5px 5px 0 0;
+ }
+ div.control.filter input[type=button].load{
+   font-size:12px;height:2em;line-height:2em;padding:0 10px;
+   margin:5px 5px 0 0;
+ }
+ /* table */
+ div.control.table{
+   padding:5px 5px 5px 5px;
+ }
+ div.control.table table{
+   width:100%;
+   text-align:left;
+   border-collapse:collapse;
+   border:1px solid #aaa;
+ }
+ div.control.table td,div.control.table th{
+   padding:6px;
+   border:1px solid #aaa;
+   font-size:12px;
+ }
+ div.control.table th{
+      padding:5px;
+   background:#99BFE6;
+ }
+ div.control.table th.checkbox-col{
+   width:15px;
+   overflow:visible;
+ }
+ div.control.table th.checkbox-col span{
+   margin-top:2px;
+   cursor:pointer;
+   display:inline-block;
+   vertical-align:top;
+   width:18px;
+   height:20px;
+   line-height:12px;
+   background:url("/static/images/configuration/table_menu.png")
+ }
+ div.control.table div.paging{
+   padding:5px;
+   text-align:right;
+ }
+ div.control.table div.paging a{
+   margin-left:5px;
+ }
+ div.control.table div.paging input{
+   margin-right:5px;
+   width:50px;
+   text-align:right;
+ }
+ div.control.table .sort{
+   margin-top:3px;
+   vertical-align:top;
+   float:right;
+   cursor:pointer;
+   display:inline-block;
+   width:9px;
+   height:17px;
+   background:url("/static/images/configuration/table_arrow_sort.png")
+ }
+ ul.context-menu{
+   position:absolute;
+   background:#fff;
+   border-radius:5px;
+   box-shadow: 0px 0px 20px;
+   padding-left:5px;
+   margin-left:0px;
+ }
+ ul.context-menu li{
+   min-width:200px;
+   line-height:30px;
+   list-style:none;
+ }
+input,select{-ms-box-sizing:content-box;
+  box-sizing:border-box;
+}
+
+.certificate_title{
+  margin:0px 10px 10px 10px;
+  color:#FBA23D;
+}
+.certificate_filter_btn{
+  display:inline-block;
+  text-align:center;
+  margin:10px;
+}
+.certificate_filter_btn a:link, a:visited{
+  text-decoration-line: none;
+}
+.certificate_filter_btn a{
+  color: #555;
+  font-size:14px;
+}
+.certificate_editor_tools_bar{
+  padding-left:20px;
+  padding-right:20px;
+}
+.imgBtn{
+  width:auto;
+  height:40px;
+  background-repeat:no-repeat;
+  background-position: center;
+}
+.imgBtn_add_new{background-image:url(/static/images/certificate/ui/add_new.png);}
+.imgBtn_add_new:hover{background-image:url(/static/images/certificate/ui/add_new_mo.png);}
+.imgBtn_del{background-image:url(/static/images/certificate/ui/delete.png);}
+.imgBtn_del:hover{background-image:url(/static/images/certificate/ui/delete_mo.png);}
+.imgBtn_save{background-image:url(/static/images/certificate/ui/save.png);}
+.imgBtn_save:hover{background-image:url(/static/images/certificate/ui/save_mo.png);}
+.imgBtn_copy{background-image:url(/static/images/certificate/ui/copy.png);}
+.imgBtn_copy:hover{background-image:url(/static/images/certificate/ui/copy_mo.png);}
+.imgBtn_publish{background-image:url(/static/images/certificate/ui/publish.png);}
+.imgBtn_publish:hover{background-image:url(/static/images/certificate/ui/publish_mo.png);}
+.imgBtn_unpublish{background-image:url(/static/images/certificate/ui/unpublish.png);}
+.imgBtn_unpublish:hover{background-image:url(/static/images/certificate/ui/unpublish_mo.png);}
+.imgBtn_readonly{background-image:url(/static/images/certificate/ui/read_only.png);}
+.imgBtn_readonly:hover{background-image:url(/static/images/certificate/ui/read_only_mo.png);}
+.imgBtn_edit{background-image:url(/static/images/certificate/ui/edit.png);}
+.imgBtn_edit:hover{background-image:url(/static/images/certificate/ui/edit_mo.png);}
+.imgBtn_print{background-image:url(/static/images/certificate/ui/print.png);}
+.imgBtn_print:hover{background-image:url(/static/images/certificate/ui/print_mo.png);}
+.imgBtn_cancel{background-image:url(/static/images/certificate/ui/cancel.png);}
+.imgBtn_cancel:hover{background-image:url(/static/images/certificate/ui/cancel.png);}
+.certificate_tabs li a.active {
+  background-color: transparent;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.25));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 1px rgba(0, 0, 0, 0.3) inset;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  text-decoration-line: none;
+  background:#838383 !important;
+}
+.certificate_tabs li {
+  float: left;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  margin-right: 6px;
+}
+.certificate_tabs li a {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  color: #555;
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 12px;
+  padding-left: 13px;
+  padding-right: 13px;
+  padding-top: 10px;
+  text-align: center;
+  text-decoration-color: -moz-use-text-color;
+  text-decoration-line: none;
+  text-decoration-style: solid;
+ }
+ .certificate_tabs li a:link, a:visited {
+  text-decoration-line: none;
+ }
+ .certificate_tabs li a:hover {
+  background:#f1f1f1;
+}
+.active:hover {
+  background:#838383 !important;
+}
+.certificate_tabs{
+  padding-left:0px;
+}
+.editor_view{
+  width:1100px;
+  margin-left:auto;
+  margin-right:auto;
+}
+#certificate_preview{
+  background:#fff;
+}
+.certificate_editor_div{
+  display:none;
+  width: 1180px;
+  border: 1px solid rgb(221, 221, 221);
+  padding-top:10px;
+}
+.main{
+  margin:auto;
+  width:1180px;  
+  border:1px solid #ddd;
+}
+.certificate_editor_frame{
+  background-color:#DCDCDC;
+  padding:20px 40px 40px 40px
+}
+.certificate_tabs_div{
+  height:60px;
+}
+</style>
+
+<!-- Certificate -->
+<div style="padding:0px 0">
+  <div class="main">
+    <div class="expand_title expand_title_collapse">
+      Certificate <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+    <!-- Certificate Filter-->
+      <div class="certificate_filter_div">
+        <form method="" id="filter_form" action="" onsubmit="return false;">
+          <div class="control filter" id="fltCertificate">
+          <div class="certificate_title">FILTER</div>
+            <span class="body" style="display:inline-block;"></span>
+            <textarea class="setting">
+              {
+              "fields":{
+              "certificate_name":{"display":"Certificate Name","type":"text"},
+              "association_type":{"display":"Association Type","type":"drop","require":[],"url":"/configuration/drop_association_type","format":"<option value='{id}'>{name}</option>"},
+              "association":{"display":"Association","type":"drop","require":["association_type"],"url":"/configuration/drop_association","format":"<option value='{id}'>{name}</option>"}
+              },
+              "favorite":{
+                "show":false,
+                 "load":"/configuration/favorite_filter_load",
+                 "save":"/configuration/favorite_filter_save",
+                 "remove":"/configuration/favorite_filter_delete"
+              }
+              }
+            </textarea>
+            <input type="button" name="" value="LOAD"
+                   class="load"
+                   onclick="filterCertificate()"/>
+          </div>
+          <!-- ADD/DELETE button-->
+          <div>
+            <div class="certificate_filter_btn">
+            <a href="#" onclick="addNewCertificate()"><div class="imgBtn imgBtn_add_new"></div><div>Add New</div></a>
+             </div>
+              <div class="certificate_filter_btn">
+              <a href="#" onclick="deleteSelectCertificate()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
+            </div>
+          </div>
+          <div class="control table" id="tblCertificate">
+            <span class="body"></span>
+            <div class="pager">
+              <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+              <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+              <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+              <select class="pagesize" title="Select page size">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+              </select>
+              <select class="gotoPage" title="Select page number"></select>
+            </div>
+            <textarea class="setting">
+              {
+              "fields":{
+              "certificate_name":{"display":"Certificate Name","sort":"+","show":1},
+              "association_type":{"display":"Association Type","sort":"+","show":1},
+              "association":{"display":"Association","sort":"+","show":1}
+              },
+              "urls":{
+              "data":"/configuration/certificate/table"
+              },
+              "paging":{
+              "size":100
+              },
+              "field_row_identifier":"id"
+              }
+            </textarea>
+          </div>
+        </form>
+     </div>
+     <!-- Certificate Editor-->
+      <div class="certificate_editor_div">
+        <div class="certificate_title">Certificate Editor</div>
+        <!-- Editor tools button-->
+          <div class="certificate_editor_tools_bar">
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_save()"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
+             </div>
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_copy()"><div class="imgBtn imgBtn_copy"></div><div>Copy</div></a>
+            </div>
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_publish()"><div class="imgBtn imgBtn_publish"></div><div>Publish</div></a>
+              <a href="javascript:void(0);" style="display:none;" onclick="certificate_editor_unpublish()"><div class="imgBtn imgBtn_unpublish"></div><div>Unpublish</div></a>
+            </div>
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_delete()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
+            </div>
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_readOnly(1)"><div class="imgBtn imgBtn_readonly"></div><div>Read Only</div></a>
+              <a href="javascript:void(0);" style="display:none;" onclick="certificate_editor_readOnly(0)"><div class="imgBtn imgBtn_edit"></div><div>Edit</div></a>
+            </div>
+            <div class="certificate_filter_btn">
+              <a href="javascript:void(0);" onclick="certificate_editor_print()"><div class="imgBtn imgBtn_print"></div><div>Print</div></a>
+            </div>
+            <div class="certificate_filter_btn" style="float:right;">
+              <a href="javascript:void(0);" onclick="certificate_editor_cancel()"><div class="imgBtn imgBtn_cancel"></div><div>Cancel</div></a>
+            </div>
+          </div>
+          <div class="certificate_editor_frame">
+            <div class="certificate_tabs_div">
+              <ol class="certificate_tabs">
+                <li>
+                  <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
+                </li>
+                <li>
+                  <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
+                </li>
+              </ol>
+            <input class="certificate_name" type="text" size="32" name="certificate_name" value="" placeholder="Certificate Name" style="float:right;"/>
+            </div>
+            <div class="editor_view" style="">
+              <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
+            </div>
+            <div class="preview_view" style="display:none;">
+              <iframe id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" height=500></iframe>
+            </div>
+        </div>
+     </div>
+     <!-- -->
+    </div>
+  </div>
+</div>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+<!-- publish dialog -->
+<div style="" id="publish_dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <center>
+      <div class="control filter" id="fltPublishCertificate">
+        <span class="body" style="display:inline-block;"></span>
+        <textarea class="setting">
+                {
+                "fields":{
+                "association_type":{"display":"Association Type","type":"drop","require":[],"url":"/configuration/drop_association_type","format":"<option value='{id}'>{name}</option>"},
+                "association":{"display":"Association","type":"drop","require":["association_type"],"url":"/configuration/drop_publish_association","format":"<option value='{id}'>{name}</option>"}
+                },
+                "favorite":{
+                  "show":false,
+                   "load":"/configuration/favorite_filter_load",
+                   "save":"/configuration/favorite_filter_save",
+                   "remove":"/configuration/favorite_filter_delete"
+                }
+                }
+          </textarea>
+      </div>
+    </center>
+    <div class="content"></div>
+  </div>
+</div>
+<script type="text/javascript" src="/static/js/admin_ui_controls_configuration.js"></script>
+<script type="text/javascript" src="/static/js/configuration.js"></script>
+<script type="text/javascript">
+  if (typeof CKEDITOR != 'undefined') {
+      CKEDITOR.replaceAll(function (textarea, config) {
+          if (textarea.className == 'certificate_editor') {
+              // Add token plugin
+              config.extraPlugins = 'print,placeholder';
+              //config.width=850;
+              config.height=500;
+              // Configure available tokens
+              config.availablePlaceholders = [
+                  ["", ""]
+              ];
+              return true;
+          }
+          return false;
+      });
+  }
+
+  var pagerOptions = {
+
+    // target the pager markup - see the HTML block below
+    container: $(".pager"),
+
+    // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+    ajaxUrl: null,
+
+    // modify the url after all processing has been applied
+    customAjaxUrl: function(table, url) { return url; },
+
+    // add more ajax settings here
+    // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+    ajaxObject: { dataType: 'json' },
+
+    // process ajax so that the data object is returned along with the total number of rows
+    ajaxProcessing: null,
+
+    // Set this option to false if your table data is preloaded into the table, but you are still using ajax
+    processAjaxOnInit: true,
+
+    // output string - default is '{page}/{totalPages}'
+    // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+    // also {page:input} & {startRow:input} will add a modifiable input in place of the value
+    output: '{startRow:input} to {endRow} ({totalRows})',
+
+    // apply disabled classname (cssDisabled option) to the pager arrows when the rows
+    // are at either extreme is visible; default is true
+    updateArrows: true,
+
+    // starting page of the pager (zero based index)
+    page: 0,
+
+    // Number of visible rows - default is 10
+    size: 10,
+
+    // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
+    //savePages : true,
+
+    // Saves tablesorter paging to custom key if defined.
+    // Key parameter name used by the $.tablesorter.storage function.
+    // Useful if you have multiple tables defined
+    //storageKey:'tablesorter-pager',
+
+    // Reset pager to this page after filtering; set to desired page number (zero-based index),
+    // or false to not change page at filter start
+    pageReset: 0,
+
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+
+    // If true, child rows will be counted towards the pager set size
+    countChildRows: false,
+
+    // css class names of pager arrows
+    cssNext: '.next', // next page arrow
+    cssPrev: '.prev', // previous page arrow
+    cssFirst: '.first', // go to first page arrow
+    cssLast: '.last', // go to last page arrow
+    cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+
+    cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+    cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+    // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+    cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+    cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+
+  };
+//-------------init--------------------------
+  var ceditor=new CertificateEditor(CKEDITOR.instances.certificate_editor);
+  $(".control.filter").each(function(){new FilterControl(this)});
+  $(".control.table").each(function(){new TableControl(this)});
+  $('#tblCertificate table').tablesorter({ headers: {
+      '.menu-trigger': { sorter: false, parser: false }
+     }}).tablesorterPager(pagerOptions);
+  $('.menu-trigger').hide();
+  function filterCertificate(){
+    var filter=$('#fltCertificate')[0].control.getFilter();
+    $('#tblCertificate')[0].control.updateFilter(filter);
+  }
+//-----filter Tool buttons----------------------
+  function displayCertificate()
+  {
+    $(".certificate_filter_div").hide();
+    $(".certificate_editor_div").show();
+  }
+  function displayFilter()
+  {
+    $(".certificate_filter_div").show();
+    $(".certificate_editor_div").hide();
+  }
+ function addNewCertificate(){
+    displayCertificate();
+    ceditor.init();
+ } 
+//-----Editor Tool buttons-----------
+ function certificate_editor_cancel(){
+   ceditor.cancel(function(){
+      displayFilter();
+      filterCertificate();
+      $('.editor_view_btn').click();
+    });
+ }
+ function certificate_editor_save(){
+   ceditor.save();
+ }
+ function certificate_editor_copy(){
+    ceditor.copy();
+ }
+ function certificate_editor_print(){
+    ceditor.print();
+ }
+ function certificate_editor_publish(){
+     $('#fltPublishCertificate')[0].control.getFieldArea('association_type').find("option:first").attr("selected","selected");
+     $('#fltPublishCertificate')[0].control.clearDropItems($('#fltPublishCertificate')[0].control.getFieldArea('association'));
+     new Dialog($('#publish_dialog')).showButtons("Publish Certificate","",['Save','Cancel'],function(choice){
+        if(choice==0)
+        {
+          var filter=$('#fltPublishCertificate')[0].control.getFilter();    
+          if(filter['association']!=""){
+            ceditor.publish(filter);
+            this.hide();
+            new Dialog($('#dialog')).show('OK','Association completed!');
+          }        
+          else{
+            this.hide();
+            new Dialog($('#dialog')).showButtons("Error","<p style='font-size:15px;'>Please select an Association item,Otherwise it can not be Publish</p><br/>",['Retry','Cancel'],function(choice){
+              if(choice==0){
+                certificate_editor_publish();
+                this.hide();}
+              else{this.hide();} 
+            })
+          }
+        }
+        else{this.hide();}
+     }) 
+    
+  }
+  function certificate_editor_unpublish(){
+      new Dialog($('#dialog')).showButtons("Unpublish Certificate","<p>Are you sure you want to Unpublish?</p><br/>",['Yes','No'],function(choice){
+        if(choice==0){
+          ceditor.unPublish();
+          this.hide();
+        }
+        else{this.hide();}
+     }) 
+    
+  }
+  function certificate_editor_readOnly(b){
+    ceditor.setReadOnly(b);
+  }
+  function certificate_editor_delete(){
+    ceditor.delete(function(){displayFilter();filterCertificate();});
+  }
+  function deleteSelectCertificate(){
+    var ids=$('#tblCertificate')[0].control.getCheckedValues();
+    if(!ids.length){
+      new Dialog($('#dialog')).show('Error','You must select at least one certificate.');
+      return; 
+    }
+    new Dialog($('#dialog')).showButtons("Warning","<p>Are you sure you want to delete this certificate?</p><br/>",['Yes','No'],function(choice){
+        if(choice==0)
+        {
+          $.post('/configuration/certificate/delete',{ids:ids.join(',')},function(){
+          for(var i=0;i<ids.length;i++)
+          {
+            $('#tblCertificate').find(".check-row[value="+ids[i]+"]").parent().parent().remove();
+          }
+           $('#tblCertificate table').trigger("update");
+         });
+         this.hide();
+        }else{this.hide();}
+      }) 
+  }
+  $('.editor_view_btn').click(function(){
+    ceditor.switchView("Editor");
+    $(this).addClass("active");
+    $('.preview_view_btn').removeClass('active');
+    $('.preview_view').hide();
+    $('.editor_view').show();
+  })
+  $('.preview_view_btn').click(function(){
+    ceditor.switchView('Preview');
+    $(this).addClass('active');
+    $('.editor_view_btn').removeClass('active');
+    $('.preview_view').show();
+    $('.editor_view').hide();
+    var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
+    $("#certificate_preview").contents().find("#content").html(data);
+  })
+//---------------load certificate------------------
+  $('#tblCertificate')[0].onDataLoaded=function(){
+    $.each(this.control.getFieldCells('certificate_name'),function(i,cell){
+      $(cell).html("<a class='certificate_load_btn' href='javascript:void(0);'><img src='/static/images/certificate/ui/magnifier.png'/>&nbsp;&nbsp;</a>"+cell.innerHTML);
+          $(cell).find('.certificate_load_btn').click(function(){
+          displayCertificate();
+          ceditor.loadCertificate($(this).parent().parent().find('.check-row').val())
+        })
+    });
+    $('#tblCertificate table').trigger("update");
+  }  
+</script>

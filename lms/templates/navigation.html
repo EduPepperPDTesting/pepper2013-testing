@@ -366,7 +366,7 @@ site_status_msg = get_site_status_msg(course_id)
 
             <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
             <ul class="admin-dropdown-menu">
-              <li><a href="#">Configuration</a></li>
+              <li><a href="${reverse('configuration')}">Configuration</a></li>
               <li><a href="${reverse('pepconn')}">PepConn</a></li>
               <script type="text/javascript">
                 $(document).on('click', function(event) {
