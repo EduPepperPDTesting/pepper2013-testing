@@ -135,6 +135,7 @@ urlpatterns = (
     url(r'^access_resource_library/$', 'access_resource_library.views.index', name="access_resource_library"),
     # certificate view
     url(r'^update_certificate$', 'certificates.views.update_certificate'),
+    url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
     url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
 
