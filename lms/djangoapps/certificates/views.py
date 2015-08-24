@@ -28,6 +28,7 @@ import urllib
 from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
+from administration.models import Author,CertificateAssociationType,Certificate
 
 logger = logging.getLogger(__name__)
 
