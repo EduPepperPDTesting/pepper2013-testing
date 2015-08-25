@@ -511,13 +511,21 @@ input,select{-ms-box-sizing:content-box;
       CKEDITOR.replaceAll(function (textarea, config) {
           if (textarea.className == 'certificate_editor') {
               // Add token plugin
-              config.extraPlugins = 'print,placeholder';
+              config.extraPlugins = 'token,print';
               //config.width=850;
               config.height=500;
               // Configure available tokens
-              config.availablePlaceholders = [
-                  ["", ""]
+              config.availableTokens = [
+                  ["", ""],
+                  ["firstname", "firstname"],
+                  ["lastname", "lastname"],
+                  ["coursename", "coursename"],
+                  ["coursenumber", "coursenumber"],
+                  ["date", "date"],
+                  ["hours", "hours"]
               ];
+              config.tokenStart = '{';
+              config.tokenEnd = '}';
               return true;
           }
           return false;
