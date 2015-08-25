@@ -181,28 +181,28 @@ def do_import_user(task,csv_lines,request):
     count_success=0
     
     for i,line in enumerate(csv_lines):
-        #** record csv lines process
-        task.process_lines=i+1
-        task.save()
-        db.transaction.commit()
-
-        tasklog=ImportTaskLog()
-
-        email=line[USER_CSV_COLS.index('email')]
-        state_name=line[USER_CSV_COLS.index('state_name')]
-        district_name=line[USER_CSV_COLS.index('district_name')]
-
-        #** generating origin username
-        username=random_mark(20)
-            
-        tasklog.username=username
-        tasklog.email=email
-        tasklog.create_date=datetime.datetime.now(UTC)
-        tasklog.district_name=district_name
-        tasklog.line=i+1
-        tasklog.task=task
-              
         try:
+            #** record processed count
+            task.process_lines=i+1
+            task.save()
+            db.transaction.commit()
+            
+            email=line[USER_CSV_COLS.index('email')]
+            state_name=line[USER_CSV_COLS.index('state_name')]
+            district_name=line[USER_CSV_COLS.index('district_name')]
+            
+            #** generating origin username
+            username=random_mark(20)
+            
+            #** create log
+            tasklog=ImportTaskLog()
+            tasklog.username=username
+            tasklog.email=email
+            tasklog.create_date=datetime.datetime.now(UTC)
+            tasklog.district_name=district_name
+            tasklog.line=i+1
+            tasklog.task=task
+              
             validate_user_cvs_line(line)
 
             state=State.objects.get(name=state_name)
@@ -311,7 +311,10 @@ def import_user_tasks(request):
     tasks=[]
     
     for t in ImportTask.objects.filter(process_lines__lt=F('total_lines')).order_by("-id"):
-        tasks.append({"id":t.id,"filename":t.filename,"progress":t.process_lines*100/t.total_lines})
+        tasks.append({"type":"import","id":t.id,"filename":t.filename,"progress":t.process_lines*100/t.total_lines})
+
+    for t in EmailTask.objects.filter(process_emails__lt=F('total_emails')).order_by("-id"):
+        tasks.append({"type":"email","id":t.id,"progress":t.process_emails*100/t.total_emails})
      
     return HttpResponse(json.dumps({'success': True, 'tasks':tasks}), content_type="application/json")
     
@@ -462,12 +465,19 @@ def do_send_registration_email(task,user_ids,request):
     gevent.sleep(0)
 
     count_success=0
-    for user_id in user_ids:
-        tasklog=EmailTaskLog()
-        tasklog.task=task
-        tasklog.send_date=datetime.datetime.now(UTC)
+    for i,user_id in enumerate(user_ids):
         try:
             user=User.objects.get(id=user_id)
+
+            #** record processed count
+            task.process_emails=i+1
+            task.save()
+            db.transaction.commit()
+            
+            #** create log
+            tasklog=EmailTaskLog()
+            tasklog.task=task
+            tasklog.send_date=datetime.datetime.now(UTC)
             tasklog.username=user.username
             tasklog.email=user.email
             tasklog.district_name=user.profile.district.name

@@ -32,8 +32,8 @@ class EmailTask(models.Model):
 class EmailTaskLog(models.Model):
     class Meta:
         db_table = 'admin_email_task_log'
-    send_date = models.DateTimeField(auto_now_add=True, db_index=False)        
-    task = models.ForeignKey(EmailTask,on_delete=models.PROTECT)        
+    send_date = models.DateTimeField(auto_now_add=True, db_index=False)
+    task = models.ForeignKey(EmailTask,on_delete=models.PROTECT)
     username = models.CharField(blank=False, max_length=30, db_index=True)
     email = models.CharField(blank=False, max_length=75, db_index=True)
     district_name = models.CharField(blank=False, max_length=255, db_index=True)

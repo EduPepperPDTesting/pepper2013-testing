@@ -1,42 +1,56 @@
 //////////////////////////////////////////////////////////////////
-function TasksShortcutControl(el){
+function GlobalTaskPanelControl(el){
   var self=this;
   el.control=this;
   this.$el=$(el);
-  this.parseSetting();
-  this.$body=$(el).find(".body");
-  this.loadCount();
-  this.$el.click(function(){
-    self.showProgressDialog();
+  this.$toggle=this.$el.find(".task_pannel_toggle");
+  this.$toggle.click(function(){
+    var $content=self.$el.find(".content");
+    if($content.is(":hidden")){
+      $content.slideDown();
+    }else{
+      $content.slideUp();
+    }
   });
+  this.parseSetting();
+  this.loadCount();
+  this.showProgressDialog();
 }
-TasksShortcutControl.prototype.showProgressDialog=function(){
-  this.dialog=new Dialog($('#dialog'))
-  this.dialog.show('User Data Import Tasks',this.count+' task(s) found.')
+GlobalTaskPanelControl.prototype.showProgressDialog=function(){
+  this.dialog=new Dialog(this.$el)
+  //this.dialog.show('User Data Import Tasks',this.count+' task(s) found.')
+  this.dialog.hideOverlay();
   this.updateProgressDialog();
 }
-TasksShortcutControl.prototype.updateProgressDialog=function(){
+GlobalTaskPanelControl.prototype.updateProgressDialog=function(){
   var self=this;
-  if(this.dialog && this.dialog.isOn()){
-    this.dialog.setContent(this.tasks.length+' task(s) found.');
-    if(!this.tasks)return;
-    $.each(this.tasks,function(i,t){
-      self.dialog.addProgress(t.filename);
-      self.dialog.setProgress(t.progress,i+1);
-    });
-  }
+  this.$el.find(".content").html("");
+  if(!this.tasks)return;
+  $.each(this.tasks,function(i,t){
+    if(t.type=='import'){
+      self.dialog.addProgress("Import - "+t.filename);
+    }else{
+      self.dialog.addProgress("Email");
+    }
+    self.dialog.setProgress(t.progress,i+1);
+  });
 }
-TasksShortcutControl.prototype.parseSetting=function(){
+GlobalTaskPanelControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
 }
-TasksShortcutControl.prototype.loadCount=function(){
+GlobalTaskPanelControl.prototype.loadCount=function(){
   var self=this;
   $.get(this.setting.urls.count,function(r){
     self.tasks=r.tasks;
-    self.updateProgressDialog();
-    self.$body.html(r.tasks.length+" task(s)");
+    if(r.tasks.length==0){
+      self.$el.hide();
+    }else{
+      self.$el.show();
+      self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""))
+      self.updateProgressDialog();
+    }
     setTimeout(function(){self.loadCount()},self.setting.interval)
   });
 }

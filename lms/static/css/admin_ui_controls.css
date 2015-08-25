@@ -228,3 +228,59 @@ input,select{-ms-box-sizing:content-box;
  div.cke {
    width: 640px;
  }
+
+ /* global_progress_panel */
+ .global_task_panel_wrapper{
+     position:fixed;
+     left: 50%;
+     right:0px;
+     bottom:0px;
+     z-index:999;
+     text-align:center;
+ }
+ .global_task_panel input.task_pannel_toggle{
+     position: relative; left: -50%;
+     background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #f5821f 50%, #f5821f 100%);
+     border-color: #E69E61 #E69E61 #f5821f;
+     background-color:#f5821f;
+     text-shadow: 0px -1px 1px #f5821f;
+     border-radius:5px 5px 0 0;
+     box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.5);
+ }
+ .global_task_panel input.task_pannel_toggle:hover{
+     background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #DB7115 50%, #DB7115 100%);
+     border-color: #E69E61 #E69E61 #f5821f;
+     background-color:#f5821f;
+     text-shadow: 0px -1px 1px #f5821f;
+     box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.5);
+ }
+ .global_task_panel .content{
+     position: relative; left: -50%;
+     margin:auto;
+     background:#fff;
+     padding:2px 8px 8px 8px;
+     width:500px;
+     box-shadow: 0px 5px 25px 5px rgba(0, 0, 0, 0.5);
+     display:none;
+     max-height:280px;
+     overflow-y:scroll;
+ }
+ .global_task_panel .content .progressbar{
+     height:30px;
+     background:#ddd;
+     border-radius:5px;
+     margin-top:10px;
+ }
+ .global_task_panel .content .progressbar_flow{
+     height:30px;
+     background:#2a5;
+     border-radius:5px;
+     width:50px;
+ }
+ .global_task_panel .content .progressbar_text{
+     position:absolute;
+     height:30px;
+     line-height:30px;
+     right:0px;
+     left:0px;
+ }

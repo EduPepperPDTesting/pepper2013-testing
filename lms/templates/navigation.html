@@ -369,13 +369,7 @@ site_status_msg = get_site_status_msg(course_id)
             <ul class="admin-dropdown-menu">
               <li><a href="#">Configuration</a></li>
               <li>
-                <a href="${reverse('pepconn')}" style="display:inline-block;width:80px;">PepConn</a>
-                <a href="#" style="display:inline-block;width:110px;" class="control task_shortcut outside_menu">
-                  <span class="body" ></span>
-                  <textarea class="setting">
-                    {"interval":5000,"urls":{"count":"${reverse('pepconn_import_user_tasks')}"}}
-                  </textarea>
-                </a>
+                <a href="${reverse('pepconn')}">PepConn</a>
               </li>
               <script type="text/javascript">
                 $(document).on('click', function(event) {
@@ -387,12 +381,13 @@ site_status_msg = get_site_status_msg(course_id)
                 });
               </script>
             </ul>
+
+
+
+            
           </li>
           %endif
 
-          <script type="text/javascript">
-            $(".control.task_shortcut").each(function(){new TasksShortcutControl(this)});
-          </script>
 
           %if show_extended:
           <!-- Notifications -->
@@ -1119,12 +1114,18 @@ site_status_msg = get_site_status_msg(course_id)
   </div>
   <!--@end-->
 
-<div style="" id="dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 class="dialog-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+  <!-- task panel -->
+  %if curr_user.is_superuser:
+  <div class="global_task_panel_wrapper">
+    <div class="control global_task_panel">
+      <input type="button" name="" value="5 running tasks" class="task_pannel_toggle"/>
+      <div class="content"></div>
+      <textarea class="setting">
+    {"interval":1000,"urls":{"count":"${reverse('pepconn_import_user_tasks')}"}}
+      </textarea>
     </div>
-    <div class="content"></div>
   </div>
-</div>
+  <script type="text/javascript">
+    $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
+  </script>
+  %endif
