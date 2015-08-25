@@ -71,6 +71,7 @@ CertificateEditor.prototype.copy=function(){
 }
 CertificateEditor.prototype.createCopy=function(){
   this.isPublish=false; 
+  this.isReadOnly=false;
   this.currView='Editor'; 
   this.certificateID=0;
   this.association_type=0;
@@ -78,6 +79,8 @@ CertificateEditor.prototype.createCopy=function(){
   this.certificate_name=this.certificate_name+"_copy";
   $(".certificate_name").val(this.certificate_name);
   this.setPublishIcon(this.isPublish);
+  this.setReadOnlyIcon(this.isReadOnly);
+
 }
 CertificateEditor.prototype.publish=function(filter){
     this.association_type=filter['association_type'];
