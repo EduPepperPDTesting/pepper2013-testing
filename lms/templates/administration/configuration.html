@@ -322,11 +322,24 @@ input,select{-ms-box-sizing:content-box;
 .certificate_tabs_div{
   height:60px;
 }
+.configuration_navigation{
+  display:none;
+}
+.configuration_navigation_btn{
+  color:#08a;
+  font-size:20px;
+  padding:10px 5px;
+  cursor:pointer;
+}
 </style>
-
 <!-- Certificate -->
 <div style="padding:0px 0">
   <div class="main">
+    <div class="configuration_navigation">
+      <span class="configuration_navigation_btn">
+        Configuration 
+      </span><span class="subItem"></span>
+    </div>
     <div class="expand_title expand_title_collapse">
       Certificate <div class="icon"></div>
     </div>
@@ -402,7 +415,6 @@ input,select{-ms-box-sizing:content-box;
      </div>
      <!-- Certificate Editor-->
       <div class="certificate_editor_div">
-        <div class="certificate_title">Certificate Editor</div>
         <!-- Editor tools button-->
           <div class="certificate_editor_tools_bar">
             <div class="certificate_filter_btn">
@@ -587,6 +599,10 @@ input,select{-ms-box-sizing:content-box;
 
   };
 //-------------init--------------------------
+  var configurationNavigation=new ConfigurationNavigation($('.configuration_navigation'));
+  configurationNavigation.setSubItem('Certificate Editor');
+  configurationNavigation.rootClick(function(){displayFilter();})
+
   var ceditor=new CertificateEditor(CKEDITOR.instances.certificate_editor);
   $(".control.filter").each(function(){new FilterControl(this)});
   $(".control.table").each(function(){new TableControl(this)});
@@ -598,16 +614,21 @@ input,select{-ms-box-sizing:content-box;
     var filter=$('#fltCertificate')[0].control.getFilter();
     $('#tblCertificate')[0].control.updateFilter(filter);
   }
+
 //-----filter Tool buttons----------------------
   function displayCertificate()
   {
     $(".certificate_filter_div").hide();
-    $(".certificate_editor_div").show();
+    $(".certificate_editor_div").show();  
+    $('.expand_title').hide();
+    configurationNavigation.show();
   }
   function displayFilter()
   {
     $(".certificate_filter_div").show();
     $(".certificate_editor_div").hide();
+    $('.expand_title').show();
+    configurationNavigation.hide();
   }
  function addNewCertificate(){
     displayCertificate();

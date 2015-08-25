@@ -35,3 +35,25 @@ TableControl.prototype.createTable=function(){
 String.prototype.replaceAll = function(s1,s2){
 　return this.replace(new RegExp(s1,"gm"),s2);
 }
+//-----Configuration navigation----------------
+function ConfigurationNavigation($ele){
+  this.element=$ele;
+  this.init();
+}
+ConfigurationNavigation.prototype.setSubItem=function(subName){
+  this.element.children('.subItem').html('&gt; '+subName)
+}
+ConfigurationNavigation.prototype.init=function($element){
+  this.element.hide();
+}
+ConfigurationNavigation.prototype.show=function(){
+  this.element.show();
+}
+ConfigurationNavigation.prototype.hide=function(){
+  this.element.hide();
+}
+ConfigurationNavigation.prototype.rootClick=function(callback){
+  this.element.children('.configuration_navigation_btn').click(function(){
+    callback();
+  });
+}
