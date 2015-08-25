@@ -609,7 +609,13 @@ input,select{-ms-box-sizing:content-box;
 //-------------init--------------------------
   var configurationNavigation=new ConfigurationNavigation($('.configuration_navigation'));
   configurationNavigation.setSubItem('Certificate Editor');
-  configurationNavigation.rootClick(function(){displayFilter();})
+  configurationNavigation.rootClick(function(){
+    ceditor.cancel(function(){
+      displayFilter();
+      filterCertificate();
+      $('.editor_view_btn').click();
+    });
+  })
 
   var ceditor=new CertificateEditor(CKEDITOR.instances.certificate_editor);
   $(".control.filter").each(function(){new FilterControl(this)});
