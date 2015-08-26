@@ -377,7 +377,7 @@ def registration_table(request):
                      ,'user__email':p.user.email
                      ,'user__first_name':p.user.first_name
                      ,'user__last_name':p.user.last_name
-                     ,'district':p.district.name
+                     ,'district':p.district.name if p.district_id else ''
                      ,'activate_date':date
                      ,"subscription_status":p.subscription_status})
 
