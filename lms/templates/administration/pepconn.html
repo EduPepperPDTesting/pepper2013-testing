@@ -73,7 +73,7 @@ f.close()
               Customize registration email
             </label>
           </li>
-          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
@@ -124,7 +124,7 @@ f.close()
             Customize registration email
           </label>            
         </div>
-        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
+        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
         <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
             <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
@@ -209,11 +209,19 @@ f.close()
           return false;
       });
   }
+  
   //* global
   //** add csrf token to json
   function safeJSON(j){
     j.csrfmiddlewaretoken="${csrf_token}"
     return j;
+  }
+  function syncCKEditorData(){
+    $.each(CKEDITOR.instances,function(name,inst){
+      if(inst.element.$.tagName.toLowerCase()=='textarea'){
+        $(inst.element.$).val(inst.getData());
+      }
+    });
   }
   //** init custom email
   $(".custom-email-checkbox").click(function(){
@@ -272,9 +280,10 @@ f.close()
         var filter=$('#fltUserRegistration')[0].control.getFilter();
       }
       var usrRegistrationForm=$("#usrRegistrationForm")[0];
+      syncCKEditorData();
       var data={
         'customize_email':$(usrRegistrationForm.customize_email).val(),
-        'custom_email':$(usrRegistrationForm.custom_email).val(),
+        'custom_email':$(usrRegistrationForm.custom_email_002).val(),
         'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
       }
       data=$.extend(data,filter);
@@ -396,6 +405,7 @@ f.close()
         new Dialog($('#dialog')).show('Error','Please select a CSV file.');
         return false;
       }
+      syncCKEditorData();
       $.ajax({
         url: "${reverse('pepconn_import_user_submit')}",
         data: new FormData(form), processData: false, contentType: false, type: 'POST',

@@ -238,7 +238,7 @@ def do_import_user(task,csv_lines,request):
 
                     use_custom = request.POST.get("customize_email")
                     if use_custom == 'true':
-                        custom_email = request.POST.get("custom_email")
+                        custom_email = request.POST.get("custom_email_001")
                         custom_email_subject = request.POST.get("custom_email_subject")
                         subject = render_from_string(custom_email_subject, props)
                         body = render_from_string(custom_email, props)
@@ -486,7 +486,7 @@ def do_send_registration_email(task,user_ids,request):
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
-                custom_email = request.POST.get("custom_email")
+                custom_email = request.POST.get("custom_email_002")
                 custom_email_subject = request.POST.get("custom_email_subject")
                 subject = render_from_string(custom_email_subject, props)
                 body = render_from_string(custom_email, props)
