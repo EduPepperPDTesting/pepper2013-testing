@@ -52,3 +52,22 @@ class TaskExecutorLog(models.Model):
     user = models.ForeignKey(User)
     operation = models.CharField(blank=False, max_length=150, db_index=True)
     execute_date = models.DateTimeField(auto_now_add=True, db_index=False)
+    
+class Author(models.Model):
+    class Meta:
+        db_table = 'author'      
+    name= models.CharField(blank=False, max_length=255, db_index=False)
+
+class CertificateAssociationType(models.Model):
+    class Meta:
+        db_table = 'certificate_association_type'  
+    name = models.CharField(blank=False, max_length=255, db_index=False)
+
+class Certificate(models.Model):
+    class Meta:
+        db_table = 'certificate'  
+    certificate_name = models.CharField(blank=False, max_length=255, db_index=False)
+    certificate_blob = models.TextField(blank=False,null=True)
+    readonly = models.BooleanField(default=1)
+    association_type = models.ForeignKey(CertificateAssociationType)  
+    association = models.IntegerField(blank=False)

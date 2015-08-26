@@ -1,1 +1,27 @@
-<center><img src="/static/tmp-resource/image/pepper-SCREEN+24-EDU-v2.jpg" class="" alt="" /></center>
+<!--<center><img src="/static/tmp-resource/image/pepper-SCREEN+24-EDU-v2.jpg" class="" alt="" /></center>-->
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="/static/js/ckeditor/contents.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .frame{
+            width:1100px;
+            margin-left:auto;
+            margin-right:auto;
+        }
+        .outputError{
+            font-size: 15px;
+            color:#ff0000;
+        }
+    </style>
+</head>
+    <body>
+        %if outputError!='':
+            <div class="outputError">Error:${outputError}</div>
+        %elif content=='': 
+            <div class="outputError">Warning:No associated certificate.</div>
+        %endif
+        <div class="frame">${content}</div>     
+    </body>
+</html>
+
