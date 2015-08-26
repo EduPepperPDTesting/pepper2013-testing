@@ -232,14 +232,13 @@ input,select{-ms-box-sizing:content-box;
  /* global_progress_panel */
  .global_task_panel_wrapper{
      position:fixed;
-     left: 50%;
      right:0px;
      bottom:0px;
      z-index:999;
      text-align:center;
  }
  .global_task_panel input.task_pannel_toggle{
-     position: relative; left: -50%;
+     position: relative;
      background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #f5821f 50%, #f5821f 100%);
      border-color: #E69E61 #E69E61 #f5821f;
      background-color:#f5821f;
@@ -255,7 +254,8 @@ input,select{-ms-box-sizing:content-box;
      box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.5);
  }
  .global_task_panel .content{
-     position: relative; left: -50%;
+     position: relative;
+     right:0px;
      margin:auto;
      background:#fff;
      padding:2px 8px 8px 8px;
@@ -273,9 +273,12 @@ input,select{-ms-box-sizing:content-box;
  }
  .global_task_panel .content .progressbar_flow{
      height:30px;
-     background:#2a5;
+     background:#ffab4a;
      border-radius:5px;
      width:50px;
+ }
+ .global_task_panel .content .progressbar.finished .progressbar_flow{
+     background:#89c152;
  }
  .global_task_panel .content .progressbar_text{
      position:absolute;

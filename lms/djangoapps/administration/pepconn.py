@@ -31,7 +31,7 @@ from models import *
 from StringIO import StringIO
 from student.models import Transaction,District,Cohort,School,State
 from mail import send_html_mail
-import datetime
+from datetime import datetime, timedelta
 from pytz import UTC
 
 from mako.template import Template
@@ -104,7 +104,7 @@ def log_task_execturor(user,operation):
     exectuor_log=TaskExecutorLog()
     exectuor_log.user=user
     exectuor_log.operation=operation
-    exectuor_log.execute_date=datetime.datetime.now(UTC)
+    exectuor_log.execute_date=datetime.now(UTC)
     exectuor_log.save()
 
 @login_required
@@ -184,8 +184,6 @@ def do_import_user(task,csv_lines,request):
         try:
             #** record processed count
             task.process_lines=i+1
-            task.save()
-            db.transaction.commit()
             
             email=line[USER_CSV_COLS.index('email')]
             state_name=line[USER_CSV_COLS.index('state_name')]
@@ -198,10 +196,11 @@ def do_import_user(task,csv_lines,request):
             tasklog=ImportTaskLog()
             tasklog.username=username
             tasklog.email=email
-            tasklog.create_date=datetime.datetime.now(UTC)
+            tasklog.create_date=datetime.now(UTC)
             tasklog.district_name=district_name
             tasklog.line=i+1
             tasklog.task=task
+            tasklog.error="ok"
               
             validate_user_cvs_line(line)
 
@@ -261,6 +260,7 @@ def do_import_user(task,csv_lines,request):
         finally:
             count_success=count_success+1
             task.success_lines=count_success
+            task.update_time=datetime.now(UTC)
             task.save()
             tasklog.save()
             db.transaction.commit()
@@ -309,11 +309,11 @@ def validate_user_cvs_line(line):
 from django.db.models import F
 def import_user_tasks(request):
     tasks=[]
-    
-    for t in ImportTask.objects.filter(process_lines__lt=F('total_lines')).order_by("-id"):
+    recent=datetime.now(UTC) - timedelta(seconds=300)
+    for t in ImportTask.objects.filter(Q(process_lines__lt=F('total_lines'))|Q(update_time__gte=recent)).order_by("-id"):
         tasks.append({"type":"import","id":t.id,"filename":t.filename,"progress":t.process_lines*100/t.total_lines})
 
-    for t in EmailTask.objects.filter(process_emails__lt=F('total_emails')).order_by("-id"):
+    for t in EmailTask.objects.filter(Q(process_emails__lt=F('total_emails'))|Q(update_time__gte=recent)).order_by("-id"):
         tasks.append({"type":"email","id":t.id,"progress":t.process_emails*100/t.total_emails})
      
     return HttpResponse(json.dumps({'success': True, 'tasks':tasks}), content_type="application/json")
@@ -382,12 +382,12 @@ def registration_table(request):
 
     for p in data:
         date=p.activate_date.strftime('%b-%d-%y %H:%M:%S') if p.activate_date else ''
-
+        
         rows.append({'id':p.user.id
                      ,'user__email':p.user.email
                      ,'user__first_name':p.user.first_name
                      ,'user__last_name':p.user.last_name
-                     ,'district':p.district.name
+                     ,'district':p.district.name if p.district_id else ''
                      ,'activate_date':date
                      ,"subscription_status":p.subscription_status})
 
@@ -471,16 +471,15 @@ def do_send_registration_email(task,user_ids,request):
 
             #** record processed count
             task.process_emails=i+1
-            task.save()
-            db.transaction.commit()
             
             #** create log
             tasklog=EmailTaskLog()
             tasklog.task=task
-            tasklog.send_date=datetime.datetime.now(UTC)
+            tasklog.send_date=datetime.now(UTC)
             tasklog.username=user.username
             tasklog.email=user.email
             tasklog.district_name=user.profile.district.name
+            tasklog.error="ok"
             
             reg = Registration.objects.get(user=user)
             props = {'key': reg.activation_key, 'district': user.profile.district.name}
@@ -504,6 +503,7 @@ def do_send_registration_email(task,user_ids,request):
         finally:
             count_success=count_success+1
             task.success_emails=count_success
+            task.update_time=datetime.now(UTC)
             task.save()
             tasklog.save()
             db.transaction.commit()
@@ -622,7 +622,7 @@ def registration_download_csv(request):
             })
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.csv')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.csv')
     output.seek(0)
     response.write(output.read())
     output.close()
@@ -676,7 +676,7 @@ def registration_download_excel(request):
 
         row=row+1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
     response.write(output.getvalue())    
     return response

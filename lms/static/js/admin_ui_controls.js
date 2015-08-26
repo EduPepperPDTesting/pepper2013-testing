@@ -3,6 +3,7 @@ function GlobalTaskPanelControl(el){
   var self=this;
   el.control=this;
   this.$el=$(el);
+  
   this.$toggle=this.$el.find(".task_pannel_toggle");
   this.$toggle.click(function(){
     var $content=self.$el.find(".content");
@@ -12,28 +13,39 @@ function GlobalTaskPanelControl(el){
       $content.slideUp();
     }
   });
+  this.dialog=new Dialog(this.$el)
+  this.dialog.hideOverlay();
   this.parseSetting();
   this.loadCount();
-  this.showProgressDialog();
 }
-GlobalTaskPanelControl.prototype.showProgressDialog=function(){
-  this.dialog=new Dialog(this.$el)
-  //this.dialog.show('User Data Import Tasks',this.count+' task(s) found.')
-  this.dialog.hideOverlay();
-  this.updateProgressDialog();
-}
-GlobalTaskPanelControl.prototype.updateProgressDialog=function(){
+GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
   var self=this;
   this.$el.find(".content").html("");
-  if(!this.tasks)return;
-  $.each(this.tasks,function(i,t){
+  $.each(tasks,function(i,t){
     if(t.type=='import'){
       self.dialog.addProgress("Import - "+t.filename);
     }else{
       self.dialog.addProgress("Email");
     }
-    self.dialog.setProgress(t.progress,i+1);
+    self.dialog.setProgress(t.progress,i);
+    if(t.progress==100){
+      var $progressbar=self.dialog.getProgressBar(i);      
+      if(!$progressbar.hasClass("finished")){
+        $progressbar.addClass("finished");
+      }
+      if(self.tasks){
+        var prev_progress=null;
+        $.each(self.tasks,function(j,t0){
+          if(t0.id==t.id && t.type==t.type){
+            prev_progress=t0.progress;
+          }
+        });
+        if(prev_progress<100 || !prev_progress)
+          self.$toggle.blink({timeout:5000,delay:200});
+      }
+    }
   });
+  this.tasks=tasks;
 }
 GlobalTaskPanelControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
@@ -43,13 +55,12 @@ GlobalTaskPanelControl.prototype.parseSetting=function(){
 GlobalTaskPanelControl.prototype.loadCount=function(){
   var self=this;
   $.get(this.setting.urls.count,function(r){
-    self.tasks=r.tasks;
     if(r.tasks.length==0){
       self.$el.hide();
     }else{
       self.$el.show();
       self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""))
-      self.updateProgressDialog();
+      self.updateProgressDialog(r.tasks);
     }
     setTimeout(function(){self.loadCount()},self.setting.interval)
   });
@@ -71,7 +82,6 @@ FilterControl.prototype.parseSetting=function(){
 }
 FilterControl.prototype.initFavorite=function(){
   if(!this.setting.favorite.show) return;
-  
   var self=this;
   this.$el.addClass("clearfix");
   this.$el.find(".favorite").remove();
@@ -436,8 +446,8 @@ TableControl.prototype.checkAll=function(b){
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
   var self=this;
-  this.$dialog=$(el);
-  this.$dialog.find('.close-modal').off("click").click(function(){
+  this.$ei=$(el);
+  this.$ei.find('.close-modal').off("click").click(function(){
     self.hide();
   });
 }
@@ -455,20 +465,20 @@ Dialog.prototype.hideOverlay=function(){
   }
 }
 Dialog.prototype.hide=function(){
-  this.$dialog.css('display','none');
+  this.$ei.css('display','none');
   this.hideOverlay();
 }
 Dialog.prototype.setTitle=function(title){
-  this.$dialog.find('.dialog-title').html(title);
+  this.$ei.find('.dialog-title').html(title);
 }
 Dialog.prototype.setContent=function(content){
-  this.$dialog.find('.content').html("");
-  this.$dialog.find('.content').append(content);  
+  this.$ei.find('.content').html("");
+  this.$ei.find('.content').append(content);  
 }
 Dialog.prototype.showYesNo=function(title,content,callback){
   var self=this;
   this.show(title,content);
-  var $content=this.$dialog.find('.content');
+  var $content=this.$ei.find('.content');
   var $buttons=$("<div></div>").appendTo($content)
   $("<input type='button' value='Yes'>").appendTo($buttons).click(function(){
     callback.apply(self,[true]);
@@ -483,27 +493,32 @@ Dialog.prototype.showProgress=function(title,content,name){
   this.addProgress(name);
 }
 Dialog.prototype.addProgress=function(name){
+  var self=this;
   name=name?name+": ":"";
-  var $content=this.$dialog.find('.content');
+  var $content=this.$ei.find('.content');
   var $progress=$("<div class='progressbar'>\
 <div class='progressbar_text'>\
 <span>"+name+"</span>\
 <span class='progressbar_perc'></span></div>\
 <div class='progressbar_flow'></div></div>").appendTo($content);
   function set($p,percent){
-    $progress.find(".progressbar_perc").text(percent+"%")
-    $progress.find(".progressbar_flow").css('width',percent+'%');
+    $p.find(".progressbar_perc").text(percent+"%")
+    $p.find(".progressbar_flow").css('width',percent+'%');
   }
   this.setProgress=function(percent,id){
+    set(self.getProgressBar(id),percent);
+  }
+  this.getProgressBar=function(id){
     if(typeof id=='undefined')id=0;
-    set($content.find(".progressbar_text").eq(id+1),percent);
+    var ret=$content.find(".progressbar").eq(id);
+    return ret;
   }
   set($progress,0);
 }
 Dialog.prototype.showButtons=function(title,content,labels,callback){
   var self=this;
   this.show(title,content);
-  var $content=this.$dialog.find('.content');
+  var $content=this.$ei.find('.content');
   var $buttons=$("<div></div>").appendTo($content)
   $.each(labels,function(i,label){
     $("<input type='button' value='"+label+"'>").appendTo($buttons).click(function(){
@@ -516,10 +531,10 @@ Dialog.prototype.show=function(title,content){
   this.showOverlay();
   this.setTitle(title);
   this.setContent(content);
-  this.$dialog.fadeIn(200);
+  this.$ei.fadeIn(200);
 }
 Dialog.prototype.isOn=function(){
-  return !this.$dialog.is(":hidden");
+  return !this.$ei.is(":hidden");
 }
 //////////////////////////////////////////////////////////////////
 function ContextMenu($container,$trigger){
