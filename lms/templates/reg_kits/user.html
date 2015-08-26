@@ -437,28 +437,37 @@ form.find("select[name=district_id]").change(function(){
 });
 // init form
 %if profile.id:
-  var cohort_id="${profile.cohort.id}"
-  var district_id="${profile.district.id}"
-  var state_id="${profile.district.state.id}"
-  var school_id="${profile.school_id}"
-  var subscription_status="${profile.subscription_status}"
+  %try:
+    <%
+      cohort_parsed = profile.cohort.id
+    %>
+  %except:
+    <%
+      cohort_parsed = ''
+    %>
+  %endtry
+  var cohort_id="${cohort_parsed}";
+  var district_id="${profile.district.id}";
+  var state_id="${profile.district.state.id}";
+  var school_id="${profile.school_id}";
+  var subscription_status="${profile.subscription_status}";
 %else:
-  var cohort_id=""
-  var district_id=""
-  var state_id=""
-  var school_id=""
+  var cohort_id="";
+  var district_id="";
+  var state_id="";
+  var school_id="";
 %endif
-form.find("select[name=state_id]").val(state_id)
-form.find("select[name=subscription_status]").val(subscription_status)
+form.find("select[name=state_id]").val(state_id);
+form.find("select[name=subscription_status]").val(subscription_status);
 dropDistrict(form,state_id,function(){
   $(this).val(district_id)
-})
+});
 dropCohort(form,state_id,district_id,function(){
   $(this).val(cohort_id)
-})
+});
 dropSchool(form,state_id,district_id,function(){
   $(this).val(school_id)
-})
+});
 </script>
 %endif
 </body>
