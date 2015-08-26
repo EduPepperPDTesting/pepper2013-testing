@@ -337,7 +337,7 @@
   function del_people(people_id){
     if(confirm("Are you sure that you would like to remove this person from your network list?")){
       $.post("${reverse('del_people')}",{people_id:people_id},function(r){
-        if ((typeof r) == 'string') r=$.parseJSON();
+        if ((typeof r) == 'string') r=$.parseJSON(r);
         if(r.success)
           window.location.reload();
       });
