@@ -535,7 +535,7 @@ def do_send_registration_email(task,user_ids,request):
 def registration_email_progress(request):
     try:
         task=EmailTask.objects.get(id=request.POST.get('taskId'))
-        message={'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}
+        message={'percent':'%.2f' % (task.process_emails * 100 / task.total_emails)}
     except Exception as e:
         message={'percent':100}
     return HttpResponse(json.dumps(message), content_type="application/json")    
