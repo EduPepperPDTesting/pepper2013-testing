@@ -137,14 +137,12 @@ def paging(all,size,page):
 
 def certificate_table(request):
     data = Certificate.objects.all()
-    #data = Certificate.objects.raw('select certificate.id,certificate.certificate_name,certificate.association_type_id,certificate.association,certificate.certificate_blob,certificate.readonly, concat(author.name,district.name,school.name) as association_name from certificate left join author ON certificate.association=author.id left join district ON certificate.association=district.id left join school ON certificate.association=school.id')
-    #data = Certificate.objects.raw('select certificate.id,certificate.certificate_name,certificate.association_type_id,certificate.association,certificate.certificate_blob,certificate.readonly,certificate_association_type.name as association_type_name,t.name as association_name from certificate left join certificate_association_type on certificate.association_type_id=certificate_association_type.id left join(select 1 as ktype,id,name from author union all select 2 as ktype,id,name from district union all select 3 as ktype,id,name from school) t on certificate.association_type_id=t.ktype and certificate.association=t.id')
     if request.GET.get('association_type',None):
-        data=data.filter(Q(association_type=request.GET.get('association_type')))
+        data = data.filter(Q(association_type=request.GET.get('association_type')))
     if request.GET.get('certificate_name',None):
-        data=data.filter(Q(certificate_name=request.GET.get('certificate_name')))
+        data = data.filter(Q(certificate_name=request.GET.get('certificate_name')))
     if request.GET.get('association',None):
-        data=data.filter(Q(association=request.GET.get('association')))
+        data = data.filter(Q(association=request.GET.get('association')))
     
     page = request.GET.get('page')
     size = request.GET.get('size')
@@ -162,7 +160,7 @@ def certificate_table(request):
                 association = District.objects.filter(Q(id=p.association))
             elif p.association_type.name=="School":
                 association = School.objects.filter(Q(id=p.association))
-            association_type_name = p.association_type.name
+            association_type_name=p.association_type.name
             association_name = association[0].name     
         else:
             association_type_name = ""
@@ -220,15 +218,17 @@ def certificate_delete(request):
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
-def certificate_save(request):    
+def certificate_save(request):  
     cid = request.POST.get('id')
     readonly = request.POST.get('readonly')=='true'
-    info = {'success': True,'msg':'Save complete.'}
     content = urllib.quote(request.POST.get('content').decode('utf8').encode('utf8'))
+    info = {}
+    returnID = cid;  
     c = Certificate.objects.filter(id=cid)
     try:
         if len(c) == 0:
-            Certificate.objects.create(certificate_name=request.POST.get('name'),association_type_id=request.POST.get('association_type'),association=request.POST.get('association'),certificate_blob=content,readonly=readonly)
+            cdata = Certificate.objects.create(certificate_name=request.POST.get('name'),association_type_id=request.POST.get('association_type'),association=request.POST.get('association'),certificate_blob=content,readonly=readonly)
+            returnID = cdata.id
         else:
             uc = Certificate.objects.get(id=cid)
             uc.certificate_name = request.POST.get('name')
@@ -237,6 +237,8 @@ def certificate_save(request):
             uc.certificate_blob = request.POST.get('content')
             uc.readonly = readonly
             uc.save()
+            returnID = uc.id
+        info = {'success': True,'msg':'Save complete.','id':returnID}
     except db.utils.IntegrityError:
         info = {'success': False,'msg':'Certificate name already exists.'}
     return HttpResponse(json.dumps(info))
