@@ -13,7 +13,7 @@ function GlobalTaskPanelControl(el){
       $content.slideUp();
     }
   });
-  this.dialog=new Dialog(this.$el)
+  this.dialog=new Dialog(this.$el);
   this.dialog.hideOverlay();
   this.parseSetting();
   this.loadTasks();
@@ -46,12 +46,12 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
     }
   });
   this.tasks=tasks;
-}
+};
 GlobalTaskPanelControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
-}
+};
 GlobalTaskPanelControl.prototype.loadTasks=function(){
   var self=this;
   $.get(this.setting.urls.count,function(r){
@@ -59,12 +59,12 @@ GlobalTaskPanelControl.prototype.loadTasks=function(){
       self.$el.hide();
     }else{
       self.$el.show();
-      self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""))
+      self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""));
       self.updateProgressDialog(r.tasks);
     }
     setTimeout(function(){self.loadTasks()},self.setting.interval)
   });
-}
+};
 //////////////////////////////////////////////////////////////////
 function FilterControl(el){
   el.control=this;
@@ -79,7 +79,7 @@ FilterControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
-}
+};
 FilterControl.prototype.initFavorite=function(){
   if(!this.setting.favorite.show) return;
   var self=this;
@@ -88,7 +88,7 @@ FilterControl.prototype.initFavorite=function(){
   var $container=$("<div class='favorite'></div>").appendTo(this.$el);
   $container.css('float','right');
   var $drop=$("<select><option value=''></option></select>").appendTo($container);
-  var data=[]
+  var data=[];
   $drop.change(function(){
     self.onFavoriteChange(data[$(this).val()]);
   });
@@ -111,22 +111,22 @@ FilterControl.prototype.initFavorite=function(){
     });
   $("<input type='button' class='small' value='Save'>").appendTo($container)
     .click(function(){self.saveFavorite()});
-}
+};
 FilterControl.prototype.onFavoriteChange=function(filterItem){
   var self=this;
   this.filter=$.parseJSON((filterItem && filterItem.filter)||"{}");
   $.each(this.setting.fields,function(k,f){
-    self.getFieldArea(k).val("")
+    self.getFieldArea(k).val("");
     if(f.type=='drop')
       self.clearDropItems(self.getFieldArea(k));
   });
   $.each(this.setting.fields,function(k,f){
     var value=self.filter[k];
-    self.getFieldArea(k).val(value)
+    self.getFieldArea(k).val(value);
     if(f.type=='drop')
       self.loadDropItems(self.getFieldArea(k));
   });
-}
+};
 FilterControl.prototype.deleteFavorite=function(id){
   var self=this;
   new Dialog($('#dialog')).showYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
@@ -138,13 +138,13 @@ FilterControl.prototype.deleteFavorite=function(id){
       });
     }
   });
-}
+};
 FilterControl.prototype.onFavoriteServerUpdated=function(){
   if(fn=this.$el[0].onFavoriteServerUpdated)fn();
-}
+};
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
-  var dialog=new Dialog($('#dialog'))
+  var dialog=new Dialog($('#dialog'));
   var $content=$("<div></div>");
   $content.append("<div style='margin:0 0 15px 0'>Please entry a name of the filter.</div>");
   var $text=$("<input>").appendTo($content);
@@ -183,7 +183,7 @@ FilterControl.prototype.saveFavorite=function(){
     });
   }
   showInputName();
-}
+};
 FilterControl.prototype.createFields=function(){
   var self=this;
   var n=0;
@@ -204,10 +204,10 @@ FilterControl.prototype.createFields=function(){
       self.loadDropItems(self.getFieldArea(k));
     }
   });
-}
+};
 FilterControl.prototype.getFieldArea=function(name){
   return this.$el.find("*[name="+name+"]");
-}
+};
 FilterControl.prototype.getDropLoadingArgs=function($drop){
   var self=this;
   var data={};
@@ -219,12 +219,12 @@ FilterControl.prototype.getDropLoadingArgs=function($drop){
     }
   });
   return data;
-}
+};
 FilterControl.prototype.formatOption=function(s,item){
   return s.replace(/\{(\w+)\}/g,function(s0,s1){
     return item[s1];
   });
-}
+};
 FilterControl.prototype.clearDropItems=function($drop){
   var self=this;
   $drop.find("option").filter(
@@ -233,7 +233,7 @@ FilterControl.prototype.clearDropItems=function($drop){
   this.callByRequire($drop.prop('name'),function($d){
     self.clearDropItems($d);
   });
-}
+};
 FilterControl.prototype.loadDropItems=function($drop){
   var self=this;
   this.clearDropItems($drop);
@@ -253,14 +253,14 @@ FilterControl.prototype.loadDropItems=function($drop){
       $drop.change();
     }
   });
-}
+};
 FilterControl.prototype.onDropChanged=function($drop){
   var self=this;
   var f=this.setting.fields[$drop.prop('name')];
   this.callByRequire($drop.prop('name'),function($d){
     self.loadDropItems($d);
   });
-}
+};
 FilterControl.prototype.callByRequire=function(name,fn){
   var self=this;
   $.each(this.setting.fields,function(k,f){
@@ -268,7 +268,7 @@ FilterControl.prototype.callByRequire=function(name,fn){
       fn(self.getFieldArea(k));
     }
   });
-}
+};
 FilterControl.prototype.getFilter=function(){
   var self=this;
   var data={};
@@ -276,7 +276,7 @@ FilterControl.prototype.getFilter=function(){
     data[k]=self.getFieldArea(k).val();
   });
   return data;
-}
+};
 //////////////////////////////////////////////////////////////////
 function TableControl(el){
   el.control=this;
@@ -292,7 +292,7 @@ TableControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
-}
+};
 TableControl.prototype.createTable=function(){
   var self=this;
   this.$table=$("<table></table>").appendTo(this.$body);
@@ -302,7 +302,7 @@ TableControl.prototype.createTable=function(){
   $.each(this.setting.fields,function(k,f){
     var $th=$("<th class='clearfix'>"+f.display+"</th>").appendTo(self.$thead);
     if(f.sort){
-      var default_order=(f.sort=='-'?'asc':'desc')
+      var default_order=(f.sort=='-'?'asc':'desc');
       var order=default_order;
       var $arrow=$("<span class='sort'></span>").appendTo($th);
       $th.addClass("sort_head");
@@ -313,7 +313,7 @@ TableControl.prototype.createTable=function(){
             $arrow[0].className='sort';
             order=default_order;
           }
-        }
+        };
         order=(order=='asc'?'desc':'asc');
         self.sort={sortField:k,sortOrder:order};
         self.reload();
@@ -322,14 +322,14 @@ TableControl.prototype.createTable=function(){
     }
     if(!f.show)$th.hide();
   });
-  var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead)
+  var $thMenu=$("<th class='checkbox-col'></th>").appendTo(this.$thead);
   var $trigger=$("<span class='menu-trigger'></span>").appendTo($thMenu);
   this.createFieldsSelector($thMenu,$trigger);
-}
+};
 TableControl.prototype.createFieldsSelector=function($container,$button){
   var self=this;
   var items=[];
-  this.fieldsSelector=new ContextMenu($container,$button)
+  this.fieldsSelector=new ContextMenu($container,$button);
   $.each(this.setting.fields,function(k,f){
     var $el=$("<label></label>");
     self.fieldsSelector.createItem($el);
@@ -338,10 +338,10 @@ TableControl.prototype.createFieldsSelector=function($container,$button){
     });
     $el.append(" "+f.display);
   });
-}
+};
 TableControl.prototype.reload=function(){
   this.loadData(this.currentPage);
-}
+};
 TableControl.prototype.toggleColumn=function(name){
   var self=this;
   var n=0;
@@ -349,12 +349,12 @@ TableControl.prototype.toggleColumn=function(name){
   $.each(this.setting.fields,function(k,f){
     if(k==name){
       self.$thead.find("th").eq(n).toggle();
-      console.log(self.$tbody.find("tr td:nth-child("+n+")").length)
+      console.log(self.$tbody.find("tr td:nth-child("+n+")").length);
       self.$tbody.find("tr td:nth-child("+(n+1)+")").toggle();
     }
     n++;
   });
-}
+};
 TableControl.prototype.loadData=function(page){
   this.currentPage=page;
   var self=this;
@@ -375,7 +375,7 @@ TableControl.prototype.loadData=function(page){
     self.updatePager(r.paging);
     self.$el[0].onDataLoaded && self.$el[0].onDataLoaded();
   });
-}
+};
 TableControl.prototype.getFieldCells=function(name){
   var n=0,col=0;
   $.each(this.setting.fields,function(k){
@@ -385,10 +385,10 @@ TableControl.prototype.getFieldCells=function(name){
     }
   });
   if(col) return this.$tbody.find("tr td:nth-child("+col+")");
-}
+};
 TableControl.prototype.getPagingInfo=function(){
   return this.pagingInfo;
-}
+};
 TableControl.prototype.updatePager=function(info){
   var self=this;
   this.pagingInfo=info;
@@ -397,7 +397,7 @@ TableControl.prototype.updatePager=function(info){
   var $input=$("<input value='"+info.page+"'>").appendTo(this.$paging);
   $input.keyup(function(e){
     if(e.keyCode==13){
-      var p=$(this).val().replace(/^(\s+)|(\s+)$/,'')
+      var p=$(this).val().replace(/^(\s+)|(\s+)$/,'');
       if(/^[1-9]\d*$/.test(p)){
         self.loadData(p);
       }else{
@@ -429,29 +429,29 @@ TableControl.prototype.updatePager=function(info){
     $select.change(function(){
       self.setting.paging.size=$(this).val();
       self.loadData(1);
-    })
+    });
     $.each(sizes,function(i,size){
       $("<option>"+size+"</option>").appendTo($select);
     });
     $select.val(self.setting.paging.size);
   }
-}
+};
 TableControl.prototype.updateFilter=function(f){
   this.filter=f;
   this.loadData(1);
-}
+};
 TableControl.prototype.getCheckedValues=function(){
   var ar=[];
   this.$tbody.find("input.check-row").each(function(){
     if(this.checked) ar.push(this.value)
   });
   return ar;
-}
+};
 TableControl.prototype.checkAll=function(b){
   this.$tbody.find("input.check-row").each(function(){
     this.checked=b;
   });
-}
+};
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
   var self=this;
@@ -466,41 +466,41 @@ Dialog.prototype.showOverlay=function(){
     this.$overlay.appendTo(document.body);
   }
   this.$overlay.css('display','block');
-}
+};
 Dialog.prototype.hideOverlay=function(){
   if(this.$overlay){
     this.$overlay.remove();
     this.$overlay=null;
   }
-}
+};
 Dialog.prototype.hide=function(){
   this.$ei.css('display','none');
   this.hideOverlay();
-}
+};
 Dialog.prototype.setTitle=function(title){
   this.$ei.find('.dialog-title').html(title);
-}
+};
 Dialog.prototype.setContent=function(content){
   this.$ei.find('.content').html("");
   this.$ei.find('.content').append(content);  
-}
+};
 Dialog.prototype.showYesNo=function(title,content,callback){
   var self=this;
   this.show(title,content);
   var $content=this.$ei.find('.content');
-  var $buttons=$("<div></div>").appendTo($content)
+  var $buttons=$("<div></div>").appendTo($content);
   $("<input type='button' value='Yes'>").appendTo($buttons).click(function(){
     callback.apply(self,[true]);
   });
   $("<input type='button' value='No'>").appendTo($buttons).click(function(){
     callback.apply(self,[false]);
   });
-}
+};
 Dialog.prototype.showProgress=function(title,content,name){
   var self=this;
   this.show(title,content);
   this.addProgress(name);
-}
+};
 Dialog.prototype.addProgress=function(name){
   var self=this;
   name=name?name+": ":"";
@@ -511,40 +511,40 @@ Dialog.prototype.addProgress=function(name){
 <span class='progressbar_perc'></span></div>\
 <div class='progressbar_flow'></div></div>").appendTo($content);
   function set($p,percent){
-    $p.find(".progressbar_perc").text(percent+"%")
+    $p.find(".progressbar_perc").text(percent+"%");
     $p.find(".progressbar_flow").css('width',percent+'%');
   }
   this.setProgress=function(percent,id){
     set(self.getProgressBar(id),percent);
-  }
+  };
   this.getProgressBar=function(id){
     if(typeof id=='undefined')id=0;
     var ret=$content.find(".progressbar").eq(id);
     return ret;
-  }
+  };
   set($progress,0);
-}
+};
 Dialog.prototype.showButtons=function(title,content,labels,callback){
   var self=this;
   this.show(title,content);
   var $content=this.$ei.find('.content');
-  var $buttons=$("<div></div>").appendTo($content)
+  var $buttons=$("<div></div>").appendTo($content);
   $.each(labels,function(i,label){
     $("<input type='button' value='"+label+"'>").appendTo($buttons).click(function(){
       callback.apply(self,[i]);
     });  
   });
-}
+};
 Dialog.prototype.show=function(title,content){
   var self=this;
   this.showOverlay();
   this.setTitle(title);
   this.setContent(content);
   this.$ei.fadeIn(200);
-}
+};
 Dialog.prototype.isOn=function(){
   return !this.$ei.is(":hidden");
-}
+};
 //////////////////////////////////////////////////////////////////
 function ContextMenu($container,$trigger){
   var self=this;
@@ -561,7 +561,7 @@ function ContextMenu($container,$trigger){
 ContextMenu.prototype.createItem=function($el){
   var $li=$("<li></li>").appendTo(this.$container);
   $li.append($el);
-}
+};
 ContextMenu.prototype.toggle=function(){
   this.$container.toggle();
-}
+};
