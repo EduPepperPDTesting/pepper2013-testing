@@ -3,7 +3,7 @@ function GlobalTaskPanelControl(el){
   var self=this;
   el.control=this;
   this.$el=$(el);
-  
+  this.$el.hide();
   this.$toggle=this.$el.find(".task_pannel_toggle");
   this.$toggle.click(function(){
     var $content=self.$el.find(".content");
@@ -16,7 +16,7 @@ function GlobalTaskPanelControl(el){
   this.dialog=new Dialog(this.$el)
   this.dialog.hideOverlay();
   this.parseSetting();
-  this.loadCount();
+  this.loadTasks();
 }
 GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
   var self=this;
@@ -52,7 +52,7 @@ GlobalTaskPanelControl.prototype.parseSetting=function(){
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
 }
-GlobalTaskPanelControl.prototype.loadCount=function(){
+GlobalTaskPanelControl.prototype.loadTasks=function(){
   var self=this;
   $.get(this.setting.urls.count,function(r){
     if(r.tasks.length==0){
@@ -62,7 +62,7 @@ GlobalTaskPanelControl.prototype.loadCount=function(){
       self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""))
       self.updateProgressDialog(r.tasks);
     }
-    setTimeout(function(){self.loadCount()},self.setting.interval)
+    setTimeout(function(){self.loadTasks()},self.setting.interval)
   });
 }
 //////////////////////////////////////////////////////////////////

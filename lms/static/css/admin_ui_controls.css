@@ -238,6 +238,9 @@ input,select{-ms-box-sizing:content-box;
      text-align:center;
  }
  .global_task_panel input.task_pannel_toggle{
+     text-transform:uppercase;
+     font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+     color:#fff;
      position: relative;
      background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #f5821f 50%, #f5821f 100%);
      border-color: #E69E61 #E69E61 #f5821f;
