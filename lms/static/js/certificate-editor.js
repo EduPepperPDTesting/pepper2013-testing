@@ -36,7 +36,7 @@ CertificateEditor.prototype.loadCertificate=function(id){
          self.setReadOnly(r.readonly);
          self.setPublishIcon(self.isPublish);
          $(".certificate_name").val(self.certificate_name);
-         //self.setState();
+         self.setState();
       });
 }
 CertificateEditor.prototype.save=function(callback){
@@ -44,10 +44,15 @@ CertificateEditor.prototype.save=function(callback){
     if(this.certificate_name==""){
       new Dialog($('#dialog')).show('Error','You need a name for your certificate.');return;
     }
-    else{   
+    else{
+      var self=this;
       var data={id:this.certificateID,name:this.certificate_name,content:this.CKEDITOR.getData(),association_type:this.association_type,association:this.association,readonly:this.isReadOnly};
       $.post("/configuration/certificate/save",data,function(r){
-          if(r.success){new Dialog($('#dialog')).show('OK',r.msg);}
+          if(r.success){
+            self.certificateID=r.id;
+            self.setState();
+            new Dialog($('#dialog')).show('OK',r.msg);
+          }
           else{new Dialog($('#dialog')).show('Error',r.msg);}
           (callback && typeof(callback) === "function") && callback();
           return;
@@ -55,32 +60,38 @@ CertificateEditor.prototype.save=function(callback){
     }
 }
 CertificateEditor.prototype.copy=function(){
-   var self=this;
-   new Dialog($('#dialog')).showButtons("Warning","<p>Do you want to save the current certificate?</p><br/>",['Yes','No'],function(choice){
+ var self=this;
+ if(this.isStateChange()){
+    new Dialog($('#dialog')).showButtons("Warning","<p>Do you want to save the current certificate?</p><br/>",['Yes','No'],function(choice){
       if(choice==0){ 
         this.hide();
         self.save(function(){
-        self.createCopy();
+          self.createCopy();
         });
         
       }else{
         this.hide();
         self.createCopy();
-        }
+      }
     })
+  }
+  else{
+    self.createCopy();
+  }
 }
 CertificateEditor.prototype.createCopy=function(){
   this.isPublish=false; 
-  this.isReadOnly=false;
   this.currView='Editor'; 
   this.certificateID=0;
   this.association_type=0;
   this.association=0;
+  this.setReadOnly(false);
+  this.certificate_name=$(".certificate_name").val();
   this.certificate_name=this.certificate_name+"_copy";
   $(".certificate_name").val(this.certificate_name);
   this.setPublishIcon(this.isPublish);
   this.setReadOnlyIcon(this.isReadOnly);
-
+  this.setState();
 }
 CertificateEditor.prototype.publish=function(filter){
     this.association_type=filter['association_type'];
@@ -95,6 +106,7 @@ CertificateEditor.prototype.unPublish=function(){
     ceditor.setPublishIcon(this.isPublish);
 }
 CertificateEditor.prototype.setState=function(){
+   this.editorState=[];
    for (var p in this) {
       if(typeof(this[p])!='function'&& p!='editorState'){
         this.editorState[p]=this[p];
@@ -106,7 +118,6 @@ CertificateEditor.prototype.isStateChange=function(){
   this.content=this.CKEDITOR.getData();
     for (var p in this) {
       if(typeof(this[p])!='function'&& p!='editorState'){
-        console.log(this.editorState[p] + ':' + this[p]);
         if(this.editorState[p]!=this[p]){        
           return true;
         }
@@ -143,10 +154,25 @@ CertificateEditor.prototype.delete=function(callback){
     }) 
  
 }
-CertificateEditor.prototype.setReadOnly=function(b){
+CertificateEditor.prototype.setReadOnly=function(b,user_select){
+  //user_select:Read-only it is true by the value set by the user, otherwise false.
+  var userSelect=user_select||false;
   this.isReadOnly=Boolean(b);
   this.CKEDITOR.setReadOnly(b);
   this.setReadOnlyIcon(b);
+  if(b && userSelect)this.saveYesNo("Save certificate","<p>You want to save the certificate?</p><br/>");
+}
+CertificateEditor.prototype.saveYesNo=function(title,content){
+ var self=this;
+    new Dialog($('#dialog')).showButtons(title,content,['Yes','No'],function(choice){
+    if(choice==0){ 
+        self.save();
+        this.hide();
+      }
+      else{
+        this.hide();
+      }
+  })
 }
 CertificateEditor.prototype.print=function(element){
   this.CKEDITOR.execCommand('print');
@@ -173,3 +199,4 @@ CertificateEditor.prototype.setReadOnlyIcon=function(b){
   if(b){$('.imgBtn_readonly').parent().hide();$('.imgBtn_edit').parent().show();}
   else{$('.imgBtn_readonly').parent().show();$('.imgBtn_edit').parent().hide();}
 }
+
