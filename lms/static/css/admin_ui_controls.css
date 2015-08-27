@@ -80,9 +80,21 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  section.content-wrapper{background:transparent !important;}
  .list{padding:0px 5px;}
  .list li{list-style-type:none;}
- div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+ div.expand_title{
+     color:#08a;
+     font-size:20px;
+     padding:10px 5px;
+     cursor:pointer;
+ }
+ div.expand_title .icon{
+     display:inline-block;
+     width:12px;
+     height:15px;
+     background: url("../images/configuration/arrow_dn.png");
+ }
+ div.expand_title_expanded .icon{
+     background: url("../images/configuration/arrow_up.png");
+ }
  div.expand_div{display:none;}
  /* filter */
  div.control.filter{
@@ -137,7 +149,7 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width:18px;
    height:20px;
    line-height:12px;
-   background:url("/static/images/configuration/table_menu.png")
+   background:url("../images/configuration/table_menu.png")
  }
  div.control.table .footer{
    padding:5px;
@@ -163,15 +175,15 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
  }
  div.control.table .sort{
    margin-top:7px;
-   background:url("/static/images/configuration/sort.gif") no-repeat;
+   background:url("../images/configuration/sort.gif") no-repeat;
  }
  div.control.table .sort_up{
    margin-top:9px;
-   background:url("/static/images/configuration/sort_up.gif") no-repeat;
+   background:url("../images/configuration/sort_up.gif") no-repeat;
  }
  div.control.table .sort_dn{
    margin-top:9px;
-   background:url("/static/images/configuration/sort_dn.gif") no-repeat;
+   background:url("../images/configuration/sort_dn.gif") no-repeat;
  }
  ul.context-menu{
    position:absolute;
@@ -196,10 +208,6 @@ input,select{-ms-box-sizing:content-box;
  .list li{list-style-type:none;}
  div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
  div.filter h2{color:#f90}
- div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
- div.expand_div{display:none;}
  div.filter{}
  .custom-email input{width: 400px;}
  .custom-email textarea{height: 300px;}
