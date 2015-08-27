@@ -1,12 +1,69 @@
-function RegistrationEmailEditor(){
+//////////////////////////////////////////////////////////////////
+function GlobalTaskPanelControl(el){
+  var self=this;
   el.control=this;
-  this.$body=$(el).find(".body");
+  this.$el=$(el);
+  this.$el.hide();
+  this.$toggle=this.$el.find(".task_pannel_toggle");
+  this.$toggle.click(function(){
+    var $content=self.$el.find(".content");
+    if($content.is(":hidden")){
+      $content.slideDown();
+    }else{
+      $content.slideUp();
+    }
+  });
+  this.dialog=new Dialog(this.$el)
+  this.dialog.hideOverlay();
   this.parseSetting();
+  this.loadTasks();
 }
-RegistrationEmailEditor.prototype.parseSetting=function(){
+GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
+  var self=this;
+  this.$el.find(".content").html("");
+  $.each(tasks,function(i,t){
+    if(t.type=='import'){
+      self.dialog.addProgress("Import - "+t.filename);
+    }else{
+      self.dialog.addProgress("Email");
+    }
+    self.dialog.setProgress(t.progress,i);
+    if(t.progress==100){
+      var $progressbar=self.dialog.getProgressBar(i);      
+      if(!$progressbar.hasClass("finished")){
+        $progressbar.addClass("finished");
+      }
+      if(self.tasks){
+        var prev_progress=null;
+        $.each(self.tasks,function(j,t0){
+          if(t0.id==t.id && t.type==t.type){
+            prev_progress=t0.progress;
+          }
+        });
+        if(prev_progress<100 || !prev_progress)
+          self.$toggle.blink({timeout:5000,delay:200});
+      }
+    }
+  });
+  this.tasks=tasks;
+}
+GlobalTaskPanelControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
+}
+GlobalTaskPanelControl.prototype.loadTasks=function(){
+  var self=this;
+  $.get(this.setting.urls.count,function(r){
+    if(r.tasks.length==0){
+      self.$el.hide();
+    }else{
+      self.$el.show();
+      self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""))
+      self.updateProgressDialog(r.tasks);
+    }
+    setTimeout(function(){self.loadTasks()},self.setting.interval)
+  });
 }
 //////////////////////////////////////////////////////////////////
 function FilterControl(el){
@@ -16,14 +73,15 @@ function FilterControl(el){
   this.$body=$(el).find(".body");
   this.parseSetting();
   this.createFields();
-  this.createFavorite();
+  this.initFavorite();
 }
 FilterControl.prototype.parseSetting=function(){
   var $holder=this.$el.find("textarea.setting");
   this.setting=$.parseJSON($holder.val());
   $holder.remove();
 }
-FilterControl.prototype.createFavorite=function(){
+FilterControl.prototype.initFavorite=function(){
+  if(!this.setting.favorite.show) return;
   var self=this;
   this.$el.addClass("clearfix");
   this.$el.find(".favorite").remove();
@@ -34,7 +92,7 @@ FilterControl.prototype.createFavorite=function(){
   $drop.change(function(){
     self.onFavoriteChange(data[$(this).val()]);
   });
-  $.get(this.setting.urls.favorite_load,{},function(r){
+  $.get(this.setting.favorite.urls.load,{},function(r){
     data=r;
     if((typeof data) == 'string')data=$.parseJSON(r);
     $.each(data,function(i,item){
@@ -73,9 +131,9 @@ FilterControl.prototype.deleteFavorite=function(id){
   var self=this;
   new Dialog($('#dialog')).showYesNo("Delete Favorite","Really delete the favorite filter selected?",function(r){
     if(r){
-      $.get(self.setting.urls.favorite_delete,{'id':id},function(r){
+      $.get(self.setting.favorite.urls.remove,{'id':id},function(r){
         if((typeof r) == 'string')r=$.parseJSON(r);
-        self.createFavorite();
+        self.initFavorite();
         self.onFavoriteServerUpdated();
       });
     }
@@ -86,21 +144,45 @@ FilterControl.prototype.onFavoriteServerUpdated=function(){
 }
 FilterControl.prototype.saveFavorite=function(){
   var self=this;
+  var dialog=new Dialog($('#dialog'))
   var $content=$("<div></div>");
   $content.append("<div style='margin:0 0 15px 0'>Please entry a name of the filter.</div>");
   var $text=$("<input>").appendTo($content);
   var $save=$("<input type=button value=save >").appendTo($content);
-  var dialog=new Dialog($('#dialog'))
-  dialog.show('Save Filter',$content);
-  $save.click(function(){
+  function showInputName(){
+    $save.click(function(){
+      var name=$text.val();
+      if(!name){
+        dialog.showButtons("Save Filter", "Invalid name.");
+        return;
+      }
+      var exists=self.$el.find(".favorite select option").filter(function(){
+        return $(this).html()==name;
+      }).length>0;
+      if(exists)
+        dialog.showButtons(
+          "Save Filter"
+          , "The same name filter exists, do you want to overwrite it?"
+          , ["Rename","Overwrite","Cancel"]
+          , function(choice){
+            if(choice==0) showInputName(); else if (choice==1) save(); else this.hide();
+          });
+      else
+        save();
+    });
+    dialog.show('Save Filter',$content);
+  }
+  function save(){
+    var name=$text.val();
     var filter=self.getFilter();
-    $.get(self.setting.urls.favorite_save,{name:$text.val(),'filter':JSON.stringify(filter)},function(r){
+    $.get(self.setting.favorite.urls.save,{name:name,'filter':JSON.stringify(filter)},function(r){
       if((typeof r) == 'string')r=$.parseJSON(r);
-      dialog.hide();
-      self.createFavorite();
+      this.hide();
+      self.initFavorite();
       self.onFavoriteServerUpdated();
     });
-  });
+  }
+  showInputName();
 }
 FilterControl.prototype.createFields=function(){
   var self=this;
@@ -287,7 +369,8 @@ TableControl.prototype.loadData=function(page){
         var $td=$("<td>"+row[k]+"</td>").appendTo($row);
         if(!f.show)$td.hide();
       });
-      $("<td><input type='checkbox' class='check-row' value='"+row.id+"'/></td>").appendTo($row);
+      var identifier=self.setting.field_row_identifier;
+      $("<td><input type='checkbox' class='check-row' value='"+row[identifier]+"'/></td>").appendTo($row);
     });
     self.updatePager(r.paging);
     self.$el[0].onDataLoaded && self.$el[0].onDataLoaded();
@@ -371,63 +454,96 @@ TableControl.prototype.checkAll=function(b){
 }
 //////////////////////////////////////////////////////////////////
 function Dialog(el){
-  this.$dialog=$(el);
+  var self=this;
+  this.$ei=$(el);
+  this.$ei.find('.close-modal').off("click").click(function(){
+    self.hide();
+  });
 }
 Dialog.prototype.showOverlay=function(){
-  this.$overlay=$("<div class='lean-overlay'></div>");
-  this.$overlay.appendTo(document.body);
+  if(!this.$overlay){
+    this.$overlay=$("<div class='lean-overlay'></div>");
+    this.$overlay.appendTo(document.body);
+  }
   this.$overlay.css('display','block');
 }
 Dialog.prototype.hideOverlay=function(){
-  this.$overlay.remove();
+  if(this.$overlay){
+    this.$overlay.remove();
+    this.$overlay=null;
+  }
 }
 Dialog.prototype.hide=function(){
-  this.$dialog.css('display','none');
+  this.$ei.css('display','none');
   this.hideOverlay();
 }
 Dialog.prototype.setTitle=function(title){
-  this.$dialog.find('.dialog-title').html(title);
+  this.$ei.find('.dialog-title').html(title);
 }
 Dialog.prototype.setContent=function(content){
-  this.$dialog.find('.content').html("");
-  this.$dialog.find('.content').append(content);  
+  this.$ei.find('.content').html("");
+  this.$ei.find('.content').append(content);  
 }
 Dialog.prototype.showYesNo=function(title,content,callback){
   var self=this;
   this.show(title,content);
-  var $content=this.$dialog.find('.content');
+  var $content=this.$ei.find('.content');
   var $buttons=$("<div></div>").appendTo($content)
   $("<input type='button' value='Yes'>").appendTo($buttons).click(function(){
-    self.hide();
-    callback(true);
+    callback.apply(self,[true]);
   });
   $("<input type='button' value='No'>").appendTo($buttons).click(function(){
-    self.hide();
-    callback(false);
+    callback.apply(self,[false]);
   });
 }
-Dialog.prototype.showProgress=function(title,content){
+Dialog.prototype.showProgress=function(title,content,name){
   var self=this;
   this.show(title,content);
-  var $content=this.$dialog.find('.content');
+  this.addProgress(name);
+}
+Dialog.prototype.addProgress=function(name){
+  var self=this;
+  name=name?name+": ":"";
+  var $content=this.$ei.find('.content');
   var $progress=$("<div class='progressbar'>\
-<div class='progressbar_text'>0%</div>\
-<div class='progressbar_flow'></div></div>").appendTo($content)
-  this.setProgress=function(percent){
-    $progress.find(".progressbar_text").text(percent+"%")
-    $progress.find(".progressbar_flow").css('width',percent+'%');
+<div class='progressbar_text'>\
+<span>"+name+"</span>\
+<span class='progressbar_perc'></span></div>\
+<div class='progressbar_flow'></div></div>").appendTo($content);
+  function set($p,percent){
+    $p.find(".progressbar_perc").text(percent+"%")
+    $p.find(".progressbar_flow").css('width',percent+'%');
   }
-  this.setProgress(0);
+  this.setProgress=function(percent,id){
+    set(self.getProgressBar(id),percent);
+  }
+  this.getProgressBar=function(id){
+    if(typeof id=='undefined')id=0;
+    var ret=$content.find(".progressbar").eq(id);
+    return ret;
+  }
+  set($progress,0);
+}
+Dialog.prototype.showButtons=function(title,content,labels,callback){
+  var self=this;
+  this.show(title,content);
+  var $content=this.$ei.find('.content');
+  var $buttons=$("<div></div>").appendTo($content)
+  $.each(labels,function(i,label){
+    $("<input type='button' value='"+label+"'>").appendTo($buttons).click(function(){
+      callback.apply(self,[i]);
+    });  
+  });
 }
 Dialog.prototype.show=function(title,content){
   var self=this;
   this.showOverlay();
   this.setTitle(title);
   this.setContent(content);
-  this.$dialog.find('.close-modal').click(function(){
-    self.hide();
-  });
-  this.$dialog.fadeIn(200);
+  this.$ei.fadeIn(200);
+}
+Dialog.prototype.isOn=function(){
+  return !this.$ei.is(":hidden");
 }
 //////////////////////////////////////////////////////////////////
 function ContextMenu($container,$trigger){

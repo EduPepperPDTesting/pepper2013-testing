@@ -10,6 +10,7 @@ class ImportTask(models.Model):
     total_lines = models.IntegerField(blank=False,default=0)
     process_lines = models.IntegerField(blank=False,default=0)
     success_lines = models.IntegerField(blank=False,default=0)
+    update_time = models.DateTimeField(auto_now_add=True, db_index=False)
 
 class ImportTaskLog(models.Model):
     class Meta:
@@ -28,12 +29,13 @@ class EmailTask(models.Model):
     total_emails = models.IntegerField(blank=False,default=0)
     process_emails = models.IntegerField(blank=False,default=0)
     success_emails = models.IntegerField(blank=False,default=0)
+    update_time = models.DateTimeField(auto_now_add=True, db_index=False)
 
 class EmailTaskLog(models.Model):
     class Meta:
         db_table = 'admin_email_task_log'
-    send_date = models.DateTimeField(auto_now_add=True, db_index=False)        
-    task = models.ForeignKey(EmailTask,on_delete=models.PROTECT)        
+    send_date = models.DateTimeField(auto_now_add=True, db_index=False)
+    task = models.ForeignKey(EmailTask,on_delete=models.PROTECT)
     username = models.CharField(blank=False, max_length=30, db_index=True)
     email = models.CharField(blank=False, max_length=75, db_index=True)
     district_name = models.CharField(blank=False, max_length=255, db_index=True)
