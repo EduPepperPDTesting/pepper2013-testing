@@ -203,14 +203,32 @@ input,select{-ms-box-sizing:content-box;
  }
 
  /* email editor*/
- section.content-wrapper{background:transparent !important;}
- .list{padding:0px 5px;}
- .list li{list-style-type:none;}
- div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
- div.filter h2{color:#f90}
- div.filter{}
- .custom-email input{width: 400px;}
- .custom-email textarea{height: 300px;}
+ section.content-wrapper{
+     background: transparent !important;
+ }
+ .list{
+     padding: 0px 5px;
+ }
+ .list li{
+     list-style-type: none;
+ }
+ div.filter{
+     padding: 10px 5px;
+     border: 1px solid #ddd;
+     border-width:1px 0;
+ }
+ div.filter h2{
+     color: #f90
+ }
+ .custom-email, .customize-email {
+     display: none;
+ }
+ .custom-email input{
+     width: 400px;
+ }
+ .custom-email textarea{
+     height: 300px;
+ }
 
  /* variable-key */
  .variable-key {
@@ -239,11 +257,12 @@ input,select{-ms-box-sizing:content-box;
 
  /* global_progress_panel */
  .global_task_panel_wrapper{
-     position:fixed;
-     right:0px;
-     bottom:0px;
-     z-index:999;
-     text-align:center;
+     position: fixed;
+     right: 0;
+     left: 0;
+     bottom: 0;
+     z-index: 999;
+     text-align: center;
  }
  .global_task_panel input.task_pannel_toggle{
      text-transform:uppercase;
@@ -253,28 +272,28 @@ input,select{-ms-box-sizing:content-box;
      background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #f5821f 50%, #f5821f 100%);
      border-color: #E69E61 #E69E61 #f5821f;
      background-color:#f5821f;
-     text-shadow: 0px -1px 1px #f5821f;
+     text-shadow: 0 -1px 1px #f5821f;
      border-radius:5px 5px 0 0;
-     box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.5);
+     box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.5);
  }
  .global_task_panel input.task_pannel_toggle:hover{
      background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #DB7115 50%, #DB7115 100%);
      border-color: #E69E61 #E69E61 #f5821f;
      background-color:#f5821f;
-     text-shadow: 0px -1px 1px #f5821f;
-     box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.5);
+     text-shadow: 0 -1px 1px #f5821f;
+     box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.5);
  }
  .global_task_panel .content{
      position: relative;
-     right:0px;
-     margin:auto;
-     background:#fff;
-     padding:2px 8px 8px 8px;
-     width:500px;
-     box-shadow: 0px 5px 25px 5px rgba(0, 0, 0, 0.5);
-     display:none;
-     max-height:280px;
-     overflow-y:scroll;
+     right: 0;
+     margin: auto;
+     background: #fff;
+     padding: 2px 8px 8px 8px;
+     width: 500px;
+     box-shadow: 0 5px 25px 5px rgba(0, 0, 0, 0.5);
+     display: none;
+     max-height: 280px;
+     overflow-y: auto;
  }
  .global_task_panel .content .progressbar{
      height:30px;

@@ -131,7 +131,7 @@ def import_user_submit(request):
 
         #** readlines from csv
         file=request.FILES.get('file')
-        r=csv.reader(file, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        r=csv.reader(file, dialect='excel')
         rl = []
         rl.extend(r)
 
