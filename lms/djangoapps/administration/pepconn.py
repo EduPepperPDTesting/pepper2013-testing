@@ -28,7 +28,7 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 import gevent
 from django import db
 from models import *
-from StringIO import StringIO
+from io import StringIO
 from student.models import Transaction, District, Cohort, School, State
 from mail import send_html_mail
 from datetime import datetime, timedelta
@@ -146,7 +146,6 @@ def import_user_submit(request):
         # request.session['task']=''
 
         #** readlines from csv
-        from io import StringIO
         output = StringIO(newline=None)
         file = request.FILES.get('file')
         output.write(unicode(file.read()))
