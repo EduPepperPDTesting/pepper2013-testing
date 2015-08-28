@@ -331,11 +331,18 @@ def validate_user_cvs_line(line):
 def import_user_tasks(request):
     tasks = []
     recent = datetime.now(UTC) - timedelta(seconds=300)
+    timeout = datetime.now(UTC) - timedelta(minutes=5)
     for t in ImportTask.objects.filter(Q(process_lines__lt=F('total_lines')) | Q(update_time__gte=recent)).order_by("-id"):
-        tasks.append({"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines})
+        task = {"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines, "error": False}
+        if t.update_time <= timeout:
+            task['error'] = True
+        tasks.append(task)
 
     for t in EmailTask.objects.filter(Q(process_emails__lt=F('total_emails')) | Q(update_time__gte=recent)).order_by("-id"):
-        tasks.append({"type": "email", "id": t.id, "progress": t.process_emails*100/t.total_emails})
+        task = {"type": "email", "id": t.id, "progress": t.process_emails*100/t.total_emails, "error": False}
+        if t.update_time <= timeout:
+            task['error'] = True
+        tasks.append()
      
     return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
 

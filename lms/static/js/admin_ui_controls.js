@@ -22,14 +22,24 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
   var self=this;
   this.$el.find(".content").html("");
   $.each(tasks,function(i,t){
-    if(t.type=='import'){
-      self.dialog.addProgress("Import - "+t.filename);
-    }else{
-      self.dialog.addProgress("Email");
+    var $message = '';
+    if (t.type=='import') {
+      $message = "Import - "+t.filename;
+    } else {
+      $message = "Email";
     }
+    if (t.error == true) {
+      $message += " ERROR (" + t.id + ")";
+    }
+    self.dialog.addProgress($message);
     self.dialog.setProgress(t.progress,i);
+    var $progressbar=self.dialog.getProgressBar(i);
+    if (t.error == true) {
+      if(!$progressbar.hasClass("error")){
+        $progressbar.addClass("error");
+      }
+    }
     if(t.progress==100){
-      var $progressbar=self.dialog.getProgressBar(i);      
       if(!$progressbar.hasClass("finished")){
         $progressbar.addClass("finished");
       }

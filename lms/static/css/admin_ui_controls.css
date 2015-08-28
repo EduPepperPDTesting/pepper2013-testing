@@ -310,6 +310,9 @@ input,select{-ms-box-sizing:content-box;
  .global_task_panel .content .progressbar.finished .progressbar_flow{
      background:#89c152;
  }
+.global_task_panel .content .progressbar.error{
+    background: #DE8D8B;
+}
  .global_task_panel .content .progressbar_text{
      position:absolute;
      height:30px;
