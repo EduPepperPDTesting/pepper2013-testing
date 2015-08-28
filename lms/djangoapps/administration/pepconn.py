@@ -203,7 +203,7 @@ def do_import_user(task, csv_lines, request):
     for i, line in enumerate(csv_lines):
         try:
             #** record processed count
-            task.process_lines = i+1
+            task.process_lines = i + 1
             
             email = line[USER_CSV_COLS.index('email')]
             state_name = line[USER_CSV_COLS.index('state_name')]
@@ -218,7 +218,7 @@ def do_import_user(task, csv_lines, request):
             tasklog.email = email
             tasklog.create_date = datetime.now(UTC)
             tasklog.district_name = district_name
-            tasklog.line = i+1
+            tasklog.line = i + 1
             tasklog.task = task
             tasklog.error = "ok"
               
@@ -400,7 +400,7 @@ def registration_table(request):
 
     if request.GET.get('sortField', None):
         if request.GET.get('sortOrder') == 'desc':
-            data = data.order_by("-"+request.GET.get('sortField'))
+            data = data.order_by("-" + request.GET.get('sortField'))
         else:
             data = data.order_by(request.GET.get('sortField'))
     
@@ -507,8 +507,8 @@ def do_send_registration_email(task, user_ids, request):
             user = User.objects.get(id=user_id)
 
             #** record processed count
-            task.process_emails = i+1
-            
+            task.process_emails = i + 1
+
             #** create log
             tasklog = EmailTaskLog()
             tasklog.task = task
@@ -637,7 +637,7 @@ def registration_download_csv(request):
     data = UserProfile.objects.all()
     data = registration_filter_user(request.POST, data)
 
-    domain = "http://"+request.META['HTTP_HOST']
+    domain = "http://" + request.META['HTTP_HOST']
 
     for d in data:
         key, link = "", ""
@@ -645,7 +645,7 @@ def registration_download_csv(request):
             key = Registration.objects.get(user_id=d.user_id).activation_key
 
         if key:
-            link = domain+reverse('register_user', args=[key])
+            link = domain + reverse('register_user', args=[key])
 
         writer.writerow({
             "user_id":attstr(d, "user_id"),
@@ -691,7 +691,7 @@ def registration_download_excel(request):
     data = UserProfile.objects.all()
     data = registration_filter_user(request.POST, data)
     
-    domain = "http://"+request.META['HTTP_HOST']
+    domain = "http://" + request.META['HTTP_HOST']
     for d in data:
         if Registration.objects.filter(user_id=d.user_id).count():
             key = Registration.objects.get(user_id=d.user_id).activation_key
@@ -710,7 +710,7 @@ def registration_download_excel(request):
         
         for i, k in enumerate(FIELDS):
             if k == "activate_link" and key:
-                d.activate_link = domain+reverse('register_user', args=[key])
+                d.activate_link = domain + reverse('register_user', args=[key])
                 worksheet.write_url(row, i, getattr(d, k), None, key)
             else:
                 worksheet.write(row, i, getattr(d, k))
