@@ -631,7 +631,7 @@ def update_sso_usr(user, json, update_first_name=True):
     profile=user.profile
 
     sso_user=json.get('User')
-    sso_cohort=json.get('CustomerName')
+    # sso_cohort=json.get('CustomerName')
     sso_district=json.get('SchoolSystem')
     sso_district_code=json.get('SchoolSystemCode')
     sso_email=sso_user.get('Email','')
@@ -644,7 +644,7 @@ def update_sso_usr(user, json, update_first_name=True):
     user.last_name=sso_user.get('LastName','')
     user.save()
 
-    # #** grade level
+    #** grade level
     # def parse_grade_levels(src):
     #     dest=[]
     #     for s in src:
@@ -657,18 +657,18 @@ def update_sso_usr(user, json, update_first_name=True):
     # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
 
     #** cohort
-    try:
-        cohort=Cohort.objects.get(code=sso_cohort)
-    except Cohort.DoesNotExist:
-        cohort=Cohort()
-        cohort.code=sso_cohort
-        cohort.licences=1000000000
-        cohort.term_months=12
-        cohort.start_date=datetime.datetime.now(UTC)
-        cohort.district=District.objects.get(name=sso_district)
-        cohort.save()
+    # try:
+    #     cohort=Cohort.objects.get(code=sso_cohort)
+    # except Cohort.DoesNotExist:
+    #     cohort=Cohort()
+    #     cohort.code=sso_cohort
+    #     cohort.licences=1000000000
+    #     cohort.term_months=12
+    #     cohort.start_date=datetime.datetime.now(UTC)
+    #     cohort.district=District.objects.get(name=sso_district)
+    #     cohort.save()
 
-    profile.cohort=cohort
+    # profile.cohort=cohort
 
     #** district
     profile.district=District.objects.get(name=sso_district)
@@ -704,6 +704,7 @@ def sso(request, error=""):
 
     text=response.text
 
+    #** testing data
 #     text='''{
 #     "CustomerName": "inpepper",
 #     "SchoolSystem": "Indiana Demo Corporation District",
