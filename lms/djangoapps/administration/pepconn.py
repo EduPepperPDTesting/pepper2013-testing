@@ -281,7 +281,10 @@ def do_import_user(task, csv_lines, request):
             task.success_lines = count_success
             task.update_time = datetime.now(UTC)
             task.save()
-            tasklog.save()
+            try:
+                tasklog.save()
+            except UnboundLocalError:
+                log.debug("line error: %s" % line)
             db.transaction.commit()
 
     #** post process
