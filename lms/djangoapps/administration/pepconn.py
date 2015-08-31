@@ -146,11 +146,11 @@ def import_user_submit(request):
         # request.session['task']=''
 
         #** readlines from csv
-        output = StringIO(newline=None)
+        #output = StringIO(newline=None)
         file = request.FILES.get('file')
-        output.write(unicode(file.read()))
-        r = csv.reader(output.getvalue(), dialect=csv.excel)
-
+        #output.write(unicode(file.read()))
+        #r = csv.reader(output.getvalue(), dialect=csv.excel)
+        r = csv.reader(file, dialect=csv.excel)
         rl = []
         rl.extend(r)
 
