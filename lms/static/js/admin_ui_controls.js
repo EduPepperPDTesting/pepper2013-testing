@@ -24,9 +24,9 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
   $.each(tasks,function(i,t){
     var $message = '';
     if (t.type=='import') {
-      $message = "Import - "+t.filename;
+      $message = "Import - " + t.filename;
     } else {
-      $message = "Email";
+      $message = "Email - " + t.total + " email" + (t.total > 1 ? "s" : "");
     }
     if (t.error == true) {
       $message += " ERROR (" + t.id + ")";
@@ -37,11 +37,23 @@ GlobalTaskPanelControl.prototype.updateProgressDialog=function(tasks){
     if (t.error == true) {
       if(!$progressbar.hasClass("error")){
         $progressbar.addClass("error");
+        $progressbar.append('<div class="task-close"><a href="#" id="close-' + i + '"><img src="/static/images/check.png" alt="mark as read"/></a></div>');
+        $("#close-" + i).click(function() {
+          $.post(self.setting.urls.close, {"taskId": t.id, "taskType": t.type}, function(data){
+            $progressbar.hide();
+          });
+        });
       }
     }
     if(t.progress==100){
       if(!$progressbar.hasClass("finished")){
         $progressbar.addClass("finished");
+        $progressbar.append('<div class="task-close"><a href="#" id="close-' + i + '"><img src="/static/images/check.png" alt="mark as read"/></a></div>');
+        $("#close-" + i).click(function() {
+          $.post(self.setting.urls.close, {"taskId": t.id, "taskType": t.type}, function(data){
+            $progressbar.hide();
+          });
+        });
       }
       if(self.tasks){
         var prev_progress=null;
@@ -69,7 +81,7 @@ GlobalTaskPanelControl.prototype.loadTasks=function(){
       self.$el.hide();
     }else{
       self.$el.show();
-      self.$toggle.val(r.tasks.length+" running task"+(r.tasks.length>1?"s":""));
+      self.$toggle.val(r.tasks.length+" unread task"+(r.tasks.length>1?"s":""));
       self.updateProgressDialog(r.tasks);
     }
     setTimeout(function(){self.loadTasks()},self.setting.interval)

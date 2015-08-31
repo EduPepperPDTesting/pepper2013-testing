@@ -299,7 +299,7 @@ f.close()
     updateProgress:function(){
       var self=this;
       self.dialog.show("Registration Emails", "<p style='font-size:20px;font-weight:bold;'>Email Sending Started</p>\
-<br>You may monitor the import progress in the Running Tasks, below.\
+<br>You may monitor the import progress in the Unread Tasks, below.\
 <br>If there are any errors, you will receive them in an email.");
     },
     modifyUserStatus:function(status){
@@ -412,7 +412,7 @@ f.close()
     renderProgress:function(taskId){
       var dialog=new Dialog($('#dialog'));
       dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
-<br>You may monitor the progress in the Running Tasks, below.\
+<br>You may monitor the progress in the Unread Tasks, below.\
 <br>If there are any errors, you will receive them in an email.");
     },
     init:function(){

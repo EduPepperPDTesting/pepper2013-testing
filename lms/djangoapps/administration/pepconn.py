@@ -330,21 +330,39 @@ def validate_user_cvs_line(line):
 
 def import_user_tasks(request):
     tasks = []
-    recent = datetime.now(UTC) - timedelta(seconds=300)
     timeout = datetime.now(UTC) - timedelta(minutes=5)
-    for t in ImportTask.objects.filter(Q(process_lines__lt=F('total_lines')) | Q(update_time__gte=recent)).order_by("-id"):
+    for t in ImportTask.objects.filter(task_read__exact=0).order_by("-id"):
         task = {"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines, "error": False}
-        if t.update_time <= timeout:
+        if t.update_time <= timeout and t.process_lines < t.total_lines:
             task['error'] = True
         tasks.append(task)
 
-    for t in EmailTask.objects.filter(Q(process_emails__lt=F('total_emails')) | Q(update_time__gte=recent)).order_by("-id"):
-        task = {"type": "email", "id": t.id, "progress": t.process_emails*100/t.total_emails, "error": False}
-        if t.update_time <= timeout:
+    for t in EmailTask.objects.filter(task_read__exact=0).order_by("-id"):
+        task = {"type": "email", "id": t.id, "total": t.total_emails, "progress": t.process_emails*100/t.total_emails, "error": False}
+        if t.update_time <= timeout and t.process_emails < t.total_emails:
             task['error'] = True
-        tasks.append()
+        tasks.append(task)
      
     return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
+
+
+def task_close(request):
+    try:
+        type = request.POST.get('taskType')
+        if type == 'import':
+            task = ImportTask.objects.get(id=request.POST.get('taskId'))
+        elif type == 'email':
+            task = EmailTask.objects.get(id=request.POST.get('taskId'))
+        else:
+            raise Exception("Bad Input")
+        task.task_read = 1
+        task.save()
+        db.transaction.commit()
+        j = json.dumps({"success": True})
+    except Exception as e:
+        j = json.dumps({"success": False})
+
+    return HttpResponse(j, content_type="application/json")
 
 
 #* -------------- Dropdown List -------------
