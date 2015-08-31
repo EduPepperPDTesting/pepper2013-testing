@@ -200,6 +200,11 @@ def do_import_user(task, csv_lines, request):
     count_success = 0
     
     for i, line in enumerate(csv_lines):
+        tasklog = ImportTaskLog()
+        tasklog.create_date = datetime.now(UTC)
+        tasklog.line = i + 1
+        tasklog.task = task
+        tasklog.error = line
         try:
             #** record processed count
             task.process_lines = i + 1
@@ -212,13 +217,9 @@ def do_import_user(task, csv_lines, request):
             username = random_mark(20)
             
             #** create log
-            tasklog = ImportTaskLog()
             tasklog.username = username
             tasklog.email = email
-            tasklog.create_date = datetime.now(UTC)
             tasklog.district_name = district_name
-            tasklog.line = i + 1
-            tasklog.task = task
             tasklog.error = "ok"
               
             validate_user_cvs_line(line)
@@ -281,10 +282,7 @@ def do_import_user(task, csv_lines, request):
             task.success_lines = count_success
             task.update_time = datetime.now(UTC)
             task.save()
-            try:
-                tasklog.save()
-            except UnboundLocalError:
-                log.debug("line error: %s" % line)
+            tasklog.save()
             db.transaction.commit()
 
     #** post process
