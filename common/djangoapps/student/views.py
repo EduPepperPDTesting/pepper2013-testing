@@ -628,20 +628,20 @@ from django import db
 from student.models import Transaction,District,Cohort,School,State,SubjectArea,YearsInEducation,GradeLevel
 
 def update_sso_usr(user, json, update_first_name=True):
-    profile=user.profile
+    profile = user.profile
 
-    sso_user=json.get('User')
-    sso_cohort=json.get('CustomerName')
-    sso_district=json.get('SchoolSystem')
-    sso_district_code=json.get('SchoolSystemCode')
-    sso_email=sso_user.get('Email','')
+    sso_user = json.get('User')
+    # sso_cohort = json.get('CustomerName')
+    sso_district = json.get('SchoolSystem')
+    # sso_district_code = json.get('SchoolSystemCode')
+    sso_email = sso_user.get('Email','')
 
     #** user
     user.set_password('EasyIEPSSO')
-    user.email=sso_email
+    user.email = sso_email
     if update_first_name:
-        user.first_name=sso_user.get('FirstName','')
-    user.last_name=sso_user.get('LastName','')
+        user.first_name = sso_user.get('FirstName', '')
+    user.last_name = sso_user.get('LastName', '')
     user.save()
 
     # #** grade level
@@ -657,16 +657,16 @@ def update_sso_usr(user, json, update_first_name=True):
     # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
 
     #** cohort
-    try:
-        cohort=Cohort.objects.get(code=sso_cohort)
-    except Cohort.DoesNotExist:
-        cohort=Cohort()
-        cohort.code=sso_cohort
-        cohort.licences=1000000000
-        cohort.term_months=12
-        cohort.start_date=datetime.datetime.now(UTC)
-        cohort.district=District.objects.get(name=sso_district)
-        cohort.save()
+    # try:
+    #     cohort=Cohort.objects.get(code=sso_cohort)
+    # except Cohort.DoesNotExist:
+    #     cohort=Cohort()
+    #     cohort.code=sso_cohort
+    #     cohort.licences=1000000000
+    #     cohort.term_months=12
+    #     cohort.start_date=datetime.datetime.now(UTC)
+    #     cohort.district=District.objects.get(name=sso_district)
+    #     cohort.save()
 
     profile.cohort=cohort
 
@@ -675,19 +675,19 @@ def update_sso_usr(user, json, update_first_name=True):
 
     #** school
     if len(sso_user['SchoolCodes'])==1:
-        school=School.objects.get(code=sso_user['SchoolCodes'][0])
+        school = School.objects.get(code=sso_user['SchoolCodes'][0])
     else:
-        school=School.objects.get(name='Multiple Schools')
+        school = School.objects.get(name='Multiple Schools')
     # school.district=District.objects.get(name=sso_district)
     school.save()
     
-    profile.school=school
+    profile.school = school
 
     #** save
     profile.save()
 
 def sso(request, error=""):
-    method='post'
+    method = 'post'
     
     token=request.GET.get('easyieptoken')
     url=request.GET.get('auth_link')
@@ -698,9 +698,9 @@ def sso(request, error=""):
     data_or_params={'token':token}
 
     if method=='post':
-      response = requests.request(method, url, data=data_or_params, timeout=15)
+        response = requests.request(method, url, data=data_or_params, timeout=15)
     else:
-      response = requests.request(method, url, params=data_or_params, timeout=15)
+        response = requests.request(method, url, params=data_or_params, timeout=15)
 
     text=response.text
 
@@ -730,7 +730,7 @@ def sso(request, error=""):
     #** parse json
     parsed = json.loads(text)
 
-    sso_error=parsed.get('lErrors')
+    sso_error = parsed.get('lErrors')
     if sso_error:
         return HttpResponse(sso_error)
 
@@ -745,7 +745,7 @@ def sso(request, error=""):
 
     #** fetch the user
     try:
-        profile = UserProfile.objects.get(sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+        profile = UserProfile.objects.get(sso_type='EasyIEP',sso_idp=sso_user.get('ID'))
         user=profile.user
     except UserProfile.DoesNotExist:
         user = None
@@ -763,7 +763,7 @@ def sso(request, error=""):
             registration.register(user)
             
             #** profile
-            profile=UserProfile(user=user,sso_idp='EasyIEP',sso_identifier=sso_user.get('ID'))
+            profile=UserProfile(user=user,sso_type='EasyIEP',sso_idp=sso_user.get('ID'))
             user.profile=profile
             
             #** update user
@@ -794,11 +794,6 @@ def sso(request, error=""):
         except Exception as e:
             db.transaction.rollback()
             return HttpResponse("Failed to update user, %s" % e)            
-
-        # CREATE INDEX `cohort_65da3d2c` ON `cohort` (`code`);
-
-        # alter table auth_userprofile add `sso_idp` varchar(50);
-        # alter table auth_userprofile add `sso_identifier` varchar(255);
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     # user = authenticate(username=post_vars['username'], password=post_vars['password'])
