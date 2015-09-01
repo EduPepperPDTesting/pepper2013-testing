@@ -12,7 +12,7 @@ class ImportTask(models.Model):
     success_lines = models.IntegerField(blank=False, default=0)
     update_time = models.DateTimeField(auto_now_add=True, db_index=False)
     task_read = models.BooleanField(blank=False, default=0)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, default=0)
 
 
 class ImportTaskLog(models.Model):
@@ -35,7 +35,7 @@ class EmailTask(models.Model):
     success_emails = models.IntegerField(blank=False, default=0)
     update_time = models.DateTimeField(auto_now_add=True, db_index=False)
     task_read = models.BooleanField(blank=False, default=0)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, default=0)
 
 
 class EmailTaskLog(models.Model):
