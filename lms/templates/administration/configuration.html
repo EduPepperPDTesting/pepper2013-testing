@@ -512,8 +512,9 @@ input,select{-ms-box-sizing:content-box;
           if (textarea.className == 'certificate_editor') {
               // Add token plugin
               config.extraPlugins = 'token,print';
-              //config.width=850;
-              config.height=500;
+              config.removePlugins = 'maximize';
+              config.width = '100%';
+              config.height = 500;
               // Configure available tokens
               config.availableTokens = [
                   ["", ""],
