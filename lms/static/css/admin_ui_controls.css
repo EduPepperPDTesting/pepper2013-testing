@@ -296,20 +296,29 @@ input,select{-ms-box-sizing:content-box;
      overflow-y: auto;
  }
  .global_task_panel .content .progressbar{
-     height:30px;
-     background:#ddd;
-     border-radius:5px;
-     margin-top:10px;
+     position: relative;
+     height: 30px;
+     background: #ddd;
+     border-radius: 5px;
+     margin-top: 10px;
  }
- .global_task_panel .content .progressbar_flow{
-     height:30px;
-     background:#ffab4a;
-     border-radius:5px;
-     width:50px;
+ .global_task_panel .content .progressbar .task-close {
+     position: absolute;
+     top: 5px;
+     right: 5px;
+ }
+.global_task_panel .content .progressbar_flow{
+     height: 30px;
+     background: #ffab4a;
+     border-radius: 5px;
+     width: 50px;
  }
  .global_task_panel .content .progressbar.finished .progressbar_flow{
      background:#89c152;
  }
+.global_task_panel .content .progressbar.error{
+    background: #DE8D8B;
+}
  .global_task_panel .content .progressbar_text{
      position:absolute;
      height:30px;
