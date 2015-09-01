@@ -90,7 +90,7 @@ f.close()
     </div>
   </div>
 </div>
-<div style="padding:0px 0">
+<div style="padding: 0 0 20px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
@@ -298,16 +298,9 @@ f.close()
     },
     updateProgress:function(){
       var self=this;
-      $.post("${reverse('pepconn_registration_email_progress')}",{taskId:this.taskId},function(r){
-        self.dialog.setProgress(r.percent);
-        if(r.percent<100){
-          self.updateProgress();
-        }else{
-          self.dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Email sending Complete</p>\
-<br>If there were any errors, you will receive them in an email.");
-          self.updateInviteNumber({});
-        }
-      });
+      self.dialog.show("Registration Emails", "<p style='font-size:20px;font-weight:bold;'>Email Sending Started</p>\
+<br>You may monitor the import progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
     },
     modifyUserStatus:function(status){
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
@@ -418,20 +411,9 @@ f.close()
     },
     renderProgress:function(taskId){
       var dialog=new Dialog($('#dialog'));
-      dialog.showProgress('User Data Import','Please wait...');
-      (function getStatus(){
-        setTimeout(function(){
-          $.post("${reverse('pepconn_import_user_progress')}",{taskId:taskId},function(r){
-            dialog.setProgress(r.percent);
-            if(r.percent<100){
-              getStatus();
-            }else{
-              dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Import Complete</p>\
-<br>If there were any errors, you will receive them in an email.");
-            }
-          });
-        },1000);
-      })();
+      dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+<br>You may monitor the progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
     },
     init:function(){
         function pcSlider(clicked, target) {

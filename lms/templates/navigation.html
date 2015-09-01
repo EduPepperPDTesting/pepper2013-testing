@@ -1114,7 +1114,13 @@ site_status_msg = get_site_status_msg(course_id)
       <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
       <div class="content"></div>
       <textarea class="setting">
-    {"interval":5000,"urls":{"count":"${reverse('pepconn_import_user_tasks')}"}}
+        {
+          "interval": 5000,
+          "urls": {
+            "count": "${reverse('pepconn_import_user_tasks')}",
+            "close": "${reverse('pepconn_task_close')}"
+          }
+        }
       </textarea>
     </div>
   </div>
