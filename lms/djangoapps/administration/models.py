@@ -12,6 +12,7 @@ class ImportTask(models.Model):
     success_lines = models.IntegerField(blank=False, default=0)
     update_time = models.DateTimeField(auto_now_add=True, db_index=False)
     task_read = models.BooleanField(blank=False, default=0)
+    user = models.ForeignKey(User)
 
 
 class ImportTaskLog(models.Model):
@@ -34,6 +35,7 @@ class EmailTask(models.Model):
     success_emails = models.IntegerField(blank=False, default=0)
     update_time = models.DateTimeField(auto_now_add=True, db_index=False)
     task_read = models.BooleanField(blank=False, default=0)
+    user = models.ForeignKey(User)
 
 
 class EmailTaskLog(models.Model):
@@ -53,14 +55,6 @@ class FilterFavorite(models.Model):
     user = models.ForeignKey(User)
     name = models.CharField(blank=False, max_length=150, db_index=True)
     filter_json = models.CharField(blank=False, max_length=4096, db_index=True)
-
-
-class TaskExecutorLog(models.Model):
-    class Meta:
-        db_table = 'admin_task_executor_log'
-    user = models.ForeignKey(User)
-    operation = models.CharField(blank=False, max_length=150, db_index=True)
-    execute_date = models.DateTimeField(auto_now_add=True, db_index=False)
 
 
 class Author(models.Model):
