@@ -13,6 +13,11 @@ urlpatterns = (
     '',  # nopep8  
     
 ####### Ancestor
+    url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
+    url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
+    url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
+    url(r'^record_time/course_time_save$', 'study_time.views.save_course_time', name="save_course_time"),
+    url(r'^study_time/get_info_range$', 'study_time.views.get_study_time_range', name="get_study_time_range"),
     url(r'^configuration/$', 'administration.configuration.main', name="configuration"),
     url(r'^configuration/drop_association_type$', 'administration.configuration.drop_association_type',name="drop_association_type"),
     url(r'^configuration/drop_association$', 'administration.configuration.drop_association',name="drop_association"),
