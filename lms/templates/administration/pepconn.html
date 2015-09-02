@@ -26,242 +26,10 @@ f.close()
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
-<style type="text/css" media="screen">
- input[type=button].small{
-font-size:12px;height:2em;line-height:2em;padding:0 10px;
- }
- .lean-overlay {
-   background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
-   display: block;
-   height: 100%;
-   left: 0px;
-   position: fixed;
-   top: 0px;
-   width: 100%;
-   z-index: 100;
- }
- .modal{
-   display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
-   background: none repeat scroll 0% 0% rgba(255,255,255, 1);
-   /* border: 1px solid rgba(150, 150, 150, 0.9); */
-   border-radius: 5px;
-   box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
-   padding: 0 0 8px 0;
-   width: 480px;
-   display:none;
-    position: fixed;
- }
- .modal .close-modal {
-   border-radius: 2px;
-   cursor: pointer;
-   display: inline-block;
-   vertical-align: baseline;
-   padding: 10px;
-   position: absolute;
-   right: 2px;
-   top: 0px;
-   z-index: 3;
-   color:#333;
- }
- .modal .titlebar{
-   background:#fff;
-   height:70px;
-   background:#ccc;
- }
- td.label{
-   text-align:right;padding-right:10px;width:45px;
-   vertical-align:top;
-   padding-top:13px;
- }
- .modal .dialog-title{
-   margin:0;padding:20px 0 0 30px;color:#666;
- }
- .modal .content{
-   color:#333;
-   text-align:center;
-   font-size:16px;
-   padding:20px 10px;
-   line-height:20px;
- }
- .modal .content input[type=button]{
-   font-size:12px;height:2em;line-height:2em;padding:0 10px;
-   margin:5px 5px 0 0;   
- } 
- .modal .progressbar{
-   height:30px;
-   background:#ddd;
-   border-radius:5px;
-   margin-top:10px;
- }
- .modal .progressbar_flow{
-   height:30px;
-   background:#2a5;
-   border-radius:5px;
-   width:50px;
- }
- .modal .progressbar_text{
-   position:absolute;
-   height:30px;
-   line-height:30px;
-   right:0px;
-   left:0px;
- }
- section.content-wrapper{background:transparent !important;}
- .list{padding:0px 5px;}
- .list li{list-style-type:none;}
- div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
- div.expand_div{display:none;}
- /* filter */
- div.control.filter{
-   padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
- }
- div.control.filter h2{
-   color:#f90;
- }
- div.control.filter .body select,
- div.control.filter .body input{
-   margin:5px 5px 0 0;
- }
- div.control.filter div.favorite{
-   float:right;
- }
- div.control.filter input[type=button].small{
-   font-size:12px;height:2em;line-height:2em;padding:0 10px;
-   margin:5px 5px 0 0;
- }
- div.control.filter input[type=button].load{
-   font-size:12px;height:2em;line-height:2em;padding:0 10px;
-   margin:5px 5px 0 0;
- }
- /* table */
- div.control.table{
-   padding:5px 5px 5px 5px;
- }
- div.control.table table{
-   width:100%;
-   text-align:left;
-   border-collapse:collapse;
-   border:1px solid #aaa;
- }
- div.control.table td,div.control.table th{
-   padding:6px;
-   border:1px solid #aaa;
-   font-size:12px;
- }
- div.control.table th{
-      padding:5px;
-   background:#99BFE6;
- }
- div.control.table th.checkbox-col{
-   width:15px;
-   overflow:visible;
- }
- div.control.table th.checkbox-col span{
-   margin-top:2px;
-   cursor:pointer;
-   display:inline-block;
-   vertical-align:top;
-   width:18px;
-   height:20px;
-   line-height:12px;
-   background:url("/static/images/configuration/table_menu.png")
- }
- div.control.table .footer{
-   padding:5px;
-   text-align:left;
- }
- div.control.table .paging a{
-   margin-left:5px;
- }
- div.control.table .paging input{
-   margin-right:5px;
-   width:50px;
-   text-align:right;
- }
- div.control.table .sort,div.control.table .sort_up,div.control.table .sort_dn{
-   vertical-align:top;
-   float:right;
-   display:inline-block;
-   width:21px;
-   height:9px;
- }
- div.control.table th.sort_head{
-   cursor:pointer;
- }
- div.control.table .sort{
-   margin-top:7px;
-   background:url("/static/images/configuration/sort.gif") no-repeat;
- }
- div.control.table .sort_up{
-   margin-top:9px;
-   background:url("/static/images/configuration/sort_up.gif") no-repeat;
- }
- div.control.table .sort_dn{
-   margin-top:9px;
-   background:url("/static/images/configuration/sort_dn.gif") no-repeat;
- }
- ul.context-menu{
-   position:absolute;
-   background:#fff;
-   border-radius:5px;
-   box-shadow: 0px 0px 20px;
-   padding-left:5px;
-   margin-left:0px;
- }
- ul.context-menu li{
-   min-width:200px;
-   line-height:30px;
-   list-style:none;
- }
-input,select{-ms-box-sizing:content-box;
-  box-sizing:border-box;
- }
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 
- /* email editor*/
- section.content-wrapper{background:transparent !important;}
- .list{padding:0px 5px;}
- .list li{list-style-type:none;}
- div.filter{padding:10px 5px; border:1px solid #ddd;border-width:1px 0;}
- div.filter h2{color:#f90}
- div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
- div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
- div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
- div.expand_div{display:none;}
- div.filter{}
- .custom-email input{width: 400px;}
- .custom-email textarea{height: 300px;}
-
- .custom-email, .customize-email {
-     display: none;
- }
-
- /* variable-key */
- .variable-key {
-   float: right;
-   width: 440px;
-   padding: 20px;
-   margin: 20px 20px 0 20px;
-   background-color: #ccc;
-   font-size: 88%;
- }
- .variable-key ul {
-   margin: .5em 0 0 0;
-   padding: 0 0 0 20px;
- }
- .variable-key ul li {
-   line-height: 130%;
- }
- div.cke {
-   width: 640px;
- }
- 
- /* ckeditor */
- div.cke {
-   width: 640px;
- }
-</style>
 <!-- User Data Import -->
 <div style="padding-top:20px">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
@@ -279,10 +47,13 @@ input,select{-ms-box-sizing:content-box;
             "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('pepconn_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
             "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('pepconn_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
             },
-            "urls":{
-               "favorite_load":"${reverse('pepconn_favorite_filter_load')}",
-               "favorite_save":"${reverse('pepconn_favorite_filter_save')}",
-               "favorite_delete":"${reverse('pepconn_favorite_filter_delete')}"
+            "favorite":{
+               "show":true,
+               "urls":{
+                  "load":"${reverse('pepconn_favorite_filter_load')}",
+                  "save":"${reverse('pepconn_favorite_filter_save')}",
+                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                }
             }
             }
           </textarea>       
@@ -302,12 +73,12 @@ input,select{-ms-box-sizing:content-box;
               Customize registration email
             </label>
           </li>
-          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
         </ul>
         <div style="padding:7px;">
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
-            <label style="font-style:normal;color:#555">
+            <label style="font-style:normal;color:#555;cursor:default;">
             * CSV file should contain the following columns (email address, state, district).
             </label>
           </p>
@@ -319,7 +90,7 @@ input,select{-ms-box-sizing:content-box;
     </div>
   </div>
 </div>
-<div style="padding:0px 0">
+<div style="padding: 0 0 20px 0">
   <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
@@ -335,10 +106,13 @@ input,select{-ms-box-sizing:content-box;
             "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('pepconn_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
             "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('pepconn_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
             },
-            "urls":{
-               "favorite_load":"${reverse('pepconn_favorite_filter_load')}",
-               "favorite_save":"${reverse('pepconn_favorite_filter_save')}",
-               "favorite_delete":"${reverse('pepconn_favorite_filter_delete')}"
+            "favorite":{
+               "show":true,
+               "urls":{
+                  "load":"${reverse('pepconn_favorite_filter_load')}",
+                  "save":"${reverse('pepconn_favorite_filter_save')}",
+                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                }
             }
             }
           </textarea>
@@ -350,7 +124,7 @@ input,select{-ms-box-sizing:content-box;
             Customize registration email
           </label>            
         </div>
-        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit" />
+        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
         <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
             <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
@@ -373,7 +147,7 @@ input,select{-ms-box-sizing:content-box;
             </select>
             <input type="button" id="btnDeleteUsers" name="" value="Delete" class="small"/>
             <span class="download">
-              Download <span class="total"></span> Users(s) As
+              Download <span class="total"></span> User(s) As
               <input type="button" name="" value="CSV" class="small" id="btnDownloadUserCsv"/>
               <input type="button" name="" value="Excel" class="small" id="btnDownloadUserExcel"/>
             </span>
@@ -388,6 +162,7 @@ input,select{-ms-box-sizing:content-box;
             "activate_date":{"display":"Enrollment Start","sort":"+","show":1},
             "subscription_status":{"display":"Status","sort":"+","show":1}
             },
+            "field_row_identifier":"id",
             "urls":{
             "data":"${reverse('pepconn_registration_table')}"
             },
@@ -415,7 +190,6 @@ input,select{-ms-box-sizing:content-box;
     <div class="content"></div>
   </div>
 </div>
-<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript">
   if (typeof CKEDITOR != 'undefined') {
       CKEDITOR.replaceAll(function (textarea, config) {
@@ -435,11 +209,19 @@ input,select{-ms-box-sizing:content-box;
           return false;
       });
   }
+  
   //* global
   //** add csrf token to json
   function safeJSON(j){
     j.csrfmiddlewaretoken="${csrf_token}"
     return j;
+  }
+  function syncCKEditorData(){
+    $.each(CKEDITOR.instances,function(name,inst){
+      if(inst.element.$.tagName.toLowerCase()=='textarea'){
+        $(inst.element.$).val(inst.getData());
+      }
+    });
   }
   //** init custom email
   $(".custom-email-checkbox").click(function(){
@@ -498,9 +280,10 @@ input,select{-ms-box-sizing:content-box;
         var filter=$('#fltUserRegistration')[0].control.getFilter();
       }
       var usrRegistrationForm=$("#usrRegistrationForm")[0];
+      syncCKEditorData();
       var data={
         'customize_email':$(usrRegistrationForm.customize_email).val(),
-        'custom_email':$(usrRegistrationForm.custom_email).val(),
+        'custom_email':$(usrRegistrationForm.custom_email_002).val(),
         'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
       }
       data=$.extend(data,filter);
@@ -515,37 +298,37 @@ input,select{-ms-box-sizing:content-box;
     },
     updateProgress:function(){
       var self=this;
-      $.post("${reverse('pepconn_registration_email_progress')}",{taskId:this.taskId},function(r){
-        self.dialog.setProgress(r.percent);
-        if(r.percent<100){
-          self.updateProgress();
-        }else{
-          self.dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Email sending Complete</p>\
-<br>If there were any errors, you will receive them in an email.");
-          self.updateInviteNumber({});
-        }
-      });
+      self.dialog.show("Registration Emails", "<p style='font-size:20px;font-weight:bold;'>Email Sending Started</p>\
+<br>You may monitor the import progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
     },
     modifyUserStatus:function(status){
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
       var args={ids:ids.join(),subscription_status:status};
-      $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
-        if(r.success) $('#tblUserRegistration')[0].control.reload();
-      });
+      if(ids.length){
+        $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
+          if(r.success) $('#tblUserRegistration')[0].control.reload();
+        });
+      }else{
+        new Dialog($('#dialog')).show('Modify User Status','No users selected.');
+      }
     },
     deleteUsers:function(){
       var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
       if(ids.length){
-        new Dialog($('#dialog')).showYesNo('Delete Users',
-                                           'Do you really want to delete the selected user(s)?',
-                                           function(confirmed){
-          if(confirmed){
-            var args={ids:ids.join()};
-            $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
-              if(r.success) $('#tblUserRegistration')[0].control.reload();
-            });      
-          }
-        });
+        new Dialog($('#dialog')).showYesNo(
+          'Delete Users',
+          'Do you really want to delete the selected user(s)?',
+          function(confirmed){
+            if(confirmed){
+              var args={ids:ids.join()};
+              $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
+                if(r.success) $('#tblUserRegistration')[0].control.reload();
+              });
+            }
+          });
+      }else{
+        new Dialog($('#dialog')).show('Delete Users','No users selected.');
       }
     },
     postToNewTab: function(url, params) {
@@ -615,6 +398,7 @@ input,select{-ms-box-sizing:content-box;
         new Dialog($('#dialog')).show('Error','Please select a CSV file.');
         return false;
       }
+      syncCKEditorData();
       $.ajax({
         url: "${reverse('pepconn_import_user_submit')}",
         data: new FormData(form), processData: false, contentType: false, type: 'POST',
@@ -627,20 +411,9 @@ input,select{-ms-box-sizing:content-box;
     },
     renderProgress:function(taskId){
       var dialog=new Dialog($('#dialog'));
-      dialog.showProgress('User Data Import','Please wait...');
-      (function getStatus(){
-        setTimeout(function(){
-          $.post("${reverse('pepconn_import_user_progress')}",{taskId:taskId},function(r){
-            dialog.setProgress(r.percent);
-            if(r.percent<100){
-              getStatus();
-            }else{
-              dialog.setContent("<p style='font-size:20px;font-weight:bold;'>Import Complete</p>\
-<br>If there were any errors, you will receive them in an email.");
-            }
-          });
-        },1000);
-      })();
+      dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+<br>You may monitor the progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
     },
     init:function(){
         function pcSlider(clicked, target) {
