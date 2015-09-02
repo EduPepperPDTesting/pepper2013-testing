@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
 # from django.contrib.auth.models import User
-from student.models import UserProfile,Registration,CourseEnrollmentAllowed
+from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 # from django import db
 import random
 import json
@@ -114,14 +114,6 @@ def postpone(function):
     return decorator
 
 
-def log_task_executor(user, operation):
-    executor_log = TaskExecutorLog()
-    executor_log.user = user
-    executor_log.operation = operation
-    executor_log.execute_date = datetime.now(UTC)
-    executor_log.save()
-
-
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def main(request):
@@ -134,8 +126,6 @@ def main(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_user_submit(request):
-    log_task_executor(request.user,'user data import')
-    
     # monkey.patch_all(socket=False)
     
     if request.method == 'POST':
@@ -157,8 +147,8 @@ def import_user_submit(request):
         #** create task
         task = ImportTask()
         task.filename = file.name
-        # task.total_lines=100
-        task.total_lines = len(rl);
+        task.total_lines = len(rl)
+        task.user = request.user
         task.save()
         db.transaction.commit()
 
@@ -331,13 +321,13 @@ def validate_user_cvs_line(line):
 def import_user_tasks(request):
     tasks = []
     timeout = datetime.now(UTC) - timedelta(minutes=5)
-    for t in ImportTask.objects.filter(task_read__exact=0).order_by("-id"):
+    for t in ImportTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
         task = {"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines, "error": False}
         if t.update_time <= timeout and t.process_lines < t.total_lines:
             task['error'] = True
         tasks.append(task)
 
-    for t in EmailTask.objects.filter(task_read__exact=0).order_by("-id"):
+    for t in EmailTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
         task = {"type": "email", "id": t.id, "total": t.total_emails, "progress": t.process_emails*100/t.total_emails, "error": False}
         if t.update_time <= timeout and t.process_emails < t.total_emails:
             task['error'] = True
@@ -485,11 +475,11 @@ def favorite_filter_delete(request):
 #* -------------- Registration -------------
 
 def registration_filter_user(vars, data):
-    if vars.get('state',None):
+    if vars.get('state', None):
         data = data.filter(Q(district__state_id=vars.get('state')))
-    if vars.get('district',None):
+    if vars.get('district', None):
         data = data.filter(Q(district_id=vars.get('district')))
-    if vars.get('school',None):
+    if vars.get('school', None):
         data = data.filter(Q(school_id=vars.get('school')))
     return data
 
@@ -497,8 +487,7 @@ def registration_filter_user(vars, data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
-    log_task_executor(request.user, 'send registration email')
-    
+
     ids=[]
     if request.POST.get('ids'):
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
@@ -509,6 +498,7 @@ def registration_send_email(request):
 
     task = EmailTask()
     task.total_emails = len(ids)
+    task.user = request.user
     task.save()
     
     do_send_registration_email(task, ids, request)
@@ -519,7 +509,7 @@ def registration_send_email(request):
 def do_send_registration_email(task, user_ids, request):
     gevent.sleep(0)
 
-    count_success=0
+    count_success = 0
     for i, user_id in enumerate(user_ids):
         try:
             user = User.objects.get(id=user_id)

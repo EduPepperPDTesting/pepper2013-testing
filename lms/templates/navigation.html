@@ -154,15 +154,21 @@ site_status_msg = get_site_status_msg(course_id)
    z-index: 11000;
    height:200px;
  }
- .leanmodalStyle {
-   display: block;
-   left: 50%;
-   margin-left: -309px;
-   opacity: 1;
-   position: absolute;
-   top: 120px;
-   width: 600px;
-   z-index: 11000;
+ #show_personalmessage, #show_notifications {
+     background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+     border: 1px solid rgba(0, 0, 0, 0.9);
+     border-radius: 0;
+     box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+     color: #FFF;
+     left: 50%;
+     top: 20px;
+     padding: 8px;
+     display: none;
+     margin-left: -309px;
+     opacity: 1;
+     position: absolute;
+     width: 600px;
+     z-index: 11000;
  }
  .message_board_txt_prompt
  {
@@ -181,7 +187,7 @@ site_status_msg = get_site_status_msg(course_id)
  #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
-
+<script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
  a.configuration{
    color:#646464;
@@ -522,507 +528,590 @@ site_status_msg = get_site_status_msg(course_id)
   </section>
   %endif
   %endif
-
   <script>
-    var interactive_update_window_top=0;
-    $(function(){
-      //-----------------------------------------------------------------
-      interactive_update();
-      $(".info_count_btn").click(function(){ 
-        interactive_update();
-      });
-      $(".info_btn").click(function(){ 
-        interactive_update();
-      });
-      //-----------------------------------------------------------------
-      $(".ftg_button").click(function(){
-        message_board_saveInfo();
-      });
-      $(".message_board_uploadBtn").click(function(){
-        $("#message_board_browseFile").click();
-      })
-        $(".message_board_linkBtn").click(function(){
-          $(".linkwin").show();
-        })
-        $("#hyperlink_okBtn").click(function(){
-          var content = $(".message_board_content");
-          if($("#link_url_val").val()!='')
-          {
-            if(!message_board_focus)
-            {
-              content.html("");
-              message_board_focus=1;
-            }
-            content.html(content.html()+message_board_hyperlinks($("#link_url_val").val(),$("#link_title_val").val()));
-            $(".linkwin").hide();
-          }
-        })
-        $("#hyperlink_cancelBtn").click(function(){
-          $(".linkwin").hide();
-        })
-        $("#message_board_close").click(function(){
-          $(".linkwin").hide();
-          message_board_clearContent();
-        })
-        //-----------------------------------------------------------------
-        $(".message_board_content").focusin(function(){
-          if(!message_board_focus)
-          {
-            $(this).html("");
-            message_board_focus=1;
-          }
-        });
-      $(".message_board_content").keyup(function(event){
-        message_board_updateMaxCharNum();
-      });
-      $("#show_personalmessage").hover(function(){
-        $("body").css("overflow","hidden");
-        message_board_hover=1;
-      },function(){
-        $("body").css("overflow","");
-        message_board_hover=0;
-      });
-      $(".message_board_listCon").scroll(function(event){
-        var scrollTop = $(this).scrollTop();
-        　　    var scrollHeight = $(".message_board_list").height();
-        　　    var windowHeight = $(this).height();
-        /*
-           if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
-           {
-           message_board_getMessage(message_board_loadNum);
-           }
-         */
-        if(scrollTop==0 && message_board_isload)
-        {
-          message_board_getMessage(message_board_loadNum);
-        }
-      })
-    })
+//---------------------Notifications variable-----------------------------------------//
 
-      function interactive_update_createItem(data)
-    {
-      var body=data.body==undefined?'':data.body;
-      interactive_update_switchType(data);
-      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
-      $('.info_list').append(element);
-      element.click(function(){
-        if(data.activate=='false')
-        {
-          interactive_update_activateItem(data);
-        }
-        else
-        {
-          interactive_update_openWindow(data)
-        }
-      });
-    }
-    function interactive_update_switchType(data)
-    {
-      switch(data.type)
-      {
-        case 'discussion':
-        data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
-        break;
-        case 'portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> has commented on "+(data.portfolio_username||'your')+"'s portfolio in course "+data.course_number+".";
-        break;
-        case 'add_network':
-        data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."
-        break;
-        case 'view_portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> is checking out your "+data.course_number+" portfolio."
-        break;
-        case 'message':
-        data.type_text="Personal Message from <b>"+data.interviewer_name+"</b>"
-        break;
-        case 'my_chunks':
-        data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
-        break;
-      }
-    }
-    function interactive_update()
-    {
-      datainfo={};
-      $.post("${reverse('get_interactive_update')}",datainfo,function(data){
-        interactive_update_init(data);
-      });
-    }
-    function interactive_update_init(data)
-    {
-      $("#view_all_note_text").text("View All Notifications ("+data.count+")");
-      if(data.count>0)
-      {
-        $(".info_btn").hide();
-        $(".info_count_btn").show();
-        var count=data.count>999?999:data.count;
-        $(".info_count_btn").find(".info_count").text(count);
-      }
-      $('.info_list').empty();
-      for(var i=0;i<data.results.length;i++)
-      {
-        interactive_update_createItem(data.results[i]);
-      }
-    }
-    function fillZero(val)
-    {
-      return val<10?'0'+val:val;
-    }
-    function interactive_update_dateFormat(data)
-    {
-      dateinfo={};
-      interval = interactive_update_getTimeInterval(data);
-      var darr = new Date(data.date).toString().split(' ');
-      var sign = 'am';
-      if(interval<1)
-      {
-        dateinfo.date="Today";
-      }
-      else if(interval<2)
-      {
-        dateinfo.date="Yesterday";
-      }
-      else
-      {
-        dateinfo.date = darr[1]+" "+darr[2];
-      }
-      var timeArr = darr[4].substr(0,5).split(":");
-      if(timeArr[0]>12 && timeArr[0]<24)
-      {
-        timeArr[0]=fillZero(timeArr[0]-12);
-        sign='pm';
-      }
-      var time = timeArr[0]+":"+timeArr[1]+sign;
-      dateinfo.full_date = dateinfo.date+" at "+time;
-      dateinfo.time = time;
-      return dateinfo;
-    }
-    function interactive_update_activateItem(data)
-    {
-      var user_id = "${curr_user.id}";
-      $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
-    }
-    function interactive_update_getActivateStyle(data)
-    {
-      var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
-      //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
-      bcolor=data.activate=='true'?'#ffffff':notActivateColor;
-      return {'backgroundColor':bcolor};
-    }
-    function interactive_update_getTimeInterval(data)
-    {
-      var t = new Date();
-      var today = new Date(t.getFullYear(),t.getMonth(),t.getDate());
-      var d = new Date(data.date);
-      var date = new Date(d.getFullYear(),d.getMonth(),d.getDate());
-      return parseInt((today-date)/3600000/24);
-    }
-    function interactive_update_openWindow(data)
-    {
-      if(data.type=="message"||data.type=="view_portfolio")
-      {
-        $("#show_notifications").hide();
-        if($("#show_personalmessage").css("zIndex")<10000)
-        {
-          $("#show_personalmessage").addClass("leanmodalStyle");
-        }
-        $("#lean_overlay").show();
-        $("#show_personalmessage").show();
-        $("#show_personalmessage").find(".close-modal").click(function(){
-          $("#show_personalmessage").hide();
-          $(".linkwin").hide();
-          $("#lean_overlay").hide();
-          $(window).scrollTop(interactive_update_window_top);
-        })
-          message_board_clearContent();
-        $("#lean_overlay").click(function(){
-          $("#show_personalmessage").hide();
-          $(".linkwin").hide();
-          $(this).hide();
-          $(window).scrollTop(interactive_update_window_top);
-        })
-          var userInfo=[];
-        var data_ele=$("#show_notifications");
-        userInfo['message_people']={id:data.interviewer_id,fullname:data.interviewer_fullname,name:data.interviewer_name};
-        userInfo['user']={id:data_ele.data('id'),fullname:data_ele.data('fullname'),name:data_ele.data('name')};
-        message_board(userInfo);
-        return 0;
-      }
-      if(data.location.indexOf("/dashboard")>=0)
-      {
-        window.open(data.location);
-        return 0;
-      }
-      if(data.location.indexOf("/my_coursework")>=0)
-      {
-        var curr_user_id = "${curr_user.id}";
-        var user_id = data.location.substring(data.location.indexOf("/my_coursework")+15,data.location.lastIndexOf("/"));
-        if(curr_user_id!=user_id)
-        {
-          window.open(data.location,'_blank');
-          return 0;
-        }
-      }
-      if(data.location.indexOf("/my_discussions")>=0)
-      {
-        var curr_user_id = "${curr_user.id}";
-        var user_id = data.location.substring(data.location.indexOf("/my_discussions")+16,data.location.indexOf("?"));
-        if(curr_user_id!=user_id)
-        {
-          window.open(data.location,'_blank');
-          return 0;
-        }
-      }
-      if(window.location.href.indexOf("/courses")>=0)
-      {
-        var curr_url = "/courses"+window.location.href.split("/courses")[1].split("#")[0];
-        var location = data.location.split("#")[0];
-        if(curr_url!=location)
-        {
-          window.open(data.location,'_self');
-        }
-        else
-        {
-          window.location.href = data.location;
-          window.location.reload();
-        }
-      }
-      else
-      {
-        window.open(data.location,'_self');
-      } 
-      
-    }
-    //-------------------------message_board---------------------//
-    var message_people = null;
-    var user_info = null;
-    var message_board_isload = false;
-    var message_board_loadNum = 0;
-    var message_board_totalNum = 0;
-    var message_board_focus = 0;
-    var message_board_maxCharNum = 1000;
-    var message_board_hover = 0;
-    function message_board(_user_info)
-    {
-      user_info = _user_info;
-      message_people = user_info["message_people"];
-      $('.message_item').remove();
-      message_board_hideLoadMore();
-      message_board_isload = false;
-      message_board_loadNum = 0;
-      message_board_totalNum = 0;
-      message_board_focus = 0;
-      message_board_clearContent();
-      message_board_multiplayerSend_init();
-      message_board_getMessage(message_board_loadNum);
-    }
-    function message_board_getMessage(skip)
-    {
-      message_board_isload = false;
-      $.post("${reverse('get_message')}",{message_people:message_people.id,skip:skip,limit:6},function(data){
-        message_board_init(data)
-      });
-    }
-    function message_board_init(data)
-    {
-      message_board_loadNum +=6;
-      message_board_totalNum = data.count;
-      $(".message_board_full_name").text(message_people.fullname);
-      $('.message_board_empty_info').remove();
-      if(data.results.length==0)
-      {
-        $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with '+message_people.fullname.split(' ')[0]+'.</div>');
-      }
-      else
-      {
-        $('.message_board_empty_info').remove();
-      }
-      for(var i=0;i<data.results.length;i++)
-      {
-        message_board_createItem(data.results[i],1);
-      }
-      
-      if(message_board_loadNum>=message_board_totalNum)
-      {
-        message_board_isload = false;
-        message_board_hideLoadMore();
-      }
-      else
-      {
-        message_board_isload = true;
-        message_board_hideLoadMore();
-        message_board_showLoadMore();
-      }
-      $('.message_board_listCon').scrollTop($(".message_board_list").height());
-    }
-    function message_board_saveInfo()
-    {
-      var content=$(".message_board_content");
-      var msReturnVal=message_board_multiplayerSend_returnVal();
-      var winR=1;
-      if(msReturnVal)
-      {
-        winR = confirm("Do you want to send this message to all users?", "Warning");
-        if(!winR){return 0;}
-      }
-      if(content.text().length>0&&content.text().length<=message_board_maxCharNum && message_board_focus && winR)
-      {
-        var recipient_id = msReturnVal?0:message_people.id.toString();
-        var datainfo={'info':JSON.stringify({'sender_id':'${user.id}','recipient_id':recipient_id,'date':(new Date()).toISOString(),'body':content.html()})};
-        $.post("${reverse('save_message')}",datainfo,function(rdata){
-          if($(".message_board_list").find('.message_board_empty_info').length>0)
-          {
-            $('.message_board_empty_info').remove();
-          }
-          message_board_createItem(JSON.parse(datainfo.info));
-          $('.message_board_listCon').scrollTop($(".message_board_list").height());
-          message_board_updateMaxCharNum();
-          var interviewer_id = user_info["user"].id.toString();
-          var interviewer_name = user_info["user"].name;
-          var interviewer_fullname = user_info["user"].fullname;
-          var body = content.text().length>100?content.text().substr(0,100):content.text();
-          var messageinfo={'info':JSON.stringify({'user_id':recipient_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'interviewer_fullname':interviewer_fullname,'type':'message','body':body,'date':(new Date()).toISOString(),'activate':'false'})};
-          $.post("${reverse('save_interactive_update')}",messageinfo,function(){});
-          content.html("");
-        });
-      }
-      else
-      {
-        if(content.text().length>message_board_maxCharNum)
-          alert('Exceed the maximum number of characters.');
-      }
-    }
-    function message_board_user(data)
-    {
-      var userObj =[]
-      userObj[message_people.id] = message_people;
-      userObj[user_info["user"].id] = user_info["user"];
-      return userObj[data.sender_id];
-    }
-    function message_board_createItem(data,_pos)
-    {
-      pos=_pos||0;
-      var element=$('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.sender_id+');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">'+message_board_user(data).name+'</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">'+interactive_update_dateFormat(data).full_date+'</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">'+data.body+'</div></td></tr></table><div style="height:2px;"></div></div>');
-      if(pos)
-      {
-        $('.message_board_list').prepend(element);
-      }
-      else
-      {
-        $('.message_board_list').append(element);
-      }
-      
-    }
-    function message_board_changeImg(objImg)
-    {
-      var max = 300;
-      if(objImg.width > max)
-      {
-        var scaling = 1-(objImg.width-max)/objImg.width;
-        objImg.width = objImg.width*scaling;
-        objImg.height = objImg.height;
-      }
-      $('.message_board_listCon').scrollTop($(".message_board_list").height());
-    }
-    function message_board_upload_file()
-    {
-      var fd, files, max_filesize, settings;
-      var content=$(".message_board_content");
-      max_filesize = 0.5 * 1000 * 1000;
-      if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
-        files = "";
-        files = $("#message_board_browseFile")[0].files[0];
-        if (files != void 0) {
-          if (files.size > max_filesize) {
-            files = "";
-            alert("File is too large. Max file size is 500 Kb.");
-            $("#message_board_browseFile")[0].files = [];
-            return false;
-          }
-        } 
-        fd = new FormData();
-        fd.append('image_file', files);
-        settings = {
-          type: "POST",
-          data: fd,
-          processData: false,
-          contentType: false,
-          async: false,
-          success: function(response) {
-            if (response == null) {
-              alert("Network error. Please try again.");
-              return false;
-            }
-            if (response.success == true) {
-              alert("Upload success!");
-            } else {
-              alert("Upload fail");
-            }
-            if(!message_board_focus)
-            {
-              content.html("");
-              message_board_focus=1;
-            }
-            content.html(content.html()+"<img src='"+response.file_info+"' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
-            message_board_updateMaxCharNum();
-          }
-        }
-        return $.ajax("${reverse('upload_message_image')}",settings);
+   var interactive_update_window_top = 0;
+
+//---------------------Message board variable-----------------------------------------//
+
+   var message_people = null;
+   var user_info = null;
+   var message_board_isload = false;
+   var message_board_loadNum = 0;
+   var message_board_totalNum = 0;
+   var message_board_focus = 0;
+   var message_board_maxCharNum = 1000;
+   var message_board_hover = 0;
+
+//---------------------Record time variable-------------------------------------------//
+
+   var courseTimer = null;
+   RecordTime.firstRun = true;
+
+//---------------------Record time (Page switching)----------------------------------//
+
+    function record_time(position) { 
+      %if request.user.id is not None:
+        sessionStorage['user_id'] = "${request.user.id}"; 
+      %endif
+      %if course:
+        RecordTime.setSessionCourseID("${course.id}");
+      %endif
+      courseTimer.start();
+      RecordTime.sessionInit();
+      console.log("getSessionVerticalId:" + RecordTime.getSessionVerticalId())
+      var vertical_id = $("#sequence-list li .active").attr("data-id");
+      var time = new Date().toISOString();
+      var path = RecordTime.getCourseFullPath(document.URL, position);
+      var data = {
+        'type': 'course_page',
+        'user_id': RecordTime.userID,
+        'time': time,
+        'new_vertical_id': vertical_id,
+        'prev_vertical_id': RecordTime.getSessionVerticalId(),
+        'prev_time': RecordTime.getSessionTime(),
+        'location': path
+      };
+      if (RecordTime.getSessionVerticalId() != vertical_id) {
+          RecordTime.ajaxRecordTime(data, function() {
+            RecordTime.setSessionVerticalId(vertical_id);
+            RecordTime.setSessionTime(time);
+          })
 
       } else {
-        alert("The file format is not supported.");
+
+          if (RecordTime.firstRun) {
+              RecordTime.ajaxRecordTime(data, function() {
+                RecordTime.setSessionVerticalId(vertical_id);
+                RecordTime.setSessionTime(time);
+                RecordTime.firstRun = false;
+              })
+          }
       }
     }
-    function message_board_showLoadMore()
-    {
-      var element=$('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
-      $('.message_board_list').prepend(element);
-    }
-    function message_board_hideLoadMore()
-    {
-      $(".loadMoreBtn").remove();
-    }
-    function message_board_updateMaxCharNum()
-    {
-      var charNum = $(".message_board_content").text().length;
-      var num = charNum>message_board_maxCharNum?"<font color='#ff0000'>"+charNum+"</font>":charNum;
-      $("#curr_char_num").html(num);
-    }
-    function message_board_hyperlinks(url,title)
-    {
-      //return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
-      if(title=="")
-        title = url;
-      if(url.indexOf('://')<0)
-        url="http://"+url;
-      return "<a href='"+url+"' target='_blank'>"+title+"</a><br/>";
-    }
-    function message_board_multiplayerSend_init()
-    {
-      var isStaff = "${curr_user.is_staff}";
-      var ms = $("#multiplayer_send_div");
-      ms.find("input").attr("checked",false);
-      if(isStaff=="True")
-      {
-        ms.show();
+//---------------------Record time (Course refresh or exit)--------------------------//
+
+   function course_refresh_or_exit() { 
+      %if request.user.id is not None:
+        sessionStorage['user_id'] = "${request.user.id}"; 
+      %endif
+      %if course:
+        RecordTime.setSessionCourseID("${course.id}"); 
+      %endif
+      RecordTime.sessionInit();
+    if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+      var data = {
+        'type': 'new_page',
+        'user_id': RecordTime.userID,
+        'time': (new Date()).toISOString(),
+        'prev_vertical_id': RecordTime.getSessionVerticalId(),
+        'prev_time': RecordTime.getSessionTime()
       }
-      else
-      {
-        ms.hide();
-      }
+      RecordTime.ajaxRecordTime(data, function() {
+        RecordTime.setSessionVerticalId("");
+        RecordTime.setSessionTime("");
+      })
     }
-    function message_board_multiplayerSend_returnVal()
-    {
-      var msCBox = $("#multiplayer_send_div").find("input");
-      return (msCBox.is(":visible") && msCBox.is(":checked"))?true:false;
-    }
-    function message_board_clearContent()
-    {
-      var content = $('.message_board_content');
-      content.html("");
-      message_board_updateMaxCharNum();
-      $('.message_board_listCon').scrollTop(0);
-      content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
-    }
+  }
+
+//---------------------------------------------------------------------------//
+
+   $(function() {
+     course_refresh_or_exit();
+     courseTimer = new CourseTimer();
+
+     interactive_update();
+     $(".info_count_btn").click(function() {
+       interactive_update();
+     });
+
+     $(".info_btn").click(function() {
+       interactive_update();
+     });
+
+     $(".ftg_button").click(function() {
+       message_board_saveInfo();
+     });
+
+     $(".message_board_uploadBtn").click(function() {
+       $("#message_board_browseFile").click();
+     })
+
+     $(".message_board_linkBtn").click(function() {
+       $(".linkwin").show();
+     })
+
+     $("#hyperlink_okBtn").click(function() {
+       var content = $(".message_board_content");
+       if ($("#link_url_val").val() != '') {
+         if (!message_board_focus) {
+           content.html("");
+           message_board_focus = 1;
+         }
+         content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+         $(".linkwin").hide();
+       }
+     })
+
+     $("#hyperlink_cancelBtn").click(function() {
+       $(".linkwin").hide();
+     })
+
+     $("#message_board_close").click(function() {
+         $(".linkwin").hide();
+         message_board_clearContent();
+       })
+
+    //-----------------------------------------------------------------
+     $(".message_board_content").focusin(function() {
+       if (!message_board_focus) {
+         $(this).html("");
+         message_board_focus = 1;
+       }
+     });
+
+     $(".message_board_content").keyup(function(event) {
+       message_board_updateMaxCharNum();
+     });
+
+     $("#show_personalmessage").hover(function() {
+       $("body").css("overflow", "hidden");
+       message_board_hover = 1;
+     }, function() {
+       $("body").css("overflow", "");
+       message_board_hover = 0;
+     });
+
+     $(".message_board_listCon").scroll(function(event) {
+       var scrollTop = $(this).scrollTop();　　
+       var scrollHeight = $(".message_board_list").height();　　
+       var windowHeight = $(this).height();
+        /*
+          if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+          {
+          message_board_getMessage(message_board_loadNum);
+          }
+        */
+       if (scrollTop == 0 && message_board_isload) {
+         message_board_getMessage(message_board_loadNum);
+       }
+     })
+   })
+
+   function interactive_update_createItem(data) {
+     var body = data.body == undefined ? '' : data.body;
+     interactive_update_switchType(data);
+     element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+     $('.info_list').append(element);
+     element.click(function() {
+       if (data.activate == 'false') {
+         interactive_update_activateItem(data);
+       } else {
+         interactive_update_openWindow(data)
+       }
+     });
+   }
+
+   function interactive_update_switchType(data) {
+     switch (data.type) {
+       case 'discussion':
+         data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
+         break;
+       case 'portfolio':
+         data.type_text = "<b>" + data.interviewer_name + "</b> has commented on " + (data.portfolio_username || 'your') + "'s portfolio in course " + data.course_number + ".";
+         break;
+       case 'add_network':
+         data.type_text = "<b>" + data.interviewer_name + "</b> has added you to their personal network."
+         break;
+       case 'view_portfolio':
+         data.type_text = "<b>" + data.interviewer_name + "</b> is checking out your " + data.course_number + " portfolio."
+         break;
+       case 'message':
+         data.type_text = "Personal Message from <b>" + data.interviewer_name + "</b>"
+         break;
+       case 'my_chunks':
+         data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
+         break;
+     }
+   }
+
+   function interactive_update() {
+     datainfo = {};
+     $.post("${reverse('get_interactive_update')}", datainfo, function(data) {
+       interactive_update_init(data);
+     });
+   }
+
+   function interactive_update_init(data) {
+     $("#view_all_note_text").text("View All Notifications (" + data.count + ")");
+     if (data.count > 0) {
+       $(".info_btn").hide();
+       $(".info_count_btn").show();
+       var count = data.count > 999 ? 999 : data.count;
+       $(".info_count_btn").find(".info_count").text(count);
+     }
+     $('.info_list').empty();
+     for (var i = 0; i < data.results.length; i++) {
+       interactive_update_createItem(data.results[i]);
+     }
+   }
+
+   function fillZero(val) {
+     return val < 10 ? '0' + val : val;
+   }
+
+   function interactive_update_dateFormat(data) {
+     dateinfo = {};
+     interval = interactive_update_getTimeInterval(data);
+     var darr = new Date(data.date).toString().split(' ');
+     var sign = 'am';
+     if (interval < 1) {
+       dateinfo.date = "Today";
+     } else if (interval < 2) {
+       dateinfo.date = "Yesterday";
+     } else {
+       dateinfo.date = darr[1] + " " + darr[2];
+     }
+     var timeArr = darr[4].substr(0, 5).split(":");
+     if (timeArr[0] > 12 && timeArr[0] < 24) {
+       timeArr[0] = fillZero(timeArr[0] - 12);
+       sign = 'pm';
+     }
+     var time = timeArr[0] + ":" + timeArr[1] + sign;
+     dateinfo.full_date = dateinfo.date + " at " + time;
+     dateinfo.time = time;
+     return dateinfo;
+   }
+
+   function interactive_update_activateItem(data) {
+     var user_id = "${curr_user.id}";
+     $.post("${reverse('set_interactive_update')}", {
+       _id: data._id,
+       _name: 'activate',
+       _value: 'true',
+       _user_id: user_id,
+       _record_id: data.user_id,
+       _ismultiple: data.multiple
+     }, function(rdata) {
+       interactive_update_openWindow(data);
+     });
+   }
+
+   function interactive_update_getActivateStyle(data) {
+     var notActivateColor = data.user_id != 0 ? "#eeeff4" : "#ffffcc";
+     //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+     bcolor = data.activate == 'true' ? '#ffffff' : notActivateColor;
+     return {
+       'backgroundColor': bcolor
+     };
+   }
+
+   function interactive_update_getTimeInterval(data) {
+     var t = new Date();
+     var today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+     var d = new Date(data.date);
+     var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+     return parseInt((today - date) / 3600000 / 24);
+   }
+
+   function interactive_update_openWindow(data) {
+     if (data.type == "message" || data.type == "view_portfolio") {
+       $("#show_notifications").hide();
+       if ($("#show_personalmessage").css("zIndex") < 10000) {
+         $("#show_personalmessage").addClass("leanmodalStyle");
+       }
+       $("#lean_overlay").show();
+       $("#show_personalmessage").show();
+       $("#show_personalmessage").find(".close-modal").click(function() {
+         $("#show_personalmessage").hide();
+         $(".linkwin").hide();
+         $("#lean_overlay").hide();
+         $(window).scrollTop(interactive_update_window_top);
+       })
+       message_board_clearContent();
+       $("#lean_overlay").click(function() {
+         $("#show_personalmessage").hide();
+         $(".linkwin").hide();
+         $(this).hide();
+         $(window).scrollTop(interactive_update_window_top);
+       })
+       var userInfo = [];
+       var data_ele = $("#show_notifications");
+       userInfo['message_people'] = {
+         id: data.interviewer_id,
+         fullname: data.interviewer_fullname,
+         name: data.interviewer_name
+       };
+       userInfo['user'] = {
+         id: data_ele.data('id'),
+         fullname: data_ele.data('fullname'),
+         name: data_ele.data('name')
+       };
+       message_board(userInfo);
+       return 0;
+     }
+     if (data.location.indexOf("/dashboard") >= 0) {
+       window.open(data.location);
+       return 0;
+     }
+     if (data.location.indexOf("/my_coursework") >= 0) {
+       var curr_user_id = "${curr_user.id}";
+       var user_id = data.location.substring(data.location.indexOf("/my_coursework") + 15, data.location.lastIndexOf("/"));
+       if (curr_user_id != user_id) {
+         window.open(data.location, '_blank');
+         return 0;
+       }
+     }
+     if (data.location.indexOf("/my_discussions") >= 0) {
+       var curr_user_id = "${curr_user.id}";
+       var user_id = data.location.substring(data.location.indexOf("/my_discussions") + 16, data.location.indexOf("?"));
+       if (curr_user_id != user_id) {
+         window.open(data.location, '_blank');
+         return 0;
+       }
+     }
+     if (window.location.href.indexOf("/courses") >= 0) {
+       var curr_url = "/courses" + window.location.href.split("/courses")[1].split("#")[0];
+       var location = data.location.split("#")[0];
+       if (curr_url != location) {
+         window.open(data.location, '_self');
+       } else {
+         window.location.href = data.location;
+         window.location.reload();
+       }
+     } else {
+       window.open(data.location, '_self');
+     }
+
+   }
+   //-------------------------message_board---------------------//
+  
+   function message_board(_user_info) {
+     user_info = _user_info;
+     message_people = user_info["message_people"];
+     $('.message_item').remove();
+     message_board_hideLoadMore();
+     message_board_isload = false;
+     message_board_loadNum = 0;
+     message_board_totalNum = 0;
+     message_board_focus = 0;
+     message_board_clearContent();
+     message_board_multiplayerSend_init();
+     message_board_getMessage(message_board_loadNum);
+   }
+
+   function message_board_getMessage(skip) {
+     message_board_isload = false;
+     $.post("${reverse('get_message')}", {
+       message_people: message_people.id,
+       skip: skip,
+       limit: 6
+     }, function(data) {
+       message_board_init(data)
+     });
+   }
+
+   function message_board_init(data) {
+     message_board_loadNum += 6;
+     message_board_totalNum = data.count;
+     $(".message_board_full_name").text(message_people.fullname);
+     $('.message_board_empty_info').remove();
+     if (data.results.length == 0) {
+       $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with ' + message_people.fullname.split(' ')[0] + '.</div>');
+     } else {
+       $('.message_board_empty_info').remove();
+     }
+     for (var i = 0; i < data.results.length; i++) {
+       message_board_createItem(data.results[i], 1);
+     }
+
+     if (message_board_loadNum >= message_board_totalNum) {
+       message_board_isload = false;
+       message_board_hideLoadMore();
+     } else {
+       message_board_isload = true;
+       message_board_hideLoadMore();
+       message_board_showLoadMore();
+     }
+     $('.message_board_listCon').scrollTop($(".message_board_list").height());
+   }
+
+   function message_board_saveInfo() {
+     var content = $(".message_board_content");
+     var msReturnVal = message_board_multiplayerSend_returnVal();
+     var winR = 1;
+     if (msReturnVal) {
+       winR = confirm("Do you want to send this message to all users?", "Warning");
+       if (!winR) {
+         return 0;
+       }
+     }
+     if (content.text().length > 0 && content.text().length <= message_board_maxCharNum && message_board_focus && winR) {
+       var recipient_id = msReturnVal ? 0 : message_people.id.toString();
+       var datainfo = {
+         'info': JSON.stringify({
+           'sender_id': '${user.id}',
+           'recipient_id': recipient_id,
+           'date': (new Date()).toISOString(),
+           'body': content.html()
+         })
+       };
+       $.post("${reverse('save_message')}", datainfo, function(rdata) {
+         if ($(".message_board_list").find('.message_board_empty_info').length > 0) {
+           $('.message_board_empty_info').remove();
+         }
+         message_board_createItem(JSON.parse(datainfo.info));
+         $('.message_board_listCon').scrollTop($(".message_board_list").height());
+         message_board_updateMaxCharNum();
+         var interviewer_id = user_info["user"].id.toString();
+         var interviewer_name = user_info["user"].name;
+         var interviewer_fullname = user_info["user"].fullname;
+         var body = content.text().length > 100 ? content.text().substr(0, 100) : content.text();
+         var messageinfo = {
+           'info': JSON.stringify({
+             'user_id': recipient_id,
+             'interviewer_id': interviewer_id,
+             'interviewer_name': interviewer_name,
+             'interviewer_fullname': interviewer_fullname,
+             'type': 'message',
+             'body': body,
+             'date': (new Date()).toISOString(),
+             'activate': 'false'
+           })
+         };
+         $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+         content.html("");
+       });
+     } else {
+       if (content.text().length > message_board_maxCharNum)
+         alert('Exceed the maximum number of characters.');
+     }
+   }
+
+   function message_board_user(data) {
+     var userObj = []
+     userObj[message_people.id] = message_people;
+     userObj[user_info["user"].id] = user_info["user"];
+     return userObj[data.sender_id];
+   }
+
+   function message_board_createItem(data, _pos) {
+     pos = _pos || 0;
+     var element = $('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.sender_id + ');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">' + message_board_user(data).name + '</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">' + interactive_update_dateFormat(data).full_date + '</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">' + data.body + '</div></td></tr></table><div style="height:2px;"></div></div>');
+     if (pos) {
+       $('.message_board_list').prepend(element);
+     } else {
+       $('.message_board_list').append(element);
+     }
+
+   }
+
+   function message_board_changeImg(objImg) {
+     var max = 300;
+     if (objImg.width > max) {
+       var scaling = 1 - (objImg.width - max) / objImg.width;
+       objImg.width = objImg.width * scaling;
+       objImg.height = objImg.height;
+     }
+     $('.message_board_listCon').scrollTop($(".message_board_list").height());
+   }
+
+   function message_board_upload_file() {
+     var fd, files, max_filesize, settings;
+     var content = $(".message_board_content");
+     max_filesize = 0.5 * 1000 * 1000;
+     if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
+       files = "";
+       files = $("#message_board_browseFile")[0].files[0];
+       if (files != void 0) {
+         if (files.size > max_filesize) {
+           files = "";
+           alert("File is too large. Max file size is 500 Kb.");
+           $("#message_board_browseFile")[0].files = [];
+           return false;
+         }
+       }
+       fd = new FormData();
+       fd.append('image_file', files);
+       settings = {
+         type: "POST",
+         data: fd,
+         processData: false,
+         contentType: false,
+         async: false,
+         success: function(response) {
+           if (response == null) {
+             alert("Network error. Please try again.");
+             return false;
+           }
+           if (response.success == true) {
+             alert("Upload success!");
+           } else {
+             alert("Upload fail");
+           }
+           if (!message_board_focus) {
+             content.html("");
+             message_board_focus = 1;
+           }
+           content.html(content.html() + "<img src='" + response.file_info + "' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
+           message_board_updateMaxCharNum();
+         }
+       }
+       return $.ajax("${reverse('upload_message_image')}", settings);
+
+     } else {
+       alert("The file format is not supported.");
+     }
+   }
+
+   function message_board_showLoadMore() {
+     var element = $('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
+     $('.message_board_list').prepend(element);
+   }
+
+   function message_board_hideLoadMore() {
+     $(".loadMoreBtn").remove();
+   }
+
+   function message_board_updateMaxCharNum() {
+     var charNum = $(".message_board_content").text().length;
+     var num = charNum > message_board_maxCharNum ? "<font color='#ff0000'>" + charNum + "</font>" : charNum;
+     $("#curr_char_num").html(num);
+   }
+
+   function message_board_hyperlinks(url, title) {
+     //return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
+     if (title == "")
+       title = url;
+     if (url.indexOf('://') < 0)
+       url = "http://" + url;
+     return "<a href='" + url + "' target='_blank'>" + title + "</a><br/>";
+   }
+
+   function message_board_multiplayerSend_init() {
+     var isStaff = "${curr_user.is_staff}";
+     var ms = $("#multiplayer_send_div");
+     ms.find("input").attr("checked", false);
+     if (isStaff == "True") {
+       ms.show();
+     } else {
+       ms.hide();
+     }
+   }
+
+   function message_board_multiplayerSend_returnVal() {
+     var msCBox = $("#multiplayer_send_div").find("input");
+     return (msCBox.is(":visible") && msCBox.is(":checked")) ? true : false;
+   }
+
+   function message_board_clearContent() {
+     var content = $('.message_board_content');
+     content.html("");
+     message_board_updateMaxCharNum();
+     $('.message_board_listCon').scrollTop(0);
+     content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
+   }
   </script>
   <!--@end-->
 
@@ -1031,7 +1120,7 @@ site_status_msg = get_site_status_msg(course_id)
   %if request.user.is_authenticated():
   %if curr_user==request.user:
   <section id="show_personalmessage" class="modal" style="width:600px;">
-    <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
+    <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
       <header>
         <h2 class="message_board_full_name">${_("namename")}</h2>
         <hr/>

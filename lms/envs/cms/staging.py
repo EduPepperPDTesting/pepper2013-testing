@@ -96,6 +96,18 @@ CHUNKSSTORE = {
         'password':MONGO_PASSWORD,
     }
 }
+RECORDTIMESTORE = {
+    'OPTIONS': {
+        'db': 'assist',
+        'collection': 'record_time',
+        'collection_page': 'page_time',
+        'collection_course': 'course_time',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,        
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',
