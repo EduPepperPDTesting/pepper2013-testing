@@ -45,7 +45,7 @@ def drop_association_type(request):
     for item in data:
         r.append({"id":item.id,"name":item.name})
   
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_association(request):
     asociationType = CertificateAssociationType.objects.filter(Q(id=request.GET.get('association_type')))[0]
@@ -59,7 +59,7 @@ def drop_association(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_publish_association(request):
     asociationType = CertificateAssociationType.objects.filter(Q(id=request.GET.get('association_type')))[0]
@@ -75,7 +75,7 @@ def drop_publish_association(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_states(request):
     data=State.objects.all()
@@ -83,7 +83,7 @@ def drop_states(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_districts(request):
     data=District.objects.all()
@@ -93,7 +93,7 @@ def drop_districts(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"name":item.name,"code":item.code})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_schools(request):
     data=School.objects.all()
@@ -105,7 +105,7 @@ def drop_schools(request):
     data=data.order_by("name")
     for item in data:
         r.append({"id":item.id,"name":item.name})        
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 def drop_cohorts(request):
     data=Cohort.objects.all()
@@ -116,7 +116,7 @@ def drop_cohorts(request):
     r=list()
     for item in data:
         r.append({"id":item.id,"code":item.code})
-    return HttpResponse(json.dumps(r))
+    return HttpResponse(json.dumps(r),content_type="application/json")
 
 from django.core.paginator import Paginator,InvalidPage, EmptyPage
 
@@ -169,7 +169,7 @@ def certificate_table(request):
                      ,'association_type':association_type_name
                      ,'association':association_name
                      ,'id':p.id})
-    return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}))
+    return HttpResponse(json.dumps({'rows':rows,'paging':pagingInfo}),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)    
@@ -185,7 +185,7 @@ def favorite_filter_load(request):
             ,'filter':ff.filter_json
             })
     
-    return HttpResponse(json.dumps(favs))
+    return HttpResponse(json.dumps(favs),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -195,18 +195,18 @@ def favorite_filter_save(request):
     ff.name=request.GET.get('name')
     ff.filter_json=request.GET.get('filter')
     ff.save()
-    return HttpResponse(json.dumps({'success': True}))    
+    return HttpResponse(json.dumps({'success': True}),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def favorite_filter_delete(request):
     FilterFavorite.objects.filter(id=request.GET.get('id')).delete()
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def send_registration_email(request):
-    return HttpResponse(json.dumps({'success': True}))    
+    return HttpResponse(json.dumps({'success': True}),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -214,7 +214,7 @@ def certificate_delete(request):
     ids= request.POST.get('ids').split(',')
     for id in ids:
         Certificate.objects.filter(id=id).delete()
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -241,7 +241,7 @@ def certificate_save(request):
         info = {'success': True,'msg':'Save complete.','id':returnID}
     except db.utils.IntegrityError:
         info = {'success': False,'msg':'Certificate name already exists.'}
-    return HttpResponse(json.dumps(info))
+    return HttpResponse(json.dumps(info),content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -258,6 +258,6 @@ def certificate_loadData(request):
                      ,'readonly':c.readonly
                      ,'id':c.id
                      }
-    return HttpResponse(json.dumps(data))
+    return HttpResponse(json.dumps(data),content_type="application/json")
 
 
