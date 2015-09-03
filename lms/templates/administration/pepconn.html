@@ -320,6 +320,7 @@ f.close()
           'Delete Users',
           'Do you really want to delete the selected user(s)?',
           function(confirmed){
+            this.hide();
             if(confirmed){
               var args={ids:ids.join()};
               $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
