@@ -226,6 +226,11 @@ input,select{-ms-box-sizing:content-box;
   padding-left:20px;
   padding-right:20px;
 }
+
+.preview-frame{
+    min-height:500px;
+}
+
 .imgBtn{
   width:auto;
   height:40px;
@@ -459,7 +464,7 @@ input,select{-ms-box-sizing:content-box;
               <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
             </div>
             <div class="preview_view" style="display:none;">
-              <iframe id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" height=500></iframe>
+              <iframe class = "preview-frame" id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
             </div>
         </div>
      </div>
@@ -664,7 +669,18 @@ input,select{-ms-box-sizing:content-box;
  function addNewCertificate(){
     displayCertificate();
     ceditor.init();
- } 
+ }
+  //iFrame size
+  function iframeLoaded() {
+      var frame = document.getElementById('certificate_preview');
+      if(frame) {
+            // here you can make the height, I delete it first, then I make it again
+            frame.height = "";
+            frame.height = frame.contentWindow.document.body.scrollHeight + "px";
+      }
+  }
+
+
 //-----Editor Tool buttons-----------
  function certificate_editor_cancel(){
    ceditor.cancel(function(){
@@ -762,6 +778,7 @@ input,select{-ms-box-sizing:content-box;
     $('.editor_view').hide();
     var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
     $("#certificate_preview").contents().find("#content").html(data);
+    iframeLoaded();
   })
 //---------------load certificate------------------
   $('#tblCertificate')[0].onDataLoaded=function(){
