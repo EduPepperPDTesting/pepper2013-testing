@@ -276,7 +276,7 @@ def do_import_user(task, csv_lines, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = ImportTaskLog.objects.filter(task=task)
+    tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
         FIELDS = ["line", "username", "email", "district", "create_date", "error"]
         TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
