@@ -1,4 +1,5 @@
-function CertificateEditor(editor){   
+var copy = false;
+function CertificateEditor(editor){
     this.content='';
     this.CKEDITOR=editor;
     this.isReadOnly=false;
@@ -38,6 +39,8 @@ CertificateEditor.prototype.loadCertificate=function(id){
          $(".certificate_name").val(self.certificate_name);
          self.setState();
       });
+    setTimeout(function(){CKEDITOR.instances.certificate_editor.resetDirty();},750);
+    copy = false;
 }
 CertificateEditor.prototype.save=function(callback){
     this.certificate_name=$(".certificate_name").val();
@@ -62,30 +65,33 @@ CertificateEditor.prototype.save=function(callback){
 CertificateEditor.prototype.copy=function(){
  var self=this;
  if(this.isStateChange()){
+     var dirty = CKEDITOR.instances.certificate_editor.checkDirty();
+     if(dirty || copy) {
+         new Dialog($('#dialog')).showButtons("Warning", "<p>Do you want to save the current certificate?</p><br/>", ['Yes', 'No'], function (choice) {
+             if (choice == 0) {
+                 this.hide();
+                 self.save(function () {
+                     self.createCopy();
+                 });
 
-      if(CKEDITOR.instances.certificate_editor.checkDirty()) {
-          new Dialog($('#dialog')).showButtons("Warning", "<p>Do you want to save the current certificate?</p><br/>", ['Yes', 'No'], function (choice) {
-              if (choice == 0) {
-                  this.hide();
-                  self.save(function () {
-                      self.createCopy();
-                  });
-
-              } else {
-                  this.hide();
-                  self.createCopy();
-              }
-          })
-      }else{
-          self.createCopy();
-      }
+             } else {
+                 copy = true;
+                 this.hide();
+                 self.createCopy();
+             }
+         })
+     }else{
+         copy = true;
+         self.createCopy();
+     }
   }
   else{
     self.createCopy();
   }
 }
 CertificateEditor.prototype.createCopy=function(){
-  this.isPublish=false; 
+  copy = true;
+  this.isPublish=false;
   this.currView='Editor'; 
   this.certificateID=0;
   this.association_type=0;
@@ -132,20 +138,22 @@ CertificateEditor.prototype.isStateChange=function(){
 }
 CertificateEditor.prototype.cancel=function(callback){
    var self=this;
-   if ( !CKEDITOR.instances.certificate_editor.checkDirty() ) {
-       new Dialog($('#dialog')).showButtons("Warning", "<p style='font-size:13px;'>You will lose any changes you have made to this certificate if you continue.</p><br/>", ['Continue Editing', 'Cancel Edits'], function (choice) {
-           if (choice == 0) {
-               this.hide();
-           } else {
-               this.hide();
-               self.init();
-               (callback && typeof(callback) === "function") && callback();
-           }
-       })
-   }else{
-               self.init();
-               (callback && typeof(callback) === "function") && callback();
-   }
+
+    var dirty = CKEDITOR.instances.certificate_editor.checkDirty();
+    if(dirty || copy) {
+        new Dialog($('#dialog')).showButtons("Warning", "<p style='font-size:13px;'>You will lose any changes you have made to this certificate if you continue.</p><br/>", ['Continue Editing', 'Cancel Edits'], function (choice) {
+            if (choice == 0) {
+                this.hide();
+            } else {
+                this.hide();
+                self.init();
+                (callback && typeof(callback) === "function") && callback();
+            }
+        })
+    }else{
+        self.init();
+        (callback && typeof(callback) === "function") && callback();
+    }
 
 }
 CertificateEditor.prototype.delete=function(callback){
@@ -171,9 +179,10 @@ CertificateEditor.prototype.setReadOnly=function(b,user_select){
   this.isReadOnly=Boolean(b);
   this.CKEDITOR.setReadOnly(b);
   this.setReadOnlyIcon(b);
-  if(CKEDITOR.instances.certificate_editor.checkDirty())
-     if(b && userSelect)this.saveYesNo("Save certificate","<p>You want to save the certificate?</p><br/>");
-  CKEDITOR.instances.certificate_editor.resetDirty();
+  var dirty = CKEDITOR.instances.certificate_editor.checkDirty();
+
+  if((dirty || copy) && b && userSelect)this.saveYesNo("Save certificate","<p>You want to save the certificate?</p><br/>");
+
 }
 CertificateEditor.prototype.saveYesNo=function(title,content){
 
