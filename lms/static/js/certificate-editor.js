@@ -62,18 +62,23 @@ CertificateEditor.prototype.save=function(callback){
 CertificateEditor.prototype.copy=function(){
  var self=this;
  if(this.isStateChange()){
-    new Dialog($('#dialog')).showButtons("Warning","<p>Do you want to save the current certificate?</p><br/>",['Yes','No'],function(choice){
-      if(choice==0){ 
-        this.hide();
-        self.save(function(){
-          self.createCopy();
-        });
-        
+
+      if(CKEDITOR.instances.certificate_editor.checkDirty()) {
+          new Dialog($('#dialog')).showButtons("Warning", "<p>Do you want to save the current certificate?</p><br/>", ['Yes', 'No'], function (choice) {
+              if (choice == 0) {
+                  this.hide();
+                  self.save(function () {
+                      self.createCopy();
+                  });
+
+              } else {
+                  this.hide();
+                  self.createCopy();
+              }
+          })
       }else{
-        this.hide();
-        self.createCopy();
+          self.createCopy();
       }
-    })
   }
   else{
     self.createCopy();
@@ -127,15 +132,21 @@ CertificateEditor.prototype.isStateChange=function(){
 }
 CertificateEditor.prototype.cancel=function(callback){
    var self=this;
-   new Dialog($('#dialog')).showButtons("Warning","<p style='font-size:13px;'>You will lose any changes you have made to this certificate if you continue.</p><br/>",['Continue Editing','Cancel Edits'],function(choice){
-      if(choice==0){ 
-        this.hide();
-      }else{
-        this.hide();
-        self.init();
-        (callback && typeof(callback) === "function") && callback();
-        }
-    }) 
+   if ( !CKEDITOR.instances.certificate_editor.checkDirty() ) {
+       new Dialog($('#dialog')).showButtons("Warning", "<p style='font-size:13px;'>You will lose any changes you have made to this certificate if you continue.</p><br/>", ['Continue Editing', 'Cancel Edits'], function (choice) {
+           if (choice == 0) {
+               this.hide();
+           } else {
+               this.hide();
+               self.init();
+               (callback && typeof(callback) === "function") && callback();
+           }
+       })
+   }else{
+               self.init();
+               (callback && typeof(callback) === "function") && callback();
+   }
+
 }
 CertificateEditor.prototype.delete=function(callback){
    var self=this;
@@ -160,19 +171,23 @@ CertificateEditor.prototype.setReadOnly=function(b,user_select){
   this.isReadOnly=Boolean(b);
   this.CKEDITOR.setReadOnly(b);
   this.setReadOnlyIcon(b);
-  if(b && userSelect)this.saveYesNo("Save certificate","<p>You want to save the certificate?</p><br/>");
+  if(CKEDITOR.instances.certificate_editor.checkDirty())
+     if(b && userSelect)this.saveYesNo("Save certificate","<p>You want to save the certificate?</p><br/>");
+  CKEDITOR.instances.certificate_editor.resetDirty();
 }
 CertificateEditor.prototype.saveYesNo=function(title,content){
- var self=this;
-    new Dialog($('#dialog')).showButtons(title,content,['Yes','No'],function(choice){
-    if(choice==0){ 
-        self.save();
-        this.hide();
-      }
-      else{
-        this.hide();
-      }
-  })
+
+      var self = this;
+      new Dialog($('#dialog')).showButtons(title, content, ['Yes', 'No'], function (choice) {
+          if (choice == 0) {
+              self.save();
+              this.hide();
+          }
+          else {
+              this.hide();
+          }
+      })
+
 }
 CertificateEditor.prototype.print=function(element){
   this.CKEDITOR.execCommand('print');

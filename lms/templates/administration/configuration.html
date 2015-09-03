@@ -753,6 +753,7 @@ input,select{-ms-box-sizing:content-box;
           ceditor.loadCertificate($(this).parent().parent().find('.check-row').val())
         })
     });
+      CKEDITOR.instances.certificate_editor.resetDirty();
     $('#tblCertificate table').trigger("update");
   }  
 </script>
