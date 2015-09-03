@@ -110,6 +110,8 @@ from student.models import State,District,School
  div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
  div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
  div.expand_div{display:none;}
+ div.expand_title_container{padding-top:20px; padding-bottom:20px;}
+
  /* filter */
  div.control.filter{
    padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
@@ -333,7 +335,7 @@ input,select{-ms-box-sizing:content-box;
 }
 </style>
 <!-- Certificate -->
-<div style="padding:0px 0">
+<div class = "expand_title_container">
   <div class="main">
     <div class="configuration_navigation">
       <span class="configuration_navigation_btn">
@@ -547,7 +549,6 @@ input,select{-ms-box-sizing:content-box;
           }
       });
   }
-
   var pagerOptions = {
 
     // target the pager markup - see the HTML block below
@@ -679,7 +680,10 @@ input,select{-ms-box-sizing:content-box;
     ceditor.copy();
  }
  function certificate_editor_print(){
-    ceditor.print();
+    var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
+    $("#certificate_preview").contents().find("#content").html(data);
+    window.frames["certificate_preview"].focus();
+    window.frames["certificate_preview"].print();
  }
  function certificate_editor_publish(){
      $('#fltPublishCertificate')[0].control.getFieldArea('association_type').find("option:first").attr("selected","selected");
@@ -769,5 +773,6 @@ input,select{-ms-box-sizing:content-box;
         })
     });
     $('#tblCertificate table').trigger("update");
+
   }  
 </script>
