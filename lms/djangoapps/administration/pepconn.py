@@ -28,7 +28,7 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 import gevent
 from django import db
 from models import *
-from io import StringIO
+from StringIO import StringIO
 from student.models import Transaction, District, Cohort, School, State
 from mail import send_html_mail
 from datetime import datetime, timedelta
