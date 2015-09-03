@@ -11,6 +11,18 @@ font-size:12px;height:2em;line-height:2em;padding:0 10px;
    width: 100%;
    z-index: 100;
  }
+
+ .data_import_top{
+     padding-top:20px;
+ }
+ .data_import_content{
+    margin:auto;width:1180px;
+    border:1px solid #ddd;
+ }
+ .data_import_bottom{
+     padding-bottom:20px;
+ }
+
  .modal{
    display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
    background: none repeat scroll 0% 0% rgba(255,255,255, 1);
