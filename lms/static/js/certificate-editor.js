@@ -55,6 +55,7 @@ CertificateEditor.prototype.save=function(callback){
             self.certificateID=r.id;
             self.setState();
             new Dialog($('#dialog')).show('OK',r.msg);
+            CKEDITOR.instances.certificate_editor.resetDirty();
           }
           else{new Dialog($('#dialog')).show('Error',r.msg);}
           (callback && typeof(callback) === "function") && callback();
