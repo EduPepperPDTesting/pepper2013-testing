@@ -10,7 +10,7 @@ import json
 #@date:2013-11-28
 from django.shortcuts import redirect
 from django_future.csrf import ensure_csrf_cookie
-from mitxmako.shortcuts import render_to_response
+from mitxmako.shortcuts import render_to_response, render_to_string
 from mitxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
 #@end
@@ -32,8 +32,6 @@ from administration.models import Author,CertificateAssociationType,Certificate
 
 import cStringIO as StringIO
 from xhtml2pdf import pisa
-from django.template.loader import get_template
-from django.template import Context
 from django.http import HttpResponse
 from cgi import escape
 
@@ -455,9 +453,8 @@ def download_certificate(request, course_id, completed_time):
         'content': blob,
         'outputError': output_error,
     }
-    template = get_template('download_certificate.html')
-    context = Context(context_dict)
-    html = template.render(context)
+    
+    html = render_to_string('download_certificate.html', context_dict)
     result = StringIO.StringIO()
     pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result)
     if not pdf.err:
