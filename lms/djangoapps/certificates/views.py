@@ -30,6 +30,13 @@ from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
 from administration.models import Author,CertificateAssociationType,Certificate
 
+import cStringIO as StringIO
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+from django.template import Context
+from django.http import HttpResponse
+from cgi import escape
+
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
@@ -415,31 +422,45 @@ def getCertificateBlob(request,organization):
             return certificate[0].certificate_blob
     return ''
 
+
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
-def download_certificate(request,course_id,completed_time):
+def download_certificate(request, course_id, completed_time):
     user_id = request.user.id
     user_course = get_course_with_access(user_id, course_id, 'load')
     first_name = request.user.first_name
     last_name = request.user.last_name
 
     course_name = user_course.display_name_with_default
-    user_name = first_name + ' ' +last_name
+    # user_name = first_name + ' ' + last_name
     course_full_name = user_course.display_number_with_default + " " + course_name
     estimated_effort = user_course.certificates_estimated_effort
     completed_time = datetime.datetime.strptime(completed_time, '%Y-%M-%d').strftime('%B %d, %Y ')
-    blob =  urllib.unquote(getCertificateBlob(request,user_course.display_organization).decode('utf8').encode('utf8'))
-    outputError = ''
+    blob = urllib.unquote(getCertificateBlob(request, user_course.display_organization).decode('utf8').encode('utf8'))
+    output_error = ''
     try:
         blob = blob.format(
-            firstname = first_name
-            ,lastname = last_name
-            ,coursename = course_name
-            ,coursenumber = course_full_name
-            ,date = completed_time
-            ,hours = estimated_effort)
-    except KeyError,e:
-        outputError = 'The placeholder {0} does not exist.'.format(str(e)) 
-    return render_to_response('download_certificate.html', {'content':blob,'outputError':outputError})
+            firstname=first_name,
+            lastname=last_name,
+            coursename=course_name,
+            coursenumber=course_full_name,
+            date=completed_time,
+            hours=estimated_effort)
+    except KeyError, e:
+        output_error = 'The placeholder {0} does not exist.'.format(str(e))
+    # return render_to_response('download_certificate.html', {'content': blob, 'outputError': output_error})
+
+    context_dict = {
+        'content': blob,
+        'outputError': output_error,
+    }
+    template = get_template('download_certificate.html')
+    context = Context(context_dict)
+    html = template.render(context)
+    result = StringIO.StringIO()
+    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
 
