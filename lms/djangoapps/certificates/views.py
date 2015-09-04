@@ -453,10 +453,10 @@ def download_certificate(request, course_id, completed_time):
         'content': blob,
         'outputError': output_error,
     }
-    
+
     html = render_to_string('download_certificate.html', context_dict)
     result = StringIO.StringIO()
-    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result)
+    pdf = pisa.CreatePDF(StringIO.StringIO(html.encode("UTF-8")), result, encoding="UTF-8")
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
