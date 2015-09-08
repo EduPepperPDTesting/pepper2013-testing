@@ -289,14 +289,14 @@ input,select{-ms-box-sizing:content-box;
      box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.5);
      margin: 0;
  }
- .global_task_panel input.task_pannel_toggle:hover{
+ .global_task_panel input.task_pannel_toggle:hover {
      background-image: linear-gradient(to bottom, #E69E61 0%, #E69E61 50%, #DB7115 50%, #DB7115 100%);
      border-color: #E69E61 #E69E61 #f5821f;
      background-color:#f5821f;
      text-shadow: 0 -1px 1px #f5821f;
      box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.5);
  }
- .global_task_panel .content{
+ .global_task_panel .content {
      position: relative;
      right: 0;
      margin: auto;
@@ -308,7 +308,7 @@ input,select{-ms-box-sizing:content-box;
      max-height: 280px;
      overflow-y: auto;
  }
- .global_task_panel .content .progressbar{
+ .global_task_panel .content .progressbar {
      position: relative;
      height: 30px;
      background: #ddd;
@@ -320,19 +320,20 @@ input,select{-ms-box-sizing:content-box;
      top: 5px;
      right: 5px;
  }
-.global_task_panel .content .progressbar_flow{
+.global_task_panel .content .progressbar_flow {
      height: 30px;
      background: #ffab4a;
      border-radius: 5px;
      width: 50px;
  }
- .global_task_panel .content .progressbar.finished .progressbar_flow{
+ .global_task_panel .content .progressbar.finished .progressbar_flow {
      background:#89c152;
  }
-.global_task_panel .content .progressbar.error{
+.global_task_panel .content .progressbar.error,
+.global_task_panel .content .progressbar.error .progressbar_flow {
     background: #DE8D8B;
 }
- .global_task_panel .content .progressbar_text{
+ .global_task_panel .content .progressbar_text {
      position:absolute;
      height:30px;
      line-height:30px;
