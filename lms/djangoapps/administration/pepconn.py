@@ -84,8 +84,8 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
 
 
 def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~', length))
+    assert(length > 0)
+    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
 def paging(all, size, page):
