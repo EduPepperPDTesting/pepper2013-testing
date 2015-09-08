@@ -90,14 +90,14 @@ def import_user_submit(request):
 USER_CSV_COLS=('email',)
 
 def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefg&#%^*1234567890',length))
+    assert(length > 0)
+    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 def task_status(request):
     task=ImportTask.objects.get(id=request.POST.get('taskId'))
     
     if task:
-        j=json.dumps({'task':task.filename,'precent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}) #output_pipe.recv()
+        j=json.dumps({'task':task.filename,'percent':'%.2f' % ((float(task.process_lines)/float(task.total_lines)) * 100)}) #output_pipe.recv()
     else:
         j=json.dumps({'task':'no'})
     return HttpResponse(j)
