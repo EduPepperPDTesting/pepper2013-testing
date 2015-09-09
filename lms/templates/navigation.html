@@ -277,6 +277,7 @@ site_status_msg = get_site_status_msg(course_id)
         <% curr_user=user %>
         %endif
         
+        %if curr_user==request.user:
         %if curr_user.is_authenticated():
         <a href="/dashboard">
           %else:
