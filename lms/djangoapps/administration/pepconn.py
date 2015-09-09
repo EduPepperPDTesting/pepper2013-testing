@@ -28,7 +28,7 @@ from django.core.validators import validate_email, validate_slug, ValidationErro
 import gevent
 from django import db
 from models import *
-from io import StringIO
+from StringIO import StringIO
 from student.models import Transaction, District, Cohort, School, State
 from mail import send_html_mail
 from datetime import datetime, timedelta
@@ -84,8 +84,8 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
 
 
 def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~', length))
+    assert(length > 0)
+    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
 def paging(all, size, page):
@@ -276,7 +276,7 @@ def do_import_user(task, csv_lines, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = ImportTaskLog.objects.filter(task=task)
+    tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
         FIELDS = ["line", "username", "email", "district", "create_date", "error"]
         TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]

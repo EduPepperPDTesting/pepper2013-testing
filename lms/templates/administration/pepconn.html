@@ -31,8 +31,8 @@ f.close()
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 
 <!-- User Data Import -->
-<div style="padding-top:20px">
-  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+<div class = "data_import_top">
+  <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
       User Data Import <div class="icon"></div>
     </div>
@@ -90,8 +90,8 @@ f.close()
     </div>
   </div>
 </div>
-<div style="padding: 0 0 20px 0">
-  <div class="main" style="margin:auto;width:1180px;  border:1px solid #ddd ">
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
     </div>
@@ -320,6 +320,7 @@ f.close()
           'Delete Users',
           'Do you really want to delete the selected user(s)?',
           function(confirmed){
+            this.hide();
             if(confirmed){
               var args={ids:ids.join()};
               $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
