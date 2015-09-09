@@ -220,14 +220,18 @@ def certificate_delete(request):
 @user_passes_test(lambda u: u.is_superuser)
 def certificate_save(request):  
     cid = request.POST.get('id')
-    readonly = request.POST.get('readonly')=='true'
+    readonly = request.POST.get('readonly') == 'true'
     content = urllib.quote(request.POST.get('content').decode('utf8').encode('utf8'))
     info = {}
-    returnID = cid;  
+    returnID = cid
     c = Certificate.objects.filter(id=cid)
     try:
         if len(c) == 0:
-            cdata = Certificate.objects.create(certificate_name=request.POST.get('name'),association_type_id=request.POST.get('association_type'),association=request.POST.get('association'),certificate_blob=content,readonly=readonly)
+            cdata = Certificate.objects.create(certificate_name=request.POST.get('name'),
+                                               association_type_id=request.POST.get('association_type'),
+                                               association=request.POST.get('association'),
+                                               certificate_blob=content,
+                                               readonly=readonly)
             returnID = cdata.id
         else:
             uc = Certificate.objects.get(id=cid)
@@ -238,10 +242,10 @@ def certificate_save(request):
             uc.readonly = readonly
             uc.save()
             returnID = uc.id
-        info = {'success': True,'msg':'Save complete.','id':returnID}
+        info = {'success': True, 'msg': 'Save complete.', 'id': returnID}
     except db.utils.IntegrityError:
         info = {'success': False,'msg':'Certificate name already exists.'}
-    return HttpResponse(json.dumps(info),content_type="application/json")
+    return HttpResponse(json.dumps(info), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)

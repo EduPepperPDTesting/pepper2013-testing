@@ -94,7 +94,7 @@ class Migration(SchemaMigration):
             ('certificate_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('certificate_blob', self.gf('django.db.models.fields.TextField')(null=True)),
             ('readonly', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('association_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType'])),
+            ('association_type', self.gf('django.db.models.fields.IntegerField')()),
             ('association', self.gf('django.db.models.fields.IntegerField')()),
         ))
         db.send_create_signal('administration', ['Certificate'])
@@ -138,7 +138,7 @@ class Migration(SchemaMigration):
         'administration.certificate': {
             'Meta': {'object_name': 'Certificate', 'db_table': "'certificate'"},
             'association': ('django.db.models.fields.IntegerField', [], {}),
-            'association_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.CertificateAssociationType']"}),
+            'association_type': ('django.db.models.fields.IntegerField', [], {}),
             'certificate_blob': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'certificate_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
