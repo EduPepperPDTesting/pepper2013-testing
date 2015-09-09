@@ -1,5 +1,7 @@
 # Django settings for tests2 project.
 import django
+import sys
+sys.path.append("../..")
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

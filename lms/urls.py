@@ -15,6 +15,7 @@ urlpatterns = (
 ####### Ancestor
 
     (r'^saml2/', include('djangosaml2.urls')),
+    (r'^test/', 'djangosaml2.views.echo_attributes'),
     
     url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
