@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
-  <md:EntityDescriptor entityID="http://sp.example.com/saml2/metadata/">
+  <md:EntityDescriptor entityID="https://sp.example.com/saml2/metadata/">
     <md:SPSSODescriptor AuthnRequestsSigned="False" WantAssertionsSigned="True" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
       <md:KeyDescriptor>
 	<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -26,11 +26,11 @@ JMCJ3g73lNb3DTDS0UO+zLTlTHb1M/uJJnGY/CCb4kmoPRpxgMbybOh2TVfx9RHm
 	  </ds:X509Data>
 	</ds:KeyInfo>
       </md:KeyDescriptor>
-      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://sp.example.com/saml2/acs/" index="0" />
-      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://sp.example.com/saml2/ls/"/>
+      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sp.example.com/saml2/acs/" index="0" />
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://sp.example.com/saml2/ls/"/>
     </md:SPSSODescriptor>
     <md:Organization>
-      <md:OrganizationURL xml:lang="en">http://sp.example.com/</md:OrganizationURL>
+      <md:OrganizationURL xml:lang="en">https://sp.example.com/</md:OrganizationURL>
       <md:OrganizationName xml:lang="en">Lorenzo's test SP</md:OrganizationName>
       <md:OrganizationDisplayName xml:lang="en">sp.example.com</md:OrganizationDisplayName>
     </md:Organization>

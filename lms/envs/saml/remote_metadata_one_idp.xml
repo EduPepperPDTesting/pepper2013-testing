@@ -23,7 +23,7 @@
     <md:Organization>
       <md:OrganizationName xml:lang="en">Lorenzo's test IdP</md:OrganizationName>
       <md:OrganizationDisplayName xml:lang="en">idp.example.com IdP</md:OrganizationDisplayName>
-      <md:OrganizationURL xml:lang="en">http://idp.example.com/</md:OrganizationURL>
+      <md:OrganizationURL xml:lang="en">https://idp.example.com/</md:OrganizationURL>
     </md:Organization>
     <md:ContactPerson contactType="technical">
       <md:SurName>Administrator</md:SurName>

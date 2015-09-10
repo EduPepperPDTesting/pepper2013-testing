@@ -8,7 +8,7 @@ SAML_CONFIG = {
   'xmlsec_binary': '/usr/bin/xmlsec1',
 
   # your entity id, usually your subdomain plus the url to the metadata view
-  'entityid': 'http://localhost:8000/saml2/metadata/',
+  'entityid': 'https://lms.loc/saml2/metadata/',
 
   # directory with attribute mapping
   'attribute_map_dir': path.join(BASEDIR, 'attribute-maps'),
@@ -17,25 +17,26 @@ SAML_CONFIG = {
   'service': {
       # we are just a lonely SP
       'sp': {
+          "allow_unsolicited": True,
           'name': 'Federated Django sample SP',
           'name_id_format': saml.NAMEID_FORMAT_PERSISTENT,
           'endpoints': {
               # url and binding to the assetion consumer service view
               # do not change the binding or service name
               'assertion_consumer_service': [
-                  ('http://localhost:8000/saml2/acs/', saml2.BINDING_HTTP_POST),
+                  ('https://lms.loc/saml2/acs/', saml2.BINDING_HTTP_POST),
                   ],
               # url and binding to the single logout service view
               # do not change the binding or service name
               'single_logout_service': [
-                  ('http://localhost:8000/saml2/ls/', saml2.BINDING_HTTP_REDIRECT),
-                  ('http://localhost:8000/saml2/ls/post', saml2.BINDING_HTTP_POST),
+                  ('https://lms.loc/saml2/ls/', saml2.BINDING_HTTP_REDIRECT),
+                  ('https://lms.loc/saml2/ls/post', saml2.BINDING_HTTP_POST),
                 ]
               },
-           # attributes that this project need to identify a user
+          # attributes that this project need to identify a user
           'required_attributes': ['uid'],
 
-           # attributes that may be useful to have but not required
+          # attributes that may be useful to have but not required
           'optional_attributes': ['eduPersonAffiliation'],
 
           # in this section the list of IdPs we talk to are defined
@@ -45,12 +46,12 @@ SAML_CONFIG = {
               # present in our metadata
 
               # the keys of this dictionary are entity ids
-              'https://localhost/simplesaml/saml2/idp/metadata.php': {
+              'https://idp.example.com/simplesaml/saml2/idp/metadata.php': {
                   'single_sign_on_service': {
-                      saml2.BINDING_HTTP_REDIRECT: 'https://localhost/simplesaml/saml2/idp/SSOService.php',
+                      saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SSOService.php',
                       },
                   'single_logout_service': {
-                      saml2.BINDING_HTTP_REDIRECT: 'https://localhost/simplesaml/saml2/idp/SingleLogoutService.php',
+                      saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SingleLogoutService.php',
                       },
                   },
               },

@@ -17,7 +17,7 @@
 
 import os
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 from django.core import management
 import django

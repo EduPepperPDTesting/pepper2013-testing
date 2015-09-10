@@ -31,7 +31,9 @@ def create_conf(sp_host='sp.example.com', idp_hosts=['idp.example.com'],
     else:
         xmlsec_path = '/usr/bin/xmlsec1'
 
-    BASEDIR = os.path.dirname(os.path.abspath(__file__))
+    # BASEDIR = os.path.dirname(os.path.abspath(__file__))
+    BASEDIR = "../../../envs/saml"
+    
     config = {
         'xmlsec_binary': xmlsec_path,
         'entityid': 'http://%s/saml2/metadata/' % sp_host,

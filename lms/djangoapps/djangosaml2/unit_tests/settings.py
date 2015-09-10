@@ -1,7 +1,12 @@
 # Django settings for tests2 project.
 import django
 import sys
+
 sys.path.append("../..")
+sys.path.append("../../../../..")
+
+from siteconf import *
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -14,12 +19,12 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'database.sqlite',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': MYSQL_DB_W,
+        'USER': MYSQL_USER_W,
+        'PASSWORD': MYSQL_PASSWORD_W,
+        'HOST': MYSQL_HOST_W,
+        'PORT': MYSQL_PORT_W,
     }
 }
 
