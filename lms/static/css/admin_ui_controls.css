@@ -41,6 +41,11 @@ input[type=button].small {
     display: none;
 }
 
+.modal-wide {
+    width: 600px;
+    margin-left: -300px;
+}
+
 .modal .close-modal {
     border-radius: 2px;
     cursor: pointer;

@@ -506,7 +506,7 @@ site_status_msg = get_site_status_msg(course_id)
   <!--@date:2014-06-19-->
   %if request.user.is_authenticated():
   %if curr_user==request.user:
-  <section id="show_notifications" class="modal" style="width:600px;" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
+  <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
     <div class="inner-wrapper" style="width:578px;">
       <header>
         <h2>${_("notifications")}</h2>
@@ -1049,7 +1049,7 @@ site_status_msg = get_site_status_msg(course_id)
   <!--@date:2014-06-30-->
   %if request.user.is_authenticated():
   %if curr_user==request.user:
-  <section id="show_personalmessage" class="modal" style="width:600px;">
+  <section id="show_personalmessage" class="modal modal-wide">
     <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
       <header>
         <h2 class="message_board_full_name">${_("namename")}</h2>
