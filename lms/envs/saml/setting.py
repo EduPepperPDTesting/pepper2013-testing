@@ -4,6 +4,8 @@ from saml2 import saml
 
 BASEDIR = path.dirname(path.abspath(__file__))
 SAML_CONFIG = {
+  "allow_unknown_attributes": True,
+
   # full path to the xmlsec1 binary programm
   'xmlsec_binary': '/usr/bin/xmlsec1',
 
@@ -40,7 +42,7 @@ SAML_CONFIG = {
           'optional_attributes': ['eduPersonAffiliation'],
 
           # in this section the list of IdPs we talk to are defined
-          'idp': {
+          'idp00': {
               # we do not need a WAYF service since there is
               # only an IdP defined here. This IdP should be
               # present in our metadata
@@ -71,23 +73,23 @@ SAML_CONFIG = {
   'cert_file': path.join(BASEDIR, 'mycert.pem'),  # public part
 
   # own metadata settings
-  'contact_person': [
-      {'given_name': 'Lorenzo',
-       'sur_name': 'Gil',
-       'company': 'Yaco Sistemas',
-       'email_address': 'lgs@yaco.es',
-       'contact_type': 'technical'},
-      {'given_name': 'Angel',
-       'sur_name': 'Fernandez',
-       'company': 'Yaco Sistemas',
-       'email_address': 'angel@yaco.es',
-       'contact_type': 'administrative'},
-      ],
-  # you can set multilanguage information here
-  'organization': {
-      'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
-      'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
-      'url': [('http://www.yaco.es', 'es'), ('http://www.yaco.com', 'en')],
-      },
+  # 'contact_person': [
+  #     {'given_name': 'Lorenzo',
+  #      'sur_name': 'Gil',
+  #      'company': 'Yaco Sistemas',
+  #      'email_address': 'lgs@yaco.es',
+  #      'contact_type': 'technical'},
+  #     {'given_name': 'Angel',
+  #      'sur_name': 'Fernandez',
+  #      'company': 'Yaco Sistemas',
+  #      'email_address': 'angel@yaco.es',
+  #      'contact_type': 'administrative'},
+  #     ],
+  # # you can set multilanguage information here
+  # 'organization': {
+  #     'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
+  #     'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
+  #     'url': [('http://www.yaco.es', 'es'), ('http://www.yaco.com', 'en')],
+  #     },
   'valid_for': 24,  # how long is our metadata valid
   }

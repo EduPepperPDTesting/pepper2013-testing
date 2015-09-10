@@ -179,15 +179,21 @@ def assertion_consumer_service(request,
     # authenticate the remote user
     session_info = response.session_info()
 
+    session_info['email'] = session_info['ava']['email'][0]
+    from django.contrib.auth.models import User
+    user = User.objects.get(email=session_info['ava']['email'][0])
+    user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+
     if callable(attribute_mapping):
         attribute_mapping = attribute_mapping()
     if callable(create_unknown_user):
         create_unknown_user = create_unknown_user()
 
     logger.debug('Trying to authenticate the user')
-    user = auth.authenticate(session_info=session_info,
-                             attribute_mapping=attribute_mapping,
-                             create_unknown_user=create_unknown_user)
+    # user = auth.authenticate(session_info=session_info,
+    #                          attribute_mapping=attribute_mapping,
+    #                          create_unknown_user=create_unknown_user)
+    
     if user is None:
         logger.error('The user is None')
         return HttpResponseForbidden("Permission denied")
@@ -204,7 +210,8 @@ def assertion_consumer_service(request,
         logger.warning('The RelayState parameter exists but is empty')
         relay_state = settings.LOGIN_REDIRECT_URL
     logger.debug('Redirecting to the RelayState: ' + relay_state)
-    return HttpResponseRedirect(relay_state)
+    return HttpResponseRedirect("/courses/WestEd/MA103x/2014_Spring/courseware")
+    # return HttpResponseRedirect(relay_state)
 
 
 @login_required
