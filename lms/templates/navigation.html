@@ -563,8 +563,8 @@ site_status_msg = get_site_status_msg(course_id)
         RecordTime.setSessionCourseID("${course.id}");
       %endif
       courseTimer.start();
+      RecordTime.coursePosition = position;
       RecordTime.sessionInit();
-      console.log("getSessionVerticalId:" + RecordTime.getSessionVerticalId())
       var vertical_id = $("#sequence-list li .active").attr("data-id");
       var time = new Date().toISOString();
       var path = RecordTime.getCourseFullPath(document.URL, position);
@@ -581,6 +581,7 @@ site_status_msg = get_site_status_msg(course_id)
           RecordTime.ajaxRecordTime(data, function() {
             RecordTime.setSessionVerticalId(vertical_id);
             RecordTime.setSessionTime(time);
+            courseTimer.load();
           })
 
       } else {
@@ -620,8 +621,41 @@ site_status_msg = get_site_status_msg(course_id)
   }
 
 //---------------------------------------------------------------------------//
-
+  
    $(function() {
+     $(window).blur(function(e) {
+      console.log(e.type);
+      course_refresh_or_exit();
+      if (RecordTime.getSessionCourseType() != 'courseware') {courseTimer.stop();}
+      if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
+        RecordTime.sessionInit();
+        var data = {
+          'type': 'new_page',
+          'user_id': RecordTime.userID,
+          'time': (new Date()).toISOString(),
+          'prev_vertical_id': RecordTime.getSessionVerticalId(),
+          'prev_time': RecordTime.getSessionTime()
+        }
+        RecordTime.ajaxRecordTime(data, function() {
+          RecordTime.setSessionVerticalId("");
+          RecordTime.setSessionTime("");
+          courseTimer.load();
+        })
+    }
+  })
+    $(window).focus(function(e) {  
+      console.log(e.type);
+      course_refresh_or_exit();
+      if (document.URL.indexOf('courseware') < 0) {
+          courseTimer.isrun = false;
+          courseTimer.create();
+      }
+      else
+      {
+        record_time(RecordTime.coursePosition);
+      }
+    })
+    
      course_refresh_or_exit();
      courseTimer = new CourseTimer();
 

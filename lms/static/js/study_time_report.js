@@ -1,10 +1,7 @@
-
 var study_time_content_isload = false;
 var study_time_content_loadNum = 0;
 var study_time_content_totalNum = 0;
 var cur_course_id = "";
-
-
 $(function() {
   study_time_content_update(study_time_content_loadNum);
   $(".top_btn").click(function() {
@@ -69,7 +66,7 @@ function study_time_content_createItem(data) {
   var idArr = data.location.split("/");
   var data_id = idArr[0] + "/" + idArr[1];
   var data_course_id = idArr[0] + "/" + idArr[1] + "/" + idArr[2];
-  var ele = $('<div style="padding-bottom:20px;" class="vertical_info"><table cellspacing="10"><tr><td style="padding-top:15px;"><div style="width:280px; height:100px; background:url(/c4x/' + data_id + '/asset/course_author_img.jpg);background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><div class="course_title"><b>Course:</b> ' + data.course_name + '</div><div class="course_title"><b>Discussion Time:</b> ' + study_time_format(data.discussion_time) + '</div><div class="course_title"><b>External Course Time:</b> ' + study_time_format(data.external_time) + '</div></td></tr><tr><td width="400" style="padding-top:15px;"><b>Chapter:</b></td><td style="padding-top:15px;"><b>Studying time:</b></td></tr></table></div>');
+  var ele = $('<div style="padding-bottom:20px;" class="vertical_info"><table cellspacing="10"><tr><td style="padding-top:15px;"><div style="width:280px; height:100px; background:url(/c4x/' + data_id + '/asset/course_author_img.jpg);background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><div class="course_title"><b>Course:</b> ' + data.course_name + '</div><div class="course_title"><b>Discussion:</b> ' + study_time_format(data.discussion_time) + '</div><div class="course_title"><b>Portfolio:</b> ' + study_time_format(data.portfolio_time) + '</div><div class="course_title"><b>External Course Time:</b> ' + study_time_format(data.external_time) + '</div></td></tr><tr><td width="400" style="padding-top:15px;"><b>Chapter:</b></td><td style="padding-top:15px;"><b>Studying time:</b></td></tr></table></div>');
   element = $('<div style="padding-bottom:20px;" course-id="' + data_course_id + '"><table><tr><td width="400"><div><a class="vertical_title" course_title="' + data.course_name + '" href="/courses/' + data.location + '">' + data.vertical_name + '</a></div></td><td><div class="timeItem" data-id="' + data.vertical_id + '">' + study_time_format(data.time) + '</div></td></tr></table><hr/></div>');
   if (cur_course_id == "" || cur_course_id != data_course_id || $("div[course-id=" + "'" + data_course_id + "'" + "]").length < 1) {
     cur_course_id = data_course_id;
