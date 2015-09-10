@@ -626,7 +626,10 @@ site_status_msg = get_site_status_msg(course_id)
      $(window).blur(function(e) {
       console.log(e.type);
       course_refresh_or_exit();
-      if (RecordTime.getSessionCourseType() != 'courseware') {courseTimer.stop();}
+      if (document.URL.indexOf('courseware') < 0) {
+          courseTimer.stop();
+          courseTimer.save();
+      }
       if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
         RecordTime.sessionInit();
         var data = {
