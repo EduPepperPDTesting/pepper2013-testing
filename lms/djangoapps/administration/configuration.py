@@ -239,8 +239,9 @@ def certificate_save(request):
             returnID = uc.id
         info = {'success': True,'msg':'Save complete.','id':returnID}
     except db.utils.IntegrityError:
-        info = {'success': False,'msg':'Certificate name already exists.'}
-    return HttpResponse(json.dumps(info),content_type="application/json")
+        info = {'success': False, 'msg': 'Certificate name already exists.'}
+
+    return HttpResponse(json.dumps(info), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -262,10 +263,10 @@ def certificate_loadData(request):
 
 def has_hangout_perms(user):
     try:
-        user_profile = UserProfile.objects.filter(user=user)
-        permissions = HangoutPermissions.objects.filter(district=user_profile.district)
+        user_profile = UserProfile.objects.get(user=user.id)
+        permissions = HangoutPermissions.objects.get(district=user_profile.district_id)
         permission = permissions.permission
-    except Exception:
+    except HangoutPermissions.DoesNotExist:
         permission = 1
         
     return permission
