@@ -434,7 +434,7 @@ def download_certificate(request, course_id, completed_time):
     # user_name = first_name + ' ' + last_name
     course_full_name = user_course.display_number_with_default + " " + course_name
     estimated_effort = user_course.certificates_estimated_effort
-    completed_time = datetime.datetime.strptime(completed_time, '%Y-%M-%d').strftime('%B %d, %Y ')
+    completed_time = datetime.datetime.strptime(completed_time, '%Y-%m-%d').strftime('%B %d, %Y ')
     blob = urllib.unquote(getCertificateBlob(request, user_course.display_organization).decode('utf8').encode('utf8'))
     output_error = ''
     try:
