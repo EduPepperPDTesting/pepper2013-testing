@@ -287,17 +287,21 @@
       .cover {
         @include box-sizing(border-box);
         float: left;
-        height: 100%;
         max-height: 100%;
         margin: 0px;
         overflow: hidden;
         position: relative;
         @include transition(all 0.15s linear 0s);
         width: 200px;
-        height: 120px;
+        height: 135px;
 
         img {
           width: 100%;
+        }
+
+        .course-time {
+          font-size: 13px;
+          padding-top: 10px;
         }
       }
 
