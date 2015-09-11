@@ -258,7 +258,7 @@ def do_import_user(task, csv_lines, request):
 
                     subject = ''.join(subject.splitlines())
 
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
             
@@ -541,7 +541,7 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
             
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', user.email])
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -554,7 +554,7 @@ def do_send_registration_email(task, user_ids, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = EmailTaskLog.objects.filter(task=task)
+    tasklogs = EmailTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
