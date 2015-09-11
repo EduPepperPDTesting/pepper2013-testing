@@ -645,8 +645,6 @@ site_status_msg = get_site_status_msg(course_id)
      $(window).focus(function(e) {
        //console.log(e.type);
        course_refresh_or_exit();
-       courseTimer.isrun = false;
-       courseTimer.create();
        if (document.URL.indexOf('courseware') > -1) {
          record_time(RecordTime.coursePosition);
        }
@@ -654,6 +652,8 @@ site_status_msg = get_site_status_msg(course_id)
     
      course_refresh_or_exit();
      courseTimer = new CourseTimer();
+     courseTimer.isrun = false;
+     courseTimer.create();
 
      interactive_update();
      $(".info_count_btn").click(function() {
