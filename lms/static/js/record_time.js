@@ -138,12 +138,12 @@ CourseTimer.prototype.run = function() {
 
 CourseTimer.prototype.draw = function() {
     if (this.element != null) {
-        this.hour = this.padding(Math.floor(this.time / 60 / 60));
-        this.minute = this.padding(Math.floor(this.time / 60 % 60));
-        this.second = this.padding(Math.floor(this.time % 60));
-        this.hour_ele.html(this.hour);
-        this.minute_ele.html(this.minute);
-        this.second_ele.html(this.second);
+        //this.hour = this.padding(Math.floor(this.time / 60 / 60));
+        //this.minute = this.padding(Math.floor(this.time / 60 % 60));
+        //this.second = this.padding(Math.floor(this.time % 60));
+        //this.hour_ele.html(this.hour);
+        //this.minute_ele.html(this.minute);
+        //this.second_ele.html(this.second);
         this.display_ele.html(this.format(this.time))
     }
 };
@@ -203,11 +203,9 @@ CourseTimer.prototype.save = function() {
 CourseTimer.prototype.format = function(t) {
     var hour = Math.floor(t / 60 / 60);
     var minute = Math.floor(t / 60 % 60);
-    var second = Math.floor(t % 60);
-    var hour_unit = hour < 2 ? ' Hour, ' : ' Hours, ';
-    var minute_unit = minute < 2 ? ' Minute ' : ' Minutes ';
-    var hour_full = hour > 0 ? hour + hour_unit : '';
-    return hour_full + minute + minute_unit;
+    var hour_unit = hour == 1 ? ' Hour, ' : ' Hours, ';
+    var minute_unit = minute == 1 ? ' Minute ' : ' Minutes ';
+    return hour + hour_unit + minute + minute_unit;
 };
 
 CourseTimer.prototype.padding = function(v) {
@@ -234,14 +232,14 @@ CourseTimer.prototype.getType = function() {
 CourseTimer.prototype.createClock = function($container) {
 
     $container.empty();
-    this.element = $("<div class='course_timer_div' style='float:right;'>Course Time: <span class='course_timer_display'></span> / <span class='course_timer_hour'>00</span>:<span class='course_timer_minute'>00</span>:<span class='course_timer_second'>00</span></div>");
-    this.btn = $("<input type='button' onclick='location.href=\"/study_time\"' value='Time' style='margin-left:5px;float:right;padding:0px 5px 0px 5px;font-size:11px;height:25px;'/>");
+    this.element = $("<div class='course_timer_div'>Course Time: <span></span></div>");
+    //this.btn = $("<input type='button' onclick='location.href=\"/study_time\"' value='Time' style='margin-left:5px;float:right;padding:0px 5px 0px 5px;font-size:11px;height:25px;'/>");
     $container.prepend(this.element);
-    this.element.append(this.btn);
-    this.hour_ele = this.element.find('.course_timer_hour');
-    this.minute_ele = this.element.find('.course_timer_minute');
-    this.second_ele = this.element.find('.course_timer_second');
-    this.display_ele = this.element.find('.course_timer_display');
+    //this.element.append(this.btn);
+    //this.hour_ele = this.element.find('.course_timer_hour');
+    //this.minute_ele = this.element.find('.course_timer_minute');
+    //this.second_ele = this.element.find('.course_timer_second');
+    this.display_ele = this.element.find('.course_timer_div span');
 
 }
 
