@@ -620,7 +620,7 @@ site_status_msg = get_site_status_msg(course_id)
   
    $(function() {
      $(window).blur(function(e) {
-      console.log(e.type);
+      //console.log(e.type);
       course_refresh_or_exit();
       if (document.URL.indexOf('courseware') < 0) {
           courseTimer.stop();
@@ -643,7 +643,7 @@ site_status_msg = get_site_status_msg(course_id)
     }
   })
     $(window).focus(function(e) {  
-      console.log(e.type);
+      //console.log(e.type);
       course_refresh_or_exit();
       if (document.URL.indexOf('courseware') < 0) {
           courseTimer.isrun = false;

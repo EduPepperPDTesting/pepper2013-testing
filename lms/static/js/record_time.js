@@ -175,7 +175,7 @@ CourseTimer.prototype.load = function() {
         } else {
             self.time = 0;
         }
-        console.log("user_id:" + RecordTime.userID + "course_id:" + RecordTime.getSessionCourseID())
+        //console.log("user_id:" + RecordTime.userID + "course_id:" + RecordTime.getSessionCourseID())
         if (RecordTime.getSessionCourseType() != 'courseware') {
             self.run();
         } else {
@@ -224,7 +224,7 @@ CourseTimer.prototype.getType = function() {
             return '';
         }
     } else {
-        console.log("Without this category.")
+        //console.log("Without this category.")
     }
     return type;
 };
@@ -232,14 +232,14 @@ CourseTimer.prototype.getType = function() {
 CourseTimer.prototype.createClock = function($container) {
 
     $container.empty();
-    this.element = $("<div class='course_timer_div'>Course Time: <span></span></div>");
+    this.element = $("<div class='course_timer_div'>Course Time: <span class='course_timer_display'></span></div>");
     //this.btn = $("<input type='button' onclick='location.href=\"/study_time\"' value='Time' style='margin-left:5px;float:right;padding:0px 5px 0px 5px;font-size:11px;height:25px;'/>");
     $container.prepend(this.element);
     //this.element.append(this.btn);
     //this.hour_ele = this.element.find('.course_timer_hour');
     //this.minute_ele = this.element.find('.course_timer_minute');
     //this.second_ele = this.element.find('.course_timer_second');
-    this.display_ele = this.element.find('.course_timer_div span');
+    this.display_ele = this.element.find('.course_timer_display');
 
 }
 
