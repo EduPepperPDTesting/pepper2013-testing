@@ -527,11 +527,11 @@ def do_send_registration_email(task, user_ids, request):
             tasklog.error = "ok"
             
             reg = Registration.objects.get(user=user)
-            props = {'key': reg.activation_key, 'district': user.profile.district.name}
+            props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
-                custom_email = request.POST.get("custom_email_002")
+                custom_email = request.POST.get("custom_email")
                 custom_email_subject = request.POST.get("custom_email_subject")
                 subject = render_from_string(custom_email_subject, props)
                 body = render_from_string(custom_email, props)
