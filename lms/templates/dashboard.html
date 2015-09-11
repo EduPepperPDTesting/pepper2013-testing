@@ -680,6 +680,7 @@ Add info that you would like to share about yourself here:
             <a href="" class="cover" style="cursor:default;" onclick="return false;">
           %endif
               <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
+              <div class="course-time">${course_times[course.id]}</div>
             </a>
 <!--@end-->          
             % else:

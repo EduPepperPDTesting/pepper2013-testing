@@ -458,8 +458,10 @@ def dashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
+    rts = record_time_store()
     cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
+    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
     # get info w.r.t ExternalAuthMap
     external_auth_map = None
@@ -467,7 +469,7 @@ def dashboard(request, user_id=None):
         external_auth_map = ExternalAuthMap.objects.get(user=user)
     except ExternalAuthMap.DoesNotExist:
         pass
-    rts = record_time_store()
+
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
     collaboration_time = discussion_time + portfolio_time
@@ -487,7 +489,8 @@ def dashboard(request, user_id=None):
         'havent_enroll': exists,
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
-        'total_time_in_pepper': study_time_format(total_time_in_pepper)
+        'total_time_in_pepper': study_time_format(total_time_in_pepper),
+        'course_times': course_times
     }
 
     return render_to_response('dashboard.html', context)
