@@ -574,86 +574,83 @@ site_status_msg = get_site_status_msg(course_id)
         'location': path
       };
       if (RecordTime.getSessionVerticalId() != vertical_id) {
+        RecordTime.ajaxRecordTime(data, function() {
+          RecordTime.setSessionVerticalId(vertical_id);
+          RecordTime.setSessionTime(time);
+          courseTimer.load();
+        });
+
+      } else {
+        if (RecordTime.firstRun) {
           RecordTime.ajaxRecordTime(data, function() {
             RecordTime.setSessionVerticalId(vertical_id);
             RecordTime.setSessionTime(time);
-            courseTimer.load();
-          })
-
-      } else {
-
-          if (RecordTime.firstRun) {
-              RecordTime.ajaxRecordTime(data, function() {
-                RecordTime.setSessionVerticalId(vertical_id);
-                RecordTime.setSessionTime(time);
-                RecordTime.firstRun = false;
-              })
-          }
+            RecordTime.firstRun = false;
+          });
+        }
       }
     }
 //---------------------Record time (Course refresh or exit)--------------------------//
 
    function course_refresh_or_exit() { 
-      %if request.user.id is not None:
-        sessionStorage['user_id'] = "${request.user.id}"; 
-      %endif
-      %if course:
-        RecordTime.setSessionCourseID("${course.id}"); 
-      %endif
-      RecordTime.sessionInit();
-    if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
-      var data = {
-        'type': 'new_page',
-        'user_id': RecordTime.userID,
-        'time': (new Date()).toISOString(),
-        'prev_vertical_id': RecordTime.getSessionVerticalId(),
-        'prev_time': RecordTime.getSessionTime()
-      }
-      RecordTime.ajaxRecordTime(data, function() {
-        RecordTime.setSessionVerticalId("");
-        RecordTime.setSessionTime("");
-      })
-    }
-  }
+     %if request.user.id is not None:
+       sessionStorage['user_id'] = "${request.user.id}";
+     %endif
+     %if course:
+       RecordTime.setSessionCourseID("${course.id}");
+     %endif
+     RecordTime.sessionInit();
+     if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+       var data = {
+         'type': 'new_page',
+         'user_id': RecordTime.userID,
+         'time': (new Date()).toISOString(),
+         'prev_vertical_id': RecordTime.getSessionVerticalId(),
+         'prev_time': RecordTime.getSessionTime()
+       };
+       RecordTime.ajaxRecordTime(data, function() {
+         RecordTime.setSessionVerticalId("");
+         RecordTime.setSessionTime("");
+       });
+     }
+   }
 
 //---------------------------------------------------------------------------//
   
    $(function() {
      $(window).blur(function(e) {
-      //console.log(e.type);
-      course_refresh_or_exit();
-      if (document.URL.indexOf('courseware') < 0) {
-          courseTimer.stop();
-          courseTimer.save();
-      }
-      if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
-        RecordTime.sessionInit();
-        var data = {
-          'type': 'new_page',
-          'user_id': RecordTime.userID,
-          'time': (new Date()).toISOString(),
-          'prev_vertical_id': RecordTime.getSessionVerticalId(),
-          'prev_time': RecordTime.getSessionTime()
-        }
-        RecordTime.ajaxRecordTime(data, function() {
-          RecordTime.setSessionVerticalId("");
-          RecordTime.setSessionTime("");
-          courseTimer.load();
-        })
-    }
-  })
-    $(window).focus(function(e) {  
-      //console.log(e.type);
-      course_refresh_or_exit();
-      if (document.URL.indexOf('courseware') < 0) {
-          courseTimer.isrun = false;
-          courseTimer.create();
-      }
-      else
-      {
-        record_time(RecordTime.coursePosition);
-      }
-    })
+       //console.log(e.type);
+       course_refresh_or_exit();
+       if (document.URL.indexOf('courseware') < 0) {
+           courseTimer.stop();
+           courseTimer.save();
+       }
+       if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
+         RecordTime.sessionInit();
+         var data = {
+           'type': 'new_page',
+           'user_id': RecordTime.userID,
+           'time': (new Date()).toISOString(),
+           'prev_vertical_id': RecordTime.getSessionVerticalId(),
+           'prev_time': RecordTime.getSessionTime()
+         };
+         RecordTime.ajaxRecordTime(data, function() {
+           RecordTime.setSessionVerticalId("");
+           RecordTime.setSessionTime("");
+           courseTimer.load();
+         });
+       }
+     });
+
+     $(window).focus(function(e) {
+       //console.log(e.type);
+       course_refresh_or_exit();
+       courseTimer.isrun = false;
+       courseTimer.create();
+       if (document.URL.indexOf('courseware') > -1) {
+         record_time(RecordTime.coursePosition);
+       }
+     });
     
      course_refresh_or_exit();
      courseTimer = new CourseTimer();
@@ -673,11 +670,11 @@ site_status_msg = get_site_status_msg(course_id)
 
      $(".message_board_uploadBtn").click(function() {
        $("#message_board_browseFile").click();
-     })
+     });
 
      $(".message_board_linkBtn").click(function() {
        $(".linkwin").show();
-     })
+     });
 
      $("#hyperlink_okBtn").click(function() {
        var content = $(".message_board_content");
@@ -689,16 +686,16 @@ site_status_msg = get_site_status_msg(course_id)
          content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
          $(".linkwin").hide();
        }
-     })
+     });
 
      $("#hyperlink_cancelBtn").click(function() {
        $(".linkwin").hide();
-     })
+     });
 
      $("#message_board_close").click(function() {
-         $(".linkwin").hide();
-         message_board_clearContent();
-       })
+       $(".linkwin").hide();
+       message_board_clearContent();
+     });
 
     //-----------------------------------------------------------------
      $(".message_board_content").focusin(function() {
@@ -734,7 +731,7 @@ site_status_msg = get_site_status_msg(course_id)
          message_board_getMessage(message_board_loadNum);
        }
      })
-   })
+   });
 
    function interactive_update_createItem(data) {
      var body = data.body == undefined ? '' : data.body;
