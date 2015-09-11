@@ -205,7 +205,8 @@ CourseTimer.prototype.format = function(t) {
     var minute = Math.floor(t / 60 % 60);
     var hour_unit = hour == 1 ? ' Hour, ' : ' Hours, ';
     var minute_unit = minute == 1 ? ' Minute ' : ' Minutes ';
-    return hour + hour_unit + minute + minute_unit;
+    var hour_full = hour > 0 ? hour + hour_unit : '';
+    return hour_full + minute + minute_unit;
 };
 
 CourseTimer.prototype.padding = function(v) {
