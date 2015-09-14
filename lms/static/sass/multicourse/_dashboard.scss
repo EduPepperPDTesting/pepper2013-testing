@@ -301,13 +301,16 @@
 
         
       }
-      .course-time {
+      .course-time, .course-time-completed {
           font-size: 14px;
           padding-top: 10px;
           color: #646464;
-          margin-top: 32px;
           float: right;
-        }
+      }
+      .course-time {
+        margin-top: 32px;
+      }
+
       .info {
         @include clearfix;
         padding: 0 10px 0 230px;
