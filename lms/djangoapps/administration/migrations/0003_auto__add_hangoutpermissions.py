@@ -8,125 +8,18 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'ImportTask'
-        db.create_table('admin_import_task', (
+        # Adding model 'HangoutPermissions'
+        db.create_table('hangout_permissions', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('filename', self.gf('django.db.models.fields.CharField')(max_length=255, db_index=True)),
-            ('total_lines', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('process_lines', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('success_lines', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('update_time', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('task_read', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('district', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['student.District'])),
+            ('permission', self.gf('django.db.models.fields.BooleanField')(default=True)),
         ))
-        db.send_create_signal('administration', ['ImportTask'])
-
-        # Adding model 'ImportTaskLog'
-        db.create_table('admin_import_task_log', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.ImportTask'], on_delete=models.PROTECT)),
-            ('line', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('username', self.gf('django.db.models.fields.CharField')(max_length=30, db_index=True)),
-            ('email', self.gf('django.db.models.fields.CharField')(max_length=75, db_index=True)),
-            ('district_name', self.gf('django.db.models.fields.CharField')(max_length=255, db_index=True)),
-            ('create_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('error', self.gf('django.db.models.fields.CharField')(max_length=255, db_index=True)),
-        ))
-        db.send_create_signal('administration', ['ImportTaskLog'])
-
-        # Adding model 'EmailTask'
-        db.create_table('admin_email_task', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('total_emails', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('process_emails', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('success_emails', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('update_time', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('task_read', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('administration', ['EmailTask'])
-
-        # Adding model 'EmailTaskLog'
-        db.create_table('admin_email_task_log', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('send_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('task', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.EmailTask'], on_delete=models.PROTECT)),
-            ('username', self.gf('django.db.models.fields.CharField')(max_length=30, db_index=True)),
-            ('email', self.gf('django.db.models.fields.CharField')(max_length=75, db_index=True)),
-            ('district_name', self.gf('django.db.models.fields.CharField')(max_length=255, db_index=True)),
-            ('error', self.gf('django.db.models.fields.CharField')(max_length=255, db_index=True)),
-        ))
-        db.send_create_signal('administration', ['EmailTaskLog'])
-
-        # Adding model 'FilterFavorite'
-        db.create_table('admin_filter_favorite', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=150, db_index=True)),
-            ('filter_json', self.gf('django.db.models.fields.CharField')(max_length=4096, db_index=True)),
-        ))
-        db.send_create_signal('administration', ['FilterFavorite'])
-
-        # Adding model 'TaskExecutorLog'
-        db.create_table('admin_task_executor_log', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('operation', self.gf('django.db.models.fields.CharField')(max_length=150, db_index=True)),
-            ('execute_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-        ))
-        db.send_create_signal('administration', ['TaskExecutorLog'])
-
-        # Adding model 'Author'
-        db.create_table('author', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('administration', ['Author'])
-
-        # Adding model 'CertificateAssociationType'
-        db.create_table('certificate_association_type', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('administration', ['CertificateAssociationType'])
-
-        # Adding model 'Certificate'
-        db.create_table('certificate', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('certificate_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('certificate_blob', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('readonly', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('association_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType'])),
-            ('association', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('administration', ['Certificate'])
+        db.send_create_signal('administration', ['HangoutPermissions'])
 
 
     def backwards(self, orm):
-        # Deleting model 'ImportTask'
-        db.delete_table('admin_import_task')
-
-        # Deleting model 'ImportTaskLog'
-        db.delete_table('admin_import_task_log')
-
-        # Deleting model 'EmailTask'
-        db.delete_table('admin_email_task')
-
-        # Deleting model 'EmailTaskLog'
-        db.delete_table('admin_email_task_log')
-
-        # Deleting model 'FilterFavorite'
-        db.delete_table('admin_filter_favorite')
-
-        # Deleting model 'TaskExecutorLog'
-        db.delete_table('admin_task_executor_log')
-
-        # Deleting model 'Author'
-        db.delete_table('author')
-
-        # Deleting model 'CertificateAssociationType'
-        db.delete_table('certificate_association_type')
-
-        # Deleting model 'Certificate'
-        db.delete_table('certificate')
+        # Deleting model 'HangoutPermissions'
+        db.delete_table('hangout_permissions')
 
 
     models = {
@@ -138,7 +31,7 @@ class Migration(SchemaMigration):
         'administration.certificate': {
             'Meta': {'object_name': 'Certificate', 'db_table': "'certificate'"},
             'association': ('django.db.models.fields.IntegerField', [], {}),
-            'association_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.CertificateAssociationType']"}),
+            'association_type': ('django.db.models.fields.IntegerField', [], {}),
             'certificate_blob': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'certificate_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -156,7 +49,8 @@ class Migration(SchemaMigration):
             'success_emails': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'task_read': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'total_emails': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
+            'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': '0', 'to': "orm['auth.User']"})
         },
         'administration.emailtasklog': {
             'Meta': {'object_name': 'EmailTaskLog', 'db_table': "'admin_email_task_log'"},
@@ -175,6 +69,12 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '150', 'db_index': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
+        'administration.hangoutpermissions': {
+            'Meta': {'object_name': 'HangoutPermissions', 'db_table': "'hangout_permissions'"},
+            'district': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.District']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'permission': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
+        },
         'administration.importtask': {
             'Meta': {'object_name': 'ImportTask', 'db_table': "'admin_import_task'"},
             'filename': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
@@ -183,7 +83,8 @@ class Migration(SchemaMigration):
             'success_lines': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'task_read': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'total_lines': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'})
+            'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': '0', 'to': "orm['auth.User']"})
         },
         'administration.importtasklog': {
             'Meta': {'object_name': 'ImportTaskLog', 'db_table': "'admin_import_task_log'"},
@@ -195,13 +96,6 @@ class Migration(SchemaMigration):
             'line': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'task': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.ImportTask']", 'on_delete': 'models.PROTECT'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'db_index': 'True'})
-        },
-        'administration.taskexecutorlog': {
-            'Meta': {'object_name': 'TaskExecutorLog', 'db_table': "'admin_task_executor_log'"},
-            'execute_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'operation': ('django.db.models.fields.CharField', [], {'max_length': '150', 'db_index': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -238,6 +132,19 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'student.district': {
+            'Meta': {'object_name': 'District', 'db_table': "'district'"},
+            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
+            'state': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.State']", 'on_delete': 'models.PROTECT'})
+        },
+        'student.state': {
+            'Meta': {'object_name': 'State', 'db_table': "'state'"},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'so': ('django.db.models.fields.IntegerField', [], {})
         }
     }
 

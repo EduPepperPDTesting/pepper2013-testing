@@ -819,7 +819,7 @@ INSTALLED_APPS = (
     'django_comment_common',
     'notes',
 
-    # User API
+    # User API  
     'rest_framework',
     'user_api',
 

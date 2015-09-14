@@ -187,6 +187,7 @@ site_status_msg = get_site_status_msg(course_id)
  #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
+<script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
  a.configuration{
    color:#646464;
@@ -252,10 +253,6 @@ site_status_msg = get_site_status_msg(course_id)
    top: -6px;
    width: 0px;
  }
- .course_timer{
-  width:800px;
-  height:30px;
-}
 </style>
 
 % if course:
@@ -547,10 +544,117 @@ site_status_msg = get_site_status_msg(course_id)
    var message_board_maxCharNum = 1000;
    var message_board_hover = 0;
 
+//---------------------Record time variable-------------------------------------------//
+
+   var courseTimer = null;
+   RecordTime.firstRun = true;
+
+//---------------------Record time (Page switching)----------------------------------//
+
+    function record_time(position) { 
+      %if request.user.id is not None:
+        sessionStorage['user_id'] = "${request.user.id}"; 
+      %endif
+      %if course:
+        RecordTime.setSessionCourseID("${course.id}");
+      %endif
+      courseTimer.start();
+      RecordTime.coursePosition = position;
+      RecordTime.sessionInit();
+      var vertical_id = $("#sequence-list li .active").attr("data-id");
+      var time = new Date().toISOString();
+      var path = RecordTime.getCourseFullPath(document.URL, position);
+      var data = {
+        'type': 'course_page',
+        'user_id': RecordTime.userID,
+        'time': time,
+        'new_vertical_id': vertical_id,
+        'prev_vertical_id': RecordTime.getSessionVerticalId(),
+        'prev_time': RecordTime.getSessionTime(),
+        'location': path
+      };
+      if (RecordTime.getSessionVerticalId() != vertical_id) {
+        RecordTime.ajaxRecordTime(data, function() {
+          RecordTime.setSessionVerticalId(vertical_id);
+          RecordTime.setSessionTime(time);
+          courseTimer.load();
+        });
+
+      } else {
+        if (RecordTime.firstRun) {
+          RecordTime.ajaxRecordTime(data, function() {
+            RecordTime.setSessionVerticalId(vertical_id);
+            RecordTime.setSessionTime(time);
+            RecordTime.firstRun = false;
+          });
+        }
+      }
+    }
+//---------------------Record time (Course refresh or exit)--------------------------//
+
+   function course_refresh_or_exit() { 
+     %if request.user.id is not None:
+       sessionStorage['user_id'] = "${request.user.id}";
+     %endif
+     %if course:
+       RecordTime.setSessionCourseID("${course.id}");
+     %endif
+     RecordTime.sessionInit();
+     if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+       var data = {
+         'type': 'new_page',
+         'user_id': RecordTime.userID,
+         'time': (new Date()).toISOString(),
+         'prev_vertical_id': RecordTime.getSessionVerticalId(),
+         'prev_time': RecordTime.getSessionTime()
+       };
+       RecordTime.ajaxRecordTime(data, function() {
+         RecordTime.setSessionVerticalId("");
+         RecordTime.setSessionTime("");
+       });
+     }
+   }
 
 //---------------------------------------------------------------------------//
-
+  
    $(function() {
+     $(window).blur(function(e) {
+       //console.log(e.type);
+       course_refresh_or_exit();
+       if (document.URL.indexOf('courseware') < 0) {
+           courseTimer.stop();
+           courseTimer.save();
+       }
+       if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
+         RecordTime.sessionInit();
+         var data = {
+           'type': 'new_page',
+           'user_id': RecordTime.userID,
+           'time': (new Date()).toISOString(),
+           'prev_vertical_id': RecordTime.getSessionVerticalId(),
+           'prev_time': RecordTime.getSessionTime()
+         };
+         RecordTime.ajaxRecordTime(data, function() {
+           RecordTime.setSessionVerticalId("");
+           RecordTime.setSessionTime("");
+           courseTimer.load();
+         });
+       }
+     });
+
+     $(window).focus(function(e) {
+       //console.log(e.type);
+       course_refresh_or_exit();
+       if (document.URL.indexOf('courseware') > -1) {
+         record_time(RecordTime.coursePosition);
+       }
+     });
+    
+     course_refresh_or_exit();
+     courseTimer = new CourseTimer();
+     courseTimer.isrun = false;
+     courseTimer.create();
+
      interactive_update();
      $(".info_count_btn").click(function() {
        interactive_update();
@@ -627,7 +731,7 @@ site_status_msg = get_site_status_msg(course_id)
          message_board_getMessage(message_board_loadNum);
        }
      })
-   })
+   });
 
    function interactive_update_createItem(data) {
      var body = data.body == undefined ? '' : data.body;

@@ -48,7 +48,7 @@ class Migration(SchemaMigration):
         'administration.certificate': {
             'Meta': {'object_name': 'Certificate', 'db_table': "'certificate'"},
             'association': ('django.db.models.fields.IntegerField', [], {}),
-            'association_type': ('django.db.models.fields.IntegerField', [], {}),
+            'association_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.CertificateAssociationType']"}),
             'certificate_blob': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'certificate_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

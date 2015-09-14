@@ -1,31 +1,30 @@
-from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
-from django_future.csrf import ensure_csrf_cookie
+# from django.conf import settings
+# from django.core.urlresolvers import reverse
+# from django.shortcuts import redirect
+# from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response, render_to_string
-from student.models import ResourceLibrary,StaticContent
-from collections import deque
-from django.contrib.auth.decorators import login_required
+# from student.models import ResourceLibrary,StaticContent
+# from collections import deque
+# from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
-from django.contrib.auth.models import User
-from student.models import UserProfile,Registration,CourseEnrollmentAllowed
-from django import db
-import random
+# from django.contrib.auth.models import User
+# from django import db
+# import random
 import json
-import time
+# import time
 import logging
 
 from django import db
 from models import *
-from StringIO import StringIO
-from student.models import Transaction,District,Cohort,School,State
-from mail import send_html_mail
-import datetime
-from pytz import UTC
+# from StringIO import StringIO
+from student.models import Transaction, District, Cohort, School, State, UserProfile, Registration, CourseEnrollmentAllowed
+# from mail import send_html_mail
+# import datetime
+# from pytz import UTC
 import urllib
 log = logging.getLogger("tracking")
 
@@ -214,24 +213,20 @@ def certificate_delete(request):
     ids= request.POST.get('ids').split(',')
     for id in ids:
         Certificate.objects.filter(id=id).delete()
-    return HttpResponse(json.dumps({'success': True}),content_type="application/json")
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def certificate_save(request):  
     cid = request.POST.get('id')
-    readonly = request.POST.get('readonly') == 'true'
+    readonly = request.POST.get('readonly')=='true'
     content = urllib.quote(request.POST.get('content').decode('utf8').encode('utf8'))
     info = {}
-    returnID = cid
+    returnID = cid;  
     c = Certificate.objects.filter(id=cid)
     try:
         if len(c) == 0:
-            cdata = Certificate.objects.create(certificate_name=request.POST.get('name'),
-                                               association_type_id=request.POST.get('association_type'),
-                                               association=request.POST.get('association'),
-                                               certificate_blob=content,
-                                               readonly=readonly)
+            cdata = Certificate.objects.create(certificate_name=request.POST.get('name'),association_type_id=request.POST.get('association_type'),association=request.POST.get('association'),certificate_blob=content,readonly=readonly)
             returnID = cdata.id
         else:
             uc = Certificate.objects.get(id=cid)
@@ -242,9 +237,9 @@ def certificate_save(request):
             uc.readonly = readonly
             uc.save()
             returnID = uc.id
-        info = {'success': True, 'msg': 'Save complete.', 'id': returnID}
+        info = {'success': True,'msg':'Save complete.','id':returnID}
     except db.utils.IntegrityError:
-        info = {'success': False,'msg':'Certificate name already exists.'}
+        info = {'success': False, 'msg': 'Certificate name already exists.'}
     return HttpResponse(json.dumps(info), content_type="application/json")
 
 @login_required
@@ -255,13 +250,22 @@ def certificate_loadData(request):
         content = urllib.unquote(c.certificate_blob.decode('utf8').encode('utf8'))
     except:
         content = ""
-    data={'certificate_name':c.certificate_name
-                     ,'association_type':c.association_type_id
-                     ,'association':c.association
-                     ,'content':content
-                     ,'readonly':c.readonly
-                     ,'id':c.id
-                     }
-    return HttpResponse(json.dumps(data),content_type="application/json")
+    data = {'certificate_name': c.certificate_name,
+            'association_type': c.association_type_id,
+            'association': c.association,
+            'content': content,
+            'readonly': c.readonly,
+            'id': c.id
+            }
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
+def has_hangout_perms(user):
+    try:
+        user_profile = UserProfile.objects.get(user=user.id)
+        permissions = HangoutPermissions.objects.get(district=user_profile.district_id)
+        permission = permissions.permission
+    except HangoutPermissions.DoesNotExist:
+        permission = 1
+        
+    return permission

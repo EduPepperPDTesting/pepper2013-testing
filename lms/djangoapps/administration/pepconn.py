@@ -257,8 +257,8 @@ def do_import_user(task, csv_lines, request):
                         body = render_to_string('emails/activation_email.txt', props)
 
                     subject = ''.join(subject.splitlines())
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', email])
 
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
             
@@ -527,11 +527,12 @@ def do_send_registration_email(task, user_ids, request):
             tasklog.error = "ok"
             
             reg = Registration.objects.get(user=user)
-            props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
+
+            props = {'key': reg.activation_key, 'district': user.profile.district.name}
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
-                custom_email = request.POST.get("custom_email")
+                custom_email = request.POST.get("custom_email_002")
                 custom_email_subject = request.POST.get("custom_email_subject")
                 subject = render_from_string(custom_email_subject, props)
                 body = render_from_string(custom_email, props)
@@ -541,7 +542,8 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
             
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', user.email])
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -554,7 +556,7 @@ def do_send_registration_email(task, user_ids, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = EmailTaskLog.objects.filter(task=task).exclude(error='ok')
+    tasklogs = EmailTaskLog.objects.filter(task=task)
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
