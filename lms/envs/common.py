@@ -819,7 +819,7 @@ INSTALLED_APPS = (
     'django_comment_common',
     'notes',
 
-    # User API
+    # User API  
     'rest_framework',
     'user_api',
 
@@ -830,7 +830,9 @@ INSTALLED_APPS = (
     'notification_prefs',
 
     # Different Course Modes
-    'course_modes'
+    'course_modes',
+
+    'administration'
 )
 
 ######################### MARKETING SITE ###############################

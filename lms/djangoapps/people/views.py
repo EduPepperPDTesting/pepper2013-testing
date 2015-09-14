@@ -200,11 +200,9 @@ def people(request,course_id=''):
     courses=list()
     courses=get_courses(request.user, request.META.get('HTTP_HOST'))
 
-    
     # courses=sorted(courses, key=lambda course: course.number.lower())
     courses=sorted(courses, key=lambda course: course.display_name.lower())
 
-    
     context['courses']=courses
     course=None
     if course_id:

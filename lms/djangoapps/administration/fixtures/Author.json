@@ -1,0 +1,37 @@
+[
+  {
+    "pk": 1,
+    "model": "administration.author",
+    "fields": {
+      "name": "WestEd"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "administration.author",
+    "fields": {
+      "name": "PCG Education"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "administration.author",
+    "fields": {
+      "name": "CT Core Standards"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "administration.author",
+    "fields": {
+      "name": "A.L.L."
+    }
+  },
+  {
+    "pk": 5,
+    "model": "administration.author",
+    "fields": {
+      "name": "Understanding Language Initiative at Stanford"
+    }
+  }
+]

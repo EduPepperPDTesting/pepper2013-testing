@@ -764,6 +764,10 @@ def download_user_excel(request):
     response.write(output.getvalue())    
     return response
 
+def random_mark(length):
+    assert(length>0)
+    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
@@ -791,7 +795,7 @@ def import_user_submit(request):
                 #     raise Exception("An user already exists, or duplicate lines.")
                 email=line[USER_CSV_COL_EMAIL]
                 import random
-                username="".join(random.sample('abcdefg&#%^*f1234567890',20))
+                username=random_mark(20)
                 user = User(username=username, email=email, is_active=False)
                 user.set_password(username)
                 user.save()
@@ -928,6 +932,15 @@ def transaction_delete(request):
 ##############################################
 # Dropdown List
 ##############################################
+def drop_states(request):
+    data=State.objects.all()
+  
+    data=data.order_by("name")        
+    r=list()
+    for item in data:
+        r.append({"id":item.id,"name":item.name})        
+    return HttpResponse(json.dumps(r))
+
 def drop_districts(request):
     data=District.objects.all()
     if request.GET.get('state_id'):

@@ -97,7 +97,7 @@
 # nose-ignore-docstring
 # nose-exclude
 
-django_debug_toolbar==1.2.1
+django_debug_toolbar==0.9.4
 django==1.4.5
 
 #git+https://github.com/mfogel/django-settings-context-processor.git

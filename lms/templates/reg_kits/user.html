@@ -55,7 +55,6 @@
               <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" />
               <span style="margin-left:50px">Email: &nbsp;&nbsp;<input type="input" name="email" size="30" autocomplete="off" /></span> </td>
             </tr>
-            
             <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
             </table>
           </form>
@@ -102,7 +101,7 @@
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
             <td>${item.district.name}</td>
             <td>
-              %if item.cohort_id:
+              %if Cohort.objects.filter(id=item.cohort_id).count():
               ${item.cohort.code}
               %endif
             </td>

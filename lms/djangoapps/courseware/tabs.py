@@ -25,6 +25,8 @@ from courseware.model_data import FieldDataCache
 
 from open_ended_grading import open_ended_notifications
 
+from administration.configuration import has_hangout_perms
+
 log = logging.getLogger(__name__)
 
 
@@ -303,7 +305,6 @@ def get_course_tabs(user, course, active_page):
     # shouldn't) know about the details of what tabs are supported, etc.
     validate_tabs(course)
 
-
     tabs = []
 #@begin:Change the static tags in the courses
 #@date:2013-11-02        
@@ -311,16 +312,16 @@ def get_course_tabs(user, course, active_page):
         # expect handlers to return lists--handles things that are turned off
         # via feature flags, and things like 'textbook' which might generate
         # multiple tabs.
-        if tab['type']=='discussion':
-            tab['name']='Discussion'
-        if tab['type']=='progress':
-            tab['name']='My Progress'
-        if tab['type']=='wiki':
+        if tab['type'] == 'discussion':
+            tab['name'] = 'Discussion'
+        if tab['type'] == 'progress':
+            tab['name'] = 'My Progress'
+        if tab['type'] == 'wiki':
             continue
-        if tab['type']=='course_info':
+        if tab['type'] == 'course_info':
             continue
 
-        if tab['type']=='open_ended':
+        if tab['type'] == 'open_ended':
             continue
 #@end    
 
@@ -351,15 +352,19 @@ def get_course_tabs(user, course, active_page):
     tabs.append(CourseTab('My Chunks',
                           reverse('mychunks'),
                           active_page == 'mychunks'))
+
     # Move "Live Hangout" to the end.
-    n=-1
-    for i,t in enumerate(tabs):
-        if t.name.strip()=="Live Hangout!":
-            n=i
-            tabs.append(t)
+    n = -1
+    for i, t in enumerate(tabs):
+        if t.name.strip() == "Live Hangout!":
+            n = i
+            # Check to see if this user has permissions for the Hangout tab
+            if has_hangout_perms(user):
+                tabs.append(t)
             break
-    if n>-1: del tabs[n]
- 
+    if n > -1:
+        del tabs[n]
+
     return tabs
 
 def get_discussion_link(course):
@@ -367,7 +372,7 @@ def get_discussion_link(course):
     Return the URL for the discussion tab for the given `course`.
 
     If they have a discussion link specified, use that even if we disable
-    discussions. Disabling discsussions is mostly a server safety feature at
+    discussions. Disabling discussions is mostly a server safety feature at
     this point, and we don't need to worry about external sites. Otherwise,
     if the course has a discussion tab or uses the default tabs, return the
     discussion view URL. Otherwise, return None to indicate the lack of a

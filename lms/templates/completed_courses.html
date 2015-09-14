@@ -39,7 +39,7 @@
           <section class="info">
             <hgroup>
               <p class="date-block">
-                ${_("Course Completed - {end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)}
+                ${_("Course Completed - {end_date:%B %d,%Y}").format(end_date=course.student_enrollment_date)}
               </p>
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
