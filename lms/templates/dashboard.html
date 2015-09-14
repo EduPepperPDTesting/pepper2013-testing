@@ -680,7 +680,6 @@ Add info that you would like to share about yourself here:
             <a href="" class="cover" style="cursor:default;" onclick="return false;">
           %endif
               <img src="${course_image_url(course)}" style="width:200px;height:104px;" alt="${_('{course_number} {course_name} Cover Image').format(course_number=course.number, course_name=course.display_name_with_default) |h}" />
-              <div class="course-time">Course Time: ${course_times[course.id]}</div>
             </a>
 <!--@end-->          
             % else:
@@ -837,6 +836,7 @@ Add info that you would like to share about yourself here:
               <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
               -->
+              <div class="course-time">Course Time: ${course_times[course.id]}</div>
 	    % endif
            %endif
           </section>

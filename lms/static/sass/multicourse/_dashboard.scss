@@ -299,12 +299,15 @@
           width: 100%;
         }
 
-        .course-time {
-          font-size: 13px;
-          padding-top: 10px;
-        }
+        
       }
-
+      .course-time {
+          font-size: 14px;
+          padding-top: 10px;
+          color: #646464;
+          margin-top: 32px;
+          float: right;
+        }
       .info {
         @include clearfix;
         padding: 0 10px 0 230px;
