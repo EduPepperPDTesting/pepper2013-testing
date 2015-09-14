@@ -1,4 +1,4 @@
-function RecordTime() {};
+function RecordTime() {}
 
 RecordTime.userID = '';
 RecordTime.firstRun = true;
@@ -73,7 +73,7 @@ RecordTime.getCourseFullPath = function(path, position) {
 //---------------------------------------------------------------------------------
 
 
-function CourseTimer($container) {
+function CourseTimer(type) {
     this.time = 0;
     this.hour = 0;
     this.minute = 0;
@@ -83,9 +83,13 @@ function CourseTimer($container) {
     this.btn = null;
     this.isrun = false;
     this.exeType = ['courseware', 'discussion', 'portfolio'];
-    this.type = this.getType();
+    if (!type) {
+        this.type = this.getType();
+    } else {
+        this.type = type;
+    }
     this.create();
-};
+}
 
 CourseTimer.prototype.create = function() {
 
@@ -98,6 +102,9 @@ CourseTimer.prototype.create = function() {
             break;
         case 'portfolio':
             this.portfolioInit();
+            break;
+        case 'external':
+            this.externalInit();
             break;
         default:
             this.save();
@@ -200,6 +207,18 @@ CourseTimer.prototype.save = function() {
     }
 };
 
+CourseTimer.prototype.external_save = function() {
+    var self = this;
+    if (RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+        $.post('/record_time/course_time_save', {
+            'user_id': RecordTime.userID,
+            'course_id': RecordTime.getSessionCourseID(),
+            'type': RecordTime.getSessionCourseType(),
+            'time': self.time
+        });
+    }
+};
+
 CourseTimer.prototype.format = function(t) {
     var hour = Math.floor(t / 60 / 60);
     var minute = Math.floor(t / 60 % 60);
@@ -260,7 +279,14 @@ CourseTimer.prototype.portfolioInit = function() {
         if (RecordTime.userID != portfolio_info[1]) {
             this.init();
             this.start();
-
         }
     }
+};
+
+CourseTimer.prototype.externalInit = function() {
+    self = this;
+    $('.submit-button').click(function() {
+        self.external_save();
+    });
+    this.time = 1800;
 };

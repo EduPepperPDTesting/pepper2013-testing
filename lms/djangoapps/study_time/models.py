@@ -10,8 +10,8 @@ log = logging.getLogger("tracking")
 class MongoRecordTimeStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
-    def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, port=27017, default_class=None,
-                 user=None, password=None, mongo_options=None, **kwargs):
+    def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, collection_external,
+                 port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
 
         super(MongoRecordTimeStore, self).__init__(**kwargs)
 
@@ -42,16 +42,24 @@ class MongoRecordTimeStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_portfolio]
+        self.collection_external = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection_external]
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_page.database.authenticate(user, password)
             self.collection_discussion.database.authenticate(user, password)
             self.collection_portfolio.database.authenticate(user, password)
+            self.collection_external.database.authenticate(user, password)
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_page.safe = True
         self.collection_discussion.safe = True
         self.collection_portfolio.safe = True
+        self.collection_external.safe = True
 
     def _find_one(self):
         item = self.collection.find_one(
@@ -120,6 +128,8 @@ class MongoRecordTimeStore(object):
             return self.collection_discussion.update({'user_id': user_id, 'course_id': course_id}, {'$set': {'time': time}}, True)
         elif type == 'portfolio':
             return self.collection_portfolio.update({'user_id': user_id}, {'$set': {'time': time}}, True)
+        elif type == 'external':
+            return self.collection_external.update({'user_id': user_id, 'course_id': course_id}, {'$set': {'time': time}}, True)
 
     def get_stats_time(self, user_id):
         course_time = self.get_course_time(user_id, None, 'courseware')
