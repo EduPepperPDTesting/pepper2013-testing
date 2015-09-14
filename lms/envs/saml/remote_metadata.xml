@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+
+
   <md:EntityDescriptor entityID="https://idp.example.com/simplesaml/saml2/idp/metadata.php">
     <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
       <md:KeyDescriptor use="signing">
@@ -30,6 +32,11 @@
       <md:EmailAddress>lgs@yaco.es</md:EmailAddress>
     </md:ContactPerson>
   </md:EntityDescriptor>
+
+
+
+  
+  
   <md:EntityDescriptor entityID="https://idp1.example.com/simplesaml/saml2/idp/metadata.php">
     <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
       <md:KeyDescriptor use="signing">

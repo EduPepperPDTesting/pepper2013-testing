@@ -62,9 +62,23 @@ def config_settings_loader(request=None):
     return conf
 
 
+def config_settings_loader_pepper(request=None):
+    conf = SPConfig()
+
+    log.debug(settings.SAML_CONFIG)
+    
+    conf.load(copy.deepcopy(settings.SAML_CONFIG))
+    return conf
+
+
+import logging
+log = logging.getLogger("tracking")
+
 def get_config(config_loader_path=None, request=None):
     config_loader_path = config_loader_path or get_custom_setting(
         'SAML_CONFIG_LOADER', 'djangosaml2.conf.config_settings_loader')
+
+    log.debug(">>>>"+config_loader_path)
 
     config_loader = get_config_loader(config_loader_path)
     return config_loader(request)

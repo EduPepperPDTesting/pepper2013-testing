@@ -42,7 +42,7 @@ SAML_CONFIG = {
           'optional_attributes': ['eduPersonAffiliation'],
 
           # in this section the list of IdPs we talk to are defined
-          'idp00': {
+          'idp': {
               # we do not need a WAYF service since there is
               # only an IdP defined here. This IdP should be
               # present in our metadata
@@ -93,3 +93,5 @@ SAML_CONFIG = {
   #     },
   'valid_for': 24,  # how long is our metadata valid
   }
+
+SAML_CONFIG_LOADER = 'djangosaml2.conf.config_settings_loader_pepper'
