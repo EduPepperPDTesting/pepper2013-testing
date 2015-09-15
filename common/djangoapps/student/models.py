@@ -227,15 +227,9 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
 
-<<<<<<< HEAD
-    school = models.ForeignKey(School,on_delete=models.PROTECT)
-    cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT,default=0)
-    district = models.ForeignKey(District,on_delete=models.PROTECT)
-=======
     school = models.ForeignKey(School, on_delete=models.PROTECT)
     cohort = models.ForeignKey(Cohort, on_delete=models.PROTECT, default=0)
     district = models.ForeignKey(District, on_delete=models.PROTECT)
->>>>>>> www0
 
     years_in_education = models.ForeignKey(YearsInEducation, on_delete=models.PROTECT)
     major_subject_area = models.ForeignKey(SubjectArea, on_delete=models.PROTECT)
@@ -274,13 +268,8 @@ class UserProfile(models.Model):
     percent_iep = models.IntegerField(blank=False, null=False, db_index=False, default=0)
     percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False, default=0)
 
-<<<<<<< HEAD
-    # sso_idp=models.CharField(blank=True, max_length=50, null=True)
-    # sso_identifier=models.CharField(blank=True, max_length=255, null=True)
-=======
     sso_type = models.CharField(blank=True, max_length=50, null=True)
     sso_idp = models.CharField(blank=True, max_length=255, null=True)
->>>>>>> www0
 
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
