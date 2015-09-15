@@ -127,9 +127,9 @@ f.close()
         <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
         <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
-            <!--<a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
-              Send registration email to: <span class="count"></span> users(haven't invited).
-            </a>-->
+            <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+              <!--Send registration email to: <span class="count"></span> users(haven't invited).-->
+            </a>
             <label style="float:right;font-weight:bold;font-style:normal">
               Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
             </label> 
