@@ -1,0 +1,242 @@
+<%inherit file="/main.html" />
+
+<style type="text/css" media="screen">
+ #form1 div.row span{display:inline-block;width:200px;text-align:right;}
+ #form1 div.row input,
+ #form1 div.row textarea,
+ #form1 div.row span{vertical-align:top;}
+ #form1 div.row span{padding-top:2px;}
+ #form1 div.row input,
+ #form1 div.row span{height:25px;}
+ #form1 div.row input,
+ #form1 div.row textarea{width:500px;}
+ #form1 div.row textarea{height:200px;}
+ #form1 div.section{font-size:18px;width:200px;text-align:right;margin:20px 0;}
+ #form1{float:left;}
+ #form1 textarea{word-break:break-all;}
+ 
+ .listbox{display:inline-block;width:300px;height:500px;overflow:auto;white-space:nowrap;border:1px solid grey;padding:5px;}
+ .listbox div{line-height:25px;cursor:default;width:auto;}
+ .listbox div.hover{background:#999;}
+ .listbox div.selected {background:#009;color:#ccc;min-width:100%;}
+</style>
+
+<section class="container clearfix" style="padding-bottom:50px;">
+  <div style="font-size:30px;padding-top:20px;"> Metadata </div>
+  <div style="float:left;">
+    <div style="margin-top:20px;">Entities</div>
+    <div id="entityList" class="listbox"></div>
+    <br/>
+    <input type="button" name="" value="+" onclick="md.add()"/>
+    <input type="button" name="" value="-" onclick="md.remove()"/>
+    <input type="button" name="" value="Save All" onclick="md.saveAll()"/>
+  </div>
+  <form id="form1" style="display:none;">
+    <div class="section">IDP</div>
+    <div class="row">
+      <span class="">Entity ID</span> <input autocomplete="off" type="" name="EntityID" value="" path="EntityID" desc="Entity ID"/>
+    </div>
+    <div class="row">
+      <span class="">Single Logout Service</span> <input autocomplete="off" type="" name="SingleLogoutService" value="" path="SingleLogoutService.URL" desc="Single Logout Service"/>
+    </div>
+    <div class="row">
+      <span class="">Single SignOn Service</span> <input autocomplete="off" type="" name="SingleSignOnService" value="" path="SingleSignOnService.URL" desc="Single SignOn Service"/>
+    </div>
+    <div class="row">
+      <span class="">Signing Key</span> <textarea autocomplete="off" name="SigningKey" id="" rows="" cols="" tabindex="" path="Key.Signing" desc="Signing Key"></textarea>
+    </div>
+    <div class="row">
+      <span class="">Encryption Key</span> <textarea autocomplete="off" name="EncryptionKey" id="" rows="" cols="" tabindex="" path="Key.Encryption" desc="Encryption Key"></textarea>
+    </div>    
+    <div class="section">Organization</div>
+    <div class="row">
+      <span class="">Name</span> <input autocomplete="off" type="" name="OrganizationName" value="" path="Organization.Name" desc="Organization Name"/>
+    </div>
+    <div class="row">
+      <span class="">DisplayName</span> <input autocomplete="off" type="" name="OrganizationDisplayName" value="" path="Organization.DisplayName" desc="Organization DisplayName"/>
+    </div>
+    <div class="row">
+      <span class="">URL</span> <input autocomplete="off" type="" name="OrganizationURL" value="" path="Organization.URL" desc="Organization URL"/>
+    </div>
+    <div class="section">Contact Person</div>
+    <div class="row">
+      <span class="">SurName</span> <input autocomplete="off" type="" name="ContactPersonSurName" value="" path="ContactPerson.SurName" desc="Contact Person SurName"/>
+    </div>
+    <div class="row">
+      <span class="">Email Address</span> <input autocomplete="off" type="" name="ContactPersonEmailAddress" value="" path="ContactPerson.EmailAddress" desc="Contact Person Email Address"/>
+    </div>
+    <!-- <input type="submit" name="" value="Save All" style="margin:20px 0 0 205px;"/> -->
+  </form>
+</section>
+<script type="text/javascript">
+  function Metadata(){
+    var self = this;
+    $("#form1").show();
+    this.data = {};
+    this.list=new ListBox($("#entityList"));
+    $("#entityList").bind("beforeChange",function(e,index){
+      //if(index >= 0)
+        //self.bufferData(index);
+    });
+    $("#entityList").bind("change",function(e,index){
+        self.showData(self.data[index])
+    });
+    $("input[name=EntityID]").keyup(function(){
+      self.list.getSelectedItems().html(self.entityID4List(this.value));
+    });
+    $("#form1").find("input,textarea").keyup(function(){
+      self.bufferData(self.list.getSelectedIndex());
+    });
+    this.load();
+  }
+  Metadata.prototype.bufferData = function(index){
+    var self = this;
+    if(index >= 0){
+      var d = {};
+      $("#form1").find("input,textarea").each(function(){
+        var t = d;
+        var ar = $(this).attr('path').split('.');
+        var last = ar.pop();
+        $.each(ar, function(i,v){
+          t[v] = t[v] || {};
+          t = t[v];
+        });
+        t[last] = $(this).val();
+      });
+      self.data[index] = d;
+    }
+  }
+  Metadata.prototype.validateData = function(index){
+    var d = this.data[index];
+    $("#form1").find("input,textarea").each(function(){
+      var value=d;
+      var f=this;
+      var field_desc = $(f).attr("desc");
+      $.each($(this).attr('path').split('.'),function(i,v){
+        value=value[v];
+        if(!value){
+          f.focus();
+          throw {"message":"Empty " + field_desc};
+          return false;
+        }
+      });
+    });
+  }
+  Metadata.prototype.entityID4List = function(s){
+    if(typeof s != "string")
+      s = "";
+    else
+      s = s.trim();
+    if(!s.length)
+      s = "(unknown)";
+    return s;
+  }
+  Metadata.prototype.showData = function(d){
+    $("#form1").find("input,textarea").each(function(){
+      var value=d;
+      $.each($(this).attr('path').split('.'),function(i,v){
+        value=value[v];
+        if(!value) return false;
+      });
+      $(this).val(value || "");
+    });
+  }
+  Metadata.prototype.load = function(){
+    var self=this;
+    $.get("/saml2/metadata_json",function(r){
+      self.data = r;
+      $.each(r,function(i,e){
+        self.list.addItem(self.entityID4List(e.EntityID));
+      });
+      self.list.setSelectedIndex(0);
+    });
+  }
+  Metadata.prototype.add = function(){
+    this.data.push({});
+    this.list.addItem(this.entityID4List(""));
+    this.list.setSelectedIndex(this.data.length-1);
+  }
+  Metadata.prototype.remove = function(){
+    var index = this.list.getSelectedIndex();
+    this.data.splice(index, 1);
+    this.list.removeItem(index);
+    this.list.setSelectedIndex(this.list.getNearestNext(index));
+  }
+  Metadata.prototype.saveAll = function(){
+    var self = this;
+    // this.bufferData(this.list.getSelectedIndex());
+    $.each(this.data, function(i){
+      try{
+        self.validateData(i);
+      }catch(e){
+        alert(e.message);
+        self.list.setSelectedIndex(i);
+        return false;
+      }
+    });
+    $.post('/saml2/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
+    });
+  }
+</script>
+<script type="text/javascript">
+  function ListBox(el, multi){
+    this.multi = multi;
+    this.$el = $(el);
+  }
+  ListBox.prototype.getCount = function(){
+    return this.$el.find("div").length;
+  }
+  ListBox.prototype.getNearestNext = function(index){
+    var last = this.getCount() - 1;
+    if(index > last) index = last;
+    return index;
+  }  
+  ListBox.prototype.getSelectedIndex = function(){
+    return this.$el.find("div").index(this.getSelectedItems());
+  }
+  ListBox.prototype.validIndex = function(index){
+    var valid = index >= 0;
+    valid = valid && index < this.getCount();
+    return valid;
+  }
+  ListBox.prototype.setSelectedIndex = function(index){
+    if(this.validIndex(index))
+      this.$el.find("div").eq(index).click();
+  }
+  ListBox.prototype.fixItemWidth = function(div){
+    $(div).width(this.$el[0].scrollHeight);
+  }    
+  ListBox.prototype.addItem = function(text,value){
+    var self = this;
+    value = value || text;
+    var $opt = $("<div value=" + value + ">" + text + "</div>").appendTo(this.$el);
+    $opt.click(function(){
+      var is_new = !self.getSelectedItems().is(this);
+      if(is_new){
+        self.fixItemWidth(this);
+        var index = self.getSelectedIndex();
+        self.$el.trigger("beforeChange", [index]);
+        if(!self.multi) self.clearSelection();
+        $(this).addClass("selected");
+        var new_index = self.getSelectedIndex();
+        self.$el.trigger("change",[new_index]);
+      }
+    });
+    $opt.hover(function(){
+      self.fixItemWidth(this);
+      $(this).addClass('hover');
+    },function(){
+      $(this).removeClass('hover');
+    });
+  }
+  ListBox.prototype.clearSelection = function(){
+    this.getSelectedItems().removeClass('selected'); 
+  }
+  ListBox.prototype.getSelectedItems = function(){
+    return this.$el.find("div.selected");
+  }
+  ListBox.prototype.removeItem = function(index){
+    this.$el.find("div").eq(index).remove();
+  }
+  var md=new Metadata();
+</script>

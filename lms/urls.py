@@ -10,13 +10,16 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8  
-    
+    '',  # nopep8
+
 ####### Ancestor
+    url(r'^saml2/manage/metadata/$', 'djangosaml2.manage.metadata', name="saml2_manage_metadata"),
+    url(r'^saml2/metadata_json/$', 'djangosaml2.manage.metadata_json', name="saml2_manage_metadata_json"),
+    url(r'^saml2/manage/metadata_save/$', 'djangosaml2.manage.metadata_save', name="saml2_manage_metadata_save"),
 
     (r'^saml2/', include('djangosaml2.urls')),
     (r'^test/', 'djangosaml2.views.echo_attributes'),
-    
+
     url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
