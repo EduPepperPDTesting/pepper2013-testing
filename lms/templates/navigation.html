@@ -320,8 +320,10 @@ except:
         </h1>
 
         % if course:
-            <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}
-                :</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
+            <h2 style="width:605px;margin-top:15px;">
+                <span class="provider">${course.display_org_with_default | h}:</span>
+                ${course.display_number_with_default | h} ${course.display_name_with_default}
+            </h2>
         % endif
         <!--@begin:Top navigation tabs and styles before login-->
         <!--@date:2013-11-02-->
@@ -589,6 +591,7 @@ except:
         //---------------------Record time variable-------------------------------------------//
 
         var courseTimer = null;
+        var externalTimer = null;
         RecordTime.firstRun = true;
 
         //---------------------Record time (Page switching)----------------------------------//
@@ -696,7 +699,7 @@ except:
             courseTimer = new CourseTimer();
             courseTimer.isrun = false;
             courseTimer.create();
-            if (courseTimer.type == 'courseware' && $('.submit-button').length) {
+            if (courseTimer.type == 'courseware' && $("section[data-accept-file-upload='True'] .submit-button").length) {
                 externalTimer = new CourseTimer('external');
             }
 

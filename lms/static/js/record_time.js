@@ -207,14 +207,16 @@ CourseTimer.prototype.save = function() {
     }
 };
 
-CourseTimer.prototype.external_save = function() {
+CourseTimer.prototype.external_save = function(add) {
     var self = this;
     if (RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
             'course_id': RecordTime.getSessionCourseID(),
             'type': RecordTime.getSessionCourseType(),
-            'time': self.time
+            'vertical_id': RecordTime.getSessionVerticalId(),
+            'time': self.time,
+            'add': add
         });
     }
 };
@@ -261,7 +263,7 @@ CourseTimer.prototype.createClock = function($container) {
     //this.second_ele = this.element.find('.course_timer_second');
     this.display_ele = this.element.find('.course_timer_display');
 
-}
+};
 
 CourseTimer.prototype.courseInit = function() {
     this.createClock($('.course_timer'));
@@ -284,9 +286,15 @@ CourseTimer.prototype.portfolioInit = function() {
 };
 
 CourseTimer.prototype.externalInit = function() {
-    self = this;
-    $('.submit-button').click(function() {
-        self.external_save();
-    });
+    var self = this;
+    // TODO: This needs to be set based on the per-course setting
     this.time = 1800;
+    // Add to the counter of uploads per ORA if we're submitting
+    $("section[data-accept-file-upload='True'] .submit-button").click(function() {
+        self.external_save(1);
+    });
+    // Subtract from the counter of uploads per ORA if we're resetting
+    $("section[data-accept-file-upload='True'] .reset-button").click(function() {
+        self.external_save(0);
+    });
 };

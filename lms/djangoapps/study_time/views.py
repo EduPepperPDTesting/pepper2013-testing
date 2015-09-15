@@ -127,5 +127,13 @@ def get_course_time(request):
 def save_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
-    rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('time'))
+    try:
+        vertical_id = request.POST.get('vertical_id')
+    except:
+        vertical_id = ''
+    try:
+        add = request.POST.get('add')
+    except:
+        add = 0
+    rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('time'), vertical_id)
     return utils.JsonResponse({})

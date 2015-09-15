@@ -123,13 +123,70 @@ class MongoRecordTimeStore(object):
             count_time += int(data['time'])
         return count_time
 
-    def set_course_time(self, user_id, course_id, type, time):
+    def set_course_time(self, user_id, course_id, type, time, vertical_id, add):
         if type == 'discussion':
-            return self.collection_discussion.update({'user_id': user_id, 'course_id': course_id}, {'$set': {'time': time}}, True)
+            return self.collection_discussion.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id
+                },
+                {
+                    '$set': {'time': time}
+                },
+                True
+            )
         elif type == 'portfolio':
-            return self.collection_portfolio.update({'user_id': user_id}, {'$set': {'time': time}}, True)
+            return self.collection_portfolio.update(
+                {
+                    'user_id': user_id
+                },
+                {
+                    '$set': {'time': time}
+                },
+                True
+            )
         elif type == 'external':
-            return self.collection_external.update({'user_id': user_id, 'course_id': course_id}, {'$set': {'time': time}}, True)
+            # The external needs to be per ORA, so we store that as well. Also count the number of uploads per ORA, so
+            # that we only remove the external time if there are NO uploads in this ORA.
+            if add:
+                uploads = 1
+            else:
+                uploads = -1
+
+            results = self.collection_external.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
+                    'vertical_id': vertical_id
+                },
+                {
+                    '$set': {'time': time},
+                    '$inc': {'uploads', uploads}
+                },
+                True
+            )
+
+            # Need to check to see if the last increment brought us to 0 or below.
+            check_results = self.collection_external.find(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
+                    'vertical_id': vertical_id
+                }
+            )
+
+            # Remove any entries if they have reached 0 or below.
+            for result in check_results:
+                if result['uploads'] < 1:
+                    results = self.collection_external.remove(
+                        {
+                            'user_id': user_id,
+                            'course_id': course_id,
+                            'vertical_id': vertical_id
+                        }
+                    )
+
+            return results
 
     def get_stats_time(self, user_id):
         course_time = self.get_course_time(user_id, None, 'courseware')
