@@ -257,7 +257,7 @@ def do_import_user(task, csv_lines, request):
                         body = render_to_string('emails/activation_email.txt', props)
 
                     subject = ''.join(subject.splitlines())
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', email])
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
@@ -296,7 +296,7 @@ def do_import_user(task, csv_lines, request):
         attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com', request.user.email], attach)
+                       settings.SUPPORT_EMAIL, [request.user.email], attach)
         output.close()
 
 
@@ -528,11 +528,11 @@ def do_send_registration_email(task, user_ids, request):
             
             reg = Registration.objects.get(user=user)
 
-            props = {'key': reg.activation_key, 'district': user.profile.district.name}
+            props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
-                custom_email = request.POST.get("custom_email_002")
+                custom_email = request.POST.get("custom_email")
                 custom_email_subject = request.POST.get("custom_email_subject")
                 subject = render_from_string(custom_email_subject, props)
                 body = render_from_string(custom_email, props)
@@ -542,7 +542,7 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
             
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', user.email])
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         except Exception as e:
             db.transaction.rollback()
@@ -556,7 +556,7 @@ def do_send_registration_email(task, user_ids, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = EmailTaskLog.objects.filter(task=task)
+    tasklogs = EmailTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
@@ -575,7 +575,7 @@ def do_send_registration_email(task, user_ids, request):
         attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
         send_html_mail("Sending Registration Email Report",
                        "Report of sending registration email, see attachment.",
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com', request.user.email], attach)
+                       settings.SUPPORT_EMAIL, [request.user.email], attach)
         output.close()
 
 
