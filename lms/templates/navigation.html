@@ -616,122 +616,143 @@ site_status_msg = get_site_status_msg(course_id)
    }
 
 //---------------------------------------------------------------------------//
-  
-   $(function() {
-     $(window).blur(function(e) {
-       //console.log(e.type);
-       course_refresh_or_exit();
-       if (document.URL.indexOf('courseware') < 0) {
-           courseTimer.stop();
-           courseTimer.save();
-       }
-       if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
-         RecordTime.sessionInit();
-         var data = {
-           'type': 'new_page',
-           'user_id': RecordTime.userID,
-           'time': (new Date()).toISOString(),
-           'prev_vertical_id': RecordTime.getSessionVerticalId(),
-           'prev_time': RecordTime.getSessionTime()
-         };
-         RecordTime.ajaxRecordTime(data, function() {
-           RecordTime.setSessionVerticalId("");
-           RecordTime.setSessionTime("");
-           courseTimer.load();
-         });
-       }
-     });
 
-     $(window).focus(function(e) {
-       //console.log(e.type);
-       course_refresh_or_exit();
-       if (document.URL.indexOf('courseware') > -1) {
-         record_time(RecordTime.coursePosition);
-       }
-     });
-    
-     course_refresh_or_exit();
-     courseTimer = new CourseTimer();
-     courseTimer.isrun = false;
-     courseTimer.create();
+    function timerBlur() {
+        console.log("blur event");
+        course_refresh_or_exit();
+        if (document.URL.indexOf('courseware') < 0) {
+            courseTimer.stop();
+            courseTimer.save();
+        }
+        if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
+            RecordTime.sessionInit();
+            var data = {
+                'type': 'new_page',
+                'user_id': RecordTime.userID,
+                'time': (new Date()).toISOString(),
+                'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                'prev_time': RecordTime.getSessionTime()
+            };
+            RecordTime.ajaxRecordTime(data, function() {
+                RecordTime.setSessionVerticalId("");
+                RecordTime.setSessionTime("");
+                courseTimer.load();
+            });
+        }
+    }
+    function timerFocus() {
+        console.log("focus event");
+        course_refresh_or_exit();
+        if (document.URL.indexOf('courseware') > -1) {
+            record_time(RecordTime.coursePosition);
+        }
+    }
 
-     interactive_update();
-     $(".info_count_btn").click(function() {
-       interactive_update();
-     });
+    $(function () {
+        var iframeStatus = false;
 
-     $(".info_btn").click(function() {
-       interactive_update();
-     });
+        $('iframe').focus(function () {
+            iframeStatus = true;
+        });
 
-     $(".ftg_button").click(function() {
-       message_board_saveInfo();
-     });
+        $(window).blur(function (e) {
+            setTimeout(function () {
+                if (!iframeStatus) {
+                    timerBlur();
+                }
+            }, 200);
+        });
 
-     $(".message_board_uploadBtn").click(function() {
-       $("#message_board_browseFile").click();
-     });
+        $(window).focus(function (e) {
+            if (iframeStatus) {
+                iframeStatus  = false;
+            } else {
+                timerFocus();
+            }
+        });
 
-     $(".message_board_linkBtn").click(function() {
-       $(".linkwin").show();
-     });
+        course_refresh_or_exit();
+        courseTimer = new CourseTimer();
+        courseTimer.isrun = false;
+        courseTimer.create();
 
-     $("#hyperlink_okBtn").click(function() {
-       var content = $(".message_board_content");
-       if ($("#link_url_val").val() != '') {
-         if (!message_board_focus) {
-           content.html("");
-           message_board_focus = 1;
-         }
-         content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
-         $(".linkwin").hide();
-       }
-     });
+        interactive_update();
+        $(".info_count_btn").click(function () {
+            interactive_update();
+        });
 
-     $("#hyperlink_cancelBtn").click(function() {
-       $(".linkwin").hide();
-     });
+        $(".info_btn").click(function () {
+            interactive_update();
+        });
 
-     $("#message_board_close").click(function() {
-       $(".linkwin").hide();
-       message_board_clearContent();
-     });
+        $(".ftg_button").click(function () {
+            message_board_saveInfo();
+        });
 
-    //-----------------------------------------------------------------
-     $(".message_board_content").focusin(function() {
-       if (!message_board_focus) {
-         $(this).html("");
-         message_board_focus = 1;
-       }
-     });
+        $(".message_board_uploadBtn").click(function () {
+            $("#message_board_browseFile").click();
+        });
 
-     $(".message_board_content").keyup(function(event) {
-       message_board_updateMaxCharNum();
-     });
+        $(".message_board_linkBtn").click(function () {
+            $(".linkwin").show();
+        });
 
-     $("#show_personalmessage").hover(function() {
-       $("body").css("overflow", "hidden");
-       message_board_hover = 1;
-     }, function() {
-       $("body").css("overflow", "");
-       message_board_hover = 0;
-     });
+        $("#hyperlink_okBtn").click(function () {
+            var content = $(".message_board_content");
+            if ($("#link_url_val").val() != '') {
+                if (!message_board_focus) {
+                    content.html("");
+                    message_board_focus = 1;
+                }
+                content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+                $(".linkwin").hide();
+            }
+        });
 
-     $(".message_board_listCon").scroll(function(event) {
-       var scrollTop = $(this).scrollTop();　　
-       var scrollHeight = $(".message_board_list").height();　　
-       var windowHeight = $(this).height();
-        /*
-          if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
-          {
-          message_board_getMessage(message_board_loadNum);
-          }
-        */
-       if (scrollTop == 0 && message_board_isload) {
-         message_board_getMessage(message_board_loadNum);
-       }
-     })
-   });
+        $("#hyperlink_cancelBtn").click(function () {
+            $(".linkwin").hide();
+        });
+
+        $("#message_board_close").click(function () {
+            $(".linkwin").hide();
+            message_board_clearContent();
+        });
+
+        //-----------------------------------------------------------------
+        $(".message_board_content").focusin(function () {
+            if (!message_board_focus) {
+                $(this).html("");
+                message_board_focus = 1;
+            }
+        });
+
+        $(".message_board_content").keyup(function (event) {
+            message_board_updateMaxCharNum();
+        });
+
+        $("#show_personalmessage").hover(function () {
+            $("body").css("overflow", "hidden");
+            message_board_hover = 1;
+        }, function () {
+            $("body").css("overflow", "");
+            message_board_hover = 0;
+        });
+
+        $(".message_board_listCon").scroll(function (event) {
+            var scrollTop = $(this).scrollTop();
+            var scrollHeight = $(".message_board_list").height();
+            var windowHeight = $(this).height();
+            /*
+              if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+              {
+              message_board_getMessage(message_board_loadNum);
+              }
+            */
+            if (scrollTop == 0 && message_board_isload) {
+                message_board_getMessage(message_board_loadNum);
+            }
+        })
+    });
 
    function interactive_update_createItem(data) {
      var body = data.body == undefined ? '' : data.body;
