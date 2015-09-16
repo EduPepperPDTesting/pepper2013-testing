@@ -648,26 +648,29 @@ site_status_msg = get_site_status_msg(course_id)
         }
     }
 
+    function iframeFocused() {
+        return document.activeElement instanceof HTMLIFrameElement;
+    }
+
     $(function () {
         var iframeStatus = false;
 
-        $('iframe').focus(function () {
-            iframeStatus = true;
-        });
-
-        $(window).blur(function (e) {
-            setTimeout(function () {
-                if (!iframeStatus) {
-                    timerBlur();
+        $(window).on({
+            'blur': function (e) {
+                setTimeout(function () {
+                    if (!iframeFocused()) {
+                        timerBlur();
+                    } else {
+                        iframeStatus = true;
+                    }
+                }, 200);
+            },
+            'focus': function (e) {
+                if (iframeStatus) {
+                    iframeStatus = false;
+                } else {
+                    timerFocus();
                 }
-            }, 200);
-        });
-
-        $(window).focus(function (e) {
-            if (iframeStatus) {
-                iframeStatus  = false;
-            } else {
-                timerFocus();
             }
         });
 
