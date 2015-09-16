@@ -662,38 +662,52 @@ except:
 
         //---------------------------------------------------------------------------//
 
-        $(function () {
-            $(window).blur(function (e) {
-                //console.log(e.type);
-                course_refresh_or_exit();
-                if (document.URL.indexOf('courseware') < 0) {
-                    courseTimer.stop();
-                    courseTimer.save();
-                }
-                if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
-                    RecordTime.sessionInit();
-                    var data = {
-                        'type': 'new_page',
-                        'user_id': RecordTime.userID,
-                        'time': (new Date()).toISOString(),
-                        'prev_vertical_id': RecordTime.getSessionVerticalId(),
-                        'prev_time': RecordTime.getSessionTime()
-                    };
-                    RecordTime.ajaxRecordTime(data, function () {
-                        RecordTime.setSessionVerticalId("");
-                        RecordTime.setSessionTime("");
-                        courseTimer.load();
-                    });
-                }
-            });
+            function onfocusEventDelay(e){
+              //console.log(e.type);
+              course_refresh_or_exit();
+              if (document.URL.indexOf('courseware') < 0) {
+                  console.log(RecordTime.getSessionCourseType())
+                  courseTimer.isrun = false;
+                  courseTimer.create();
+              }
+              else
+              {
+                record_time(RecordTime.coursePosition);
+              }
 
-            $(window).focus(function (e) {
-                //console.log(e.type);
-                course_refresh_or_exit();
-                if (document.URL.indexOf('courseware') > -1) {
-                    record_time(RecordTime.coursePosition);
-                }
-            });
+            }
+            function onblurEventDelay(e){
+              //console.log(e.target)
+              isfocusOut = $(document.activeElement).hasClass('courseware')
+              e.stopPropagation();
+              course_refresh_or_exit();
+              if (document.URL.indexOf('courseware') < 0) {
+                  courseTimer.stop();
+                  courseTimer.save();
+              }
+              if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0 && isfocusOut) {
+                  RecordTime.sessionInit();
+                  var data = {
+                      'type': 'new_page',
+                      'user_id': RecordTime.userID,
+                      'time': (new Date()).toISOString(),
+                      'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                      'prev_time': RecordTime.getSessionTime()
+                  };
+                  RecordTime.ajaxRecordTime(data, function () {
+                      RecordTime.setSessionVerticalId("");
+                      RecordTime.setSessionTime("");
+                      courseTimer.load();
+                  });
+              }
+            }
+           $(function() {
+            $(window).blur(function(e) {
+              setTimeout(function(){onblurEventDelay(e);}, 200);     
+            })
+            $(window).focus(function(e) {  
+              setTimeout(function(){onfocusEventDelay(e);}, 200);
+            })
 
             course_refresh_or_exit();
             courseTimer = new CourseTimer();
