@@ -620,20 +620,19 @@ except:
             //console.log(e.type);
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
-                console.log(RecordTime.getSessionCourseType())
+                //console.log(RecordTime.getSessionCourseType());
                 courseTimer.isrun = false;
                 courseTimer.create();
-            }
-            else
-            {
-                if (RecordTime.getSessionVerticalId() == "")
+            } else {
+                if (RecordTime.getSessionVerticalId() == "") {
                     record_time(RecordTime.coursePosition);
+                }
             }
 
         }
         function onblurEventDelay(e){
             //console.log(e.type);
-            isfocusOut = $(document.activeElement).hasClass('courseware');
+            var isfocusOut = $(document.activeElement).hasClass('courseware');
             e.stopPropagation();
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
