@@ -121,10 +121,24 @@
             <div style="height:100px;"></div>
             <a href="http://parcc.pearson.com/practice-tests/" target="_blank" class="card-link image-bottom-style"><span>Practice Assessments</span></a>
           </div>
+
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb7_Pepper.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Course Libraries</span></a>
           </div>
+
+          %if request.user.profile.district.state.name=='Connecticut':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/course_libraries?name=CT State Resource Library" target="_blank" class="card-link image-bottom-style"><span>State Resource Library</span></a>
+          </div>
+          %elif request.user.profile.district.name=='Manteca Unified School District':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/course_libraries?name=MUSD Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
+          </div>
+          %endif
+
         </div>
       </div>
     </section>
