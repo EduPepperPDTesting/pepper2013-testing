@@ -181,10 +181,19 @@
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
           </div>
+
+          %if request.user.profile.district.state.name=='Connecticut':
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=CT Core Standards&op=find" class="card-link image-bottom-style"><span>CT Core Standards</span></a>
           </div>
+          %elif request.user.profile.district.name=='Manteca Unified School District':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
+          </div>
+          %endif
+          
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
