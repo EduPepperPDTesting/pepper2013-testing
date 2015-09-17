@@ -1,0 +1,9 @@
+[
+  {
+    "pk": 1,
+    "model": "administration.certificateassociationtype",
+    "fields": {
+      "name": "Author"
+    }
+  }
+]

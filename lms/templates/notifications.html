@@ -363,12 +363,12 @@
 		              <b style="font-size:14px;color:#000">My Profile:</b>
 		            </div>
 					<div style="line-height:30px;"><b>State:</b>
-			          % if curr_user.profile.district_id:
+                      % if curr_user.profile.district_id:
 					  ${curr_user.profile.district.state.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>District:</b>
-					  % if curr_user.profile.district_id:
+                      % if curr_user.profile.district_id:
 					  <br>${curr_user.profile.district.name}
 					  % endif
 					</div>
@@ -462,7 +462,7 @@ Add info that you would like to share about yourself here:
 		</div>
 	</section>
 </section>
-<section id="del_notification" class="modal" style="width:600px;">
+<section id="del_notification" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="notification_title">${_("DELETE THE NOTIFICATION")}</h2>

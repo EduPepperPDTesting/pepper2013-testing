@@ -253,10 +253,6 @@ site_status_msg = get_site_status_msg(course_id)
    top: -6px;
    width: 0px;
  }
- .course_timer{
-  width:800px;
-  height:30px;
-}
 </style>
 
 % if course:
@@ -507,7 +503,7 @@ site_status_msg = get_site_status_msg(course_id)
   <!--@date:2014-06-19-->
   %if request.user.is_authenticated():
   %if curr_user==request.user:
-  <section id="show_notifications" class="modal" style="width:600px;" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
+  <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
     <div class="inner-wrapper" style="width:578px;">
       <header>
         <h2>${_("notifications")}</h2>
@@ -563,8 +559,8 @@ site_status_msg = get_site_status_msg(course_id)
         RecordTime.setSessionCourseID("${course.id}");
       %endif
       courseTimer.start();
+      RecordTime.coursePosition = position;
       RecordTime.sessionInit();
-      console.log("getSessionVerticalId:" + RecordTime.getSessionVerticalId())
       var vertical_id = $("#sequence-list li .active").attr("data-id");
       var time = new Date().toISOString();
       var path = RecordTime.getCourseFullPath(document.URL, position);
@@ -578,130 +574,188 @@ site_status_msg = get_site_status_msg(course_id)
         'location': path
       };
       if (RecordTime.getSessionVerticalId() != vertical_id) {
+        RecordTime.ajaxRecordTime(data, function() {
+          RecordTime.setSessionVerticalId(vertical_id);
+          RecordTime.setSessionTime(time);
+          courseTimer.load();
+        });
+
+      } else {
+        if (RecordTime.firstRun) {
           RecordTime.ajaxRecordTime(data, function() {
             RecordTime.setSessionVerticalId(vertical_id);
             RecordTime.setSessionTime(time);
-          })
-
-      } else {
-
-          if (RecordTime.firstRun) {
-              RecordTime.ajaxRecordTime(data, function() {
-                RecordTime.setSessionVerticalId(vertical_id);
-                RecordTime.setSessionTime(time);
-                RecordTime.firstRun = false;
-              })
-          }
+            RecordTime.firstRun = false;
+          });
+        }
       }
     }
 //---------------------Record time (Course refresh or exit)--------------------------//
 
    function course_refresh_or_exit() { 
-      %if request.user.id is not None:
-        sessionStorage['user_id'] = "${request.user.id}"; 
-      %endif
-      %if course:
-        RecordTime.setSessionCourseID("${course.id}"); 
-      %endif
-      RecordTime.sessionInit();
-    if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
-      var data = {
-        'type': 'new_page',
-        'user_id': RecordTime.userID,
-        'time': (new Date()).toISOString(),
-        'prev_vertical_id': RecordTime.getSessionVerticalId(),
-        'prev_time': RecordTime.getSessionTime()
-      }
-      RecordTime.ajaxRecordTime(data, function() {
-        RecordTime.setSessionVerticalId("");
-        RecordTime.setSessionTime("");
-      })
-    }
-  }
+     %if request.user.id is not None:
+       sessionStorage['user_id'] = "${request.user.id}";
+     %endif
+     %if course:
+       RecordTime.setSessionCourseID("${course.id}");
+     %endif
+     RecordTime.sessionInit();
+     if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+       var data = {
+         'type': 'new_page',
+         'user_id': RecordTime.userID,
+         'time': (new Date()).toISOString(),
+         'prev_vertical_id': RecordTime.getSessionVerticalId(),
+         'prev_time': RecordTime.getSessionTime()
+       };
+       RecordTime.ajaxRecordTime(data, function() {
+         RecordTime.setSessionVerticalId("");
+         RecordTime.setSessionTime("");
+       });
+     }
+   }
 
 //---------------------------------------------------------------------------//
 
-   $(function() {
-     course_refresh_or_exit();
-     courseTimer = new CourseTimer();
+    function timerBlur() {
+        console.log("blur event");
+        course_refresh_or_exit();
+        if (document.URL.indexOf('courseware') < 0) {
+            courseTimer.stop();
+            courseTimer.save();
+        }
+        if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0) {
+            RecordTime.sessionInit();
+            var data = {
+                'type': 'new_page',
+                'user_id': RecordTime.userID,
+                'time': (new Date()).toISOString(),
+                'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                'prev_time': RecordTime.getSessionTime()
+            };
+            RecordTime.ajaxRecordTime(data, function() {
+                RecordTime.setSessionVerticalId("");
+                RecordTime.setSessionTime("");
+                courseTimer.load();
+            });
+        }
+    }
+    function timerFocus() {
+        console.log("focus event");
+        course_refresh_or_exit();
+        if (document.URL.indexOf('courseware') > -1) {
+            record_time(RecordTime.coursePosition);
+        }
+    }
 
-     interactive_update();
-     $(".info_count_btn").click(function() {
-       interactive_update();
-     });
+    function iframeFocused() {
+        return document.activeElement instanceof HTMLIFrameElement;
+    }
 
-     $(".info_btn").click(function() {
-       interactive_update();
-     });
+    $(function () {
+        var iframeStatus = false;
 
-     $(".ftg_button").click(function() {
-       message_board_saveInfo();
-     });
+        $(window).on({
+            'blur': function (e) {
+                setTimeout(function () {
+                    if (!iframeFocused()) {
+                        timerBlur();
+                    } else {
+                        iframeStatus = true;
+                    }
+                }, 200);
+            },
+            'focus': function (e) {
+                if (iframeStatus) {
+                    iframeStatus = false;
+                } else {
+                    timerFocus();
+                }
+            }
+        });
 
-     $(".message_board_uploadBtn").click(function() {
-       $("#message_board_browseFile").click();
-     })
+        course_refresh_or_exit();
+        courseTimer = new CourseTimer();
+        courseTimer.isrun = false;
+        courseTimer.create();
 
-     $(".message_board_linkBtn").click(function() {
-       $(".linkwin").show();
-     })
+        interactive_update();
+        $(".info_count_btn").click(function () {
+            interactive_update();
+        });
 
-     $("#hyperlink_okBtn").click(function() {
-       var content = $(".message_board_content");
-       if ($("#link_url_val").val() != '') {
-         if (!message_board_focus) {
-           content.html("");
-           message_board_focus = 1;
-         }
-         content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
-         $(".linkwin").hide();
-       }
-     })
+        $(".info_btn").click(function () {
+            interactive_update();
+        });
 
-     $("#hyperlink_cancelBtn").click(function() {
-       $(".linkwin").hide();
-     })
+        $(".ftg_button").click(function () {
+            message_board_saveInfo();
+        });
 
-     $("#message_board_close").click(function() {
-         $(".linkwin").hide();
-         message_board_clearContent();
-       })
+        $(".message_board_uploadBtn").click(function () {
+            $("#message_board_browseFile").click();
+        });
 
-    //-----------------------------------------------------------------
-     $(".message_board_content").focusin(function() {
-       if (!message_board_focus) {
-         $(this).html("");
-         message_board_focus = 1;
-       }
-     });
+        $(".message_board_linkBtn").click(function () {
+            $(".linkwin").show();
+        });
 
-     $(".message_board_content").keyup(function(event) {
-       message_board_updateMaxCharNum();
-     });
+        $("#hyperlink_okBtn").click(function () {
+            var content = $(".message_board_content");
+            if ($("#link_url_val").val() != '') {
+                if (!message_board_focus) {
+                    content.html("");
+                    message_board_focus = 1;
+                }
+                content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+                $(".linkwin").hide();
+            }
+        });
 
-     $("#show_personalmessage").hover(function() {
-       $("body").css("overflow", "hidden");
-       message_board_hover = 1;
-     }, function() {
-       $("body").css("overflow", "");
-       message_board_hover = 0;
-     });
+        $("#hyperlink_cancelBtn").click(function () {
+            $(".linkwin").hide();
+        });
 
-     $(".message_board_listCon").scroll(function(event) {
-       var scrollTop = $(this).scrollTop();　　
-       var scrollHeight = $(".message_board_list").height();　　
-       var windowHeight = $(this).height();
-        /*
-          if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
-          {
-          message_board_getMessage(message_board_loadNum);
-          }
-        */
-       if (scrollTop == 0 && message_board_isload) {
-         message_board_getMessage(message_board_loadNum);
-       }
-     })
-   })
+        $("#message_board_close").click(function () {
+            $(".linkwin").hide();
+            message_board_clearContent();
+        });
+
+        //-----------------------------------------------------------------
+        $(".message_board_content").focusin(function () {
+            if (!message_board_focus) {
+                $(this).html("");
+                message_board_focus = 1;
+            }
+        });
+
+        $(".message_board_content").keyup(function (event) {
+            message_board_updateMaxCharNum();
+        });
+
+        $("#show_personalmessage").hover(function () {
+            $("body").css("overflow", "hidden");
+            message_board_hover = 1;
+        }, function () {
+            $("body").css("overflow", "");
+            message_board_hover = 0;
+        });
+
+        $(".message_board_listCon").scroll(function (event) {
+            var scrollTop = $(this).scrollTop();
+            var scrollHeight = $(".message_board_list").height();
+            var windowHeight = $(this).height();
+            /*
+              if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+              {
+              message_board_getMessage(message_board_loadNum);
+              }
+            */
+            if (scrollTop == 0 && message_board_isload) {
+                message_board_getMessage(message_board_loadNum);
+            }
+        })
+    });
 
    function interactive_update_createItem(data) {
      var body = data.body == undefined ? '' : data.body;
@@ -1123,7 +1177,7 @@ site_status_msg = get_site_status_msg(course_id)
   <!--@date:2014-06-30-->
   %if request.user.is_authenticated():
   %if curr_user==request.user:
-  <section id="show_personalmessage" class="modal" style="width:600px;">
+  <section id="show_personalmessage" class="modal modal-wide">
     <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
       <header>
         <h2 class="message_board_full_name">${_("namename")}</h2>

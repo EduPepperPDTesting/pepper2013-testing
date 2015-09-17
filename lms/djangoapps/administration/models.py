@@ -77,3 +77,11 @@ class Certificate(models.Model):
     readonly = models.BooleanField(default=1)
     association_type = models.ForeignKey(CertificateAssociationType)  
     association = models.IntegerField(blank=False)
+
+
+class HangoutPermissions(models.Model):
+    class Meta:
+        db_table = 'hangout_permissions'
+    district = models.ForeignKey(District, blank=False)
+    permission = models.BooleanField(default=1)
+

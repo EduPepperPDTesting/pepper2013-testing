@@ -400,7 +400,7 @@ class CourseFields(object):
 
     certificates_estimated_effort = String(help="Certificates Estimated Effort", default="10 hours",scope=Scope.settings)
 
-    external_course_time = String(help="External Course Time", default="0", scope=Scope.settings)
+    external_course_time = String(help="External Course Time", default="1800", scope=Scope.settings)
     
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule

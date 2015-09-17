@@ -833,7 +833,6 @@ INSTALLED_APPS = (
     'course_modes',
 
     'administration'
-
 )
 
 ######################### MARKETING SITE ###############################

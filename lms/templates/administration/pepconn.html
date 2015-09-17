@@ -127,12 +127,12 @@ f.close()
         <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
         <div class="control table" id="tblUserRegistration">      
           <div class="" style="padding:5px;">
-            <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+            <!--<a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
               Send registration email to: <span class="count"></span> users(haven't invited).
-            </a>
-            <label style="float:right;font-weight:bold;font-style:normal">
+            </a>-->
+            <div style="text-align: right; padding-right: 4px;"><label style="font-weight:bold;font-style:normal">
               Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
-            </label> 
+            </label></div>
           </div>
           <span class="body"></span>
           <div class="footer">
@@ -257,26 +257,26 @@ f.close()
   $(".control.table").each(function(){new TableControl(this)});
   //* controller for user registration
   var userRegistration={
-    updateInviteNumber:function(filter){
+    /* updateInviteNumber:function(filter){
       $.post("${reverse('pepconn_registration_invite_count')}",safeJSON(filter),function(r){
         $("#inviteEmailSender").find(".count").html(r.count);
       });
-    },
+    },*/
     filterUserRegistration:function(){
       var filter=$('#fltUserRegistration')[0].control.getFilter();
       $('#tblUserRegistration')[0].control.updateFilter(filter);
-      this.updateInviteNumber(filter);
+      /*this.updateInviteNumber(filter);*/
     },
     sendRegistrationEmails:function(type){
       var self=this;
-      if(type=='ids'){
+      if (type=='ids') {
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
         if(!ids.length){
           new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
           return; 
         }
         var filter={'ids':ids.join()};
-      }else if(type=='filter'){
+      } else if(type=='filter') {
         var filter=$('#fltUserRegistration')[0].control.getFilter();
       }
       var usrRegistrationForm=$("#usrRegistrationForm")[0];
@@ -285,7 +285,7 @@ f.close()
         'customize_email':$(usrRegistrationForm.customize_email).val(),
         'custom_email':$(usrRegistrationForm.custom_email_002).val(),
         'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
-      }
+      };
       data=$.extend(data,filter);
       this.dialog=new Dialog($('#dialog'));
       this.dialog.showProgress("Sending Registration Emails","Please wait...");
@@ -360,11 +360,11 @@ f.close()
     },
     init:function(){
       var self=this;
-      this.updateInviteNumber({});
+      /*this.updateInviteNumber({});*/
       $('#tblUserRegistration')[0].onDataLoaded=function(){
         $(this).find(".download .total").html(this.control.getPagingInfo().total);
         $(this).find(".check_all").prop("checked",false)
-      }
+      };
       $("#lstModifyStatus").change(function(){
         var status=$(this).val();
         if(status=="")return;
@@ -381,7 +381,7 @@ f.close()
         self.deleteUsers();
       });
     }
-  }
+  };
   userRegistration.init();
   //* controller for user data import
   var userDataImport={

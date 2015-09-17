@@ -1,6 +1,7 @@
 """
 Student Views
 """
+from __future__ import division
 import datetime
 import json
 import logging
@@ -63,6 +64,8 @@ from student.models import District, School
 from django.db import models
 from mail import send_html_mail
 from courseware.courses import get_course_by_id
+from study_time.models import record_time_store
+from courseware.courses import get_course_with_access
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -378,6 +381,7 @@ def dashboard(request, user_id=None):
     courses_incomplated = []
     courses = []
 
+    external_time = 0
     exists = 0
     # get none enrolled course count for current login user
     if user_id != request.user.id:
@@ -420,7 +424,9 @@ def dashboard(request, user_id=None):
             #     courses_complated.append(c)
             # else:
             #     courses_incomplated.append(c)
-
+            course = get_course_with_access(user.id, c.id, 'load')
+            # external time should be calculated based on the number of ORAs with at least 1 uploaded file
+            # external_time += int(course.external_course_time)
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
@@ -453,8 +459,10 @@ def dashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
+    rts = record_time_store()
     cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
+    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
     # get info w.r.t ExternalAuthMap
     external_auth_map = None
@@ -462,6 +470,11 @@ def dashboard(request, user_id=None):
         external_auth_map = ExternalAuthMap.objects.get(user=user)
     except ExternalAuthMap.DoesNotExist:
         pass
+
+    course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+    all_course_time = course_time + external_time
+    collaboration_time = discussion_time + portfolio_time
+    total_time_in_pepper = all_course_time + collaboration_time
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
@@ -474,7 +487,11 @@ def dashboard(request, user_id=None):
         'cert_statuses': cert_statuses,
         'exam_registrations': exam_registrations,
         'curr_user': user,
-        'havent_enroll': exists
+        'havent_enroll': exists,
+        'all_course_time': study_time_format(all_course_time),
+        'collaboration_time': study_time_format(collaboration_time),
+        'total_time_in_pepper': study_time_format(total_time_in_pepper),
+        'course_times': course_times
     }
 
     return render_to_response('dashboard.html', context)
@@ -1808,6 +1825,7 @@ def activate_imported_account(post_vars, photo):
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}
 
+
         # composes activation email
         subject = render_to_string('emails/welcome_subject.txt', d)
 
@@ -2039,7 +2057,22 @@ Request Date: {date_time}""".format(first_name=request.user.first_name,
             # "mmullen@pcgus.com",
             # "jmclaughlin@pcgus.com"
         ])
-
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))
+
+
+def study_time_format(t):
+    hour_unit = ' Hour, '
+    minute_unit = ' Minute'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    if hour != 1:
+        hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    return ('{0} {1} {2}').format(hour_full, minute, minute_unit)
