@@ -487,97 +487,265 @@ site_status_msg = get_site_status_msg(course_id)
       </ol>
       % endif
     </nav>
-  </header>
+</header>
 
-  % if course:
-  <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
-  % endif
+% if course:
+    <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
+% endif
 
-  %if not curr_user.is_authenticated():
-  <%include file="forgot_password_modal.html" />
-  %endif
+%if not curr_user.is_authenticated():
+    <%include file="forgot_password_modal.html" />
+%endif
 
-  <%include file="help_modal.html"/>
+<%include file="help_modal.html"/>
 
-  <!--@begin:show_notifications-->
-  <!--@date:2014-06-19-->
-  %if request.user.is_authenticated():
-  %if curr_user==request.user:
-  <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
-    <div class="inner-wrapper" style="width:578px;">
-      <header>
-        <h2>${_("notifications")}</h2>
-        <hr/>
-      </header>
+    <!--@begin:show_notifications-->
+    <!--@date:2014-06-19-->
+%if request.user.is_authenticated():
+    %if curr_user==request.user:
+        <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
+            <div class="inner-wrapper" style="width:578px;">
+                <header>
+                    <h2>${_("notifications")}</h2>
+                    <hr/>
+                </header>
 
-      <div class="info_list"></div>
-      <br/>
-	  <br/>
-	  <br/>
-	  <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-		<a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
-          <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
-        </a>
-	  </div>
-      <div class="close-modal" id="notifications_close">
-        <div class="inner">
-          <p>&#10005;</p>
-        </div>
-      </div>
-    </div>
-  </section>
-  %endif
-  %endif
-  <script>
-//---------------------Notifications variable-----------------------------------------//
+                <div class="info_list"></div>
+                <br/>
+                <br/>
+                <br/>
+                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                    <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
+                        <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
+                    </a>
+                </div>
+                <div class="close-modal" id="notifications_close">
+                    <div class="inner">
+                        <p>&#10005;</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    %endif
+%endif
+    <script>
+        //---------------------Notifications variable-----------------------------------------//
 
-   var interactive_update_window_top = 0;
+        var interactive_update_window_top = 0;
 
-//---------------------Message board variable-----------------------------------------//
+        //---------------------Message board variable-----------------------------------------//
 
-   var message_people = null;
-   var user_info = null;
-   var message_board_isload = false;
-   var message_board_loadNum = 0;
-   var message_board_totalNum = 0;
-   var message_board_focus = 0;
-   var message_board_maxCharNum = 1000;
-   var message_board_hover = 0;
+        var message_people = null;
+        var user_info = null;
+        var message_board_isload = false;
+        var message_board_loadNum = 0;
+        var message_board_totalNum = 0;
+        var message_board_focus = 0;
+        var message_board_maxCharNum = 1000;
+        var message_board_hover = 0;
 
-//---------------------Record time variable-------------------------------------------//
+        //---------------------Record time variable-------------------------------------------//
 
-   var courseTimer = null;
-   RecordTime.firstRun = true;
+        var courseTimer = null;
+        var externalTimer = null;
+        RecordTime.firstRun = true;
 
-//---------------------Record time (Page switching)----------------------------------//
+        //---------------------Record time (Page switching)----------------------------------//
 
-    function record_time(position) { 
-      %if request.user.id is not None:
-        sessionStorage['user_id'] = "${request.user.id}"; 
-      %endif
-      %if course:
-        RecordTime.setSessionCourseID("${course.id}");
-      %endif
-      courseTimer.start();
-      RecordTime.coursePosition = position;
-      RecordTime.sessionInit();
-      var vertical_id = $("#sequence-list li .active").attr("data-id");
-      var time = new Date().toISOString();
-      var path = RecordTime.getCourseFullPath(document.URL, position);
-      var data = {
-        'type': 'course_page',
-        'user_id': RecordTime.userID,
-        'time': time,
-        'new_vertical_id': vertical_id,
-        'prev_vertical_id': RecordTime.getSessionVerticalId(),
-        'prev_time': RecordTime.getSessionTime(),
-        'location': path
-      };
-      if (RecordTime.getSessionVerticalId() != vertical_id) {
-        RecordTime.ajaxRecordTime(data, function() {
-          RecordTime.setSessionVerticalId(vertical_id);
-          RecordTime.setSessionTime(time);
-          courseTimer.load();
+        function record_time(position) {
+            %if request.user.id is not None:
+                sessionStorage['user_id'] = "${request.user.id}";
+            %endif
+            %if course:
+                RecordTime.setSessionCourseID("${course.id}");
+            %endif
+            courseTimer.start();
+            RecordTime.coursePosition = position;
+            RecordTime.sessionInit();
+            var vertical_id = $("#sequence-list li .active").attr("data-id");
+            var time = new Date().toISOString();
+            var path = RecordTime.getCourseFullPath(document.URL, position);
+            var data = {
+                'type': 'course_page',
+                'user_id': RecordTime.userID,
+                'time': time,
+                'new_vertical_id': vertical_id,
+                'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                'prev_time': RecordTime.getSessionTime(),
+                'location': path
+            };
+            if (RecordTime.getSessionVerticalId() != vertical_id) {
+                RecordTime.ajaxRecordTime(data, function() {
+                    RecordTime.setSessionVerticalId(vertical_id);
+                    RecordTime.setSessionTime(time);
+                    courseTimer.load();
+                });
+
+            } else {
+                if (RecordTime.firstRun) {
+                    RecordTime.ajaxRecordTime(data, function() {
+                        RecordTime.setSessionVerticalId(vertical_id);
+                        RecordTime.setSessionTime(time);
+                        RecordTime.firstRun = false;
+                    });
+                }
+            }
+        }
+        //---------------------Record time (Course refresh or exit)--------------------------//
+
+        function course_refresh_or_exit() {
+            %if request.user.id is not None:
+                sessionStorage['user_id'] = "${request.user.id}";
+            %endif
+            %if course:
+                RecordTime.setSessionCourseID("${course.id}");
+            %endif
+            RecordTime.sessionInit();
+            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+                var data = {
+                    'type': 'new_page',
+                    'user_id': RecordTime.userID,
+                    'time': (new Date()).toISOString(),
+                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                    'prev_time': RecordTime.getSessionTime()
+                };
+                RecordTime.ajaxRecordTime(data, function() {
+                    RecordTime.setSessionVerticalId("");
+                    RecordTime.setSessionTime("");
+                });
+            }
+        }
+
+        //---------------------------------------------------------------------------//
+        function onfocusEventDelay(e){
+            //console.log(e.type);
+            course_refresh_or_exit();
+            if (document.URL.indexOf('courseware') < 0) {
+                //console.log(RecordTime.getSessionCourseType());
+                courseTimer.isrun = false;
+                courseTimer.create();
+            } else {
+                if (RecordTime.getSessionVerticalId() == "") {
+                    record_time(RecordTime.coursePosition);
+                }
+            }
+
+        }
+        function onblurEventDelay(e){
+            //console.log(e.type);
+            var isfocusOut = $(document.activeElement).hasClass('courseware');
+            e.stopPropagation();
+            course_refresh_or_exit();
+            if (document.URL.indexOf('courseware') < 0) {
+                courseTimer.stop();
+                courseTimer.save();
+            }
+            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0 && isfocusOut) {
+                RecordTime.sessionInit();
+                var data = {
+                    'type': 'new_page',
+                    'user_id': RecordTime.userID,
+                    'time': (new Date()).toISOString(),
+                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                    'prev_time': RecordTime.getSessionTime()
+                };
+                RecordTime.ajaxRecordTime(data, function () {
+                    RecordTime.setSessionVerticalId("");
+                    RecordTime.setSessionTime("");
+                    courseTimer.load();
+                });
+            }
+        }
+        $(function() {
+            $(window).blur(function(e) {
+                setTimeout(function(){onblurEventDelay(e);}, 200);
+            });
+            $(window).focus(function(e) {
+                setTimeout(function(){onfocusEventDelay(e);}, 200);
+            });
+
+            course_refresh_or_exit();
+            courseTimer = new CourseTimer();
+            externalTimer = new ExternalTimer();
+            //courseTimer.isrun = false;
+            //courseTimer.create();
+            
+            interactive_update();
+            $(".info_count_btn").click(function() {
+                interactive_update();
+            });
+
+            $(".info_btn").click(function() {
+                interactive_update();
+            });
+
+            $(".ftg_button").click(function() {
+                message_board_saveInfo();
+            });
+
+            $(".message_board_uploadBtn").click(function() {
+                $("#message_board_browseFile").click();
+            });
+
+            $(".message_board_linkBtn").click(function() {
+                $(".linkwin").show();
+            });
+
+            $("#hyperlink_okBtn").click(function() {
+                var content = $(".message_board_content");
+                if ($("#link_url_val").val() != '') {
+                    if (!message_board_focus) {
+                        content.html("");
+                        message_board_focus = 1;
+                    }
+                    content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+                    $(".linkwin").hide();
+                }
+            });
+
+            $("#hyperlink_cancelBtn").click(function() {
+                $(".linkwin").hide();
+            });
+
+            $("#message_board_close").click(function() {
+                $(".linkwin").hide();
+                message_board_clearContent();
+            });
+
+            //-----------------------------------------------------------------
+            $(".message_board_content").focusin(function() {
+                if (!message_board_focus) {
+                    $(this).html("");
+                    message_board_focus = 1;
+                }
+            });
+
+            $(".message_board_content").keyup(function(event) {
+                message_board_updateMaxCharNum();
+            });
+
+            $("#show_personalmessage").hover(function() {
+                $("body").css("overflow", "hidden");
+                message_board_hover = 1;
+            }, function() {
+                $("body").css("overflow", "");
+                message_board_hover = 0;
+            });
+
+            $(".message_board_listCon").scroll(function(event) {
+                var scrollTop = $(this).scrollTop();
+                var scrollHeight = $(".message_board_list").height();
+                var windowHeight = $(this).height();
+                /*
+                  if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+                  {
+                  message_board_getMessage(message_board_loadNum);
+                  }
+                */
+                if (scrollTop == 0 && message_board_isload) {
+                    message_board_getMessage(message_board_loadNum);
+                }
+            });
         });
 
       } else {

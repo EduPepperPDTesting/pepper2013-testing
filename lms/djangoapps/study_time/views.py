@@ -129,3 +129,24 @@ def save_course_time(request):
     user_id = str(request.POST.get('user_id'))
     rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('time'))
     return utils.JsonResponse({})
+
+
+def save_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    rts.set_external_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('external_id'), request.POST.get('weight'))
+    return utils.JsonResponse({})
+
+
+def del_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    rts.del_external_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('external_id'))
+    return utils.JsonResponse({})
+
+
+def get_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    external_time = rts.get_external_time(user_id, request.POST.get('course_id'))
+    return utils.JsonResponse({'external_time': external_time})
