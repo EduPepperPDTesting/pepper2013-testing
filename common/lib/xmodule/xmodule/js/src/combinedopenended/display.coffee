@@ -721,9 +721,10 @@ class @CombinedOpenEnded
             @submit_button.attr('disabled',false)
           else
             @submit_button.attr('disabled',true)
-            #console.log("externalTimer del")
-            @data_score='incorrect'
-            externalTimer.delete({'type':'combinedopenended','weight':@data_weight,'id':@location})
+            if @accept_file_upload == "True"
+              #console.log("externalTimer del")
+              @data_score='incorrect'
+              externalTimer.delete({'type':'combinedopenended','weight':@data_weight,'id':@location})
           alert("The file is removed successfully.")
 
       $.ajaxWithPrefix("#{@ajax_url}/save_text",settings)
@@ -813,8 +814,9 @@ class @CombinedOpenEnded
             alert("Network error. Please try again.")
             return false
         if response.success
-          #console.log("externalTimer save")
-          externalTimer.save({'type':'combinedopenended','weight':@data_weight,'id':@location})
+          if @accept_file_upload == "True"
+            #console.log("externalTimer save")
+            externalTimer.save({'type':'combinedopenended','weight':@data_weight,'id':@location})
           @child_state = response.state
 
           if @child_state == 'post_assessment'
