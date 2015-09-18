@@ -65,7 +65,6 @@ from django.db import models
 from mail import send_html_mail
 from courseware.courses import get_course_by_id
 from study_time.models import record_time_store
-from courseware.courses import get_course_with_access
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -384,6 +383,7 @@ def dashboard(request, user_id=None):
     external_time = 0
     exists = 0
     # get none enrolled course count for current login user
+    rts = record_time_store()
     if user_id != request.user.id:
         allowed = CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).values_list('course_id', flat=True)
         # make sure the course exists
@@ -424,9 +424,7 @@ def dashboard(request, user_id=None):
             #     courses_complated.append(c)
             # else:
             #     courses_incomplated.append(c)
-            course = get_course_with_access(user.id, c.id, 'load')
-            # external time should be calculated based on the number of ORAs with at least 1 uploaded file
-            # external_time += int(course.external_course_time)
+            external_time += rts.get_external_time(str(user.id), c.id)
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
@@ -459,7 +457,6 @@ def dashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    rts = record_time_store()
     cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
     course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}

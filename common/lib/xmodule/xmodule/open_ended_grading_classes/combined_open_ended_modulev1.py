@@ -388,7 +388,8 @@ class CombinedOpenEndedV1Module():
             'legend_list': LEGEND_LIST,
             'human_state': HUMAN_STATES.get(self.state, "Not started."),
             'is_staff': self.system.user_is_staff,
-            'score': self.get_last_response(0)['correct']
+            'score': self.get_last_response(0)['correct'],
+            'weight': self.weight
         }
 
         return context

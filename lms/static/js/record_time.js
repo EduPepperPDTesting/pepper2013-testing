@@ -73,7 +73,7 @@ RecordTime.getCourseFullPath = function(path, position) {
 //---------------------------------------------------------------------------------
 
 
-function CourseTimer($container) {
+function CourseTimer() {
     this.time = 0;
     this.hour = 0;
     this.minute = 0;
@@ -242,7 +242,7 @@ CourseTimer.prototype.createClock = function($container) {
     //this.second_ele = this.element.find('.course_timer_second');
     this.display_ele = this.element.find('.course_timer_display');
 
-}
+};
 
 CourseTimer.prototype.courseInit = function() {
     this.createClock($('.course_timer'));
@@ -260,7 +260,99 @@ CourseTimer.prototype.portfolioInit = function() {
         if (RecordTime.userID != portfolio_info[1]) {
             this.init();
             this.start();
-
         }
     }
+};
+
+//-----------------------------------------------------------------------------------
+
+function ExternalTimer() {
+    this.data = null;
+    this.time = 0;
+    this.hour = 0;
+    this.minute = 0;
+    this.init();
+};
+
+ExternalTimer.prototype.init = function() {
+    this.time = 0;
+    this.hour = 0;
+    this.minute = 0;
+    this.createClock($('.external_timer'))
+    this.draw();
+    this.load();
+};
+
+ExternalTimer.prototype.draw = function() {
+    if (this.element != null) {
+        this.display_ele.html(this.format(this.time))
+    }
+};
+ExternalTimer.prototype.show = function() {
+    if (this.element != null) this.element.show();
+};
+
+ExternalTimer.prototype.hide = function() {
+    if (this.element != null) this.element.hide();
+};
+
+ExternalTimer.prototype.createClock = function($container) {
+    $container.empty();
+    this.element = $("<div class='external_timer_div'>External Time: <span class='external_timer_display'></span></div>");
+    $container.prepend(this.element);
+    this.display_ele = this.element.find('.external_timer_display');
+};
+
+ExternalTimer.prototype.format = function(t) {
+    var hour = Math.floor(t / 60 / 60);
+    var minute = Math.floor(t / 60 % 60);
+    var hour_unit = hour == 1 ? ' Hour, ' : ' Hours, ';
+    var minute_unit = minute == 1 ? ' Minute ' : ' Minutes ';
+    var hour_full = hour > 0 ? hour + hour_unit : '';
+    return hour_full + minute + minute_unit;
+};
+
+ExternalTimer.prototype.save = function(data) {
+    var self = this;
+    this.data = data;
+    if (RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+        $.post('/record_time/external_time_save', {
+            'user_id': RecordTime.userID,
+            'course_id': RecordTime.getSessionCourseID(),
+            'external_id': self.data.id,
+            'type': self.data.type,
+            'weight': self.data.weight
+        });
+    }
+};
+
+ExternalTimer.prototype.delete = function(data) {
+    var self = this;
+    this.data = data;
+    if (RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+        $.post('/record_time/external_time_del', {
+            'user_id': RecordTime.userID,
+            'course_id': RecordTime.getSessionCourseID(),
+            'external_id': self.data.id,
+            'type': self.data.type
+        });
+    }
+};
+
+ExternalTimer.prototype.load = function() {
+    var self = this;
+    if (RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+        $.post('/record_time/external_time_load', {
+            'user_id': RecordTime.userID,
+            'course_id': RecordTime.getSessionCourseID(),
+        }, function(data) {
+            if (data != null) {
+                self.time = parseInt(data.external_time);
+            } else {
+                self.time = 0;
+            }
+            self.draw();
+        });
+    }
+
 };

@@ -547,6 +547,7 @@ except:
         //---------------------Record time variable-------------------------------------------//
 
         var courseTimer = null;
+        var externalTimer = null;
         RecordTime.firstRun = true;
 
         //---------------------Record time (Page switching)----------------------------------//
@@ -665,9 +666,10 @@ except:
 
             course_refresh_or_exit();
             courseTimer = new CourseTimer();
-            courseTimer.isrun = false;
-            courseTimer.create();
-
+            externalTimer = new ExternalTimer();
+            //courseTimer.isrun = false;
+            //courseTimer.create();
+            
             interactive_update();
             $(".info_count_btn").click(function() {
                 interactive_update();

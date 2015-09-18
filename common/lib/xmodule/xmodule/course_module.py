@@ -401,7 +401,11 @@ class CourseFields(object):
     certificates_estimated_effort = String(help="Certificates Estimated Effort", default="10 hours",scope=Scope.settings)
 
     external_course_time = String(help="External Course Time", default="1800", scope=Scope.settings)
-    
+
+    hide_timer = Boolean(help="Hidden Course Timer", default=False, scope=Scope.settings)
+
+    show_external_timer = Boolean(help="Display External Timer", default=False, scope=Scope.settings)
+
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
 
