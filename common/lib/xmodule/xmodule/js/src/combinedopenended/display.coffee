@@ -163,6 +163,7 @@ class @CombinedOpenEnded
     @accept_file_upload = @coe.data('accept-file-upload')
     @location = @coe.data('location')
     @data_score = @coe.data('score')
+    @data_weight = @coe.data('weight')
     # set up handlers for click tracking
     @rub = new Rubric(@coe)
     @rub.initialize(@location)
