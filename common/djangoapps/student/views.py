@@ -381,6 +381,7 @@ def dashboard(request, user_id=None):
     courses = []
 
     external_time = 0
+    external_times = {}
     exists = 0
     # get none enrolled course count for current login user
     rts = record_time_store()
@@ -424,7 +425,9 @@ def dashboard(request, user_id=None):
             #     courses_complated.append(c)
             # else:
             #     courses_incomplated.append(c)
-            external_time += rts.get_external_time(str(user.id), c.id)
+            external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+            external_time += external_times[c.id]
+            external_times[c.id] = study_time_format(external_times[c.id])
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
@@ -488,7 +491,8 @@ def dashboard(request, user_id=None):
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
-        'course_times': course_times
+        'course_times': course_times,
+        'external_times': external_times
     }
 
     return render_to_response('dashboard.html', context)
