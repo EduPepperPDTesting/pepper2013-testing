@@ -836,7 +836,13 @@ Add info that you would like to share about yourself here:
               <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
               -->
-              <div class="course-time">Course Time: ${course_times[course.id]}</div>
+              % if course.hide_timer == False:
+                % if course.show_external_timer == False:
+                  <div class="course-time">Course Time: ${course_times[course.id]}</div>
+                % else:
+                  <div class="course-time">External Time: ${external_times[course.id]}</div>
+                % endif
+              % endif
 	    % endif
            %endif
           </section>
