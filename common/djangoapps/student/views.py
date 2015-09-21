@@ -425,7 +425,8 @@ def dashboard(request, user_id=None):
             # else:
             #     courses_incomplated.append(c)
             course = get_course_with_access(user.id, c.id, 'load')
-            external_time += int(course.external_course_time)
+            # external time should be calculated based on the number of ORAs with at least 1 uploaded file
+            # external_time += int(course.external_course_time)
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
