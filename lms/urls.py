@@ -332,6 +332,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
         url(r'^demo2$', 'branding.views.demo2', name="demo2"),
         url(r'^demo3$', 'branding.views.demo3', name="demo3"),
+        url(r'^demo4$', 'branding.views.demo4', name="demo4"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
         url(r'^contact$', 'branding.views.contact', name="contact_us"),
         url(r'^intro$', 'branding.views.intro', name="intro"),
