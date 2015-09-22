@@ -1,0 +1,446 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from student.models import State,District,School
+%>
+
+<%
+import os
+workdir = os.getcwd()
+base_path = workdir + '/lms/templates/emails/'
+subject_path = base_path + 'activation_email_subject.txt'
+email_path = base_path + 'activation_email.txt'
+f = open(subject_path, 'r')
+subject_to_edit = f.read()
+f.close()
+f = open(email_path, 'r')
+email_to_edit = f.read()
+f.close()
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+
+<!-- User Data Import -->
+<div class = "data_import_top">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      User Data Import <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="userDataImportForm" action="">
+        <!-- 
+        <div class="control filter">
+          <textarea class="setting">
+            {
+            "fields":{
+            "state":{"display":"State","type":"drop","require":[],"url":"${reverse('pepconn_drop_states')}","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('pepconn_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('pepconn_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
+            },
+            "favorite":{
+               "show":true,
+               "urls":{
+                  "load":"${reverse('pepconn_favorite_filter_load')}",
+                  "save":"${reverse('pepconn_favorite_filter_save')}",
+                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                }
+            }
+            }
+          </textarea>       
+          <span class="body" style="display:inline-block;"></span>
+        </div>
+         -->
+        <ul class="list">
+          <li>
+            <label>
+              <input type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+              Send registration emails to imported users
+            </label>
+          </li>
+          <li class="customize-email">
+            <label style="cursor:normal !important;">
+              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              Customize registration email
+            </label>
+          </li>
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+        </ul>
+        <div style="padding:7px;">
+          CSV File: <input type="file" name="file" value="" />
+          <p style="margin-top:1em;">
+            <label style="font-style:normal;color:#555;cursor:default;">
+            * CSV file should contain the following columns (email address, state, district).
+            </label>
+          </p>
+        </div>
+        <div style="padding:10px 5px">
+          <input class="form_submit" type="submit" name="" value="Import Users" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      User Registration <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="usrRegistrationForm" action="" onsubmit="return false;">
+        <div class="control filter" id="fltUserRegistration">
+          <span class="body" style="display:inline-block;"></span>
+          <textarea class="setting">
+            {
+            "fields":{
+            "state":{"display":"State","type":"drop","require":[],"url":"${reverse('pepconn_drop_states')}","format":"<option value='{id}'>{name}</option>"},
+            "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('pepconn_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
+            "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('pepconn_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
+            },
+            "favorite":{
+               "show":true,
+               "urls":{
+                  "load":"${reverse('pepconn_favorite_filter_load')}",
+                  "save":"${reverse('pepconn_favorite_filter_save')}",
+                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                }
+            }
+            }
+          </textarea>
+          <input type="button" name="" value="LOAD" class="load" onclick="userRegistration.filterUserRegistration()"/>
+        </div>
+        <div class="" style="padding:5px;">
+          <label style="cursor:normal !important;">
+            <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+            Customize registration email
+          </label>            
+        </div>
+        <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
+        <div class="control table" id="tblUserRegistration">      
+          <div class="" style="padding:5px;">
+            <!--<a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+              Send registration email to: <span class="count"></span> users(haven't invited).
+            </a>-->
+            <div style="text-align: right; padding-right: 4px;"><label style="font-weight:bold;font-style:normal">
+              Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
+            </label></div>
+          </div>
+          <span class="body"></span>
+          <div class="footer">
+            <span class="paging"></span>
+            Batch Modify
+            <select id="lstModifyStatus" name="" autocomplete="off">
+              <option value="">--Status--</option>
+              <option value="Imported">Imported</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Registered">Registered</option>
+              <option value="Inactive">Inactive</optio>              
+            </select>
+            <input type="button" id="btnDeleteUsers" name="" value="Delete" class="small"/>
+            <span class="download">
+              Download <span class="total"></span> User(s) As
+              <input type="button" name="" value="CSV" class="small" id="btnDownloadUserCsv"/>
+              <input type="button" name="" value="Excel" class="small" id="btnDownloadUserExcel"/>
+            </span>
+          </div>
+          <textarea class="setting">
+            {
+            "fields":{
+            "district":{"display":"District","sort":"+","show":1},
+            "user__last_name":{"display":"Last Name","sort":"+","show":1},
+            "user__first_name":{"display":"First Name","sort":"+","show":1},
+            "user__email":{"display":"Email","sort":"+","show":1},
+            "activate_date":{"display":"Enrollment Start","sort":"+","show":1},
+            "subscription_status":{"display":"Status","sort":"+","show":1}
+            },
+            "field_row_identifier":"id",
+            "urls":{
+            "data":"${reverse('pepconn_registration_table')}"
+            },
+            "paging":{
+            "size":20,
+            "sizes":[10,20,50,100,200]
+            }
+            }
+          </textarea>
+        </div>
+        <div style="padding:5px;">
+          <input type="button" name="" value="SEND REGISTRATION EMAILS" onclick="userRegistration.sendRegistrationEmails('ids')"/>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+<script type="text/javascript">
+  if (typeof CKEDITOR != 'undefined') {
+      CKEDITOR.replaceAll(function (textarea, config) {
+          if (textarea.className == 'email-editor') {
+              // Add token plugin
+              config.extraPlugins = 'token';
+              // Configure available tokens
+              config.availableTokens = [
+                  ["", ""],
+                  ["email", "email"],
+                  ["district", "district"],
+                  ["site", "site"],
+                  ["key", "key"]
+              ];
+              return true;
+          }
+          return false;
+      });
+  }
+  
+  //* global
+  //** add csrf token to json
+  function safeJSON(j){
+    j.csrfmiddlewaretoken="${csrf_token}"
+    return j;
+  }
+  function syncCKEditorData(){
+    $.each(CKEDITOR.instances,function(name,inst){
+      if(inst.element.$.tagName.toLowerCase()=='textarea'){
+        $(inst.element.$).val(inst.getData());
+      }
+    });
+  }
+  //** init custom email
+  $(".custom-email-checkbox").click(function(){
+    var textarea = $(this).parent().parent().next(".custom-email");
+    if ($(this).prop('checked')){
+      textarea.slideDown();
+    } else {
+      textarea.slideUp();
+    }
+  });
+  //** init expand title
+  $(".expand_title").click(function(){
+    var $div=$(this).next("div.expand_div");
+    if($div.is(':visible')){
+      $div.slideUp();
+      $(this).removeClass("expand_title_expanded");
+    }else{
+      $div.slideDown();
+      $(this).addClass("expand_title_expanded");
+    }
+  });
+  //** init filter controls
+  $(".control.filter").each(function(){
+    var el=this;
+    new FilterControl(this);
+    this.onFavoriteServerUpdated=function(){
+      $(".control.filter").each(function(){
+        if(!$(el).is(this)) this.control.createFavorite();
+      });
+    }
+  });
+  //** init table controls
+  $(".control.table").each(function(){new TableControl(this)});
+  //* controller for user registration
+  var userRegistration={
+    /* updateInviteNumber:function(filter){
+      $.post("${reverse('pepconn_registration_invite_count')}",safeJSON(filter),function(r){
+        $("#inviteEmailSender").find(".count").html(r.count);
+      });
+    },*/
+    filterUserRegistration:function(){
+      var filter=$('#fltUserRegistration')[0].control.getFilter();
+      $('#tblUserRegistration')[0].control.updateFilter(filter);
+      /*this.updateInviteNumber(filter);*/
+    },
+    sendRegistrationEmails:function(type){
+      var self=this;
+      if (type=='ids') {
+        var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+        if(!ids.length){
+          new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
+          return; 
+        }
+        var filter={'ids':ids.join()};
+      } else if(type=='filter') {
+        var filter=$('#fltUserRegistration')[0].control.getFilter();
+      }
+      var usrRegistrationForm=$("#usrRegistrationForm")[0];
+      syncCKEditorData();
+      var data={
+        'customize_email':$(usrRegistrationForm.customize_email).val(),
+        'custom_email':$(usrRegistrationForm.custom_email_002).val(),
+        'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
+      };
+      data=$.extend(data,filter);
+      this.dialog=new Dialog($('#dialog'));
+      this.dialog.showProgress("Sending Registration Emails","Please wait...");
+      $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
+        if(r.success){
+          self.taskId=r.taskId;
+          self.updateProgress();
+        }
+      });          
+    },
+    updateProgress:function(){
+      var self=this;
+      self.dialog.show("Registration Emails", "<p style='font-size:20px;font-weight:bold;'>Email Sending Started</p>\
+<br>You may monitor the import progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
+    },
+    modifyUserStatus:function(status){
+      var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+      var args={ids:ids.join(),subscription_status:status};
+      if(ids.length){
+        $.post("${reverse('pepconn_registration_modify_user_status')}",safeJSON(args) ,function(r){
+          if(r.success) $('#tblUserRegistration')[0].control.reload();
+        });
+      }else{
+        new Dialog($('#dialog')).show('Modify User Status','No users selected.');
+      }
+    },
+    deleteUsers:function(){
+      var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
+      if(ids.length){
+        new Dialog($('#dialog')).showYesNo(
+          'Delete Users',
+          'Do you really want to delete the selected user(s)?',
+          function(confirmed){
+            this.hide();
+            if(confirmed){
+              var args={ids:ids.join()};
+              $.post("${reverse('pepconn_registration_delete_users')}",safeJSON(args) ,function(r){
+                if(r.success) $('#tblUserRegistration')[0].control.reload();
+              });
+            }
+          });
+      }else{
+        new Dialog($('#dialog')).show('Delete Users','No users selected.');
+      }
+    },
+    postToNewTab: function(url, params) {
+      var form = document.createElement("form");
+      form.setAttribute("method", "post");
+      form.setAttribute("action", url);
+      form.setAttribute("target", "_blank");
+      for (var i in params) {
+        if (params.hasOwnProperty(i)) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = i;
+          input.value = params[i];
+          form.appendChild(input);
+        }
+      }
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    },    
+    downloadUserCsv:function(){
+      var filter=$('#fltUserRegistration')[0].control.getFilter();
+      this.postToNewTab("${reverse('pepconn_registration_download_csv')}",safeJSON(filter));
+    },
+    downloadUserExcel:function(){
+      var filter=$('#fltUserRegistration')[0].control.getFilter();
+      this.postToNewTab("${reverse('pepconn_registration_download_excel')}",safeJSON(filter));
+    },
+    init:function(){
+      var self=this;
+      /*this.updateInviteNumber({});*/
+      $('#tblUserRegistration')[0].onDataLoaded=function(){
+        $(this).find(".download .total").html(this.control.getPagingInfo().total);
+        $(this).find(".check_all").prop("checked",false)
+      };
+      $("#lstModifyStatus").change(function(){
+        var status=$(this).val();
+        if(status=="")return;
+        self.modifyUserStatus(status);
+        $(this).val('');
+      });
+      $("#btnDownloadUserCsv").click(function(){
+        self.downloadUserCsv();
+      });
+      $("#btnDownloadUserExcel").click(function(){
+        self.downloadUserExcel();
+      });
+      $("#btnDeleteUsers").click(function(){
+        self.deleteUsers();
+      });
+    }
+  };
+  userRegistration.init();
+  //* controller for user data import
+  var userDataImport={
+    submit:function(form){
+      var self=this
+      var form=this.$form[0];
+      // input checking
+      /* var state_id=$(form.state_id).val();
+         var district_id=$(form.district_id).val();
+         if(!state_id || !district_id){
+         new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
+         return false;
+         } */
+      if(!((/\.csv/i).test(form.file.value))){
+        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
+        return false;
+      }
+      syncCKEditorData();
+      $.ajax({
+        url: "${reverse('pepconn_import_user_submit')}",
+        data: new FormData(form), processData: false, contentType: false, type: 'POST',
+        /* enctype: 'multipart/form-data',
+           mimeType: 'multipart/form-data', */
+        success: function(data){
+          self.renderProgress(data.taskId);
+        }
+      });
+    },
+    renderProgress:function(taskId){
+      var dialog=new Dialog($('#dialog'));
+      dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+<br>You may monitor the progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
+    },
+    init:function(){
+        function pcSlider(clicked, target) {
+            if (clicked.prop('checked')){
+                target.slideDown();
+            } else {
+                target.slideUp();
+            }
+        }
+        var self=this;
+        this.$form=$("#userDataImportForm");
+        $(".send-email").click(function(){
+            var checkboxArea = $(this).parent().parent().next(".customize-email");
+            var checkbox = $(checkboxArea).children("label").children(".custom-email-checkbox");
+            if (checkbox.prop('checked')) {
+                checkbox.removeProp('checked');
+                var textarea = checkbox.parent().parent().next(".custom-email");
+                pcSlider(checkbox, textarea);
+            }
+            pcSlider($(this), checkboxArea);
+        });
+        this.$form.submit(function(){
+            self.submit();
+            return false;
+        });
+    }
+  };
+  userDataImport.init();
+</script>

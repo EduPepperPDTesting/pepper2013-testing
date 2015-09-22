@@ -12,7 +12,6 @@
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
   #image_uploading{display:none;}
   .mychunks_linkwin{
     background:#fff;
@@ -174,13 +173,13 @@
 		              <b style="font-size:14px;color:#000">My Profile:</b>
 		            </div>
 					<div style="line-height:30px;"><b>State:</b>
-			          % if curr_user.profile.cohort_id:
-					  ${curr_user.profile.cohort.district.state.name}
+			          % if curr_user.profile.district_id:
+					  ${curr_user.profile.district.state.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>District:</b>
-					  % if curr_user.profile.cohort_id:
-					  <br>${curr_user.profile.cohort.district.name}
+					  % if curr_user.profile.district_id:
+					  <br>${curr_user.profile.district.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>School:</b>
@@ -283,7 +282,7 @@ Add info that you would like to share about yourself here:
    </div>
 %endfor
 -->
-<section id="show_mychunks" class="modal" style="width:600px;">
+<section id="show_mychunks" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="mychunks_title">${_("NOTES ON MY CHUNK")}</h2>
@@ -329,7 +328,7 @@ Add info that you would like to share about yourself here:
   </div>
 </section>
 
-<section id="share_mychunks" class="modal" style="width:600px;" user-id="${curr_user.id}"user-name="${curr_user.username}">
+<section id="share_mychunks" class="modal modal-wide" user-id="${curr_user.id}"user-name="${curr_user.username}">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header style="margin-bottom:0px !important;">
       <h2 class="mychunks_title">${_("SHARING CHUNKS WITH MY NETWORK")}</h2>
@@ -369,12 +368,12 @@ Add info that you would like to share about yourself here:
                   </div> 
 
                   <div class="name_text">${profile['username']}</div>
-                   %if profile['cohort_id'] and profile['school_id']:
+                   %if profile['district_id'] and profile['school_id']:
                     <%
                     school=School.objects.get(id=profile['school_id'])
-                    cohort=Cohort.objects.get(id=profile['cohort_id'])
+                    district=District.objects.get(id=profile['district_id'])
                     %>
-                    <div class="name_text">${school.name} <br/> ${cohort.district.name}</div>
+                    <div class="name_text">${school.name} <br/> ${district.name}</div>
                     %endif
                   </span>
               </td>
@@ -399,7 +398,7 @@ Add info that you would like to share about yourself here:
   </div>
 </section>
 
-<section id="del_mychunks" class="modal" style="width:600px;">
+<section id="del_mychunks" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="mychunks_title">${_("DELETE THE CHUNK")}</h2>
@@ -422,7 +421,7 @@ Add info that you would like to share about yourself here:
   </div>
 </section>
 
-<section id="shared_ok_mychunks" class="modal" style="width:600px;">
+<section id="shared_ok_mychunks" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="mychunks_title">${_("CHUNK SHARED")}</h2>
@@ -444,7 +443,7 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </section>
-<section id="rate_results" class="modal" style="width:600px;">
+<section id="rate_results" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="rate_title">${_("Rate Results")}</h2>

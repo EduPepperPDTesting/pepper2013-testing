@@ -55,7 +55,6 @@
               <td>Last Name:</td><td><input type="input" name="last_name" size="10" autocomplete="off" />
               <span style="margin-left:50px">Email: &nbsp;&nbsp;<input type="input" name="email" size="30" autocomplete="off" /></span> </td>
             </tr>
-            
             <tr> <td></td><td><input type="submit" name="" value="Filter" /></td><td></td><td></td> </tr>
             </table>
           </form>
@@ -100,14 +99,17 @@
             <td>${item.user.last_name}</td>
             <td>${item.user.username}</td>
             <td><a href="${reverse('user_form',args=[item.id])}">${item.user.email}</a></td>
-            <!-- <td>${item.cohort.district.state.name}</td> --> 
-            <td>${item.cohort.district.name}</td>
-            <td>${item.cohort.code}</td>
-            %if item.school_id:
-            <td>${item.school.name}</td>
-            %else:
-            <td></td>
-            %endif
+            <td>${item.district.name}</td>
+            <td>
+              %if Cohort.objects.filter(id=item.cohort_id).count():
+              ${item.cohort.code}
+              %endif
+            </td>
+            <td>
+              %if item.school_id:
+              ${item.school.name}
+              %endif
+            </td>
             <td align="center">${item.invite_date}</td>
             <!-- <td align="center">${item.days_after_invite}</td> -->
             <td align="center">${item.activate_date}</td>
@@ -339,7 +341,7 @@
             <tr>
               <td class="label">State</td>
               <td>
-                <select id="district_id" name="state_id" autocomplete="off">
+                <select id="state_id" name="state_id" autocomplete="off">
                   <option value=""></option>
                   %for item in State.objects.all().order_by('name'):
                   <option value="${item.id}">${item.name}</option>
@@ -348,7 +350,7 @@
               </td>
             </tr>
             <tr>
-              <td class="label">District</td>
+              <td class="label required">District</td>
               <td>
                 <select id="district_id" name="district_id" autocomplete="off">
                   <option value=""></option>
@@ -403,7 +405,7 @@ var form=$("#form");
 // submit form
 form.submit(function(){
   if(!new FormValidator().check(this))return false;
-  var flds=["id","email","subscription_status","cohort_id","school_id","csrfmiddlewaretoken"]
+  var flds=["id","email","subscription_status","district_id","cohort_id","school_id","csrfmiddlewaretoken"]
   var data=getFormData(this,flds);
   $("#message").html("Submiting");
   $.post('${reverse("user_submit")}',data,
@@ -434,28 +436,37 @@ form.find("select[name=district_id]").change(function(){
 });
 // init form
 %if profile.id:
-  var cohort_id="${profile.cohort.id}"
-  var district_id="${profile.cohort.district.id}"
-  var state_id="${profile.cohort.district.state.id}"
-  var school_id="${profile.school_id}"
-  var subscription_status="${profile.subscription_status}"
+  %try:
+    <%
+      cohort_parsed = profile.cohort.id
+    %>
+  %except:
+    <%
+      cohort_parsed = ''
+    %>
+  %endtry
+  var cohort_id="${cohort_parsed}";
+  var district_id="${profile.district.id}";
+  var state_id="${profile.district.state.id}";
+  var school_id="${profile.school_id}";
+  var subscription_status="${profile.subscription_status}";
 %else:
-  var cohort_id=""
-  var district_id=""
-  var state_id=""
-  var school_id=""
+  var cohort_id="";
+  var district_id="";
+  var state_id="";
+  var school_id="";
 %endif
-form.find("select[name=state_id]").val(state_id)
-form.find("select[name=subscription_status]").val(subscription_status)
+form.find("select[name=state_id]").val(state_id);
+form.find("select[name=subscription_status]").val(subscription_status);
 dropDistrict(form,state_id,function(){
   $(this).val(district_id)
-})
+});
 dropCohort(form,state_id,district_id,function(){
   $(this).val(cohort_id)
-})
+});
 dropSchool(form,state_id,district_id,function(){
   $(this).val(school_id)
-})
+});
 </script>
 %endif
 </body>

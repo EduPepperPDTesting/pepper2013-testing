@@ -13,7 +13,6 @@
 %>
 <%! import json%>
 <style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
   section.course-index{
     padding-bottom:50px !important;
   }
@@ -252,9 +251,9 @@
               %if profile['cohort_id'] and profile['school_id']:
               <%
               school=School.objects.get(id=profile['school_id'])
-              cohort=Cohort.objects.get(id=profile['cohort_id'])
+              district=District.objects.get(id=profile['district_id'])
               %>
-              <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
+              <span class="name_text">${school.name} <br/> ${district.name}</span>
               %endif
 
           %if 0:
@@ -338,7 +337,7 @@
   function del_people(people_id){
     if(confirm("Are you sure that you would like to remove this person from your network list?")){
       $.post("${reverse('del_people')}",{people_id:people_id},function(r){
-        if ((typeof r) == 'string') r=$.parseJSON();
+        if ((typeof r) == 'string') r=$.parseJSON(r);
         if(r.success)
           window.location.reload();
       });

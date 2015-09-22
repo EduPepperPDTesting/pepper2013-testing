@@ -28,9 +28,6 @@
     <link rel="stylesheet" href="${static.url('candy_res/candy_full.css')}" />
   % endif
 </%block>
-<style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
-</style>
 
 <%block name="js_extra">
   <script type="text/javascript" src="${static.url('js/vendor/jquery.scrollTo-1.4.2-min.js')}"></script>
@@ -297,7 +294,7 @@
             <span>
               <strong>State:</strong>
               % if portfolio_user.profile.cohort_id:
-              ${portfolio_user.profile.cohort.district.state.name}
+              ${portfolio_user.profile.district.state.name}
               % endif
             </span>
           </span>
@@ -306,7 +303,7 @@
             <span>
               <strong>District:</strong> 
               % if portfolio_user.profile.cohort_id:
-              ${portfolio_user.profile.cohort.district.name}
+              ${portfolio_user.profile.district.name}
               % endif
             </span>
           </span>

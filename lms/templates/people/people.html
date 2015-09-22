@@ -10,9 +10,6 @@
   from baseinfo.models import Enum
 %>
 <%! import json%>
-<style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
-</style>
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
@@ -298,13 +295,17 @@ padding-bottom:50px !important;
                 <a href="${reverse('dashboard',args=[profile['user_id']])}" style="color:rgb(52, 97, 173)" target="_blank">${profile['first_name']} ${profile['last_name']}</a>
               </span>
               <span class="name_text">${profile['username']}</span>
-              %if profile['cohort_id'] and profile['school_id']:
-              <%
-              school=School.objects.get(id=profile['school_id'])
-              cohort=Cohort.objects.get(id=profile['cohort_id'])
-              %>
-              <span class="name_text">${school.name} <br/> ${cohort.district.name}</span>
-              %endif
+              <span class="name_text">
+                %if profile['school_id']:
+                  <% school=School.objects.get(id=profile['school_id']) %>
+                  ${school.name}
+                  <br/>
+                %endif
+                %if profile['district_id']:
+                  <% district=District.objects.get(id=profile['district_id']) %>
+                  ${district.name}
+                %endif
+              </span>
               %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif

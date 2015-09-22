@@ -30,24 +30,10 @@ from django.db import connection
 import comment_client as cc
 from pytz import UTC
 
-# from reg_objects.models import District,School,Cohort
-
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
 from django.db import connection
-
-#@begin:user login info model
-#@data:2014-01-07
-#@create table cms_login_info
-# create table cms_login_info(
-#     id int(11) NOT NULL AUTO_INCREMENT,
-#     ip_address varchar(20) NOT NULL,
-#     user_name varchar(30) NOT NULL,
-#     log_type_login tinyint(1) NOT NULL,
-#     login_or_logout_time datetime NOT NULL,
-#     primary key (id)
-# )
 
 class CmsLoginInfo(models.Model):
     class Meta:
@@ -62,71 +48,6 @@ class CmsLoginInfo(models.Model):
             "[CmsLoginInfo] {} {} {}"
         ).format(self.user_name, 'login' if self.log_type_login else 'logout', self.login_or_logout_time)    
 
-#@end
-
-
-
-#@begin:student resource library
-#@date:2014-01-07
-
-# #TABLES FOR RESOURCELIBRARYSITE####################
-# create table student_resourcelibrarysubclasssite(
-#   id int(11) not null auto_increment,
-#   display varchar(255) not null,
-#   link varchar(512) not null,
-#   primary key(id),
-#   order int(11) not null
-#    )
-# create table student_resourcelibrarysubclass_sites(
-#   id int(11) not null auto_increment,
-#   resourcelibrarysubclass_id int(11) not null,
-#   resourcelibrarysubclasssite_id int(11) not null,
-#   primary key(id)
-#    )
-## ####################################################
-## #TABLES FOR RESOURCELIBRARYSUBCLASSITEM#############
-## create table student_resourcelibrarysubclassitem(
-##     id int(11) NOT NULL AUTO_INCREMENT,
-##     display varchar(255) NOT NULL,
-##     link varchar(512) NOT NULL,
-##     primary key(id),
-##     order int(11) not null
-## )
-## create table student_resourcelibrarysubclass_items(
-##     id int(11) not null auto_increment,
-##     resourcelibrarysubclass_id int(11) not null,
-##     resourcelibrarysubclassitem_id int(11) not null,
-##     primary key(id),
-##     )
-# ####################################################
-# #TABLES FOR RESOURCELIBRARYSUBCLASS ###########
-# create table student_resourcelibrarysubclass(
-#     id int(11) not null auto_increment,
-#     display varchar(255),
-#     primary key(id),
-#     display_order int(11) not null
-#     )
-# ###############################################
-# # TABLES FOR RESOURCELIBRARYCATEGORY###########
-# create table student_resourcelibrarycategory(
-#     id int(11) NOT NULL AUTO_INCREMENT,
-#     display varchar(255) NOT NULL,
-#     primary key(id),
-#     display_order int(11) not null,
-#     unique key(display)
-#     )
-# ###############################################
-# # TABLES FOR RESOURCELIBRARY ###########
-# create table student_resourcelibrary(
-#     id int(11) NOT NULL AUTO_INCREMENT,
-#     category_id int(11) NOT NULL,
-#     subclass_id int(11) NULL,
-#     display  varchar(255) NOT NULL,
-#     link     varchar(512) NOT NULL,
-#     primary key(id),
-#     display_order int(11) NOT NULL
-#     );
-# ########################################
 class ResourceLibrarySubclassSite(models.Model):
     class Meta:
         db_table = 'student_resourcelibrarysubclasssite'
@@ -138,18 +59,6 @@ class ResourceLibrarySubclassSite(models.Model):
         return (
             "[ResourceLibrarySubclassSite] {}"
         ).format(self.display)
-
-# class ResourceLibrarySubclassItem(models.Model):
-#     class Meta:
-#         db_table = 'student_resourcelibrarysubclassitem'
-#     display = models.CharField(blank=False, max_length=100)
-#     link = models.TextField(blank=False, max_length=255)
-#     display_order = models.IntegerField(blank=False)
-
-#     def __unicode__(self):
-#         return (
-#             "[ResourceLibrarySubclassItem] {}"
-#         ).format(self.display)
 
 class ResourceLibrarySubclass(models.Model):
     class Meta:
@@ -201,7 +110,6 @@ class StaticContent(models.Model):
     name = models.CharField(blank=False,max_length=255)
     content = models.TextField(blank=False)
 #@end
-
 
 class YearsInEducation(models.Model):
     class Meta:
@@ -319,21 +227,22 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
 
-    school = models.ForeignKey(School,on_delete=models.PROTECT,blank=True)
-    cohort = models.ForeignKey(Cohort,on_delete=models.PROTECT)
+    school = models.ForeignKey(School, on_delete=models.PROTECT)
+    cohort = models.ForeignKey(Cohort, on_delete=models.PROTECT, default=0)
+    district = models.ForeignKey(District, on_delete=models.PROTECT)
 
-    years_in_education = models.ForeignKey(YearsInEducation,on_delete=models.PROTECT)
-    major_subject_area = models.ForeignKey(SubjectArea,on_delete=models.PROTECT)
+    years_in_education = models.ForeignKey(YearsInEducation, on_delete=models.PROTECT)
+    major_subject_area = models.ForeignKey(SubjectArea, on_delete=models.PROTECT)
 
     grade_level_id = models.CharField(blank=False, max_length=255, db_index=True)
 
     # first_name = models.CharField(blank=True, max_length=255, db_index=True)
     # last_name = models.CharField(blank=True, max_length=255, db_index=True)
-    bio = models.CharField(blank=True, max_length=255, db_index=True)    
-    subscription_status=models.CharField(blank=False, max_length=20, db_index=False)
-    
-    invite_date=models.DateTimeField(auto_now_add=False, db_index=False)
-    activate_date=models.DateTimeField(auto_now_add=False, db_index=False)
+    bio = models.CharField(blank=True, max_length=255, db_index=True)
+    subscription_status = models.CharField(blank=False, max_length=20, db_index=False)
+
+    invite_date = models.DateTimeField(auto_now_add=False, db_index=False)
+    activate_date = models.DateTimeField(auto_now_add=False, db_index=False)
 
     # photo = models.CharField(blank=True, max_length=50, db_index=False)
     meta = models.TextField(blank=True)  # JSON dictionary for future expansion
@@ -355,12 +264,12 @@ class UserProfile(models.Model):
         blank=True, null=True, max_length=6, db_index=True, choices=GENDER_CHOICES
     )
 
-    percent_lunch = models.IntegerField(blank=False, null=False, db_index=False,default=0)
-    percent_iep = models.IntegerField(blank=False, null=False, db_index=False,default=0)
-    percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False,default=0)
+    percent_lunch = models.IntegerField(blank=False, null=False, db_index=False, default=0)
+    percent_iep = models.IntegerField(blank=False, null=False, db_index=False, default=0)
+    percent_eng_learner = models.IntegerField(blank=False, null=False, db_index=False, default=0)
 
-    sso_idp=models.CharField(blank=True, max_length=50, null=True)
-    sso_identifier=models.CharField(blank=True, max_length=255, null=True)
+    sso_type = models.CharField(blank=True, max_length=50, null=True)
+    sso_idp = models.CharField(blank=True, max_length=255, null=True)
 
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.

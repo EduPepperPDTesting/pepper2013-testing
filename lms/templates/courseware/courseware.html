@@ -17,14 +17,10 @@
   % endif
 </%block>
 
-<!--@begin:Hide the Dashboard button from this page-->
-<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
   [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
   .course_author_image_div{border-bottom-style:solid;border-bottom-width:1px;border-bottom-color:#aaa;}
 </style>
-<!--@end-->
 <%block name="header_extras">
 % for template_name in ["image-modal"]:
 <script type="text/template" id="${template_name}-tpl">
@@ -310,6 +306,13 @@
 % endif
 
     <section class="course-content">
+    % if course.hide_timer == False:
+      % if course.show_external_timer == False:
+        <div class="course_timer"></div>
+      % else:
+        <div class="external_timer"></div>
+      % endif
+    % endif
       ${content}
     </section>
   </div>

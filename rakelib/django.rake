@@ -19,7 +19,7 @@ end
 # This task should be invoked via the wrapper below, so we don't
 # include a description to keep it from showing up in rake -T.
 task :runserver, [:system, :env, :options] => [:install_prereqs, 'assets:_watch', :predjango] do |t, args|
-    sh(django_admin(args.system, args.env, 'runserver', args.options))
+#    sh(django_admin(args.system, args.env, 'runserver', args.options))
 end
 
 [:lms, :cms].each do |system|

@@ -15,7 +15,6 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <style type="text/css" media="screen">
     
-    #btn-dashboard{display:none;}
     .form-select{font-size:14px !important;width:180px;}
     .image-link-style{
       border-radius: 6px 6px 6px 6px;
@@ -122,10 +121,19 @@
             <div style="height:100px;"></div>
             <a href="http://parcc.pearson.com/practice-tests/" target="_blank" class="card-link image-bottom-style"><span>Practice Assessments</span></a>
           </div>
+
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb7_Pepper.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Course Libraries</span></a>
           </div>
+
+          %if request.user.profile.district.name=='Manteca Unified School District':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/course_libraries?name=MUSD Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
+          </div>
+          %endif
+
         </div>
       </div>
     </section>

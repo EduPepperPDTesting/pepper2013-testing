@@ -1,1017 +1,1269 @@
+<%page args="show_extended=True" />
+
 ## mako
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
 
 <%!
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.translation import ugettext as _
 
-# App that handles subdomain specific branding
-import branding
-# app that handles site status messages
-from status.status import get_site_status_msg
+    # App that handles subdomain specific branding
+    import branding
+    # app that handles site status messages
+    from status.status import get_site_status_msg
 %>
 
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
 <%block cached="False">
-<%
+    <%
 
-# print index
-   
-try:
+        # print index
+
+        try:
     course_id = course.id
 except:
     # can't figure out a better way to get at a possibly-defined course var
     course_id = None
-site_status_msg = get_site_status_msg(course_id)
-%>
-% if site_status_msg:
-<div class="site-status">
-  <div class="inner-wrapper">
-    <span class="white-error-icon"></span>
-    <p>${site_status_msg}</p>
-  </div>
-</div>
-% endif
+        site_status_msg = get_site_status_msg(course_id)
+    %>
+    % if site_status_msg:
+        <div class="site-status">
+            <div class="inner-wrapper">
+                <span class="white-error-icon"></span>
+                <p>${site_status_msg}</p>
+            </div>
+        </div>
+    % endif
 </%block>
 
-<!--@begin:New added page style-->
-<!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  *{font-family:"open sans" !important;}
-  p{font-family:"open sans" !important;}
-  
-  a.blue{
-  color:#556370 !important;
-  }
-  
-  a.blue-underline{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.blue-underline:normal{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.blue-underline:hover{
-  color:#556370 !important;
-  text-decoration:underline !important;
-  border:none;
-  }
-  
-  a.main-link{
-  font-family:'open sans';
-  font-size:16px;
-  text-transform:none;
-  font-weight:normal !important;
-  }
-  .imessage_style{
-	margin-right: 0px;
-	display: block;
-    float: left;
-	margin: 0px;
-	padding: 5px 8px 7px 8px;
-	margin-top:-14px;
-	}
-	
- #view_all_note:hover {
-  background:#6e8194;
-  transition-delay: 0s, 0s, 0s;
-  transition-duration: 0.25s, 0.25s, 0.25s;
-  transition-property:color, background,? box-shadow;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  transition-duration:0.25s,? 0.25s,? 0.25s;
-  color:#fff;
-  }
-  #view_all_note{
-  border-width:0;
-  background:#556370;
-  text-decoration: none;
-  padding-bottom: 10px;
-  padding-left: 90px;
-  padding-right: 90px;
-  padding-top: 10px;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: #949494 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  #view_all_note:normal {
-  background:#126F9A;
-  text-decoration: none;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  .ftg_button {
-  width:100px;
-  text-align:center;
-  display: block;
-  text-decoration: none!important;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  padding: 3px 3px;
-  border-radius: 3px;
-  -moz-border-radius: 3px;
-  box-shadow: inset 0px 0px 2px #fff;
-  -o-box-shadow: inset 0px 0px 2px #fff;
-  -webkit-box-shadow: inset 0px 0px 2px #fff;
-  -moz-box-shadow: inset 0px 0px 2px #fff;
-}
-.ftg_yellow {
-  color: #fff;
-  border: 1px solid #57c4be;
-  background-color: #57c4be;
-}
-.linkwin{
-  background:#fff;
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  border-radius: 0;
-  box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
-  display: none;
-  left: 50%;
-  padding: 8px;
-  position: absolute;
-  width: 480px;
-  display: none;
-  margin-left:-250px;
-  top: 320px;
-  z-index: 11000;
-  height:200px;
-  }
-  .leanmodalStyle {
-    display: block;
-    left: 50%;
-    margin-left: -309px;
-    opacity: 1;
-    position: absolute;
-    top: 120px;
-    width: 600px;
-    z-index: 11000;
-}
-.message_board_txt_prompt
-{
-  color:#646464;
-  font-style:italic;
-  font-weight:bold;
-}
-.message_board_empty_info
-{
-  color:#000000;
-  margin-top:80px;
-  text-align:center;
-  font-weight:bold;
-}
+    *{font-family:"open sans" !important;}
+    p{font-family:"open sans" !important;}
 
-#show_notifications_link:focus { outline: none!important;}
-[class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+    a.blue{
+        color:#556370 !important;
+    }
+
+    a.blue-underline{
+        color:#556370 !important;
+        text-decoration:underline !important;
+        border:none;
+    }
+
+    a.blue-underline:normal{
+        color:#556370 !important;
+        text-decoration:underline !important;
+        border:none;
+    }
+
+    a.blue-underline:hover{
+        color:#556370 !important;
+        text-decoration:underline !important;
+        border:none;
+    }
+
+    a.main-link{
+        font-family:'open sans';
+        font-size:16px;
+        text-transform:none;
+        font-weight:normal !important;
+    }
+    .imessage_style{
+        margin-right: 0px;
+        display: block;
+        float: left;
+        margin: 0px;
+        padding: 5px 8px 7px 8px;
+        margin-top:-14px;
+    }
+
+    #view_all_note:hover {
+        background:#6e8194;
+        transition-delay: 0s, 0s, 0s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-property:color, background,? box-shadow;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        transition-duration:0.25s,? 0.25s,? 0.25s;
+        color:#fff;
+    }
+    #view_all_note{
+        border-width:0;
+        background:#556370;
+        text-decoration: none;
+        padding-bottom: 10px;
+        padding-left: 90px;
+        padding-right: 90px;
+        padding-top: 10px;
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        cursor: pointer;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        box-shadow: #949494 0px 2px 1px 0px;
+        color:#fff;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    #view_all_note:normal {
+        background:#126F9A;
+        text-decoration: none;
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        cursor: pointer;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+        color:#fff;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    .ftg_button {
+        width:100px;
+        text-align:center;
+        display: block;
+        text-decoration: none!important;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        padding: 3px 3px;
+        border-radius: 3px;
+        -moz-border-radius: 3px;
+        box-shadow: inset 0px 0px 2px #fff;
+        -o-box-shadow: inset 0px 0px 2px #fff;
+        -webkit-box-shadow: inset 0px 0px 2px #fff;
+        -moz-box-shadow: inset 0px 0px 2px #fff;
+    }
+    .ftg_yellow {
+        color: #fff;
+        border: 1px solid #57c4be;
+        background-color: #57c4be;
+    }
+    .linkwin{
+        background:#fff;
+        border: 1px solid rgba(0, 0, 0, 0.9);
+        border-radius: 0;
+        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+        display: none;
+        left: 50%;
+        padding: 8px;
+        position: absolute;
+        width: 480px;
+        display: none;
+        margin-left:-250px;
+        top: 320px;
+        z-index: 11000;
+        height:200px;
+    }
+    #show_personalmessage, #show_notifications {
+        background: rgba(0, 0, 0, 0.6) none repeat scroll 0 0;
+        border: 1px solid rgba(0, 0, 0, 0.9);
+        border-radius: 0;
+        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+        color: #FFF;
+        left: 50%;
+        top: 20px;
+        padding: 8px;
+        display: none;
+        margin-left: -309px;
+        opacity: 1;
+        position: absolute;
+        width: 600px;
+        z-index: 11000;
+    }
+    .message_board_txt_prompt
+    {
+        color:#646464;
+        font-style:italic;
+        font-weight:bold;
+    }
+    .message_board_empty_info
+    {
+        color:#000000;
+        margin-top:80px;
+        text-align:center;
+        font-weight:bold;
+    }
+
+    #show_notifications_link:focus { outline: none!important;}
+    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
-<!--@end-->
+<script type="text/javascript" src="/static/js/record_time.js"></script>
+<style type="text/css" media="screen">
+    a.configuration{
+        color:#646464;
+        font-family:'open sans';
+        font-size:16px;
+    }
+    a.configuration:hover{
+        text-decoration:none;
+        color:#1d9dd9;
+    }
+    ul.admin-dropdown-menu.expanded {
+        display: block;
+    }
+    ul.admin-dropdown-menu {
+        background: #FCFCFC none repeat scroll 0% 0%;
+        border-radius: 4px;
+        box-shadow: 0px 2px 24px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #646464;
+        display: none;
+        padding: 5px 10px;
+        position: absolute;
+        right: -12px;
+        top: 34px;
+        width: 200px;
+        z-index: 3;
+    }
+    ul.admin-dropdown-menu li {
+        display: block;
+        border-top: 1px dotted #C8C8C8;
+        box-shadow: 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset;
+    }
+    ul.admin-dropdown-menu li > a {
+        border: 1px solid transparent;
+        border-radius: 3px;
+        box-sizing: border-box;
+        color: #1D9DD9;
+        cursor: pointer;
+        display: block;
+        margin: 5px 0px;
+        overflow: hidden;
+        padding: 3px 5px 4px;
+        text-overflow: ellipsis;
+        transition: padding 0.15s linear 0s;
+        white-space: nowrap;
+        width: 100%;
+    }
+    ul.admin-dropdown-menu li:first-child {
+        border: medium none;
+        box-shadow: none;
+    }
+    ul.admin-dropdown-menu:before {
+        background: transparent none repeat scroll 0% 0%;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #FCFCFC #FCFCFC transparent transparent;
+        box-shadow: 1px 0px 0px 0px #646464, 0px -1px 0px 0px #646464;
+        content: "";
+        display: block;
+        height: 0px;
+        position: absolute;
+        transform: rotate(-45deg);
+        right: 12px;
+        top: -6px;
+        width: 0px;
+    }
+</style>
 
 % if course:
-  <header class="global slim" aria-label="${_('Global Navigation')}">
+    <header class="global slim" aria-label="${_('Global Navigation')}">
 % else:
-  <header class="global" aria-label="${_('Global Navigation')}">
+    <header class="global" aria-label="${_('Global Navigation')}">
 % endif
-  <nav id="page-nav">
-<style type="text/css" media="screen">
-  header.global.slim h1.logo::before{top:5px}
-</style>
-  <h1 class="logo">
-<!--@begin:Choose the link of the top logo according user's login status-->
-<!--@date:2013-11-02-->
+    <nav id="page-nav">
+        <style type="text/css" media="screen">
+            header.global.slim h1.logo::before{top:5px}
+        </style>
+        <h1 class="logo">
+            <!--@begin:Choose the link of the top logo according user's login status-->
+            <!--@date:2013-11-02-->
 
+            %if context.get("curr_user"):
+                <% curr_user=context.get("curr_user") %>
+            %else:
+                <% curr_user=user %>
+            %endif
 
-%if context.get("curr_user"):
-  <% curr_user=context.get("curr_user") %>
-%else:
-  <% curr_user=user %>
-%endif
-  
-%if curr_user==request.user:
-    %if curr_user.is_authenticated():
-    <a href="/dashboard">
-    %else:
-    <a href="/">
-    %endif
-%else:
-    <a href="" style="cursor:default;" onclick="return false;">
-%endif
-<!--@end-->
+            %if curr_user==request.user:
+                %if curr_user.is_authenticated():
+                    <a href="/dashboard">
+                %else:
+                    <a href="/">
+                %endif
+            %else:
+                <a href="" style="cursor:default;" onclick="return false;">
+            %endif
+            <!--@end-->
 
-      <%block name="navigation_logo">
-<!--@begin:Choose the image of the top logo according to user's login status-->      
-      % if index != 1:
-        <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
-      % endif
-<!--@end-->        
-     </%block>
-    </a>
-  </h1>
+            <%block name="navigation_logo">
+                <!--@begin:Choose the image of the top logo according to user's login status-->
+            % if index != 1:
+                <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
+            % endif
+                <!--@end-->
+            </%block>
+        </a>
+        </h1>
 
-    % if course:
-      <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
-    % endif
-      <!--@begin:Top navigation tabs and styles before login-->
-      <!--@date:2013-11-02-->
-      <style>
-        ol.nav-left li a{
-        color:#555;
-        padding-top:20px;
-        }
-
-      </style>
-
-      %if curr_user!=request.user:
-      <style type="text/css" media="screen">
-        a.main-link{
-        color:#ccc !important;
-        }
-        a.main-link:hover{
-        color:#ccc !important;
-        }
-      </style>
-      %endif
-
-    %if curr_user==request.user and curr_user.is_authenticated():
-      <ol class="left nav-global authenticated">
-    %else:
-      <ol class="left nav-global">
-    %endif
-
-    % if curr_user==request.user and not curr_user.is_authenticated():
-    <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
-    % endif
-
-    %if curr_user==request.user:
-    <li><a href="/courses" class="main-link">Courses</a></li>
-    %else:
-    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
-    %endif
-    
-    % if curr_user==request.user and not curr_user.is_authenticated():
-    <li><a href="/contact" class="main-link">Districts</a></li>
-    % endif
-
-    %if request.user.is_authenticated():
-      %if curr_user==request.user:
-      <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
-      <li><a href="/resource_library_global" class="main-link">Resource Library</a></li>
-      <li><a href="/people" class="main-link">People</a></li>
-      <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
-      %else:
-      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resource Library</a></li>
-      <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-      <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
-      %endif
-    %endif
-
-    % if curr_user.is_authenticated():
-      <%block name="navigation_global_links_authenticated">
-        <li class="nav-global-01" style="display:none;">
-          <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
-        </li>
-      </%block>
-   </ol>
-   <!--@end-->
-
-%if curr_user==request.user:
-<ol class="user" id="btn-logged-user">
-  <!--@begin:add iMessage-Icon-->
-  <!--@date:2014-06-19-->
-
-	<li class="imessage_style" style="margin-right:5px;">
-	<a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
-		<div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
-			<table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
-				<tr height="26">
-					<td width="19"></td>
-					<td width="31"></td>
-				</tr>
-				<tr height="24">
-					<td width="19" >&nbsp;</td>
-					<td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
-				</tr>
-			</table>
-		</div>
-		<div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);">
-		</div>
-	</a>
-	</li>
-<!--@end-->
-  <li class="primary">
-    <a href="${reverse('dashboard')}" class="user-link">
-      <span class="avatar"></span>
-      <span class="sr">${_("Dashboard for:")} </span> ${curr_user.username}
-    </a>
-  </li>
-  <li class="primary">
-    <a href="#" class="dropdown"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
-    <ul class="dropdown-menu">
-      <%block name="navigation_dropdown_menu_links" >
-      <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
-      </%block>
-      <li><a href="/course_credits" class="main-link">Course Credits</a></li>
-      <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
-    </ul>
-  </li>
-</ol>
-%endif
-
-<ol class="right nav-courseware" id="btn-dashboard">
-  <li class="nav-courseware-01">
-    <a class="cta cta-login" href="/dashboard">Dashboard</a>
-  </li>
-</ol>
-
-    % else:
-
-      <%block name="navigation_global_links">
-        % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
-          <li class="nav-global-01">
-            <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
-          </li>
-          <li class="nav-global-02">
-            <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
-          </li>
-          <li class="nav-global-03">
-            <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
-          </li>
+        % if course:
+            <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
         % endif
-      </%block>
+        <!--@begin:Top navigation tabs and styles before login-->
+        <!--@date:2013-11-02-->
+        <style>
+            ol.nav-left li a{
+                color:#555;
+                padding-top:20px;
+            }
 
-      % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-          % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-<!--@begin:Change Register Now to Become a Member-->
-<!--@date:2013-11-02-->
-            <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
-          % else:
-           <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
-<!--@end-->            
-           % endif
-      % endif
-<!--@begin:Add tab About Us-->
-<!--@date:2013-11-02-->
-      <li><a href="/about_pepper" class="main-link">About Us</a></li>
-<!--@end-->                  
-    </ol>
+        </style>
 
-    <ol class="right nav-courseware">
-    <li class="nav-courseware-01">
-      % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-          % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-<!--@begin:Change the text in Log in to Login-->
-<!--@date:2013-11-02-->
-          <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
-          % else:
-          <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
-<!--@end-->                
-          % endif
-      % endif
-    </li>
-    </ol>
-    % endif
-  </nav>
+        %if curr_user!=request.user:
+            <style type="text/css" media="screen">
+                a.main-link{
+                    color:#ccc !important;
+                }
+                a.main-link:hover{
+                    color:#ccc !important;
+                }
+            </style>
+        %endif
+
+        %if curr_user==request.user and curr_user.is_authenticated():
+            <ol class="left nav-global authenticated">
+        %else:
+            <ol class="left nav-global">
+        %endif
+
+        % if curr_user==request.user and not curr_user.is_authenticated():
+            <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
+        % endif
+
+        %if curr_user==request.user:
+            <li><a href="/courses" class="main-link">Courses</a></li>
+        %else:
+            <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
+        %endif
+
+        % if curr_user==request.user and not curr_user.is_authenticated():
+            <li><a href="/contact" class="main-link">Districts</a></li>
+        % endif
+
+        %if request.user.is_authenticated():
+            %if curr_user==request.user:
+                <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
+                <li><a href="/resource_library_global" class="main-link">Resource Library</a></li>
+                <li><a href="${reverse('people')}" class="main-link">People</a></li>
+                <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
+            %else:
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resource Library</a></li>
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
+                <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
+            %endif
+        %endif
+
+        % if curr_user.is_authenticated():
+        <%block name="navigation_global_links_authenticated">
+            <li class="nav-global-01" style="display:none;">
+                <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
+            </li>
+        </%block>
+        </ol>
+            <!--@end-->
+
+            <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+            <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+
+        %if curr_user==request.user:
+
+            <ol class="user admin" >
+            %if show_extended and curr_user.is_superuser:
+                <!-- Administration -->
+                <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+                    <ul class="admin-dropdown-menu">
+                        <li><a href="${reverse('configuration')}">Configuration</a></li>
+                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                        <script type="text/javascript">
+                            $(document).on('click', function(event) {
+                                if(!$(event.target).closest('.admin-menu-holder').length){
+                                    $(".admin-dropdown-menu").hide();
+                                }else if($(event.target).closest(".outside_menu").length){
+                                    $(".admin-dropdown-menu").hide();
+                                }
+                            });
+                        </script>
+                    </ul>
+                </li>
+            %endif
+
+            %if show_extended:
+                <!-- Notifications -->
+                <li class="imessage_style" style="margin-right:5px;">
+                    <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+                        <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
+                            <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
+                                <tr height="26">
+                                    <td width="19"></td>
+                                    <td width="31"></td>
+                                </tr>
+                                <tr height="24">
+                                    <td width="19" >&nbsp;</td>
+                                    <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);"></div>
+                    </a>
+                </li>
+            %endif
+
+            %if show_extended:
+                <!-- Dashboard button with dropdown -->
+                <li class="primary">
+                    <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
+                        <span class="avatar"></span>
+                        <span class="sr">${_("Dashboard for:")} </span>
+                        <span style="display:block;max-width:90px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                    </a>
+                </li>
+                <li class="primary">
+                    <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+                    <ul class="dropdown-menu">
+                        <%block name="navigation_dropdown_menu_links" >
+                            <li><a href="/static/resource/Pepper_User_Guide_Version_I.pdf" target="_blank">${_("Help")}</a></li>
+                        </%block>
+                        <li><a href="/course_credits" class="main-link">Course Credits</a></li>
+                        <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+                    </ul>
+                </li>
+            </ol>
+            %endif
+
+        %endif
+        %if not show_extended:
+            <ol class="right nav-courseware" id="btn-dashboard">
+                <li class="nav-courseware-01">
+                    <a class="cta cta-login" href="/dashboard">Dashboard</a>
+                </li>
+            </ol>
+        %endif
+
+        % else:
+        <%block name="navigation_global_links">
+            % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
+                <li class="nav-global-01">
+                    <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
+                </li>
+                <li class="nav-global-02">
+                    <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
+                </li>
+                <li class="nav-global-03">
+                    <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
+                </li>
+            % endif
+        </%block>
+
+        % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+            % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                <!--@begin:Change Register Now to Become a Member-->
+                <!--@date:2013-11-02-->
+                <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
+            % else:
+                <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
+                <!--@end-->
+            % endif
+        % endif
+            <!--@begin:Add tab About Us-->
+            <!--@date:2013-11-02-->
+            <li><a href="/about_pepper" class="main-link">About Us</a></li>
+            <!--@end-->
+        </ol>
+
+            <ol class="right nav-courseware">
+                <li class="nav-courseware-01">
+                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                            <!--@begin:Change the text in Log in to Login-->
+                            <!--@date:2013-11-02-->
+                            <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
+                        % else:
+                            <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
+                            <!--@end-->
+                        % endif
+                    % endif
+                </li>
+            </ol>
+        % endif
+    </nav>
 </header>
 
 % if course:
-<div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
+    <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
 % endif
 
 %if not curr_user.is_authenticated():
-  <%include file="forgot_password_modal.html" />
+    <%include file="forgot_password_modal.html" />
 %endif
 
 <%include file="help_modal.html"/>
 
-<!--@begin:show_notifications-->
-<!--@date:2014-06-19-->
- %if request.user.is_authenticated():
+    <!--@begin:show_notifications-->
+    <!--@date:2014-06-19-->
+%if request.user.is_authenticated():
     %if curr_user==request.user:
-	  <section id="show_notifications" class="modal" style="width:600px;" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
-  <div class="inner-wrapper" style="width:578px;">
-    <header>
-      <h2>${_("notifications")}</h2>
-      <hr/>
-    </header>
-	
- 
-  <div class="info_list"></div>
-  <br/>
-	<br/>
-	<br/>
-	<div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-		<a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
-    <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
-    </a>
-	</div>
-  <div class="close-modal" id="notifications_close">
-    <div class="inner">
-      <p>&#10005;</p>
-    </div>
-  </div>
-  </div>
-</section>
+        <section id="show_notifications" class="modal modal-wide" data-id="${curr_user.id}" data-name="${curr_user.username}" data-fullname="${curr_user.first_name} ${curr_user.last_name}">
+            <div class="inner-wrapper" style="width:578px;">
+                <header>
+                    <h2>${_("notifications")}</h2>
+                    <hr/>
+                </header>
+
+                <div class="info_list"></div>
+                <br/>
+                <br/>
+                <br/>
+                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                    <a href="${reverse('notifications')}" id="view_all_note" style="color:#fff !important;font-size:18px;">
+                        <div id="view_all_note_text" style="display:inline-block;text-align:center;width:250px;">View All Notifications (0)</div>
+                    </a>
+                </div>
+                <div class="close-modal" id="notifications_close">
+                    <div class="inner">
+                        <p>&#10005;</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     %endif
- %endif
+%endif
+    <script>
+        //---------------------Notifications variable-----------------------------------------//
 
-<script>
-  var interactive_update_window_top=0;
-  $(function(){
-//-----------------------------------------------------------------
-    interactive_update();
-    $(".info_count_btn").click(function(){ 
-      interactive_update();
-    });
-    $(".info_btn").click(function(){ 
-      interactive_update();
-    });
-//-----------------------------------------------------------------
-    $(".ftg_button").click(function(){
-        message_board_saveInfo();
-    });
-    $(".message_board_uploadBtn").click(function(){
-        $("#message_board_browseFile").click();
-      })
-    $(".message_board_linkBtn").click(function(){
-      $(".linkwin").show();
-    })
-    $("#hyperlink_okBtn").click(function(){
-      var content = $(".message_board_content");
-      if($("#link_url_val").val()!='')
-      {
-        if(!message_board_focus)
-        {
-          content.html("");
-          message_board_focus=1;
-        }
-        content.html(content.html()+message_board_hyperlinks($("#link_url_val").val(),$("#link_title_val").val()));
-        $(".linkwin").hide();
-      }
-    })
-    $("#hyperlink_cancelBtn").click(function(){
-      $(".linkwin").hide();
-    })
-    $("#message_board_close").click(function(){
-      $(".linkwin").hide();
-      message_board_clearContent();
-    })
-//-----------------------------------------------------------------
-    $(".message_board_content").focusin(function(){
-      if(!message_board_focus)
-      {
-        $(this).html("");
-        message_board_focus=1;
-      }
-    });
-    $(".message_board_content").keyup(function(event){
-      message_board_updateMaxCharNum();
-    });
-    $("#show_personalmessage").hover(function(){
-      $("body").css("overflow","hidden");
-      message_board_hover=1;
-    },function(){
-      $("body").css("overflow","");
-      message_board_hover=0;
-    });
-    $(".message_board_listCon").scroll(function(event){
-        var scrollTop = $(this).scrollTop();
-　　    var scrollHeight = $(".message_board_list").height();
-　　    var windowHeight = $(this).height();
-        /*
-        if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
-        {
-          message_board_getMessage(message_board_loadNum);
-        }
-        */
-        if(scrollTop==0 && message_board_isload)
-        {
-          message_board_getMessage(message_board_loadNum);
-        }
-    })
-  })
+        var interactive_update_window_top = 0;
 
-  function interactive_update_createItem(data)
-    {
-      var body=data.body==undefined?'':data.body;
-      interactive_update_switchType(data);
-      element=$('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:'+interactive_update_getActivateStyle(data).backgroundColor+';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>'+data.type_text+'</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">'+body+'</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">'+interactive_update_dateFormat(data).full_date+'</td></tr></table></td></tr></table><br/>');
-      $('.info_list').append(element);
-      element.click(function(){
-       if(data.activate=='false')
-        {
-          interactive_update_activateItem(data);
+        //---------------------Message board variable-----------------------------------------//
+
+        var message_people = null;
+        var user_info = null;
+        var message_board_isload = false;
+        var message_board_loadNum = 0;
+        var message_board_totalNum = 0;
+        var message_board_focus = 0;
+        var message_board_maxCharNum = 1000;
+        var message_board_hover = 0;
+
+        //---------------------Record time variable-------------------------------------------//
+
+        var courseTimer = null;
+        var externalTimer = null;
+        RecordTime.firstRun = true;
+
+        //---------------------Record time (Page switching)----------------------------------//
+
+        function record_time(position) {
+            %if request.user.id is not None:
+                sessionStorage['user_id'] = "${request.user.id}";
+            %endif
+            %if course:
+                RecordTime.setSessionCourseID("${course.id}");
+            %endif
+            courseTimer.start();
+            RecordTime.coursePosition = position;
+            RecordTime.sessionInit();
+            var vertical_id = $("#sequence-list li .active").attr("data-id");
+            var time = new Date().toISOString();
+            var path = RecordTime.getCourseFullPath(document.URL, position);
+            var data = {
+                'type': 'course_page',
+                'user_id': RecordTime.userID,
+                'time': time,
+                'new_vertical_id': vertical_id,
+                'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                'prev_time': RecordTime.getSessionTime(),
+                'location': path
+            };
+            if (RecordTime.getSessionVerticalId() != vertical_id) {
+                RecordTime.ajaxRecordTime(data, function() {
+                    RecordTime.setSessionVerticalId(vertical_id);
+                    RecordTime.setSessionTime(time);
+                    courseTimer.load();
+                });
+
+            } else {
+                if (RecordTime.firstRun) {
+                    RecordTime.ajaxRecordTime(data, function() {
+                        RecordTime.setSessionVerticalId(vertical_id);
+                        RecordTime.setSessionTime(time);
+                        RecordTime.firstRun = false;
+                    });
+                }
+            }
         }
-        else
-        {
-          interactive_update_openWindow(data)
+        //---------------------Record time (Course refresh or exit)--------------------------//
+
+        function course_refresh_or_exit() {
+            %if request.user.id is not None:
+                sessionStorage['user_id'] = "${request.user.id}";
+            %endif
+            %if course:
+                RecordTime.setSessionCourseID("${course.id}");
+            %endif
+            RecordTime.sessionInit();
+            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+                var data = {
+                    'type': 'new_page',
+                    'user_id': RecordTime.userID,
+                    'time': (new Date()).toISOString(),
+                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                    'prev_time': RecordTime.getSessionTime()
+                };
+                RecordTime.ajaxRecordTime(data, function() {
+                    RecordTime.setSessionVerticalId("");
+                    RecordTime.setSessionTime("");
+                });
+            }
         }
-      });
-  }
-  function interactive_update_switchType(data)
-  {
-    switch(data.type)
-    {
-      case 'discussion':
-        data.type_text="<b>"+data.interviewer_name+"</b> has added a comment to your discussion topic or comment in course "+data.course_number+".";
-        break;
-      case 'portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> has commented on "+(data.portfolio_username||'your')+"'s portfolio in course "+data.course_number+".";
-        break;
-      case 'add_network':
-        data.type_text="<b>"+data.interviewer_name+"</b> has added you to their personal network."
-        break;
-      case 'view_portfolio':
-        data.type_text="<b>"+data.interviewer_name+"</b> is checking out your "+data.course_number+" portfolio."
-        break;
-      case 'message':
-        data.type_text="Personal Message from <b>"+data.interviewer_name+"</b>"
-        break;
-      case 'my_chunks':
-        data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
-        break;
-    }
-  }
-  function interactive_update()
-  {
-     datainfo={};
-     $.post("${reverse('get_interactive_update')}",datainfo,function(data){
-        interactive_update_init(data);
-     });
-  }
-  function interactive_update_init(data)
-  {
-    $("#view_all_note_text").text("View All Notifications ("+data.count+")");
-      if(data.count>0)
-      {
-        $(".info_btn").hide();
-        $(".info_count_btn").show();
-        var count=data.count>999?999:data.count;
-        $(".info_count_btn").find(".info_count").text(count);
-      }
-      $('.info_list').empty();
-      for(var i=0;i<data.results.length;i++)
-      {
-        interactive_update_createItem(data.results[i]);
-      }
-  }
-  function fillZero(val)
-  {
-    return val<10?'0'+val:val;
-  }
-  function interactive_update_dateFormat(data)
-  {
-    dateinfo={};
-    interval = interactive_update_getTimeInterval(data);
-    var darr = new Date(data.date).toString().split(' ');
-    var sign = 'am';
-    if(interval<1)
-    {
-      dateinfo.date="Today";
-    }
-    else if(interval<2)
-    {
-      dateinfo.date="Yesterday";
-    }
-    else
-    {
-      dateinfo.date = darr[1]+" "+darr[2];
-    }
-    var timeArr = darr[4].substr(0,5).split(":");
-    if(timeArr[0]>12 && timeArr[0]<24)
-    {
-      timeArr[0]=fillZero(timeArr[0]-12);
-      sign='pm';
-    }
-    var time = timeArr[0]+":"+timeArr[1]+sign;
-    dateinfo.full_date = dateinfo.date+" at "+time;
-    dateinfo.time = time;
-    return dateinfo;
-  }
-  function interactive_update_activateItem(data)
-  {
-    var user_id = "${curr_user.id}";
-    $.post("${reverse('set_interactive_update')}",{_id:data._id,_name:'activate',_value:'true',_user_id:user_id,_record_id:data.user_id,_ismultiple:data.multiple},function(rdata){interactive_update_openWindow(data);});
-  }
-  function interactive_update_getActivateStyle(data)
-  {
-    var notActivateColor=data.user_id!=0?"#eeeff4":"#ffffcc";
-    //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
-    bcolor=data.activate=='true'?'#ffffff':notActivateColor;
-    return {'backgroundColor':bcolor};
-  }
-  function interactive_update_getTimeInterval(data)
-  {
-    var t = new Date();
-    var today = new Date(t.getFullYear(),t.getMonth(),t.getDate());
-    var d = new Date(data.date);
-    var date = new Date(d.getFullYear(),d.getMonth(),d.getDate());
-    return parseInt((today-date)/3600000/24);
-  }
-  function interactive_update_openWindow(data)
-  {
-    if(data.type=="message"||data.type=="view_portfolio")
-    {
-      $("#show_notifications").hide();
-      if($("#show_personalmessage").css("zIndex")<10000)
-      {
-        $("#show_personalmessage").addClass("leanmodalStyle");
-      }
-      $("#lean_overlay").show();
-      $("#show_personalmessage").show();
-      $("#show_personalmessage").find(".close-modal").click(function(){
-        $("#show_personalmessage").hide();
-        $(".linkwin").hide();
-        $("#lean_overlay").hide();
-        $(window).scrollTop(interactive_update_window_top);
-      })
-      message_board_clearContent();
-      $("#lean_overlay").click(function(){
-          $("#show_personalmessage").hide();
-          $(".linkwin").hide();
-          $(this).hide();
-          $(window).scrollTop(interactive_update_window_top);
-        })
-      var userInfo=[];
-      var data_ele=$("#show_notifications");
-      userInfo['message_people']={id:data.interviewer_id,fullname:data.interviewer_fullname,name:data.interviewer_name};
-      userInfo['user']={id:data_ele.data('id'),fullname:data_ele.data('fullname'),name:data_ele.data('name')};
-      message_board(userInfo);
-      return 0;
-    }
-    if(data.location.indexOf("/dashboard")>=0)
-    {
-      window.open(data.location);
-      return 0;
-    }
-    if(data.location.indexOf("/my_coursework")>=0)
-    {
-      var curr_user_id = "${curr_user.id}";
-      var user_id = data.location.substring(data.location.indexOf("/my_coursework")+15,data.location.lastIndexOf("/"));
-      if(curr_user_id!=user_id)
-      {
-        window.open(data.location,'_blank');
-        return 0;
-      }
-    }
-    if(data.location.indexOf("/my_discussions")>=0)
-    {
-      var curr_user_id = "${curr_user.id}";
-      var user_id = data.location.substring(data.location.indexOf("/my_discussions")+16,data.location.indexOf("?"));
-      if(curr_user_id!=user_id)
-      {
-        window.open(data.location,'_blank');
-        return 0;
-      }
-    }
-    if(window.location.href.indexOf("/courses")>=0)
-    {
-      var curr_url = "/courses"+window.location.href.split("/courses")[1].split("#")[0];
-      var location = data.location.split("#")[0];
-      if(curr_url!=location)
-      {
-        window.open(data.location,'_self');
-      }
-      else
-      {
-        window.location.href = data.location;
-        window.location.reload();
-      }
-    }
-    else
-    {
-      window.open(data.location,'_self');
-    } 
-      
-  }
-  //-------------------------message_board---------------------//
-  var message_people = null;
-  var user_info = null;
-  var message_board_isload = false;
-  var message_board_loadNum = 0;
-  var message_board_totalNum = 0;
-  var message_board_focus = 0;
-  var message_board_maxCharNum = 1000;
-  var message_board_hover = 0;
-  function message_board(_user_info)
-  {
-    user_info = _user_info;
-    message_people = user_info["message_people"];
-    $('.message_item').remove();
-    message_board_hideLoadMore();
-    message_board_isload = false;
-    message_board_loadNum = 0;
-    message_board_totalNum = 0;
-    message_board_focus = 0;
-    message_board_clearContent();
-    message_board_multiplayerSend_init();
-    message_board_getMessage(message_board_loadNum);
-  }
-  function message_board_getMessage(skip)
-  {
-    message_board_isload = false;
-    $.post("${reverse('get_message')}",{message_people:message_people.id,skip:skip,limit:6},function(data){
-      message_board_init(data)
-    });
-  }
-  function message_board_init(data)
-  {
-    message_board_loadNum +=6;
-    message_board_totalNum = data.count;
-    $(".message_board_full_name").text(message_people.fullname);
-    $('.message_board_empty_info').remove();
-    if(data.results.length==0)
-    {
-      $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with '+message_people.fullname.split(' ')[0]+'.</div>');
-    }
-    else
-    {
-      $('.message_board_empty_info').remove();
-    }
-    for(var i=0;i<data.results.length;i++)
-    {
-      message_board_createItem(data.results[i],1);
-    }
-    
-    if(message_board_loadNum>=message_board_totalNum)
-    {
-      message_board_isload = false;
-      message_board_hideLoadMore();
-    }
-    else
-    {
-      message_board_isload = true;
-      message_board_hideLoadMore();
-      message_board_showLoadMore();
-    }
-    $('.message_board_listCon').scrollTop($(".message_board_list").height());
-  }
-  function message_board_saveInfo()
-  {
-    var content=$(".message_board_content");
-    var msReturnVal=message_board_multiplayerSend_returnVal();
-    var winR=1;
-    if(msReturnVal)
-    {
-      winR = confirm("Do you want to send this message to all users?", "Warning");
-      if(!winR){return 0;}
-    }
-    if(content.text().length>0&&content.text().length<=message_board_maxCharNum && message_board_focus && winR)
-    {
-      var recipient_id = msReturnVal?0:message_people.id.toString();
-      var datainfo={'info':JSON.stringify({'sender_id':'${user.id}','recipient_id':recipient_id,'date':(new Date()).toISOString(),'body':content.html()})};
-      $.post("${reverse('save_message')}",datainfo,function(rdata){
-          if($(".message_board_list").find('.message_board_empty_info').length>0)
-          {
-            $('.message_board_empty_info').remove();
-          }
-          message_board_createItem(JSON.parse(datainfo.info));
-          $('.message_board_listCon').scrollTop($(".message_board_list").height());
-          message_board_updateMaxCharNum();
-          var interviewer_id = user_info["user"].id.toString();
-          var interviewer_name = user_info["user"].name;
-          var interviewer_fullname = user_info["user"].fullname;
-          var body = content.text().length>100?content.text().substr(0,100):content.text();
-          var messageinfo={'info':JSON.stringify({'user_id':recipient_id,'interviewer_id':interviewer_id,'interviewer_name':interviewer_name,'interviewer_fullname':interviewer_fullname,'type':'message','body':body,'date':(new Date()).toISOString(),'activate':'false'})};
-          $.post("${reverse('save_interactive_update')}",messageinfo,function(){});
-          content.html("");
+
+        //---------------------------------------------------------------------------//
+        function onfocusEventDelay(e){
+            //console.log(e.type);
+            course_refresh_or_exit();
+            if (document.URL.indexOf('courseware') < 0) {
+                //console.log(RecordTime.getSessionCourseType());
+                courseTimer.isrun = false;
+                courseTimer.create();
+            } else {
+                if (RecordTime.getSessionVerticalId() == "") {
+                    record_time(RecordTime.coursePosition);
+                }
+            }
+
+        }
+        function onblurEventDelay(e){
+            //console.log(e.type);
+            var isfocusOut = $(document.activeElement).hasClass('courseware');
+            e.stopPropagation();
+            course_refresh_or_exit();
+            if (document.URL.indexOf('courseware') < 0) {
+                courseTimer.stop();
+                courseTimer.save();
+            }
+            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') >= 0 && isfocusOut) {
+                RecordTime.sessionInit();
+                var data = {
+                    'type': 'new_page',
+                    'user_id': RecordTime.userID,
+                    'time': (new Date()).toISOString(),
+                    'prev_vertical_id': RecordTime.getSessionVerticalId(),
+                    'prev_time': RecordTime.getSessionTime()
+                };
+                RecordTime.ajaxRecordTime(data, function () {
+                    RecordTime.setSessionVerticalId("");
+                    RecordTime.setSessionTime("");
+                    courseTimer.load();
+                });
+            }
+        }
+        $(function() {
+            $(window).blur(function(e) {
+                setTimeout(function(){onblurEventDelay(e);}, 200);
+            });
+            $(window).focus(function(e) {
+                setTimeout(function(){onfocusEventDelay(e);}, 200);
+            });
+
+            course_refresh_or_exit();
+            courseTimer = new CourseTimer();
+            externalTimer = new ExternalTimer();
+            //courseTimer.isrun = false;
+            //courseTimer.create();
+            
+            interactive_update();
+            $(".info_count_btn").click(function() {
+                interactive_update();
+            });
+
+            $(".info_btn").click(function() {
+                interactive_update();
+            });
+
+            $(".ftg_button").click(function() {
+                message_board_saveInfo();
+            });
+
+            $(".message_board_uploadBtn").click(function() {
+                $("#message_board_browseFile").click();
+            });
+
+            $(".message_board_linkBtn").click(function() {
+                $(".linkwin").show();
+            });
+
+            $("#hyperlink_okBtn").click(function() {
+                var content = $(".message_board_content");
+                if ($("#link_url_val").val() != '') {
+                    if (!message_board_focus) {
+                        content.html("");
+                        message_board_focus = 1;
+                    }
+                    content.html(content.html() + message_board_hyperlinks($("#link_url_val").val(), $("#link_title_val").val()));
+                    $(".linkwin").hide();
+                }
+            });
+
+            $("#hyperlink_cancelBtn").click(function() {
+                $(".linkwin").hide();
+            });
+
+            $("#message_board_close").click(function() {
+                $(".linkwin").hide();
+                message_board_clearContent();
+            });
+
+            //-----------------------------------------------------------------
+            $(".message_board_content").focusin(function() {
+                if (!message_board_focus) {
+                    $(this).html("");
+                    message_board_focus = 1;
+                }
+            });
+
+            $(".message_board_content").keyup(function(event) {
+                message_board_updateMaxCharNum();
+            });
+
+            $("#show_personalmessage").hover(function() {
+                $("body").css("overflow", "hidden");
+                message_board_hover = 1;
+            }, function() {
+                $("body").css("overflow", "");
+                message_board_hover = 0;
+            });
+
+            $(".message_board_listCon").scroll(function(event) {
+                var scrollTop = $(this).scrollTop();
+                var scrollHeight = $(".message_board_list").height();
+                var windowHeight = $(this).height();
+                /*
+                  if((scrollTop + windowHeight == scrollHeight) && message_board_isload)
+                  {
+                  message_board_getMessage(message_board_loadNum);
+                  }
+                */
+                if (scrollTop == 0 && message_board_isload) {
+                    message_board_getMessage(message_board_loadNum);
+                }
+            });
         });
-    }
-    else
-    {
-      if(content.text().length>message_board_maxCharNum)
-      alert('Exceed the maximum number of characters.');
-    }
-  }
-  function message_board_user(data)
-  {
-    var userObj =[]
-    userObj[message_people.id] = message_people;
-    userObj[user_info["user"].id] = user_info["user"];
-    return userObj[data.sender_id];
-  }
-  function message_board_createItem(data,_pos)
-  {
-    pos=_pos||0;
-    var element=$('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/'+data.sender_id+');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">'+message_board_user(data).name+'</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">'+interactive_update_dateFormat(data).full_date+'</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">'+data.body+'</div></td></tr></table><div style="height:2px;"></div></div>');
-    if(pos)
-    {
-      $('.message_board_list').prepend(element);
-    }
-    else
-    {
-      $('.message_board_list').append(element);
-    }
-      
-  }
-  function message_board_changeImg(objImg)
- {
-   var max = 300;
-   if(objImg.width > max)
-   {
-      var scaling = 1-(objImg.width-max)/objImg.width;
-      objImg.width = objImg.width*scaling;
-      objImg.height = objImg.height;
-   }
-   $('.message_board_listCon').scrollTop($(".message_board_list").height());
- }
-  function message_board_upload_file()
-  {
-    var fd, files, max_filesize, settings;
-    var content=$(".message_board_content");
-    max_filesize = 0.5 * 1000 * 1000;
-    if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
-    files = "";
-    files = $("#message_board_browseFile")[0].files[0];
-    if (files != void 0) {
-      if (files.size > max_filesize) {
-        files = "";
-        alert("File is too large. Max file size is 500 Kb.");
-        $("#message_board_browseFile")[0].files = [];
-        return false;
-      }
-    } 
-    fd = new FormData();
-    fd.append('image_file', files);
-    settings = {
-      type: "POST",
-      data: fd,
-      processData: false,
-      contentType: false,
-      async: false,
-      success: function(response) {
-        if (response == null) {
-          alert("Network error. Please try again.");
-          return false;
-        }
-        if (response.success == true) {
-          alert("Upload success!");
-        } else {
-          alert("Upload fail");
-        }
-        if(!message_board_focus)
-        {
-          content.html("");
-          message_board_focus=1;
-        }
-        content.html(content.html()+"<img src='"+response.file_info+"' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
-        message_board_updateMaxCharNum();
-      }
-    }
-    return $.ajax("${reverse('upload_message_image')}",settings);
 
-  } else {
-    alert("The file format is not supported.");
-  }
-}
-  function message_board_showLoadMore()
-  {
-    var element=$('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
-    $('.message_board_list').prepend(element);
-  }
-  function message_board_hideLoadMore()
-  {
-    $(".loadMoreBtn").remove();
-  }
-  function message_board_updateMaxCharNum()
-  {
-    var charNum = $(".message_board_content").text().length;
-    var num = charNum>message_board_maxCharNum?"<font color='#ff0000'>"+charNum+"</font>":charNum;
-    $("#curr_char_num").html(num);
-  }
-  function message_board_hyperlinks(url,title)
-  {
-    //return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
-    if(title=="")
-    title = url;
-    if(url.indexOf('://')<0)
-    url="http://"+url;
-    return "<a href='"+url+"' target='_blank'>"+title+"</a><br/>";
-  }
-  function message_board_multiplayerSend_init()
-  {
-    var isStaff = "${curr_user.is_staff}";
-    var ms = $("#multiplayer_send_div");
-    ms.find("input").attr("checked",false);
-    if(isStaff=="True")
-    {
-      ms.show();
-    }
-    else
-    {
-      ms.hide();
-    }
-  }
-  function message_board_multiplayerSend_returnVal()
-  {
-    var msCBox = $("#multiplayer_send_div").find("input");
-    return (msCBox.is(":visible") && msCBox.is(":checked"))?true:false;
-  }
-  function message_board_clearContent()
-  {
-    var content = $('.message_board_content');
-    content.html("");
-    message_board_updateMaxCharNum();
-    $('.message_board_listCon').scrollTop(0);
-    content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
-  }
-</script>
-<!--@end-->
+        function interactive_update_createItem(data) {
+            var body = data.body == undefined ? '' : data.body;
+            interactive_update_switchType(data);
+            element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            $('.info_list').append(element);
+            element.click(function() {
+                if (data.activate == 'false') {
+                    interactive_update_activateItem(data);
+                } else {
+                    interactive_update_openWindow(data)
+                }
+            });
+        }
+
+        function interactive_update_switchType(data) {
+            switch (data.type) {
+                case 'discussion':
+                    data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
+                    break;
+                case 'portfolio':
+                    data.type_text = "<b>" + data.interviewer_name + "</b> has commented on " + (data.portfolio_username || 'your') + "'s portfolio in course " + data.course_number + ".";
+                    break;
+                case 'add_network':
+                    data.type_text = "<b>" + data.interviewer_name + "</b> has added you to their personal network."
+                    break;
+                case 'view_portfolio':
+                    data.type_text = "<b>" + data.interviewer_name + "</b> is checking out your " + data.course_number + " portfolio."
+                    break;
+                case 'message':
+                    data.type_text = "Personal Message from <b>" + data.interviewer_name + "</b>"
+                    break;
+                case 'my_chunks':
+                    data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
+                    break;
+            }
+        }
 
 
-<!--@begin:show_personalmessage-->
-<!--@date:2014-06-30-->
- %if request.user.is_authenticated():
+        function interactive_update() {
+            datainfo = {};
+            $.post("${reverse('get_interactive_update')}", datainfo, function(data) {
+                interactive_update_init(data);
+            });
+        }
+
+        function interactive_update_init(data) {
+            $("#view_all_note_text").text("View All Notifications (" + data.count + ")");
+            if (data.count > 0) {
+                $(".info_btn").hide();
+                $(".info_count_btn").show();
+                var count = data.count > 999 ? 999 : data.count;
+                $(".info_count_btn").find(".info_count").text(count);
+            }
+            $('.info_list').empty();
+            for (var i = 0; i < data.results.length; i++) {
+                interactive_update_createItem(data.results[i]);
+            }
+        }
+
+        function fillZero(val) {
+            return val < 10 ? '0' + val : val;
+        }
+
+        function interactive_update_dateFormat(data) {
+            dateinfo = {};
+            interval = interactive_update_getTimeInterval(data);
+            var darr = new Date(data.date).toString().split(' ');
+            var sign = 'am';
+            if (interval < 1) {
+                dateinfo.date = "Today";
+            } else if (interval < 2) {
+                dateinfo.date = "Yesterday";
+            } else {
+                dateinfo.date = darr[1] + " " + darr[2];
+            }
+            var timeArr = darr[4].substr(0, 5).split(":");
+            if (timeArr[0] > 12 && timeArr[0] < 24) {
+                timeArr[0] = fillZero(timeArr[0] - 12);
+                sign = 'pm';
+            }
+            var time = timeArr[0] + ":" + timeArr[1] + sign;
+            dateinfo.full_date = dateinfo.date + " at " + time;
+            dateinfo.time = time;
+            return dateinfo;
+        }
+
+        function interactive_update_activateItem(data) {
+            var user_id = "${curr_user.id}";
+            $.post("${reverse('set_interactive_update')}", {
+                _id: data._id,
+                _name: 'activate',
+                _value: 'true',
+                _user_id: user_id,
+                _record_id: data.user_id,
+                _ismultiple: data.multiple
+            }, function(rdata) {
+                interactive_update_openWindow(data);
+            });
+        }
+
+        function interactive_update_getActivateStyle(data) {
+            var notActivateColor = data.user_id != 0 ? "#eeeff4" : "#ffffcc";
+            //bcolor=((data.activate=='true')||(interactive_update_getTimeInterval(data)>4&&data.user_id!=0))?'#ffffff':notActivateColor;
+            bcolor = data.activate == 'true' ? '#ffffff' : notActivateColor;
+            return {
+                'backgroundColor': bcolor
+            };
+        }
+
+        function interactive_update_getTimeInterval(data) {
+            var t = new Date();
+            var today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+            var d = new Date(data.date);
+            var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            return parseInt((today - date) / 3600000 / 24);
+        }
+
+        function interactive_update_openWindow(data) {
+            if (data.type == "message" || data.type == "view_portfolio") {
+                $("#show_notifications").hide();
+                if ($("#show_personalmessage").css("zIndex") < 10000) {
+                    $("#show_personalmessage").addClass("leanmodalStyle");
+                }
+                $("#lean_overlay").show();
+                $("#show_personalmessage").show();
+                $("#show_personalmessage").find(".close-modal").click(function() {
+                    $("#show_personalmessage").hide();
+                    $(".linkwin").hide();
+                    $("#lean_overlay").hide();
+                    $(window).scrollTop(interactive_update_window_top);
+                })
+                message_board_clearContent();
+                $("#lean_overlay").click(function() {
+                    $("#show_personalmessage").hide();
+                    $(".linkwin").hide();
+                    $(this).hide();
+                    $(window).scrollTop(interactive_update_window_top);
+                })
+                var userInfo = [];
+                var data_ele = $("#show_notifications");
+                userInfo['message_people'] = {
+                    id: data.interviewer_id,
+                    fullname: data.interviewer_fullname,
+                    name: data.interviewer_name
+                };
+                userInfo['user'] = {
+                    id: data_ele.data('id'),
+                    fullname: data_ele.data('fullname'),
+                    name: data_ele.data('name')
+                };
+                message_board(userInfo);
+                return 0;
+            }
+            if (data.location.indexOf("/dashboard") >= 0) {
+                window.open(data.location);
+                return 0;
+            }
+            if (data.location.indexOf("/my_coursework") >= 0) {
+                var curr_user_id = "${curr_user.id}";
+                var user_id = data.location.substring(data.location.indexOf("/my_coursework") + 15, data.location.lastIndexOf("/"));
+                if (curr_user_id != user_id) {
+                    window.open(data.location, '_blank');
+                    return 0;
+                }
+            }
+            if (data.location.indexOf("/my_discussions") >= 0) {
+                var curr_user_id = "${curr_user.id}";
+                var user_id = data.location.substring(data.location.indexOf("/my_discussions") + 16, data.location.indexOf("?"));
+                if (curr_user_id != user_id) {
+                    window.open(data.location, '_blank');
+                    return 0;
+                }
+            }
+            if (window.location.href.indexOf("/courses") >= 0) {
+                var curr_url = "/courses" + window.location.href.split("/courses")[1].split("#")[0];
+                var location = data.location.split("#")[0];
+                if (curr_url != location) {
+                    window.open(data.location, '_self');
+                } else {
+                    window.location.href = data.location;
+                    window.location.reload();
+                }
+            } else {
+                window.open(data.location, '_self');
+            }
+
+        }
+        //-------------------------message_board---------------------//
+
+        function message_board(_user_info) {
+            user_info = _user_info;
+            message_people = user_info["message_people"];
+            $('.message_item').remove();
+            message_board_hideLoadMore();
+            message_board_isload = false;
+            message_board_loadNum = 0;
+            message_board_totalNum = 0;
+            message_board_focus = 0;
+            message_board_clearContent();
+            message_board_multiplayerSend_init();
+            message_board_getMessage(message_board_loadNum);
+        }
+
+        function message_board_getMessage(skip) {
+            message_board_isload = false;
+            $.post("${reverse('get_message')}", {
+                message_people: message_people.id,
+                skip: skip,
+                limit: 6
+            }, function(data) {
+                message_board_init(data)
+            });
+        }
+
+        function message_board_init(data) {
+            message_board_loadNum += 6;
+            message_board_totalNum = data.count;
+            $(".message_board_full_name").text(message_people.fullname);
+            $('.message_board_empty_info').remove();
+            if (data.results.length == 0) {
+                $('.message_board_list').append('<div class="message_board_empty_info">You do not currently have any messages with ' + message_people.fullname.split(' ')[0] + '.</div>');
+            } else {
+                $('.message_board_empty_info').remove();
+            }
+            for (var i = 0; i < data.results.length; i++) {
+                message_board_createItem(data.results[i], 1);
+            }
+
+            if (message_board_loadNum >= message_board_totalNum) {
+                message_board_isload = false;
+                message_board_hideLoadMore();
+            } else {
+                message_board_isload = true;
+                message_board_hideLoadMore();
+                message_board_showLoadMore();
+            }
+            $('.message_board_listCon').scrollTop($(".message_board_list").height());
+        }
+
+        function message_board_saveInfo() {
+            var content = $(".message_board_content");
+            var msReturnVal = message_board_multiplayerSend_returnVal();
+            var winR = 1;
+            if (msReturnVal) {
+                winR = confirm("Do you want to send this message to all users?", "Warning");
+                if (!winR) {
+                    return 0;
+                }
+            }
+            if (content.text().length > 0 && content.text().length <= message_board_maxCharNum && message_board_focus && winR) {
+                var recipient_id = msReturnVal ? 0 : message_people.id.toString();
+                var datainfo = {
+                    'info': JSON.stringify({
+                        'sender_id': '${user.id}',
+                        'recipient_id': recipient_id,
+                        'date': (new Date()).toISOString(),
+                        'body': content.html()
+                    })
+                };
+                $.post("${reverse('save_message')}", datainfo, function(rdata) {
+                    if ($(".message_board_list").find('.message_board_empty_info').length > 0) {
+                        $('.message_board_empty_info').remove();
+                    }
+                    message_board_createItem(JSON.parse(datainfo.info));
+                    $('.message_board_listCon').scrollTop($(".message_board_list").height());
+                    message_board_updateMaxCharNum();
+                    var interviewer_id = user_info["user"].id.toString();
+                    var interviewer_name = user_info["user"].name;
+                    var interviewer_fullname = user_info["user"].fullname;
+                    var body = content.text().length > 100 ? content.text().substr(0, 100) : content.text();
+                    var messageinfo = {
+                        'info': JSON.stringify({
+                            'user_id': recipient_id,
+                            'interviewer_id': interviewer_id,
+                            'interviewer_name': interviewer_name,
+                            'interviewer_fullname': interviewer_fullname,
+                            'type': 'message',
+                            'body': body,
+                            'date': (new Date()).toISOString(),
+                            'activate': 'false'
+                        })
+                    };
+                    $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+                    content.html("");
+                });
+            } else {
+                if (content.text().length > message_board_maxCharNum)
+                    alert('Exceed the maximum number of characters.');
+            }
+        }
+
+        function message_board_user(data) {
+            var userObj = [];
+            userObj[message_people.id] = message_people;
+            userObj[user_info["user"].id] = user_info["user"];
+            return userObj[data.sender_id];
+        }
+
+        function message_board_createItem(data, _pos) {
+            pos = _pos || 0;
+            var element = $('<div class="message_item"><table width="530" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:#fff;font-size:14px;"><tr><td width="76" rowspan="2"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.sender_id + ');background-size:contain;background-repeat:no-repeat;"/></td><td width="227" height="30" style="color:#388e9b;font-weight:bold;vertical-align:middle;">' + message_board_user(data).name + '</td><td width="227" align="right" style="padding-right:6px;font-size:12px;color:#aaa;vertical-align:middle;">' + interactive_update_dateFormat(data).full_date + '</td></tr><tr><td colspan="2" style="font-size:14px;color:#000;padding-top:2px;padding-right:6px;padding-bottom:8px;line-height:18px;"><div style="word-wrap:break-word;overflow:hidden;width:454px;">' + data.body + '</div></td></tr></table><div style="height:2px;"></div></div>');
+            if (pos) {
+                $('.message_board_list').prepend(element);
+            } else {
+                $('.message_board_list').append(element);
+            }
+
+        }
+
+        function message_board_changeImg(objImg) {
+            var max = 300;
+            if (objImg.width > max) {
+                var scaling = 1 - (objImg.width - max) / objImg.width;
+                objImg.width = objImg.width * scaling;
+                objImg.height = objImg.height;
+            }
+            $('.message_board_listCon').scrollTop($(".message_board_list").height());
+        }
+
+        function message_board_upload_file() {
+            var fd, files, max_filesize, settings;
+            var content = $(".message_board_content");
+            max_filesize = 0.5 * 1000 * 1000;
+            if (/\.(bmp|gif|jpg|jpeg|png|BMP|GIF|JPG|PNG)$/.test($("#message_board_browseFile")[0].files[0].name)) {
+                files = "";
+                files = $("#message_board_browseFile")[0].files[0];
+                if (files != void 0) {
+                    if (files.size > max_filesize) {
+                        files = "";
+                        alert("File is too large. Max file size is 500 Kb.");
+                        $("#message_board_browseFile")[0].files = [];
+                        return false;
+                    }
+                }
+                fd = new FormData();
+                fd.append('image_file', files);
+                settings = {
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    async: false,
+                    success: function(response) {
+                        if (response == null) {
+                            alert("Network error. Please try again.");
+                            return false;
+                        }
+                        if (response.success == true) {
+                            alert("Upload success!");
+                        } else {
+                            alert("Upload fail");
+                        }
+                        if (!message_board_focus) {
+                            content.html("");
+                            message_board_focus = 1;
+                        }
+                        content.html(content.html() + "<img src='" + response.file_info + "' onload='message_board_changeImg(this);' alt='[Image loading ...]'> </img>");
+                        message_board_updateMaxCharNum();
+                    }
+                };
+                return $.ajax("${reverse('upload_message_image')}", settings);
+
+            } else {
+                alert("The file format is not supported.");
+            }
+        }
+
+        function message_board_showLoadMore() {
+            var element = $('<div class="loadMoreBtn" style="width:530px;height:20px;text-align:center;font-size:14px;padding-top:8px;color:#388e9b;background-color:#EDEFF4;margin:auto;">Load more</div>');
+            $('.message_board_list').prepend(element);
+        }
+
+        function message_board_hideLoadMore() {
+            $(".loadMoreBtn").remove();
+        }
+
+        function message_board_updateMaxCharNum() {
+            var charNum = $(".message_board_content").text().length;
+            var num = charNum > message_board_maxCharNum ? "<font color='#ff0000'>" + charNum + "</font>" : charNum;
+            $("#curr_char_num").html(num);
+        }
+
+        function message_board_hyperlinks(url, title) {
+            //return str.replace(new RegExp("("+"[a-zA-z]+://[^ ]*"+")",'g'),"<a href='$1' target='_blank'>$1</a>");
+            if (title == "")
+                title = url;
+            if (url.indexOf('://') < 0)
+                url = "http://" + url;
+            return "<a href='" + url + "' target='_blank'>" + title + "</a><br/>";
+        }
+
+        function message_board_multiplayerSend_init() {
+            var isStaff = "${curr_user.is_staff}";
+            var ms = $("#multiplayer_send_div");
+            ms.find("input").attr("checked", false);
+            if (isStaff == "True") {
+                ms.show();
+            } else {
+                ms.hide();
+            }
+        }
+
+        function message_board_multiplayerSend_returnVal() {
+            var msCBox = $("#multiplayer_send_div").find("input");
+            return (msCBox.is(":visible") && msCBox.is(":checked")) ? true : false;
+        }
+
+        function message_board_clearContent() {
+            var content = $('.message_board_content');
+            content.html("");
+            message_board_updateMaxCharNum();
+            $('.message_board_listCon').scrollTop(0);
+            content.html("<p class='message_board_txt_prompt'>Type Your Message Here</p>");
+        }
+    </script>
+    <!--@end-->
+
+    <!--@begin:show_personalmessage-->
+    <!--@date:2014-06-30-->
+%if request.user.is_authenticated():
     %if curr_user==request.user:
-    <section id="show_personalmessage" class="modal" style="width:600px;">
-  <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
-    <header>
-      <h2 class="message_board_full_name">${_("namename")}</h2>
-      <hr/>
-    </header>
-  <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-  <form id="" method="post" style="padding:0px;line-height:18px;">
-   
-        <div style="width:520px;margin:10px;">
-         <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
+        <section id="show_personalmessage" class="modal modal-wide">
+            <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
+                <header>
+                    <h2 class="message_board_full_name">${_("namename")}</h2>
+                    <hr/>
+                </header>
+                <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
+                <form id="" method="post" style="padding:0px;line-height:18px;">
 
-          <div style="color:black;font-size:12px;color:#aaa;">
-            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
-          </div>
-          <div style="width:530px;height:30px;">
-            <table width="530" border="0" cellpadding="0" cellspacing="0">
-              <tr height="30" style="color:#000;">
-                <td widht="265" style="vertical-align:middle;">
+                    <div style="width:520px;margin:10px;">
+                        <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
+
+                        <div style="color:black;font-size:12px;color:#aaa;">
+                            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
+                        </div>
+                        <div style="width:530px;height:30px;">
+                            <table width="530" border="0" cellpadding="0" cellspacing="0">
+                                <tr height="30" style="color:#000;">
+                                    <td widht="265" style="vertical-align:middle;">
                   <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
                     <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
                     <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
                   </span>
                   
                   <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                      <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                      <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
                   </span>
-                  
-                </td>
-                <td align="right" style="vertical-align:middle;">
-                <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
-                </td>
-              </tr>
-              <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
-            </table>
-          </div>
-        </div>
-        <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
-  </form>
-  <br/>
-  <!--
-  <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-    <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-      <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-    </a>
-  </div>
-  -->
-    <div class="close-modal" id="message_board_close">
-      <div class="inner">
-        <p>&#10005;</p>
-      </div>
-    </div>
-  </div>
-</section>
+
+                                    </td>
+                                    <td align="right" style="vertical-align:middle;">
+                                        <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
+                                    </td>
+                                </tr>
+                                <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+                </form>
+                <br/>
+                <!--
+                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
+                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
+                </a>
+                </div>
+                -->
+                <div class="close-modal" id="message_board_close">
+                    <div class="inner">
+                        <p>&#10005;</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     %endif
- %endif
- <div class="linkwin">
-    <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
-    <hr/>
-    <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
-      <table>
-        <tr>
-          <td style="vertical-align:middle">Insert URL:</td>
-          <td><input type="text" id="link_url_val"style="width:100%"></td>
-        </tr>
-        <tr>
-          <td width="100" style="vertical-align:middle">Title:</td>
-          <td width="350"><input id="link_title_val" type="text" style="width:100%"></td>
-        </tr>
-      </table>
-      <input id="hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
-      <input id="hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
-    </form>
- </div>
-<!--@end-->
+%endif
+    <div class="linkwin">
+        <h3 style="padding-left:10px;"><b>Insert Hyperlink</b></h3>
+        <hr/>
+        <form style="padding: 0px; margin: 0px; float: left; width: 100%; text-align: center; position: relative;">
+            <table>
+                <tr>
+                    <td style="vertical-align:middle">Insert URL:</td>
+                    <td><input type="text" id="link_url_val"style="width:100%"></td>
+                </tr>
+                <tr>
+                    <td width="100" style="vertical-align:middle">Title:</td>
+                    <td width="350"><input id="link_title_val" type="text" style="width:100%"></td>
+                </tr>
+            </table>
+            <input id="hyperlink_okBtn" type="button" value="OK" style="margin: 10px; display: inline; width: 7em;">
+            <input id="hyperlink_cancelBtn" type="button" value="Cancel" style="margin: 10px; display: inline; width: 7em;">
+        </form>
+    </div>
+    <!--@end-->
+
+    <!-- task panel -->
+%if curr_user.is_superuser:
+    <div class="global_task_panel_wrapper">
+        <div class="control global_task_panel">
+            <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
+            <div class="content"></div>
+      <textarea class="setting">
+        {
+          "interval": 5000,
+          "urls": {
+            "count": "${reverse('pepconn_import_user_tasks')}",
+            "close": "${reverse('pepconn_task_close')}"
+          }
+        }
+      </textarea>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
+    </script>
+%endif

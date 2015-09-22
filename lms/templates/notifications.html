@@ -33,8 +33,6 @@
   
 </%def>
 <style type="text/css" media="screen">
-  #btn-dashboard{display:none;}
-  #image_uploading{display:none;}
   .notification_style_button {
     width:100px;
     text-align:center;
@@ -60,7 +58,7 @@
 		var notifications_update_totalNum = 0;
 		var notifications_update_currDelItem={};
         var notifications_update_load_height=271;
-		notifications_update(notifications_update_loadNum);
+        notifications_update(notifications_update_loadNum);
 		function notifications_update(skip)
 	    {
 		    notifications_update_isload = false;
@@ -102,6 +100,7 @@
 	      var displayDate = notifications_update_dateFormat(data);
 	      var ele=$('<tr class="date_col" height="45"><td width="20"></td><td width="55" style="padding-top:15px;">'+displayDate.date+'</td><td></td></tr>');
 	      element=$('<tr class="notification_item" height="50" style="border-top:1px solid #959595;background-color:'+notifications_update_getActivateStyle(data).backgroundColor+'"><td width="20"></td><td width="55" style="vertical-align:middle;"><div style="width:35px; height:35px; background:url(/user_photo/'+data.interviewer_id+');background-size:contain;background-repeat:no-repeat;"/></td><td style="vertical-align:middle;"><a class="open_win_link" href="#"><section style="font-size:14px;line-height:20px;"><span style="color:#388e9b;">'+data.type_text+'</span></a><span style="color:#B0B0B0;padding-left:8px;">'+displayDate.time+'</span><span><span style="padding-left:8px;"/><a class="delBtn" href="#" sytle="color:#388e9b;font-size:12px;">Delete</a></span><table><tr><td width="635">'+notifications_update_setMessageBody(data)+'</td><td class="body_read_more"></td></tr></table></section></td></tr>');
+
 	      notifications_update_setMessageReadmore(element,data);
 		  if(notifications_update_new_day!='')
 	      {
@@ -356,13 +355,13 @@
 		              <b style="font-size:14px;color:#000">My Profile:</b>
 		            </div>
 					<div style="line-height:30px;"><b>State:</b>
-			          % if curr_user.profile.district_id:
-					  ${curr_user.profile.cohort.district.state.name}
+                      % if curr_user.profile.district_id:
+					  ${curr_user.profile.district.state.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>District:</b>
-					  % if curr_user.profile.district_id:
-					  <br>${curr_user.profile.cohort.district.name}
+                      % if curr_user.profile.district_id:
+					  <br>${curr_user.profile.district.name}
 					  % endif
 					</div>
 					<div style="line-height:30px;"><b>School:</b>
@@ -455,7 +454,7 @@ Add info that you would like to share about yourself here:
 		</div>
 	</section>
 </section>
-<section id="del_notification" class="modal" style="width:600px;">
+<section id="del_notification" class="modal modal-wide">
   <div class="inner-wrapper" style="width:578px;padding-bottom:10px !important;">
     <header>
       <h2 class="notification_title">${_("DELETE THE NOTIFICATION")}</h2>
