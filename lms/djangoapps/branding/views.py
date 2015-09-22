@@ -158,3 +158,8 @@ def demo2(request):
 @cache_if_anonymous
 def demo3(request):
     return render_to_response('demo3.html', {})
+    
+@ensure_csrf_cookie
+@cache_if_anonymous
+def demo4(request):
+    return render_to_response('demo4.html', {})
