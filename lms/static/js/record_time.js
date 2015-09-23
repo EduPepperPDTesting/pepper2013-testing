@@ -257,7 +257,8 @@ CourseTimer.prototype.discussionInit = function() {
 CourseTimer.prototype.portfolioInit = function() {
     var portfolio_info = document.URL.split('/portfolio/')[1].split('/');
     if (portfolio_info.length > 1) {
-        if (RecordTime.userID != portfolio_info[1]) {
+        var portfolio_userID = portfolio_info[1].indexOf('?') < 0 ? portfolio_info[1] : portfolio_info[1].split('?')[0];
+        if (RecordTime.userID != portfolio_userID) {
             this.init();
             this.start();
         }
@@ -280,7 +281,9 @@ ExternalTimer.prototype.init = function() {
     this.minute = 0;
     this.createClock($('.external_timer'))
     this.draw();
-    this.load();
+    if (document.URL.indexOf('courseware') >= 0) {
+        this.load();
+    }
 };
 
 ExternalTimer.prototype.draw = function() {
