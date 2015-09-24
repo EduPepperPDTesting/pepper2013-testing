@@ -9,7 +9,7 @@ EmbedVideo.prototype.embed_JS = function(element_name, js_src, width, height) {
     iObj.document.writeln(embed_code);
     iObj.document.writeln("</head><body></body></html>");
     iObj.document.close();
-}
+};
 
 function setIframeAutoSize(obj) {
     obj.height = obj.contentWindow.document.documentElement.scrollHeight

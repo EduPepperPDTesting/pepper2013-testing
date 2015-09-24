@@ -46,6 +46,8 @@ class HtmlModule(HtmlFields, XModule):
             resource_string(__name__, 'js/src/html/highlight.js'),
             resource_string(__name__, 'js/src/html/imageModal.js'),
             resource_string(__name__, 'js/src/html/video.js'),
+            resource_string(__name__, 'js/src/html/edivate.js'),
+            resource_string(__name__, 'js/src/html/md5.min.js'),
             resource_string(__name__, 'js/common_static/js/vendor/draggabilly.pkgd.js'),
         ]
     }
