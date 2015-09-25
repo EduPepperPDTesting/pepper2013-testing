@@ -1,6 +1,6 @@
 function EmbedEdivate() {}
 
-EmbedEdivate.prototype.embed_JS = function(element_name) {
+EmbedEdivate.prototype.embed = function(element_name) {
     var firstName = '';
     var lastName = '';
     var email = '';
