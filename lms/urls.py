@@ -54,6 +54,13 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
+    url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
+    url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
+    url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),
+    url(r'^time_report/drop_schools$', 'administration.time_report.drop_schools', name="time_report_drop_schools"),
+    url(r'^time_report/time_table$', 'administration.time_report.time_table', name="time_report_time_table"),
+    url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
+
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
