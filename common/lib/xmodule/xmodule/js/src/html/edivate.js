@@ -1,6 +1,6 @@
 function EmbedEdivate() {}
 
-EmbedEdivate.prototype.embed = function(element_name) {
+EmbedEdivate.prototype.embed = function(element_name, assest_id) {
     var firstName = '';
     var lastName = '';
     var email = '';
@@ -21,6 +21,8 @@ EmbedEdivate.prototype.embed = function(element_name) {
         embed_code += lastName;
         embed_code += '&md5=';
         embed_code += hash;
+        embed_code += '&contentid=';
+        embed_code += assest_id;
         embed_code += '"></iframe>';
         $('#' + element_name).append(embed_code);
     }
