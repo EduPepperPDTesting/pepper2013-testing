@@ -124,15 +124,9 @@ def time_table(request):
     data = UserProfile.objects.all()
     data = filter_user(request.GET, data)
     rows = []
-<<<<<<< HEAD
-    external_time = 0
-    rts = record_time_store()
-    for p in data:
-=======
     rts = record_time_store()
     for p in data:
         external_time = 0
->>>>>>> ba971a1... Added Time Report.
         for enrollment in CourseEnrollment.enrollments_for_user(p.user):
             try:
                 course = course_from_id(enrollment.course_id)
@@ -148,10 +142,7 @@ def time_table(request):
         rows.append({'id': p.user.id,
                      'user_first_name': p.user.first_name,
                      'user_last_name': p.user.last_name,
-<<<<<<< HEAD
-=======
                      'user_email': p.user.email,
->>>>>>> ba971a1... Added Time Report.
                      'district': attstr(p, "district.name"),
                      'school': attstr(p, "school.name"),
                      "total_time": study_time_format(total_time),
@@ -169,17 +160,10 @@ def time_report_download_excel(request):
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
-<<<<<<< HEAD
-    FIELDS = ["first_name", "last_name", "_district", "_school", "total_time", "collaboration_time",
-              "external_time", "course_time"]
-
-    TITLES = ["First Name", "Last Name", "District", "School", "Total Time", "Collaboration Time",
-=======
     FIELDS = ["first_name", "last_name", "email", "_district", "_school", "total_time", "collaboration_time",
               "external_time", "course_time"]
 
     TITLES = ["First Name", "Last Name", "Email", "District", "School", "Total Time", "Collaboration Time",
->>>>>>> ba971a1... Added Time Report.
               "External Time", "Course Time"]
     for i, k in enumerate(TITLES):
         worksheet.write(0, i, k)
@@ -187,15 +171,9 @@ def time_report_download_excel(request):
 
     data = UserProfile.objects.all()
     data = filter_user(request.POST, data)
-<<<<<<< HEAD
-    external_time = 0
-    rts = record_time_store()
-    for p in data:
-=======
     rts = record_time_store()
     for p in data:
         external_time = 0
->>>>>>> ba971a1... Added Time Report.
         for enrollment in CourseEnrollment.enrollments_for_user(p.user):
             try:
                 course = course_from_id(enrollment.course_id)
@@ -210,10 +188,7 @@ def time_report_download_excel(request):
 
         p.first_name = attstr(p, "user.first_name")
         p.last_name = attstr(p, "user.last_name")
-<<<<<<< HEAD
-=======
         p.email = attstr(p, "user.email")
->>>>>>> ba971a1... Added Time Report.
         p._district = attstr(p, "district.name")
         p._school = attstr(p, "school.name")
         p.total_time = study_time_format(total_time)

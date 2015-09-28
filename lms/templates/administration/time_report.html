@@ -23,9 +23,6 @@ from student.models import State,District,School
 <!-- Tablesorter: optional -->
   <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
   <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
-<<<<<<< HEAD
-=======
-
 <style>
   .time_report_load_text{
     text-align:center;
@@ -33,7 +30,6 @@ from student.models import State,District,School
     font-weight:bold;
   }
 </style>
->>>>>>> ba971a1... Added Time Report.
 <!-- Time Report -->
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
@@ -66,43 +62,12 @@ from student.models import State,District,School
         <div class="table">      
           <div class="" style="padding:5px;"></div>
           <span class="body"></span>
-<<<<<<< HEAD
-         
-          <!--
-          <textarea class="setting">
-            {
-            "fields":{
-            "user__first_name":{"display":"First Name","sort":"+","show":1},
-            "user__last_name":{"display":"Last Name","sort":"+","show":1},
-            "district":{"display":"District","sort":"+","show":1},
-            "school":{"display":"School","sort":"+","show":1},
-            "total_time":{"display":"Total Time","sort":"+","show":1},
-            "collaboration_time":{"display":"Collaboration Time","sort":"+","show":1},
-            "external_time":{"display":"External Time","sort":"+","show":1},
-            "course_time":{"display":"Course Time","sort":"+","show":1}
-            },
-            "field_row_identifier":"id",
-            "urls":{
-            "data":"${reverse('time_report_time_table')}"
-            },
-            "paging":{
-            "size":20,
-            "sizes":[10,20,50,100,200]
-            }
-            }
-          </textarea>
-          -->
-=======
           <div class="time_report_load_text">Loading...</div>
->>>>>>> ba971a1... Added Time Report.
           <table class="tblUserTime">
             <thead>
               <th>First Name</th>
               <th>Last Name</th>
-<<<<<<< HEAD
-=======
               <th>Email</th>
->>>>>>> ba971a1... Added Time Report.
               <th>District</th>
               <th>School</th>
               <th>Total Time</th>
@@ -125,10 +90,7 @@ from student.models import State,District,School
                 <option value="30">30</option>
                 <option value="40">40</option>
               </select>
-<<<<<<< HEAD
-=======
               <select class="gotoPage" title="Select page number"></select>
->>>>>>> ba971a1... Added Time Report.
             </span>
             <span class="time_download">
               Download <span class="total"></span> User(s) As
@@ -268,15 +230,9 @@ from student.models import State,District,School
       $(".tblUserTime tbody").empty();
       for(d in data){
         table_con+='<tr role="row"><td>'+data[d].user_first_name+'</td>'+'<td>'+data[d].user_last_name+'</td>\
-<<<<<<< HEAD
-        <td>'+data[d].district+'</td>'+'<td>'+data[d].school+'</td>\
-        <td>'+data[d].total_time+'</td>'+'<td>'+data[d].collaboration_time+'</td>\
-        <td>'+data[d].external_time+'</td>'+'<td>'+data[d].course_time+'</td></tr>';
-=======
         <td>'+data[d].user_email+'</td><td>'+data[d].district+'</td><td>'+data[d].school+'</td>\
         <td>'+data[d].total_time+'</td><td>'+data[d].collaboration_time+'</td>\
         <td>'+data[d].external_time+'</td><td>'+data[d].course_time+'</td></tr>';
->>>>>>> ba971a1... Added Time Report.
       }
       $(".tblUserTime tbody").append(table_con);
       $(".tblUserTime").trigger("update");
@@ -285,27 +241,17 @@ from student.models import State,District,School
     filterTime:function(){
       var self = this;
       var filter = $('#fltUserTime')[0].control.getFilter();
-<<<<<<< HEAD
-       $.get("${reverse('time_report_time_table')}", {
-=======
       $(".time_report_load_text").show();
       $.get("${reverse('time_report_time_table')}", {
->>>>>>> ba971a1... Added Time Report.
             'state': filter.state,
             'district': filter.district,
             'school': filter.school
         }, function(data) {
             if (data != null) {
-<<<<<<< HEAD
-              self.createTimeTable(data.rows);
-            }
-        });
-=======
               $(".time_report_load_text").hide();
               self.createTimeTable(data.rows);
             }
       });
->>>>>>> ba971a1... Added Time Report.
     },
     postToNewTab: function(url, params) {
       var form = document.createElement("form");
