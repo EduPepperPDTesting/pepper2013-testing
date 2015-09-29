@@ -605,7 +605,7 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_usercode = json.get('UserCode', 'pepper')
 
     if sso_email is None or len(sso_email) == 0:
-        sso_email = sso_usercode + "." + sso_id + "@pepperpd.com"
+        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
 
     # user
     user.set_password('EasyIEPSSO')
@@ -717,7 +717,7 @@ def sso(request, error=""):
     if sso_email is None or len(sso_email) == 0:
         if sso_usercode == 'pepper' and sso_id == '':
             return HttpResponse(u"Invalid SSO user.")
-        sso_email = sso_usercode + "." + sso_user.get('ID') + "@pepperpd.com"
+        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
 
     # fetch the user
     try:
