@@ -714,7 +714,7 @@ def sso(request, error=""):
     if not sso_user:
         return HttpResponse(u"No SSO user found.")
 
-    if sso_email == '':
+    if len(sso_email) == 0:
         if sso_usercode == 'pepper' and sso_id == '':
             return HttpResponse(u"Invalid SSO user.")
         sso_email = sso_usercode + "." + sso_user.get('ID') + "@pepperpd.com"
