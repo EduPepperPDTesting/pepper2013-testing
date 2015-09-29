@@ -601,6 +601,10 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_district = json.get('SchoolSystem')
     # sso_district_code=json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
+    sso_usercode = sso_user.get('UserCode', '')
+
+    if len(sso_email) == 0:
+        sso_email = sso_usercode + "@pepperpd.com"
 
     # user
     user.set_password('EasyIEPSSO')
