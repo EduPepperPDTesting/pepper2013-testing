@@ -1870,7 +1870,6 @@ def activate_imported_account(post_vars, photo):
 
     return HttpResponse(json.dumps(ret))
 
-@ensure_csrf_cookie
 def activate_easyiep_account(request):
     vars=request.POST
 
