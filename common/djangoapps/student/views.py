@@ -735,7 +735,7 @@ def sso(request, error=""):
 
     # fetch the user
     try:
-        profile = UserProfile.objects.get(sso_type='EasyIEP', email=sso_email)
+        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
         user = profile.user
     except UserProfile.DoesNotExist:
         user = None
