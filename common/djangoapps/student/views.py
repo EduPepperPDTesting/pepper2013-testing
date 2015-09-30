@@ -593,6 +593,16 @@ def accounts_login(request, error=""):
         return redirect(reverse('cas-login'))
     return render_to_response('login.html', {'error': error})
 
+def safe_sso_code(code):
+    """
+    Makes a string safe for adding to an email address.
+    """
+    safe_code = re.sub('[^a-zA-Z0-9]', '_', code)  # replace special characters with '_'
+    safe_code = re.sub('_+', '_', safe_code)  # replace any runs of '_' with a single
+    safe_code = re.sub('^_+', '', safe_code)  # remove any '_' at the beginning
+    safe_code = re.sub('_+$', '', safe_code)  # remove any '_' at the end
+    return safe_code
+
 def update_sso_usr(user, json, update_first_name=True):
     profile = user.profile
 
@@ -604,8 +614,8 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_email = sso_user.get('Email', '')
     sso_usercode = json.get('UserCode', 'pepper')
 
-    if sso_email is None or len(sso_email) == 0:
-        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
+    if (not validate_email(sso_email)) or (sso_email is None) or (len(sso_email) == 0):
+        sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     # user
     user.set_password('EasyIEPSSO')
@@ -714,14 +724,15 @@ def sso(request, error=""):
     if not sso_user:
         return HttpResponse(u"No SSO user found.")
 
-    if sso_email is None or len(sso_email) == 0:
+    if (not validate_email(sso_email)) or (sso_email is None) or (len(sso_email) == 0):
         if sso_usercode == 'pepper' and sso_id == '':
             return HttpResponse(u"Invalid SSO user.")
-        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
+
+        sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     # fetch the user
     try:
-        profile = UserProfile.objects.get(sso_type='EasyIEP', sso_idp=sso_id)
+        profile = UserProfile.objects.get(sso_type='EasyIEP', email=sso_email)
         user = profile.user
     except UserProfile.DoesNotExist:
         user = None
