@@ -614,7 +614,9 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_email = sso_user.get('Email', '')
     sso_usercode = json.get('UserCode', 'pepper')
 
-    if (not validate_email(sso_email)) or (sso_email is None) or (len(sso_email) == 0):
+    try:
+        validate_email(sso_email)
+    except ValidationError:
         sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     # user
@@ -724,10 +726,11 @@ def sso(request, error=""):
     if not sso_user:
         return HttpResponse(u"No SSO user found.")
 
-    if (not validate_email(sso_email)) or (sso_email is None) or (len(sso_email) == 0):
+    try:
+        validate_email(sso_email)
+    except ValidationError:
         if sso_usercode == 'pepper' and sso_id == '':
             return HttpResponse(u"Invalid SSO user.")
-
         sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     # fetch the user
