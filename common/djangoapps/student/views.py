@@ -608,9 +608,9 @@ def update_sso_usr(user, json, update_first_name=True):
 
     sso_user = json.get('User')
     sso_id = sso_user.get('ID')
-    # sso_cohort=json.get('CustomerName')
-    sso_district = json.get('SchoolSystem')
-    # sso_district_code=json.get('SchoolSystemCode')
+    # sso_cohort = json.get('CustomerName')
+    # sso_district = json.get('SchoolSystem')
+    sso_district_code = json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
     sso_usercode = json.get('UserCode', 'pepper')
 
@@ -654,15 +654,19 @@ def update_sso_usr(user, json, update_first_name=True):
     # profile.cohort=cohort
 
     # district
-    profile.district = District.objects.get(name=sso_district)
+    profile.district = District.objects.get(code=sso_district_code)
 
     # school
+    multi_school_id = 'pepperms' + str(sso_district_code)
     if len(sso_user['SchoolCodes']) == 1:
-        school = School.objects.get(code=sso_user['SchoolCodes'][0])
+        try:
+            school = School.objects.get(code=sso_user['SchoolCodes'][0])
+        except School.DoesNotExist:
+            school = School.objects.get(code=multi_school_id)
     else:
-        school = School.objects.get(name='Multiple Schools')
+        school = School.objects.get(code=multi_school_id)
     # school.district=District.objects.get(name=sso_district)
-    school.save()
+    # school.save()
 
     profile.school = school
 
