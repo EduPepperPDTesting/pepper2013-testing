@@ -60,7 +60,7 @@ from mongo_user_store import MongoUserStore
 from courseware.views import course_filter
 import requests
 from django import db
-from student.models import District, School
+from student.models import District, School, State
 from django.db import models
 from mail import send_html_mail
 from courseware.courses import get_course_by_id
@@ -613,6 +613,10 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_district_code = json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
     sso_usercode = json.get('UserCode', 'pepper')
+    try:
+        sso_state = State.objects.get(name=json.get('State'))
+    except State.DoesNotExist:
+        return HttpResponse("Invalid State for user.")
 
     try:
         validate_email(sso_email)
@@ -654,10 +658,10 @@ def update_sso_usr(user, json, update_first_name=True):
     # profile.cohort=cohort
 
     # district
-    profile.district = District.objects.get(code=sso_district_code)
+    profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
 
     # school
-    multi_school_id = 'pepperms' + str(sso_district_code)
+    multi_school_id = 'pepper' + sso_state.name + str(sso_district_code)
     if len(sso_user['SchoolCodes']) == 1:
         try:
             school = School.objects.get(code=sso_user['SchoolCodes'][0])
