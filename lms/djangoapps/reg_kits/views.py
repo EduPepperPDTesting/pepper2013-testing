@@ -84,15 +84,22 @@ def district_submit(request):
     if not request.user.is_authenticated:
         raise Http404
     state_id = request.POST['state_id']
+    state = State.objects.get(id=state_id)
     try:
         if request.POST.get('id'):
-            d=District(request.POST['id'])
+            d = District(request.POST['id'])
         else:
-            d=District()        
-        d.code=request.POST['code']
-        d.name=request.POST['name']
-        d.state_id=request.POST['state_id']
+            d = District()
+        d.code = request.POST['code']
+        d.name = request.POST['name']
+        d.state_id = state_id
         d.save()
+
+        s = School()
+        s.name = 'Multiple Schools'
+        s.district = d
+        s.code = 'pepper' + state.name + str(request.POST['code'])
+        s.save()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
@@ -504,10 +511,10 @@ def course_permission(request):
             item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
             
     return render_to_response('reg_kits/course_permission.html', {
-                                                             "courses":courses,
-                                                     "users":data,
-                                                     "ui":"list",
-                                                     "pager_params":pager_params(request)})
+        "courses":courses,
+        "users":data,
+        "ui":"list",
+        "pager_params":pager_params(request)})
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -1065,34 +1072,43 @@ def validate_district_cvs_line(line):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def import_district_submit(request):
-    message={"success": True}
+    message = {"success": True}
 
     if request.method == 'POST':
-        f=request.FILES['file']
-        count_success=0
+        f = request.FILES['file']
+        count_success = 0
         try:
-            r=csv.reader(f,delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for i,line in enumerate(r):
-                state_name=line[DISTRICT_CSV_COL_STATE_NAME]
-                state_id=State.objects.get(name=state_name).id
+            r = csv.reader(f, delimiter='\t', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for i, line in enumerate(r):
+                state_name = line[DISTRICT_CSV_COL_STATE_NAME]
+                state_id = State.objects.get(name=state_name).id
                 
                 validate_district_cvs_line(line)
-                district=District()
-                district.code=line[DISTRICT_CSV_COL_CODE]
-                district.name=line[DISTRICT_CSV_COL_NAME]
-                district.state_id=state_id
-                district.save()
-                count_success=count_success+1
+                d = District()
+                d.code = line[DISTRICT_CSV_COL_CODE]
+                d.name = line[DISTRICT_CSV_COL_NAME]
+                d.state_id = state_id
+                d.save()
+
+                s = School()
+                s.name = 'Multiple Schools'
+                s.district = district
+                s.code = 'pepper' + state_name + str(line[DISTRICT_CSV_COL_CODE])
+                s.save()
+
+                count_success += 1
                 
             db.transaction.commit()
-            message={"success": True,
-                "message":"Success! %s district(s) imported." % (count_success),
-                "count_success":count_success
-                }     
+            message = {"success": True,
+                       "message": "Success! %s district(s) imported." % count_success,
+                       "count_success": count_success
+                       }
         except Exception as e:
             
             db.transaction.rollback()
-            message={'success': False,'error':'Import error: %s. At cvs line: %s, Nothing impored.' % (e,count_success+1)}
+            message = {'success': False,
+                       'error': 'Import error: %s. At cvs line: %s, Nothing imported.' % (e, count_success + 1)
+                       }
     
     return HttpResponse(json.dumps(message))
 ##############################################
