@@ -683,6 +683,7 @@ def sso(request, error=""):
 
     token = request.GET.get('easyieptoken')
     url = request.GET.get('auth_link')
+    debug = request.GET.get('debug')
 
     # request json
     # url='https://staging1.pcgeducation.com/easyiep.plx?op=external_application_validate_token&CustomerName=inpepper'
@@ -695,6 +696,9 @@ def sso(request, error=""):
         response = requests.request(method, url, params=data_or_params, timeout=15)
 
     text = response.text
+
+    if debug == 'true':
+        return HttpResponse(text)
 
     # testing data
 #     text='''{
