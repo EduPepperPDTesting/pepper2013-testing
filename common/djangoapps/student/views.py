@@ -665,7 +665,7 @@ def update_sso_usr(user, json, update_first_name=True):
     multi_school_id = 'pepper' + safe_state + str(sso_district_code)
     if len(sso_user['SchoolCodes']) == 1:
         try:
-            school = School.objects.get(code=sso_user['SchoolCodes'][0])
+            school = School.objects.get(code=sso_user['SchoolCodes'][0], district=profile.district.id)
         except School.DoesNotExist:
             school = School.objects.get(code=multi_school_id)
     else:
