@@ -19,6 +19,7 @@ from student.models import UserProfile,Registration,CourseEnrollmentAllowed
 from student.models import Transaction,District,Cohort,School,State
 from django import forms
 import csv
+import re
 from django.core.paginator import Paginator,InvalidPage, EmptyPage
 from django.db.models import Q
 from django.core.validators import validate_email, validate_slug, ValidationError
@@ -85,6 +86,7 @@ def district_submit(request):
         raise Http404
     state_id = request.POST['state_id']
     state = State.objects.get(id=state_id)
+    safe_state = re.sub(' ', '', state.name)
     try:
         if request.POST.get('id'):
             d = District(request.POST['id'])
@@ -98,7 +100,7 @@ def district_submit(request):
         s = School()
         s.name = 'Multiple Schools'
         s.district = d
-        s.code = 'pepper' + state.name + str(request.POST['code'])
+        s.code = 'pepper' + safe_state + str(request.POST['code'])
         s.save()
     except Exception as e:
         db.transaction.rollback()
@@ -1082,6 +1084,7 @@ def import_district_submit(request):
             for i, line in enumerate(r):
                 state_name = line[DISTRICT_CSV_COL_STATE_NAME]
                 state_id = State.objects.get(name=state_name).id
+                safe_state = re.sub(' ', '', state_name)
                 
                 validate_district_cvs_line(line)
                 d = District()
@@ -1093,7 +1096,7 @@ def import_district_submit(request):
                 s = School()
                 s.name = 'Multiple Schools'
                 s.district = district
-                s.code = 'pepper' + state_name + str(line[DISTRICT_CSV_COL_CODE])
+                s.code = 'pepper' + safe_state + str(line[DISTRICT_CSV_COL_CODE])
                 s.save()
 
                 count_success += 1

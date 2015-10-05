@@ -661,7 +661,8 @@ def update_sso_usr(user, json, update_first_name=True):
     profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
 
     # school
-    multi_school_id = 'pepper' + sso_state.name + str(sso_district_code)
+    safe_state = re.sub(' ', '', sso_state.name)
+    multi_school_id = 'pepper' + safe_state + str(sso_district_code)
     if len(sso_user['SchoolCodes']) == 1:
         try:
             school = School.objects.get(code=sso_user['SchoolCodes'][0])
