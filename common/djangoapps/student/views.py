@@ -612,7 +612,7 @@ def update_sso_usr(user, json, update_first_name=True):
     # sso_district = json.get('SchoolSystem')
     sso_district_code = json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
-    sso_usercode = json.get('UserCode', 'pepper')
+    sso_usercode = sso_user.get('UserCode', 'pepper')
     try:
         sso_state = State.objects.get(name=json.get('State'))
     except State.DoesNotExist:
@@ -730,7 +730,7 @@ def sso(request, error=""):
     sso_user = parsed.get('User')
     sso_id = sso_user.get('ID', '')
     sso_email = sso_user.get('Email', '')
-    sso_usercode = parsed.get('UserCode', 'pepper')
+    sso_usercode = sso_user.get('UserCode', 'pepper')
 
     if not sso_user:
         return HttpResponse(u"No SSO user found.")
