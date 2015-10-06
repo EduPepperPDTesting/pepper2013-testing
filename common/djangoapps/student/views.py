@@ -804,6 +804,7 @@ def sso(request, error=""):
     return redirect(reverse('dashboard'))
     # return HttpResponse("<textarea style='width:100%;height:100%'>"+json.dumps(parsed, indent=4, sort_keys=True)+"</textarea>")
 
+@ensure_csrf_cookie
 def register_user_easyiep(request, activation_key):
 
     registration = Registration.objects.get(activation_key=activation_key)
