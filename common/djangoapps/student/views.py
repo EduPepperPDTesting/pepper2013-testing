@@ -693,12 +693,18 @@ def sso(request, error=""):
 
     data_or_params = {'token': token}
 
-    if method == 'post':
-        response = requests.request(method, url, data=data_or_params, timeout=15)
-    else:
-        response = requests.request(method, url, params=data_or_params, timeout=15)
+    try:
+        if method == 'post':
+            response = requests.request(method, url, data=data_or_params, timeout=15)
+        else:
+            response = requests.request(method, url, params=data_or_params, timeout=15)
 
-    text = response.text
+        text = response.text
+    except Exception as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
+                          .format(e))
+        return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     if debug == 'true':
         return HttpResponse(text)
