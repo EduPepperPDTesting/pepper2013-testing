@@ -615,8 +615,11 @@ def update_sso_usr(user, json, update_first_name=True):
     sso_usercode = sso_user.get('UserCode', 'pepper')
     try:
         sso_state = State.objects.get(name=json.get('State'))
-    except State.DoesNotExist:
-        return HttpResponse("Invalid State for user.")
+    except State.DoesNotExist as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
+                          .format(e))
+        return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
         validate_email(sso_email)
@@ -729,7 +732,10 @@ def sso(request, error=""):
 
     sso_error = parsed.get('lErrors')
     if sso_error:
-        return HttpResponse(sso_error)
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format("EasyIEP returned an error", text))
+        return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     sso_user = parsed.get('User')
     sso_id = sso_user.get('ID', '')
@@ -737,13 +743,19 @@ def sso(request, error=""):
     sso_usercode = sso_user.get('UserCode', 'pepper')
 
     if not sso_user:
-        return HttpResponse(u"No SSO user found.")
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format("No SSO User loaded", text))
+        return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
         validate_email(sso_email)
-    except ValidationError:
+    except ValidationError as e:
         if sso_usercode == 'pepper' and sso_id == '':
-            return HttpResponse(u"Invalid SSO user.")
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     # fetch the user
@@ -781,9 +793,18 @@ def sso(request, error=""):
             # add courses above (cause user will not finish registration himself to trigger auto course enroll)
             CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
 
+        except User.IntegrityError as e:
+            db.transaction.rollback()
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return HttpResponse('''A duplicate user already exists in the system, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         except Exception as e:
             db.transaction.rollback()
-            return HttpResponse("Failed to create user, %s" % e)
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return HttpResponse('''An error occurred while creating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
         return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
 
@@ -796,7 +817,10 @@ def sso(request, error=""):
             update_sso_usr(user, parsed, False)
         except Exception as e:
             db.transaction.rollback()
-            return HttpResponse("Failed to update user, %s" % e)
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return HttpResponse('''An error occurred while updating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     # user = authenticate(username=post_vars['username'], password=post_vars['password'])
