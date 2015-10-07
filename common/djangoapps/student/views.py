@@ -603,6 +603,12 @@ def safe_sso_code(code):
     safe_code = re.sub('_+$', '', safe_code)  # remove any '_' at the end
     return safe_code
 
+def login_error(message):
+    error_context = {'window_title': 'Login Error',
+                     'error_title': 'Login Error',
+                     'error_message': message}
+    return render_to_response('error.html', error_context)
+
 def update_sso_usr(user, json, update_first_name=True):
     profile = user.profile
 
@@ -618,8 +624,8 @@ def update_sso_usr(user, json, update_first_name=True):
     except State.DoesNotExist as e:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
                           .format(e))
-        return HttpResponse('''An error occurred while creating your user, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
         validate_email(sso_email)
@@ -633,32 +639,6 @@ def update_sso_usr(user, json, update_first_name=True):
         user.first_name = sso_user.get('FirstName', '')
     user.last_name = sso_user.get('LastName', '')
     user.save()
-
-    # grade level
-    # def parse_grade_levels(src):
-    #     dest=[]
-    #     for s in src:
-    #         try:
-    #             g=GradeLevel.objects.get(name=s)
-    #             dest.append(str(g.id))
-    #         except:
-    #             pass
-    #     return ','.join(dest)
-    # profile.grade_level_id=parse_grade_levels(sso_user.get('GradeCodes'))
-
-    # cohort
-    # try:
-    #     cohort=Cohort.objects.get(code=sso_cohort)
-    # except Cohort.DoesNotExist:
-    #     cohort=Cohort()
-    #     cohort.code=sso_cohort
-    #     cohort.licences=1000000000
-    #     cohort.term_months=12
-    #     cohort.start_date=datetime.datetime.now(UTC)
-    #     cohort.district=District.objects.get(name=sso_district)
-    #     cohort.save()
-
-    # profile.cohort=cohort
 
     # district
     profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
@@ -689,8 +669,6 @@ def sso(request, error=""):
     debug = request.GET.get('debug')
 
     # request json
-    # url='https://staging1.pcgeducation.com/easyiep.plx?op=external_application_validate_token&CustomerName=inpepper'
-
     data_or_params = {'token': token}
 
     try:
@@ -703,35 +681,11 @@ def sso(request, error=""):
     except Exception as e:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
                           .format(e))
-        return HttpResponse('''An error occurred while creating your user, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     if debug == 'true':
         return HttpResponse(text)
-
-    # testing data
-#     text='''{
-#     "CustomerName": "inpepper",
-#     "SchoolSystem": "Indiana Demo Corporation District",
-#     "SchoolSystemCode": "PEPPERTEST1",
-#     "State": "Indiana",
-#     "User": {
-#         "Email": "testuser39@test.com",
-#         "FirstName": "Pepper",
-#         "GradeCodes": [
-#             "1",
-#             "2"
-#         ],
-#         "ID": 488,
-#         "LastName": "User2",
-#         "MiddleName": "Test",
-#         "SchoolCodes": [
-#             "456"
-#         ],
-#         "Suffix": null,
-#         "UserCode": "PTU2"
-#     }
-# }'''
 
     # parse json
     parsed = json.loads(text)
@@ -740,8 +694,8 @@ def sso(request, error=""):
     if sso_error:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                           .format("EasyIEP returned an error", text))
-        return HttpResponse('''An error occurred while creating your user, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     sso_user = parsed.get('User')
     sso_id = sso_user.get('ID', '')
@@ -751,8 +705,8 @@ def sso(request, error=""):
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                           .format("No SSO User loaded", text))
-        return HttpResponse('''An error occurred while creating your user, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+        return login_error('''An error occurred while creating your user, please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
         validate_email(sso_email)
@@ -760,7 +714,7 @@ def sso(request, error=""):
         if sso_usercode == 'pepper' and sso_id == '':
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                               .format(e, text))
-            return HttpResponse('''An error occurred while creating your user, please contact support at
+            return login_error('''An error occurred while creating your user, please contact support at
                 <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
@@ -803,13 +757,13 @@ def sso(request, error=""):
             db.transaction.rollback()
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                               .format(e, text))
-            return HttpResponse('''A duplicate user already exists in the system, please contact support at
+            return login_error('''A duplicate user already exists in the system, please contact support at
                 <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         except Exception as e:
             db.transaction.rollback()
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                               .format(e, text))
-            return HttpResponse('''An error occurred while creating your user, please contact support at
+            return login_error('''An error occurred while creating your user, please contact support at
                 <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
         return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
@@ -825,7 +779,7 @@ def sso(request, error=""):
             db.transaction.rollback()
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                               .format(e, text))
-            return HttpResponse('''An error occurred while updating your user, please contact support at
+            return login_error('''An error occurred while updating your user, please contact support at
                 <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     user.backend = 'django.contrib.auth.backends.ModelBackend'
