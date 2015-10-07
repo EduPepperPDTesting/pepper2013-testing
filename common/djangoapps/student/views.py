@@ -763,6 +763,14 @@ def sso(request, error=""):
         return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
 
     elif not user.is_active:
+        try:
+            update_sso_usr(user, parsed)
+        except Exception as e:
+            db.transaction.rollback()
+            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                              .format(e, text))
+            return login_error('''An error occurred while updating your user, please contact support at
+                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         registration = Registration.objects.get(user_id=user.id)
         return redirect(reverse('register_user_easyiep', args=[registration.activation_key]))
     else:
