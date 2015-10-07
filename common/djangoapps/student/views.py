@@ -624,7 +624,7 @@ def update_sso_usr(user, json, update_first_name=True):
     except State.DoesNotExist as e:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}."
                           .format(e))
-        return login_error('''An error occurred while creating your user, please contact support at
+        return login_error('''An error occurred while updating your user, please contact support at
             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
@@ -753,12 +753,6 @@ def sso(request, error=""):
             # add courses above (cause user will not finish registration himself to trigger auto course enroll)
             CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
 
-        except User.IntegrityError as e:
-            db.transaction.rollback()
-            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
-                              .format(e, text))
-            return login_error('''A duplicate user already exists in the system, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
         except Exception as e:
             db.transaction.rollback()
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
