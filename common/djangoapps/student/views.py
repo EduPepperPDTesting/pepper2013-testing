@@ -701,6 +701,7 @@ def sso(request, error=""):
     sso_id = sso_user.get('ID', '')
     sso_email = sso_user.get('Email', '')
     sso_usercode = sso_user.get('UserCode', 'pepper')
+    generated_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
 
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
@@ -709,22 +710,26 @@ def sso(request, error=""):
             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
-        validate_email(sso_email)
-    except ValidationError as e:
-        if sso_usercode == 'pepper' and sso_id == '':
-            AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
-                              .format(e, text))
-            return login_error('''An error occurred while creating your user, please contact support at
-                <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
-        sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
-
-    # fetch the user
-    try:
-        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
+        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=generated_email)
         user = profile.user
+        sso_email = generated_email
     except UserProfile.DoesNotExist:
-        user = None
+        try:
+            validate_email(sso_email)
+        except ValidationError as e:
+            if sso_usercode == 'pepper' and sso_id == '':
+                AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                                  .format(e, text))
+                return login_error('''An error occurred while creating your user, please contact support at
+                    <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
+            sso_email = generated_email
 
+        try:
+            profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
+            user = profile.user
+        except UserProfile.DoesNotExist:
+            user = None
+            
     if not user:
         try:
             username = "EasyIEP%s" % random.randint(10000000000, 99999999999)
