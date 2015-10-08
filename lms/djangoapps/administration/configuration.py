@@ -242,6 +242,7 @@ def certificate_save(request):
         info = {'success': False, 'msg': 'Certificate name already exists.'}
     return HttpResponse(json.dumps(info), content_type="application/json")
 
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def certificate_loadData(request):
@@ -269,3 +270,13 @@ def has_hangout_perms(user):
         permission = 1
         
     return permission
+
+
+@login_required
+def get_user_info(request):
+    json_return = {'first_name': request.user.first_name,
+                   'last_name': request.user.last_name,
+                   'email': request.user.email,
+                   'secret': 'La2aiphaab2gaeB'
+                   }
+    return HttpResponse(json.dumps(json_return), content_type="application/json")

@@ -108,7 +108,7 @@ class MongoRecordTimeStore(object):
                     'vertical_id': item['vertical_id']
                 },
                 {
-                    '$set': {'time': rdata['time']}
+                    '$inc': {'time': rdata['time']}
 
                 }
             )
@@ -173,7 +173,7 @@ class MongoRecordTimeStore(object):
                     'course_id': course_id
                 },
                 {
-                    '$set': {'time': time}
+                    '$inc': {'time': time}
                 },
                 True
             )
@@ -183,7 +183,7 @@ class MongoRecordTimeStore(object):
                     'user_id': user_id
                 },
                 {
-                    '$set': {'time': time}
+                    '$inc': {'time': time}
                 },
                 True
             )
