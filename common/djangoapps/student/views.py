@@ -597,11 +597,15 @@ def update_sso_usr(user, json, update_first_name=True):
     profile = user.profile
 
     sso_user = json.get('User')
-
+    sso_id = sso_user.get('ID')
     # sso_cohort=json.get('CustomerName')
     sso_district = json.get('SchoolSystem')
     # sso_district_code=json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
+    sso_usercode = json.get('UserCode', 'pepper')
+
+    if sso_email is None or len(sso_email) == 0:
+        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
 
     # user
     user.set_password('EasyIEPSSO')
@@ -704,17 +708,21 @@ def sso(request, error=""):
         return HttpResponse(sso_error)
 
     sso_user = parsed.get('User')
+    sso_id = sso_user.get('ID', '')
     sso_email = sso_user.get('Email', '')
+    sso_usercode = parsed.get('UserCode', 'pepper')
 
     if not sso_user:
-        return HttpResponse(u"No sso user found")
+        return HttpResponse(u"No SSO user found.")
 
-    if sso_email == '':
-        return HttpResponse(u"Invalid email")
+    if sso_email is None or len(sso_email) == 0:
+        if sso_usercode == 'pepper' and sso_id == '':
+            return HttpResponse(u"Invalid SSO user.")
+        sso_email = sso_usercode + "." + str(sso_id) + "@pepperpd.com"
 
     # fetch the user
     try:
-        profile = UserProfile.objects.get(sso_type='EasyIEP', sso_idp=sso_user.get('ID'))
+        profile = UserProfile.objects.get(sso_type='EasyIEP', sso_idp=sso_id)
         user = profile.user
     except UserProfile.DoesNotExist:
         user = None
@@ -732,7 +740,7 @@ def sso(request, error=""):
             registration.register(user)
 
             # profile
-            profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_user.get('ID'))
+            profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_id)
             user.profile = profile
 
             # update user
