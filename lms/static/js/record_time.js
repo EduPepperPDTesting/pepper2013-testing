@@ -170,8 +170,13 @@ CourseTimer.prototype.load = function() {
     }, function(data) {
 
         if (data != null) {
-            self.time = parseInt(data.time);
-            RecordTime.setSessionCourseTime(this.type, self.time);
+            if (RecordTime.getSessionCourseType() != 'courseware') {
+                self.time = 0;
+                RecordTime.setSessionCourseTime(this.type, 0);
+            } else {
+                self.time = parseInt(data.time);
+                RecordTime.setSessionCourseTime(this.type, self.time);
+            }
         } else {
             self.time = 0;
         }
