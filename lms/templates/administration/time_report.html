@@ -221,8 +221,9 @@ from student.models import State,District,School
   });
   $(function() {
     $(".tblUserTime").tablesorter({ theme : 'blue' }).tablesorterPager(pagerOptions);
-    userTimeReport.filterTime();
-    $(".tblUserTime").trigger("update");
+    $(".time_report_load_text").hide();
+    //userTimeReport.filterTime();
+    //$(".tblUserTime").trigger("update");
   })
   
   var userTimeReport = {
