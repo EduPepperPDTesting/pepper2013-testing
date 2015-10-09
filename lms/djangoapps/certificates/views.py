@@ -24,9 +24,11 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics,ttfonts
 import os
 from io import BytesIO
+import urllib
 from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.views.decorators.cache import cache_control
+from administration.models import Author,CertificateAssociationType,Certificate
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +106,7 @@ def course_from_id(course_id):
     """Return the CourseDescriptor corresponding to this course_id"""
     course_loc = CourseDescriptor.id_to_location(course_id)
     return modulestore().get_instance(course_id, course_loc)
-
+'''
 @login_required
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -146,7 +148,7 @@ def download_certificate(request,course_id,completed_time):
                 pdf=draw_certificate_CT(buffer,c)
     response.write(pdf)
     return response
-
+'''
 @login_required
 def course_credits(request):
      return render_to_response('course_credits.html', {})
@@ -392,3 +394,52 @@ def draw_certificate_CT(buffer, c):
     pdf = buffer.getvalue()
     buffer.close()
     return pdf
+    
+# new certificate------------------------------------------------
+@ensure_csrf_cookie
+@cache_if_anonymous
+def certificate_preview(request):
+    return render_to_response('certificate_preview.html', {})
+
+def getCertificateBlob(request,organization):
+    certificate = Certificate.objects.filter(association_type__name='School',association=request.user.profile.school_id)
+    if len(certificate) > 0:
+        return certificate[0].certificate_blob
+    certificate = Certificate.objects.filter(association_type__name='District',association=request.user.profile.district.id)
+    if len(certificate) > 0:
+        return certificate[0].certificate_blob
+    author = Author.objects.filter(name=organization)
+    if len(author) > 0:
+        certificate = Certificate.objects.filter(association_type__name='Author',association=author[0].id)
+        if len(certificate) > 0:
+            return certificate[0].certificate_blob
+    return ''
+
+@login_required
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def download_certificate(request,course_id,completed_time):
+    user_id = request.user.id
+    user_course = get_course_with_access(user_id, course_id, 'load')
+    first_name = request.user.first_name
+    last_name = request.user.last_name
+
+    course_name = user_course.display_name_with_default
+    user_name = first_name + ' ' +last_name
+    course_full_name = user_course.display_number_with_default + " " + course_name
+    estimated_effort = user_course.certificates_estimated_effort
+    completed_time = datetime.datetime.strptime(completed_time, '%Y-%M-%d').strftime('%B %d, %Y ')
+    blob =  urllib.unquote(getCertificateBlob(request,user_course.display_organization).decode('utf8').encode('utf8'))
+    outputError = ''
+    try:
+        blob = blob.format(
+            firstname = first_name
+            ,lastname = last_name
+            ,coursename = course_name
+            ,coursenumber = course_full_name
+            ,date = completed_time
+            ,hours = estimated_effort)
+    except KeyError,e:
+        outputError = 'The placeholder {0} does not exist.'.format(str(e)) 
+    return render_to_response('download_certificate.html', {'content':blob,'outputError':outputError})
+

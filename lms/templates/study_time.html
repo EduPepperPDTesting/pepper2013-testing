@@ -1,0 +1,205 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+%>
+
+<style type="text/css" media="screen">
+
+  a.btnx:hover {
+  background: linear-gradient(#1e8bbe, #0e72a1); 
+  transition-delay: 0s, 0s, 0s;
+  transition-duration: 0.25s, 0.25s, 0.25s;
+  transition-property:color, background,​ box-shadow;
+  transition-timing-function:
+  cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  transition-duration:0.25s,​ 0.25s,​ 0.25s;
+  text-decoration:none;
+  }
+  a.btnx {
+  background-clip: padding-box;
+  border:1ps solid rgb(13, 114, 162);
+  background-color:rgb(29, 157, 217);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1d9dd9), color-stop(100%, #0e7cb0));
+  background-image: -webkit-linear-gradient(#1d9dd9, #0e7cb0);
+  background-image: linear-gradient(#1d9dd9, #0e7cb0);
+  border: 1px solid #0d72a2;
+  box-shadow: inset 0 1px 0 0 #61b8e1;
+  text-decoration: none;
+  padding:6px 32px 7px 32px;
+  line-height:26px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  cursor: pointer;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  a.btnx:normal {
+  background-color:#126F9A;
+  text-decoration: none;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  cursor: pointer;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  color:#fff;
+  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+  }
+  .course_title {
+    margin-bottom: 20px;
+  }
+</style>
+<script type="text/javascript" src="${static.url('js/study_time_report.js')}"></script>
+<%inherit file="main.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Studying time - {username}".format(username=curr_user.username))}</title></%block>
+
+
+<section class="container dashboard" id="container_dashboard">
+    <section class="profile-sidebar">
+        <header class="profile">
+            <h1 class="user-name">${ curr_user.username }</h1>
+        </header>
+    
+        <section class="user-info">
+            <ul>
+                <!----username---->
+                <li>
+                    <span class="title">
+                    <div class="icon name-icon"></div><b>${_("Name")}:</b>
+                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span> 
+                </li>
+
+                <!----user photo---->
+                <li>
+                    <span class="title">
+                        <div class="icon email-icon" style="background-image:url(/static/images/portal-icons/photo.png) !important;"></div>
+                        <b>${_("User Photo")}</b>
+                    </span> 
+                    <div style="text-align:center;margin-top:5px;">
+                        <img src="${reverse('user_photo',args=[curr_user.id])}" style="" alt="photo" />
+                    </div>
+                </li>
+
+                <!----My Profile---->
+                <li>
+                  <span class="title">
+                  <div style="font-family: 'Open Sans';font-size:12px;">
+                    <div class="" style="padding:0 0 5px 0;"> 
+                      <b style="font-size:14px;color:#000">My Profile:</b>
+                    </div>
+                    <div style="line-height:30px;"><b>State:</b>
+                      % if curr_user.profile.district_id:
+                      ${curr_user.profile.district.state.name}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;"><b>District:</b>
+                      % if curr_user.profile.district_id:
+                      <br>${curr_user.profile.district.name}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;"><b>School:</b>
+                      % if curr_user.profile.school_id:
+                      <br>${curr_user.profile.school.name}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;"><b>Grade Level:</b>
+                      <% gn=list() %>
+                      % if curr_user.profile.grade_level_id:
+                      <br>
+                      % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+                      % if len(c)>0:
+                      <% gn.append(GradeLevel.objects.get(id=c).name) %>
+                      % endif
+                      % endfor
+                      % endif
+                      ${", ".join(gn)}
+                    </div>
+                    <div style="line-height:30px;"><b>Major Subject Area:</b>
+                      % if curr_user.profile.major_subject_area_id:
+                      <br>
+                      ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;"><b>Number of Years in Education:</b>
+                      % if curr_user.profile.years_in_education_id:
+                      ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+                      % endif
+                    </div>
+
+                    <div style="padding:15px 0 5px 0;"> 
+                      <b style="font-size:14px;color:#000;">My Class Profile:</b>
+                    </div>
+                    
+                    <div style="line-height:30px;">
+                      <b>Free/Reduced Lunch:</b>
+                      % if curr_user.profile.percent_lunch:
+                      ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;">
+                      <b>IEPs:</b>
+                      % if curr_user.profile.percent_iep:
+                      ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+                      % endif
+                    </div>
+                    <div style="line-height:30px;">
+                      <b>English Learners:</b>
+                      % if curr_user.profile.percent_eng_learner:
+                      ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+                      % endif
+                    </div>
+                    </span>
+                </li>
+
+                <li>
+          <span class="title">
+          <div style="font-family: 'Open Sans';font-size:12px;">
+                <b style="color:#000;font-size:14px;">Bio:</b>
+<pre style="padding:0;margin-top:10px;">
+%if curr_user.profile.bio:
+${curr_user.profile.bio}
+%else:
+Add info that you would like to share about yourself here:  
+%endif
+</pre>
+          </div>
+          </span>
+        </li>
+            </ul>
+        </section>
+    </section>
+
+	<section class="my-courses" style="border:0px solid;" >
+		<header>
+			<h2 style="padding-left:20px;">${_("MY COURSE STUDYING TIME")}</h2>
+		</header>
+		<div style="min-height:30px";>
+			<div width="100%" style="margin-top:-25px;" class="study_time_container">
+			</div>
+		</div>
+		<div style="height:30px;text-align:center;font-size:14px;padding-top:10px;color:#388e9b;background-color:#EDEFF4" class="loadInfo">Loading ...</div>
+		<div style="height:30px;">
+		</div>
+		<div class="top_btn" style="position:fixed;right:50px;bottom:150px;cursor:pointer;display:none;">
+			<img class="top_btn_img_1" src='/static/images/top_btn_1.png' alt="Top"/>
+			<img class="top_btn_img_2" src='/static/images/top_btn_2.png' alt="Top" style="display:none;"/>
+		</div>
+	</section>
+</section>
+
+
+
+
+
+
