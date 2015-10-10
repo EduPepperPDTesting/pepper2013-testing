@@ -35,6 +35,7 @@ from django.views.decorators import csrf
 from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger("tracking")
 
+
 def attstr(obj, attr):
     r = obj
     try:
@@ -120,11 +121,18 @@ def filter_user(vars, data):
 
 @csrf.csrf_exempt
 def time_table(request):
-    data = UserProfile.objects.all().select_related('User')
+    page = int(request.GET.get('page'))
+    size = int(request.GET.get('size'))
+    FIELDS = ["user_first_name", "user_last_name", "user_email", "district", "school", "total_time", "collaboration_time",
+              "external_time", "course_time"]
     data = UserProfile.objects.all()
     data = filter_user(request.GET, data)
     rows = []
     rts = record_time_store()
+    total_rows = data.count()
+    skip = page * size
+    limit = skip + size
+    data = data[skip:limit]
     for p in data:
         external_time = 0
         for enrollment in CourseEnrollment.enrollments_for_user(p.user):
@@ -150,7 +158,14 @@ def time_table(request):
                      "external_time": study_time_format(external_time),
                      "course_time": study_time_format(course_time)
                      })
-    return HttpResponse(json.dumps({'rows': rows}), content_type="application/json")
+        if request.GET.get('col', None):
+            col_info = request.GET.get('col').split(':')
+            if col_info[1] == '0':
+                rows.sort(key=lambda x: x[FIELDS[int(col_info[0])]], reverse=True)
+            else:
+                rows.sort(key=lambda x: x[FIELDS[int(col_info[0])]], reverse=False)
+
+    return HttpResponse(json.dumps({'rows': rows, 'total_rows': total_rows}), content_type="application/json")
 
 
 @login_required
