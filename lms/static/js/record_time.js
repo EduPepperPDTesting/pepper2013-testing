@@ -82,9 +82,11 @@ function CourseTimer() {
     this.element = null;
     this.btn = null;
     this.isrun = false;
+    this.startTime = new Date();
     this.exeType = ['courseware', 'discussion', 'portfolio'];
     this.type = this.getType();
     this.create();
+
 };
 
 CourseTimer.prototype.create = function() {
@@ -114,6 +116,7 @@ CourseTimer.prototype.init = function() {
     this.stop();
     this.save();
     this.draw();
+    this.startTime = new Date();
 };
 
 CourseTimer.prototype.start = function() {
@@ -170,20 +173,21 @@ CourseTimer.prototype.load = function() {
     }, function(data) {
 
         if (data != null) {
-            if (RecordTime.getSessionCourseType() != 'courseware') {
-                self.time = 0;
-                RecordTime.setSessionCourseTime(this.type, 0);
-            } else {
+
+            if (RecordTime.getSessionCourseType() == 'courseware') {
                 self.time = parseInt(data.time);
                 RecordTime.setSessionCourseTime(this.type, self.time);
+            }
+            else
+            {
+                self.startTime = new Date().getTime();
+                RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), self.startTime);
             }
         } else {
             self.time = 0;
         }
         //console.log("user_id:" + RecordTime.userID + "course_id:" + RecordTime.getSessionCourseID())
-        if (RecordTime.getSessionCourseType() != 'courseware') {
-            self.run();
-        } else {
+        if (RecordTime.getSessionCourseType() == 'courseware') {
             self.draw();
         }
     });
@@ -191,17 +195,22 @@ CourseTimer.prototype.load = function() {
 
 CourseTimer.prototype.save = function() {
     var self = this;
-    stime = parseInt(RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType()));
+    var startTime = RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType());
+    var stime = Math.floor((new Date().getTime() - startTime) / 1000);
+    self.time = Math.floor((new Date().getTime() - self.startTime) / 1000);
     self.time = self.time != 0 ? self.time : stime;
-    if (self.time > 0 && RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+    if (startTime > 0 && RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+        console.log('self.times:'+self.time)
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
             'course_id': RecordTime.getSessionCourseID(),
             'type': RecordTime.getSessionCourseType(),
             'time': self.time
         }, function(r) {
-            RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
+
         });
+        self.time = 0;
+        RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
     }
 };
 
