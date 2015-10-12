@@ -593,16 +593,6 @@ def accounts_login(request, error=""):
         return redirect(reverse('cas-login'))
     return render_to_response('login.html', {'error': error})
 
-def safe_sso_code(code):
-    """
-    Makes a string safe for adding to an email address.
-    """
-    safe_code = re.sub('[^a-zA-Z0-9]', '_', code)  # replace special characters with '_'
-    safe_code = re.sub('_+', '_', safe_code)  # replace any runs of '_' with a single
-    safe_code = re.sub('^_+', '', safe_code)  # remove any '_' at the beginning
-    safe_code = re.sub('_+$', '', safe_code)  # remove any '_' at the end
-    return safe_code
-
 def login_error(message):
     error_context = {'window_title': 'Login Error',
                      'error_title': 'Login Error',
@@ -613,12 +603,12 @@ def update_sso_usr(user, json, update_first_name=True):
     profile = user.profile
 
     sso_user = json.get('User')
-    sso_id = sso_user.get('ID')
-    # sso_cohort = json.get('CustomerName')
-    # sso_district = json.get('SchoolSystem')
+    sso_id = sso_user.get('ID', '')
     sso_district_code = json.get('SchoolSystemCode')
     sso_email = sso_user.get('Email', '')
-    sso_usercode = sso_user.get('UserCode', 'pepper')
+    sso_usercode = sso_user.get('UserCode', '')
+    sso_unique = str(sso_usercode) + '--' + str(sso_id)
+
     try:
         sso_state = State.objects.get(name=json.get('State'))
     except State.DoesNotExist as e:
@@ -629,8 +619,11 @@ def update_sso_usr(user, json, update_first_name=True):
 
     try:
         validate_email(sso_email)
-    except ValidationError:
-        sso_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
+    except ValidationError as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format(e, json))
+        return login_error('''The supplied email is invalid. Please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     # user
     user.set_password('EasyIEPSSO')
@@ -657,6 +650,9 @@ def update_sso_usr(user, json, update_first_name=True):
     # school.save()
 
     profile.school = school
+
+    # unique ID for our records
+    profile.sso_idp = sso_unique
 
     # save
     profile.save()
@@ -700,8 +696,8 @@ def sso(request, error=""):
     sso_user = parsed.get('User')
     sso_id = sso_user.get('ID', '')
     sso_email = sso_user.get('Email', '')
-    sso_usercode = sso_user.get('UserCode', 'pepper')
-    generated_email = safe_sso_code(sso_usercode) + "." + str(sso_id) + "@pepperpd.com"
+    sso_usercode = sso_user.get('UserCode', '')
+    sso_unique = str(sso_usercode) + '--' + str(sso_id)
 
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
@@ -710,25 +706,18 @@ def sso(request, error=""):
             <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
     try:
-        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=generated_email)
-        user = profile.user
-        sso_email = generated_email
-    except UserProfile.DoesNotExist:
-        try:
-            validate_email(sso_email)
-        except ValidationError as e:
-            if sso_usercode == 'pepper' and sso_id == '':
-                AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
-                                  .format(e, text))
-                return login_error('''An error occurred while creating your user, please contact support at
-                    <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
-            sso_email = generated_email
+        validate_email(sso_email)
+    except ValidationError as e:
+        AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
+                          .format(e, text))
+        return login_error('''The supplied email is invalid. Please contact support at
+            <a href="mailto:peppersupport@pcgus.com">peppersupport@pcgus.com</a> for further assistance.''')
 
-        try:
-            profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
-            user = profile.user
-        except UserProfile.DoesNotExist:
-            user = None
+    try:
+        profile = UserProfile.objects.get(sso_type='EasyIEP', user__email=sso_email)
+        user = profile.user
+    except UserProfile.DoesNotExist:
+        user = None
             
     if not user:
         try:
@@ -743,7 +732,7 @@ def sso(request, error=""):
             registration.register(user)
 
             # profile
-            profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_id)
+            profile = UserProfile(user=user, sso_type='EasyIEP', sso_idp=sso_unique)
             user.profile = profile
 
             # update user
