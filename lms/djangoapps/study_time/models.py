@@ -166,6 +166,7 @@ class MongoRecordTimeStore(object):
         return count_time
 
     def set_course_time(self, user_id, course_id, type, time):
+        time = int(time)
         if type == 'discussion':
             results = self.collection_discussion.update(
                 {
@@ -173,7 +174,7 @@ class MongoRecordTimeStore(object):
                     'course_id': course_id
                 },
                 {
-                    '$set': {'time': time}
+                    '$inc': {'time': time}
                 },
                 True
             )
@@ -183,7 +184,7 @@ class MongoRecordTimeStore(object):
                     'user_id': user_id
                 },
                 {
-                    '$set': {'time': time}
+                    '$inc': {'time': time}
                 },
                 True
             )
