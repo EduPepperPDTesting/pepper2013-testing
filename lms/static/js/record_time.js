@@ -115,7 +115,7 @@ CourseTimer.prototype.init = function() {
     this.hide();
     this.stop();
     this.save();
-    this.draw();
+    this.draw(0);
     this.startTime = new Date();
 };
 
@@ -139,7 +139,7 @@ CourseTimer.prototype.run = function() {
     //console.log(RecordTime.flag);
 };
 
-CourseTimer.prototype.draw = function() {
+CourseTimer.prototype.draw = function(t) {
     if (this.element != null) {
         //this.hour = this.padding(Math.floor(this.time / 60 / 60));
         //this.minute = this.padding(Math.floor(this.time / 60 % 60));
@@ -147,7 +147,11 @@ CourseTimer.prototype.draw = function() {
         //this.hour_ele.html(this.hour);
         //this.minute_ele.html(this.minute);
         //this.second_ele.html(this.second);
-        this.display_ele.html(this.format(this.time))
+        if (t != undefined) {
+            this.display_ele.html(this.format(t));
+        } else {
+            this.display_ele.html(this.format(this.time));
+        }
     }
 };
 
@@ -177,9 +181,7 @@ CourseTimer.prototype.load = function() {
             if (RecordTime.getSessionCourseType() == 'courseware') {
                 self.time = parseInt(data.time);
                 RecordTime.setSessionCourseTime(this.type, self.time);
-            }
-            else
-            {
+            } else {
                 self.startTime = new Date().getTime();
                 RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), self.startTime);
             }
@@ -200,7 +202,7 @@ CourseTimer.prototype.save = function() {
     self.time = Math.floor((new Date().getTime() - self.startTime) / 1000);
     self.time = self.time != 0 ? self.time : stime;
     if (startTime > 0 && RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
-        console.log('self.times:'+self.time)
+        console.log('time:' + self.time)
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
             'course_id': RecordTime.getSessionCourseID(),
@@ -276,6 +278,8 @@ CourseTimer.prototype.portfolioInit = function() {
             this.init();
             this.start();
         }
+    } else {
+        this.save();
     }
 };
 
