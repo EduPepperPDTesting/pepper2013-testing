@@ -34,36 +34,36 @@
   <form id="form1" style="display:none;">
     <div class="section">IDP</div>
     <div class="row">
-      <span class="">Entity ID</span> <input autocomplete="off" type="" name="EntityID" value="" path="EntityID" desc="Entity ID"/>
+      <span class="">Entity ID</span> <input autocomplete="off" type="" value="" name="EntityID" desc="Entity ID"/>
     </div>
     <div class="row">
-      <span class="">Single Logout Service</span> <input autocomplete="off" type="" name="SingleLogoutService" value="" path="SingleLogoutService.URL" desc="Single Logout Service"/>
+      <span class="">Single Logout Service</span> <input autocomplete="off" type="" value="" name="SingleLogoutService.URL" desc="Single Logout Service"/>
     </div>
     <div class="row">
-      <span class="">Single SignOn Service</span> <input autocomplete="off" type="" name="SingleSignOnService" value="" path="SingleSignOnService.URL" desc="Single SignOn Service"/>
+      <span class="">Single SignOn Service</span> <input autocomplete="off" type="" value="" name="SingleSignOnService.URL" desc="Single SignOn Service"/>
     </div>
     <div class="row">
-      <span class="">Signing Key</span> <textarea autocomplete="off" name="SigningKey" id="" rows="" cols="" tabindex="" path="Key.Signing" desc="Signing Key"></textarea>
+      <span class="">Signing Key</span> <textarea autocomplete="off" id="" rows="" cols="" tabindex="" name="Key.Signing" desc="Signing Key"></textarea>
     </div>
     <div class="row">
-      <span class="">Encryption Key</span> <textarea autocomplete="off" name="EncryptionKey" id="" rows="" cols="" tabindex="" path="Key.Encryption" desc="Encryption Key"></textarea>
+      <span class="">Encryption Key</span> <textarea autocomplete="off" id="" rows="" cols="" tabindex="" name="Key.Encryption" desc="Encryption Key"></textarea>
     </div>    
     <div class="section">Organization</div>
     <div class="row">
-      <span class="">Name</span> <input autocomplete="off" type="" name="OrganizationName" value="" path="Organization.Name" desc="Organization Name"/>
+      <span class="">Name</span> <input autocomplete="off" type="" value="" name="Organization.Name" desc="Organization Name"/>
     </div>
     <div class="row">
-      <span class="">DisplayName</span> <input autocomplete="off" type="" name="OrganizationDisplayName" value="" path="Organization.DisplayName" desc="Organization DisplayName"/>
+      <span class="">DisplayName</span> <input autocomplete="off" type="" value="" name="Organization.DisplayName" desc="Organization DisplayName"/>
     </div>
     <div class="row">
-      <span class="">URL</span> <input autocomplete="off" type="" name="OrganizationURL" value="" path="Organization.URL" desc="Organization URL"/>
+      <span class="">URL</span> <input autocomplete="off" type="" value="" name="Organization.URL" desc="Organization URL"/>
     </div>
     <div class="section">Contact Person</div>
     <div class="row">
-      <span class="">SurName</span> <input autocomplete="off" type="" name="ContactPersonSurName" value="" path="ContactPerson.SurName" desc="Contact Person SurName"/>
+      <span class="">SurName</span> <input autocomplete="off" type="" value="" name="ContactPerson.SurName" desc="Contact Person SurName"/>
     </div>
     <div class="row">
-      <span class="">Email Address</span> <input autocomplete="off" type="" name="ContactPersonEmailAddress" value="" path="ContactPerson.EmailAddress" desc="Contact Person Email Address"/>
+      <span class="">Email Address</span> <input autocomplete="off" type="" value="" name="ContactPerson.EmailAddress" desc="Contact Person Email Address"/>
     </div>
     <!-- <input type="submit" name="" value="Save All" style="margin:20px 0 0 205px;"/> -->
   </form>
@@ -92,34 +92,22 @@
   Metadata.prototype.bufferData = function(index){
     var self = this;
     if(index >= 0){
-      var d = {};
       $("#form1").find("input,textarea").each(function(){
-        var t = d;
-        var ar = $(this).attr('path').split('.');
-        var last = ar.pop();
-        $.each(ar, function(i,v){
-          t[v] = t[v] || {};
-          t = t[v];
-        });
-        t[last] = $(this).val();
-      });
-      self.data[index] = d;
+        self.data[index][this.name] = $(this).val();
+      })
     }
   }
   Metadata.prototype.validateData = function(index){
     var d = this.data[index];
     $("#form1").find("input,textarea").each(function(){
-      var value=d;
       var f=this;
       var field_desc = $(f).attr("desc");
-      $.each($(this).attr('path').split('.'),function(i,v){
-        value=value[v];
-        if(!value){
-          f.focus();
-          throw {"message":"Empty " + field_desc};
-          return false;
-        }
-      });
+      value=d[this.name]
+      if(!value){
+        f.focus();
+        throw {"message":"Empty " + field_desc};
+        return false;
+      }
     });
   }
   Metadata.prototype.entityID4List = function(s){
@@ -133,11 +121,7 @@
   }
   Metadata.prototype.showData = function(d){
     $("#form1").find("input,textarea").each(function(){
-      var value=d;
-      $.each($(this).attr('path').split('.'),function(i,v){
-        value=value[v];
-        if(!value) return false;
-      });
+      value=d[this.name];
       $(this).val(value || "");
     });
   }

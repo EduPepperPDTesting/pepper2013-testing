@@ -48,15 +48,15 @@ def metadata_save(request):
       <md:EmailAddress>%s</md:EmailAddress>
     </md:ContactPerson>
   </md:EntityDescriptor>''' % (d['EntityID'],
-                               d['Key']['Signing'],
-                               d['Key']['Encryption'],
-                               d['SingleLogoutService']['URL'],
-                               d['SingleSignOnService']['URL'],
-                               d['Organization']['Name'],
-                               d['Organization']['DisplayName'],
-                               d['Organization']['URL'],
-                               d['ContactPerson']['SurName'],
-                               d['ContactPerson']['EmailAddress'])
+                               d['Key.Signing'],
+                               d['Key.Encryption'],
+                               d['SingleLogoutService.URL'],
+                               d['SingleSignOnService.URL'],
+                               d['Organization.Name'],
+                               d['Organization.DisplayName'],
+                               d['Organization.URL'],
+                               d['ContactPerson.SurName'],
+                               d['ContactPerson.EmailAddress'])
 
     content = '''<?xml version="1.0"?>
 <md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -76,15 +76,14 @@ def metadata_json(request):
     for entity in parsed_data['md:EntitiesDescriptor']['md:EntityDescriptor']:
         entity_list.append({
             'EntityID': entity['@entityID'],
-            'Key': {
-                'Signing': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][0]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate'],
-                'Encryption': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][1]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate']},
-            'SingleLogoutService': {'URL': entity['md:IDPSSODescriptor']['md:SingleLogoutService']['@Location']},
-            'SingleSignOnService': {'URL': entity['md:IDPSSODescriptor']['md:SingleSignOnService']['@Location']},
-            'Organization': {'Name': entity['md:Organization']['md:OrganizationName']['#text'],
-                             'DisplayName': entity['md:Organization']['md:OrganizationDisplayName']['#text'],
-                             'URL': entity['md:Organization']['md:OrganizationURL']['#text']},
-            'ContactPerson': {'SurName': entity['md:ContactPerson']['md:SurName'],
-                              'EmailAddress': entity['md:ContactPerson']['md:EmailAddress']}
+            'Key.Signing': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][0]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate'],
+            'Key.Encryption': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][1]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate'],
+            'SingleLogoutService.URL': entity['md:IDPSSODescriptor']['md:SingleLogoutService']['@Location'],
+            'SingleSignOnService.URL': entity['md:IDPSSODescriptor']['md:SingleSignOnService']['@Location'],
+            'Organization.Name': entity['md:Organization']['md:OrganizationName']['#text'],
+            'Organization.DisplayName': entity['md:Organization']['md:OrganizationDisplayName']['#text'],
+            'Organization.URL': entity['md:Organization']['md:OrganizationURL']['#text'],
+            'ContactPerson.SurName': entity['md:ContactPerson']['md:SurName'],
+            'ContactPerson.EmailAddress': entity['md:ContactPerson']['md:EmailAddress']
             })
     return HttpResponse(json.dumps(entity_list), content_type="application/json")
