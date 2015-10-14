@@ -11,7 +11,7 @@ a._del_line
   font-family: 'Josefin Sans';
   font-style: normal;
   font-weight: 700;
-  src: local('Josefin Sans Bold'), local('JosefinSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/josefinsans/v3/C6HYlRF50SGJq1XyXj04z3l4twXkwp3_u9ZoePkT564.woff) format('woff');
+  src: local('Josefin Sans Bold'), local('JosefinSans-Bold'), url(https://themes.googleusercontent.com/static/fonts/josefinsans/v3/C6HYlRF50SGJq1XyXj04z3l4twXkwp3_u9ZoePkT564.woff) format('woff');
 }
 
 ._banner_index_title_font

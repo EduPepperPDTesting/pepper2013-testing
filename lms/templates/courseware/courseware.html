@@ -306,7 +306,13 @@
 % endif
 
     <section class="course-content">
-    <div class="course_timer"></div>
+    % if course.hide_timer == False:
+      % if course.show_external_timer == False:
+        <div class="course_timer"></div>
+      % else:
+        <div class="external_timer"></div>
+      % endif
+    % endif
       ${content}
     </section>
   </div>

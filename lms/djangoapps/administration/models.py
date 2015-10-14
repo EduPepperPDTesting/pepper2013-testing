@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class ImportTask(models.Model):
     class Meta:
-        db_table = 'admin_import_task'    
+        db_table = 'admin_import_task'
     filename = models.CharField(blank=False, max_length=255, db_index=True)
     total_lines = models.IntegerField(blank=False, default=0)
     process_lines = models.IntegerField(blank=False, default=0)
@@ -29,7 +29,7 @@ class ImportTaskLog(models.Model):
 
 class EmailTask(models.Model):
     class Meta:
-        db_table = 'admin_email_task'    
+        db_table = 'admin_email_task'
     total_emails = models.IntegerField(blank=False, default=0)
     process_emails = models.IntegerField(blank=False, default=0)
     success_emails = models.IntegerField(blank=False, default=0)
@@ -77,3 +77,11 @@ class Certificate(models.Model):
     readonly = models.BooleanField(default=1)
     association_type = models.ForeignKey(CertificateAssociationType)  
     association = models.IntegerField(blank=False)
+
+
+class HangoutPermissions(models.Model):
+    class Meta:
+        db_table = 'hangout_permissions'
+    district = models.ForeignKey(District, blank=False)
+    permission = models.BooleanField(default=1)
+

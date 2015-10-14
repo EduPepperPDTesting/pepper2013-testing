@@ -442,6 +442,26 @@
         %endif
 <!--@begin:Add some profile info-->
 <!--@date:2013-11-02-->  
+<!-------------------------------- My Pepper Stats------------------------------------->
+    <li>
+      <span class="title">
+         <div style="font-family: 'Open Sans';font-size:12px;">
+            <div class="" style="padding:0 0 5px 0;"> 
+              <b style="font-size:14px;color:#000">My Pepper Stats:</b>
+            </div>
+            <div style="line-height:30px;"><b>All Course Time:</b>
+           ${all_course_time}
+           </div>
+           <div style="line-height:30px;"><b>Collaboration Time:</b>
+           ${collaboration_time}
+           </div>
+           <div style="line-height:30px;"><b>Total Time:</b>
+            ${total_time_in_pepper}
+           </div>
+         </div>
+      </span>
+    </li>
+<!-------------------------------------------------------------------------------------->
 		<li>
           <span class="title">
 		  <div style="font-family: 'Open Sans';font-size:12px;">
@@ -500,7 +520,7 @@
 			</div>
 
             <div style="padding:15px 0 5px 0;"> 
-              <b style="font-size:14px;color:#000;">My Class Profile:</b>
+              <b style="font-size:14px;color:#000;">My Learners' Profile:</b>
             </div>
             
 			<div style="line-height:30px;">
@@ -672,7 +692,10 @@ Add info that you would like to share about yourself here:
 <!--@begin:Change the display of current courses in Dashboard-->
 <!--@date:2013-11-02-->                 
               <p class="date-block">
-                ${_("Enrollment date - {end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)}
+                ${_("Enrollment date - {end_date:%B %d,%Y}").format(end_date=course.student_enrollment_date)}
+                %if curr_user==request.user:
+                  <a href="#unenroll-modal" class="unenroll" style="font-size:13px;margin:2px 0px 0px 10px" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
+                %endif
               </p>
               % if False:
               <p class="date-block">
@@ -807,10 +830,19 @@ Add info that you would like to share about yourself here:
             %endif
             % endif
             %if curr_user==request.user:
-            <a href="#unenroll-modal" class="unenroll" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}">${_('Unregister')}</a>
 	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
+               <!-- hide email settings -->
+              <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
+              -->
+              % if course.hide_timer == False:
+                % if course.show_external_timer == False:
+                  <div class="course-time">Course Time: ${course_times[course.id]}</div>
+                % else:
+                  <div class="course-time">External Time: ${external_times[course.id]}</div>
+                % endif
+              % endif
 	    % endif
            %endif
           </section>

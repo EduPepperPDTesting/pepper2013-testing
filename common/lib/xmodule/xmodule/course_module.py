@@ -376,6 +376,12 @@ class CourseFields(object):
     # Explicit comparison to True because we always want to return a bool.
     hide_progress_tab = Boolean(help="DO NOT USE THIS", scope=Scope.settings)
 
+    display_state = String(default="", help="An optional display string for the course state that will get rendered in the LMS",
+                           scope=Scope.settings)
+
+    display_district = String(default="", help="An optional display string for the course district that will get rendered in the LMS",
+                              scope=Scope.settings)
+
     display_organization = String(help="An optional display string for the course organization that will get rendered in the LMS",
                                   scope=Scope.settings)
 
@@ -394,8 +400,12 @@ class CourseFields(object):
 
     certificates_estimated_effort = String(help="Certificates Estimated Effort", default="10 hours",scope=Scope.settings)
 
-    external_course_time = String(help="External Course Time", default="0", scope=Scope.settings)
-    
+    external_course_time = String(help="External Course Time", default="1800", scope=Scope.settings)
+
+    hide_timer = Boolean(help="Hidden Course Timer", default=False, scope=Scope.settings)
+
+    show_external_timer = Boolean(help="Display External Timer", default=False, scope=Scope.settings)
+
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
 

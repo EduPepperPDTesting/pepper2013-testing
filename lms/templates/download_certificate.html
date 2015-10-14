@@ -1,20 +1,23 @@
-<!--<center><img src="/static/tmp-resource/image/pepper-SCREEN+24-EDU-v2.jpg" class="" alt="" /></center>-->
 <!DOCTYPE html>
 <html>
-<head>
-    <link href="/static/js/ckeditor/contents.css" rel="stylesheet" type="text/css">
-    <style type="text/css">
-        .frame{
-            width:1100px;
-            margin-left:auto;
-            margin-right:auto;
-        }
-        .outputError{
-            font-size: 15px;
-            color:#ff0000;
-        }
-    </style>
-</head>
+    <head>
+        <link href="/static/js/ckeditor/contents.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+            @page {
+                size: Letter landscape;
+                margin: 1cm;
+            }
+            .frame{
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .outputError{
+                font-size: 15px;
+                color: #ff0000;
+            }
+        </style>
+    </head>
     <body>
         %if outputError!='':
             <div class="outputError">Error:${outputError}</div>

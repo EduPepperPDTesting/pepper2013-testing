@@ -29,7 +29,8 @@
         theme: "advanced",
         skin: 'studio',
         schema: "html5",
-        plugins: "table,advimage-link",
+        plugins: "table,advimage-link,spellchecker",
+        spellchecker_languages: "+English=en",
         convert_urls: false,
         content_css: "/static/css/tiny-mce.css",
         popup_css: '/static/js/vendor/tiny_mce/themes/advanced/skins/default/dialog.css',
@@ -44,7 +45,7 @@
         visual: false,
         theme_advanced_buttons1: "styleselect,fontselect,fontsizeselect,bold,italic,underline,|,bullist,numlist,|,justifyleft,justifycenter,justifyright",
         theme_advanced_buttons2: "tablecontrols,|,removeformat,|,link,unlink,|,forecolor,backcolor",
-        theme_advanced_buttons3: "hr,|,outdent,indent,|,blockquote,wrapAsCode,|,image",
+        theme_advanced_buttons3: "hr,|,outdent,indent,|,blockquote,wrapAsCode,|,image,spellchecker",
         theme_advanced_toolbar_location: "top",
         theme_advanced_toolbar_align: "left",
         theme_advanced_statusbar_location: "none",
@@ -128,6 +129,9 @@
           ed.formatter.toggle('code');
           return ed.isNotDirty = false;
         }
+      });
+      ed.onInit.add(function(ed, evt) {
+        return tinyMCE.execCommand('mceSpellCheck');
       });
       ed.onNodeChange.add(function(editor, command, e) {
         return command.setActive('wrapAsCode', e.nodeName === 'CODE');

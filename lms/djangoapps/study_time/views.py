@@ -5,47 +5,48 @@ import django_comment_client.utils as utils
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import Location
 from dashboard.models import *
-from models import *
+from models import record_time_store
 import time
 import datetime
 import logging
 log = logging.getLogger("tracking")
 
 
+@csrf.csrf_exempt
 def record_time(request):
     user_id = str(request.POST.get('user_id'))
-    rts = recordTimeStore()
+    rts = record_time_store()
     info = request.POST
     if info['type'] == 'course_page':
-        rts = recordTimeStore()
         if info['prev_vertical_id'] != '':
-            returnInfo = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
-            if returnInfo['updatedExisting']:
-                setPageTime(rts, info, user_id)
+            return_info = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
+            if return_info['updatedExisting']:
+                set_page_time(rts, info, user_id)
         rts.insert_item({'user_id': user_id, 'vertical_id': info['new_vertical_id'], 'start_time': info['time'], 'location': info['location']})
     else:
-        returnInfo = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
-        if returnInfo['updatedExisting']:
-            setPageTime(rts, info, user_id)
+        return_info = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
+        if return_info['updatedExisting']:
+            set_page_time(rts, info, user_id)
     return utils.JsonResponse({})
 
 
-def setPageTime(rts, info, user_id):
+def set_page_time(rts, info, user_id):
     item = rts.get_item(user_id, info['prev_vertical_id'], info['prev_time'])
-    time_delta = getTimeDelta(item['start_time'], item['end_time'])
+    time_delta = get_time_delta(item['start_time'], item['end_time'])
     rdata = rts.get_page_item(item['user_id'], item['vertical_id'])
     if rdata is not None:
         rts.set_page_item({'user_id': user_id, 'vertical_id': item['vertical_id'], 'time': time_delta}, rdata)
     else:
-        course, chapter, sequ, vertical, position = getCourseInfo(item['location'], item['vertical_id'])
+        course, chapter, sequ, vertical, position = get_course_info(item['location'], item['vertical_id'])
         course_name = course.display_coursenumber + ' ' + course.display_name
         vertical_name = get_vertical_name(sequ, vertical, position)
         sort_key = get_sort_key(vertical_name)
-        rts.set_page_item({'user_id': user_id, 'vertical_id': item['vertical_id'], 'time': time_delta, 'location': item['location'],
-                          'course_name': course_name, 'vertical_name': vertical_name, 'sort_key': sort_key}, rdata)
+        rts.set_page_item({'user_id': user_id, 'vertical_id': item['vertical_id'], 'time': time_delta, 'course_id': course.id,
+                           'location': item['location'], 'course_name': course_name, 'vertical_name': vertical_name,
+                           'sort_key': sort_key}, rdata)
 
 
-def getTimeDelta(start, end):
+def get_time_delta(start, end):
     format = '%Y-%m-%dT%H:%M:%S.%fZ'
     start_struct = time.strptime(start, format)
     end_struct = time.strptime(end, format)
@@ -54,20 +55,20 @@ def getTimeDelta(start, end):
     return (end_time - start_time).seconds
 
 
-def getCourseInfo(location, vertical_id):
-    locationList = location.split('/')
-    location_head = ['i4x', locationList[0], locationList[1]]
-    course = modulestore().get_item(Location(location_head + ['course', locationList[2]]))
-    chapter = modulestore().get_item(Location(location_head + ['chapter', locationList[4]]))
-    sequ = modulestore().get_item(Location(location_head + ['sequential', locationList[5]]))
+def get_course_info(location, vertical_id):
+    location_list = location.split('/')
+    location_head = ['i4x', location_list[0], location_list[1]]
+    course = modulestore().get_item(Location(location_head + ['course', location_list[2]]))
+    chapter = modulestore().get_item(Location(location_head + ['chapter', location_list[4]]))
+    sequ = modulestore().get_item(Location(location_head + ['sequential', location_list[5]]))
     vertical = modulestore().get_item(vertical_id)
-    return course, chapter, sequ, vertical, locationList[6]
+    return course, chapter, sequ, vertical, location_list[6]
 
 
 def get_sequ_num(str):
     l = str.split("\t")
     if len(l) > 1:
-        return list[0]
+        return l[0]
     else:
         l = str.split(" ")
         return l[0]
@@ -109,7 +110,7 @@ def create_report(request, user_id=None):
 
 
 def get_study_time_range(request):
-    rts = recordTimeStore()
+    rts = record_time_store()
     user_id = str(request.user.id)
     count = rts.get_page_total(user_id)
     info = rts.return_page_items(user_id, int(request.POST.get('skip')), int(request.POST.get('limit')))
@@ -117,14 +118,35 @@ def get_study_time_range(request):
 
 
 def get_course_time(request):
-    rts = recordTimeStore()
+    rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
     time = rts.get_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'))
     return utils.JsonResponse({'time': time})
 
 
 def save_course_time(request):
-    rts = recordTimeStore()
+    rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
     rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('time'))
     return utils.JsonResponse({})
+
+
+def save_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    rts.set_external_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('external_id'), request.POST.get('weight'))
+    return utils.JsonResponse({})
+
+
+def del_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    rts.del_external_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('external_id'))
+    return utils.JsonResponse({})
+
+
+def get_external_time(request):
+    rts = record_time_store()
+    user_id = str(request.POST.get('user_id'))
+    external_time = rts.get_external_time(user_id, request.POST.get('course_id'))
+    return utils.JsonResponse({'external_time': external_time})

@@ -266,7 +266,9 @@ f.close()
   </div>
 </div>
 <div class = "data_import_bottom">
+
   <div style = "display:none" class="main, data_import_content">
+
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
     </div>
@@ -469,6 +471,7 @@ f.close()
                   "save":"${reverse('pepconn_favorite_filter_save')}",
                   "remove":"${reverse('pepconn_favorite_filter_delete')}"
                 }
+
             }
             }
           </textarea>
@@ -483,12 +486,14 @@ f.close()
         <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
         <div class="control table" id="tblUserRegistration">
           <div class="" style="padding:5px;">
-            <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+            <!--<a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
               Send registration email to: <span class="count"></span> users(haven't invited).
-            </a>
-            <label style="float:right;font-weight:bold;font-style:normal">
+            </a>-->
+            <div style="text-align: right; padding-right: 4px;"><label style="font-weight:bold;font-style:normal">
               Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
-            </label>
+
+            </label></div>
+
           </div>
           <span class="body"></span>
           <div class="footer">
@@ -846,26 +851,26 @@ function toggle(which){
   $(".control.table").each(function(){new TableControl(this)});
   //* controller for user registration
   var userRegistration={
-    updateInviteNumber:function(filter){
+    /* updateInviteNumber:function(filter){
       $.post("${reverse('pepconn_registration_invite_count')}",safeJSON(filter),function(r){
         $("#inviteEmailSender").find(".count").html(r.count);
       });
-    },
+    },*/
     filterUserRegistration:function(){
       var filter=$('#fltUserRegistration')[0].control.getFilter();
       $('#tblUserRegistration')[0].control.updateFilter(filter);
-      this.updateInviteNumber(filter);
+      /*this.updateInviteNumber(filter);*/
     },
     sendRegistrationEmails:function(type){
       var self=this;
-      if(type=='ids'){
+      if (type=='ids') {
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
         if(!ids.length){
           new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
           return; 
         }
         var filter={'ids':ids.join()};
-      }else if(type=='filter'){
+      } else if(type=='filter') {
         var filter=$('#fltUserRegistration')[0].control.getFilter();
       }
       var usrRegistrationForm=$("#usrRegistrationForm")[0];
@@ -874,7 +879,7 @@ function toggle(which){
         'customize_email':$(usrRegistrationForm.customize_email).val(),
         'custom_email':$(usrRegistrationForm.custom_email_002).val(),
         'custom_email_subject':$(usrRegistrationForm.custom_email_subject).val()
-      }
+      };
       data=$.extend(data,filter);
       this.dialog=new Dialog($('#dialog'));
       this.dialog.showProgress("Sending Registration Emails","Please wait...");
@@ -949,11 +954,11 @@ function toggle(which){
     },
     init:function(){
       var self=this;
-      this.updateInviteNumber({});
+      /*this.updateInviteNumber({});*/
       $('#tblUserRegistration')[0].onDataLoaded=function(){
         $(this).find(".download .total").html(this.control.getPagingInfo().total);
         $(this).find(".check_all").prop("checked",false)
-      }
+      };
       $("#lstModifyStatus").change(function(){
         var status=$(this).val();
         if(status=="")return;
@@ -970,7 +975,7 @@ function toggle(which){
         self.deleteUsers();
       });
     }
-  }
+  };
   userRegistration.init();
   //* controller for user data import
   var userDataImport={
@@ -1126,7 +1131,6 @@ function toggle(which){
         }
         var self=this;
         this.$form=$("#schoolDataImportForm");
-
         this.$form.submit(function(){
             self.submit();
             return false;
@@ -1134,5 +1138,4 @@ function toggle(which){
     }
   };
   schoolDataImport.init();
-
 </script>

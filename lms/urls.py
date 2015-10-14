@@ -17,6 +17,11 @@ urlpatterns = (
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
     url(r'^record_time/course_time_save$', 'study_time.views.save_course_time', name="save_course_time"),
+
+    url(r'^record_time/external_time_load$', 'study_time.views.get_external_time', name="get_external_time"),
+    url(r'^record_time/external_time_save$', 'study_time.views.save_external_time', name="save_external_time"),
+    url(r'^record_time/external_time_del$', 'study_time.views.del_external_time', name="del_external_time"),
+
     url(r'^study_time/get_info_range$', 'study_time.views.get_study_time_range', name="get_study_time_range"),
     url(r'^configuration/$', 'administration.configuration.main', name="configuration"),
     url(r'^configuration/drop_association_type$', 'administration.configuration.drop_association_type', name="drop_association_type"),
@@ -26,7 +31,9 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
-    
+
+    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
@@ -62,6 +69,13 @@ urlpatterns = (
     url(r'^pepconn/registration/download_csv/$', 'administration.pepconn.registration_download_csv', name="pepconn_registration_download_csv"),
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
+
+    url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
+    url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
+    url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),
+    url(r'^time_report/drop_schools$', 'administration.time_report.drop_schools', name="time_report_drop_schools"),
+    url(r'^time_report/time_table$', 'administration.time_report.time_table', name="time_report_time_table"),
+    url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
 
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
@@ -341,6 +355,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
         url(r'^demo2$', 'branding.views.demo2', name="demo2"),
         url(r'^demo3$', 'branding.views.demo3', name="demo3"),
+        url(r'^demo4$', 'branding.views.demo4', name="demo4"),
         url(r'^districts$', 'branding.views.districts', name="districts"),
         url(r'^contact$', 'branding.views.contact', name="contact_us"),
         url(r'^intro$', 'branding.views.intro', name="intro"),

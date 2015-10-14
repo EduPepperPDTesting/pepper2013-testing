@@ -121,6 +121,7 @@
         <option value="MA">Mathematics</option>
         <option value="SC">Science</option>
         <option value="SE">Special Education</option>
+        <option value="TECH">Technology</option>
         <option value="PEP">Pepper</option>
         <option value="WR">Writing and Poetry</option>
       </select>
@@ -139,6 +140,7 @@
         <option value="all">All Authors</option>
         <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
         <option value="CT Core Standards">CT Core Standards</option>
+        <option value="Manteca Unified School District">Manteca Unified School District</option>
         <option value="PCG Education">PCG Education</option>
         <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
         <option value="WestEd">WestEd</option>
@@ -181,10 +183,21 @@
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
           </div>
+
+          %if request.user.is_authenticated():
+          %if request.user.profile.district.state.name=='Connecticut':
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=CT Core Standards&op=find" class="card-link image-bottom-style"><span>CT Core Standards</span></a>
           </div>
+          %elif request.user.profile.district.name=='Manteca Unified School District':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
+          </div>
+          %endif
+          %endif
+          
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>

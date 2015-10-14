@@ -86,8 +86,8 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
 
 
 def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~', length))
+    assert(length > 0)
+    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
 def paging(all, size, page):
@@ -121,8 +121,6 @@ def postpone(function):
 def main(request):
     # from django.contrib.sessions.models import Session
     return render_to_response('administration/pepconn.html', {})
-
-
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -409,7 +407,6 @@ def single_school_submit(request):
     return HttpResponse(json.dumps({'success': True}))
 
 
-
 #* -------------- User Data Import -------------
 
 @login_required
@@ -487,14 +484,14 @@ def do_import_user(task, csv_lines, request):
         try:
             #** record processed count
             task.process_lines = i + 1
-            
+
             email = line[USER_CSV_COLS.index('email')]
             state_name = line[USER_CSV_COLS.index('state_name')]
             district_name = line[USER_CSV_COLS.index('district_name')]
             
             #** generating origin username
             username = random_mark(20)
-            
+
             #** create log
             tasklog.username = username
             tasklog.email = email
@@ -546,8 +543,9 @@ def do_import_user(task, csv_lines, request):
                         body = render_to_string('emails/activation_email.txt', props)
 
                     subject = ''.join(subject.splitlines())
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
 
-                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', email])
+
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
             
@@ -585,7 +583,9 @@ def do_import_user(task, csv_lines, request):
         attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com', request.user.email], attach)
+
+                       settings.SUPPORT_EMAIL, [request.user.email], attach)
+
         output.close()
 
 
@@ -659,7 +659,6 @@ def single_user_submit(request):
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
 
     return HttpResponse(json.dumps({'success': True}))
-
 
 
 def task_close(request):
@@ -853,7 +852,8 @@ def do_send_registration_email(task, user_ids, request):
             tasklog.error = "ok"
             
             reg = Registration.objects.get(user=user)
-            props = {'key': reg.activation_key, 'district': user.profile.district.name}
+
+            props = {'key': reg.activation_key, 'district': user.profile.district.name, 'email': user.email}
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
@@ -866,8 +866,9 @@ def do_send_registration_email(task, user_ids, request):
                 body = render_to_string('emails/activation_email.txt', props)
             
             subject = ''.join(subject.splitlines())
-            
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, ['mailfcl@126.com', user.email])
+
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -880,7 +881,9 @@ def do_send_registration_email(task, user_ids, request):
             db.transaction.commit()
 
     #** post process
-    tasklogs = EmailTaskLog.objects.filter(task=task)
+
+    tasklogs = EmailTaskLog.objects.filter(task=task).exclude(error='ok')
+
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
@@ -899,7 +902,8 @@ def do_send_registration_email(task, user_ids, request):
         attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
         send_html_mail("Sending Registration Email Report",
                        "Report of sending registration email, see attachment.",
-                       settings.SUPPORT_EMAIL, ['mailfcl@126.com', request.user.email], attach)
+                       settings.SUPPORT_EMAIL, [request.user.email], attach)
+
         output.close()
 
 
