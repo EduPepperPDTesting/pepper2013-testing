@@ -17,9 +17,11 @@ urlpatterns = (
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
     url(r'^record_time/course_time_save$', 'study_time.views.save_course_time', name="save_course_time"),
+
     url(r'^record_time/external_time_load$', 'study_time.views.get_external_time', name="get_external_time"),
     url(r'^record_time/external_time_save$', 'study_time.views.save_external_time', name="save_external_time"),
     url(r'^record_time/external_time_del$', 'study_time.views.del_external_time', name="del_external_time"),
+
     url(r'^study_time/get_info_range$', 'study_time.views.get_study_time_range', name="get_study_time_range"),
     url(r'^configuration/$', 'administration.configuration.main', name="configuration"),
     url(r'^configuration/drop_association_type$', 'administration.configuration.drop_association_type', name="drop_association_type"),
@@ -31,13 +33,25 @@ urlpatterns = (
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
 
     url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
-    
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
     url(r'^pepconn/import_user/tasks$', 'administration.pepconn.import_user_tasks', name="pepconn_import_user_tasks"),
     url(r'^pepconn/tasks/close$', 'administration.pepconn.task_close', name="pepconn_task_close"),
-    
+
+    url(r'^pepconn/cohort/submit/$', 'administration.pepconn.cohort_submit', name="pepconn_cohort_submit"),
+    url(r'^pepconn/import_district/single_submit/$', 'administration.pepconn.single_district_submit', name="pepconn_single_district_submit"),
+    url(r'^pepconn/import_school/single_submit/$', 'administration.pepconn.single_school_submit', name="pepconn_single_school_submit"),
+
+    url(r'^pepconn/import_district/submit/$', 'administration.pepconn.import_district_submit', name="pepconn_import_district_submit"),
+    url(r'^pepconn/import_district/progress/$', 'administration.pepconn.import_district_progress', name="pepconn_import_district_progress"),
+    url(r'^pepconn/import_district/tasks/$', 'administration.pepconn.import_district_tasks', name="pepconn_import_district_tasks"),
+
+    url(r'^pepconn/import_school/submit/$', 'administration.pepconn.import_school_submit', name="pepconn_import_school_submit"),
+    url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
+    url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
+
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),
     url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools', name="pepconn_drop_schools"),
@@ -98,7 +112,7 @@ urlpatterns = (
     url(r'^reg_kits/cohort/form/(?P<cohort_id>\d+)$', 'reg_kits.views.cohort_form', name="cohort_form"),
     url(r'^reg_kits/cohort/delete/$', 'reg_kits.views.cohort_delete', name="cohort_delete"),
     url(r'^reg_kits/cohort/submit/$', 'reg_kits.views.cohort_submit', name="cohort_submit"),
- 
+
     url(r'^reg_kits/school/$', 'reg_kits.views.school', name="school"),
     url(r'^reg_kits/school/form/$', 'reg_kits.views.school_form', name="school_form"),
     url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form', name="school_form"),
