@@ -32,7 +32,16 @@
     <input type="button" name="" value="Save All" onclick="md.saveAll()"/>
   </div>
   <form id="form1" style="display:none;">
+    
     <div class="section">IDP</div>
+
+    <div class="row">
+      <span class="">Type</span>
+      <select id="" name="" autocomplate="off">
+        <option value="">SAML</option>
+      </select>
+    </div>
+
     <div class="row">
       <span class="">Entity ID</span> <input autocomplete="off" type="" value="" name="EntityID" desc="Entity ID"/>
     </div>
@@ -65,8 +74,13 @@
     <div class="row">
       <span class="">Email Address</span> <input autocomplete="off" type="" value="" name="ContactPerson.EmailAddress" desc="Contact Person Email Address"/>
     </div>
-    <!-- <input type="submit" name="" value="Save All" style="margin:20px 0 0 205px;"/> -->
+    
+    <div class="section">Attributes Mapping</div>
+    <div id="divIdpAttributeMapping"></div>
+    <input type="button" name="" value="Add" onclick="md.addField()"/>
+    
   </form>
+
 </section>
 <script type="text/javascript">
   function Metadata(){
@@ -121,8 +135,10 @@
   }
   Metadata.prototype.showData = function(d){
     $("#form1").find("input,textarea").each(function(){
-      value=d[this.name];
-      $(this).val(value || "");
+      if(this.name){
+        value=d[this.name];
+        $(this).val(value || "");
+      }
     });
   }
   Metadata.prototype.load = function(){
@@ -159,7 +175,17 @@
       }
     });
     $.post('/saml2/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
+      
     });
+  }
+  Metadata.prototype.addAttribute = function(){
+    $("<div class='row'><span>Attribute</span> <input type='' name='' value='' /></div>").appendTo($("#divIdpAttributes"));
+  }
+  Metadata.prototype.addAttributeMapping = function(){
+    $("<div class='row'><span>Name</span> <input style='width:200px'/> Value <input style='width:200px'/></div>").appendTo($("#divIdpAttributeMapping"))
+  }
+  Metadata.prototype.addField = function(){
+    $("<div style='text-align:right;'>Pepper Mapped <input type='input'/> IDP <input type='input'/> <select><option>Assertion</option><option>Metadata</option><option>Response</option></select></div>").appendTo($("#divIdpAttributeMapping"));
   }
 </script>
 <script type="text/javascript">
