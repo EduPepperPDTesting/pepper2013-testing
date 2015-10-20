@@ -4,12 +4,12 @@ True North Logic integration module
 
 # Imports
 from django.conf import settings
-from django import db
 import requests
 import logging
 import json
 import datetime
-from tnl_integration.models import TNLCourses, TNLCompletionTrack
+from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
+from student.models import District, User
 
 # Global variables
 base_url = settings.TNLBASEURL
@@ -73,18 +73,44 @@ def get_grade():
     """
 
 
+def check_district(district_id):
+    """
+    Checks to see if this district is TNL-enabled
+    """
+    try:
+        TNLDistricts.objects.get(district=district_id)
+        return True
+    except:
+        return False
+
+
 def tnl_course(user, course_instance):
     """
     Checks to see if this is in fact a course and user registered with TNL.
     """
+    course = get_course(course_instance.course_id)
+    user = User.objects.get(id=user.id)
+    if course:
+        try:
+            district = District.objects.get(id=user.profile.district_id)
+            if check_district(district.id):
+                return True
+            else:
+                return False
+        except:
+            return False
 
 
 def get_course(id):
     """
     Gets the course from the registered course table.
     """
-    return TNLCourses.objects.get(course=id)
+    try:
+        course = TNLCourses.objects.get(course=id)
+    except:
+        course = False
 
+    return course
 
 def register_course(course):
     """
