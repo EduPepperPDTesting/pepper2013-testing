@@ -24,13 +24,6 @@ from student.models import State,District,School
   <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
   <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 
-<style>
-  .time_report_load_text{
-    text-align:center;
-    font-size:14px;
-    font-weight:bold;
-  }
-</style>
 <!-- Time Report -->
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
@@ -63,7 +56,6 @@ from student.models import State,District,School
         <div class="table">      
           <div class="" style="padding:5px;"></div>
           <span class="body"></span>
-          <div class="time_report_load_text">Loading...</div>
           <table class="tblUserTime">
             <thead>
               <th>First Name</th>
@@ -126,57 +118,18 @@ from student.models import State,District,School
     container: $(".pager"),
 
     // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
-    ajaxUrl: "/time_report/time_table?page={page}&size={size}&{sortList:col}",
+    ajaxUrl: null,
 
     // modify the url after all processing has been applied
-    customAjaxUrl: function(table, url) {
-        $(".time_report_load_text").show();
-        var filter = $('#fltUserTime')[0].control.getFilter();
-        url+='&state=' + filter.state + '&district=' + filter.district + '&school=' + filter.school;
-        var oldSortList = url.split('&')[2];
-        var colValArr = oldSortList.split('=');
-        if(colValArr.length > 1){
-          colValArr[0] = colValArr[0].substring(4, colValArr[0].length - 1);
-          var newSortList = 'col=' + colValArr[0] + ':' + colValArr[1];
-          url = url.replace(oldSortList, newSortList);
-        }
-        return url; 
-     },
+    customAjaxUrl: function(table, url) { return url; },
 
     // add more ajax settings here
     // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
     ajaxObject: { dataType: 'json' },
-    ajaxError: function( config, xhr, settings, exception ){ return false; },
+
     // process ajax so that the data object is returned along with the total number of rows
-    ajaxProcessing: function(data){
-        data.headers = ['user_first_name','user_last_name','user_email','district','school',\
-          'total_time','collaboration_time','external_time','course_time'];
-        if (data && data.hasOwnProperty('rows')) {
-          var indx, r, row, c, d = data.rows,
-          total = data.total_rows,
-          headers = data.headers,
-          headerXref = headers.join(',').replace(/\s+/g,'').split(','),
-          rows = [],
-          len = d.length;
-          for ( r=0; r < len; r++ ) {
-            row = [];
-            for ( c in d[r] ) {
-              if (typeof(c) === "string") {
-    
-                indx = $.inArray( c, headerXref );
- 
-                if (indx >= 0) {
-                  row[indx] = d[r][c];
-                }
-              }
-            }
-            rows.push(row); 
-          }
-          $(".time_download .total").html(total);
-          $(".time_report_load_text").hide();
-          return [ total, rows, headers ];
-        }
-      },
+    ajaxProcessing: null,
+
     // Set this option to false if your table data is preloaded into the table, but you are still using ajax
     processAjaxOnInit: true,
 
@@ -196,7 +149,7 @@ from student.models import State,District,School
     size: 10,
 
     // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
-    savePages : false,
+    //savePages : true,
 
     // Saves tablesorter paging to custom key if defined.
     // Key parameter name used by the $.tablesorter.storage function.
@@ -209,7 +162,7 @@ from student.models import State,District,School
 
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
     // table row set to a height to compensate; default is false
-    fixedHeight: false,
+    fixedHeight: true,
 
     // remove rows from the table to speed up the sort of large tables.
     // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
@@ -259,40 +212,65 @@ from student.models import State,District,School
     }
   });
   $(function() {
-    $(".tblUserTime").tablesorter({ theme : 'blue', widthFixed: true}).tablesorterPager(pagerOptions);
-    $(".time_report_load_text").hide();
+    $(".tblUserTime").tablesorter({ theme : 'blue' }).tablesorterPager(pagerOptions);
   })
   
   var userTimeReport = {
+    timeID:null,
+    dialog:null,
+    total_num:0,
     createTimeTable:function(data){
       var table_con = "";
-      var rows = data.rows;
       $(".tblUserTime tbody").empty();
-      for(d in rows){
-        table_con+='<tr role="row"><td>'+rows[d].user_first_name+'</td>'+'<td>'+rows[d].user_last_name+'</td>\
-        <td>'+rows[d].user_email+'</td><td>'+rows[d].district+'</td><td>'+rows[d].school+'</td>\
-        <td>'+rows[d].total_time+'</td><td>'+rows[d].collaboration_time+'</td>\
-        <td>'+rows[d].external_time+'</td><td>'+rows[d].course_time+'</td></tr>';
+      for(d in data){
+        table_con+='<tr role="row"><td>'+data[d].user_first_name+'</td>'+'<td>'+data[d].user_last_name+'</td>\
+        <td>'+data[d].user_email+'</td><td>'+data[d].district+'</td><td>'+data[d].school+'</td>\
+        <td>'+data[d].total_time+'</td><td>'+data[d].collaboration_time+'</td>\
+        <td>'+data[d].external_time+'</td><td>'+data[d].course_time+'</td></tr>';
       }
       $(".tblUserTime tbody").append(table_con);
       $(".tblUserTime").trigger("update");
-      $(".tblUserTime").trigger('pageAndSize', [1, 10]);
-      $(".time_download .total").html(data.total_rows);
+      this.total_num = data.length;
+      $(".time_download .total").html(data.length);
     },
     filterTime:function(){
       var self = this;
       var filter = $('#fltUserTime')[0].control.getFilter();
-      $(".time_report_load_text").show();
       $.get("${reverse('time_report_time_table')}", {
             'state': filter.state,
             'district': filter.district,
-            'school': filter.school,
-            'page':0,
-            'size':10
+            'school': filter.school
+        }, function(data) {
+            if (data.success) {
+                self.dialog = new Dialog($('#dialog'));
+                clearInterval(self.timeID);
+                self.dialog.showProgress("Loading data","Please wait...");
+                self.timeID = setInterval(self.show_progress, 2000, self, data.taskId);
+            }
+      });
+    },
+    show_progress: function(obj,taskId){
+      $.post("${reverse('time_report_time_table_progress')}", {
+            'taskId': taskId
         }, function(data) {
             if (data != null) {
-              $(".time_report_load_text").hide();
-              self.createTimeTable(data);
+              obj.dialog.setProgress(data.percent);
+              if(data.success)
+              {
+                clearInterval(obj.timeID);
+                obj.get_table_result();
+                
+              }
+            }
+      });
+    },
+    get_table_result:function(){
+       var self = this;
+       $.post("${reverse('time_report_get_time_table_result')}", {
+        }, function(data) {
+            if (data != null) {
+              self.dialog.hide();
+              self.createTimeTable(data.rows);
             }
       });
     },
@@ -321,7 +299,13 @@ from student.models import State,District,School
     init:function(){
       var self = this;
       $("#btnDownloadUserTimeExcel").click(function(){
-        self.downloadUserTimeExcel();
+        if(self.total_num > 0){
+          self.downloadUserTimeExcel();
+        }
+        else{
+          self.dialog = new Dialog($('#dialog'));
+          self.dialog.show('Download Excel','Data is empty!');
+        }
       });
     }
   }

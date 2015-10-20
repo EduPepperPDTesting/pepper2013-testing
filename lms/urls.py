@@ -76,6 +76,8 @@ urlpatterns = (
     url(r'^time_report/drop_schools$', 'administration.time_report.drop_schools', name="time_report_drop_schools"),
     url(r'^time_report/time_table$', 'administration.time_report.time_table', name="time_report_time_table"),
     url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
+    url(r'^time_report/time_table/progress/$', 'administration.time_report.time_table_progress', name="time_report_time_table_progress"),
+    url(r'^time_report/time_table/get_result$', 'administration.time_report.get_time_table_result', name="time_report_get_time_table_result"),
 
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),

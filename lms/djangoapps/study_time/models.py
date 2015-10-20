@@ -10,7 +10,7 @@ log = logging.getLogger("tracking")
 class MongoRecordTimeStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
-    def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, collection_external,
+    def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, collection_external, collection_result_set,
                  port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
 
         super(MongoRecordTimeStore, self).__init__(**kwargs)
@@ -48,18 +48,26 @@ class MongoRecordTimeStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_external]
+        self.collection_result_set = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection_result_set]
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_page.database.authenticate(user, password)
             self.collection_discussion.database.authenticate(user, password)
             self.collection_portfolio.database.authenticate(user, password)
             self.collection_external.database.authenticate(user, password)
+            self.collection_result_set.database.authenticate(user, password)
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_page.safe = True
         self.collection_discussion.safe = True
         self.collection_portfolio.safe = True
         self.collection_external.safe = True
+        self.collection_result_set.safe = True
 
     def _find_one(self):
         item = self.collection.find_one(
@@ -235,6 +243,22 @@ class MongoRecordTimeStore(object):
         course = get_course_with_access(user_id, course_id, 'load')
         return count_weight * int(course.external_course_time)
 
+    def set_time_report_result(self, user_id, data):
+        return self.collection_result_set.update(
+            {
+                'user_id': user_id
+            },
+            {
+                '$set': {'data': data}
+            },
+            True
+        )
+    def get_time_report_result(self, user_id):
+        result = self.collection_result_set.find_one({'user_id': user_id})
+        if result is not None:
+            return result['data']
+        else:
+            return []
 
 def record_time_store():
     options = {}
