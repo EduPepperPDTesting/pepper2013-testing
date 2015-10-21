@@ -20,6 +20,8 @@ import json
 import datetime
 from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
 from student.models import District, User
+from mitxmako.shortcuts import render_to_response
+from courseware.course_grades_helper import get_course_by_id
 
 # Global variables
 base_url = settings.TNLBASEURL
@@ -111,16 +113,36 @@ def tnl_course(user, course_instance):
             return False
 
 
-def get_course(id):
+def get_course(id=False):
     """
-    Gets the course from the registered course table.
+    Gets the course(s) from the registered course table.
     """
     try:
-        course = TNLCourses.objects.get(course=id)
+        if id:
+            course = TNLCourses.objects.get(course=id)
+        else:
+            course = TNLCourses.objects.all()
+
     except:
         course = False
 
     return course
+
+
+def get_district(id=False):
+    """
+    Gets the district(s) from the configured districts, along with other district data.
+    """
+    try:
+        if id:
+            district = TNLDistricts.objects.get(course=id).select_related()
+        else:
+            district = TNLDistricts.objects.all().select_related()
+
+    except:
+        district = False
+
+    return district
 
 
 def register_course(course):
@@ -189,3 +211,17 @@ def register_completion(user, course_instance, percent):
         track = TNLCompletionTrack(user=user, course=course, registered=0)
 
     track.save()
+
+
+def tnl_configuration(request):
+    """
+    Handles the TNL configuration page
+    """
+    districts = get_district()
+    tnl_courses = get_course()
+    courses = []
+    for course in tnl_courses:
+        courses.append(get_course_by_id(course.course_id))
+
+    context = {'districts': districts, 'courses': courses}
+    return render_to_response('administration/tnl_configuration.html', context)

@@ -1,0 +1,352 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,School
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<link href="/static/js/tablesorter/css/theme.default.min.css" rel="stylesheet">
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<style type="text/css" media="screen">
+    input[type=button].small{
+        font-size:12px;height:2em;line-height:2em;padding:0 10px;
+    }
+    input[type=button]{
+        font-size:14px;height:2em;line-height:2em;padding:0 10px;margin:10px;
+    }
+    .lean-overlay {
+        background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+        display: block;
+        height: 100%;
+        left: 0px;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        z-index: 100;
+    }
+    .modal{
+        display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
+        background: none repeat scroll 0% 0% rgba(255,255,255, 1);
+        /* border: 1px solid rgba(150, 150, 150, 0.9); */
+        border-radius: 5px;
+        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        padding: 0 0 8px 0;
+        width: 480px;
+        display:none;
+        position: fixed;
+    }
+    .modal .close-modal {
+        border-radius: 2px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: baseline;
+        padding: 10px;
+        position: absolute;
+        right: 2px;
+        top: 0px;
+        z-index: 3;
+        color:#333;
+    }
+    .modal .titlebar{
+        background:#fff;
+        height:70px;
+        background:#ccc;
+    }
+    td.label{
+        text-align:right;padding-right:10px;width:45px;
+        vertical-align:top;
+        padding-top:13px;
+    }
+    .modal .dialog-title{
+        margin:0;padding:20px 0 0 30px;color:#666;
+    }
+    .modal .content{
+        color:#333;
+        text-align:center;
+        font-size:16px;
+        padding:20px 10px;
+        line-height:20px;
+    }
+    .modal .progressbar{
+        height:30px;
+        background:#ddd;
+        border-radius:5px;
+        margin-top:10px;
+    }
+    .modal .progressbar_flow{
+        height:30px;
+        background:#2a5;
+        border-radius:5px;
+        width:50px;
+    }
+    .modal .progressbar_text{
+        position:absolute;
+        height:30px;
+        line-height:30px;
+        right:0px;
+        left:0px;
+    }
+    .favorite{
+        display:none;
+    }
+
+    section.content-wrapper{background:transparent !important;}
+    .list{padding:0px 5px;}
+    .list li{list-style-type:none;}
+    div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
+    div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
+    div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
+    div.expand_div{display:none;}
+    div.expand_title_container{padding-top:20px; padding-bottom:20px;}
+
+    /* filter */
+    div.control.filter{
+        padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
+    }
+    div.control.filter h2{
+        color:#f90;
+    }
+    div.control.filter .body select,
+    div.control.filter .body input{
+        margin:5px 5px 0 0;
+    }
+    div.control.filter div.favorite{
+        float:right;
+    }
+    div.control.filter input[type=button].small{
+        font-size:12px;height:2em;line-height:2em;padding:0 10px;
+        margin:5px 5px 0 0;
+    }
+    div.control.filter input[type=button].load{
+        font-size:12px;height:2em;line-height:2em;padding:0 10px;
+        margin:5px 5px 0 0;
+    }
+    /* table */
+    div.control.table{
+        padding:5px 5px 5px 5px;
+    }
+    div.control.table table{
+        width:100%;
+        text-align:left;
+        border-collapse:collapse;
+        border:1px solid #aaa;
+    }
+    div.control.table td,div.control.table th{
+        padding:6px;
+        border:1px solid #aaa;
+        font-size:12px;
+    }
+    div.control.table th{
+        padding:5px;
+        background:#99BFE6;
+    }
+    div.control.table th.checkbox-col{
+        width:15px;
+        overflow:visible;
+    }
+    div.control.table th.checkbox-col span{
+        margin-top:2px;
+        cursor:pointer;
+        display:inline-block;
+        vertical-align:top;
+        width:18px;
+        height:20px;
+        line-height:12px;
+        background:url("/static/images/configuration/table_menu.png")
+    }
+    div.control.table div.paging{
+        padding:5px;
+        text-align:right;
+    }
+    div.control.table div.paging a{
+        margin-left:5px;
+    }
+    div.control.table div.paging input{
+        margin-right:5px;
+        width:50px;
+        text-align:right;
+    }
+    div.control.table .sort{
+        margin-top:3px;
+        vertical-align:top;
+        float:right;
+        cursor:pointer;
+        display:inline-block;
+        width:9px;
+        height:17px;
+        background:url("/static/images/configuration/table_arrow_sort.png")
+    }
+    ul.context-menu{
+        position:absolute;
+        background:#fff;
+        border-radius:5px;
+        box-shadow: 0px 0px 20px;
+        padding-left:5px;
+        margin-left:0px;
+    }
+    ul.context-menu li{
+        min-width:200px;
+        line-height:30px;
+        list-style:none;
+    }
+    input,select{-ms-box-sizing:content-box;
+        box-sizing:border-box;
+    }
+    .main{
+        margin:auto;
+        width:1180px;
+        border:1px solid #ddd;
+    }
+    .configuration_navigation{
+        display:none;
+    }
+    .configuration_navigation_btn{
+        color:#08a;
+        font-size:20px;
+        padding:10px 5px;
+        cursor:pointer;
+    }
+</style>
+<!-- Certificate -->
+<div class = "expand_title_container">
+    <div class="main">
+        <div class="configuration_navigation">
+            <span class="configuration_navigation_btn">
+                True North Logic Integration Configuration
+            </span><span class="subItem"></span>
+        </div>
+        <table class="sorted" id="districts">
+            <thead>
+                <tr>
+                    <td>State</td>
+                    <td>Name</td>
+                    <td>Code</td>
+                    <td class="menu-trigger"></td>
+                </tr>
+                % for row in districts:
+                    <tr>
+                        <td>${row.state}</td>
+                        <td>${row.name}</td>
+                        <td>${row.code}</td>
+                        <td><input type="checkbox" value="${row.id}"></td>
+                    </tr>
+                % endfor
+            </thead>
+        </table>
+        <table class="sorted" id="courses">
+            <thead>
+            <tr>
+                <td>Name</td>
+                <td>Code</td>
+                <td class="menu-trigger"></td>
+            </tr>
+                % for row in courses:
+                    <tr>
+                        <td>${row.name}</td>
+                        <td>${row.course_id}</td>
+                        <td><input type="checkbox" value="${row.course_id}"></td>
+                    </tr>
+                % endfor
+            </thead>
+        </table>
+    </div>
+</div>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    var pagerOptions = {
+
+        // target the pager markup - see the HTML block below
+        container: $(".pager"),
+
+        // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+        ajaxUrl: null,
+
+        // modify the url after all processing has been applied
+        customAjaxUrl: function(table, url) { return url; },
+
+        // add more ajax settings here
+        // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+        ajaxObject: { dataType: 'json' },
+
+        // process ajax so that the data object is returned along with the total number of rows
+        ajaxProcessing: null,
+
+        // Set this option to false if your table data is preloaded into the table, but you are still using ajax
+        processAjaxOnInit: true,
+
+        // output string - default is '{page}/{totalPages}'
+        // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+        // also {page:input} & {startRow:input} will add a modifiable input in place of the value
+        output: '{startRow:input} to {endRow} ({totalRows})',
+
+        // apply disabled classname (cssDisabled option) to the pager arrows when the rows
+        // are at either extreme is visible; default is true
+        updateArrows: true,
+
+        // starting page of the pager (zero based index)
+        page: 0,
+
+        // Number of visible rows - default is 10
+        size: 10,
+
+        // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
+        //savePages : true,
+
+        // Saves tablesorter paging to custom key if defined.
+        // Key parameter name used by the $.tablesorter.storage function.
+        // Useful if you have multiple tables defined
+        //storageKey:'tablesorter-pager',
+
+        // Reset pager to this page after filtering; set to desired page number (zero-based index),
+        // or false to not change page at filter start
+        pageReset: 0,
+
+        // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+        // table row set to a height to compensate; default is false
+        fixedHeight: true,
+
+        // remove rows from the table to speed up the sort of large tables.
+        // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+        removeRows: false,
+
+        // If true, child rows will be counted towards the pager set size
+        countChildRows: false,
+
+        // css class names of pager arrows
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+        // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+
+    };
+    $('.sorted table').tablesorter({ headers: {
+        '.menu-trigger': { sorter: false, parser: false }
+    }}).tablesorterPager(pagerOptions);
+</script>

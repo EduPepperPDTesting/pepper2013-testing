@@ -659,7 +659,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                     # Save any fields that have changed to the underlying KeyValueStore
                     instance.save()
             else:
-                    instance.save()
+                instance.save()
         except ItemNotFoundError:
             instance.save()
         #@end
