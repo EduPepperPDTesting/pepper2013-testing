@@ -1,5 +1,13 @@
 """
 True North Logic integration module
+
+TODO: These questions need answers to complete this:
+  1) What is the specific method for encrypting the course creation data?
+  2) Is this encryption needed for any other sent data?
+  3) What are the gradeid values?
+  4) What are the providerid, edagencyid, coursetypeid, creditareaid, creditvaluetypeid, and creditvalue, and are they
+     all needed?
+  5) What is the sectionid for a course created using the createSDLCourse endpoint?
 """
 
 # Imports
@@ -112,6 +120,7 @@ def get_course(id):
 
     return course
 
+
 def register_course(course):
     """
     This registers the course with TNL
@@ -139,6 +148,7 @@ def register_course(course):
             'needsapproval': False,
             'selfpaced': True}
     # Request object
+    # TODO: the data needs to be encrypted prior to sending, according to the TNL doc.
     tnl_request = TNLRequest(endpoint, 'post', data)
 
     try:
