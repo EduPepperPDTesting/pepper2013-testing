@@ -6,8 +6,10 @@ TODO: These questions need answers to complete this:
   2) Is this encryption needed for any other sent data?
   3) What are the gradeid values?
   4) What are the providerid, edagencyid, coursetypeid, creditareaid, creditvaluetypeid, and creditvalue, and are they
-     all needed?
-  5) What is the sectionid for a course created using the createSDLCourse endpoint?
+     all required for the createSDLCourse?
+  5) What is the sectionid for a course created using the createSDLCourse endpoint? Presumably I would use the
+     getSectionId endpoint for that data, but the statement "include enough parameters to uniquely identify the section"
+     is somewhat vague. What parameters would be required for this case?
 """
 
 # Imports
