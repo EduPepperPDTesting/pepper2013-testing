@@ -153,7 +153,7 @@ def register_course(course):
     course_entry.save()
 
 
-def register_completion(user, course_instance):
+def register_completion(user, course_instance, percent):
     """
     This registers a competed course for a particular user with TNL
     """
@@ -166,7 +166,7 @@ def register_completion(user, course_instance):
     data = {'adminid': adminid,
             'personid': get_person(user),
             'sectionid': get_section(),  # TODO: add our ID
-            'gradeid': get_grade()}  # TODO: add our grade
+            'gradeid': get_grade(percent)}
     # Request object
     tnl_request = TNLRequest(endpoint, 'put', data)
 

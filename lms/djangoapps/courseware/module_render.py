@@ -644,7 +644,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                             instance.save()
                             # True North Logic integration
                             if tnl_course(student, course_instance):
-                                register_completion(student, course_instance)
+                                register_completion(student, course_instance, percent)
                         else:
                             course_instance.complete_course = False
                             course_instance.complete_date = datetime.fromtimestamp(0, UTC())
