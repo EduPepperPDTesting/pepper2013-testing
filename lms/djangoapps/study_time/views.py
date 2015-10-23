@@ -2,16 +2,19 @@ from mitxmako.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.views.decorators import csrf
 import django_comment_client.utils as utils
+from django.contrib.auth.decorators import login_required
 from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import Location
 from dashboard.models import *
 from models import record_time_store
+from student.models import User
 import time
 import datetime
 import logging
 log = logging.getLogger("tracking")
 
 
+@login_required
 @csrf.csrf_exempt
 def record_time(request):
     user_id = str(request.POST.get('user_id'))
@@ -99,6 +102,7 @@ def get_sort_key(name):
         return name
 
 
+@login_required
 def create_report(request, user_id=None):
     if user_id:
         user = User.objects.get(id=user_id)
@@ -117,6 +121,7 @@ def get_study_time_range(request):
     return utils.JsonResponse({'results': info, 'count': count})
 
 
+@login_required
 def get_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -124,6 +129,7 @@ def get_course_time(request):
     return utils.JsonResponse({'time': time})
 
 
+@login_required
 def save_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -131,6 +137,7 @@ def save_course_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def save_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -138,6 +145,7 @@ def save_external_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def del_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -145,6 +153,7 @@ def del_external_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def get_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
