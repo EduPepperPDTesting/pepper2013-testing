@@ -15,7 +15,6 @@ log = logging.getLogger("tracking")
 
 
 @login_required
-@csrf.csrf_exempt
 def record_time(request):
     user_id = str(request.POST.get('user_id'))
     rts = record_time_store()
@@ -113,6 +112,7 @@ def create_report(request, user_id=None):
     return render_to_response('study_time.html', context)
 
 
+@login_required
 def get_study_time_range(request):
     rts = record_time_store()
     user_id = str(request.user.id)

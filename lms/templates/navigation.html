@@ -597,6 +597,8 @@ except:
         function course_refresh_or_exit() {
             %if request.user.id is not None:
                 sessionStorage['user_id'] = "${request.user.id}";
+            %else:
+                RecordTime.setSessionVerticalId('');
             %endif
             %if course:
                 RecordTime.setSessionCourseID("${course.id}");
