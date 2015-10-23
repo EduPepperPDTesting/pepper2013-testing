@@ -1095,7 +1095,7 @@ def import_district_submit(request):
 
                 s = School()
                 s.name = 'Multiple Schools'
-                s.district = district
+                s.district = d
                 s.code = 'pepper' + safe_state + str(line[DISTRICT_CSV_COL_CODE])
                 s.save()
 
