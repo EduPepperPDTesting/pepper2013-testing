@@ -6,13 +6,14 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore import Location
 from dashboard.models import *
 from models import record_time_store
+from django.contrib.auth.decorators import login_required
 import time
 import datetime
 import logging
 log = logging.getLogger("tracking")
 
 
-@csrf.csrf_exempt
+@login_required
 def record_time(request):
     user_id = str(request.POST.get('user_id'))
     rts = record_time_store()
@@ -109,6 +110,7 @@ def create_report(request, user_id=None):
     return render_to_response('study_time.html', context)
 
 
+@login_required
 def get_study_time_range(request):
     rts = record_time_store()
     user_id = str(request.user.id)
@@ -117,6 +119,7 @@ def get_study_time_range(request):
     return utils.JsonResponse({'results': info, 'count': count})
 
 
+@login_required
 def get_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -124,6 +127,7 @@ def get_course_time(request):
     return utils.JsonResponse({'time': time})
 
 
+@login_required
 def save_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -131,6 +135,7 @@ def save_course_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def save_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -138,6 +143,7 @@ def save_external_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def del_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
@@ -145,6 +151,7 @@ def del_external_time(request):
     return utils.JsonResponse({})
 
 
+@login_required
 def get_external_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
