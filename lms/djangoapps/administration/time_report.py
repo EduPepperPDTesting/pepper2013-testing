@@ -13,12 +13,10 @@ from django.db.models import Q
 from student.models import UserProfile, CourseEnrollment
 # from django import db
 import json
-
 import time
 import logging
 import csv
 import gevent
-
 from django import db
 from models import *
 from StringIO import StringIO
@@ -33,11 +31,11 @@ from mako.template import Template
 import mitxmako
 
 from django.db.models import F
-
 from study_time.models import record_time_store
 from django.views.decorators import csrf
 from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger("tracking")
+
 
 def attstr(obj, attr):
     r = obj
@@ -122,9 +120,12 @@ def filter_user(vars, data):
     return data
 
 
-@csrf.csrf_exempt
+
+
+#@csrf.csrf_exempt
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def time_table(request):
-<<<<<<< HEAD
     data = UserProfile.objects.all()
     data = filter_user(request.GET, data)
     task = TimeReportTask()
@@ -176,7 +177,6 @@ def do_get_report_data(task, data, request):
                          "course_time": study_time_format(course_time)
                          })
             task.process_num = i + 1
-
         except Exception, e:
             db.transaction.rollback()
         finally:
@@ -189,39 +189,6 @@ def do_get_report_data(task, data, request):
     task.task_read = True
     task.save()
     db.transaction.commit()
-=======
-    data = UserProfile.objects.all().select_related('User')
-    data = UserProfile.objects.all()
-    data = filter_user(request.GET, data)
-    rows = []
-    rts = record_time_store()
-    for p in data:
-        external_time = 0
-        for enrollment in CourseEnrollment.enrollments_for_user(p.user):
-            try:
-                course = course_from_id(enrollment.course_id)
-                external_time += rts.get_external_time(str(p.user.id), course.id)
-            except ItemNotFoundError:
-                log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
-
-        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(p.user.id))
-        all_course_time = course_time + external_time
-        collaboration_time = discussion_time + portfolio_time
-        total_time = all_course_time + collaboration_time
-
-        rows.append({'id': p.user.id,
-                     'user_first_name': p.user.first_name,
-                     'user_last_name': p.user.last_name,
-                     'user_email': p.user.email,
-                     'district': attstr(p, "district.name"),
-                     'school': attstr(p, "school.name"),
-                     "total_time": study_time_format(total_time),
-                     "collaboration_time": study_time_format(collaboration_time),
-                     "external_time": study_time_format(external_time),
-                     "course_time": study_time_format(course_time)
-                     })
-    return HttpResponse(json.dumps({'rows': rows}), content_type="application/json")
->>>>>>> staging
 
 
 @login_required
@@ -231,11 +198,7 @@ def time_report_download_excel(request):
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
-<<<<<<< HEAD
     FIELDS = ["user_first_name", "user_last_name", "user_email", "district", "school", "total_time", "collaboration_time",
-=======
-    FIELDS = ["first_name", "last_name", "email", "_district", "_school", "total_time", "collaboration_time",
->>>>>>> staging
               "external_time", "course_time"]
 
     TITLES = ["First Name", "Last Name", "Email", "District", "School", "Total Time", "Collaboration Time",
@@ -243,50 +206,17 @@ def time_report_download_excel(request):
     for i, k in enumerate(TITLES):
         worksheet.write(0, i, k)
     row = 1
-<<<<<<< HEAD
     rts = record_time_store()
     results = rts.get_time_report_result(str(request.user.id))
     for p in results:
         for i, k in enumerate(FIELDS):
             worksheet.write(row, i, p[k])
-=======
-
-    data = UserProfile.objects.all()
-    data = filter_user(request.POST, data)
-    rts = record_time_store()
-    for p in data:
-        external_time = 0
-        for enrollment in CourseEnrollment.enrollments_for_user(p.user):
-            try:
-                course = course_from_id(enrollment.course_id)
-                external_time += rts.get_external_time(str(p.user.id), course.id)
-            except ItemNotFoundError:
-                log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
-
-        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(p.user.id))
-        all_course_time = course_time + external_time
-        collaboration_time = discussion_time + portfolio_time
-        total_time = all_course_time + collaboration_time
-
-        p.first_name = attstr(p, "user.first_name")
-        p.last_name = attstr(p, "user.last_name")
-        p.email = attstr(p, "user.email")
-        p._district = attstr(p, "district.name")
-        p._school = attstr(p, "school.name")
-        p.total_time = study_time_format(total_time)
-        p.collaboration_time = study_time_format(collaboration_time)
-        p.external_time = study_time_format(external_time)
-        p.course_time = study_time_format(course_time)
-        for i, k in enumerate(FIELDS):
-            worksheet.write(row, i, getattr(p, k))
->>>>>>> staging
         row += 1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.now().strftime('attachment; filename=users-time-report-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
     response.write(output.getvalue())
     return response
-<<<<<<< HEAD
 
 
 def time_table_progress(request):
@@ -302,5 +232,3 @@ def get_time_table_result(request):
     rts = record_time_store()
     rows = rts.get_time_report_result(str(request.user.id))
     return HttpResponse(json.dumps({'rows': rows}), content_type="application/json")
-=======
->>>>>>> staging

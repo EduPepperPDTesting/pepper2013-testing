@@ -24,15 +24,6 @@ from student.models import State,District,School
   <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
   <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 
-
-<style>
-  .time_report_load_text{
-    text-align:center;
-    font-size:14px;
-    font-weight:bold;
-  }
-</style>
-
 <!-- Time Report -->
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
@@ -65,9 +56,6 @@ from student.models import State,District,School
         <div class="table">      
           <div class="" style="padding:5px;"></div>
           <span class="body"></span>
-
-          <div class="time_report_load_text">Loading...</div>
-
           <table class="tblUserTime">
             <thead>
               <th>First Name</th>
@@ -148,11 +136,7 @@ from student.models import State,District,School
     // output string - default is '{page}/{totalPages}'
     // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
     // also {page:input} & {startRow:input} will add a modifiable input in place of the value
-<<<<<<< HEAD
     output: '{startRow} to {endRow} ({totalRows})',
-=======
-    output: '{startRow:input} to {endRow} ({totalRows})',
->>>>>>> staging
 
     // apply disabled classname (cssDisabled option) to the pager arrows when the rows
     // are at either extreme is visible; default is true
@@ -229,21 +213,12 @@ from student.models import State,District,School
   });
   $(function() {
     $(".tblUserTime").tablesorter({ theme : 'blue' }).tablesorterPager(pagerOptions);
-<<<<<<< HEAD
   })
   
   var userTimeReport = {
     timeID:null,
     dialog:null,
     total_num:0,
-=======
-    $(".time_report_load_text").hide();
-    //userTimeReport.filterTime();
-    //$(".tblUserTime").trigger("update");
-  })
-  
-  var userTimeReport = {
->>>>>>> staging
     createTimeTable:function(data){
       var table_con = "";
       $(".tblUserTime tbody").empty();
@@ -255,25 +230,17 @@ from student.models import State,District,School
       }
       $(".tblUserTime tbody").append(table_con);
       $(".tblUserTime").trigger("update");
-<<<<<<< HEAD
       this.total_num = data.length;
-=======
->>>>>>> staging
       $(".time_download .total").html(data.length);
     },
     filterTime:function(){
       var self = this;
       var filter = $('#fltUserTime')[0].control.getFilter();
-<<<<<<< HEAD
-=======
-      $(".time_report_load_text").show();
->>>>>>> staging
       $.get("${reverse('time_report_time_table')}", {
             'state': filter.state,
             'district': filter.district,
             'school': filter.school
         }, function(data) {
-<<<<<<< HEAD
             if (data.success) {
                 self.dialog = new Dialog($('#dialog'));
                 clearInterval(self.timeID);
@@ -303,10 +270,6 @@ from student.models import State,District,School
         }, function(data) {
             if (data != null) {
               self.dialog.hide();
-=======
-            if (data != null) {
-              $(".time_report_load_text").hide();
->>>>>>> staging
               self.createTimeTable(data.rows);
             }
       });
@@ -336,7 +299,6 @@ from student.models import State,District,School
     init:function(){
       var self = this;
       $("#btnDownloadUserTimeExcel").click(function(){
-<<<<<<< HEAD
         if(self.total_num > 0){
           self.downloadUserTimeExcel();
         }
@@ -344,15 +306,8 @@ from student.models import State,District,School
           self.dialog = new Dialog($('#dialog'));
           self.dialog.show('Download Excel','Data is empty!');
         }
-=======
-        self.downloadUserTimeExcel();
->>>>>>> staging
       });
     }
   }
   userTimeReport.init();
-<<<<<<< HEAD
 </script>
-=======
-</script>
->>>>>>> staging
