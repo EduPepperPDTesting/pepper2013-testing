@@ -14,6 +14,7 @@ import logging
 log = logging.getLogger("tracking")
 
 
+@csrf.csrf_exempt
 @login_required
 def record_time(request):
     user_id = str(request.POST.get('user_id'))
@@ -24,6 +25,7 @@ def record_time(request):
             return_info = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
             if return_info['updatedExisting']:
                 set_page_time(rts, info, user_id)
+        set_course_timeout(rts, info, user_id)
         rts.insert_item({'user_id': user_id, 'vertical_id': info['new_vertical_id'], 'start_time': info['time'], 'location': info['location']})
     else:
         return_info = rts.set_item('end_time', info['time'], user_id, info['prev_vertical_id'], info['prev_time'])
@@ -101,6 +103,21 @@ def get_sort_key(name):
         return name
 
 
+def set_course_timeout(rts, item, user_id):
+    time_delta = settings.PEPPER_SESSION_EXPIRY
+    rdata = rts.get_page_item(item['user_id'], item['new_vertical_id'])
+    if rdata is not None:
+        rts.set_page_item({'user_id': user_id, 'vertical_id': item['new_vertical_id'], 'time': time_delta}, rdata)
+    else:
+        course, chapter, sequ, vertical, position = get_course_info(item['location'], item['new_vertical_id'])
+        course_name = course.display_coursenumber + ' ' + course.display_name
+        vertical_name = get_vertical_name(sequ, vertical, position)
+        sort_key = get_sort_key(vertical_name)
+        rts.set_page_item({'user_id': user_id, 'vertical_id': item['new_vertical_id'], 'time': time_delta, 'course_id': course.id,
+                           'location': item['location'], 'course_name': course_name, 'vertical_name': vertical_name,
+                           'sort_key': sort_key}, rdata)
+
+
 @login_required
 def create_report(request, user_id=None):
     if user_id:
@@ -125,15 +142,19 @@ def get_study_time_range(request):
 def get_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
-    time = rts.get_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'))
-    return utils.JsonResponse({'time': time})
+    type = request.POST.get('type')
+    if type != 'courseware':
+        rts.set_course_time(user_id, request.POST.get('course_id'), type, settings.PEPPER_SESSION_EXPIRY)
+    time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
+    return utils.JsonResponse({'time': time, 'time_out':settings.PEPPER_SESSION_EXPIRY})
 
 
 @login_required
 def save_course_time(request):
     rts = record_time_store()
     user_id = str(request.POST.get('user_id'))
-    rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), request.POST.get('time'))
+    time = int(request.POST.get('time')) - settings.PEPPER_SESSION_EXPIRY
+    rts.set_course_time(user_id, request.POST.get('course_id'), request.POST.get('type'), time)
     return utils.JsonResponse({})
 
 

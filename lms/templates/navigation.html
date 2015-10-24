@@ -636,8 +636,7 @@ except:
         }
         function onblurEventDelay(e){
             //console.log(e.type);
-            var isfocusOut = $(document.activeElement).hasClass('courseware');
-            e.stopPropagation();
+            var isfocusOut = $(document.activeElement).is('.courseware,.dropdown');
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
                 courseTimer.stop();
@@ -666,7 +665,10 @@ except:
             $(window).focus(function(e) {
                 setTimeout(function(){onfocusEventDelay(e);}, 200);
             });
-
+            $('.dropdown').mouseup(function(e){
+                setTimeout(function(){onblurEventDelay(null);}, 200);   
+                setTimeout(function(){onfocusEventDelay(null);}, 200);
+            })
             course_refresh_or_exit();
             courseTimer = new CourseTimer();
             externalTimer = new ExternalTimer();
