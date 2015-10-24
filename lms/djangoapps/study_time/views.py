@@ -8,6 +8,7 @@ from xmodule.modulestore import Location
 from dashboard.models import *
 from models import record_time_store
 from student.models import User
+from django.conf import settings
 import time
 import datetime
 import logging
@@ -36,7 +37,7 @@ def record_time(request):
 
 def set_page_time(rts, info, user_id):
     item = rts.get_item(user_id, info['prev_vertical_id'], info['prev_time'])
-    time_delta = get_time_delta(item['start_time'], item['end_time'])
+    time_delta = get_time_delta(item['start_time'], item['end_time']) - settings.PEPPER_SESSION_EXPIRY
     rdata = rts.get_page_item(item['user_id'], item['vertical_id'])
     if rdata is not None:
         rts.set_page_item({'user_id': user_id, 'vertical_id': item['vertical_id'], 'time': time_delta}, rdata)
