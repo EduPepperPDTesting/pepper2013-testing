@@ -13,6 +13,10 @@ urlpatterns = (
     '',  # nopep8  
     
 ####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+
     url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),

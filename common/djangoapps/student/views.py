@@ -1874,7 +1874,7 @@ def activate_imported_account(post_vars, photo):
         ret['success']=False
         ret['error']="%s" % e
 
-    return HttpResponse(json.dumps(ret))
+    return HttpResponse(json.dumps(ret), content_type="application/json")
 
 def activate_easyiep_account(request):
     vars=request.POST
@@ -1883,6 +1883,50 @@ def activate_easyiep_account(request):
     registration=Registration.objects.get(activation_key=vars.get('activation_key',''))
     user_id=registration.user_id
     profile=UserProfile.objects.get(user_id=user_id)
+
+    #** validate username
+    try:
+        validate_slug(vars['username'])
+    except ValidationError:
+        js = {'success': False}
+        js['value'] = _("Username should only consist of A-Z and 0-9, with no spaces.")
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js), content_type="application/json")
+
+    #** validate if user exists
+    if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
+        js = {'success': False}
+        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js), content_type="application/json")
+
+    #** validate fields
+    required_post_vars_dropdown = [
+        'state_id',
+        'district_id',
+        'school_id',
+        'major_subject_area_id',
+        'years_in_education_id',
+        'percent_lunch', 'percent_iep', 'percent_eng_learner']
+    
+    for a in required_post_vars_dropdown:
+        if len(vars[a]) < 1:
+            error_str = {
+                'major_subject_area_id': 'Major Subject Area is required',
+                # 'grade_level_id': 'Grade Level-heck is required',
+                'years_in_education_id': 'Number of Years in Education is required',
+                'percent_lunch': 'Free/Reduced Lunch is required',
+                'percent_iep': 'IEPs is required',
+                'percent_eng_learner': 'English Learners is required',
+                'state_id': 'State is required',
+                'district_id': 'District is required',
+                'school_id': 'School is required',
+            }
+            js = {'success': False}
+            js['value'] = error_str[a]
+            js['field'] = a
+            return HttpResponse(json.dumps(js), content_type="application/json")
+
 
     #** validate terms_of_service
     tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
@@ -1893,43 +1937,8 @@ def activate_easyiep_account(request):
             js = {'success': False}
             js['value'] = _("You must accept the terms of service.")
             js['field'] = 'terms_of_service'
-            return HttpResponse(json.dumps(js))
+            return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate username
-    try:
-        validate_slug(vars['username'])
-    except ValidationError:
-        js = {'success': False}
-        js['value'] = _("Username should only consist of A-Z and 0-9, with no spaces.")
-        js['field'] = 'username'
-        return HttpResponse(json.dumps(js))
-
-    #** validate if user exists
-    if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
-        js = {'success': False}
-        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
-        js['field'] = 'username'
-        return HttpResponse(json.dumps(js))
-
-    #** validate fields
-    required_post_vars_dropdown=['major_subject_area_id',
-                                 # 'grade_level_id',
-                                 'years_in_education_id',
-                                 'percent_lunch','percent_iep','percent_eng_learner']
-    for a in required_post_vars_dropdown:
-        if len(vars[a]) < 1:
-            error_str = {
-                'major_subject_area_id':'Major Subject Area is required',
-                # 'grade_level_id':'Grade Level-heck is required',
-                'years_in_education_id':'Number of Years in Education is required',
-                'percent_lunch':'Free/Reduced Lunch is required',
-                'percent_iep':'IEPs is required',
-                'percent_eng_learner':'English Learners is required'
-            }
-            js = {'success': False}
-            js['value'] = error_str[a]
-            js['field'] = a
-            return HttpResponse(json.dumps(js))
 
     try:
         #** update user
@@ -1962,7 +1971,7 @@ def activate_easyiep_account(request):
     profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, profile.user)
 
-    return HttpResponse(json.dumps(js))
+    return HttpResponse(json.dumps(js), content_type="application/json")
 
 #@begin:change photo by Dashboard
 #@date:2013-11-24
@@ -2094,3 +2103,42 @@ def study_time_format(t):
     else:
         hour_full = ''
     return ('{0} {1} {2}').format(hour_full, minute, minute_unit)
+
+
+def drop_states(request):
+    data = State.objects.all()
+    data = data.order_by("name")
+    r = list()
+    for item in data:
+        r.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps(r))
+
+
+def drop_districts(request):
+    data = District.objects.all()
+    
+    state_id = request.GET.get('state_id', 0)
+    if not state_id:
+        state_id = 0
+        
+    data = data.filter(state_id=int(state_id))
+    data = data.order_by("name")
+    r = list()
+    for item in data:
+        r.append({"id": item.id, "name": item.name, "code": item.code})
+    return HttpResponse(json.dumps(r))
+
+
+def drop_schools(request):
+    data = School.objects.all()
+
+    district_id = request.GET.get('district_id', 0)
+    if not district_id:
+        district_id = 0
+    
+    data = data.filter(district_id=int(district_id))
+    r = list()
+    data = data.order_by("name")
+    for item in data:
+        r.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps(r))

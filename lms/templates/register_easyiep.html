@@ -110,13 +110,10 @@ from baseinfo.models import Enum
     function toggleSubmitButton(enable) {
       var $submitButton = $('form .form-actions #submit');
       if(enable) {
-/*@begin:Change the button text in login page*/
-/*@date:2013-11-02*/
         $submitButton.
           removeClass('is-disabled').
           removeProp('disabled').
           html("${_('Create My {platform_name} Account').format(platform_name=settings.PLATFORM_NAME)}");
-/*@end*/        
       }
       else {
         $submitButton.
@@ -216,14 +213,8 @@ from baseinfo.models import Enum
           </li> -->
           <li class="field required text" id="field-username">
             <label for="username">${_('Public Username')}</label>
-
             <input id="username" type="text" name="username" value="" placeholder="${_('example: JaneDoe')}" required aria-required="true" maxlength="30"/>
-
-            
           </li>
-
-<!--@begin:Registraction page: add more fields-->
-<!--@date:2013-11-02-->
           <li class="field required text" id="field-name">
             <label for="first_name">${_('First Name')}</label>
             ${profile.user.first_name}
@@ -232,21 +223,26 @@ from baseinfo.models import Enum
             <label for="last_name">${_('Last Name')}</label>
             ${profile.user.last_name}
           </li>
-          
           <li class="field required text" id="field-name">
-            <label for="school_id">${_('State')}</label>
-            ${profile.district.state.name}
+           <label for="state_id">${_('State')}</label>
+           <select name="state_id" autocomplete="off">
+             <option value="">--</option>
+              %for item in State.objects.all().order_by('name'):
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+            </select>
           </li>
-
-         <li class="field required text" id="field-name">
-            <label for="school_id">${_('District')}</label>
-            <input type="hidden" name="district_id" value="${profile.district.id}" />
-            ${profile.district.name}
+          <li class="field required text" id="field-name">
+            <label for="district_id">${_('District')}</label>
+            <select name="district_id" autocomplete="off">
+              <option value="">--</option>
+            </select>            
           </li>
-          
           <li class="field required text" id="field-name">
             <label for="school_id">${_('School')}</label>
-            ${profile.school.name}
+            <select autocomplete="off" id="school_id" name="school_id">
+              <option value="">--</option>
+            </select>
           </li>
           <li class="field required text" id="field-name">
             <label for="major_subject_area_id">${_('Major Subject Area')}</label>
@@ -501,5 +497,57 @@ from baseinfo.models import Enum
 <!--@end-->    
   </aside>
 </section>
-<div/>
 
+<script type="text/javascript">
+  var $form = $("#register-form");
+  function dropDistrict($form,state_id,callback){
+    $.get('/student/drop_districts',{state_id:state_id},function(r){
+      if((typeof r) == 'string'){
+        r=$.parseJSON(r)
+      }
+      var html="";
+      var drop=$form.find("select[name=district_id]");
+      clearOption(drop);
+      for(k in r){
+        d=r[k];
+        html+="<option value='" + d.id+"'>" + d.name + "</option>";
+      }
+      drop.append(html);
+      if(callback instanceof Function)callback.apply(drop[0]);
+    });
+  }
+  function dropSchool($form,state_id,district_id,callback){
+    $.get('/student/drop_schools',{state_id:state_id,district_id:district_id},function(r){
+      if((typeof r) == 'string')r=$.parseJSON(r);
+      var html="";
+      var drop=$form.find("select[name=school_id]");
+      clearOption(drop);
+      for(k in r){
+        d=r[k];
+        html+="<option value='" + d.id+"'>" + d.name + "</option>"
+      }
+      drop.append(html);
+      if(callback instanceof Function)callback.apply(drop[0]);
+    });
+  }
+  function clearOption(drop){
+    drop.find("option").filter(
+      function(){
+        return this.getAttribute("value")!=""
+      }
+    ).remove()
+  }
+  $form.find("select[name=state_id]").change(function(a){
+    var state_id=$(this).val();
+    dropDistrict($form,state_id,function(){
+      clearOption($form.find("select[name=school_id]"));
+    });
+  });
+  $form.find("select[name=district_id]").change(function(){
+    var state_id='';
+    var district_id=$(this).val();
+    dropSchool($form,state_id,district_id);
+  });
+  
+</script>
+<div/>
