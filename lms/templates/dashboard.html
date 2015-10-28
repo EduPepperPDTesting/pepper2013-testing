@@ -450,13 +450,13 @@
               <b style="font-size:14px;color:#000">My Pepper Stats:</b>
             </div>
             <div style="line-height:30px;"><b>All Course Time:</b>
-           ${all_course_time}
+           <span id="all_course_time" style="display:inline;"></span>
            </div>
            <div style="line-height:30px;"><b>Collaboration Time:</b>
-           ${collaboration_time}
+           <span id="collaboration_time" style="display:inline;"></span>
            </div>
            <div style="line-height:30px;"><b>Total Time:</b>
-            ${total_time_in_pepper}
+            <span id="total_time_in_pepper" style="display:inline;"></span>
            </div>
          </div>
       </span>
@@ -838,9 +838,9 @@ Add info that you would like to share about yourself here:
               -->
               % if course.hide_timer == False:
                 % if course.show_external_timer == False:
-                  <div class="course-time">Course Time: ${course_times[course.id]}</div>
+                  <div class="course-time" time_type="course" course_id="${course.id}">Course Time: <span></span></div>
                 % else:
-                  <div class="course-time">External Time: ${external_times[course.id]}</div>
+                  <div class="course-time" time_type="external" course_id="${course.id}">External Time: <span></span></div>
                 % endif
               % endif
 	    % endif
