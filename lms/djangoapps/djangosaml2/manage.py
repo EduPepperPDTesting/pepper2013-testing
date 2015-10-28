@@ -3,6 +3,8 @@ import xmltodict
 from django.http import HttpResponse
 import json
 from django.conf import settings
+from collections import defaultdict
+
 import logging
 log = logging.getLogger("tracking")
 
@@ -13,77 +15,70 @@ def metadata(request):
 
 def metadata_save(request):
     data = json.loads(request.POST.get('data'))
-    log.debug("+++++++++++++")
-    log.debug(len(data))
 
-    entitys = ""
+    entities = []
     for d in data:
-        entitys = entitys + '''<md:EntityDescriptor entityID="%s">
-    <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-      <md:KeyDescriptor use="signing">
-        <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-          <ds:X509Data>
-            <ds:X509Certificate>%s</ds:X509Certificate>
-          </ds:X509Data>
-        </ds:KeyInfo>
-      </md:KeyDescriptor>
-      <md:KeyDescriptor use="encryption">
-        <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-          <ds:X509Data>
-            <ds:X509Certificate>%s</ds:X509Certificate>
-          </ds:X509Data>
-        </ds:KeyInfo>
-      </md:KeyDescriptor>
-      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="%s"/>
-      <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
-      <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="%s"/>
-    </md:IDPSSODescriptor>
-    <md:Organization>
-      <md:OrganizationName xml:lang="en">%s</md:OrganizationName>
-      <md:OrganizationDisplayName xml:lang="en">%s</md:OrganizationDisplayName>
-      <md:OrganizationURL xml:lang="en">%s</md:OrganizationURL>
-    </md:Organization>
-    <md:ContactPerson contactType="technical">
-      <md:SurName>%s</md:SurName>
-      <md:EmailAddress>%s</md:EmailAddress>
-    </md:ContactPerson>
-  </md:EntityDescriptor>''' % (d['EntityID'],
-                               d['Key.Signing'],
-                               d['Key.Encryption'],
-                               d['SingleLogoutService.URL'],
-                               d['SingleSignOnService.URL'],
-                               d['Organization.Name'],
-                               d['Organization.DisplayName'],
-                               d['Organization.URL'],
-                               d['ContactPerson.SurName'],
-                               d['ContactPerson.EmailAddress'])
+        attributes = []
+        for a in d['attributes']:
+            attributes.append('''
+    <attribute type="%s" name="%s" map="%s"></attribute>''' % (a['type'], a['name'], a['map']))
+
+        entities.append('''
+  <entity type="%s" name="%s" entityID="%s">%s
+    <request>
+<![CDATA[
+%s
+]]>
+    </request>
+    <response>
+<![CDATA[
+%s
+]]>
+    </response>      
+  </entity>''' % (d.get('sso_type', ''),
+                  d.get('sso_name', ''),
+                  d.get('sso_entity_id', ''),
+                  ''.join(attributes),
+                  d.get('sso_request', ''),
+                  d.get('sso_response', '')
+                  ))
 
     content = '''<?xml version="1.0"?>
-<md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-%s
-</md:EntitiesDescriptor>''' % entitys
+<entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">%s
+</entities>''' % ''.join(entities)
 
-    xmlfile = open(settings.PROJECT_ROOT + "/envs/saml/remote_metadata.xml", "w")
+    xmlfile = open(settings.PROJECT_ROOT + "/sso/metadata.xml", "w")
     xmlfile.write(content)
 
     return HttpResponse("{}", content_type="application/json")
 
 
 def metadata_json(request):
-    xmlfile = open(settings.PROJECT_ROOT + "/envs/saml/remote_metadata.xml", "r")
-    parsed_data = xmltodict.parse(xmlfile.read())
+    xmlfile = open(settings.PROJECT_ROOT + "/sso/metadata.xml", "r")
+    parsed_data = xmltodict.parse(xmlfile.read(),
+                                  dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
     entity_list = []
-    for entity in parsed_data['md:EntitiesDescriptor']['md:EntityDescriptor']:
-        entity_list.append({
-            'EntityID': entity['@entityID'],
-            'Key.Signing': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][0]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate'],
-            'Key.Encryption': entity['md:IDPSSODescriptor']['md:KeyDescriptor'][1]['ds:KeyInfo']['ds:X509Data']['ds:X509Certificate'],
-            'SingleLogoutService.URL': entity['md:IDPSSODescriptor']['md:SingleLogoutService']['@Location'],
-            'SingleSignOnService.URL': entity['md:IDPSSODescriptor']['md:SingleSignOnService']['@Location'],
-            'Organization.Name': entity['md:Organization']['md:OrganizationName']['#text'],
-            'Organization.DisplayName': entity['md:Organization']['md:OrganizationDisplayName']['#text'],
-            'Organization.URL': entity['md:Organization']['md:OrganizationURL']['#text'],
-            'ContactPerson.SurName': entity['md:ContactPerson']['md:SurName'],
-            'ContactPerson.EmailAddress': entity['md:ContactPerson']['md:EmailAddress']
+
+    print parsed_data
+    
+    if 'entity' in parsed_data['entities'][0]:
+        for entity in parsed_data['entities'][0]['entity']:
+            attribute_list = []
+ 
+            if 'attribute' in entity:
+                for attribute in entity['attribute']:
+                    attribute_list.append({
+                        'type': attribute['@type'],
+                        'name': attribute['@name'],
+                        'map': attribute['@map']
+                    })
+            entity_list.append({
+                'sso_entity_id': entity['@entityID'],
+                'sso_type': entity['@type'],
+                'sso_name': entity['@name'],
+                'sso_request': entity['request'][0].strip() if 'request' in entity else '',
+                'sso_response': entity['response'][0].strip() if 'response' in entity else '',
+                'attributes': attribute_list
             })
+        
     return HttpResponse(json.dumps(entity_list), content_type="application/json")

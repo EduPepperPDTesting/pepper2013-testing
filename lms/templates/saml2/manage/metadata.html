@@ -1,103 +1,89 @@
 <%inherit file="/main.html" />
 
 <style type="text/css" media="screen">
- #form1 div.row span{display:inline-block;width:200px;text-align:right;}
+ #form1 div.row span{display:inline-block;width:160px;text-align:right;}
  #form1 div.row input,
  #form1 div.row textarea,
  #form1 div.row span{vertical-align:top;}
  #form1 div.row span{padding-top:2px;}
  #form1 div.row input,
  #form1 div.row span{height:25px;}
- #form1 div.row input,
- #form1 div.row textarea{width:500px;}
- #form1 div.row textarea{height:200px;}
- #form1 div.section{font-size:18px;width:200px;text-align:right;margin:20px 0;}
+ #form1 div.row input{width:200px;}
+ #form1 div.row textarea{width:610px;height:200px;}
+ #form1 div.section{font-size:18px;width:160px;text-align:right;margin:20px 0;}
  #form1{float:left;}
  #form1 textarea{word-break:break-all;}
- 
- .listbox{display:inline-block;width:300px;height:500px;overflow:auto;white-space:nowrap;border:1px solid grey;padding:5px;}
- .listbox div{line-height:25px;cursor:default;width:auto;}
+ .listbox{display:inline-block;width:300px;height:500px;overflow:auto;white-space:nowrap;border:1px solid grey;}
+ .listbox div{line-height:25px;cursor:default;width:auto;padding:2px 5px;}
  .listbox div.hover{background:#999;}
- .listbox div.selected {background:#009;color:#ccc;min-width:100%;}
+ .listbox div.selected {background:#03c;color:#ccc;min-width:100%;}
 </style>
-
 <section class="container clearfix" style="padding-bottom:50px;">
   <div style="font-size:30px;padding-top:20px;"> Metadata </div>
   <div style="float:left;">
-    <div style="margin-top:20px;">Entities</div>
+    <div style="margin:20px 0 5px 0;">IDPs</div>
     <div id="entityList" class="listbox"></div>
     <br/>
     <input type="button" name="" value="+" onclick="md.add()"/>
     <input type="button" name="" value="-" onclick="md.remove()"/>
     <input type="button" name="" value="Save All" onclick="md.saveAll()"/>
   </div>
-  <form id="form1" style="display:none;">
-    
+  <form id="form1" style="display:none;width:800px">
     <div class="section">IDP</div>
-
     <div class="row">
-      <span class="">Type</span>
-      <select id="" name="" autocomplate="off">
-        <option value="">SAML</option>
+      <span class="">SSO Type</span>
+      <select id="" name="sso_type" autocomplate="off">
+        <option>EasyIEP</option>
+        <option>OAuth</option>
+        <option>SAML</option>
       </select>
     </div>
-
     <div class="row">
-      <span class="">Entity ID</span> <input autocomplete="off" type="" value="" name="EntityID" desc="Entity ID"/>
+      <span class="">SSO Name</span>
+      <input type="" name="sso_name" value="" style="width:500px;"/>
     </div>
     <div class="row">
-      <span class="">Single Logout Service</span> <input autocomplete="off" type="" value="" name="SingleLogoutService.URL" desc="Single Logout Service"/>
+      <span class="">SSO Entity ID</span>
+      <input type="" name="sso_entity_id" value="" style="width:500px;"/>
     </div>
     <div class="row">
-      <span class="">Single SignOn Service</span> <input autocomplete="off" type="" value="" name="SingleSignOnService.URL" desc="Single SignOn Service"/>
+      <span>Request Schema</span>
+      <textarea name="sso_request"></textarea>
     </div>
     <div class="row">
-      <span class="">Signing Key</span> <textarea autocomplete="off" id="" rows="" cols="" tabindex="" name="Key.Signing" desc="Signing Key"></textarea>
+      <span>Response Schema</span>
+      <textarea name="sso_response"></textarea>
     </div>
-    <div class="row">
-      <span class="">Encryption Key</span> <textarea autocomplete="off" id="" rows="" cols="" tabindex="" name="Key.Encryption" desc="Encryption Key"></textarea>
-    </div>    
-    <div class="section">Organization</div>
-    <div class="row">
-      <span class="">Name</span> <input autocomplete="off" type="" value="" name="Organization.Name" desc="Organization Name"/>
-    </div>
-    <div class="row">
-      <span class="">DisplayName</span> <input autocomplete="off" type="" value="" name="Organization.DisplayName" desc="Organization DisplayName"/>
-    </div>
-    <div class="row">
-      <span class="">URL</span> <input autocomplete="off" type="" value="" name="Organization.URL" desc="Organization URL"/>
-    </div>
-    <div class="section">Contact Person</div>
-    <div class="row">
-      <span class="">SurName</span> <input autocomplete="off" type="" value="" name="ContactPerson.SurName" desc="Contact Person SurName"/>
-    </div>
-    <div class="row">
-      <span class="">Email Address</span> <input autocomplete="off" type="" value="" name="ContactPerson.EmailAddress" desc="Contact Person Email Address"/>
-    </div>
-    
-    <div class="section">Attributes Mapping</div>
+    <div class="section">Attributes</div>
     <div id="divIdpAttributeMapping"></div>
-    <input type="button" name="" value="Add" onclick="md.addField()"/>
-    
+    <div style="margin-left:145px;padding:5px 0;">
+      <input type="button" value="+" onclick="md.addField()"/>
+    </div>
   </form>
-
 </section>
 <script type="text/javascript">
   function Metadata(){
     var self = this;
     $("#form1").show();
-    this.data = {};
+    this.data = [];
     this.list=new ListBox($("#entityList"));
     $("#entityList").bind("beforeChange",function(e,index){
-      //if(index >= 0)
-        //self.bufferData(index);
+      if(index >= 0)
+        self.bufferData(index);
     });
     $("#entityList").bind("change",function(e,index){
-        self.showData(self.data[index])
+      self.showData(self.data[index])
     });
-    $("input[name=EntityID]").keyup(function(){
-      self.list.getSelectedItems().html(self.entityID4List(this.value));
+
+    $("input[name=sso_name]").keyup(function(){
+      this.value=$.trim(this.value);
+      self.list.getSelectedItems().html(self.name4List(this.value));
     });
+    
+    /* $("input[name=sso_entity_id]").keyup(function(){
+       this.value=$.trim(this.value);
+       self.list.getSelectedItems().html(self.entityID4List(this.value));
+       }); */
     $("#form1").find("input,textarea").keyup(function(){
       self.bufferData(self.list.getSelectedIndex());
     });
@@ -105,26 +91,48 @@
   }
   Metadata.prototype.bufferData = function(index){
     var self = this;
+    var $rows = $("#divIdpAttributeMapping").find("div.row");
+    var entityID = $("input[name=sso_entity_id]").val();
+    this.data[index] = {}
+    this.data[index]['sso_type'] = $("select[name=sso_type]").val();
+    this.data[index]['sso_entity_id'] = entityID;
+    this.data[index]['sso_name'] = $("input[name=sso_name]").val();
+    this.data[index]['sso_request'] = $("textarea[name=sso_request]").val();
+    this.data[index]['sso_response'] = $("textarea[name=sso_response]").val(); 
     if(index >= 0){
-      $("#form1").find("input,textarea").each(function(){
-        self.data[index][this.name] = $(this).val();
-      })
+      var attributes=[];
+      $rows.each(function(){
+        attributes.push({
+          type:$(this).find('select[name=type]').val(),
+          name:$(this).find('input[name=name]').val(),
+          map:$(this).find('input[name=map]').val()
+        });
+      });
+      this.data[index]['attributes'] = attributes;
     }
   }
   Metadata.prototype.validateData = function(index){
-    var d = this.data[index];
-    $("#form1").find("input,textarea").each(function(){
-      var f=this;
-      var field_desc = $(f).attr("desc");
-      value=d[this.name]
-      if(!value){
-        f.focus();
-        throw {"message":"Empty " + field_desc};
-        return false;
+    var idp = this.data[index];
+    var n=0;
+    if($.trim(idp.sso_entity_id) == ''){
+      throw {"message": "SSO Entity ID can't be empty."}
+    }
+    $.each(this.data, function(i,v){
+      if(v.sso_entity_id == idp.sso_entity_id){
+        if(++n>1) throw {"message": "Same SSO Entity ID already exists."}
       }
     });
+    var n=0;
+    if($.trim(idp.sso_name) == ''){
+      throw {"message": "SSO Name can't be empty."}
+    }
+    $.each(this.data, function(i,v){
+      if(v.sso_name == idp.sso_name){
+        if(++n>1) throw {"message": "Same SSO Name already exists."}
+      }
+    });     
   }
-  Metadata.prototype.entityID4List = function(s){
+  Metadata.prototype.name4List = function(s){
     if(typeof s != "string")
       s = "";
     else
@@ -134,26 +142,34 @@
     return s;
   }
   Metadata.prototype.showData = function(d){
+    $("#divIdpAttributeMapping").html('');
     $("#form1").find("input,textarea").each(function(){
       if(this.name){
         value=d[this.name];
         $(this).val(value || "");
       }
     });
+    for(i in d.attributes){
+      var a=d.attributes[i];
+      var $row=this.addField();
+      $row.find("select[name=type]").val(a.type);
+      $row.find("input[name=name]").val(a.name);
+      $row.find("input[name=map]").val(a.map);
+    }
   }
   Metadata.prototype.load = function(){
     var self=this;
     $.get("/saml2/metadata_json",function(r){
       self.data = r;
       $.each(r,function(i,e){
-        self.list.addItem(self.entityID4List(e.EntityID));
+        self.list.addItem(self.name4List(e.sso_name));
       });
       self.list.setSelectedIndex(0);
     });
   }
   Metadata.prototype.add = function(){
     this.data.push({});
-    this.list.addItem(this.entityID4List(""));
+    this.list.addItem(this.name4List(""));
     this.list.setSelectedIndex(this.data.length-1);
   }
   Metadata.prototype.remove = function(){
@@ -163,29 +179,37 @@
     this.list.setSelectedIndex(this.list.getNearestNext(index));
   }
   Metadata.prototype.saveAll = function(){
+    this.bufferData(this.list.getSelectedIndex());
     var self = this;
-    // this.bufferData(this.list.getSelectedIndex());
+    var ok = true;
     $.each(this.data, function(i){
       try{
         self.validateData(i);
       }catch(e){
+        ok = false;
         alert(e.message);
         self.list.setSelectedIndex(i);
         return false;
       }
     });
-    $.post('/saml2/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
-      
-    });
-  }
-  Metadata.prototype.addAttribute = function(){
-    $("<div class='row'><span>Attribute</span> <input type='' name='' value='' /></div>").appendTo($("#divIdpAttributes"));
-  }
-  Metadata.prototype.addAttributeMapping = function(){
-    $("<div class='row'><span>Name</span> <input style='width:200px'/> Value <input style='width:200px'/></div>").appendTo($("#divIdpAttributeMapping"))
+    if(ok){
+      $.post('/saml2/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
+        alert("Save success.")
+      });
+    }
   }
   Metadata.prototype.addField = function(){
-    $("<div style='text-align:right;'>Pepper Mapped <input type='input'/> IDP <input type='input'/> <select><option>Assertion</option><option>Metadata</option><option>Response</option></select></div>").appendTo($("#divIdpAttributeMapping"));
+    var $row=$("<div style='text-align:left;' class='row'> \
+<span>Type</span> \
+<select name='type'><option>Assertion</option><option> Profile</option><option>Response</option></select> \
+Name <input type='input' name='name'/> \
+Map To <input type='input' name='map'/> \
+<input type='button' style='width:20px;padding:0 5px' value='-' class='btnRemove'/></div>").appendTo($("#divIdpAttributeMapping"));
+    var $btnRemove=$row.find(".btnRemove");
+    $btnRemove.click(function(){
+      $(this).parent().remove();
+    });
+    return $row;
   }
 </script>
 <script type="text/javascript">
