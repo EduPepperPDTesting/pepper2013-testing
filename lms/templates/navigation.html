@@ -617,7 +617,7 @@ except:
                     });
                 }
             }
-            
+            timer_record = false;
         }
         //---------------------Record time (Course refresh or exit)--------------------------//
 
@@ -652,7 +652,6 @@ except:
             if(verticalId == '' && time == 0){
                 pepper_stats_refresh();
             }
-
         }
 
         //---------------------------------------------------------------------------//
@@ -673,7 +672,7 @@ except:
         }
         function onblurEventDelay(e){
             //console.log(e.type);
-            var isfocusOut = $(document.activeElement).is('.courseware,.dropdown');
+            var isfocusOut = $(document.activeElement).is('.courseware,.dropdown,.seq_other,.sequence-nav-buttons li a');
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
                 courseTimer.stop();
