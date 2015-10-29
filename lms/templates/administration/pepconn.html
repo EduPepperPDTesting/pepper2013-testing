@@ -90,7 +90,11 @@ f.close()
                     </div>
                 </form>
             </div>
-        </div>
+        </div><span style = "display:none" id = "cohort_select"><select class = "cohort_selector"><option value=""></option>
+        %for item in Cohort.objects.all().order_by('code'):
+            <option value="${item.id}">${item.code}</option>
+        %endfor
+      </select></span>
         <div class="school-section import-section">
             <form method="" id="schoolDataImportForm" action="">
                 <div style="padding: 1em 7px 7px 7px;">
@@ -568,6 +572,9 @@ f.close()
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
+        <span style = "float:right">
+            <input type ="button" name = "" onclick = "addToCohort()" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+        </span>
     </div>
     <div class="cohort_table-section table-section">
         <div class="add-area" onclick = "$('#filterArea3').slideToggle()">
@@ -704,7 +711,32 @@ $(document).ready(function(){
     $(".district_table-section").show();
 
 });
+function addToCohort(){
+    var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
+    new Dialog($("#dialog")).show("Select Cohort", code);
 
+
+}
+function submitAddToCohort(){
+    console.log("processing");
+    var ids = [];
+    $("#user_table_init tr").each(function(i, val){
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        $checkedBoxes.each(function(i, box){
+           var $checkbox = $(box);
+
+            $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
+                console.log(r.message);
+                //if(r.message = "success"){
+                    $("#cohortAddSuccess").html("Added successfully to Cohort");
+                //}
+            });
+
+        });
+    });
+
+}
 function openBookmark(table){
     var code = "<p>Select Filter: <select id = 'bookmark_select_"+table+"'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_"+table+"'></input><br><br><button onClick = 'saveBookmark(\""+table+"\");'>Save Bookmark</button></p>";
