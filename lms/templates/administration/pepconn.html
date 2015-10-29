@@ -414,6 +414,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -483,6 +485,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -552,6 +556,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -619,6 +625,7 @@ f.close()
                 </tbody>
             </table>
         </div>
+            <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -709,7 +716,50 @@ $("#singleUserImportForm").submit(function(){
 $(document).ready(function(){
     $(".table-section").hide();
     $(".district_table-section").show();
-
+    $("#selectalldistrict").click(function(){
+        if(this.checked){
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallschool").click(function(){
+        if(this.checked){
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectalluser").click(function(){
+        if(this.checked){
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallcohort").click(function(){
+        if(this.checked){
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
 });
 function addToCohort(){
     var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
@@ -728,15 +778,16 @@ function submitAddToCohort(){
 
             $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
                 console.log(r.message);
-                //if(r.message = "success"){
+                if(r.message = "success"){
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
-                //}
+                }
             });
 
         });
     });
 
 }
+
 function openBookmark(table){
     var code = "<p>Select Filter: <select id = 'bookmark_select_"+table+"'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_"+table+"'></input><br><br><button onClick = 'saveBookmark(\""+table+"\");'>Save Bookmark</button></p>";

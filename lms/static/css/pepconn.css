@@ -328,3 +328,6 @@ label {
         .custom-email textarea {
             height: 300px;
         }
+        .selectall{
+            float:right;
+        }
