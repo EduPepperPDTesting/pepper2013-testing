@@ -628,28 +628,26 @@ def update_sso_usr(user, json, update_first_name=True):
     # user
     user.set_password('EasyIEPSSO')
     user.email = sso_email
-    if update_first_name:
-        user.first_name = sso_user.get('FirstName', '')
-    user.last_name = sso_user.get('LastName', '')
+    # if update_first_name:
+    #     user.first_name = sso_user.get('FirstName', '')
+    # user.last_name = sso_user.get('LastName', '')
     user.save()
 
     # district
-    profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
+    # profile.district = District.objects.get(state=sso_state.id, code=sso_district_code)
 
     # school
-    safe_state = re.sub(' ', '', sso_state.name)
-    multi_school_id = 'pepper' + safe_state + str(sso_district_code)
-    if len(sso_user['SchoolCodes']) == 1:
-        try:
-            school = School.objects.get(code=sso_user['SchoolCodes'][0], district=profile.district.id)
-        except School.DoesNotExist:
-            school = School.objects.get(code=multi_school_id)
-    else:
-        school = School.objects.get(code=multi_school_id)
-    # school.district=District.objects.get(name=sso_district)
-    # school.save()
+    # safe_state = re.sub(' ', '', sso_state.name)
+    # multi_school_id = 'pepper' + safe_state + str(sso_district_code)
+    # if len(sso_user['SchoolCodes']) == 1:
+    #     try:
+    #         school = School.objects.get(code=sso_user['SchoolCodes'][0], district=profile.district.id)
+    #     except School.DoesNotExist:
+    #         school = School.objects.get(code=multi_school_id)
+    # else:
+    #     school = School.objects.get(code=multi_school_id)
 
-    profile.school = school
+    # profile.school = school
 
     # unique ID for our records
     profile.sso_idp = sso_unique
@@ -770,7 +768,8 @@ def sso(request, error=""):
     else:
         # update user
         try:
-            update_sso_usr(user, parsed, False)
+            # update_sso_usr(user, parsed, False)
+            pass
         except Exception as e:
             db.transaction.rollback()
             AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
@@ -1902,6 +1901,8 @@ def activate_easyiep_account(request):
 
     #** validate fields
     required_post_vars_dropdown = [
+        'first_name',
+        'last_name',
         'state_id',
         'district_id',
         'school_id',
@@ -1912,21 +1913,22 @@ def activate_easyiep_account(request):
     for a in required_post_vars_dropdown:
         if len(vars[a]) < 1:
             error_str = {
+                'first_name': 'Your first name must be a minimum of two characters long.',
+                'last_name': 'Your last name must be a minimum of two characters long.',
+                'state_id': 'State is required',
+                'district_id': 'District is required',
+                'school_id': 'School is required',
                 'major_subject_area_id': 'Major Subject Area is required',
                 # 'grade_level_id': 'Grade Level-heck is required',
                 'years_in_education_id': 'Number of Years in Education is required',
                 'percent_lunch': 'Free/Reduced Lunch is required',
                 'percent_iep': 'IEPs is required',
-                'percent_eng_learner': 'English Learners is required',
-                'state_id': 'State is required',
-                'district_id': 'District is required',
-                'school_id': 'School is required',
+                'percent_eng_learner': 'English Learners is required'
             }
             js = {'success': False}
             js['value'] = error_str[a]
             js['field'] = a
             return HttpResponse(json.dumps(js), content_type="application/json")
-
 
     #** validate terms_of_service
     tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
@@ -1939,23 +1941,26 @@ def activate_easyiep_account(request):
             js['field'] = 'terms_of_service'
             return HttpResponse(json.dumps(js), content_type="application/json")
 
-
     try:
         #** update user
-        profile.user.username=vars.get('username','')
-        profile.user.is_active=True
+        profile.user.first_name = vars.get('first_name', '')
+        profile.user.last_name = vars.get('last_name', '')
+        profile.user.username = vars.get('username', '')
+        profile.user.is_active = True
         profile.user.save()
 
         #** update profile
-        profile.subscription_status='Registered'
-        profile.major_subject_area_id=vars.get('major_subject_area_id','')
-        profile.years_in_education_id=vars.get('years_in_education_id','')
+        profile.district_id = vars.get('district_id', '')
+        profile.school_id = vars.get('school_id', '')
+        profile.subscription_status = 'Registered'
+        profile.major_subject_area_id = vars.get('major_subject_area_id', '')
+        profile.years_in_education_id = vars.get('years_in_education_id', '')
         # profile.grade_level_id=vars.get('grade_level_id','')
-        profile.percent_lunch=vars.get('percent_lunch','')
-        profile.percent_iep=vars.get('percent_iep','')
-        profile.percent_eng_learner=vars.get('percent_eng_learner','')
-        profile.bio=vars.get('bio','')
-        profile.activate_date=datetime.datetime.now(UTC)
+        profile.percent_lunch = vars.get('percent_lunch', '')
+        profile.percent_iep = vars.get('percent_iep', '')
+        profile.percent_eng_learner = vars.get('percent_eng_learner', '')
+        profile.bio = vars.get('bio', '')
+        profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
 
         #** upload photo

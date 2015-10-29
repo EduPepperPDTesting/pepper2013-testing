@@ -217,11 +217,11 @@ from baseinfo.models import Enum
           </li>
           <li class="field required text" id="field-name">
             <label for="first_name">${_('First Name')}</label>
-            ${profile.user.first_name}
+            <input class="" id="first_name" type="text" name="first_name" value="" placeholder="${_('example: Jane')}" required aria-required="true" />
           </li>
           <li class="field required text" id="field-name">
             <label for="last_name">${_('Last Name')}</label>
-            ${profile.user.last_name}
+            <input class="" id="last_name" type="text" name="last_name" value="" placeholder="${_('example: Doe')}" required aria-required="true" />
           </li>
           <li class="field required text" id="field-name">
            <label for="state_id">${_('State')}</label>
