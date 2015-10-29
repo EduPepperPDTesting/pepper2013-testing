@@ -2142,3 +2142,44 @@ def drop_schools(request):
     for item in data:
         r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r))
+
+
+@login_required
+def get_pepper_stats(request):
+
+    user = User.objects.get(id=request.POST.get('user_id'))
+    courses = []
+
+    external_time = 0
+    external_times = {}
+    rts = record_time_store()
+
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        try:
+            c = course_from_id(enrollment.course_id)
+            c.student_enrollment_date = enrollment.created
+
+            courses.append(c)
+
+            external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+            external_time += external_times[c.id]
+            external_times[c.id] = study_time_format(external_times[c.id])
+
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+
+    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+
+    course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+    all_course_time = course_time + external_time
+    collaboration_time = discussion_time + portfolio_time
+    total_time_in_pepper = all_course_time + collaboration_time
+    context = {
+        'all_course_time': study_time_format(all_course_time),
+        'collaboration_time': study_time_format(collaboration_time),
+        'total_time_in_pepper': study_time_format(total_time_in_pepper),
+        'course_times': course_times,
+        'external_times': external_times
+    }
+    return HttpResponse(json.dumps(context), content_type="application/json")
