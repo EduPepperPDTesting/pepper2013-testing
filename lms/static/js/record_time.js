@@ -85,6 +85,7 @@ function CourseTimer() {
     this.startTime = new Date();
     this.exeType = ['courseware', 'discussion', 'portfolio'];
     this.type = this.getType();
+    this.loadComplete = false;
     this.create();
 
 };
@@ -116,13 +117,16 @@ CourseTimer.prototype.init = function() {
     this.stop();
     this.save();
     this.draw(0);
+    this.loadComplete = false;
     this.startTime = new Date();
 };
 
 CourseTimer.prototype.start = function() {
     if (!this.isrun) {
         this.isrun = true;
-        this.load();
+        if(this.getType != 'courseware'){
+            this.load();
+        }
     }
     this.show();
     RecordTime.setSessionCourseType(this.type);
@@ -179,7 +183,12 @@ CourseTimer.prototype.load = function() {
         if (data != null) {
 
             if (RecordTime.getSessionCourseType() == 'courseware') {
-                self.time = parseInt(data.time);
+                if(RecordTime.getSessionVerticalId() != ""){
+                    self.time = parseInt(data.time) - data.time_out;
+                }
+                else{
+                    self.time = parseInt(data.time);
+                }
                 RecordTime.setSessionCourseTime(this.type, self.time);
             } else {
                 self.startTime = new Date().getTime();
@@ -192,6 +201,7 @@ CourseTimer.prototype.load = function() {
         if (RecordTime.getSessionCourseType() == 'courseware') {
             self.draw();
         }
+        self.loadComplete = true;
     });
 };
 
@@ -209,7 +219,7 @@ CourseTimer.prototype.save = function() {
             'type': RecordTime.getSessionCourseType(),
             'time': self.time
         }, function(r) {
-
+            pepper_stats_refresh();
         });
         self.time = 0;
         RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
