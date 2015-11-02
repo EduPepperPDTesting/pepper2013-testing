@@ -146,8 +146,12 @@ def get_course_time(request):
     type = request.POST.get('type')
     if type != 'courseware':
         rts.set_course_time(user_id, request.POST.get('course_id'), type, settings.PEPPER_SESSION_EXPIRY)
-    time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
-    return utils.JsonResponse({'time': time, 'time_out':settings.PEPPER_SESSION_EXPIRY})
+        time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
+    else:
+        external_time = rts.get_external_time(user_id, request.POST.get('course_id'))
+        course_time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
+        time = course_time + external_time
+    return utils.JsonResponse({'time': time, 'time_out': settings.PEPPER_SESSION_EXPIRY})
 
 
 @login_required
