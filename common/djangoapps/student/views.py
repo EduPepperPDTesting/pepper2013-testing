@@ -2157,6 +2157,7 @@ def get_pepper_stats(request):
 
     external_time = 0
     external_times = {}
+    orig_external_times = {}
     rts = record_time_store()
 
     for enrollment in CourseEnrollment.enrollments_for_user(user):
@@ -2166,15 +2167,15 @@ def get_pepper_stats(request):
 
             courses.append(c)
 
-            external_times[c.id] = rts.get_external_time(str(user.id), c.id)
-            external_time += external_times[c.id]
-            external_times[c.id] = study_time_format(external_times[c.id])
+            orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+            external_time += orig_external_times[c.id]
+            external_times[c.id] = study_time_format(orig_external_times[c.id])
 
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
 
-    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
 
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
