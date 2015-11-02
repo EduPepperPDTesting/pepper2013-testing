@@ -23,11 +23,22 @@ from student.models import District, User
 from mitxmako.shortcuts import render_to_response
 from courseware.course_grades_helper import get_course_by_id
 
-# Global variables
-base_url = settings.TNLBASEURL
-adminid = settings.TNLADMINID
-grades = {}  # TODO: need to enter the gradeid data from TNL when I get it
+
+# ========== Global variables ==========
+# The logging mechanism
 AUDIT_LOG = logging.getLogger("audit")
+
+# The base URL for all requests
+tnl_base_url = settings.TNLBASEURL
+
+# District/endpoint specific values
+tnl_adminid = settings.TNLADMINID
+tnl_grades = {}  # TODO: need to enter the gradeid data from TNL when I get it
+tnl_providerid = settings.TNLPROVIDERID
+tnl_edagencyid = settings.TNLEDAGANECYID
+tnl_creditvaluetypeid = settings.TNLCREDITVALUETYPEID
+tnl_creditareaid = settings.TNLCREDITAREAID
+tnl_creditvalue = settings.TNLCREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI’s case) to be awarded for the course)"
 
 
 class TNLRequest:
@@ -35,7 +46,7 @@ class TNLRequest:
     Class for creating and carrying out requests to TNL
     """
     def __init__(self, endpoint, method, data):
-        self.url = base_url + endpoint
+        self.url = tnl_base_url + endpoint
         self.method = method
         self.data = data
 
@@ -61,7 +72,7 @@ def get_person(user):
     # getPersonId endpoint
     endpoint = '/ia/app/webservices/person/getPersonId'
     # Parameters needed for this request
-    data = {'adminid': adminid,
+    data = {'adminid': tnl_adminid,
             'email': user.email}
     # Request object
     tnl_request = TNLRequest(endpoint, 'get', data)
@@ -79,7 +90,7 @@ def get_section():
     """
 
 
-def get_grade():
+def get_grade(percent):
     """
     Matches our grade with the gradeid data from TNL
     """
@@ -151,26 +162,20 @@ def register_course(course):
     """
     # createSDLCourse endpoint (SDL seems the best fit for our courses)
     endpoint = '/ia/app/webservices/course/createSDLCourse'
-    # Get all the needed data
-    # TODO: These need real data, obviously. Need more info from TNL.
-    providerid = ''
-    edagencyid = ''
-    coursetypeid = ''
-    creditareaid = ''
-    creditvaluetypeid = ''
-    creditvalue = ''
+
     # Parameters needed for the request
-    data = {'adminid': adminid,
+    data = {'adminid': tnl_adminid,
             'title': course.name,
             'externalid': course.id,
-            'providerid': providerid,
-            'edagencyid': edagencyid,
-            'coursetypeid': coursetypeid,
-            'creditareaid': creditareaid,
-            'creditvaluetypeid': creditvaluetypeid,
-            'creditvalue': creditvalue,
+            'providerid': tnl_providerid,
+            'edagencyid': tnl_edagencyid,
+            'coursetypeid': 1,
+            'creditareaid': tnl_creditareaid,
+            'creditvaluetypeid': tnl_creditvaluetypeid,
+            'creditvalue': tnl_creditvalue,
             'needsapproval': False,
             'selfpaced': True}
+
     # Request object
     # TODO: the data needs to be encrypted prior to sending, according to the TNL doc.
     tnl_request = TNLRequest(endpoint, 'post', data)
@@ -179,6 +184,7 @@ def register_course(course):
         response = tnl_request.do_request()
         course_entry = TNLCourses(course=course.id,
                                   tnl_id=response.courseid,
+                                  section_id=response.sectionid,
                                   registered=1,
                                   registration_date=datetime.datetime.utcnow())
     except:
@@ -197,9 +203,9 @@ def register_completion(user, course_instance, percent):
     # markComplete endpoint
     endpoint = '/ia/app/webservices/section/markComplete'
     # Assign needed parameters
-    data = {'adminid': adminid,
+    data = {'adminid': tnl_adminid,
             'personid': get_person(user),
-            'sectionid': get_section(),  # TODO: add our ID
+            'sectionid': course.section_id,
             'gradeid': get_grade(percent)}
     # Request object
     tnl_request = TNLRequest(endpoint, 'put', data)
