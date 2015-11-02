@@ -22,6 +22,7 @@ from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
 from student.models import District, User
 from mitxmako.shortcuts import render_to_response
 from courseware.course_grades_helper import get_course_by_id
+from tnl_integration.crypt import salt_convert, PBEWithMD5AndDES
 
 
 # ========== Global variables ==========
@@ -40,6 +41,12 @@ tnl_creditvaluetypeid = settings.TNLCREDITVALUETYPEID
 tnl_creditareaid = settings.TNLCREDITAREAID
 tnl_creditvalue = settings.TNLCREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI’s case) to be awarded for the course)"
 
+# District/endpoint specific encryption information
+tnl_enc_password = settings.TNLPASSWORD
+tnl_enc_salt = salt_convert(settings.TNLSALT)
+tnl_enc_iterations = settings.TNLITERATIONS
+tnl_encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
+
 
 class TNLRequest:
     """
@@ -48,7 +55,7 @@ class TNLRequest:
     def __init__(self, endpoint, method, data):
         self.url = tnl_base_url + endpoint
         self.method = method
-        self.data = data
+        self.data = tnl_encryptor.encrypt(json.dumps(data))
 
     def do_request(self):
         """
@@ -177,7 +184,6 @@ def register_course(course):
             'selfpaced': True}
 
     # Request object
-    # TODO: the data needs to be encrypted prior to sending, according to the TNL doc.
     tnl_request = TNLRequest(endpoint, 'post', data)
 
     try:
