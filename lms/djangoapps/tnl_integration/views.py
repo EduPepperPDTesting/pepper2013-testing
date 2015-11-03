@@ -25,12 +25,12 @@ tnl_base_url = settings.TNL_BASE_URL
 
 # District/endpoint specific values
 tnl_adminid = settings.TNL_ADMINID
-tnl_grades = settings.TNL_GRADES  # {1: range(85,100), 2: range(0,84)}
+tnl_grades = settings.TNL_GRADES
 tnl_providerid = settings.TNL_PROVIDERID
 tnl_edagencyid = settings.TNL_EDAGANECYID
 tnl_creditvaluetypeid = settings.TNL_CREDITVALUETYPEID
 tnl_creditareaid = settings.TNL_CREDITAREAID
-tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI’s case) to be awarded for the course)"
+tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI's case) to be awarded for the course)"
 
 # District/endpoint specific encryption information
 tnl_enc_password = settings.TNL_PASSWORD
