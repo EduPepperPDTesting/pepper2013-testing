@@ -1,75 +1,42 @@
 """
 True North Logic integration module
-
-TODO: These questions need answers to complete this:
-  1) What is the specific method for encrypting the course creation data?
-  2) Is this encryption needed for any other sent data?
-  3) What are the gradeid values?
-  4) What are the providerid, edagencyid, coursetypeid, creditareaid, creditvaluetypeid, and creditvalue, and are they
-     all required for the createSDLCourse?
-  5) What is the sectionid for a course created using the createSDLCourse endpoint? Presumably I would use the
-     getSectionId endpoint for that data, but the statement "include enough parameters to uniquely identify the section"
-     is somewhat vague. What parameters would be required for this case?
 """
 
 # Imports
-from django.conf import settings
-import requests
+import datetime
 import logging
 import json
-import datetime
-from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
-from student.models import District, User
-from mitxmako.shortcuts import render_to_response
-from courseware.course_grades_helper import get_course_by_id
-from tnl_integration.crypt import salt_convert, PBEWithMD5AndDES
 
+from django.conf import settings
+
+from courseware.course_grades_helper import get_course_by_id
+from mitxmako.shortcuts import render_to_response
+from student.models import District, User
+from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
+from web_client.crypt import salt_convert, PBEWithMD5AndDES
+from web_client.request import WebRequest
 
 # ========== Global variables ==========
 # The logging mechanism
 AUDIT_LOG = logging.getLogger("audit")
 
 # The base URL for all requests
-tnl_base_url = settings.TNLBASEURL
+tnl_base_url = settings.TNL_BASE_URL
 
 # District/endpoint specific values
-tnl_adminid = settings.TNLADMINID
-tnl_grades = {}  # TODO: need to enter the gradeid data from TNL when I get it
-tnl_providerid = settings.TNLPROVIDERID
-tnl_edagencyid = settings.TNLEDAGANECYID
-tnl_creditvaluetypeid = settings.TNLCREDITVALUETYPEID
-tnl_creditareaid = settings.TNLCREDITAREAID
-tnl_creditvalue = settings.TNLCREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI’s case) to be awarded for the course)"
+tnl_adminid = settings.TNL_ADMINID
+tnl_grades = settings.TNL_GRADES  # {1: range(85,100), 2: range(0,84)}
+tnl_providerid = settings.TNL_PROVIDERID
+tnl_edagencyid = settings.TNL_EDAGANECYID
+tnl_creditvaluetypeid = settings.TNL_CREDITVALUETYPEID
+tnl_creditareaid = settings.TNL_CREDITAREAID
+tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI’s case) to be awarded for the course)"
 
 # District/endpoint specific encryption information
-tnl_enc_password = settings.TNLPASSWORD
-tnl_enc_salt = salt_convert(settings.TNLSALT)
-tnl_enc_iterations = settings.TNLITERATIONS
+tnl_enc_password = settings.TNL_PASSWORD
+tnl_enc_salt = salt_convert(settings.TNL_SALT)
+tnl_enc_iterations = settings.TNL_ITERATIONS
 tnl_encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
-
-
-class TNLRequest:
-    """
-    Class for creating and carrying out requests to TNL
-    """
-    def __init__(self, endpoint, method, data):
-        self.url = tnl_base_url + endpoint
-        self.method = method
-        self.data = tnl_encryptor.encrypt(json.dumps(data))
-
-    def do_request(self):
-        """
-        Makes the request to TNL. Returns parsed JSON object on success. Raises exceptions on error.
-        """
-        try:
-            response = requests.request(self.method, self.url, data=self.data, timeout=15)
-            parsed = json.loads(response.text)
-            if parsed.success == 'false':
-                raise Exception(u"Unsuccessful request: {0}".format(parsed.message))
-            return parsed
-        except Exception as e:
-            AUDIT_LOG.warning(u"There was a TNL connection error: {0}.".format(e))
-            raise
 
 
 def get_person(user):
@@ -82,10 +49,10 @@ def get_person(user):
     data = {'adminid': tnl_adminid,
             'email': user.email}
     # Request object
-    tnl_request = TNLRequest(endpoint, 'get', data)
+    tnl_request = WebRequest(tnl_base_url)
 
     try:
-        response = tnl_request.do_request()
+        response = tnl_request.do_request(endpoint, 'get', tnl_encryptor.encrypt(json.dumps(data)))
         return response.personid
     except:
         return False
@@ -101,6 +68,13 @@ def get_grade(percent):
     """
     Matches our grade with the gradeid data from TNL
     """
+    grade = round(percent * 100)
+    grade_out = False
+    for gradeid, grades in tnl_grades:
+        if grade in grades:
+            grade_out = gradeid
+
+    return grade_out
 
 
 def check_district(district_id):
@@ -184,10 +158,10 @@ def register_course(course):
             'selfpaced': True}
 
     # Request object
-    tnl_request = TNLRequest(endpoint, 'post', data)
+    tnl_request = WebRequest(tnl_base_url)
 
     try:
-        response = tnl_request.do_request()
+        response = tnl_request.do_request(endpoint, 'post', tnl_encryptor.encrypt(json.dumps(data)))
         course_entry = TNLCourses(course=course.id,
                                   tnl_id=response.courseid,
                                   section_id=response.sectionid,
@@ -214,10 +188,10 @@ def register_completion(user, course_instance, percent):
             'sectionid': course.section_id,
             'gradeid': get_grade(percent)}
     # Request object
-    tnl_request = TNLRequest(endpoint, 'put', data)
+    tnl_request = WebRequest(tnl_base_url)
 
     try:
-        tnl_request.do_request()
+        tnl_request.do_request(endpoint, 'put', tnl_encryptor.encrypt(json.dumps(data)))
         track = TNLCompletionTrack(user=user, course=course, registered=1, registration_date=datetime.datetime.utcnow())
     except:
         track = TNLCompletionTrack(user=user, course=course, registered=0)
