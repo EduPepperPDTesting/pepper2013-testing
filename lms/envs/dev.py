@@ -360,3 +360,18 @@ TNL_CREDITVALUE = 1  # TODO: Find out what this should actually be.
 TNL_PASSWORD = 'RLFFgypAv'
 TNL_SALT = '13,13,65,45,78,36,44,11'
 TNL_ITERATIONS = 22
+
+RECORDTIMESTORE = {
+    'OPTIONS': {
+        'db': 'assist',
+        'collection': 'record_time',
+        'collection_page': 'page_time',
+        'collection_discussion': 'discussion_time',
+        'collection_portfolio': 'portfolio_time',
+        'collection_external': 'external_time',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user':MONGO_USER,
+        'password':MONGO_PASSWORD,
+    }
+}
