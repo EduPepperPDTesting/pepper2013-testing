@@ -680,6 +680,19 @@ def task_close(request):
     return HttpResponse(j, content_type="application/json")
 
 
+def add_to_cohort(request):
+    try:
+        change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
+        change.cohort_id = int(request.POST.get('cohort'))
+        change.save()
+        message = "success"
+    except Exception as e:
+        db.transaction.rollback()
+        message = "Error: " + e
+
+    j = json.dumps({"message": message})
+    return HttpResponse(j, content_type="application/json")
+
 #* -------------- Dropdown List -------------
 
 def drop_states(request):

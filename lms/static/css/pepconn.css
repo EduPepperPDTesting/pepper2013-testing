@@ -115,6 +115,9 @@ label {
             font-weight: bold;
             padding: 5px 0 0 10px;
         }
+        .add-area:hover{
+            cursor: pointer;
+        }
         .add-area span {
             color: #aa5500;
         }
@@ -129,17 +132,26 @@ label {
         .district-section {
             display: block;
         }
-        input.form_submit, input.form_submit:hover {
+        .bookmark_icon{
+            width:  32px;
+            height: 32px;
+            padding-bottom:4px;
+            float:  right;
+            cursor: pointer;
+        }
+        input.form_submit {
             border-color: #777 #777 #555;
             box-shadow: 0 1px 0 0 #aaa inset;
             background-color: #888;
             background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
             text-shadow: 0 -1px 1px #555;
         }
+        .form_submit:hover{
+            background-image: linear-gradient(to bottom, #888 0%, #666 50%, #555 50%, #555 100%);
+        }
         section.content-wrapper {
             background: transparent !important;
         }
-
         .list {
             padding: 0 5px;
         }
@@ -185,6 +197,26 @@ label {
 
         div.expand_title_expanded {
             border-bottom: 1px solid #999;
+        }
+        .table-tab {
+            border-width: 0 1px 1px 1px;
+            border-style: solid;
+            -moz-border-top-colors: none;
+            -moz-border-right-colors: none;
+            -moz-border-bottom-colors: none;
+            -moz-border-left-colors: none;
+            border-image: none;
+            border-radius: 0 0 5px 5px;
+            color: #FFF;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+            letter-spacing: 1px;
+            padding: 4px 20px;
+            text-transform: uppercase;
+            vertical-align: top;
+            margin-left: 5px;
         }
 
         .section-tab {
@@ -245,6 +277,39 @@ label {
             text-shadow: 0 -1px 1px rgb(137, 120, 14);
         }
 
+        .table-tab.district {
+            border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+            box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+            background-color: rgb(47, 167, 229);
+            background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+            text-shadow: 0 -1px 1px rgb(47, 87, 169);
+            padding-top: 10px;
+        }
+
+        .table-tab.school {
+            border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+            box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+            background-color: rgb(123, 181, 51);
+            background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+            text-shadow: 0 -1px 1px rgb(83, 121, 11);
+        }
+
+        .table-tab.user {
+            border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+            box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+            background-color: rgb(234, 110, 7);
+            background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+            text-shadow: 0 -1px 1px rgb(154, 30, 7);
+        }
+
+        .table-tab.cohort {
+            border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
+            box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
+            background-color: rgb(217, 200, 14);
+            background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
+            text-shadow: 0 -1px 1px rgb(137, 120, 14);
+        }
+
         div.expand_title_expanded .icon {
             background: url("../images/arrows.png")no-repeat 0 -23px;
         }
@@ -262,4 +327,7 @@ label {
 
         .custom-email textarea {
             height: 300px;
+        }
+        .selectall{
+            float:right;
         }
