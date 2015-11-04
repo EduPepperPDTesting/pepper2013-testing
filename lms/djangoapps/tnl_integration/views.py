@@ -58,12 +58,6 @@ def get_person(user):
         return False
 
 
-def get_section():
-    """
-    This gets the TNL sectionid
-    """
-
-
 def get_grade(percent):
     """
     Matches our grade with the gradeid data from TNL
