@@ -5,6 +5,9 @@ class @Sequence
     @num_contents = @contents.length
     @id = @el.data('id')
     @modx_url = @el.data('course_modx_root')
+    #20151026b Analysis the url and get the parameter
+    @url_split_array = @el[0].baseURI.split('/')
+    @prev_button_para = @url_split_array[@url_split_array.length-1]
     @initProgress()
     @bind()
     @render parseInt(@el.data('position'))
@@ -85,7 +88,8 @@ class @Sequence
     if @position == 1
       if prev_section != null
         @$('.sequence-nav-buttons .prev a').removeClass('disabled').click(()=>
-          window.location.href=prev_section
+          #20151026b Add parameter 0 at the end of url
+          window.location.href = prev_section + "0"
         )
       else
         @$('.sequence-nav-buttons .prev a').addClass('disabled')
@@ -95,7 +99,8 @@ class @Sequence
     if @position == @contents.length
       if next_section != null
         @$('.sequence-nav-buttons .next a').removeClass('disabled').click(()=>
-          window.location.href=next_section
+          #20151026b Add parameter 1 at the end of url
+          window.location.href = next_section + "1"
         )
       else
         @$('.sequence-nav-buttons .next a').addClass('disabled')
@@ -112,6 +117,12 @@ class @Sequence
       # On Sequence change, fire custom event "sequence:change" on element.
       # Added for aborting video bufferization, see ../video/10_main.js
       @el.trigger "sequence:change"
+      #20151026b If the parameter from url equal to "0", then change the value of new_positon and save to DB
+      if @prev_button_para == "0"
+        @prev_button_para = null
+        new_position = @num_contents
+        modx_full_url = @modx_url + '/' + @id + '/goto_position'
+        $.postWithPrefix modx_full_url, position: new_position
       @mark_active new_position
       @$('#seq_content').html @contents.eq(new_position - 1).text()
       XModule.loadModules(@$('#seq_content'))

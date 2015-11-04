@@ -90,7 +90,11 @@ f.close()
                     </div>
                 </form>
             </div>
-        </div>
+        </div><span style = "display:none" id = "cohort_select"><select class = "cohort_selector"><option value=""></option>
+        %for item in Cohort.objects.all().order_by('code'):
+            <option value="${item.id}">${item.code}</option>
+        %endfor
+      </select></span>
         <div class="school-section import-section">
             <form method="" id="schoolDataImportForm" action="">
                 <div style="padding: 1em 7px 7px 7px;">
@@ -371,13 +375,20 @@ f.close()
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea">
 
-                <select type = "search" data-column = "2" class = "search">
+                <select type = "search" data-column = "2" class = "search" id = "District_state_select">
                   <option value="" selected>Select State</option>
                   %for item in State.objects.all().order_by('name'):
-                  <option value="${item.name}">${item.name}</option>
+                  <option id = "${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
-                <input placeholder = "Search" class="search" type="search" data-column="all">
+                <select type = "search" data-column = "1" class = "search" id = "District_district_select">
+                  <option value="" selected>Select District</option>
+                  %for item in District.objects.all().order_by('name'):
+                  <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                  %endfor
+                </select>
+                <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
+                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
             </div>
         </div>
         <div>
@@ -403,6 +414,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -430,14 +443,22 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="2">
+                <select type="search" class="search" data-column="2" id = "School_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option value="${item.id}">${item.name}</option>
+                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <input placeholder = "Search" class="search" type="search" data-column="all"><br>
+                <select type="search" class="search" data-column="2" id = "School_state_select">
+
+                      <option value="">Select State</option>
+                      %for item in State.objects.all().order_by("name"):
+                      <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                      %endfor
+                </select>
+                <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
+                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
 
             </div>
         </div>
@@ -464,6 +485,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -491,17 +514,18 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="0">
+                <select type="search" class="search" data-column="0" id = "User_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option value="${item.id}">${item.name}</option>
+                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <input placeholder = "Search by Last Name" class="search" type="search" data-column="1">
-                <input placeholder = "Search by First Name" class="search" type="search" data-column="2">
-                <input placeholder = "Search by Email" class="search" type="search" data-column="3">
-                <input placeholder = "Search All" class="search" type="search" data-column="all">
+                <input placeholder = "Search by Last Name" class="search" type="search" data-column="1" id = "User_search_last">
+                <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
+                <input placeholder = "Search by Email" class="search" type="search" data-column="3" id = "User_search_email">
+                <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
+                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
 
             </div>
         </div>
@@ -532,6 +556,8 @@ f.close()
                 </tbody>
             </table>
         </div>
+                    <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -552,6 +578,9 @@ f.close()
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
+        <span style = "float:right">
+            <input type ="button" name = "" onclick = "addToCohort()" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+        </span>
     </div>
     <div class="cohort_table-section table-section">
         <div class="add-area" onclick = "$('#filterArea3').slideToggle()">
@@ -559,14 +588,15 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea3">
-                <select type="search" class="search" data-column="4">
+                <select type="search" class="search" data-column="4" id = "Cohort_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
                       <option value="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <input placeholder = "Search" class="search" type="search" data-column="all"><br>
+                <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
+                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
 
             </div>
         </div>
@@ -595,6 +625,7 @@ f.close()
                 </tbody>
             </table>
         </div>
+            <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -685,21 +716,133 @@ $("#singleUserImportForm").submit(function(){
 $(document).ready(function(){
     $(".table-section").hide();
     $(".district_table-section").show();
-    //$.post('${reverse("pepconn_favorite_filter_load")}',function(r){
-      //  alert(r[0].name);
-    //});
+    $("#selectalldistrict").click(function(){
+        if(this.checked){
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallschool").click(function(){
+        if(this.checked){
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectalluser").click(function(){
+        if(this.checked){
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallcohort").click(function(){
+        if(this.checked){
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+});
+function addToCohort(){
+    var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
+    new Dialog($("#dialog")).show("Select Cohort", code);
 
-          //new Dialog($('#dialog')).show('Dialog Test', "<button id = 'addfilter'>Add filter</button>");
-    /*$("#addfilter").click(function(){
-        $.post('${reverse("pepconn_favorite_filter_save")}',function(r){
-            alert(r[0].name);
+
+}
+function submitAddToCohort(){
+    console.log("processing");
+    var ids = [];
+    $("#user_table_init tr").each(function(i, val){
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        $checkedBoxes.each(function(i, box){
+           var $checkbox = $(box);
+
+            $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
+                console.log(r.message);
+                if(r.message = "success"){
+                    $("#cohortAddSuccess").html("Added successfully to Cohort");
+                }
+            });
+
         });
     });
-    */
-});
 
+}
 
+function openBookmark(table){
+    var code = "<p>Select Filter: <select id = 'bookmark_select_"+table+"'>";
+    var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_"+table+"'></input><br><br><button onClick = 'saveBookmark(\""+table+"\");'>Save Bookmark</button></p>";
+    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+        for(i = 0; i < r.length; i++){
+            var data = jQuery.parseJSON(r[i].filter);
+            if(data.table == table)
+                code += "<option id = '"+i+"' value = '"+i+"'>"+r[i].name+"</option>";
+        }
+        code += "</select><br><br><button onClick = 'loadBookmark(\""+table+"\");'>Load</button>&nbsp &nbsp <button onClick = 'deleteBookmark(\""+table+"\");'>Delete</button></p><span style = 'color:green' id = 'modalMessage'></span><hr>";
+        new Dialog($('#dialog')).show(table+' Bookmarks', code+saveCode);
+    });
 
+}
+function saveBookmark(table){
+    var nameData = $("#bookmark_newname_"+table).val();
+    var state = $("#"+table+"_state_select :selected").attr("id");
+    var district = $("#"+table+"_district_select :selected").attr("id");
+    var search = $("#"+table+"_search").val();
+    var first = $("#"+table+"_search_first").val();
+    var last = $("#"+table+"_search_last").val();
+    var email = $("#"+table+"_search_email").val();
+    var filterData = '{"table":"'+table+'", "state":"'+state+'", "district":"'+district+'", "search":"'+search+'", "firstName":"'+first+'", "lastName":"'+last+'", "email":"'+email+'"}';
+    $.get("${reverse('pepconn_favorite_filter_save')}", {name:nameData, filter:filterData}, function(data){
+        $("#modalMessage").html("Your filter was saved!");
+    });
+}
+function loadBookmark(table){
+    var id = $("#bookmark_select_"+table).val();
+    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+        var data = jQuery.parseJSON(r[id].filter);
+        $("#"+table+"_district_select option[id="+data.district+"]").prop("selected", true).change();
+        $("#"+table+"_state_select option[id="+data.state+"]").prop("selected", true).change();
+        $("#"+table+"_search").val(data.search).change();
+        $("#"+table+"_search_first").val(data.firstName).change();
+        $("#"+table+"_search_last").val(data.lastName).change();
+        $("#"+table+"_search_email").val(data.email).change();
+        $("#modalMessage").html("Your filter was loaded!");
+    });
+}
+function deleteBookmark(table){
+    if(confirm("Are you sure you want to delete the selected Bookmark?")) {
+        var ids = $("#bookmark_select_" + table + " :selected").text();
+        $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+            for(i = 0; i < r.length; i++){
+                if (r[i].name == ids){
+                    ids = r[i].id;
+                }
+            }
+        });
+        $.get("${reverse('pepconn_favorite_filter_delete')}", {id: ids}, function (data) {
+            $("#modalMessage").html("Your filter was deleted.");
+        });
+    }
+}
 $(function() {
 
   var pagerOptions = {
@@ -986,7 +1129,7 @@ function toggle(which){
           return false;
       });
   }
-  
+
   //* global
   //** add csrf token to json
   function safeJSON(j){
@@ -1050,7 +1193,7 @@ function toggle(which){
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
         if(!ids.length){
           new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
-          return; 
+          return;
         }
         var filter={'ids':ids.join()};
       } else if(type=='filter') {
@@ -1071,7 +1214,7 @@ function toggle(which){
           self.taskId=r.taskId;
           self.updateProgress();
         }
-      });          
+      });
     },
     updateProgress:function(){
       var self=this;
@@ -1126,7 +1269,7 @@ function toggle(which){
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
-    },    
+    },
     downloadUserCsv:function(){
       var filter=$('#fltUserRegistration')[0].control.getFilter();
       this.postToNewTab("${reverse('pepconn_registration_download_csv')}",safeJSON(filter));

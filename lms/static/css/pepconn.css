@@ -132,6 +132,13 @@ label {
         .district-section {
             display: block;
         }
+        .bookmark_icon{
+            width:  32px;
+            height: 32px;
+            padding-bottom:4px;
+            float:  right;
+            cursor: pointer;
+        }
         input.form_submit {
             border-color: #777 #777 #555;
             box-shadow: 0 1px 0 0 #aaa inset;
@@ -320,4 +327,7 @@ label {
 
         .custom-email textarea {
             height: 300px;
+        }
+        .selectall{
+            float:right;
         }
