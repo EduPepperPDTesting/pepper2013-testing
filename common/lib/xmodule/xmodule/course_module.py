@@ -406,6 +406,9 @@ class CourseFields(object):
 
     show_external_timer = Boolean(help="Display External Timer", default=False, scope=Scope.settings)
 
+    maximum_course_time = String(help="Maximum Course Time", default="21600", scope=Scope.settings)
+
+
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
 
