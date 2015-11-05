@@ -49,7 +49,7 @@ from django.utils.timezone import UTC
 #@end
 
 # True North Logic integration
-from tnl_integration.views import register_completion, tnl_course
+# from tnl_integration.utils import tnl_register_completion, tnl_course
 
 log = logging.getLogger(__name__)
 
@@ -643,8 +643,8 @@ def modx_dispatch(request, dispatch, location, course_id):
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
                             # True North Logic integration
-                            if tnl_course(student, course_instance):
-                                register_completion(student, course_instance, percent)
+                            # if tnl_course(student, course_instance):
+                            #     tnl_register_completion(student, course_instance, percent)
                         else:
                             course_instance.complete_course = False
                             course_instance.complete_date = datetime.fromtimestamp(0, UTC())

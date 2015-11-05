@@ -348,7 +348,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 PEPPER_SESSION_EXPIRY = 30 * 60
 
 # ----- True North Logic settings -----
-INSTALLED_APPS += ('tnl_integration', 'web_client',)
 TNL_BASE_URL = 'https://ncdpitest.truenorthlogic.com/'
 TNL_ADMINID = 'pcgpepperadmin'
 TNL_GRADES = {1: range(85, 100), 2: range(0, 84)}
