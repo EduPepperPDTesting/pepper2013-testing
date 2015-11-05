@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from pytz import UTC
 
 from multiprocessing import Process
-
+from threading import Thread
 from mako.template import Template
 import mitxmako
 
@@ -34,6 +34,8 @@ from django.db.models import F
 from study_time.models import record_time_store
 from django.views.decorators import csrf
 from xmodule.modulestore.exceptions import ItemNotFoundError
+from courseware.module_render import get_module
+from courseware.model_data import FieldDataCache
 log = logging.getLogger("tracking")
 
 
@@ -52,9 +54,9 @@ def attstr(obj, attr):
 
 def postpone(function):
     def decorator(*args, **kwargs):
-        p = Process(target=function, args=args, kwargs=kwargs)
-        p.daemon = True
-        p.start()
+        t = Thread(target=function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
     return decorator
 
 
@@ -148,14 +150,23 @@ def do_get_report_data(task, data, request):
     for i, p in enumerate(data):
         try:
             external_time = 0
+            complete_course_num = 0
+            current_course_num = 0
             if p.subscription_status != 'Imported':
                 for enrollment in CourseEnrollment.enrollments_for_user(p.user):
                     try:
                         course = course_from_id(enrollment.course_id)
                         external_time += rts.get_external_time(str(p.user.id), course.id)
-                    except ItemNotFoundError:
-                        log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
+                        field_data_cache = FieldDataCache([course], course.id, p.user)
+                        course_instance = get_module(p.user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
 
+                        if course_instance.complete_course:
+                            complete_course_num += 1
+                        else:
+                            current_course_num += 1
+                    except ItemNotFoundError:
+                        #log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
+                        pass
                 course_time, discussion_time, portfolio_time = rts.get_stats_time(str(p.user.id))
                 all_course_time = course_time + external_time
                 collaboration_time = discussion_time + portfolio_time
@@ -174,7 +185,9 @@ def do_get_report_data(task, data, request):
                          "total_time": study_time_format(total_time),
                          "collaboration_time": study_time_format(collaboration_time),
                          "external_time": study_time_format(external_time),
-                         "course_time": study_time_format(course_time)
+                         "course_time": study_time_format(course_time),
+                         "complete_course_num": complete_course_num,
+                         "current_course_num": current_course_num
                          })
             task.process_num = i + 1
         except Exception, e:
@@ -184,7 +197,6 @@ def do_get_report_data(task, data, request):
             task.success_num = count_success
             task.update_time = datetime.now(UTC)
             task.save()
-            db.transaction.commit()
     rts.set_time_report_result(str(request.user.id), rows)
     task.task_read = True
     task.save()
@@ -199,10 +211,10 @@ def time_report_download_excel(request):
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
     FIELDS = ["user_first_name", "user_last_name", "user_email", "district", "school", "total_time", "collaboration_time",
-              "external_time", "course_time"]
+              "external_time", "course_time", "complete_course_num", "current_course_num"]
 
     TITLES = ["First Name", "Last Name", "Email", "District", "School", "Total Time", "Collaboration Time",
-              "External Time", "Course Time"]
+              "External Time", "Course Time", "Completed Course", "Current Courses"]
     for i, k in enumerate(TITLES):
         worksheet.write(0, i, k)
     row = 1

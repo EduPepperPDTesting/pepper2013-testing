@@ -65,9 +65,6 @@ from student.models import State,District,School
         <div class="table">      
           <div class="" style="padding:5px;"></div>
           <span class="body"></span>
-
-          <div class="time_report_load_text">Loading...</div>
-
           <table class="tblUserTime">
             <thead>
               <th>First Name</th>
@@ -79,6 +76,8 @@ from student.models import State,District,School
               <th>Collaboration Time</th>
               <th>External Time</th>
               <th>Course Time</th>
+              <th>Completed Courses</th>
+              <th>Current Courses</th>
             </thead>
             <tbody></tbody>
           </table>
@@ -239,7 +238,8 @@ from student.models import State,District,School
         table_con+='<tr role="row"><td>'+data[d].user_first_name+'</td>'+'<td>'+data[d].user_last_name+'</td>\
         <td>'+data[d].user_email+'</td><td>'+data[d].district+'</td><td>'+data[d].school+'</td>\
         <td>'+data[d].total_time+'</td><td>'+data[d].collaboration_time+'</td>\
-        <td>'+data[d].external_time+'</td><td>'+data[d].course_time+'</td></tr>';
+        <td>'+data[d].external_time+'</td><td>'+data[d].course_time+'</td><td>'+data[d].complete_course_num+'</td>\
+        <td>'+data[d].current_course_num+'</td></tr>';
       }
       $(".tblUserTime tbody").append(table_con);
       $(".tblUserTime").trigger("update");
