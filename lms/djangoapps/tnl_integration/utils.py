@@ -14,23 +14,26 @@ from web_client.request import WebRequest
 # The logging mechanism
 AUDIT_LOG = logging.getLogger("audit")
 
-# The base URL for all requests
-tnl_base_url = settings.TNL_BASE_URL
+try:
+    # The base URL for all requests
+    tnl_base_url = settings.TNL_BASE_URL
 
-# District/endpoint specific values
-tnl_adminid = settings.TNL_ADMINID
-tnl_grades = settings.TNL_GRADES
-tnl_providerid = settings.TNL_PROVIDERID
-tnl_edagencyid = settings.TNL_EDAGANECYID
-tnl_creditvaluetypeid = settings.TNL_CREDITVALUETYPEID
-tnl_creditareaid = settings.TNL_CREDITAREAID
-tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI's case) to be awarded for the course)"
+    # District/endpoint specific values
+    tnl_adminid = settings.TNL_ADMINID
+    tnl_grades = settings.TNL_GRADES
+    tnl_providerid = settings.TNL_PROVIDERID
+    tnl_edagencyid = settings.TNL_EDAGANECYID
+    tnl_creditvaluetypeid = settings.TNL_CREDITVALUETYPEID
+    tnl_creditareaid = settings.TNL_CREDITAREAID
+    tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI's case) to be awarded for the course)"
 
-# District/endpoint specific encryption information
-tnl_enc_password = settings.TNL_PASSWORD
-tnl_enc_salt = salt_convert(settings.TNL_SALT)
-tnl_enc_iterations = settings.TNL_ITERATIONS
-tnl_encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
+    # District/endpoint specific encryption information
+    tnl_enc_password = settings.TNL_PASSWORD
+    tnl_enc_salt = salt_convert(settings.TNL_SALT)
+    tnl_enc_iterations = settings.TNL_ITERATIONS
+    tnl_encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
+except:
+    raise Exception('The TNL settings have not been configured yet.')
 
 
 def tnl_get_person(user):

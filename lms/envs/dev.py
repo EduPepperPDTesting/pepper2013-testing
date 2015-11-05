@@ -346,31 +346,3 @@ USERS_ONLINE__TIME_OFFLINE = 60 * 10  # 10 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # SESSION_COOKIE_AGE = 30 * 60
 PEPPER_SESSION_EXPIRY = 30 * 60
-
-# ----- True North Logic settings -----
-TNL_BASE_URL = 'https://ncdpitest.truenorthlogic.com/'
-TNL_ADMINID = 'pcgpepperadmin'
-TNL_GRADES = {1: range(85, 100), 2: range(0, 84)}
-TNL_PROVIDERID = 9
-TNL_EDAGANECYID = 98
-TNL_CREDITVALUETYPEID = 1
-TNL_CREDITAREAID = 2
-TNL_CREDITVALUE = 1  # TODO: Find out what this should actually be.
-TNL_PASSWORD = 'RLFFgypAv'
-TNL_SALT = '13,13,65,45,78,36,44,11'
-TNL_ITERATIONS = 22
-
-RECORDTIMESTORE = {
-    'OPTIONS': {
-        'db': 'assist',
-        'collection': 'record_time',
-        'collection_page': 'page_time',
-        'collection_discussion': 'discussion_time',
-        'collection_portfolio': 'portfolio_time',
-        'collection_external': 'external_time',
-        'host': MONGO_HOST,
-        'port': MONGO_PORT,
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
-    }
-}
