@@ -1,7 +1,7 @@
 from ..dev import *
 from siteconf import *
 import sys
-from lms.sso.office365.setting import *
+from lms.sso.testsite.setting import *
 
 
 sys.path.append("..")  # => /home/tahoe/edx_all

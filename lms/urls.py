@@ -13,13 +13,17 @@ urlpatterns = (
     '',  # nopep8
 
 ####### Ancestor
-    url(r'^saml2/manage/metadata/$', 'djangosaml2.manage.metadata', name="saml2_manage_metadata"),
-    url(r'^saml2/metadata_json/$', 'djangosaml2.manage.metadata_json', name="saml2_manage_metadata_json"),
-    url(r'^saml2/manage/metadata_save/$', 'djangosaml2.manage.metadata_save', name="saml2_manage_metadata_save"),
+    url(r'^genericsso/$', 'sso.views.genericsso'),
+    
+    url(r'^sso/manage/metadata/$', 'sso.manage.metadata', name="sso_manage_metadata"),
+    url(r'^sso/manage/metadata_json/$', 'sso.manage.metadata_json', name="sso_manage_metadata_json"),
+    url(r'^sso/manage/metadata_save/$', 'sso.manage.metadata_save', name="sso_manage_metadata_save"),
+
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso_user', name="register_sso_user"),    
 
     (r'^saml2/', include('djangosaml2.urls')),
     (r'^test/', 'djangosaml2.views.echo_attributes'),
-
+    
     url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),

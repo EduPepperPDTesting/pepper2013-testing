@@ -5,10 +5,10 @@
  #form1 div.row input,
  #form1 div.row textarea,
  #form1 div.row span{vertical-align:top;}
- #form1 div.row span{padding-top:2px;}
+ #form1 div.row span{padding-top:8px;font-size:9px;}
  #form1 div.row input,
  #form1 div.row span{height:25px;}
- #form1 div.row input{width:200px;}
+ #form1 div.row input{width:190px;}
  #form1 div.row textarea{width:610px;height:200px;}
  #form1 div.section{font-size:18px;width:160px;text-align:right;margin:20px 0;}
  #form1{float:left;}
@@ -31,7 +31,7 @@
   <form id="form1" style="display:none;width:800px">
     <div class="section">IDP</div>
     <div class="row">
-      <span class="">SSO Type</span>
+      <span class="">Type</span>
       <select id="" name="sso_type" autocomplate="off">
         <option>EasyIEP</option>
         <option>OAuth</option>
@@ -39,12 +39,24 @@
       </select>
     </div>
     <div class="row">
-      <span class="">SSO Name</span>
+      <span class="">Name</span>
       <input type="" name="sso_name" value="" style="width:500px;"/>
     </div>
     <div class="row">
-      <span class="">SSO Entity ID</span>
+      <span class="">Entity ID</span>
       <input type="" name="sso_entity_id" value="" style="width:500px;"/>
+    </div>
+    <div class="row">
+      <span>Issuer URL</span>
+      <input type="" name="sso_issuer_url" value="" style="width:500px;"/>
+    </div>
+    <div class="row">
+      <span>Single sign-on service URL</span>
+      <input type="" name="sso_single_sign_on" value="" style="width:500px;"/>
+    </div>
+    <div class="row">
+      <span>Single sign-out service URL</span>
+      <input type="" name="sso_single_sign_out" value="" style="width:500px;"/>
     </div>
     <div class="row">
       <span>Request Schema</span>
@@ -74,12 +86,10 @@
     $("#entityList").bind("change",function(e,index){
       self.showData(self.data[index])
     });
-
     $("input[name=sso_name]").keyup(function(){
       this.value=$.trim(this.value);
       self.list.getSelectedItems().html(self.name4List(this.value));
     });
-    
     /* $("input[name=sso_entity_id]").keyup(function(){
        this.value=$.trim(this.value);
        self.list.getSelectedItems().html(self.entityID4List(this.value));
@@ -97,8 +107,11 @@
     this.data[index]['sso_type'] = $("select[name=sso_type]").val();
     this.data[index]['sso_entity_id'] = entityID;
     this.data[index]['sso_name'] = $("input[name=sso_name]").val();
+    this.data[index]['sso_issuer_url'] = $("input[name=sso_issuer_url]").val();
+    this.data[index]['sso_single_sign_on'] = $("input[name=sso_single_sign_on]").val();
+    this.data[index]['sso_single_sign_out'] = $("input[name=sso_single_sign_out]").val();
     this.data[index]['sso_request'] = $("textarea[name=sso_request]").val();
-    this.data[index]['sso_response'] = $("textarea[name=sso_response]").val(); 
+    this.data[index]['sso_response'] = $("textarea[name=sso_response]").val();
     if(index >= 0){
       var attributes=[];
       $rows.each(function(){
@@ -159,7 +172,7 @@
   }
   Metadata.prototype.load = function(){
     var self=this;
-    $.get("/saml2/metadata_json",function(r){
+    $.get("/sso/manage/metadata_json/",function(r){
       self.data = r;
       $.each(r,function(i,e){
         self.list.addItem(self.name4List(e.sso_name));
@@ -193,7 +206,7 @@
       }
     });
     if(ok){
-      $.post('/saml2/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
+      $.post('/sso/manage/metadata_save/', {data:JSON.stringify(this.data)}, function(r){
         alert("Save success.")
       });
     }
@@ -202,8 +215,8 @@
     var $row=$("<div style='text-align:left;' class='row'> \
 <span>Type</span> \
 <select name='type'><option>Assertion</option><option> Profile</option><option>Response</option></select> \
-Name <input type='input' name='name'/> \
-Map To <input type='input' name='map'/> \
+<span style='width:auto'>Name</span> <input type='input' name='name'/> \
+<span style='width:auto'>Map To</span> <input type='input' name='map'/> \
 <input type='button' style='width:20px;padding:0 5px' value='-' class='btnRemove'/></div>").appendTo($("#divIdpAttributeMapping"));
     var $btnRemove=$row.find(".btnRemove");
     $btnRemove.click(function(){
