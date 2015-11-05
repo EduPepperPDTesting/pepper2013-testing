@@ -395,18 +395,18 @@ f.close()
             <table class="tablesorter-blue" id="district_table_init">
                 <thead>
             <tr>
-                <th>District Id</th>
-                <th>District Name</th>
-                <th>State</th>
+                <th class = "district_code">District Id</th>
+                <th class = "district_name">District Name</th>
+                <th class = "district_state_name">State</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in District.objects.all():
             <tr>
-                <td>${item.code}</td>
-                <td>${item.name}</td>
-                <td>${item.state.name}</td>
+                <td class = "district_code">${item.code}</td>
+                <td class = "district_name">${item.name}</td>
+                <td class = "district_state_name">${item.state.name}</td>
                 <td><input type="checkbox" name="id" value="${item.id}" /></td>
 
             </tr>
@@ -1108,7 +1108,8 @@ function toggle(which){
     $(".table-section").hide();
     $("."+which+"-section").show();
     $(".table-tab").css("padding-top", "4px");
-    $(".table-tab."+which).css("padding-top", "10px")
+    $(".table-tab."+which).css("padding-top", "10px");
+    $(".search").val('').change();
 }
 
   if (typeof CKEDITOR != 'undefined') {
