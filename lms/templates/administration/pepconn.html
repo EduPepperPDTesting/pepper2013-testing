@@ -195,6 +195,21 @@ f.close()
     </form>
         <div id = "singleUserForm" style = "display:none">
             <form method="post" id="singleUserImportForm" action="${reverse('pepconn_single_user_submit')}">
+                <ul class="list">
+                  <li>
+                    <label>
+                      <input type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+                      Send registration emails to imported users
+                    </label>
+                  </li>
+                  <li class="customize-email">
+                    <label style="cursor:normal !important;">
+                      <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+                      Customize registration email
+                    </label>
+                  </li>
+                  <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+                </ul>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
                 <div style="padding: 1em 7px 7px 7px;">
@@ -593,9 +608,10 @@ f.close()
           Download Users:
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
-          <input type="button" value = "Delete Selected Users" class ="small" style = "float:right" id = "delete_selected_user"/>
         </span>
         <span style = "float:right">
+            <input type="button" value = "Delete Selected Users" class ="small" style = "float:right" id = "delete_selected_user"/>
+          <input type="button" value = "Send Registration Mail" class ="small" style = "float:right" id = "register_selected_user"/>
             <input type ="button" name = "" onclick = "addToCohort()" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
         </span>
     </div>
@@ -721,7 +737,7 @@ $("#singleSchoolImportForm").submit(function(){
 
 $("#singleUserImportForm").submit(function(){
 
-    var flds = ["name", "district", "email", "csrfmiddlewaretoken"];
+    var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
              r=$.parseJSON(r)
@@ -854,6 +870,25 @@ $(document).ready(function(){
 
         if(r.success){
             alert('Deleted Selected Cohorts.');
+            $(".cohort_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#cohort_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#register_selected_user").click(function(){
+       var ids = [];
+        $(".user_select_box:checked").each(function(){
+            ids.push(this.value);
+        });
+        if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Send Registration Emails to Selected Users?")) return;
+      $.get("${reverse('pepconn_registration_send_email')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Registration Emails Sending.');
             $(".cohort_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#cohort_"+identify).hide();
