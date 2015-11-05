@@ -388,7 +388,11 @@ f.close()
                   %endfor
                 </select>
                 <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
-                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
+                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label>
             </div>
         </div>
         <div>
@@ -458,7 +462,11 @@ f.close()
                       %endfor
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
-                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
+                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label>
+                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label>
 
             </div>
         </div>
@@ -466,18 +474,18 @@ f.close()
             <table class="tablesorter-blue" id="school_table_init">
                 <thead>
             <tr>
-              <th>School Code</th>
-              <th>School Name</th>
-              <th>District</th>
+              <th class = "school_code">School Code</th>
+              <th class = "school_name">School Name</th>
+              <th class = "school_district_id">District</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in School.objects.all():
             <tr>
-              <td>${item.code}</td>
-              <td>${item.name}</a></td>
-              <td>${item.district_id}</td>
+              <td class = "school_code">${item.code}</td>
+              <td class = "school_name">${item.name}</a></td>
+              <td class = "school_district_id">${item.district_id}</td>
               <td><input type="checkbox" name="id" value="${item.id}"/></td>
 
             </tr>
@@ -525,7 +533,13 @@ f.close()
                 <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
                 <input placeholder = "Search by Email" class="search" type="search" data-column="3" id = "User_search_email">
                 <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
-                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
+                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label>
 
             </div>
         </div>
@@ -533,22 +547,22 @@ f.close()
             <table class="tablesorter-blue" id="user_table_init">
                 <thead>
             <tr>
-              <th>ID</th>
-              <th>Last Name</th>
-              <th>First Name</th>
-              <th>E-Mail</th>
-              <th>Enrollment Start</th>
+              <th class = "user_id_select">ID</th>
+              <th class = "user_lname">Last Name</th>
+              <th class = "user_fname">First Name</th>
+              <th class = "user_email">E-Mail</th>
+              <th class = "user_enrollment_status">Enrollment Start</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for item in User.objects.all():
             <tr>
-              <td>${item.id}</td>
-              <td>${item.last_name}</a></td>
-              <td>${item.first_name}</td>
-              <td>${item.email}</td>
-              <td>${item.date_joined}</td>
+              <td class = "user_id_select">${item.id}</td>
+              <td class = "user_lname">${item.last_name}</a></td>
+              <td class = "user_fname">${item.first_name}</td>
+              <td class = "user_email">${item.email}</td>
+              <td class = "user_enrollment_status">${item.date_joined}</td>
               <td><input type="checkbox" name="id" value="${item.id}"/></td>
 
             </tr>
@@ -596,7 +610,12 @@ f.close()
                       %endfor
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
-                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
+                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label>
 
             </div>
         </div>
@@ -604,20 +623,20 @@ f.close()
             <table class="tablesorter-blue" id="cohort_table_init">
                 <thead>
             <tr>
-                <th>Cohort ID</th>
-                <th>Licences</th>
-                <th>Terms Months</th>
-                <th>Subscription Start Date</th>
+                <th class = "cohort_id">Cohort ID</th>
+                <th class = "cohort_liscense">Licences</th>
+                <th class = "cohort_term">Terms Months</th>
+                <th class = "cohort_start">Subscription Start Date</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in Cohort.objects.all():
             <tr>
-                <td>${item.code}</td>
-                <td>${item.licences}</td>
-                <td>${item.term_months}</td>
-                <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
+                <td class = "cohort_id">${item.code}</td>
+                <td class = "cohort_liscense">${item.licences}</td>
+                <td class = "cohort_term">${item.term_months}</td>
+                <td class = "cohort_start">${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
                 <td style = "display:none;">${item.district_id}</td>
                 <td><input type="checkbox" name="id" value="${item.id}" /></td>
             </tr>
