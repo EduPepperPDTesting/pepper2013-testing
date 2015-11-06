@@ -104,6 +104,7 @@ RECORDTIMESTORE = {
         'collection_discussion': 'discussion_time',
         'collection_portfolio': 'portfolio_time',
         'collection_external': 'external_time',
+        'collection_result_set': 'result_set',
         'host': MONGO_HOST,
         'port': MONGO_PORT,        
         'user':MONGO_USER,

@@ -1,7 +1,7 @@
-import datetime
 from django.db import models
 from student.models import District
 from django.contrib.auth.models import User
+
 
 class ImportTask(models.Model):
     class Meta:
@@ -49,6 +49,17 @@ class EmailTaskLog(models.Model):
     error = models.CharField(blank=False, max_length=255, db_index=True)
 
 
+class TimeReportTask(models.Model):
+    class Meta:
+        db_table = 'admin_time_report_task'
+    total_num = models.IntegerField(blank=False, default=0)
+    process_num = models.IntegerField(blank=False, default=0)
+    success_num = models.IntegerField(blank=False, default=0)
+    update_time = models.DateTimeField(auto_now_add=True, db_index=False)
+    task_read = models.BooleanField(blank=False, default=0)
+    user = models.ForeignKey(User, default=0)
+
+
 class FilterFavorite(models.Model):
     class Meta:
         db_table = 'admin_filter_favorite'
@@ -59,23 +70,23 @@ class FilterFavorite(models.Model):
 
 class Author(models.Model):
     class Meta:
-        db_table = 'author'      
+        db_table = 'author'
     name = models.CharField(blank=False, max_length=255, db_index=False)
 
 
 class CertificateAssociationType(models.Model):
     class Meta:
-        db_table = 'certificate_association_type'  
+        db_table = 'certificate_association_type'
     name = models.CharField(blank=False, max_length=255, db_index=False)
 
 
 class Certificate(models.Model):
     class Meta:
-        db_table = 'certificate'  
+        db_table = 'certificate'
     certificate_name = models.CharField(blank=False, max_length=255, db_index=False)
     certificate_blob = models.TextField(blank=False, null=True)
     readonly = models.BooleanField(default=1)
-    association_type = models.ForeignKey(CertificateAssociationType)  
+    association_type = models.ForeignKey(CertificateAssociationType)
     association = models.IntegerField(blank=False)
 
 
@@ -84,4 +95,3 @@ class HangoutPermissions(models.Model):
         db_table = 'hangout_permissions'
     district = models.ForeignKey(District, blank=False)
     permission = models.BooleanField(default=1)
-
