@@ -155,7 +155,7 @@ class MongoRecordTimeStore(object):
                     try:
                         course_time[data['course_id']]['time'] += int(data['time'])
                     except:
-                        max_time = int(get_course_with_access(user_id, data['course_id'], 'load').maximum_course_time)
+                        max_time = int(get_course_with_access(user_id, data['course_id'], 'load').maximum_units_time)
                         course_time[data['course_id']] = {'time': int(data['time']), 'max_time': max_time}
 
                 for cid in course_time:
@@ -171,7 +171,7 @@ class MongoRecordTimeStore(object):
                 )
                 for data in results:
                     count_time += int(data['time'])
-                max_time = int(get_course_with_access(user_id, course_id, 'load').maximum_course_time)
+                max_time = int(get_course_with_access(user_id, course_id, 'load').maximum_units_time)
                 if add_time_out:
                     count_time = count_time - settings.PEPPER_SESSION_EXPIRY
                 if count_time > max_time:
