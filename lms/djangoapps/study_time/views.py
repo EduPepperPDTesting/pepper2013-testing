@@ -149,7 +149,7 @@ def get_course_time(request):
         time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
     else:
         external_time = rts.get_external_time(user_id, request.POST.get('course_id'))
-        course_time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
+        course_time = rts.get_course_time(user_id, request.POST.get('course_id'), type, int(request.POST.get('add_time_out')))
         time = course_time + external_time
     return utils.JsonResponse({'time': time, 'time_out': settings.PEPPER_SESSION_EXPIRY})
 

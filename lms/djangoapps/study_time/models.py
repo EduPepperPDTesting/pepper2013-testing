@@ -145,11 +145,23 @@ class MongoRecordTimeStore(object):
     def get_page_total(self, user_id):
         return self.collection_page.find({'user_id': user_id}).count()
 
-    def get_course_time(self, user_id, course_id, type=''):
+    def get_course_time(self, user_id, course_id, type='', add_time_out=False):
         count_time = 0
         if type == 'courseware':
             if course_id is None:
+                course_time = {}
                 results = self.collection_page.find({'user_id': user_id})
+                for data in results:
+                    try:
+                        course_time[data['course_id']]['time'] += int(data['time'])
+                    except:
+                        max_time = int(get_course_with_access(user_id, data['course_id'], 'load').maximum_units_time)
+                        course_time[data['course_id']] = {'time': int(data['time']), 'max_time': max_time}
+
+                for cid in course_time:
+                    if course_time[cid]['time'] > course_time[cid]['max_time']:
+                        course_time[cid]['time'] = course_time[cid]['max_time']
+                    count_time += course_time[cid]['time']
             else:
                 results = self.collection_page.find(
                     {
@@ -157,6 +169,15 @@ class MongoRecordTimeStore(object):
                         'course_id': course_id
                     }
                 )
+                for data in results:
+                    count_time += int(data['time'])
+                max_time = int(get_course_with_access(user_id, course_id, 'load').maximum_units_time)
+                if add_time_out:
+                    count_time = count_time - settings.PEPPER_SESSION_EXPIRY
+                if count_time > max_time:
+                    count_time = max_time
+            return count_time
+
         elif type == 'discussion':
             if course_id is None:
                 results = self.collection_discussion.find({'user_id': user_id})
