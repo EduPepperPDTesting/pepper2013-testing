@@ -13,13 +13,18 @@ urlpatterns = (
     '',  # nopep8
 
 ####### Ancestor
-    url(r'^genericsso/$', 'sso.views.genericsso'),
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
     
-    url(r'^sso/manage/metadata/$', 'sso.manage.metadata', name="sso_manage_metadata"),
-    url(r'^sso/manage/metadata_json/$', 'sso.manage.metadata_json', name="sso_manage_metadata_json"),
-    url(r'^sso/manage/metadata_save/$', 'sso.manage.metadata_save', name="sso_manage_metadata_save"),
+    url(r'^genericsso/$', 'sso.views.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
+    
+    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
+    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
+    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
 
-    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso_user', name="register_sso_user"),    
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso_user', name="register_sso_user"),
 
     (r'^saml2/', include('djangosaml2.urls')),
     (r'^test/', 'djangosaml2.views.echo_attributes'),

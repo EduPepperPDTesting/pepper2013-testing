@@ -1,69 +1,12 @@
 <?xml version="1.0"?>
 <entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-  <entity type="EasyIEP" name="test1" entityID="https://idp.example.com/simplesaml/saml2/idp/metadata.php">
-    <issuerUrl location=""></issuerUrl>
-    <singleSignOnService location=""></singleSignOnService>
-    <singleLogoutService location=""></singleLogoutService>
-    <attribute type="Assertion" name="aaaaa" map="333"></attribute>
-    <attribute type="Assertion" name="12312" map="rdfd"></attribute>
-    <request>
-<![CDATA[
-
-]]>
-    </request>
-    <response>
-<![CDATA[
-
-]]>
-    </response>
-  </entity>
-  <entity type="EasyIEP" name="test2" entityID="xxx:yyy:zzz">
-    <issuerUrl location=""></issuerUrl>
-    <singleSignOnService location=""></singleSignOnService>
-    <singleLogoutService location=""></singleLogoutService>
-    <attribute type="Assertion" name="222555" map="3fdf33"></attribute>
-    <attribute type="Assertion" name="222" map="rdfddd"></attribute>
-    <request>
-<![CDATA[
-
-]]>
-    </request>
-    <response>
-<![CDATA[
-
-]]>
-    </response>
-  </entity>
-  <entity type="EasyIEP" name="test3" entityID="https://idp2.example.com/simplesaml/saml2/idp/metadata.php">
-    <issuerUrl location=""></issuerUrl>
-    <singleSignOnService location=""></singleSignOnService>
-    <singleLogoutService location=""></singleLogoutService>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <request>
-<![CDATA[
-
-]]>
-    </request>
-    <response>
-<![CDATA[
-
-]]>
-    </response>
-  </entity>
-  <entity type="EasyIEP" name="test4" entityID="https://idp3.example.com/simplesaml/saml2/idp/metadata.php">
+  <entity type="EasyIEP" name="PepperTestAD" entityID="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/">
     <issuerUrl location="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/"></issuerUrl>
     <singleSignOnService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleSignOnService>
     <singleLogoutService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleLogoutService>
-    <attribute type="Profile" name="UserID" map="username"></attribute>
-    <attribute type="Assertion" name="Email" map="email"></attribute>
-    <attribute type="Response" name="id" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
-    <attribute type="Assertion" name="" map=""></attribute>
+    <attribute type="Assertion" name="email" map="email"></attribute>
+    <attribute type="Profile" name="first_name" map="first_name"></attribute>
+    <attribute type="Profile" name="last_name" map="last_name"></attribute>
     <request>
 <![CDATA[
 <samlp:AuthnRequest

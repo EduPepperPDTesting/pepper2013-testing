@@ -1,3 +1,13 @@
+from django.conf import settings
+from django.db import IntegrityError, transaction
+from pytz import UTC
+from django.contrib.auth import logout, authenticate, login
+from django.utils.translation import ugettext as _
+from django.core.validators import validate_email, validate_slug, ValidationError
+
+import datetime
+import json
+import random
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -18,17 +28,21 @@ from django.contrib import auth
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from mitxmako.shortcuts import render_to_response, render_to_string
 
+import time
+import calendar
+
+from student.views import upload_user_photo
+
+import metadata 
 
 @require_POST
 @csrf_exempt
 def genericsso(request):
     '''Assertion consume service (acs) of pepper'''
 
-    coming_from = request.GET.get('idp', '')
+    idp_name = request.GET.get('idp', '')
+    metadata_setting = metadata.idp_by_name(idp_name)
     
-    import time
-    import calendar
-
     # print time.gmtime()
     # print calendar.timegm(time.gmtime())
      
@@ -36,11 +50,13 @@ def genericsso(request):
     # return HttpResponse(request.META.get('HTTP_REFERER'))
 
 # SAMLResponse:PEF1dGhuQ29udGV4dENsYXNzUmVmPnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphYzpjbGFzc2VzOlBhc3N3b3JkPC9BdXRobkNvbnRleHRDbGFzc1JlZj48L0F1dGhuQ29udGV4dD48L0F1dGhuU3RhdGVtZW50PjwvQXNzZXJ0aW9uPjwvc2FtbHA6UmVzcG9uc2U
+
     xmlstr = request.POST.get("SAMLResponse")
 
     # https://pythonhosted.org/pysaml2/howto/config.html
 
     BASEDIR = path.dirname("lms/")
+    
     setting = {
         "allow_unknown_attributes": True,
         # full path to the xmlsec1 binary programm
@@ -48,7 +64,7 @@ def genericsso(request):
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'pcg:pepperpd:entity:id',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, 'sso/testsite/attribute-maps'),
+        'attribute_map_dir': path.join(BASEDIR, 'sso/victor/attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -136,7 +152,7 @@ def genericsso(request):
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
-    email = session_info['ava']['mail'][0]
+    email = session_info['ava']['email'][0]
 
     # which idp
     print session_info['issuer']
@@ -148,18 +164,19 @@ def genericsso(request):
         user = users.all()[0]
         if not user.is_active:
             registration = Registration.objects.get(user_id=user.id)
-            return HttpResponse("xxx")
             return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
         else:
-            user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'    
+            user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
             auth.login(request, user)
             return https_redirect(request, "/dashboard")
     else:
-        firstname = session_info['ava']['firstname'][0]
-        lastname = session_info['ava']['lastname'][0]
-        username = session_info['ava']['username'][0]
-        create_unknown_user(request, email, username, firstname, lastname)
-        
+        firstname = session_info['ava']['first_name'][0]
+        lastname = session_info['ava']['last_name'][0]
+        return create_unknown_user(request, email, firstname, lastname)
+
+        # TODO: create user with mapped attributes
+        # return create_unknown_user(request, metadata_setting, session_info['ava'])
+
 
 def https_redirect(request, url):
     '''Force redirect to a https address'''
@@ -168,8 +185,13 @@ def https_redirect(request, url):
     return HttpResponseRedirect(new_URL)
 
 
-def create_unknown_user(request, email, username, firstname, lastname):
+def random_mark(length):
+    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
+
+
+def create_unknown_user(request, email, firstname, lastname):
     '''Create the sso user who\'s not exists in pepper'''
+    username = random_mark(20)
     user = User(username=username, email=email, is_active=False)
     user.first_name = firstname
     user.last_name = lastname
@@ -186,7 +208,7 @@ def create_unknown_user(request, email, username, firstname, lastname):
     cea.auto_enroll = True
     cea.save()
 
-    return https_redirect(reverse('register_sso_user', args=[registration.activation_key]))
+    return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
 
 def register_sso_user(request, activation_key):
@@ -199,3 +221,105 @@ def register_sso_user(request, activation_key):
         'activation_key': activation_key
     }
     return render_to_response('register_sso_user.html', context)
+
+
+def activate_account(request):
+    '''Process posted data from registeration form'''
+    vars = request.POST
+
+    #** fetch user by activation_key
+    registration = Registration.objects.get(activation_key=vars.get('activation_key', ''))
+    user_id = registration.user_id
+    profile = UserProfile.objects.get(user_id=user_id)
+
+    #** validate username
+    try:
+        validate_slug(vars['username'])
+    except ValidationError:
+        js = {'success': False}
+        js['value'] = _("Username should only consist of A-Z and 0-9, with no spaces.")
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js), content_type="application/json")
+
+    #** validate if user exists
+    if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
+        js = {'success': False}
+        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
+        js['field'] = 'username'
+        return HttpResponse(json.dumps(js), content_type="application/json")
+
+    #** validate fields
+    required_post_vars_dropdown = [
+        'state_id',
+        'district_id',
+        'school_id',
+        'major_subject_area_id',
+        # 'grade_level_id',
+        'years_in_education_id',
+        'percent_lunch', 'percent_iep', 'percent_eng_learner']
+    
+    for a in required_post_vars_dropdown:
+        if len(vars[a]) < 1:
+            error_str = {
+                'major_subject_area_id': 'Major Subject Area is required',
+                # 'grade_level_id':'Grade Level-heck is required',
+                'state_id': 'State is required',
+                'district_id': 'District is required',
+                'school_id': 'School is required',                
+                'years_in_education_id': 'Number of Years in Education is required',
+                'percent_lunch': 'Free/Reduced Lunch is required',
+                'percent_iep': 'IEPs is required',
+                'percent_eng_learner': 'English Learners is required'
+            }
+            js = {'success': False}
+            js['value'] = error_str[a]
+            js['field'] = a
+            return HttpResponse(json.dumps(js), content_type="application/json")
+
+    #** validate terms_of_service
+    tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
+                       and settings.MITX_FEATURES.get('SHIB_DISABLE_TOS') \
+                       and DoExternalAuth and ("shib" in eamap.external_domain)
+    
+    if not tos_not_required:
+        if vars.get('terms_of_service', 'false') != u'true':
+            js = {'success': False}
+            js['value'] = _("You must accept the terms of service.")
+            js['field'] = 'terms_of_service'
+            return HttpResponse(json.dumps(js), content_type="application/json")        
+
+    try:
+        #** update user
+        profile.user.username = vars.get('username','')
+        profile.user.is_active = True
+        profile.user.save()
+
+        #** update profile
+        profile.district_id = vars.get('district_id', '')
+        profile.school_id = vars.get('school_id', '')
+        profile.subscription_status = 'Registered'
+        profile.major_subject_area_id = vars.get('major_subject_area_id', '')
+        profile.years_in_education_id = vars.get('years_in_education_id', '')
+        profile.percent_lunch = vars.get('percent_lunch', '')
+        profile.percent_iep = vars.get('percent_iep', '')
+        profile.percent_eng_learner = vars.get('percent_eng_learner', '')
+        profile.bio = vars.get('bio', '')
+        profile.activate_date = datetime.datetime.now(UTC)
+        profile.save()
+
+        #** upload photo
+        photo = request.FILES.get("photo")
+        upload_user_photo(profile.user.id, photo)
+        js = {'success': True}
+    except Exception as e:
+        transaction.rollback()
+        js = {'success': False}
+        js['error'] = "%s" % e
+
+    #** log the user in
+    profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, profile.user)
+
+    return HttpResponse(json.dumps(js), content_type="application/json")
+    
+    

@@ -59,7 +59,7 @@ from mongo_user_store import MongoUserStore
 from courseware.views import course_filter
 import requests
 from django import db
-from student.models import District, School
+from student.models import District, School, State
 from django.db import models
 from mail import send_html_mail
 from courseware.courses import get_course_by_id
@@ -2012,6 +2012,7 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
+
 def request_course_access_ajax(request):
     try:
         course=get_course_by_id(request.POST.get('course_id'))
@@ -2043,3 +2044,42 @@ Request Date: {date_time}""".format(first_name=request.user.first_name,
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
     return HttpResponse(json.dumps({'success': True}))
+
+
+def drop_states(request):
+    data = State.objects.all()
+    data = data.order_by("name")
+    r = list()
+    for item in data:
+        r.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps(r))
+
+
+def drop_districts(request):
+    data = District.objects.all()
+    
+    state_id = request.GET.get('state_id', 0)
+    if not state_id:
+        state_id = 0
+        
+    data = data.filter(state_id=int(state_id))
+    data = data.order_by("name")
+    r = list()
+    for item in data:
+        r.append({"id": item.id, "name": item.name, "code": item.code})
+    return HttpResponse(json.dumps(r))
+
+
+def drop_schools(request):
+    data = School.objects.all()
+
+    district_id = request.GET.get('district_id', 0)
+    if not district_id:
+        district_id = 0
+    
+    data = data.filter(district_id=int(district_id))
+    r = list()
+    data = data.order_by("name")
+    for item in data:
+        r.append({"id": item.id, "name": item.name})
+    return HttpResponse(json.dumps(r))
