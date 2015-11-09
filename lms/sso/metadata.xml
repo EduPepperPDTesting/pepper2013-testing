@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-  <entity type="EasyIEP" name="PepperTestAD" entityID="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/">
+  <entity type="SAML" name="PepperTestAD" entityID="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/">
     <issuerUrl location="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/"></issuerUrl>
     <singleSignOnService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleSignOnService>
     <singleLogoutService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleLogoutService>

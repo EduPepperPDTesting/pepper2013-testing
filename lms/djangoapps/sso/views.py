@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from saml2.client import Saml2Client
-from djangosaml2.cache import IdentityCache, OutstandingQueriesCache
+from cache import IdentityCache, OutstandingQueriesCache
 from saml2 import BINDING_HTTP_REDIRECT, BINDING_HTTP_POST
 from saml2.config import SPConfig
 import copy
@@ -42,14 +42,14 @@ def genericsso(request):
 
     idp_name = request.GET.get('idp', '')
     metadata_setting = metadata.idp_by_name(idp_name)
-    
+
     # print time.gmtime()
     # print calendar.timegm(time.gmtime())
-     
+
     # https://login.microsoftonline.com/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/reprocess?sessionId=fcf22de7-e68e-4740-96a5-1cc1a5020fef&ctx=rQIIAbMSyigpKbDS1ze11DMx1TM21zM1KRLiElCx03jXpDnXcec7iRsrygQ-HmJUykyxTDFIskxMTrVMTDQwMU5OTEy1MEw2Sk42MjZKMTRNS7rAyPiCkfEWE2twYm6O0SMmHjAdEJ6aFFyc_4vJrLQozyo_sTiz2CovMTe12Kok2SrY0dfHylDPECySmaKbll-Um1hilZqbmJnjmJJSlFpcPImZtxhkToEemDLYxKxiYGxpnpSSZqhrkpZmqWtinmqqawF0ja6xcaJZsoFJklmyqcEFFp5dnPIg3xWjek8_PTUvtSgzubg4Xx8A0
     # return HttpResponse(request.META.get('HTTP_REFERER'))
 
-# SAMLResponse:PEF1dGhuQ29udGV4dENsYXNzUmVmPnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphYzpjbGFzc2VzOlBhc3N3b3JkPC9BdXRobkNvbnRleHRDbGFzc1JlZj48L0F1dGhuQ29udGV4dD48L0F1dGhuU3RhdGVtZW50PjwvQXNzZXJ0aW9uPjwvc2FtbHA6UmVzcG9uc2U
+    # SAMLResponse:PEF1dGhuQ29udGV4dENsYXNzUmVmPnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphYzpjbGFzc2VzOlBhc3N3b3JkPC9BdXRobkNvbnRleHRDbGFzc1JlZj48L0F1dGhuQ29udGV4dD48L0F1dGhuU3RhdGVtZW50PjwvQXNzZXJ0aW9uPjwvc2FtbHA6UmVzcG9uc2U
 
     xmlstr = request.POST.get("SAMLResponse")
 
@@ -106,7 +106,7 @@ def genericsso(request):
                     },
                 },
             },
-      # where the remote metadata is stored
+        # where the remote metadata is stored
         'metadata': {
             'local': [
                 path.join(BASEDIR, 'sso/victor/FederationMetadata.xml')
@@ -115,11 +115,15 @@ def genericsso(request):
         # set to 1 to output debugging information
         'debug': 1,
 
-        # certificate
+        # ===  CERTIFICATE ===
+        # cert_file must be a PEM formatted certificate chain file.
+        # example:
         # 'key_file': path.join(BASEDIR, 'sso/victor/mycert.key'),  # private part
         # 'cert_file': path.join(BASEDIR, 'sso/victor/mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/victor/mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/victor/customappsso.base64.cer'),  # public part        
 
-        # own metadata settings
+        # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
         #      'sur_name': 'Gil',
@@ -133,7 +137,7 @@ def genericsso(request):
         #      'contact_type': 'administrative'},
         #     ],
 
-        # you can set multilanguage information here
+        # === YOU CAN SET MULTILANGUAGE INFORMATION HERE ===
         # 'organization': {
         #     'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
         #     'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
@@ -146,9 +150,11 @@ def genericsso(request):
     #** load IDP config and parse the saml response
     conf = SPConfig()
     conf.load(copy.deepcopy(setting))
+    
     client = Saml2Client(conf, identity_cache=IdentityCache(request.session))
     oq_cache = OutstandingQueriesCache(request.session)
     outstanding_queries = oq_cache.outstanding_queries()
+    
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
