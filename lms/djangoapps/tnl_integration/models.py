@@ -7,12 +7,12 @@ from student.models import District
 class TNLCourses(models.Model):
     class Meta:
         db_table = 'tnl_courses'
-    course = models.CharField(blank=False, max_length=255, db_index=True)
-    tnl_id = models.CharField(blank=True, max_length=255, db_index=True)
-    section_id = models.CharField(blank=True, max_length=255, db_index=True)
-    registered = models.BooleanField(blank=False, default=0)
+    course = models.CharField(max_length=255, db_index=True)
+    tnl_id = models.CharField(null=False, max_length=255, db_index=True)
+    section_id = models.CharField(null=False, max_length=255, db_index=True)
+    registered = models.BooleanField(default=0)
     date_added = models.DateTimeField(auto_now_add=True, db_index=False)
-    registration_date = models.DateTimeField(blank=True, db_index=False)
+    registration_date = models.DateTimeField(null=True, db_index=False)
 
 
 class TNLDistricts(models.Model):
@@ -27,6 +27,6 @@ class TNLCompletionTrack(models.Model):
         db_table = 'tnl_completion_track'
     user = models.ForeignKey(User, default=0)
     course = models.ForeignKey(TNLCourses)
-    registered = models.BooleanField(blank=False, default=0)
+    registered = models.BooleanField(default=0)
     date_added = models.DateTimeField(auto_now_add=True, db_index=False)
-    registration_date = models.DateTimeField(blank=True, db_index=False)
+    registration_date = models.DateTimeField(null=True, db_index=False)
