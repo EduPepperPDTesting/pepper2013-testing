@@ -391,7 +391,7 @@ f.close()
             <div id = "filterArea">
 
                 <select type = "search" data-column = "2" class = "search" id = "District_state_select">
-                  <option value="" selected>Select State</option>
+                  <option value="" selected class = "select-option">Select State</option>
                   %for item in State.objects.all().order_by('name'):
                   <option id = "${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
@@ -408,6 +408,7 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label>
                 <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label>
                 <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
             </div>
         </div>
         <div>
@@ -422,7 +423,7 @@ f.close()
             </thead>
                 <tbody>
             % for  item in District.objects.all():
-            <tr id = "district_${item.id}">
+            <tr id = "district_${item.id}" class = "district_${item.code}">
                 <td class = "district_code">${item.code}</td>
                 <td class = "district_name">${item.name}</td>
                 <td class = "district_state_name">${item.state.name}</td>
@@ -433,7 +434,7 @@ f.close()
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
 
         <span id="pager" class="pager">
           <form>
@@ -463,13 +464,6 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="2" id = "School_district_select">
-
-                      <option value="">Select District</option>
-                      %for item in District.objects.all():
-                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
-                      %endfor
-                </select>
                 <select type="search" class="search" data-column="2" id = "School_state_select">
 
                       <option value="">Select State</option>
@@ -477,12 +471,21 @@ f.close()
                       <option id = "${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
+                <select type="search" class="search" data-column="2" id = "School_district_select">
+
+                      <option value="">Select District</option>
+                      %for item in District.objects.all():
+                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                      %endfor
+                </select>
+
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
                 <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
                 <p><b>Select Columns</b></p>
                 <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label>
                 <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label>
                 <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label>
+ <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -501,7 +504,7 @@ f.close()
             <tr id = "school_${item.id}">
               <td class = "school_code">${item.code}</td>
               <td class = "school_name">${item.name}</a></td>
-              <td class = "school_district_id">${item.district_id}</td>
+              <td class = "school_district_id" id = "school_${item.id}_district"><script>$("#school_${item.id}_district").html($(".district_${item.district_id} .district_name").html());</script></td>
               <td><input type="checkbox" class = "school_select_box" name="id" value="${item.id}"/></td>
 
             </tr>
@@ -509,7 +512,6 @@ f.close()
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
         <span id="pager" class="pager">
           <form>
@@ -557,6 +559,7 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label>
                 <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label>
                 <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -587,7 +590,6 @@ f.close()
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
         <span id="pager" class="pager">
           <form>
@@ -610,9 +612,9 @@ f.close()
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
         <span style = "float:right">
-            <input type="button" value = "Delete Selected Users" class ="small" style = "float:right" id = "delete_selected_user"/>
-          <input type="button" value = "Send Registration Mail" class ="small" style = "float:right" id = "register_selected_user"/>
-            <input type ="button" name = "" onclick = "addToCohort()" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+            <input type="button" value = "Delete Selected Users" sytle = "padding-right:10px;" class ="small" id = "delete_selected_user"/>
+            <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
+            <input type ="button" name = "" onclick = "addToCohort()" sytle = "padding-left:10px;" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
         </span>
     </div>
     <div class="cohort_table-section table-section">
@@ -635,6 +637,7 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label>
                 <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label>
                 <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -663,7 +666,6 @@ f.close()
                 </tbody>
             </table>
         </div>
-            <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
