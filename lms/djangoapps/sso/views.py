@@ -155,11 +155,11 @@ def samlACS(request, idp_name, ms):
     #** load IDP config and parse the saml response
     conf = SPConfig()
     conf.load(copy.deepcopy(setting))
-    
+
     client = Saml2Client(conf, identity_cache=IdentityCache(request.session))
     oq_cache = OutstandingQueriesCache(request.session)
     outstanding_queries = oq_cache.outstanding_queries()
-    
+
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
@@ -201,11 +201,11 @@ def random_mark(length):
 def create_unknown_user(request, ms, data):
     '''Create the sso user who\'s not exists in pepper'''
 
-    attributes = ms.get('attributes')
+    attribute_setting = ms.get('attributes')
 
     parsed_data = {}
 
-    for attr in attributes:
+    for attr in attribute_setting:
         mapped_name = attr['map'] if attr['map'] else attr['name']
         parsed_data[mapped_name] = data[attr['name']]
 
@@ -225,12 +225,14 @@ def create_unknown_user(request, ms, data):
 
     # Set password the same with username
     user.set_password(username)
-    
+
     user.save()
     registration = Registration()
     registration.register(user)
     profile = UserProfile(user=user)
     profile.subscription_status = "Imported"
+    profile.sso_type = ms.get('sso_type')
+    profile.sso_idp = ms.get('sso_name')
     profile.save()
 
     cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
@@ -246,9 +248,19 @@ def register_sso(request, activation_key):
     registration = Registration.objects.get(activation_key=activation_key)
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
+
+    ms = metadata.idp_by_name(profile.sso_idp)
+    attribute_setting = ms.get('attributes')
+
+    attribute_mapping = {}
+    for attr in attribute_setting:
+        mapped_name = attr['map'] if attr['map'] else attr['name']
+        attribute_mapping[mapped_name] = attr
+
     context = {
         'profile': profile,
-        'activation_key': activation_key
+        'activation_key': activation_key,
+        'attribute_mapping': attribute_mapping
     }
     return render_to_response('register_sso.html', context)
 
@@ -287,7 +299,7 @@ def activate_account(request):
         # 'grade_level_id',
         'years_in_education_id',
         'percent_lunch', 'percent_iep', 'percent_eng_learner']
-    
+
     for a in required_post_vars_dropdown:
         if len(vars[a]) < 1:
             error_str = {
@@ -295,7 +307,7 @@ def activate_account(request):
                 # 'grade_level_id':'Grade Level-heck is required',
                 'state_id': 'State is required',
                 'district_id': 'District is required',
-                'school_id': 'School is required',                
+                'school_id': 'School is required',
                 'years_in_education_id': 'Number of Years in Education is required',
                 'percent_lunch': 'Free/Reduced Lunch is required',
                 'percent_iep': 'IEPs is required',
@@ -307,20 +319,15 @@ def activate_account(request):
             return HttpResponse(json.dumps(js), content_type="application/json")
 
     #** validate terms_of_service
-    tos_not_required = settings.MITX_FEATURES.get("AUTH_USE_SHIB") \
-                       and settings.MITX_FEATURES.get('SHIB_DISABLE_TOS') \
-                       and DoExternalAuth and ("shib" in eamap.external_domain)
-    
-    if not tos_not_required:
-        if vars.get('terms_of_service', 'false') != u'true':
-            js = {'success': False}
-            js['value'] = _("You must accept the terms of service.")
-            js['field'] = 'terms_of_service'
-            return HttpResponse(json.dumps(js), content_type="application/json")        
+    if vars.get('terms_of_service', 'false') != u'true':
+        js = {'success': False}
+        js['value'] = _("You must accept the terms of service.")
+        js['field'] = 'terms_of_service'
+        return HttpResponse(json.dumps(js), content_type="application/json")
 
     try:
         #** update user
-        profile.user.username = vars.get('username','')
+        profile.user.username = vars.get('username', '')
         profile.user.is_active = True
         profile.user.save()
 
