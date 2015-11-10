@@ -4,7 +4,6 @@ from pytz import UTC
 from django.contrib.auth import logout, authenticate, login
 from django.utils.translation import ugettext as _
 from django.core.validators import validate_email, validate_slug, ValidationError
-
 import datetime
 import json
 import random
@@ -22,49 +21,59 @@ from saml2 import saml
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-
 from django.contrib.auth.models import User
 from django.contrib import auth
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from mitxmako.shortcuts import render_to_response, render_to_string
-
 import time
 import calendar
-
 from student.views import upload_user_photo
+import metadata
+import logging
 
-import metadata 
+log = logging.getLogger("tracking")
+BASEDIR = path.dirname("lms/")
+
 
 @require_POST
 @csrf_exempt
 def genericsso(request):
     '''Assertion consume service (acs) of pepper'''
 
-    idp_name = request.GET.get('idp', '')
+    log.debug("===== genericsso: receiving a token =====")
+
+    # Both POST and GET method are supported to get IDP name
+    idp_name = request.REQUEST.get('idp', '')
+
+    if idp_name == '':
+        log.error("error: No IDP name passed")
+        raise Http404()
+
     metadata_setting = metadata.idp_by_name(idp_name)
 
-    # print time.gmtime()
-    # print calendar.timegm(time.gmtime())
+    if metadata_setting is None:
+        log.error("error: Unkonwn IDP")
+        raise Http404()
 
-    # https://login.microsoftonline.com/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/reprocess?sessionId=fcf22de7-e68e-4740-96a5-1cc1a5020fef&ctx=rQIIAbMSyigpKbDS1ze11DMx1TM21zM1KRLiElCx03jXpDnXcec7iRsrygQ-HmJUykyxTDFIskxMTrVMTDQwMU5OTEy1MEw2Sk42MjZKMTRNS7rAyPiCkfEWE2twYm6O0SMmHjAdEJ6aFFyc_4vJrLQozyo_sTiz2CovMTe12Kok2SrY0dfHylDPECySmaKbll-Um1hilZqbmJnjmJJSlFpcPImZtxhkToEemDLYxKxiYGxpnpSSZqhrkpZmqWtinmqqawF0ja6xcaJZsoFJklmyqcEFFp5dnPIg3xWjek8_PTUvtSgzubg4Xx8A0
-    # return HttpResponse(request.META.get('HTTP_REFERER'))
+    if metadata_setting.get('sso_type') == 'SAML':
+        log.debug("message: it's SAML")
+        return samlACS(request, idp_name, metadata_setting)
 
-    # SAMLResponse:PEF1dGhuQ29udGV4dENsYXNzUmVmPnVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphYzpjbGFzc2VzOlBhc3N3b3JkPC9BdXRobkNvbnRleHRDbGFzc1JlZj48L0F1dGhuQ29udGV4dD48L0F1dGhuU3RhdGVtZW50PjwvQXNzZXJ0aW9uPjwvc2FtbHA6UmVzcG9uc2U
+
+def samlACS(request, idp_name, ms):
+    '''SAML ACS'''
 
     xmlstr = request.POST.get("SAMLResponse")
 
-    # https://pythonhosted.org/pysaml2/howto/config.html
-
-    BASEDIR = path.dirname("lms/")
-    
+    # Refer to: https://pythonhosted.org/pysaml2/howto/config.html
     setting = {
         "allow_unknown_attributes": True,
         # full path to the xmlsec1 binary programm
         'xmlsec_binary': '/usr/bin/xmlsec1',
         # your entity id, usually your subdomain plus the url to the metadata view
-        'entityid': 'pcg:pepperpd:entity:id',
+        'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, 'sso/victor/attribute-maps'),
+        'attribute_map_dir': path.join(BASEDIR, 'sso/' + idp_name + '/attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -109,20 +118,18 @@ def genericsso(request):
         # where the remote metadata is stored
         'metadata': {
             'local': [
-                path.join(BASEDIR, 'sso/victor/FederationMetadata.xml')
+                path.join(BASEDIR, 'sso/' + idp_name + '/FederationMetadata.xml')
                 ],
             },
         # set to 1 to output debugging information
         'debug': 1,
-
         # ===  CERTIFICATE ===
         # cert_file must be a PEM formatted certificate chain file.
         # example:
-        # 'key_file': path.join(BASEDIR, 'sso/victor/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/victor/mycert.pem'),  # public part
-        # 'key_file': path.join(BASEDIR, 'sso/victor/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/victor/customappsso.base64.cer'),  # public part        
-
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/customappsso.base64.cer'),  # public part        
         # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
@@ -136,14 +143,12 @@ def genericsso(request):
         #      'email_address': 'angel@yaco.es',
         #      'contact_type': 'administrative'},
         #     ],
-
         # === YOU CAN SET MULTILANGUAGE INFORMATION HERE ===
         # 'organization': {
         #     'name': [('Yaco Sistemas', 'es'), ('Yaco Systems', 'en')],
         #     'display_name': [('Yaco', 'es'), ('Yaco', 'en')],
         #     'url': [('http://www.yaco.es', 'es'), ('http://www.yaco.com', 'en')],
         #     },
-        
         'valid_for': 24,  # how long is our metadata valid
     }
 
@@ -161,7 +166,7 @@ def genericsso(request):
     email = session_info['ava']['email'][0]
 
     # which idp
-    print session_info['issuer']
+    # print session_info['issuer']
 
     #** consume the assertion
     users = User.objects.filter(email=email)
@@ -170,18 +175,16 @@ def genericsso(request):
         user = users.all()[0]
         if not user.is_active:
             registration = Registration.objects.get(user_id=user.id)
-            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
+            return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
         else:
             user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
             auth.login(request, user)
             return https_redirect(request, "/dashboard")
     else:
-        firstname = session_info['ava']['first_name'][0]
-        lastname = session_info['ava']['last_name'][0]
-        return create_unknown_user(request, email, firstname, lastname)
-
-        # TODO: create user with mapped attributes
-        # return create_unknown_user(request, metadata_setting, session_info['ava'])
+        data = {}
+        for k, v in session_info['ava'].items():
+            data[k] = v[0]
+        return create_unknown_user(request, ms, data)
 
 
 def https_redirect(request, url):
@@ -195,13 +198,34 @@ def random_mark(length):
     return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
-def create_unknown_user(request, email, firstname, lastname):
+def create_unknown_user(request, ms, data):
     '''Create the sso user who\'s not exists in pepper'''
-    username = random_mark(20)
+
+    attributes = ms.get('attributes')
+
+    parsed_data = {}
+
+    for attr in attributes:
+        mapped_name = attr['map'] if attr['map'] else attr['name']
+        parsed_data[mapped_name] = data[attr['name']]
+
+    if not parsed_data.get('username'):
+        username = random_mark(20)
+    else:
+        username = parsed_data['username']
+
+    email = parsed_data['email']
     user = User(username=username, email=email, is_active=False)
-    user.first_name = firstname
-    user.last_name = lastname
+
+    for k, v in parsed_data.items():
+        if k == 'first_name':
+            user.first_name = parsed_data['first_name']
+        if k == 'last_name':
+            user.last_name = parsed_data['last_name']
+
+    # Set password the same with username
     user.set_password(username)
+    
     user.save()
     registration = Registration()
     registration.register(user)
@@ -214,10 +238,10 @@ def create_unknown_user(request, email, firstname, lastname):
     cea.auto_enroll = True
     cea.save()
 
-    return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
+    return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
 
-def register_sso_user(request, activation_key):
+def register_sso(request, activation_key):
     '''Register page for not acitved sso auto created user.'''
     registration = Registration.objects.get(activation_key=activation_key)
     user_id = registration.user_id
@@ -226,7 +250,7 @@ def register_sso_user(request, activation_key):
         'profile': profile,
         'activation_key': activation_key
     }
-    return render_to_response('register_sso_user.html', context)
+    return render_to_response('register_sso.html', context)
 
 
 def activate_account(request):

@@ -160,7 +160,7 @@ from django.core.urlresolvers import reverse
   }
   Metadata.prototype.showData = function(d){
     $("#divIdpAttributeMapping").html('');
-    $("#form1").find("input,textarea").each(function(){
+    $("#form1").find("input,textarea,select").each(function(){
       if(this.name){
         value=d[this.name];
         $(this).val(value || "");

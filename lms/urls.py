@@ -24,7 +24,7 @@ urlpatterns = (
     url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
     url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
 
-    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso_user', name="register_sso_user"),
+    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
 
     (r'^saml2/', include('djangosaml2.urls')),
     (r'^test/', 'djangosaml2.views.echo_attributes'),

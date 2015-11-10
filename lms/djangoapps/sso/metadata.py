@@ -66,19 +66,22 @@ def idp_by_name(name):
 
     if 'entity' in parsed_data['entities'][0]:
         for entity in parsed_data['entities'][0]['entity']:
-            if entity['sso_name'] == name:
+            if entity['@name'] == name:
                 return parse_one_idp(entity)
 
 
 def parse_one_idp(entity):
     attribute_list = []
+    
     if 'attribute' in entity:
         for attribute in entity['attribute']:
-            attribute_list.append({
+            attr = {
                 'type': attribute['@type'],
                 'name': attribute['@name'],
                 'map': attribute['@map']
-                })
+                }
+            attribute_list.append(attr)
+
     return {
         'sso_entity_id': entity['@entityID'],
         'sso_type': entity['@type'],
