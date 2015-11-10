@@ -13,7 +13,7 @@ urlpatterns = (
     '',  # nopep8  
     
 ####### Ancestor
-    url(r'^tnl/test', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
+    url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
 
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),

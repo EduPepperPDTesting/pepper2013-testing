@@ -225,40 +225,52 @@
                 True North Logic Integration Configuration
             </span><span class="subItem"></span>
         </div>
-        <table class="sorted" id="districts">
-            <thead>
+        <form action="/tnl/district/add" id="tnl-district-add">
+            <input type="submit" value="Add District" />
+        </form>
+        <form action="/tnl/district/delete" id="tnl-district-delete">
+            <table class="sorted" id="districts">
+                <thead>
+                    <tr>
+                        <td>State</td>
+                        <td>Name</td>
+                        <td>Code</td>
+                        <td class="menu-trigger"></td>
+                    </tr>
+                    % for row in districts:
+                        <tr>
+                            <td>${row.state}</td>
+                            <td>${row.name}</td>
+                            <td>${row.code}</td>
+                            <td><input type="checkbox" value="${row.id}"></td>
+                        </tr>
+                    % endfor
+                </thead>
+            </table>
+            <input type="submit" value="Delete Selected" />
+        </form>
+        <form action="/tnl/course/add" id="tnl-course-add">
+            <input type="submit" value="Add Course" />
+        </form>
+        <form action="/tnl/district/delete" id="tnl-course-delete">
+            <table class="sorted" id="courses">
+                <thead>
                 <tr>
-                    <td>State</td>
                     <td>Name</td>
                     <td>Code</td>
                     <td class="menu-trigger"></td>
                 </tr>
-                % for row in districts:
-                    <tr>
-                        <td>${row.state}</td>
-                        <td>${row.name}</td>
-                        <td>${row.code}</td>
-                        <td><input type="checkbox" value="${row.id}"></td>
-                    </tr>
-                % endfor
-            </thead>
-        </table>
-        <table class="sorted" id="courses">
-            <thead>
-            <tr>
-                <td>Name</td>
-                <td>Code</td>
-                <td class="menu-trigger"></td>
-            </tr>
-                % for row in courses:
-                    <tr>
-                        <td>${row.name}</td>
-                        <td>${row.course_id}</td>
-                        <td><input type="checkbox" value="${row.course_id}"></td>
-                    </tr>
-                % endfor
-            </thead>
-        </table>
+                    % for row in courses:
+                        <tr>
+                            <td>${row.name}</td>
+                            <td>${row.course_id}</td>
+                            <td><input type="checkbox" value="${row.course_id}"></td>
+                        </tr>
+                    % endfor
+                </thead>
+            </table>
+            <input type="submit" value="Delete Selected" />
+        </form>
     </div>
 </div>
 <!-- dialog -->

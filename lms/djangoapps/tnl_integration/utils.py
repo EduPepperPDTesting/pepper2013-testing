@@ -18,6 +18,9 @@ try:
     # The base URL for all requests
     tnl_base_url = settings.TNL_BASE_URL
 
+    # The request object
+    tnl_request = WebRequest(tnl_base_url, 'success', True, 'message')
+
     # District/endpoint specific values
     tnl_adminid = settings.TNL_ADMINID
     tnl_grades = settings.TNL_GRADES
@@ -41,16 +44,14 @@ def tnl_get_person(user):
     This gets the TNL personid
     """
     # getPersonId endpoint
-    endpoint = '/ia/app/webservices/person/getPersonId'
+    endpoint = 'ia/app/webservices/person/getPersonId'
     # Parameters needed for this request
     data = {'adminid': tnl_adminid,
             'email': user.email}
-    # Request object
-    tnl_request = WebRequest(tnl_base_url)
 
     try:
         response = tnl_request.do_request(endpoint, 'get', tnl_encryptor.encrypt(json.dumps(data)))
-        return response.personid
+        return response['personid']
     except:
         return False
 
@@ -119,14 +120,12 @@ def tnl_register_completion(user, course_instance, percent):
     # Registered course
     course = tnl_get_course(course_instance.course_id)
     # markComplete endpoint
-    endpoint = '/ia/app/webservices/section/markComplete'
+    endpoint = 'ia/app/webservices/section/markComplete'
     # Assign needed parameters
     data = {'adminid': tnl_adminid,
             'personid': tnl_get_person(user),
             'sectionid': course.section_id,
             'gradeid': tnl_get_grade(percent)}
-    # Request object
-    tnl_request = WebRequest(tnl_base_url)
 
     try:
         tnl_request.do_request(endpoint, 'put', tnl_encryptor.encrypt(json.dumps(data)))
@@ -159,7 +158,7 @@ def tnl_register_course(course):
     This registers the course with TNL
     """
     # createSDLCourse endpoint (SDL seems the best fit for our courses)
-    endpoint = '/ia/app/webservices/course/createSDLCourse'
+    endpoint = 'ia/app/webservices/course/createSDLCourse'
 
     # Parameters needed for the request
     data = {'adminid': tnl_adminid,
@@ -174,14 +173,11 @@ def tnl_register_course(course):
             'needsapproval': False,
             'selfpaced': True}
 
-    # Request object
-    tnl_request = WebRequest(tnl_base_url)
-
     try:
         response = tnl_request.do_request(endpoint, 'post', tnl_encryptor.encrypt(json.dumps(data)))
         course_entry = TNLCourses(course=course.id,
-                                  tnl_id=response.courseid,
-                                  section_id=response.sectionid,
+                                  tnl_id=response['courseid'],
+                                  section_id=response['sectionid'],
                                   registered=1,
                                   registration_date=datetime.datetime.utcnow())
     except:
