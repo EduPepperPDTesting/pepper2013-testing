@@ -578,6 +578,7 @@ except:
         //---------------------Record time (Page switching)----------------------------------//
 
         function record_time(position) {
+            timer_record = false;
             %if request.user.id is not None:
                 sessionStorage['user_id'] = "${request.user.id}";
             %endif
@@ -617,7 +618,6 @@ except:
                     });
                 }
             }
-            timer_record = false;
         }
         //---------------------Record time (Course refresh or exit)--------------------------//
 
@@ -656,7 +656,6 @@ except:
 
         //---------------------------------------------------------------------------//
         function onfocusEventDelay(e){
-            //console.log(e.type);
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
                 if(courseTimer.loadComplete){
@@ -672,7 +671,8 @@ except:
         }
         function onblurEventDelay(e){
             //console.log(e.type);
-            var isfocusOut = $(document.activeElement).is('.courseware,.dropdown,.seq_other,.sequence-nav-buttons li a');
+            //var isfocusOut = $(document.activeElement).is('.courseware,.dropdown,.seq_other,.sequence-nav-buttons li a');
+            var isfocusOut = $(document.activeElement).get(0).tagName!='IFRAME';
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
                 courseTimer.stop();
@@ -692,6 +692,7 @@ except:
                     RecordTime.setSessionTime("");
                     courseTimer.load();
                 });
+                
             }
         }
         $(function() {

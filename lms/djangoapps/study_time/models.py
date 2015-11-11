@@ -99,6 +99,7 @@ class MongoRecordTimeStore(object):
             }
         )
 
+    # Return page time
     def get_page_item(self, user_id, vertical_id):
         return self.collection_page.find_one(
             {
@@ -107,22 +108,28 @@ class MongoRecordTimeStore(object):
             }
         )
 
+    # set page time
     def set_page_item(self, item, rdata):
         if rdata is not None:
+            # update record
             rdata['time'] = int(rdata['time']) + int(item['time'])
-            return self.collection_page.update(
-                {
-                    'user_id': item['user_id'],
-                    'vertical_id': item['vertical_id']
-                },
-                {
-                    '$set': {'time': rdata['time']}
+            if rdata['time'] >= 0:
+                return self.collection_page.update(
+                    {
+                        'user_id': item['user_id'],
+                        'vertical_id': item['vertical_id']
+                    },
+                    {
+                        '$set': {'time': rdata['time']}
 
-                }
-            )
+                    }
+                )
         else:
-            return self.collection_page.save(item)
+            # first record
+            if int(item['time']) >= 0:
+                return self.collection_page.save(item)
 
+    # Todo (page time report)
     def return_page_items(self, user_id, skip=0, limit=5):
         r = []
         course_id = ''
@@ -142,9 +149,12 @@ class MongoRecordTimeStore(object):
             r.append(data)
         return r
 
+    # Todo (page time report)
     def get_page_total(self, user_id):
         return self.collection_page.find({'user_id': user_id}).count()
 
+    # Return course_time/discussion/portfolio
+    # (add_time_out:Timer in My Course subtract session expiry time if it has been added.)
     def get_course_time(self, user_id, course_id, type='', add_time_out=False):
         count_time = 0
         if type == 'courseware':
@@ -173,7 +183,9 @@ class MongoRecordTimeStore(object):
                     count_time += int(data['time'])
                 max_time = int(get_course_with_access(user_id, course_id, 'load').maximum_units_time)
                 if add_time_out:
-                    count_time = count_time - settings.PEPPER_SESSION_EXPIRY
+                    fix_time = count_time - settings.PEPPER_SESSION_EXPIRY
+                    if fix_time >= 0:
+                        count_time = fix_time
                 if count_time > max_time:
                     count_time = max_time
             return count_time
@@ -194,6 +206,7 @@ class MongoRecordTimeStore(object):
             count_time += int(data['time'])
         return count_time
 
+    # set collaboration time
     def set_course_time(self, user_id, course_id, type, time):
         time = int(time)
         if type == 'discussion':
@@ -219,6 +232,7 @@ class MongoRecordTimeStore(object):
             )
         return results
 
+    #  Return total time (course_time, discussion_time, portfolio_time)
     def get_stats_time(self, user_id):
         course_time = self.get_course_time(user_id, None, 'courseware')
         discussion_time = self.get_course_time(user_id, None, 'discussion')
@@ -274,12 +288,14 @@ class MongoRecordTimeStore(object):
             },
             True
         )
+
     def get_time_report_result(self, user_id):
         result = self.collection_result_set.find_one({'user_id': user_id})
         if result is not None:
             return result['data']
         else:
             return []
+
 
 def record_time_store():
     options = {}

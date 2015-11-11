@@ -58,12 +58,27 @@ RecordTime.setSessionCourseType = function(val) {
         sessionStorage[RecordTime.userID + '_type'] = val;
 };
 
+/*
 RecordTime.ajaxRecordTime = function(data, callback) {
     $.post("/record_time/", data, function(r) {
         callback();
     });
 };
-
+*/
+RecordTime.ajaxRecordTime = function(data, callback) {
+    $.ajax({
+        data: data,
+        type: 'POST',
+        url: "/record_time/",
+        processData: true, 
+        contentType: false,
+        async: false,
+        cache: false,
+        success: function(r){
+            callback();
+        }
+    });
+};
 RecordTime.getCourseFullPath = function(path, position) {
     var pathArr = path.split('/courses/')[1].split('/');
     pathArr[6] = position;
