@@ -22,7 +22,7 @@ def tnl_configuration(request):
     tnl_courses = tnl_get_course()
     courses = []
     for course in tnl_courses:
-        courses.append(course_from_id(course.course_id))
+        courses.append(course_from_id(course.course))
 
     context = {'districts': districts, 'courses': courses}
     return render_to_response('tnl/configuration.html', context)

@@ -262,9 +262,9 @@
                 </tr>
                     % for row in courses:
                         <tr>
-                            <td>${row.name}</td>
-                            <td>${row.course_id}</td>
-                            <td><input type="checkbox" value="${row.course_id}"></td>
+                            <td>${row.display_name_with_default}</td>
+                            <td>${row.id}</td>
+                            <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
                 </thead>
@@ -358,7 +358,7 @@
         cssErrorRow: 'tablesorter-errorRow' // ajax error information row
 
     };
-    $('.sorted table').tablesorter({ headers: {
+    $('table.sorted').tablesorter({ headers: {
         '.menu-trigger': { sorter: false, parser: false }
     }}).tablesorterPager(pagerOptions);
 </script>
