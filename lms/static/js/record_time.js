@@ -58,12 +58,27 @@ RecordTime.setSessionCourseType = function(val) {
         sessionStorage[RecordTime.userID + '_type'] = val;
 };
 
+/*
 RecordTime.ajaxRecordTime = function(data, callback) {
     $.post("/record_time/", data, function(r) {
         callback();
     });
 };
-
+*/
+RecordTime.ajaxRecordTime = function(data, callback) {
+    $.ajax({
+        data: data,
+        type: 'POST',
+        url: "/record_time/",
+        processData: true, 
+        contentType: false,
+        async: false,
+        cache: false,
+        success: function(r){
+            callback();
+        }
+    });
+};
 RecordTime.getCourseFullPath = function(path, position) {
     var pathArr = path.split('/courses/')[1].split('/');
     pathArr[6] = position;
@@ -174,21 +189,18 @@ CourseTimer.prototype.hide = function() {
 
 CourseTimer.prototype.load = function() {
     var self = this;
+    var add_time_out = RecordTime.getSessionVerticalId() != ""?1:0;
     $.post('/record_time/course_time_load', {
         'user_id': RecordTime.userID,
         'course_id': RecordTime.getSessionCourseID(),
-        'type': this.type
+        'type': this.type,
+        'add_time_out':add_time_out
     }, function(data) {
 
         if (data != null) {
 
             if (RecordTime.getSessionCourseType() == 'courseware') {
-                if(RecordTime.getSessionVerticalId() != ""){
-                    self.time = parseInt(data.time) - data.time_out;
-                }
-                else{
-                    self.time = parseInt(data.time);
-                }
+                self.time = parseInt(data.time);
                 RecordTime.setSessionCourseTime(this.type, self.time);
             } else {
                 self.startTime = new Date().getTime();

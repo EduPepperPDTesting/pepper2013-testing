@@ -195,6 +195,21 @@ f.close()
     </form>
         <div id = "singleUserForm" style = "display:none">
             <form method="post" id="singleUserImportForm" action="${reverse('pepconn_single_user_submit')}">
+                <ul class="list">
+                  <li>
+                    <label>
+                      <input type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+                      Send registration emails to imported users
+                    </label>
+                  </li>
+                  <li class="customize-email">
+                    <label style="cursor:normal !important;">
+                      <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+                      Customize registration email
+                    </label>
+                  </li>
+                  <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+                </ul>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
                 <div style="padding: 1em 7px 7px 7px;">
@@ -376,7 +391,7 @@ f.close()
             <div id = "filterArea">
 
                 <select type = "search" data-column = "2" class = "search" id = "District_state_select">
-                  <option value="" selected>Select State</option>
+                  <option value="" selected class = "select-option">Select State</option>
                   %for item in State.objects.all().order_by('name'):
                   <option id = "${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
@@ -388,33 +403,38 @@ f.close()
                   %endfor
                 </select>
                 <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
-                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
+                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
             </div>
         </div>
         <div>
             <table class="tablesorter-blue" id="district_table_init">
                 <thead>
             <tr>
-                <th>District Id</th>
-                <th>District Name</th>
-                <th>State</th>
+                <th class = "district_code">District Id</th>
+                <th class = "district_name">District Name</th>
+                <th class = "district_state_name">State</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in District.objects.all():
-            <tr>
-                <td>${item.code}</td>
-                <td>${item.name}</td>
-                <td>${item.state.name}</td>
-                <td><input type="checkbox" name="id" value="${item.id}" /></td>
+            <tr id = "district_${item.id}" class = "district_${item.code}">
+                <td class = "district_code">${item.code}</td>
+                <td class = "district_name">${item.name}</td>
+                <td class = "district_state_name">${item.state.name}</td>
+                <td><input type="checkbox" name="id" class = "district_select_box" value="${item.id}" /></td>
 
             </tr>
             % endfor
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+
 
         <span id="pager" class="pager">
           <form>
@@ -435,6 +455,7 @@ f.close()
           Download Districts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadDistrictCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadDistrictXLS"/>
+          <input type="button" value = "Delete Selected Districts" class ="small" style = "float:right" id = "delete_selected_districts"/>
         </span>
     </div>
     <div class="school_table-section table-section">
@@ -443,13 +464,6 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="2" id = "School_district_select">
-
-                      <option value="">Select District</option>
-                      %for item in District.objects.all():
-                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
-                      %endfor
-                </select>
                 <select type="search" class="search" data-column="2" id = "School_state_select">
 
                       <option value="">Select State</option>
@@ -457,8 +471,21 @@ f.close()
                       <option id = "${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
+                <select type="search" class="search" data-column="2" id = "School_district_select">
+
+                      <option value="">Select District</option>
+                      %for item in District.objects.all():
+                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                      %endfor
+                </select>
+
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
-                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
+                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label>
+                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label>
+ <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -466,26 +493,25 @@ f.close()
             <table class="tablesorter-blue" id="school_table_init">
                 <thead>
             <tr>
-              <th>School Code</th>
-              <th>School Name</th>
-              <th>District</th>
+              <th class = "school_code">School Code</th>
+              <th class = "school_name">School Name</th>
+              <th class = "school_district_id">District</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in School.objects.all():
-            <tr>
-              <td>${item.code}</td>
-              <td>${item.name}</a></td>
-              <td>${item.district_id}</td>
-              <td><input type="checkbox" name="id" value="${item.id}"/></td>
+            <tr id = "school_${item.id}">
+              <td class = "school_code">${item.code}</td>
+              <td class = "school_name">${item.name}</a></td>
+              <td class = "school_district_id" id = "school_${item.id}_district"><script>$("#school_${item.id}_district").html($(".district_${item.district_id} .district_name").html());</script></td>
+              <td><input type="checkbox" class = "school_select_box" name="id" value="${item.id}"/></td>
 
             </tr>
             % endfor
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
         <span id="pager" class="pager">
           <form>
@@ -506,6 +532,7 @@ f.close()
           Download Districts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadSchoolCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadSchoolXLS"/>
+          <input type="button" value = "Delete Selected Schools" class ="small" style = "float:right" id = "delete_selected_schools"/>
         </span>
     </div>
     <div class="user_table-section table-section">
@@ -525,7 +552,14 @@ f.close()
                 <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
                 <input placeholder = "Search by Email" class="search" type="search" data-column="3" id = "User_search_email">
                 <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
-                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img>
+                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label>
+                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -533,30 +567,29 @@ f.close()
             <table class="tablesorter-blue" id="user_table_init">
                 <thead>
             <tr>
-              <th>ID</th>
-              <th>Last Name</th>
-              <th>First Name</th>
-              <th>E-Mail</th>
-              <th>Enrollment Start</th>
+              <th class = "user_id_select">ID</th>
+              <th class = "user_lname">Last Name</th>
+              <th class = "user_fname">First Name</th>
+              <th class = "user_email">E-Mail</th>
+              <th class = "user_enrollment_status">Enrollment Start</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for item in User.objects.all():
-            <tr>
-              <td>${item.id}</td>
-              <td>${item.last_name}</a></td>
-              <td>${item.first_name}</td>
-              <td>${item.email}</td>
-              <td>${item.date_joined}</td>
-              <td><input type="checkbox" name="id" value="${item.id}"/></td>
+            <tr id = "user_${item.id}">
+              <td class = "user_id_select">${item.id}</td>
+              <td class = "user_lname">${item.last_name}</a></td>
+              <td class = "user_fname">${item.first_name}</td>
+              <td class = "user_email">${item.email}</td>
+              <td class = "user_enrollment_status">${item.date_joined}</td>
+              <td><input class = "user_select_box" type="checkbox" name="id" value="${item.id}"/></td>
 
             </tr>
             % endfor
                 </tbody>
             </table>
         </div>
-                    <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
         <span id="pager" class="pager">
           <form>
@@ -579,7 +612,9 @@ f.close()
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
         <span style = "float:right">
-            <input type ="button" name = "" onclick = "addToCohort()" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+            <input type="button" value = "Delete Selected Users" sytle = "padding-right:10px;" class ="small" id = "delete_selected_user"/>
+            <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
+            <input type ="button" name = "" onclick = "addToCohort()" sytle = "padding-left:10px;" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
         </span>
     </div>
     <div class="cohort_table-section table-section">
@@ -596,7 +631,13 @@ f.close()
                       %endfor
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
-                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br>
+                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <p><b>Select Columns</b></p>
+                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label>
+                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label>
+                <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
 
             </div>
         </div>
@@ -604,28 +645,27 @@ f.close()
             <table class="tablesorter-blue" id="cohort_table_init">
                 <thead>
             <tr>
-                <th>Cohort ID</th>
-                <th>Licences</th>
-                <th>Terms Months</th>
-                <th>Subscription Start Date</th>
+                <th class = "cohort_id">Cohort ID</th>
+                <th class = "cohort_liscense">Licences</th>
+                <th class = "cohort_term">Terms Months</th>
+                <th class = "cohort_start">Subscription Start Date</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
             % for  item in Cohort.objects.all():
-            <tr>
-                <td>${item.code}</td>
-                <td>${item.licences}</td>
-                <td>${item.term_months}</td>
-                <td>${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
+            <tr id = "cohort_${item.id}">
+                <td class = "cohort_id">${item.code}</td>
+                <td class = "cohort_liscense">${item.licences}</td>
+                <td class = "cohort_term">${item.term_months}</td>
+                <td class = "cohort_start">${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
                 <td style = "display:none;">${item.district_id}</td>
-                <td><input type="checkbox" name="id" value="${item.id}" /></td>
+                <td><input class = "cohort_select_box" type="checkbox" name="id" value="${item.id}" /></td>
             </tr>
             % endfor
                 </tbody>
             </table>
         </div>
-            <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
         <span id="pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
@@ -645,6 +685,7 @@ f.close()
           Download Cohorts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadCohortCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadCohortXLS"/>
+          <input type="button" value = "Delete Selected Cohorts" class ="small" style = "float:right" id = "delete_selected_cohort"/>
         </span>
     </div><br><br>
 
@@ -698,7 +739,7 @@ $("#singleSchoolImportForm").submit(function(){
 
 $("#singleUserImportForm").submit(function(){
 
-    var flds = ["name", "district", "email", "csrfmiddlewaretoken"];
+    var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
              r=$.parseJSON(r)
@@ -759,6 +800,104 @@ $(document).ready(function(){
                 this.checked=false;
             });
         }
+    });
+
+    $("#delete_selected_districts").click(function(){
+      var ids=[];
+      $(".district_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected districts?")) return;
+      $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Deleted Selected Users.');
+            $(".district_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#district_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_schools").click(function(){
+      var ids=[];
+      $(".school_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected schools?")) return;
+      $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Deleted Selected Schools.');
+            $(".school_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#school_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_user").click(function(){
+      var ids=[];
+      $(".user_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected users?")) return;
+      $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+
+        if(r.success){
+            alert('Deleted Selected Users.');
+            $(".user_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#user_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_cohort").click(function(){
+      var ids=[];
+      $(".cohort_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected cohorts?")) return;
+      $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+
+        if(r.success){
+            alert('Deleted Selected Cohorts.');
+            $(".cohort_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#cohort_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#register_selected_user").click(function(){
+       var ids = [];
+        $(".user_select_box:checked").each(function(){
+            ids.push(this.value);
+        });
+        if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Send Registration Emails to Selected Users?")) return;
+      $.get("${reverse('pepconn_registration_send_email')}",{ids:ids.join(",")},function(r){
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Registration Emails Sending.');
+            $(".cohort_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#cohort_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
     });
 });
 function addToCohort(){
@@ -1108,7 +1247,8 @@ function toggle(which){
     $(".table-section").hide();
     $("."+which+"-section").show();
     $(".table-tab").css("padding-top", "4px");
-    $(".table-tab."+which).css("padding-top", "10px")
+    $(".table-tab."+which).css("padding-top", "10px");
+    $(".search").val('').change();
 }
 
   if (typeof CKEDITOR != 'undefined') {

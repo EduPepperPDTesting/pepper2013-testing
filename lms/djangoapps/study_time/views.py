@@ -35,6 +35,7 @@ def record_time(request):
     return utils.JsonResponse({})
 
 
+# save page time
 def set_page_time(rts, info, user_id):
     item = rts.get_item(user_id, info['prev_vertical_id'], info['prev_time'])
     time_delta = get_time_delta(item['start_time'], item['end_time']) - settings.PEPPER_SESSION_EXPIRY
@@ -104,6 +105,7 @@ def get_sort_key(name):
         return name
 
 
+# add time out
 def set_course_timeout(rts, item, user_id):
     time_delta = settings.PEPPER_SESSION_EXPIRY
     rdata = rts.get_page_item(item['user_id'], item['new_vertical_id'])
@@ -149,11 +151,12 @@ def get_course_time(request):
         time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
     else:
         external_time = rts.get_external_time(user_id, request.POST.get('course_id'))
-        course_time = rts.get_course_time(user_id, request.POST.get('course_id'), type)
+        course_time = rts.get_course_time(user_id, request.POST.get('course_id'), type, int(request.POST.get('add_time_out')))
         time = course_time + external_time
     return utils.JsonResponse({'time': time, 'time_out': settings.PEPPER_SESSION_EXPIRY})
 
 
+# save collaboration time
 @login_required
 def save_course_time(request):
     rts = record_time_store()
