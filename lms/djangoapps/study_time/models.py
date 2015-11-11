@@ -110,16 +110,17 @@ class MongoRecordTimeStore(object):
     def set_page_item(self, item, rdata):
         if rdata is not None:
             rdata['time'] = int(rdata['time']) + int(item['time'])
-            return self.collection_page.update(
-                {
-                    'user_id': item['user_id'],
-                    'vertical_id': item['vertical_id']
-                },
-                {
-                    '$set': {'time': rdata['time']}
+            if rdata['time'] >= 0:
+                return self.collection_page.update(
+                    {
+                        'user_id': item['user_id'],
+                        'vertical_id': item['vertical_id']
+                    },
+                    {
+                        '$set': {'time': rdata['time']}
 
-                }
-            )
+                    }
+                )
         else:
             return self.collection_page.save(item)
 
