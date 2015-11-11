@@ -50,7 +50,8 @@ def tnl_get_person(user):
             'email': user.email}
 
     try:
-        response = tnl_request.do_request(endpoint, 'get', tnl_encryptor.encrypt(json.dumps(data)))
+        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+        response = tnl_request.do_request(endpoint, 'get', tnl_encryptor.encrypt(json.dumps(data)).rtrim("\n"))
         return response['personid']
     except:
         return False
@@ -128,7 +129,8 @@ def tnl_register_completion(user, course_instance, percent):
             'gradeid': tnl_get_grade(percent)}
 
     try:
-        tnl_request.do_request(endpoint, 'put', tnl_encryptor.encrypt(json.dumps(data)))
+        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+        tnl_request.do_request(endpoint, 'put', tnl_encryptor.encrypt(json.dumps(data)).rstrip("\n"))
         track = TNLCompletionTrack(user=user, course=course, registered=1, registration_date=datetime.datetime.utcnow())
     except:
         track = TNLCompletionTrack(user=user, course=course, registered=0)
@@ -162,7 +164,8 @@ def tnl_register_course(course):
 
     # Parameters needed for the request
     data = {'adminid': tnl_adminid,
-            'title': course.name,
+            'title': course.display_name_with_default,
+            'number': course.display_number_with_default,
             'externalid': course.id,
             'providerid': tnl_providerid,
             'edagencyid': tnl_edagencyid,
@@ -174,14 +177,16 @@ def tnl_register_course(course):
             'selfpaced': True}
 
     try:
-        response = tnl_request.do_request(endpoint, 'post', tnl_encryptor.encrypt(json.dumps(data)))
+        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+        response = tnl_request.do_request(endpoint, 'post', tnl_encryptor.encrypt(json.dumps(data)).rstrip("\n"))
         course_entry = TNLCourses(course=course.id,
                                   tnl_id=response['courseid'],
                                   section_id=response['sectionid'],
                                   registered=1,
                                   registration_date=datetime.datetime.utcnow())
     except:
+        response = {'success': False}
         course_entry = TNLCourses(course=course.id, registered=0)
 
     course_entry.save()
-
+    return response
