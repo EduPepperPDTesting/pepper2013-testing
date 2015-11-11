@@ -25,7 +25,7 @@ def tnl_configuration(request):
         courses.append(course_from_id(course.course_id))
 
     context = {'districts': districts, 'courses': courses}
-    return render_to_response('administration/tnl_configuration.html', context)
+    return render_to_response('tnl/configuration.html', context)
 
 
 @login_required
@@ -34,7 +34,7 @@ def tnl_connection_test(request):
     """
     Test the connection to TNL server
     """
-    return render_to_response('administration/tnl_test.html')
+    return render_to_response('tnl/test.html')
 
 
 @login_required
