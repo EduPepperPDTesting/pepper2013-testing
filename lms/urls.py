@@ -10,7 +10,24 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8  
+    '',  # nopep8
+
+####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+    
+    url(r'^genericsso/$', 'sso.views.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
+    
+    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
+    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
+    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
+
+    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
+
+    (r'^saml2/', include('djangosaml2.urls')),
+    (r'^test/', 'djangosaml2.views.echo_attributes'),
     
 ####### Ancestor
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),

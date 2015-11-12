@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <entity type="SAML" name="victor">
+    <attribute name="email" map="email"></attribute>
+    <attribute name="last_name" map="first_name"></attribute>
+    <attribute name="first_name" map="last_name"></attribute>
+    <attribute name="publicname" map="username"></attribute>
+    <attribute name="" map=""></attribute>
+  </entity>
+</entities>

@@ -1,8 +1,10 @@
 from ..dev import *
-
-import os,sys
-sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
+import sys
+from lms.sso.testsite.setting import *
+
+
+sys.path.append("..")  # => /home/tahoe/edx_all
 
 # ========================================================================
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = False
@@ -27,8 +29,8 @@ modulestore_options = {
     'db': 'xmodule',
     'host': MONGO_HOST,
     'port': MONGO_PORT,
-    'user':MONGO_USER,
-    'password':MONGO_PASSWORD,
+    'user': MONGO_USER,
+    'password': MONGO_PASSWORD,
     'collection': 'modulestore',
     'fs_root': DATA_DIR,
     'render_template': 'mitxmako.shortcuts.render_to_string',
@@ -46,9 +48,9 @@ CONTENTSTORE = {
     'OPTIONS': {
         'db': 'xcontent',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,           
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,        
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 
@@ -56,9 +58,9 @@ USERSTORE = {
     'OPTIONS': {
         'db': 'userstore',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 REMINDSTORE = {
@@ -69,9 +71,9 @@ REMINDSTORE = {
         'collection_aid': 'bulletin_status',
         'collection_status': 'rmodule_status',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 MESSAGESTORE = {
@@ -80,9 +82,9 @@ MESSAGESTORE = {
         'db': 'remind',
         'collection': 'message_board',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 CHUNKSSTORE = {
@@ -91,9 +93,9 @@ CHUNKSSTORE = {
         'db': 'remind',
         'collection': 'chunks',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 RECORDTIMESTORE = {
@@ -106,9 +108,9 @@ RECORDTIMESTORE = {
         'collection_external': 'external_time',
         'collection_result_set': 'result_set',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 INSTALLED_APPS += (
@@ -141,17 +143,17 @@ DATABASES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
-# PIPELINE=False 
-# PIPELINE_ENABLED=False
+# PIPELINE = False
+# PIPELINE_ENABLED = False
 STATIC_ROOT = ENV_ROOT / "staticfiles/lms"
 
 # MITX_FEATURES['USE_DJANGO_PIPELINE']=True
 
 
-SESSION_SAVE_EVERY_REQUEST=True 
+SESSION_SAVE_EVERY_REQUEST = True
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # disable django debug toolbars
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 INSTALLED_APPS = tuple([app for app in INSTALLED_APPS if not app.startswith('debug_toolbar')])
 MIDDLEWARE_CLASSES = tuple([mcl for mcl in MIDDLEWARE_CLASSES if not mcl.startswith('debug_toolbar')])

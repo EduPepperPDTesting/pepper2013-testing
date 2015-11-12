@@ -1,0 +1,63 @@
+颁发者 URL
+https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/
+
+单一登录服务 URL
+https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2
+
+单一注销服务 URL
+https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2
+
+
+登录 URL (可选)
+https://59.45.37.45
+包含此应用程序的基于 Web 的登录页面的 URL。如果应用程序配置为执行服务提供商启动的单一登录，
+则当用户导航至此 URL 时，服务提供商将进行必要的重定向，以对应用程序中的用户进行身份验证和日志记录。
+
+例如，当用户导航至我的应用门户并点击应用程序磁贴时，他们将被重定向到配置为登录 URL 的 URL。
+
+URL that contains the web-based sign-in page for this application. If the application is configured to perform service provider-initiated single sign on,
+then when a user navigates to this url, the service provider will do the neccessary redirections to authenticate and log on the user in the application.
+
+For example when a user navigates to my apps portal and clicks on the application tile, they will be redirected to the url configured as Sign On Url.
+
+
+
+颁发者 URL
+https://59.45.37.54
+此颁发者 URL 应单独标识应用程序正在设置哪个单一登录。通常，这也是 azure 将发送回应用程序作为身份验证令牌的“访问群体”的值。
+The issuer URL should uniquely identify the application for which single sign on is being setup. Typically this is also a value that azure will send back to application as 'audience' of authentication token and the application is expected to validate it.
+
+
+
+回复 URL
+https://59.45.37.54/genericsso
+回复 URL 是应用程序期望接收身份验证令牌的地方。这也被称为“断言使用者服务” (ACS) URL。
+
+The reply URL is where the application expects to receive the authentication token. This is also referred to as the "Assertion Consumer Service" (ACS) URL.
+
+
+
+
+
+Hi Pavel,
+
+I found something strange of azure sso, or it's my misunderstanding.
+
+My url settings:
+
+Click on the app icon:
+
+It opens a tab and redirect to
+http://59.45.37.54/login
+
+Question 1:
+I think the sign on url is used when SSO is initiated on SP side,
+so what we need here is directing to http://59.45.37.54/genericsso
+I'm right? If so, how to make it?
+
+Question 2:
+It direct to http://59.45.37.54/login (It changes https to http).
+If I remove "login" from the setting (set to https://59.45.37.54)
+Then this won't happen. Know something about this?
+
+
