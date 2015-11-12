@@ -166,7 +166,22 @@ def samlACS(request, idp_name, ms):
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
-    email = session_info['ava']['email'][0]
+    # Parse ava as dict
+    print "<<<<"
+    print session_info['ava']
+    data = {}
+    for k, v in session_info['ava'].items():
+        data[k] = v[0]
+
+    # Fetch email
+    attribute_setting = ms.get('attributes')
+    parsed_data = {}
+
+    for attr in attribute_setting:
+        mapped_name = attr['map'] if 'map' in attr else attr['name']
+        if attr['name']:
+            parsed_data[mapped_name] = data.get(attr['name'])
+    email = parsed_data.get('email')
 
     # which idp
     # print session_info['issuer']
@@ -184,9 +199,6 @@ def samlACS(request, idp_name, ms):
             auth.login(request, user)
             return https_redirect(request, "/dashboard")
     else:
-        data = {}
-        for k, v in session_info['ava'].items():
-            data[k] = v[0]
         return create_unknown_user(request, ms, data)
 
 
@@ -210,8 +222,9 @@ def create_unknown_user(request, ms, data):
         parsed_data = {}
 
         for attr in attribute_setting:
-            mapped_name = attr['map'] if attr['map'] else attr['name']
-            parsed_data[mapped_name] = data[mapped_name]
+            mapped_name = attr['map'] if 'map' in attr else attr['name']
+            if attr['name']:
+                parsed_data[mapped_name] = data.get(attr['name'])
 
         if not parsed_data.get('username'):
             username = random_mark(20)
@@ -264,12 +277,12 @@ def create_unknown_user(request, ms, data):
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
+        return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
     except Exception as e:
+        raise e
         db.transaction.rollback()
         log.error("error: failed to create SSO user: %s" % e)
-
-    return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
 
 def register_sso(request, activation_key):

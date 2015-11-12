@@ -47,3 +47,5 @@ autodeploy.properties
 .vagrant/
 logs
 .testids/
+lms/sso
+
