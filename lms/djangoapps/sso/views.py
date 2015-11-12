@@ -167,6 +167,8 @@ def samlACS(request, idp_name, ms):
     session_info = response.session_info()
 
     # Parse ava as dict
+    print "<<<<"
+    print session_info['ava']
     data = {}
     for k, v in session_info['ava'].items():
         data[k] = v[0]
@@ -174,9 +176,11 @@ def samlACS(request, idp_name, ms):
     # Fetch email
     attribute_setting = ms.get('attributes')
     parsed_data = {}
+
     for attr in attribute_setting:
-        mapped_name = attr['map'] if attr['map'] else attr['name']
-        parsed_data[mapped_name] = data[attr['name']]
+        mapped_name = attr['map'] if 'map' in attr else attr['name']
+        if attr['name']:
+            parsed_data[mapped_name] = data.get(attr['name'])
     email = parsed_data.get('email')
 
     # which idp
@@ -218,8 +222,9 @@ def create_unknown_user(request, ms, data):
         parsed_data = {}
 
         for attr in attribute_setting:
-            mapped_name = attr['map'] if attr['map'] else attr['name']
-            parsed_data[mapped_name] = data[mapped_name]
+            mapped_name = attr['map'] if 'map' in attr else attr['name']
+            if attr['name']:
+                parsed_data[mapped_name] = data.get(attr['name'])
 
         if not parsed_data.get('username'):
             username = random_mark(20)
@@ -275,6 +280,7 @@ def create_unknown_user(request, ms, data):
         return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
     except Exception as e:
+        raise e
         db.transaction.rollback()
         log.error("error: failed to create SSO user: %s" % e)
 
