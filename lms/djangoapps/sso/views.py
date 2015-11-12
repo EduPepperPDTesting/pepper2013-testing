@@ -166,7 +166,18 @@ def samlACS(request, idp_name, ms):
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
-    email = session_info['ava']['email'][0]
+    # Parse ava as dict
+    data = {}
+    for k, v in session_info['ava'].items():
+        data[k] = v[0]
+
+    # Fetch email
+    attribute_setting = ms.get('attributes')
+    parsed_data = {}
+    for attr in attribute_setting:
+        mapped_name = attr['map'] if attr['map'] else attr['name']
+        parsed_data[mapped_name] = data[mapped_name]
+    email = parsed_data.get('email')
 
     # which idp
     # print session_info['issuer']
@@ -184,9 +195,6 @@ def samlACS(request, idp_name, ms):
             auth.login(request, user)
             return https_redirect(request, "/dashboard")
     else:
-        data = {}
-        for k, v in session_info['ava'].items():
-            data[k] = v[0]
         return create_unknown_user(request, ms, data)
 
 
