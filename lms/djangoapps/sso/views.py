@@ -272,12 +272,11 @@ def create_unknown_user(request, ms, data):
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
+        return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
     except Exception as e:
         db.transaction.rollback()
         log.error("error: failed to create SSO user: %s" % e)
-
-    return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 
 
 def register_sso(request, activation_key):

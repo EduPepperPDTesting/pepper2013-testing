@@ -7,4 +7,9 @@
     <attribute name="publicname" map="username"></attribute>
     <attribute name="" map=""></attribute>
   </entity>
+  <entity type="SAML" name="PepperTest">
+    <attribute name="mail" map="email"></attribute>
+    <attribute name="givenname" map="first_name"></attribute>
+    <attribute name="surname" map="last_name"></attribute>
+  </entity>
 </entities>
