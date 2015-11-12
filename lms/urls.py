@@ -15,6 +15,11 @@ urlpatterns = (
 ####### Ancestor
     url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
     url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
+    url(r'^tnl/district/add', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
+    url(r'^tnl/district/delete', 'tnl_integration.views.tnl_district_delete', name="tnl_district_delete"),
+    url(r'^tnl/course/add', 'tnl_integration.views.tnl_course_add', name="tnl_course_add"),
+    url(r'^tnl/course/delete', 'tnl_integration.views.tnl_course_delete', name="tnl_course_delete"),
+    url(r'^tnl/drop-courses', 'tnl_integration.views.tnl_drop_courses', name="tnl_drop_courses"),
 
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),

@@ -12,37 +12,47 @@
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
-<link href="/static/js/tablesorter/css/theme.default.min.css" rel="stylesheet">
+<link href="/static/js/tablesorter/css/theme.blue.min.css" rel="stylesheet">
 <script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 <style type="text/css" media="screen">
-    input[type=button].small{
-        font-size:12px;height:2em;line-height:2em;padding:0 10px;
+    input[type=button].small {
+        font-size: 12px;
+        height: 2em;
+        line-height: 2em;
+        padding:0 10px;
     }
-    input[type=button]{
-        font-size:14px;height:2em;line-height:2em;padding:0 10px;margin:10px;
+    input[type=button] {
+        font-size: 14px;
+        height: 2em;
+        line-height: 2em;
+        padding: 0 10px;
+        margin: 10px;
     }
     .lean-overlay {
-        background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+        background: radial-gradient(circle at 50% 30% , rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0 0 transparent;
         display: block;
         height: 100%;
-        left: 0px;
+        left: 0;
         position: fixed;
-        top: 0px;
+        top: 0;
         width: 100%;
         z-index: 100;
     }
-    .modal{
-        display: block; position: absolute; opacity: 1; z-index: 11000; left: 50%; margin-left: -249px; top: 120px;
-        background: none repeat scroll 0% 0% rgba(255,255,255, 1);
-        /* border: 1px solid rgba(150, 150, 150, 0.9); */
+    .modal {
+        opacity: 1;
+        z-index: 11000;
+        left: 50%;
+        margin-left: -249px;
+        top: 120px;
+        background: none repeat scroll 0 0 rgba(255,255,255, 1);
         border-radius: 5px;
-        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
         padding: 0 0 8px 0;
         width: 480px;
-        display:none;
+        display: none;
         position: fixed;
     }
     .modal .close-modal {
@@ -53,168 +63,209 @@
         padding: 10px;
         position: absolute;
         right: 2px;
-        top: 0px;
+        top: 0;
         z-index: 3;
-        color:#333;
+        color: #333;
     }
-    .modal .titlebar{
-        background:#fff;
-        height:70px;
-        background:#ccc;
+    .modal .titlebar {
+        height: 70px;
+        background: #ccc;
     }
-    td.label{
-        text-align:right;padding-right:10px;width:45px;
-        vertical-align:top;
-        padding-top:13px;
+    td.label {
+        text-align: right;
+        padding-right: 10px;
+        width: 45px;
+        vertical-align: top;
+        padding-top: 13px;
     }
-    .modal .dialog-title{
-        margin:0;padding:20px 0 0 30px;color:#666;
+    .modal .dialog-title {
+        margin: 0;
+        padding: 20px 0 0 30px;
+        color: #666;
     }
-    .modal .content{
-        color:#333;
-        text-align:center;
-        font-size:16px;
-        padding:20px 10px;
-        line-height:20px;
+    .modal .content {
+        color: #333;
+        text-align: center;
+        font-size: 16px;
+        padding: 20px 10px;
+        line-height: 20px;
     }
-    .modal .progressbar{
-        height:30px;
-        background:#ddd;
-        border-radius:5px;
-        margin-top:10px;
+    .modal .progressbar {
+        height: 30px;
+        background: #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
     }
-    .modal .progressbar_flow{
-        height:30px;
-        background:#2a5;
-        border-radius:5px;
-        width:50px;
+    .modal .progressbar_flow {
+        height: 30px;
+        background: #2a5;
+        border-radius: 5px;
+        width: 50px;
     }
-    .modal .progressbar_text{
-        position:absolute;
-        height:30px;
-        line-height:30px;
-        right:0px;
-        left:0px;
+    .modal .progressbar_text {
+        position: absolute;
+        height: 30px;
+        line-height: 30px;
+        right: 0;
+        left: 0;
     }
     .favorite{
         display:none;
     }
 
-    section.content-wrapper{background:transparent !important;}
-    .list{padding:0px 5px;}
-    .list li{list-style-type:none;}
-    div.expand_title{color:#08a;font-size:20px;padding:10px 5px;cursor:pointer;}
-    div.expand_title .icon{display:inline-block;width:12px;height:15px;background: url(/static/images/configuration/arrow_dn.png);}
-    div.expand_title_expanded .icon{background: url(/static/images/configuration/arrow_up.png);}
-    div.expand_div{display:none;}
-    div.expand_title_container{padding-top:20px; padding-bottom:20px;}
+    section.content-wrapper {
+        background: transparent !important;
+    }
+    .list {
+        padding: 0 5px;
+    }
+    .list li {
+        list-style-type: none;
+    }
+    div.expand_title {
+        color: #08a;
+        font-size: 20px;
+        padding: 10px 5px;
+        cursor: pointer;
+    }
+    div.expand_title .icon {
+        display: inline-block;
+        width: 12px;
+        height: 15px;
+        background: url(/static/images/configuration/arrow_dn.png);
+    }
+    div.expand_title_expanded .icon {
+        background: url(/static/images/configuration/arrow_up.png);
+    }
+    div.expand_div {
+        display: none;
+    }
+    div.expand_title_container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
 
     /* filter */
     div.control.filter{
-        padding:10px 5px; border:1px solid #ddd;border-width:1px 0;height:auto;
+        padding: 10px 5px;
+        border-style: solid;
+        border-color: #ddd;
+        border-width: 1px 0;
+        height: auto;
     }
     div.control.filter h2{
-        color:#f90;
+        color: #f90;
     }
     div.control.filter .body select,
     div.control.filter .body input{
-        margin:5px 5px 0 0;
+        margin: 5px 5px 0 0;
     }
     div.control.filter div.favorite{
-        float:right;
+        float: right;
     }
     div.control.filter input[type=button].small{
         font-size:12px;height:2em;line-height:2em;padding:0 10px;
-        margin:5px 5px 0 0;
+        margin: 5px 5px 0 0;
     }
     div.control.filter input[type=button].load{
-        font-size:12px;height:2em;line-height:2em;padding:0 10px;
-        margin:5px 5px 0 0;
+        font-size: 12px;
+        height: 2em;
+        line-height: 2em;
+        padding: 0 10px;
+        margin: 5px 5px 0 0;
     }
     /* table */
     div.control.table{
-        padding:5px 5px 5px 5px;
+        padding: 5px;
     }
     div.control.table table{
-        width:100%;
-        text-align:left;
-        border-collapse:collapse;
-        border:1px solid #aaa;
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+        border: 1px solid #aaa;
     }
     div.control.table td,div.control.table th{
-        padding:6px;
-        border:1px solid #aaa;
-        font-size:12px;
+        padding: 6px;
+        border: 1px solid #aaa;
+        font-size: 12px;
     }
     div.control.table th{
-        padding:5px;
-        background:#99BFE6;
+        padding: 5px;
+        background: #99BFE6;
     }
     div.control.table th.checkbox-col{
-        width:15px;
-        overflow:visible;
+        width: 15px;
+        overflow: visible;
     }
     div.control.table th.checkbox-col span{
-        margin-top:2px;
-        cursor:pointer;
-        display:inline-block;
-        vertical-align:top;
-        width:18px;
-        height:20px;
-        line-height:12px;
-        background:url("/static/images/configuration/table_menu.png")
+        margin-top: 2px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: top;
+        width: 18px;
+        height: 20px;
+        line-height: 12px;
+        background: url("/static/images/configuration/table_menu.png")
     }
     div.control.table div.paging{
-        padding:5px;
-        text-align:right;
+        padding: 5px;
+        text-align: right;
     }
     div.control.table div.paging a{
-        margin-left:5px;
+        margin-left: 5px;
     }
     div.control.table div.paging input{
-        margin-right:5px;
-        width:50px;
-        text-align:right;
+        margin-right: 5px;
+        width: 50px;
+        text-align: right;
     }
     div.control.table .sort{
-        margin-top:3px;
-        vertical-align:top;
-        float:right;
-        cursor:pointer;
-        display:inline-block;
-        width:9px;
-        height:17px;
-        background:url("/static/images/configuration/table_arrow_sort.png")
+        margin-top: 3px;
+        vertical-align: top;
+        float: right;
+        cursor: pointer;
+        display: inline-block;
+        width: 9px;
+        height: 17px;
+        background: url("/static/images/configuration/table_arrow_sort.png")
     }
     ul.context-menu{
-        position:absolute;
-        background:#fff;
-        border-radius:5px;
-        box-shadow: 0px 0px 20px;
-        padding-left:5px;
-        margin-left:0px;
+        position: absolute;
+        background: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 20px;
+        padding-left: 5px;
+        margin-left: 0;
     }
     ul.context-menu li{
-        min-width:200px;
-        line-height:30px;
-        list-style:none;
+        min-width: 200px;
+        line-height: 30px;
+        list-style: none;
     }
     input,select{-ms-box-sizing:content-box;
-        box-sizing:border-box;
+        box-sizing: border-box;
     }
     .main{
-        margin:auto;
-        width:1180px;
-        border:1px solid #ddd;
+        margin: 0 auto 30px auto;
+        width: 1180px;
+        border: 1px solid #ddd;
+        padding: 10px;
     }
     .configuration_navigation{
-        display:none;
+        display: none;
     }
     .configuration_navigation_btn{
-        color:#08a;
-        font-size:20px;
-        padding:10px 5px;
-        cursor:pointer;
+        color: #08a;
+        font-size: 20px;
+        padding: 10px 5px;
+        cursor: pointer;
+    }
+    .delete {
+        float: right;
+    }
+    .add {
+        float: right;
+        margin-bottom: 10px;
     }
 </style>
 <!-- Certificate -->
@@ -225,10 +276,9 @@
                 True North Logic Integration Configuration
             </span><span class="subItem"></span>
         </div>
-        <form action="/tnl/district/add" id="tnl-district-add">
-            <input type="submit" value="Add District" />
-        </form>
-        <form action="/tnl/district/delete" id="tnl-district-delete">
+        <input class="add" id="tnl-district-add" type="button" value="Add District" />
+        <h2>Enabled Districts</h2>
+        <form action="${reverse('tnl_district_delete')}" id="tnl-district-delete">
             <table class="sorted" id="districts">
                 <thead>
                     <tr>
@@ -237,6 +287,8 @@
                         <td>Code</td>
                         <td class="menu-trigger"></td>
                     </tr>
+                </thead>
+                <tbody>
                     % for row in districts:
                         <tr>
                             <td>${row.state}</td>
@@ -245,21 +297,39 @@
                             <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
-                </thead>
+                </tbody>
             </table>
-            <input type="submit" value="Delete Selected" />
+            <input class="delete" type="submit" value="Delete Selected" />
+            <div class="pager">
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                <select class="pagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+                <select class="gotoPage" title="Select page number"></select>
+            </div>
         </form>
-        <form action="/tnl/course/add" id="tnl-course-add">
-            <input type="submit" value="Add Course" />
-        </form>
-        <form action="/tnl/district/delete" id="tnl-course-delete">
+        <div class="clearfix"></div>
+    </div>
+    <div class="main">
+        <input class="add" id="tnl-course-add" type="button" value="Add Course" />
+        <h2>Enabled Courses</h2>
+        <form action="${reverse('tnl_course_delete')}" id="tnl-course-delete">
             <table class="sorted" id="courses">
                 <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Code</td>
-                    <td class="menu-trigger"></td>
-                </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>Code</td>
+                        <td class="menu-trigger"></td>
+                    </tr>
+                </thead>
+                <tbody>
                     % for row in courses:
                         <tr>
                             <td>${row.display_name_with_default}</td>
@@ -267,10 +337,25 @@
                             <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
-                </thead>
+                </tbody>
             </table>
-            <input type="submit" value="Delete Selected" />
+            <input class="delete" type="submit" value="Delete Selected" />
+            <div class="pager">
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                <select class="pagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+                <select class="gotoPage" title="Select page number"></select>
+            </div>
         </form>
+        <div class="clearfix"></div>
     </div>
 </div>
 <!-- dialog -->
@@ -334,7 +419,7 @@
 
         // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
         // table row set to a height to compensate; default is false
-        fixedHeight: true,
+        fixedHeight: false,
 
         // remove rows from the table to speed up the sort of large tables.
         // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
@@ -358,7 +443,71 @@
         cssErrorRow: 'tablesorter-errorRow' // ajax error information row
 
     };
-    $('table.sorted').tablesorter({ headers: {
-        '.menu-trigger': { sorter: false, parser: false }
-    }}).tablesorterPager(pagerOptions);
+    $('.sorted').tablesorter({
+        headers: {
+            '.menu-trigger': {sorter: false, parser: false}
+        },
+        theme: 'blue'
+    }).tablesorterPager(pagerOptions);
+
+    function buildOptions(data, name) {
+        var options = '<option value="none">Select ' + name + '</option>';
+        for (var x = 0; x < data.length; x++) {
+            options += '<option value="' + data[x].id + '">' + data[x].name + '</option>';
+        }
+        return options;
+    }
+    function buildDropStates () {
+        $.get('${reverse('pepconn_drop_states')}', function(data) {
+            var options = buildOptions(data, 'State');
+            var select = $('#state-select');
+            select.append(options);
+            select.change(function() {
+                buildDropDistricts($(this).val());
+            });
+        });
+    }
+    function buildDropDistricts (state) {
+        $.get('${reverse('pepconn_drop_districts')}', { state: state }, function(data) {
+            var options = buildOptions(data, 'District');
+            $('#district-select').append(options);
+        });
+    }
+    function buildDropCourses () {
+        $.get('${reverse('tnl_drop_courses')}', function(data) {
+            var options = buildOptions(data, 'Course');
+            $('#course-select').append(options);
+        });
+    }
+    $('#tnl-district-add').mouseup(function() {
+        var code = '<select id="state-select"></select>&nbsp;<select id="district-select"></select><br/><input type="button" id="district-add" value="Add" />';
+        new Dialog($('#dialog')).show('Add District', code);
+        buildDropStates();
+        $('#district-add').mouseup(function() {
+            var district = $('#district-select').val();
+            $.post('${reverse('tnl_district_add')}', { district: district }, function() {
+                // TODO: Update table
+            });
+        });
+        return false;
+    });
+    $('#tnl-district-delete').submit(function() {
+        // Do something
+        return false;
+    });
+    $('#tnl-course-add').mouseup(function() {
+        var code = '<select id="course-select"></select><br/><input type="button" id="course-add" value="Add" />';
+        new Dialog($('#dialog')).show('Add Course', code);
+        buildDropCourses();
+        $('#course-add').mouseup(function() {
+            $.post('${reverse('tnl_course_add')}', $('#course-select').val(), function() {
+                // TODO: Update table
+            });
+        });
+        return false;
+    });
+    $('#tnl-course-delete').submit(function() {
+        // Do something
+        return false;
+    });
 </script>

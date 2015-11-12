@@ -5,6 +5,7 @@ True North Logic integration module
 # Imports
 from student.views import course_from_id
 from mitxmako.shortcuts import render_to_response
+from xmodule.modulestore.django import modulestore
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
@@ -50,3 +51,56 @@ def tnl_test_register(request):
         raise e
     return HttpResponse(json.dumps(response), mimetype='application/json')
     # return HttpResponse(response)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_district_add(request):
+    """
+    Adds the requested district to the TNL enabled districts.
+    """
+    pass
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_district_delete(request):
+    """
+    Deletes the requested districts from the TNL enabled districts.
+    """
+    pass
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_course_add(request):
+    """
+    Adds the requested course to the TNL enabled courses and registers it with TNL.
+    """
+    pass
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_course_delete(request):
+    """
+    Deletes the requested courses from the TNL enabled courses.
+    """
+    pass
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_drop_courses(request):
+    """
+    Returns a list of course IDs for a course selection dropdown.
+    """
+    filter_dict = {'_id.category': 'course'}
+    items = modulestore().collection.find(filter_dict)
+    courses = modulestore()._load_items(list(items), 0)
+    course_ids = []
+    for course in courses:
+        course_ids.append({'id': course.id,
+                           'name': course.display_number_with_default + ' - ' + course.display_name_with_default
+                           })
+    return HttpResponse(json.dumps(course_ids), mimetype='application/json')
