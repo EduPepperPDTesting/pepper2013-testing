@@ -46,6 +46,7 @@ from django.core.urlresolvers import reverse
       <span class="">Name</span>
       <input type="" name="sso_name" value="" style="width:500px;"/>
     </div>
+    <!--
     <div class="row">
       <span class="">Entity ID</span>
       <input type="" name="sso_entity_id" value="" style="width:500px;"/>
@@ -70,6 +71,7 @@ from django.core.urlresolvers import reverse
       <span>Response Schema</span>
       <textarea name="sso_response"></textarea>
     </div>
+    -->
     <div class="section">Attributes</div>
     <div id="divIdpAttributeMapping"></div>
     <div style="margin-left:145px;padding:5px 0;">
@@ -106,21 +108,21 @@ from django.core.urlresolvers import reverse
   Metadata.prototype.bufferData = function(index){
     var self = this;
     var $rows = $("#divIdpAttributeMapping").find("div.row");
-    var entityID = $("input[name=sso_entity_id]").val();
+    /* var entityID = $("input[name=sso_entity_id]").val(); */
     this.data[index] = {}
     this.data[index]['sso_type'] = $("select[name=sso_type]").val();
-    this.data[index]['sso_entity_id'] = entityID;
     this.data[index]['sso_name'] = $("input[name=sso_name]").val();
-    this.data[index]['sso_issuer_url'] = $("input[name=sso_issuer_url]").val();
-    this.data[index]['sso_single_sign_on'] = $("input[name=sso_single_sign_on]").val();
-    this.data[index]['sso_single_sign_out'] = $("input[name=sso_single_sign_out]").val();
-    this.data[index]['sso_request'] = $("textarea[name=sso_request]").val();
-    this.data[index]['sso_response'] = $("textarea[name=sso_response]").val();
+    /* this.data[index]['sso_entity_id'] = entityID;
+       this.data[index]['sso_issuer_url'] = $("input[name=sso_issuer_url]").val();
+       this.data[index]['sso_single_sign_on'] = $("input[name=sso_single_sign_on]").val();
+       this.data[index]['sso_single_sign_out'] = $("input[name=sso_single_sign_out]").val();
+       this.data[index]['sso_request'] = $("textarea[name=sso_request]").val();
+       this.data[index]['sso_response'] = $("textarea[name=sso_response]").val(); */
     if(index >= 0){
       var attributes=[];
       $rows.each(function(){
         attributes.push({
-          type:$(this).find('select[name=type]').val(),
+          /* type:$(this).find('select[name=type]').val(), */
           name:$(this).find('input[name=name]').val(),
           map:$(this).find('input[name=map]').val()
         });
@@ -131,14 +133,14 @@ from django.core.urlresolvers import reverse
   Metadata.prototype.validateData = function(index){
     var idp = this.data[index];
     var n=0;
-    if($.trim(idp.sso_entity_id) == ''){
-      throw {"message": "SSO Entity ID can't be empty."}
-    }
-    $.each(this.data, function(i,v){
-      if(v.sso_entity_id == idp.sso_entity_id){
-        if(++n>1) throw {"message": "Same SSO Entity ID already exists."}
-      }
-    });
+    /* if($.trim(idp.sso_entity_id) == ''){
+       throw {"message": "SSO Entity ID can't be empty."}
+       } */
+    /* $.each(this.data, function(i,v){
+       if(v.sso_entity_id == idp.sso_entity_id){
+       if(++n>1) throw {"message": "Same SSO Entity ID already exists."}
+       }
+       }); */
     var n=0;
     if($.trim(idp.sso_name) == ''){
       throw {"message": "SSO Name can't be empty."}
@@ -169,7 +171,7 @@ from django.core.urlresolvers import reverse
     for(i in d.attributes){
       var a=d.attributes[i];
       var $row=this.addField();
-      $row.find("select[name=type]").val(a.type);
+      // $row.find("select[name=type]").val(a.type);
       $row.find("input[name=name]").val(a.name);
       $row.find("input[name=map]").val(a.map);
     }
@@ -217,9 +219,7 @@ from django.core.urlresolvers import reverse
   }
   Metadata.prototype.addField = function(){
     var $row=$("<div style='text-align:left;' class='row'> \
-<span>Type</span> \
-<select name='type'><option>Assertion</option><option> Profile</option><option>Response</option></select> \
-<span style='width:auto'>Name</span> <input type='input' name='name'/> \
+<span>Name</span> <input type='input' name='name'/> \
 <span style='width:auto'>Map To</span> <input type='input' name='map'/> \
 <input type='button' style='width:20px;padding:0 5px' value='-' class='btnRemove'/></div>").appendTo($("#divIdpAttributeMapping"));
     var $btnRemove=$row.find(".btnRemove");

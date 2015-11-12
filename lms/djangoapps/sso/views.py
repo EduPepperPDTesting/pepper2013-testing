@@ -30,6 +30,9 @@ import calendar
 from student.views import upload_user_photo
 import metadata
 import logging
+from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
+from baseinfo.models import Enum
+from django import db
 
 log = logging.getLogger("tracking")
 BASEDIR = path.dirname("lms/")
@@ -201,44 +204,70 @@ def random_mark(length):
 def create_unknown_user(request, ms, data):
     '''Create the sso user who\'s not exists in pepper'''
 
-    attribute_setting = ms.get('attributes')
+    try:
+        attribute_setting = ms.get('attributes')
 
-    parsed_data = {}
+        parsed_data = {}
 
-    for attr in attribute_setting:
-        mapped_name = attr['map'] if attr['map'] else attr['name']
-        parsed_data[mapped_name] = data[attr['name']]
+        for attr in attribute_setting:
+            mapped_name = attr['map'] if attr['map'] else attr['name']
+            parsed_data[mapped_name] = data[mapped_name]
 
-    if not parsed_data.get('username'):
-        username = random_mark(20)
-    else:
-        username = parsed_data['username']
+        if not parsed_data.get('username'):
+            username = random_mark(20)
+        else:
+            username = parsed_data['username']
 
-    email = parsed_data['email']
-    user = User(username=username, email=email, is_active=False)
+        email = parsed_data['email']
 
-    for k, v in parsed_data.items():
-        if k == 'first_name':
-            user.first_name = parsed_data['first_name']
-        if k == 'last_name':
-            user.last_name = parsed_data['last_name']
+        user = User(username=username, email=email, is_active=False)
 
-    # Set password the same with username
-    user.set_password(username)
+        # Set password the same with username
+        user.set_password(username)
+        user.save()
 
-    user.save()
-    registration = Registration()
-    registration.register(user)
-    profile = UserProfile(user=user)
-    profile.subscription_status = "Imported"
-    profile.sso_type = ms.get('sso_type')
-    profile.sso_idp = ms.get('sso_name')
-    profile.save()
+        registration = Registration()
+        registration.register(user)
 
-    cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
-    cea.is_active = True
-    cea.auto_enroll = True
-    cea.save()
+        profile = UserProfile(user=user)
+        profile.subscription_status = "Imported"
+        profile.sso_type = ms.get('sso_type')
+        profile.sso_idp = ms.get('sso_name')
+
+        for k, v in parsed_data.items():
+            if k == 'first_name':
+                user.first_name = parsed_data['first_name']
+            if k == 'last_name':
+                user.last_name = parsed_data['last_name']
+            if k == 'district':
+                profile.district = District.object.get(name=parsed_data['district'])
+            if k == 'school':
+                profile.school = School.object.get(name=parsed_data['school'])
+            if k == 'grade_level':
+                profile.district = GradeLevel.object.get(name=parsed_data['grade_level'])
+            if k == 'major_subject_area':
+                ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list('id', flat=True)
+                profile.major_subject_area = ','.join(ids)
+            if k == 'years_in_education':
+                profile.years_in_education = YearsInEducation.object.get(name=parsed_data['years_in_education'])
+            if k == 'percent_lunch':
+                profile.percent_lunch = Enum.object.get(name='percent_lunch', content=parsed_data['percent_lunch'])
+            if k == 'percent_iep':
+                profile.percent_iep = Enum.object.get(name='percent_iep', content=parsed_data['percent_iep'])
+            if k == 'percent_eng_learner':
+                profile.percent_eng_learner = Enum.object.get(name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
+
+        user.save()
+        profile.save()
+
+        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+        cea.is_active = True
+        cea.auto_enroll = True
+        cea.save()
+
+    except Exception as e:
+        db.transaction.rollback()
+        log.error("error: failed to create SSO user: %s" % e)
 
     return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
 

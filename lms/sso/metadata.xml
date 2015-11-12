@@ -1,73 +1,9 @@
 <?xml version="1.0"?>
 <entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-  <entity type="SAML" name="victor" entityID="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/">
-    <issuerUrl location="https://sts.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/"></issuerUrl>
-    <singleSignOnService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleSignOnService>
-    <singleLogoutService location="https://login.windows.net/0397bdf1-4ff9-47e5-8aae-33a6c04b6c50/saml2"></singleLogoutService>
-    <attribute type="Assertion" name="email" map="email"></attribute>
-    <attribute type="Profile" name="first_name" map="first_name"></attribute>
-    <attribute type="Profile" name="last_name" map="last_name"></attribute>
-    <request>
-<![CDATA[
-<samlp:AuthnRequest
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-    ID="identifier_1"
-    Version="2.0"
-    IssueInstant="2004-12-05T09:21:59"
-    AssertionConsumerServiceIndex="0">
-    <saml:Issuer>https://sp.example.com/SAML2</saml:Issuer>
-    <samlp:NameIDPolicy
-      AllowCreate="true"
-      Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient"/>
-  </samlp:AuthnRequest>
-]]>
-    </request>
-    <response>
-<![CDATA[
-<Response Destination="<http_protocol>://sp:9031/sp/ACS.saml2" IssueInstant="2011-06-21T18:45:05.541Z" ID="mlFj46Z1ac5.Og0XRUQng9I9PZA" Version="2.0" xmlns="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:ds="<http_protocol>://org/2000/09/xmldsig#">
-<saml:Issuer>idp:cloud:saml2</saml:Issuer>
-<ds:Signature>
-<ds:SignedInfo>
-<ds:CanonicalizationMethod Algorithm="<http_protocol>://org/2001/10/xml-exc-c14n#"/>
-<ds:SignatureMethod Algorithm="<http_protocol>://org/2000/09/xmldsig#rsa-sha1"/>
-<ds:Reference URI="#mlFj46Z1ac5.Og0XRUQng9I9PZA">
-<ds:Transforms>
-<ds:Transform Algorithm="<http_protocol>://org/2000/09/xmldsig#enveloped-signature"/>
-<ds:Transform Algorithm="<http_protocol>://org/2001/10/xml-exc-c14n#"/>
-</ds:Transforms>
-<ds:DigestMethod Algorithm="<http_protocol>://org/2000/09/xmldsig#sha1"/>
-<ds:DigestValue>lhx/bdl8SDvYFlTORdnkMGSn9IE=</ds:DigestValue>
-</ds:Reference>
-</ds:SignedInfo>
-<ds:SignatureValue>ko2nIwlZN4vjtSWWDHwL+eF+uZKyFENdBP7f97jALUIAoWo37hc03koaKo2Q2Dbq7thv+BXVuEPr
-FYjhaS8rKUXPhETx4k4GMCEqMCGHuPAX1WanBHp4Pj1AV+WJdlijIalrGQaxRPhxlBGD5iR1i2fm
-ca+Kd5eHfuXZOav3lf0=</ds:SignatureValue>
-</ds:Signature>
-<Status>
-<StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-</Status>
-<saml:Assertion Version="2.0" IssueInstant="2011-06-21T18:45:05.619Z" ID="IbDavCE__pPV99SnSP5aFX8ZVtZ">
-<saml:Issuer>idp:cloud:saml2</saml:Issuer>
-<saml:Subject>
-<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">joe</saml:NameID>
-<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-<saml:SubjectConfirmationData NotOnOrAfter="2011-06-21T18:50:05.619Z" Recipient="<http_protocol>s://sp:9031/sp/ACS.saml2"/>
-</saml:SubjectConfirmation>
-</saml:Subject>
-<saml:Conditions NotOnOrAfter="2011-06-21T18:50:05.619Z" NotBefore="2011-06-21T18:40:05.619Z">
-<saml:AudienceRestriction>
-<saml:Audience>sp:cloud:saml2</saml:Audience>
-</saml:AudienceRestriction>
-</saml:Conditions>
-<saml:AuthnStatement AuthnInstant="2011-06-21T18:45:05.604Z" SessionIndex="IbDavCE__pPV99SnSP5aFX8ZVtZ">
-<saml:AuthnContext>
-<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>
-</saml:AuthnContext>
-</saml:AuthnStatement>
-</saml:Assertion>
-</Response>
-]]>
-    </response>
+  <entity type="SAML" name="victor">
+    <attribute name="email" map="email"></attribute>
+    <attribute name="last_name" map="first_name"></attribute>
+    <attribute name="first_name" map="last_name"></attribute>
+    <attribute name="publicname" map="username"></attribute>
   </entity>
 </entities>

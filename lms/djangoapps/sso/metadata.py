@@ -21,32 +21,13 @@ def save(request):
         attributes = []
         for a in d['attributes']:
             attributes.append('''
-    <attribute type="%s" name="%s" map="%s"></attribute>''' % (a['type'], a['name'], a['map']))
+    <attribute name="%s" map="%s"></attribute>''' % (a['name'], a['map']))
 
         entities.append('''
-  <entity type="%s" name="%s" entityID="%s">
-    <issuerUrl location="%s"></issuerUrl>
-    <singleSignOnService location="%s"></singleSignOnService>
-    <singleLogoutService location="%s"></singleLogoutService>%s
-    <request>
-<![CDATA[
-%s
-]]>
-    </request>
-    <response>
-<![CDATA[
-%s
-]]>
-    </response>
+  <entity type="%s" name="%s">%s
   </entity>''' % (d.get('sso_type', ''),
                   d.get('sso_name', ''),
-                  d.get('sso_entity_id', ''),
-                  d.get('sso_issuer_url', ''),
-                  d.get('sso_single_sign_on', ''),
-                  d.get('sso_single_sign_out', ''),
-                  ''.join(attributes),
-                   d.get('sso_request', ''),
-                  d.get('sso_response', '')
+                  ''.join(attributes)
                   ))
 
     content = '''<?xml version="1.0"?>
@@ -76,21 +57,15 @@ def parse_one_idp(entity):
     if 'attribute' in entity:
         for attribute in entity['attribute']:
             attr = {
-                'type': attribute['@type'],
+                # 'type': attribute['@type'],
                 'name': attribute['@name'],
                 'map': attribute['@map']
                 }
             attribute_list.append(attr)
 
     return {
-        'sso_entity_id': entity['@entityID'],
         'sso_type': entity['@type'],
         'sso_name': entity['@name'],
-        'sso_issuer_url': entity['issuerUrl'][0]['@location'],
-        'sso_single_sign_on': entity['singleSignOnService'][0]['@location'],
-        'sso_single_sign_out': entity['singleLogoutService'][0]['@location'],
-        'sso_request': entity['request'][0].strip() if 'request' in entity else '',
-        'sso_response': entity['response'][0].strip() if 'response' in entity else '',
         'attributes': attribute_list
         }
 
