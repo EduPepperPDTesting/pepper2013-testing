@@ -5,5 +5,6 @@
     <attribute name="last_name" map="first_name"></attribute>
     <attribute name="first_name" map="last_name"></attribute>
     <attribute name="publicname" map="username"></attribute>
+    <attribute name="" map=""></attribute>
   </entity>
 </entities>

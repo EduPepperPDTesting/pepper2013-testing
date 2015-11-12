@@ -4,11 +4,13 @@ from django.http import HttpResponse
 import json
 from django.conf import settings
 from collections import defaultdict
-
+from django.contrib.auth.decorators import login_required
 import logging
+
 log = logging.getLogger("tracking")
 
 
+@login_required
 def edit(request):
     return render_to_response('sso/manage/metadata.html')
 
