@@ -138,6 +138,22 @@
       }
 
     }
+
+//------------- Clear time storage-------------------//
+
+    function clearTimeSessionStorage(){
+      var user_id = sessionStorage.getItem('user_id');
+      if(user_id != null){
+        sessionStorage.removeItem(user_id + '_course_id');
+        sessionStorage.removeItem(user_id + '_vertical_id');
+        sessionStorage.removeItem(user_id + '_type');
+        sessionStorage.removeItem(user_id + '_time');
+        sessionStorage.removeItem('user_id');
+      }
+    }
+
+    clearTimeSessionStorage();
+
   </script>
 </%block>
 <div style="width:960px;margin:0 auto;">
