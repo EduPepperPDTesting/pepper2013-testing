@@ -176,7 +176,7 @@ def samlACS(request, idp_name, ms):
     parsed_data = {}
     for attr in attribute_setting:
         mapped_name = attr['map'] if attr['map'] else attr['name']
-        parsed_data[mapped_name] = data[mapped_name]
+        parsed_data[mapped_name] = data[attr['name']]
     email = parsed_data.get('email')
 
     # which idp
