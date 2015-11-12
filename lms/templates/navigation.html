@@ -379,6 +379,7 @@ site_status_msg = get_site_status_msg(course_id)
             <ul class="admin-dropdown-menu">
               <li><a href="${reverse('configuration')}">Configuration</a></li>
               <li><a href="${reverse('pepconn')}">PepConn</a></li>
+              <li><a href="${reverse('sso_metadata_edit')}">SSO Metadata</a></li>
               <script type="text/javascript">
                 $(document).on('click', function(event) {
                   if(!$(event.target).closest('.admin-menu-holder').length){
