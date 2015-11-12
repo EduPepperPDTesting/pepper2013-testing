@@ -626,6 +626,9 @@ def import_user_tasks(request):
 
 
 def single_user_submit(request):
+
+    send_registration_email = request.POST.get('send_registration_email') == 'true'
+
     if not request.user.is_authenticated:
         raise Http404
     try:
@@ -654,6 +657,29 @@ def single_user_submit(request):
         cea.auto_enroll = True
         cea.save()
 
+        #** send activation email if required
+        if send_registration_email:
+            try:
+                reg = Registration.objects.get(user=user)
+                props = {'key': reg.activation_key, 'district': district.name, 'email': email}
+
+                use_custom = request.POST.get("customize_email")
+                if use_custom == 'true':
+                    custom_email = request.POST.get("custom_email_001")
+                    custom_email_subject = request.POST.get("custom_email_subject")
+                    subject = render_from_string(custom_email_subject, props)
+                    body = render_from_string(custom_email, props)
+                else:
+                    subject = render_to_string('emails/activation_email_subject.txt', props)
+                    body = render_to_string('emails/activation_email.txt', props)
+
+                subject = ''.join(subject.splitlines())
+                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
+
+
+            except Exception as e:
+                raise Exception("Failed to send registration email %s" % e)
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
@@ -679,6 +705,19 @@ def task_close(request):
 
     return HttpResponse(j, content_type="application/json")
 
+
+def add_to_cohort(request):
+    try:
+        change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
+        change.cohort_id = int(request.POST.get('cohort'))
+        change.save()
+        message = "success"
+    except Exception as e:
+        db.transaction.rollback()
+        message = "Error: " + e
+
+    j = json.dumps({"message": message})
+    return HttpResponse(j, content_type="application/json")
 
 #* -------------- Dropdown List -------------
 

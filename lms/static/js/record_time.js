@@ -58,12 +58,27 @@ RecordTime.setSessionCourseType = function(val) {
         sessionStorage[RecordTime.userID + '_type'] = val;
 };
 
+/*
 RecordTime.ajaxRecordTime = function(data, callback) {
     $.post("/record_time/", data, function(r) {
         callback();
     });
 };
-
+*/
+RecordTime.ajaxRecordTime = function(data, callback) {
+    $.ajax({
+        data: data,
+        type: 'POST',
+        url: "/record_time/",
+        processData: true, 
+        contentType: false,
+        async: false,
+        cache: false,
+        success: function(r){
+            callback();
+        }
+    });
+};
 RecordTime.getCourseFullPath = function(path, position) {
     var pathArr = path.split('/courses/')[1].split('/');
     pathArr[6] = position;
@@ -85,6 +100,7 @@ function CourseTimer() {
     this.startTime = new Date();
     this.exeType = ['courseware', 'discussion', 'portfolio'];
     this.type = this.getType();
+    this.loadComplete = false;
     this.create();
 
 };
@@ -116,13 +132,16 @@ CourseTimer.prototype.init = function() {
     this.stop();
     this.save();
     this.draw(0);
+    this.loadComplete = false;
     this.startTime = new Date();
 };
 
 CourseTimer.prototype.start = function() {
     if (!this.isrun) {
         this.isrun = true;
-        this.load();
+        if(this.getType != 'courseware'){
+            this.load();
+        }
     }
     this.show();
     RecordTime.setSessionCourseType(this.type);
@@ -170,10 +189,12 @@ CourseTimer.prototype.hide = function() {
 
 CourseTimer.prototype.load = function() {
     var self = this;
+    var add_time_out = RecordTime.getSessionVerticalId() != ""?1:0;
     $.post('/record_time/course_time_load', {
         'user_id': RecordTime.userID,
         'course_id': RecordTime.getSessionCourseID(),
-        'type': this.type
+        'type': this.type,
+        'add_time_out':add_time_out
     }, function(data) {
 
         if (data != null) {
@@ -192,6 +213,7 @@ CourseTimer.prototype.load = function() {
         if (RecordTime.getSessionCourseType() == 'courseware') {
             self.draw();
         }
+        self.loadComplete = true;
     });
 };
 
@@ -209,7 +231,7 @@ CourseTimer.prototype.save = function() {
             'type': RecordTime.getSessionCourseType(),
             'time': self.time
         }, function(r) {
-
+            pepper_stats_refresh();
         });
         self.time = 0;
         RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);

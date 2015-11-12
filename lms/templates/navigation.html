@@ -550,10 +550,35 @@ except:
         var courseTimer = null;
         var externalTimer = null;
         RecordTime.firstRun = true;
+        var timer_record = false;
+        
+        //---------------------Pepper stats refresh-------------------------------------------//
 
+        function pepper_stats_refresh() {
+            if (document.URL.indexOf('dashboard') >= 0) {
+                $.post("${reverse('get_pepper_stats')}", {
+                 'user_id': "${curr_user.id}"
+               }, function(data) {
+                 $('#all_course_time').html(data.all_course_time);
+                 $('#collaboration_time').html(data.collaboration_time);
+                 $('#total_time_in_pepper').html(data.total_time_in_pepper);
+                 $(".course-time,.course-time-completed").each(function() {
+                   var course_id = $(this).attr('course_id');
+                   var time_type = $(this).attr('time_type');
+                   if (time_type == 'course') {
+                     $(this).children('span').html(data.course_times[course_id]);
+                   } else {
+                     $(this).children('span').html(data.external_times[course_id]);
+                   }
+                 });
+               });
+            }
+        }
+    
         //---------------------Record time (Page switching)----------------------------------//
 
         function record_time(position) {
+            timer_record = false;
             %if request.user.id is not None:
                 sessionStorage['user_id'] = "${request.user.id}";
             %endif
@@ -580,6 +605,7 @@ except:
                     RecordTime.setSessionVerticalId(vertical_id);
                     RecordTime.setSessionTime(time);
                     courseTimer.load();
+                    timer_record = true;
                 });
 
             } else {
@@ -588,6 +614,7 @@ except:
                         RecordTime.setSessionVerticalId(vertical_id);
                         RecordTime.setSessionTime(time);
                         RecordTime.firstRun = false;
+                        timer_record = true;
                     });
                 }
             }
@@ -599,12 +626,13 @@ except:
                 sessionStorage['user_id'] = "${request.user.id}";
             %else:
                 RecordTime.setSessionVerticalId('');
+                RecordTime.setSessionCourseTime(0);
             %endif
             %if course:
                 RecordTime.setSessionCourseID("${course.id}");
             %endif
             RecordTime.sessionInit();
-            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1) {
+            if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
                 var data = {
                     'type': 'new_page',
                     'user_id': RecordTime.userID,
@@ -615,20 +643,27 @@ except:
                 RecordTime.ajaxRecordTime(data, function() {
                     RecordTime.setSessionVerticalId("");
                     RecordTime.setSessionTime("");
+                    pepper_stats_refresh();
                 });
+                timer_record = true;
+            }
+            var verticalId = RecordTime.getSessionVerticalId()||'';
+            var time = RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType())||0;
+            if(verticalId == '' && time == 0){
+                pepper_stats_refresh();
             }
         }
 
         //---------------------------------------------------------------------------//
         function onfocusEventDelay(e){
-            //console.log(e.type);
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
-                //console.log(RecordTime.getSessionCourseType());
-                courseTimer.isrun = false;
-                courseTimer.create();
+                if(courseTimer.loadComplete){
+                    courseTimer.isrun = false;
+                    courseTimer.create();
+                }
             } else {
-                if (RecordTime.getSessionVerticalId() == "") {
+                if (RecordTime.getSessionVerticalId() == "" && timer_record) {
                     record_time(RecordTime.coursePosition);
                 }
             }
@@ -636,8 +671,8 @@ except:
         }
         function onblurEventDelay(e){
             //console.log(e.type);
-            var isfocusOut = $(document.activeElement).hasClass('courseware');
-            e.stopPropagation();
+            //var isfocusOut = $(document.activeElement).is('.courseware,.dropdown,.seq_other,.sequence-nav-buttons li a');
+            var isfocusOut = $(document.activeElement).get(0).tagName!='IFRAME';
             course_refresh_or_exit();
             if (document.URL.indexOf('courseware') < 0) {
                 courseTimer.stop();
@@ -657,6 +692,7 @@ except:
                     RecordTime.setSessionTime("");
                     courseTimer.load();
                 });
+                
             }
         }
         $(function() {
@@ -666,6 +702,18 @@ except:
             $(window).focus(function(e) {
                 setTimeout(function(){onfocusEventDelay(e);}, 200);
             });
+            $('.dropdown').mouseup(function(e){
+                if (document.URL.indexOf('courseware') > 0) {
+                    if (RecordTime.getSessionVerticalId() != ""){
+                        setTimeout(function(){onblurEventDelay(null);}, 200); 
+                    }
+                }
+                else{
+                     if(RecordTime.getSessionCourseTime() > 0){
+                        setTimeout(function(){onblurEventDelay(null);}, 200);
+                     }
+                }
+            })
 
             course_refresh_or_exit();
             courseTimer = new CourseTimer();

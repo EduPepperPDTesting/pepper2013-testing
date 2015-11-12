@@ -13,6 +13,10 @@ urlpatterns = (
     '',  # nopep8  
     
 ####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+
     url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
     url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
     url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
@@ -34,6 +38,8 @@ urlpatterns = (
 
     url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
 
+    url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
@@ -43,6 +49,7 @@ urlpatterns = (
     url(r'^pepconn/cohort/submit/$', 'administration.pepconn.cohort_submit', name="pepconn_cohort_submit"),
     url(r'^pepconn/import_district/single_submit/$', 'administration.pepconn.single_district_submit', name="pepconn_single_district_submit"),
     url(r'^pepconn/import_school/single_submit/$', 'administration.pepconn.single_school_submit', name="pepconn_single_school_submit"),
+    url(r'^pepconn/import_user/single_submit/$', 'administration.pepconn.single_user_submit', name="pepconn_single_user_submit"),
 
     url(r'^pepconn/import_district/submit/$', 'administration.pepconn.import_district_submit', name="pepconn_import_district_submit"),
     url(r'^pepconn/import_district/progress/$', 'administration.pepconn.import_district_progress', name="pepconn_import_district_progress"),
@@ -175,6 +182,7 @@ urlpatterns = (
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
+    url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
 
