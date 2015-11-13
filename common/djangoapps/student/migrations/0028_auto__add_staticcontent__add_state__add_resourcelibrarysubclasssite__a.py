@@ -312,7 +312,7 @@ class Migration(SchemaMigration):
         db.delete_table('student_resourcelibrarysubclass')
 
         # Removing M2M table for field sites on 'ResourceLibrarySubclass'
-        db.delete_table(db.shorten_name('student_resourcelibrarysubclass_sites'))
+        db.delete_table('student_resourcelibrarysubclass_sites')
 
         # Deleting model 'People'
         db.delete_table('student_people')
