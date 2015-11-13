@@ -152,7 +152,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('student', ['ResourceLibrarySubclass'])
 
         # Adding M2M table for field sites on 'ResourceLibrarySubclass'
-        m2m_table_name = db.shorten_name('student_resourcelibrarysubclass_sites')
+        m2m_table_name = 'student_resourcelibrarysubclass_sites'
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('resourcelibrarysubclass', models.ForeignKey(orm['student.resourcelibrarysubclass'], null=False)),
