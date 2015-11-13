@@ -57,7 +57,8 @@ def genericsso(request):
     if metadata_setting is None:
         log.error("error: Unkonwn IDP")
         raise Http404()
-
+    
+    # Call different type of ACS seperatly
     if metadata_setting.get('sso_type') == 'SAML':
         log.debug("message: it's SAML")
         return samlACS(request, idp_name, metadata_setting)
@@ -68,6 +69,7 @@ def samlACS(request, idp_name, ms):
 
     xmlstr = request.POST.get("SAMLResponse")
 
+    # Create setting before call pysaml2 method for current IDP
     # Refer to: https://pythonhosted.org/pysaml2/howto/config.html
     setting = {
         "allow_unknown_attributes": True,
@@ -76,7 +78,7 @@ def samlACS(request, idp_name, ms):
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, 'sso/' + idp_name + '/attribute-maps'),
+        'attribute_map_dir': path.join(BASEDIR, 'sso/attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -166,9 +168,9 @@ def samlACS(request, idp_name, ms):
     response = client.parse_authn_request_response(xmlstr, BINDING_HTTP_POST, outstanding_queries)
     session_info = response.session_info()
 
-    # Parse ava as dict
-    print "<<<<"
-    print session_info['ava']
+    # print session_info['issuer']
+
+    # Parse ava (received attributes) as dict
     data = {}
     for k, v in session_info['ava'].items():
         data[k] = v[0]
@@ -182,9 +184,6 @@ def samlACS(request, idp_name, ms):
         if attr['name']:
             parsed_data[mapped_name] = data.get(attr['name'])
     email = parsed_data.get('email')
-
-    # which idp
-    # print session_info['issuer']
 
     #** consume the assertion
     users = User.objects.filter(email=email)
@@ -218,25 +217,25 @@ def create_unknown_user(request, ms, data):
 
     try:
         attribute_setting = ms.get('attributes')
-
+        
+        # Parse to mapped attribute
         parsed_data = {}
-
         for attr in attribute_setting:
             mapped_name = attr['map'] if 'map' in attr else attr['name']
             if attr['name']:
                 parsed_data[mapped_name] = data.get(attr['name'])
 
+        # Generate username if not provided
         if not parsed_data.get('username'):
             username = random_mark(20)
         else:
             username = parsed_data['username']
 
+        # Email must be profided
         email = parsed_data['email']
 
         user = User(username=username, email=email, is_active=False)
-
-        # Set password the same with username
-        user.set_password(username)
+        user.set_password(username)  # Set password the same with username
         user.save()
 
         registration = Registration()
@@ -247,7 +246,10 @@ def create_unknown_user(request, ms, data):
         profile.sso_type = ms.get('sso_type')
         profile.sso_idp = ms.get('sso_name')
 
+        # Save mapped attributes
         for k, v in parsed_data.items():
+            if k == 'sso_user_id':
+                user.sso_usre_id = parsed_data['sso_usre_id']
             if k == 'first_name':
                 user.first_name = parsed_data['first_name']
             if k == 'last_name':
@@ -400,5 +402,3 @@ def activate_account(request):
     login(request, profile.user)
 
     return HttpResponse(json.dumps(js), content_type="application/json")
-    
-    

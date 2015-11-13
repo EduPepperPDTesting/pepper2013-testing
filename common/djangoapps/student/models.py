@@ -270,6 +270,7 @@ class UserProfile(models.Model):
 
     sso_type = models.CharField(blank=True, max_length=50, null=True)
     sso_idp = models.CharField(blank=True, max_length=255, null=True)
+    sso_usre_id = models.CharField(blank=True, max_length=255, null=True)
 
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.

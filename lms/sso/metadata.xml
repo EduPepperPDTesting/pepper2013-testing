@@ -11,5 +11,6 @@
     <attribute name="mail" map="email"></attribute>
     <attribute name="givenname" map="first_name"></attribute>
     <attribute name="surname" map="last_name"></attribute>
+    <attribute name="object_id" map="sso_user_id"></attribute>
   </entity>
 </entities>
