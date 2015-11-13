@@ -658,13 +658,14 @@ except:
         //---------------------------------------------------------------------------//
         function onfocusEventDelay(e){
             course_refresh_or_exit();
+            var is_press_logout = $(document.activeElement).is('.dropdown');
             if (document.URL.indexOf('courseware') < 0) {
-                if(courseTimer.loadComplete){
+                if(courseTimer.loadComplete && !is_press_logout){
                     courseTimer.isrun = false;
                     courseTimer.create();
                 }
             } else {
-                if (RecordTime.getSessionVerticalId() == "" && timer_record) {
+                if (RecordTime.getSessionVerticalId() == "" && !is_press_logout && timer_record) {
                     record_time(RecordTime.coursePosition);
                 }
             }
@@ -710,9 +711,9 @@ except:
                     }
                 }
                 else{
-                     if(RecordTime.getSessionCourseTime() > 0){
+                    if(RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType()) > 0){
                         setTimeout(function(){onblurEventDelay(null);}, 200);
-                     }
+                    }
                 }
             })
 

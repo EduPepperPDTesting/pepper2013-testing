@@ -119,6 +119,7 @@ def filter_user(vars, data):
         data = data.filter(Q(district_id=vars.get('district')))
     if vars.get('school', None):
         data = data.filter(Q(school_id=vars.get('school')))
+    data = data.filter(~Q(subscription_status='Imported'))
     return data
 
 
@@ -152,29 +153,25 @@ def do_get_report_data(task, data, request):
             external_time = 0
             complete_course_num = 0
             current_course_num = 0
-            if p.subscription_status != 'Imported':
-                for enrollment in CourseEnrollment.enrollments_for_user(p.user):
-                    try:
-                        course = course_from_id(enrollment.course_id)
-                        external_time += rts.get_external_time(str(p.user.id), course.id)
-                        field_data_cache = FieldDataCache([course], course.id, p.user)
-                        course_instance = get_module(p.user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
 
-                        if course_instance.complete_course:
-                            complete_course_num += 1
-                        else:
-                            current_course_num += 1
-                    except ItemNotFoundError:
-                        #log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
-                        pass
-                course_time, discussion_time, portfolio_time = rts.get_stats_time(str(p.user.id))
-                all_course_time = course_time + external_time
-                collaboration_time = discussion_time + portfolio_time
-                total_time = all_course_time + collaboration_time
-            else:
-                total_time = 0
-                course_time = 0
-                collaboration_time = 0
+            for enrollment in CourseEnrollment.enrollments_for_user(p.user):
+                try:
+                    course = course_from_id(enrollment.course_id)
+                    external_time += rts.get_external_time(str(p.user.id), course.id)
+                    field_data_cache = FieldDataCache([course], course.id, p.user)
+                    course_instance = get_module(p.user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
+
+                    if course_instance.complete_course:
+                        complete_course_num += 1
+                    else:
+                        current_course_num += 1
+                except ItemNotFoundError:
+                    #log.error("User {0} enrolled in non-existent course {1}".format(p.user.username, enrollment.course_id))
+                    pass
+            course_time, discussion_time, portfolio_time = rts.get_stats_time(str(p.user.id))
+            all_course_time = course_time + external_time
+            collaboration_time = discussion_time + portfolio_time
+            total_time = all_course_time + collaboration_time
 
             rows.append({'id': p.user.id,
                          'user_first_name': p.user.first_name,
