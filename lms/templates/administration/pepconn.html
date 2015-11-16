@@ -7,6 +7,7 @@ from courseware.access import has_access
 from certificates.models import CertificateStatuses
 from xmodule.modulestore import MONGO_MODULESTORE_TYPE
 from xmodule.modulestore.django import modulestore
+import json
 from student.models import State,District,School,Cohort,User,UserProfile
 %>
 
@@ -435,8 +436,7 @@ f.close()
             </table>
         </div>
 
-
-        <span id="pager" class="pager">
+        <span id="district-pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
             <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -513,7 +513,7 @@ f.close()
             </table>
         </div>
 
-        <span id="pager" class="pager">
+        <span id="school-pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
             <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -527,7 +527,7 @@ f.close()
               <option value="40">40</option>
             </select>
           </form>
-        </span>
+        </span><hr>
         <span class="download">
           Download Districts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadSchoolCSV"/>
@@ -576,9 +576,9 @@ f.close()
             </tr>
             </thead>
                 <tbody>
-            % for item in User.objects.all():
+            % for item in User.objects.all().select_related("UserProfile"):
             <tr id = "user_${item.id}">
-              <td class = "user_id_select">${item.id}</td>
+              <td class = "user_id_select">${item.id} </td>
               <td class = "user_lname">${item.last_name}</a></td>
               <td class = "user_fname">${item.first_name}</td>
               <td class = "user_email">${item.email}</td>
@@ -591,7 +591,7 @@ f.close()
             </table>
         </div>
 
-        <span id="pager" class="pager">
+        <span id="user-pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
             <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -605,7 +605,7 @@ f.close()
               <option value="40">40</option>
             </select>
           </form>
-        </span>
+        </span><hr>
         <span class="download">
           Download Users:
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
@@ -666,7 +666,7 @@ f.close()
                 </tbody>
             </table>
         </div>
-        <span id="pager" class="pager">
+        <span id="cohort-pager" class="pager">
           <form>
             <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
             <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -680,7 +680,7 @@ f.close()
               <option value="40">40</option>
             </select>
           </form>
-        </span>
+        </span><hr>
         <span class="download">
           Download Cohorts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadCohortCSV"/>
@@ -986,7 +986,7 @@ $(function() {
 
   var pagerOptions = {
     // target the pager markup - see the HTML block below
-    container: $(".pager"),
+    container: $("#district-pager"),
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
     output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
@@ -1046,7 +1046,7 @@ $(function() {
 
   var pagerOptions = {
     // target the pager markup - see the HTML block below
-    container: $(".pager"),
+    container: $("#user-pager"),
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
     output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
@@ -1104,7 +1104,7 @@ $(function() {
 $(function() {
   var pagerOptions = {
     // target the pager markup - see the HTML block below
-    container: $(".pager"),
+    container: $("#school-pager"),
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
     output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
@@ -1161,7 +1161,7 @@ $(function() {
 $(function() {
   var pagerOptions = {
     // target the pager markup - see the HTML block below
-    container: $(".pager"),
+    container: $("#cohort-pager"),
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
     output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
