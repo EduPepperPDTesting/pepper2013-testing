@@ -610,11 +610,15 @@ f.close()
                 <%
                 try:
                     user_school = item.school.name
-                    user_district = item.district.name
-                    user_cohort = item.cohort.name
                 except:
                     user_school = ""
+                try:
+                    user_district = item.district.name
+                except:
                     user_district = ""
+                try:
+                    user_cohort = item.cohort.name
+                except:
                     user_cohort = ""
                 %>
               <td class = "user_school">${user_school}</td>
