@@ -589,9 +589,9 @@ f.close()
               <td class = "user_id_select">${item.user.id} </td>
               <td class = "user_lname">${item.user.last_name}</a></td>
               <td class = "user_fname">${item.user.first_name}</td>
-              <td class = "user_school">${item.school}</td>
-              <td class = "user_district">${item.district}</td>
-              <td class = "user_cohort">${item.cohort}</td>
+              <td class = "user_school">${item.school.name}</td>
+              <td class = "user_district">${item.district.name}</td>
+              <td class = "user_cohort">${item.cohort.name}</td>
               <td class = "user_email">${item.user.email}</td>
               <td class = "user_enrollment_status">${item.user.date_joined}</td>
               <td><input class = "user_select_box" type="checkbox" name="id" value="${item.user.id}"/></td>
