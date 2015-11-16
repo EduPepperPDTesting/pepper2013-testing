@@ -625,6 +625,7 @@ except:
         function course_refresh_or_exit() {
             %if request.user.id is not None:
                 sessionStorage['user_id'] = "${request.user.id}";
+                RecordTime.sessionInit();
             %else:
                 RecordTime.setSessionVerticalId('');
                 RecordTime.setSessionCourseTime(0);
@@ -632,7 +633,7 @@ except:
             %if course:
                 RecordTime.setSessionCourseID("${course.id}");
             %endif
-            RecordTime.sessionInit();
+            //RecordTime.sessionInit();
             if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
                 var data = {
                     'type': 'new_page',
