@@ -405,12 +405,14 @@ f.close()
                 </select>
                 <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
                 <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <p><b>Select Columns</b></p>
-                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label>
-                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label>
-                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label>
+                <span onclick = "$('#district-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
                 <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-            </div>
+                <div  class = "select-columns" id="district-select"><br>
+                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label><br>
+                </div>
+                </div>
         </div>
         <div>
             <table class="tablesorter-blue" id="district_table_init">
@@ -481,11 +483,13 @@ f.close()
 
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
                 <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <p><b>Select Columns</b></p>
-                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label>
-                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label>
-                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label>
- <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <span onclick = "$('#school-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
+                <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div id = "school-select" class = "select-columns"><br>
+                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
+                </div>
 
             </div>
         </div>
@@ -553,14 +557,15 @@ f.close()
                 <input placeholder = "Search by Email" class="search" type="search" data-column="3" id = "User_search_email">
                 <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
                 <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <p><b>Select Columns</b></p>
-                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label>
-                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label>
-                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label>
-                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label>
-                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label>
+                <span onclick = "$('#user-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
                 <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-
+                <div class = "select-columns" id = "user-select"><br>
+                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                </div>
             </div>
         </div>
         <div>
@@ -570,20 +575,26 @@ f.close()
               <th class = "user_id_select">ID</th>
               <th class = "user_lname">Last Name</th>
               <th class = "user_fname">First Name</th>
+              <th class = "user_school">School</th>
+              <th class = "user_district">District</th>
+              <th class = "user_cohort">Cohort</th>
               <th class = "user_email">E-Mail</th>
               <th class = "user_enrollment_status">Enrollment Start</th>
                 <th></th>
             </tr>
             </thead>
                 <tbody>
-            % for item in User.objects.all().select_related("UserProfile"):
-            <tr id = "user_${item.id}">
-              <td class = "user_id_select">${item.id} </td>
-              <td class = "user_lname">${item.last_name}</a></td>
-              <td class = "user_fname">${item.first_name}</td>
-              <td class = "user_email">${item.email}</td>
-              <td class = "user_enrollment_status">${item.date_joined}</td>
-              <td><input class = "user_select_box" type="checkbox" name="id" value="${item.id}"/></td>
+            % for item in UserProfile.objects.all():
+            <tr id = "user_${item.user.id}">
+              <td class = "user_id_select">${item.user.id} </td>
+              <td class = "user_lname">${item.user.last_name}</a></td>
+              <td class = "user_fname">${item.user.first_name}</td>
+              <td class = "user_school">${item.school}</td>
+              <td class = "user_district">${item.district}</td>
+              <td class = "user_cohort">${item.cohort}</td>
+              <td class = "user_email">${item.user.email}</td>
+              <td class = "user_enrollment_status">${item.user.date_joined}</td>
+              <td><input class = "user_select_box" type="checkbox" name="id" value="${item.user.id}"/></td>
 
             </tr>
             % endfor
@@ -632,13 +643,14 @@ f.close()
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
                 <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <p><b>Select Columns</b></p>
-                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label>
-                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label>
-                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label>
-                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label>
+                <span onclick = "$('#cohort-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
                 <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-
+                <div id = "cohort-select" class = "select-columns"><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label><br>
+                </div>
             </div>
         </div>
         <div>
