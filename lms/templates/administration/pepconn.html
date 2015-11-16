@@ -466,7 +466,7 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="2" id = "School_state_select">
+                <select type="search" class="search" data-column="3" id = "School_state_select">
 
                       <option value="">Select State</option>
                       %for item in State.objects.all().order_by("name"):
@@ -489,6 +489,7 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_state').toggle();"></input><label><i>State</i></label><br>
                 </div>
 
             </div>
@@ -500,6 +501,7 @@ f.close()
               <th class = "school_code">School Code</th>
               <th class = "school_name">School Name</th>
               <th class = "school_district_id">District</th>
+                <th class = "school_state">State</th>
                 <th></th>
             </tr>
             </thead>
@@ -507,8 +509,18 @@ f.close()
             % for  item in School.objects.all():
             <tr id = "school_${item.id}">
               <td class = "school_code">${item.code}</td>
-              <td class = "school_name">${item.name}</a></td>
-              <td class = "school_district_id" id = "school_${item.id}_district"><script>$("#school_${item.id}_district").html($(".district_${item.district_id} .district_name").html());</script></td>
+              <td class = "school_name">${item.name}
+              <%
+                try:
+                    district_state = item.district.state.name
+                    district_name = item.district.name
+                except:
+                    district_state = ""
+                    district_name = ""
+              %>
+              </td>
+              <td class = "school_district_id" id = "school_${item.id}_district">${district_name}</td>
+              <td class = "school_state">${district_state}</td>
               <td><input type="checkbox" class = "school_select_box" name="id" value="${item.id}"/></td>
 
             </tr>
@@ -545,16 +557,19 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
-                <select type="search" class="search" data-column="0" id = "User_district_select">
+                <select type="search" class="search" data-column="4" id = "User_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                      <option id = "${item.name}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
                 <input placeholder = "Search by Last Name" class="search" type="search" data-column="1" id = "User_search_last">
                 <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
-                <input placeholder = "Search by Email" class="search" type="search" data-column="3" id = "User_search_email">
+                <input placeholder = "Search by School" class="search" type="search" data-column="3" id = "User_search_school">
+                <input placeholder = "Search by District" class="search" type="search" data-column="4" id = "User_search_district">
+                <input placeholder = "Search by Cohort" class="search" type="search" data-column="5" id = "User_search_cohort">
+                <input placeholder = "Search by Email" class="search" type="search" data-column="6" id = "User_search_email">
                 <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
                 <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
                 <span onclick = "$('#user-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
@@ -564,6 +579,9 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>School</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_district').toggle();"></input><label><i>District</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
                 </div>
             </div>
@@ -589,9 +607,19 @@ f.close()
               <td class = "user_id_select">${item.user.id} </td>
               <td class = "user_lname">${item.user.last_name}</a></td>
               <td class = "user_fname">${item.user.first_name}</td>
-              <td class = "user_school">${item.school.name}</td>
-              <td class = "user_district">${item.district.name}</td>
-              <td class = "user_cohort">${item.cohort.name}</td>
+                <%
+                try:
+                    user_school = item.school.name
+                    user_district = item.district.name
+                    user_cohort = item.cohort.name
+                except:
+                    user_school = ""
+                    user_district = ""
+                    user_cohort = ""
+                %>
+              <td class = "user_school">${user_school}</td>
+              <td class = "user_district">${user_district}</td>
+              <td class = "user_cohort">${user_cohort}</td>
               <td class = "user_email">${item.user.email}</td>
               <td class = "user_enrollment_status">${item.user.date_joined}</td>
               <td><input class = "user_select_box" type="checkbox" name="id" value="${item.user.id}"/></td>
@@ -724,7 +752,7 @@ $("#singleDistrictImportForm").submit(function(){
                if (r.success) {
                  alert("Successful import!");
                } else {
-                 alert(r.error);
+                 alert("This district already exists.");
                }
            }
     );
@@ -741,7 +769,7 @@ $("#singleSchoolImportForm").submit(function(){
                if (r.success) {
                  alert("Successful import!");
                } else {
-                 alert(r.error);
+                 alert("This school already exists.");
                }
            }
     );
@@ -758,7 +786,7 @@ $("#singleUserImportForm").submit(function(){
                if (r.success) {
                  alert("Successful import!");
                } else {
-                 alert(r.error);
+                 alert("This user already exists.");
                }
            }
     );
@@ -931,7 +959,7 @@ function submitAddToCohort(){
                 console.log(r.message);
                 if(r.message = "success"){
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
-                }
+                }else alert(r.message);
             });
 
         });
