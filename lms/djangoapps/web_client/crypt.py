@@ -10,6 +10,7 @@ from Crypto.Cipher import DES
 def salt_convert(salt_string):
     """
     Converts the salt string from TNL to the correct format for Python
+    E.g. - '13,13,65,45,78,36,44,11'
     """
     output = ''
     parts = salt_string.split(',')

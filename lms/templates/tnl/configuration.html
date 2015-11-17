@@ -45,13 +45,13 @@
         opacity: 1;
         z-index: 11000;
         left: 50%;
-        margin-left: -249px;
+        margin-left: -369px;
         top: 120px;
         background: none repeat scroll 0 0 rgba(255,255,255, 1);
         border-radius: 5px;
         box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
         padding: 0 0 8px 0;
-        width: 480px;
+        width: 720px;
         display: none;
         position: fixed;
     }
@@ -268,8 +268,54 @@
         margin-bottom: 10px;
     }
 </style>
-<!-- Certificate -->
 <div class = "expand_title_container">
+    <div class="main">
+        <div class="configuration_navigation">
+            <span class="configuration_navigation_btn">
+                True North Logic Integration Configuration
+            </span><span class="subItem"></span>
+        </div>
+        <input class="add tnl-domain-edit" id="tnl-domain-add" type="button" value="Add Domain" />
+        <h2>TNL Domains</h2>
+        <form action="${reverse('tnl_domain_delete')}" id="tnl-domain-delete">
+            <table class="sorted" id="domains">
+                <thead>
+                <tr>
+                    <td>State</td>
+                    <td>Name</td>
+                    <td class="menu-trigger"></td>
+                    <td class="menu-trigger"></td>
+                </tr>
+                </thead>
+                <tbody>
+                    % for row in domains:
+                        <tr>
+                            <td>${row.state.name}</td>
+                            <td>${row.name}</td>
+                            <td><input class="tnl-domain-edit" type="button" value="Edit" name="${row.id}"></td>
+                            <td><input type="checkbox" value="${row.id}"></td>
+                        </tr>
+                    % endfor
+                </tbody>
+            </table>
+            <input class="delete" type="submit" value="Delete Selected" />
+            <div class="pager">
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                <select class="pagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+                <select class="gotoPage" title="Select page number"></select>
+            </div>
+        </form>
+        <div class="clearfix"></div>
+    </div>
     <div class="main">
         <div class="configuration_navigation">
             <span class="configuration_navigation_btn">
@@ -291,9 +337,9 @@
                 <tbody>
                     % for row in districts:
                         <tr>
-                            <td>${row.state}</td>
-                            <td>${row.name}</td>
-                            <td>${row.code}</td>
+                            <td>${row.district.state.name}</td>
+                            <td>${row.district.name}</td>
+                            <td>${row.district.code}</td>
                             <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
@@ -369,80 +415,34 @@
     </div>
 </div>
 <script type="text/javascript">
+    // Options for the
     var pagerOptions = {
-
-        // target the pager markup - see the HTML block below
         container: $(".pager"),
-
-        // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
         ajaxUrl: null,
-
-        // modify the url after all processing has been applied
         customAjaxUrl: function(table, url) { return url; },
-
-        // add more ajax settings here
-        // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
         ajaxObject: { dataType: 'json' },
-
-        // process ajax so that the data object is returned along with the total number of rows
         ajaxProcessing: null,
-
-        // Set this option to false if your table data is preloaded into the table, but you are still using ajax
         processAjaxOnInit: true,
-
-        // output string - default is '{page}/{totalPages}'
-        // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
-        // also {page:input} & {startRow:input} will add a modifiable input in place of the value
         output: '{startRow:input} to {endRow} ({totalRows})',
-
-        // apply disabled classname (cssDisabled option) to the pager arrows when the rows
-        // are at either extreme is visible; default is true
         updateArrows: true,
-
-        // starting page of the pager (zero based index)
         page: 0,
-
-        // Number of visible rows - default is 10
         size: 10,
-
-        // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
-        //savePages : true,
-
-        // Saves tablesorter paging to custom key if defined.
-        // Key parameter name used by the $.tablesorter.storage function.
-        // Useful if you have multiple tables defined
-        //storageKey:'tablesorter-pager',
-
-        // Reset pager to this page after filtering; set to desired page number (zero-based index),
-        // or false to not change page at filter start
         pageReset: 0,
-
-        // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-        // table row set to a height to compensate; default is false
         fixedHeight: false,
-
-        // remove rows from the table to speed up the sort of large tables.
-        // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
         removeRows: false,
-
-        // If true, child rows will be counted towards the pager set size
         countChildRows: false,
-
-        // css class names of pager arrows
         cssNext: '.next', // next page arrow
         cssPrev: '.prev', // previous page arrow
         cssFirst: '.first', // go to first page arrow
         cssLast: '.last', // go to last page arrow
         cssGoto: '.gotoPage', // select dropdown to allow choosing a page
-
         cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
         cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
-
-        // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
         cssDisabled: 'disabled', // Note there is no period "." in front of this class name
         cssErrorRow: 'tablesorter-errorRow' // ajax error information row
-
     };
+
+    // Initialize the tablesorter tables.
     $('.sorted').tablesorter({
         headers: {
             '.menu-trigger': {sorter: false, parser: false}
@@ -450,13 +450,33 @@
         theme: 'blue'
     }).tablesorterPager(pagerOptions);
 
+    // Adds the data to the domain form.
+    function buildDomainEdit(domain) {
+        $.get('${reverse('tnl_domain_data')}', { domain: domain }, function (data) {
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    $("input[name='" + key + "']").val(data[key]);
+                }
+            }
+        });
+    }
+
+    // Builds the option HTML for the dropdowns.
     function buildOptions(data, name) {
-        var options = '<option value="none">Select ' + name + '</option>';
+        var options = '';
+        if (data.length) {
+            options += '<option value="none">Select ' + name + '</option>';
+        } else {
+            options += '<option value="none">No ' + name + 's</option>';
+        }
+
         for (var x = 0; x < data.length; x++) {
             options += '<option value="' + data[x].id + '">' + data[x].name + '</option>';
         }
         return options;
     }
+
+    // Builds the dropdown for the states and adds the trigger to update the district dropdown.
     function buildDropStates () {
         $.get('${reverse('pepconn_drop_states')}', function(data) {
             var options = buildOptions(data, 'State');
@@ -467,47 +487,260 @@
             });
         });
     }
-    function buildDropDistricts (state) {
-        $.get('${reverse('pepconn_drop_districts')}', { state: state }, function(data) {
-            var options = buildOptions(data, 'District');
-            $('#district-select').append(options);
+
+    // Builds the dropdown for the domains.
+    function buildDropDomains () {
+        $.get('${reverse('tnl_drop_domains')}', function(data) {
+            var options = buildOptions(data, 'Domain');
+            var select = $('#domain-select');
+            select.append(options);
         });
     }
+
+    // Builds the dropdown for the districts.
+    function buildDropDistricts (state) {
+        $.get('${reverse('tnl_drop_districts')}', { state: state }, function(data) {
+            var options = buildOptions(data, 'District');
+            var select = $('#district-select')
+            select.empty();
+            select.append(options);
+        });
+    }
+
+    // Builds the dropdown for the courses.
     function buildDropCourses () {
         $.get('${reverse('tnl_drop_courses')}', function(data) {
             var options = buildOptions(data, 'Course');
             $('#course-select').append(options);
         });
     }
-    $('#tnl-district-add').mouseup(function() {
-        var code = '<select id="state-select"></select>&nbsp;<select id="district-select"></select><br/><input type="button" id="district-add" value="Add" />';
-        new Dialog($('#dialog')).show('Add District', code);
+
+    // Updates the table data on the page after and add or delete.
+    function tableUpdate () {
+        // Get updated table data.
+        $.get('${reverse('tnl_tables')}', function(data) {
+            // Init with the tbody for districts, as we're going to replace it wholesale.
+            var domains = '<tbody>';
+            // Add each row from the updated data
+            for (var x = 0; x < data.domains.length; x++) {
+                domains += '<tr>';
+                domains += '    <td>' + data.domains[x].state + '</td>';
+                domains += '    <td>' + data.domains[x].name + '</td>';
+                domains += '    <td><input class="tnl-domain-edit" type="button" value="Edit" name="' + data.domains[x].id + '"></td>';
+                domains += '    <td><input type="checkbox" value="' + data.domains[x].id + '"></td>';
+                domains += '</tr>';
+            }
+            // Closing tag
+            domains += '</tbody>';
+            // Do a replace, and trigger the tablesorter update.
+            $('#domains').find('tbody').replaceWith(domains).trigger('update');
+
+            // Init with the tbody for districts, as we're going to replace it wholesale.
+            var districts = '<tbody>';
+            // Add each row from the updated data
+            for (x = 0; x < data.districts.length; x++) {
+                districts += '<tr>';
+                districts += '    <td>' + data.districts[x].state + '</td>';
+                districts += '    <td>' + data.districts[x].name + '</td>';
+                districts += '    <td>' + data.districts[x].code + '</td>';
+                districts += '    <td><input type="checkbox" value="' + data.districts[x].id + '"></td>';
+                districts += '</tr>';
+            }
+            // Closing tag
+            districts += '</tbody>';
+            // Do a replace, and trigger the tablesorter update.
+            $('#districts').find('tbody').replaceWith(districts).trigger('update');
+
+            // Init with the tbody for courses, as we're going to replace it wholesale.
+            var courses = '<tbody>';
+            // Add each row from the updated data
+            for (x = 0; x < data.courses.length; x++) {
+                courses += '<tr>';
+                courses += '    <td>' + data.courses[x].name + '</td>';
+                courses += '    <td>' + data.courses[x].id + '</td>';
+                courses += '    <td><input type="checkbox" value="' + data.courses[x].id + '"></td>';
+                courses += '</tr>';
+            }
+            // Closing tag
+            courses += '</tbody>';
+            // Do a replace, and trigger the tablesorter update.
+            $('#courses').find('tbody').replaceWith(courses).trigger('update');
+        });
+    }
+
+    // Create the dialog for adding domains.
+    $('.tnl-domain-edit').mouseup(function() {
+        // Detect whether this is an edit or add.
+        var edit = ($(this).val() == 'Edit');
+        // Initial select code that will have options added.
+        var code = '<table id="tnl-domain-vals">' +
+                       '<tr>' +
+                           '<td>State:</td>' +
+                           '<select id="state-select" name="state"></select>' +
+                       '</tr>' +'<tr>' +
+                           '<td>Name:</td>' +
+                           '<td><input type="text" name="name">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Password:</td>' +
+                           '<td><input type="text" name="password">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Salt:</td>' +
+                           '<td><input type="text" name="salt">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Base URL:</td>' +
+                           '<td><input type="text" name="base_url">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Admin ID:</td>' +
+                           '<td><input type="text" name="admin_id">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Provider ID:</td>' +
+                           '<td><input type="text" name="provider_id">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>EdAgency ID:</td>' +
+                           '<td><input type="text" name="edagency_id">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Credit Area ID:</td>' +
+                           '<td><input type="text" name="credit_area_id">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Credit Value Type ID:</td>' +
+                           '<td><input type="text" name="credit_value_type_id">' +
+                       '</tr>' +
+                       '<tr>' +
+                           '<td>Credit Value:</td>' +
+                           '<td><input type="text" name="credit_value">' +
+                       '</tr>' +
+                    '</table>';
+        var title = 'Add Domain';
+        var id = false;
+        if (edit) {
+            title = 'Edit Domain';
+            id = $(this).attr('name');
+        }
+        new Dialog($('#dialog')).showButtons(title, code, ['Add', 'Cancel'], function(choice) {
+            // If the user chose the 'Add' button, do the add.
+            if (choice == 0) {
+                var self = this;
+                // Get the selected district value.
+                var data = {};
+                $('#tnl-domain-vals input:text').each(function() {
+                    data[$(this).attr('name')] = $(this).val()
+                });
+                data['edit'] = edit;
+                data['id'] = id;
+
+                // POST the domain data to the endpoint, update the tables on the page, and hide the dialog.
+                $.post('${reverse('tnl_domain_add')}', data, function() {
+                    tableUpdate();
+                    self.hide();
+                });
+            } else {
+                // Just hide the dialog if they chose 'Cancel'.
+                this.hide();
+            }
+        });
+        // Add the states to the dropdown.
         buildDropStates();
-        $('#district-add').mouseup(function() {
-            var district = $('#district-select').val();
-            $.post('${reverse('tnl_district_add')}', { district: district }, function() {
-                // TODO: Update table
-            });
-        });
+        // Add existing data if this is an edit.
+        if (edit) {
+            buildDomainEdit()
+        }
         return false;
     });
+
+    // Delete the selected Districts from the enabled districts.
     $('#tnl-district-delete').submit(function() {
-        // Do something
-        return false;
-    });
-    $('#tnl-course-add').mouseup(function() {
-        var code = '<select id="course-select"></select><br/><input type="button" id="course-add" value="Add" />';
-        new Dialog($('#dialog')).show('Add Course', code);
-        buildDropCourses();
-        $('#course-add').mouseup(function() {
-            $.post('${reverse('tnl_course_add')}', $('#course-select').val(), function() {
-                // TODO: Update table
-            });
+        var ids = [];
+        $(this).find('input:checkbox:checked').each(function() {
+            ids.push($(this).val());
+        });
+        $.post('${reverse('tnl_district_delete')}', ids, function() {
+            tableUpdate();
         });
         return false;
     });
+
+    // Create the dialog for adding districts.
+    $('#tnl-district-add').mouseup(function() {
+        // Initial select code that will have options added.
+        var code = '<select id="state-select"></select>&nbsp;' +
+                   '<select id="district-select"></select>&nbsp;' +
+                   '<select id="domain-select"></select>';
+        new Dialog($('#dialog')).showButtons('Add District', code, ['Add', 'Cancel'], function(choice) {
+            // If the user chose the 'Add' button, do the add.
+            if (choice == 0) {
+                var self = this;
+                // Get the selected district value.
+                var district = $('#district-select').val();
+                // POST the district to the endpoint, update the tables on the page, and hide the dialog.
+                $.post('${reverse('tnl_district_add')}', { district: district }, function() {
+                    tableUpdate();
+                    self.hide();
+                });
+            } else {
+                // Just hide the dialog if they chose 'Cancel'.
+                this.hide();
+            }
+        });
+        // Add the states to the dropdown.
+        buildDropStates();
+        buildDropDomains();
+        return false;
+    });
+
+    // Delete the selected Districts from the enabled districts.
+    $('#tnl-district-delete').submit(function() {
+        var ids = [];
+        $(this).find('input:checkbox:checked').each(function() {
+            ids.push($(this).val());
+        });
+        $.post('${reverse('tnl_district_delete')}', ids, function() {
+            tableUpdate();
+        });
+        return false;
+    });
+
+    // Create the dialog for adding courses.
+    $('#tnl-course-add').mouseup(function() {
+        // Initial select code that will have options added.
+        var code = '<select id="course-select"></select><br/>';
+        new Dialog($('#dialog')).showButtons('Add Course', code, ['Add', 'Cancel'], function(choice) {
+            // if the user chose the 'Add' button, do the add.
+            if (choice == 0) {
+                var self = this;
+                // Get the selected course value.
+                var course = $('#course-select').val();
+                // POST the course to the endpoint, update the tables on the page, and hide the dialog.
+                $.post('${reverse('tnl_course_add')}', { course: course }, function() {
+                    tableUpdate();
+                    self.hide();
+                });
+            } else {
+                // Just hide the dialog if they chose 'Cancel'.
+                this.hide();
+            }
+        });
+        // Add the districts to the dropdown.
+        buildDropCourses();
+        return false;
+    });
+
+    // Delete the selected Courses from the integration handler (doesn't delete from TNL).
     $('#tnl-course-delete').submit(function() {
-        // Do something
+        var ids = [];
+        $(this).find('input:checkbox:checked').each(function() {
+            ids.push($(this).val());
+        });
+        $.post('${reverse('tnl_course_delete')}', ids, function() {
+            tableUpdate();
+        });
         return false;
     });
 </script>

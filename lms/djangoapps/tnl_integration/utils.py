@@ -6,7 +6,7 @@ import json
 from django.conf import settings
 
 from student.models import District, User
-from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts
+from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts, TNLDomains
 from web_client.crypt import salt_convert, PBEWithMD5AndDES
 from web_client.request import WebRequest
 
@@ -14,60 +14,117 @@ from web_client.request import WebRequest
 # The logging mechanism
 AUDIT_LOG = logging.getLogger("audit")
 
-try:
-    # The base URL for all requests
-    tnl_base_url = settings.TNL_BASE_URL
 
-    # The request object
-    tnl_request = WebRequest(tnl_base_url, 'success', True, 'message')
+class TNLInstance:
+    def __init__(self, domain_id):
+        try:
+            self.domain = TNLDomains.objects.get(id=domain_id)
+            # Domain specific encryption information
+            tnl_enc_password = self.domain.password
+            tnl_enc_salt = salt_convert(self.domain.salt)
+            tnl_enc_iterations = 22
+            self.encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
+            self.request = WebRequest(self.domain.base_url, 'success', True, 'message')
+        except:
+            raise Exception('This domain is invalid')
 
-    # District/endpoint specific values
-    tnl_adminid = settings.TNL_ADMINID
-    tnl_grades = settings.TNL_GRADES
-    tnl_providerid = settings.TNL_PROVIDERID
-    tnl_edagencyid = settings.TNL_EDAGANECYID
-    tnl_creditvaluetypeid = settings.TNL_CREDITVALUETYPEID
-    tnl_creditareaid = settings.TNL_CREDITAREAID
-    tnl_creditvalue = settings.TNL_CREDITVALUE  # TODO: need to validate this with the customer and/or TNL "the number of credits (CEUs in DPI's case) to be awarded for the course)"
+    def get_person(self, user):
+        """
+        This gets the TNL personid
+        """
+        # getPersonId endpoint
+        endpoint = 'ia/app/webservices/person/getPersonId'
+        # Parameters needed for this request
+        data = {'adminid': self.domain.admin_id,
+                'email': user.email}
 
-    # District/endpoint specific encryption information
-    tnl_enc_password = settings.TNL_PASSWORD
-    tnl_enc_salt = salt_convert(settings.TNL_SALT)
-    tnl_enc_iterations = settings.TNL_ITERATIONS
-    tnl_encryptor = PBEWithMD5AndDES(tnl_enc_password, tnl_enc_salt, tnl_enc_iterations)
-except:
-    raise Exception('The TNL settings have not been configured yet.')
+        try:
+            # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+            response = self.request.do_request(endpoint, 'get', self.encryptor.encrypt(json.dumps(data)).rtrim("\n"))
+            return response['personid']
+        except:
+            return False
 
+    def get_grade(self, percent):
+        """
+        Matches our grade with the gradeid data from TNL
+        """
+        # Get the percent value from the decimal grade.
+        grade = round(percent * 100)
+        grade_out = False
+        # Compare our percent grade to the list of values for this TNL setup and return the matched value.
+        for gradeid, grades in self.domain.grades:  # TODO: need to fix this for the new storage
+            if grade in grades:
+                grade_out = gradeid
 
-def tnl_get_person(user):
-    """
-    This gets the TNL personid
-    """
-    # getPersonId endpoint
-    endpoint = 'ia/app/webservices/person/getPersonId'
-    # Parameters needed for this request
-    data = {'adminid': tnl_adminid,
-            'email': user.email}
+        return grade_out
 
-    try:
-        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-        response = tnl_request.do_request(endpoint, 'get', tnl_encryptor.encrypt(json.dumps(data)).rtrim("\n"))
-        return response['personid']
-    except:
-        return False
+    def register_completion(self, user, course_instance, percent):
+        """
+        This registers a competed course for a particular user with TNL
+        """
 
+        # Registered course
+        course = tnl_get_course(course_instance.course_id)
+        # markComplete endpoint
+        endpoint = 'ia/app/webservices/section/markComplete'
+        # Assign needed parameters
+        data = {'adminid': self.domain.admin_id,
+                'personid': self.get_person(user),
+                'sectionid': course.section_id,
+                'gradeid': self.get_grade(percent)}
 
-def tnl_get_grade(percent):
-    """
-    Matches our grade with the gradeid data from TNL
-    """
-    grade = round(percent * 100)
-    grade_out = False
-    for gradeid, grades in tnl_grades:
-        if grade in grades:
-            grade_out = gradeid
+        try:
+            # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+            self.request.do_request(endpoint, 'put', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
+            # Store the completion locally for tracking, with the date.
+            track = TNLCompletionTrack(user=user,
+                                       course=course,
+                                       registered=1,
+                                       registration_date=datetime.datetime.utcnow())
+        except:
+            # If the TNL completion registration failed, we still want to store that we tried so we can follow up.
+            track = TNLCompletionTrack(user=user, course=course, registered=0)
 
-    return grade_out
+        track.save()
+
+    def register_course(self, course):
+        """
+        This registers the course with TNL
+        """
+        # createSDLCourse endpoint (SDL seems the best fit for our courses)
+        endpoint = 'ia/app/webservices/course/createSDLCourse'
+
+        # Parameters needed for the request
+        data = {'adminid': self.domain.admin_id,
+                'title': course.display_name_with_default,
+                'number': course.display_number_with_default,
+                'externalid': course.id,
+                'providerid': self.domain.provider_id,
+                'edagencyid': self.domain.edagency_id,
+                'coursetypeid': 1,
+                'creditareaid': self.domain.credit_area_id,
+                'creditvaluetypeid': self.domain.credit_value_type_id,
+                'creditvalue': self.domain.credit_value,
+                'needsapproval': False,
+                'selfpaced': True}
+
+        try:
+            # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+            response = self.request.do_request(endpoint, 'post', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
+            # Build the registration info for the local table.
+            course_entry = TNLCourses(course=course.id,
+                                      tnl_id=response['courseid'],
+                                      section_id=response['sectionid'],
+                                      registered=1,
+                                      registration_date=datetime.datetime.utcnow())
+        except:
+            response = {'success': False}
+            # If the registration with TNL failed, we still want to track it locally so we can follow up.
+            course_entry = TNLCourses(course=course.id, registered=0)
+
+        course_entry.save()
+        return response
 
 
 def tnl_check_district(district_id):
@@ -75,77 +132,108 @@ def tnl_check_district(district_id):
     Checks to see if this district is TNL-enabled
     """
     try:
+        # Tries to load the district in question from the TNL table.
         TNLDistricts.objects.get(district=district_id)
         return True
     except:
         return False
 
 
-def tnl_get_course(id=False):
+def tnl_get_domain(id='all'):
+    """
+    Gets the domain(s) from the domain table.
+    """
+    try:
+        if not id == 'all':
+            # Just select the specified course.
+            domain = TNLDomains.objects.get(id=id)
+        else:
+            # Select all the courses.
+            domain = TNLDomains.objects.all()
+    except:
+        domain = False
+
+    return domain
+
+
+def tnl_get_course(id='all'):
     """
     Gets the course(s) from the registered course table.
     """
     try:
-        if id:
+        if not id == 'all':
+            # Just select the specified course.
             course = TNLCourses.objects.get(course=id)
         else:
+            # Select all the courses.
             course = TNLCourses.objects.all()
-
     except:
         course = False
 
     return course
 
 
-def tnl_get_district(id=False):
+def tnl_add_domain(id, edit, data):
+    """
+    Adds the domain to the table.
+    """
+    try:
+        if edit:
+            TNLDomains.objects.filter(id=id).update(**data)
+
+        else:
+            domain_entry = TNLDomains(**data)
+            domain_entry.save()
+    except:
+        raise Exception('Problem adding/updating domain')
+
+
+def tnl_get_district(id='all'):
     """
     Gets the district(s) from the configured districts, along with other district data.
     """
     try:
-        if id:
+        if not id == 'all':
+            # Just select the specified district, with related items so we cache the actual district data.
             district = TNLDistricts.objects.get(course=id).select_related()
         else:
+            # Select all the districts, with related items so we cache the actual district data.
             district = TNLDistricts.objects.all().select_related()
-
     except:
         district = False
 
     return district
 
 
-def tnl_register_completion(user, course_instance, percent):
+def tnl_add_district(id):
     """
-    This registers a competed course for a particular user with TNL
+    Adds a district to the TNL-enabled districts
     """
+    # Load the actual district data
+    district = District.objects.get(id=id)
+    # Store this district as enabled.
+    district_entry = TNLDistricts(district=district)
+    district_entry.save()
 
-    # Registered course
-    course = tnl_get_course(course_instance.course_id)
-    # markComplete endpoint
-    endpoint = 'ia/app/webservices/section/markComplete'
-    # Assign needed parameters
-    data = {'adminid': tnl_adminid,
-            'personid': tnl_get_person(user),
-            'sectionid': course.section_id,
-            'gradeid': tnl_get_grade(percent)}
 
-    try:
-        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-        tnl_request.do_request(endpoint, 'put', tnl_encryptor.encrypt(json.dumps(data)).rstrip("\n"))
-        track = TNLCompletionTrack(user=user, course=course, registered=1, registration_date=datetime.datetime.utcnow())
-    except:
-        track = TNLCompletionTrack(user=user, course=course, registered=0)
-
-    track.save()
+def tnl_delete_district(ids):
+    """
+    Adds a district to the TNL-enabled districts
+    """
+    pass
 
 
 def tnl_course(user, course_instance):
     """
     Checks to see if this is in fact a course and user registered with TNL.
     """
+    # Get the course, if registered.
     course = tnl_get_course(course_instance.course_id)
+    # Get the specified user.
     user = User.objects.get(id=user.id)
     if course:
         try:
+            # Make sure that the user belongs to a district that is registered with TNL.
             district = District.objects.get(id=user.profile.district_id)
             if tnl_check_district(district.id):
                 return True
@@ -153,40 +241,16 @@ def tnl_course(user, course_instance):
                 return False
         except:
             return False
+    else:
+        return False
 
 
-def tnl_register_course(course):
+def tnl_domain_from_user(user):
     """
-    This registers the course with TNL
+    Gets the domain associated with the district of the current user.
     """
-    # createSDLCourse endpoint (SDL seems the best fit for our courses)
-    endpoint = 'ia/app/webservices/course/createSDLCourse'
+    user = User.objects.get(id=user.id)
+    district = District.objects.get(id=user.profile.district_id).select_related()
+    domain = district.tnl_districts.domain
 
-    # Parameters needed for the request
-    data = {'adminid': tnl_adminid,
-            'title': course.display_name_with_default,
-            'number': course.display_number_with_default,
-            'externalid': course.id,
-            'providerid': tnl_providerid,
-            'edagencyid': tnl_edagencyid,
-            'coursetypeid': 1,
-            'creditareaid': tnl_creditareaid,
-            'creditvaluetypeid': tnl_creditvaluetypeid,
-            'creditvalue': tnl_creditvalue,
-            'needsapproval': False,
-            'selfpaced': True}
-
-    try:
-        # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-        response = tnl_request.do_request(endpoint, 'post', tnl_encryptor.encrypt(json.dumps(data)).rstrip("\n"))
-        course_entry = TNLCourses(course=course.id,
-                                  tnl_id=response['courseid'],
-                                  section_id=response['sectionid'],
-                                  registered=1,
-                                  registration_date=datetime.datetime.utcnow())
-    except:
-        response = {'success': False}
-        course_entry = TNLCourses(course=course.id, registered=0)
-
-    course_entry.save()
-    return response
+    return domain
