@@ -1,10 +1,10 @@
 from ..dev import *
 from siteconf import *
 import sys
-from lms.sso.testsite.setting import *
-
 
 sys.path.append("..")  # => /home/tahoe/edx_all
+
+sys.path.append(PROJECT_ROOT + "/sso/")
 
 # ========================================================================
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = False

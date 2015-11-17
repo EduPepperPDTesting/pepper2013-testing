@@ -6,6 +6,7 @@ from django.conf import settings
 from collections import defaultdict
 from django.contrib.auth.decorators import login_required
 import logging
+import os
 
 log = logging.getLogger("tracking")
 
@@ -20,6 +21,15 @@ def save(request):
 
     entities = []
     for d in data:
+        name = d.get('sso_name', '')
+        path = settings.PROJECT_ROOT + "/sso/" + name
+        if not os.path.isdir(path):
+            os.makedirs(path)
+
+        if d.get('sso_metadata'):
+            mdfile = open(path + "/FederationMetadata.xml", "w")
+            mdfile.write(d.get('sso_metadata'))
+
         attributes = []
         for a in d['attributes']:
             attributes.append('''
@@ -28,7 +38,7 @@ def save(request):
         entities.append('''
   <entity type="%s" name="%s">%s
   </entity>''' % (d.get('sso_type', ''),
-                  d.get('sso_name', ''),
+                  name,
                   ''.join(attributes)
                   ))
 
@@ -55,7 +65,7 @@ def idp_by_name(name):
 
 def parse_one_idp(entity):
     attribute_list = []
-    
+
     if 'attribute' in entity:
         for attribute in entity['attribute']:
             attr = {
@@ -65,9 +75,17 @@ def parse_one_idp(entity):
                 }
             attribute_list.append(attr)
 
+    path = settings.PROJECT_ROOT + "/sso/" + entity['@name'] + "/FederationMetadata.xml"
+
+    sso_metadata = ''
+    if os.path.isfile(path):
+        mdfile = open(path, "r")
+        sso_metadata = mdfile.read()
+
     return {
         'sso_type': entity['@type'],
         'sso_name': entity['@name'],
+        'sso_metadata': sso_metadata,
         'attributes': attribute_list
         }
 

@@ -190,6 +190,7 @@ CourseTimer.prototype.hide = function() {
 CourseTimer.prototype.load = function() {
     var self = this;
     var add_time_out = RecordTime.getSessionVerticalId() != ""?1:0;
+    /*
     $.post('/record_time/course_time_load', {
         'user_id': RecordTime.userID,
         'course_id': RecordTime.getSessionCourseID(),
@@ -215,6 +216,37 @@ CourseTimer.prototype.load = function() {
         }
         self.loadComplete = true;
     });
+    */
+    $.ajax({
+        data:{
+        'user_id': RecordTime.userID,
+        'course_id': RecordTime.getSessionCourseID(),
+        'type': self.type,
+        'add_time_out':add_time_out},
+        type: 'POST',
+        url: "/record_time/course_time_load",
+        processData: true, 
+        contentType: false,
+        async: false,
+        cache: false,
+        success: function(data){
+            if (data != null) {
+                if (self.type == 'courseware') {
+                    self.time = parseInt(data.time);
+                } else {
+                    self.startTime = new Date().getTime();
+                    RecordTime.setSessionCourseTime(self.type, self.startTime);
+                }
+            } else {
+                self.time = 0;
+            }
+            //console.log("user_id:" + RecordTime.userID + "course_id:" + RecordTime.getSessionCourseID())
+            if (RecordTime.getSessionCourseType() == 'courseware') {
+                self.draw();
+            }
+            self.loadComplete = true;
+        }
+    });
 };
 
 CourseTimer.prototype.save = function() {
@@ -223,8 +255,11 @@ CourseTimer.prototype.save = function() {
     var stime = Math.floor((new Date().getTime() - startTime) / 1000);
     self.time = Math.floor((new Date().getTime() - self.startTime) / 1000);
     self.time = self.time != 0 ? self.time : stime;
-    if (startTime > 0 && RecordTime.getSessionCourseID() != '' && RecordTime.getSessionCourseType() != '') {
+
+    var isCollaboration = RecordTime.getSessionCourseType()!= 'courseware' && RecordTime.getSessionCourseType()!= '';
+    if (startTime > 0 && RecordTime.getSessionCourseID() != '' && isCollaboration) {
         console.log('time:' + self.time)
+        /*
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
             'course_id': RecordTime.getSessionCourseID(),
@@ -233,8 +268,31 @@ CourseTimer.prototype.save = function() {
         }, function(r) {
             pepper_stats_refresh();
         });
-        self.time = 0;
-        RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
+        */
+        $.ajax({
+            data:{
+            'user_id': RecordTime.userID,
+            'course_id': RecordTime.getSessionCourseID(),
+            'type': RecordTime.getSessionCourseType(),
+            'time': self.time},
+            type: 'POST',
+            url: "/record_time/course_time_save",
+            processData: true, 
+            contentType: false,
+            async: false,
+            cache: false,
+            success: function(r){
+                self.time = 0;
+                RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
+                pepper_stats_refresh();
+            },
+            error:function(data){
+                self.time = 0;
+                RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
+            }
+        });
+        //self.time = 0;
+        // RecordTime.setSessionCourseTime(RecordTime.getSessionCourseType(), 0);
     }
 };
 
