@@ -25,6 +25,7 @@ class TNLCourses(models.Model):
     class Meta:
         db_table = 'tnl_courses'
     course = models.CharField(max_length=255, db_index=True)
+    domain = models.ForeignKey(TNLDomains, default=0)
     tnl_id = models.CharField(null=False, max_length=255, db_index=True)
     section_id = models.CharField(null=False, max_length=255, db_index=True)
     registered = models.BooleanField(default=0)

@@ -267,6 +267,18 @@
         float: right;
         margin-bottom: 10px;
     }
+    #tnl-domain-vals {
+        margin: 0 auto;
+    }
+    #tnl-domain-vals td {
+        padding: 5px 0;
+        vertical-align: middle;
+    }
+    #tnl-domain-vals .domain-label {
+        text-align: right;
+        padding-left: 10px;
+        padding-right: 3px;
+    }
 </style>
 <div class = "expand_title_container">
     <div class="main">
@@ -331,6 +343,7 @@
                         <td>State</td>
                         <td>Name</td>
                         <td>Code</td>
+                        <td>Domain</td>
                         <td class="menu-trigger"></td>
                     </tr>
                 </thead>
@@ -340,6 +353,7 @@
                             <td>${row.district.state.name}</td>
                             <td>${row.district.name}</td>
                             <td>${row.district.code}</td>
+                            <td>${row.domain.name}</td>
                             <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
@@ -372,14 +386,16 @@
                     <tr>
                         <td>Name</td>
                         <td>Code</td>
+                        <td>Domain</td>
                         <td class="menu-trigger"></td>
                     </tr>
                 </thead>
                 <tbody>
                     % for row in courses:
                         <tr>
-                            <td>${row.display_name_with_default}</td>
-                            <td>${row.id}</td>
+                            <td>${row.name}</td>
+                            <td>${row.course}</td>
+                            <td>${row.domain.name}</td>
                             <td><input type="checkbox" value="${row.id}"></td>
                         </tr>
                     % endfor
@@ -444,18 +460,18 @@
 
     // Initialize the tablesorter tables.
     $('.sorted').tablesorter({
-        headers: {
-            '.menu-trigger': {sorter: false, parser: false}
-        },
-        theme: 'blue'
-    }).tablesorterPager(pagerOptions);
+            headers: {
+                '.menu-trigger': {sorter: false, parser: false}
+            },
+            theme: 'blue'
+        }).tablesorterPager(pagerOptions);
 
     // Adds the data to the domain form.
     function buildDomainEdit(domain) {
         $.get('${reverse('tnl_domain_data')}', { domain: domain }, function (data) {
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
-                    $("input[name='" + key + "']").val(data[key]);
+                    $("#tnl-domain-vals :[name='" + key + "']").val(data[key]);
                 }
             }
         });
@@ -534,6 +550,7 @@
             domains += '</tbody>';
             // Do a replace, and trigger the tablesorter update.
             $('#domains').find('tbody').replaceWith(domains).trigger('update');
+            domainAdd();
 
             // Init with the tbody for districts, as we're going to replace it wholesale.
             var districts = '<tbody>';
@@ -543,6 +560,7 @@
                 districts += '    <td>' + data.districts[x].state + '</td>';
                 districts += '    <td>' + data.districts[x].name + '</td>';
                 districts += '    <td>' + data.districts[x].code + '</td>';
+                districts += '    <td>' + data.districts[x].domain + '</td>';
                 districts += '    <td><input type="checkbox" value="' + data.districts[x].id + '"></td>';
                 districts += '</tr>';
             }
@@ -558,6 +576,7 @@
                 courses += '<tr>';
                 courses += '    <td>' + data.courses[x].name + '</td>';
                 courses += '    <td>' + data.courses[x].id + '</td>';
+                courses += '    <td>' + data.courses[x].domain + '</td>';
                 courses += '    <td><input type="checkbox" value="' + data.courses[x].id + '"></td>';
                 courses += '</tr>';
             }
@@ -567,93 +586,93 @@
             $('#courses').find('tbody').replaceWith(courses).trigger('update');
         });
     }
-
-    // Create the dialog for adding domains.
-    $('.tnl-domain-edit').mouseup(function() {
-        // Detect whether this is an edit or add.
-        var edit = ($(this).val() == 'Edit');
-        // Initial select code that will have options added.
-        var code = '<table id="tnl-domain-vals">' +
-                       '<tr>' +
-                           '<td>State:</td>' +
-                           '<select id="state-select" name="state"></select>' +
-                       '</tr>' +'<tr>' +
-                           '<td>Name:</td>' +
-                           '<td><input type="text" name="name">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Password:</td>' +
-                           '<td><input type="text" name="password">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Salt:</td>' +
-                           '<td><input type="text" name="salt">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Base URL:</td>' +
-                           '<td><input type="text" name="base_url">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Admin ID:</td>' +
-                           '<td><input type="text" name="admin_id">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Provider ID:</td>' +
-                           '<td><input type="text" name="provider_id">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>EdAgency ID:</td>' +
-                           '<td><input type="text" name="edagency_id">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Credit Area ID:</td>' +
-                           '<td><input type="text" name="credit_area_id">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Credit Value Type ID:</td>' +
-                           '<td><input type="text" name="credit_value_type_id">' +
-                       '</tr>' +
-                       '<tr>' +
-                           '<td>Credit Value:</td>' +
-                           '<td><input type="text" name="credit_value">' +
-                       '</tr>' +
+    function domainAdd() {
+        var add_buttons = $('.tnl-domain-edit');
+        add_buttons.unbind('mouseup');
+        // Create the dialog for adding domains.
+        add_buttons.mouseup(function () {
+            // Detect whether this is an edit or add.
+            var edit = ($(this).val() == 'Edit');
+            // Initial select code that will have options added.
+            var code = '<table id="tnl-domain-vals">' +
+                    '<tr>' +
+                    '<td></td>' +
+                    '<td class="domain-label">State:</td>' +
+                    '<td><select id="state-select" name="state"></select></td>' +
+                    '<td></td>' +
+                    '</tr>' + '<tr>' +
+                    '<td class="domain-label">Name:</td>' +
+                    '<td><input type="text" name="name">' +
+                    '<td class="domain-label">EdAgency ID:</td>' +
+                    '<td><input type="text" name="edagency_id">' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="domain-label">Password:</td>' +
+                    '<td><input type="text" name="password">' +
+                    '<td class="domain-label">Credit Area ID:</td>' +
+                    '<td><input type="text" name="credit_area_id">' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="domain-label">Salt:</td>' +
+                    '<td><input type="text" name="salt">' +
+                    '<td class="domain-label">Credit Value Type ID:</td>' +
+                    '<td><input type="text" name="credit_value_type_id">' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="domain-label">Base URL:</td>' +
+                    '<td><input type="text" name="base_url">' +
+                    '<td class="domain-label">Credit Value:</td>' +
+                    '<td><input type="text" name="credit_value">' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td class="domain-label">Admin ID:</td>' +
+                    '<td><input type="text" name="admin_id">' +
+                    '<td class="domain-label">Provider ID:</td>' +
+                    '<td><input type="text" name="provider_id">' +
+                    '</tr>' +
                     '</table>';
-        var title = 'Add Domain';
-        var id = false;
-        if (edit) {
-            title = 'Edit Domain';
-            id = $(this).attr('name');
-        }
-        new Dialog($('#dialog')).showButtons(title, code, ['Add', 'Cancel'], function(choice) {
-            // If the user chose the 'Add' button, do the add.
-            if (choice == 0) {
-                var self = this;
-                // Get the selected district value.
-                var data = {};
-                $('#tnl-domain-vals input:text').each(function() {
-                    data[$(this).attr('name')] = $(this).val()
-                });
-                data['edit'] = edit;
-                data['id'] = id;
-
-                // POST the domain data to the endpoint, update the tables on the page, and hide the dialog.
-                $.post('${reverse('tnl_domain_add')}', data, function() {
-                    tableUpdate();
-                    self.hide();
-                });
-            } else {
-                // Just hide the dialog if they chose 'Cancel'.
-                this.hide();
+            var title = 'Add Domain';
+            var button = 'Add';
+            var id = false;
+            if (edit) {
+                title = 'Edit Domain';
+                button = 'Edit';
+                id = $(this).attr('name');
             }
+            new Dialog($('#dialog')).showButtons(title, code, [button, 'Cancel'], function (choice) {
+                // If the user chose the 'Add' button, do the add.
+                if (choice == 0) {
+                    var self = this;
+                    // Get the selected district value.
+                    var data = {};
+                    $('#tnl-domain-vals input:text').each(function () {
+                        data[$(this).attr('name')] = $(this).val()
+                    });
+                    data['state'] = $('#state-select').val();
+                    data['edit'] = edit;
+                    data['id'] = id;
+
+                    // POST the domain data to the endpoint, update the tables on the page, and hide the dialog.
+                    $.post('${reverse('tnl_domain_add')}', data, function () {
+                        tableUpdate();
+                        self.hide();
+                    });
+                } else {
+                    // Just hide the dialog if they chose 'Cancel'.
+                    this.hide();
+                }
+            });
+            // Add the states to the dropdown.
+            buildDropStates();
+            // Add existing data if this is an edit.
+            if (edit) {
+                buildDomainEdit(id)
+            }
+            return false;
         });
-        // Add the states to the dropdown.
-        buildDropStates();
-        // Add existing data if this is an edit.
-        if (edit) {
-            buildDomainEdit()
-        }
-        return false;
-    });
+    }
+
+    domainAdd();
 
     // Delete the selected Districts from the enabled districts.
     $('#tnl-district-delete').submit(function() {
@@ -679,8 +698,9 @@
                 var self = this;
                 // Get the selected district value.
                 var district = $('#district-select').val();
+                var domain = $('#domain-select').val();
                 // POST the district to the endpoint, update the tables on the page, and hide the dialog.
-                $.post('${reverse('tnl_district_add')}', { district: district }, function() {
+                $.post('${reverse('tnl_district_add')}', { district: district, domain: domain }, function() {
                     tableUpdate();
                     self.hide();
                 });
@@ -710,15 +730,17 @@
     // Create the dialog for adding courses.
     $('#tnl-course-add').mouseup(function() {
         // Initial select code that will have options added.
-        var code = '<select id="course-select"></select><br/>';
+        var code = '<select id="course-select"></select>' +
+                   '<select id="domain-select"></select>';
         new Dialog($('#dialog')).showButtons('Add Course', code, ['Add', 'Cancel'], function(choice) {
             // if the user chose the 'Add' button, do the add.
             if (choice == 0) {
                 var self = this;
                 // Get the selected course value.
                 var course = $('#course-select').val();
+                var domain = $('#domain-select').val();
                 // POST the course to the endpoint, update the tables on the page, and hide the dialog.
-                $.post('${reverse('tnl_course_add')}', { course: course }, function() {
+                $.post('${reverse('tnl_course_add')}', { course: course, domain: domain }, function() {
                     tableUpdate();
                     self.hide();
                 });
@@ -729,6 +751,7 @@
         });
         // Add the districts to the dropdown.
         buildDropCourses();
+        buildDropDomains();
         return false;
     });
 

@@ -24,6 +24,7 @@ urlpatterns = (
     url(r'^tnl/drop-courses$', 'tnl_integration.views.tnl_drop_courses', name="tnl_drop_courses"),
     url(r'^tnl/drop-districts$', 'tnl_integration.views.tnl_drop_districts', name="tnl_drop_districts"),
     url(r'^tnl/drop-domains$', 'tnl_integration.views.tnl_drop_domains', name="tnl_drop_domains"),
+    url(r'^tnl/domain/data$', 'tnl_integration.views.tnl_domain_data', name='tnl_domain_data'),
     url(r'^tnl/tables$', 'tnl_integration.views.tnl_tables', name='tnl_tables'),
 
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),

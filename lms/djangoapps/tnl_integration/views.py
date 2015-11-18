@@ -23,11 +23,11 @@ def tnl_table_data():
     # Get the districts.
     districts = tnl_get_district()
     # Get the list of course ids.
-    tnl_courses = tnl_get_course()
-    courses = list()
-    # Load the courses and add the objects.
-    for course in tnl_courses:
-        courses.append(course_from_id(course.course))
+    courses = tnl_get_course()
+    # Load the courses and add the name to the objects.
+    for x in range(0, len(courses)):
+        course = course_from_id(courses[x].course)
+        courses[x].name = course.display_name_with_default
     return domains, districts, courses
 
 
@@ -51,10 +51,12 @@ def tnl_tables(request):
         districts_out.append({'name': district.district.name,
                               'state': district.district.state.name,
                               'code': district.district.code,
+                              'domain': district.domain.name,
                               'id': district.id})
     for course in courses:
-        courses_out.append({'name': course.display_name_with_default,
-                            'id': course.id})
+        courses_out.append({'name': course.name,
+                            'domain': course.domain.name,
+                            'id': course.course})
     # Build the context and return the template.
     context = {'domains': domains_out, 'districts': districts_out, 'courses': courses_out}
     return HttpResponse(json.dumps(context), mimetype='application/json')
@@ -67,9 +69,9 @@ def tnl_configuration(request):
     Handles the TNL configuration page
     """
     # Get the initial table data.
-    districts, courses = tnl_table_data()
+    domains, districts, courses = tnl_table_data()
     # Build the context and return the template.
-    context = {'districts': districts, 'courses': courses}
+    context = {'domains': domains, 'districts': districts, 'courses': courses}
     return render_to_response('tnl/configuration.html', context)
 
 
@@ -107,17 +109,28 @@ def tnl_domain_add(request):
                 'salt': request.POST.get('salt'),
                 'base_url': request.POST.get('base_url'),
                 'admin_id': request.POST.get('admin_id'),
-                'provider_id': request.POST.get('provider_id'),
-                'edagency_id': request.POST.get('edagency_id'),
-                'credit_area_id': request.POST.get('credit_area_id'),
-                'credit_value_type_id': request.POST.get('credit_value_type_id'),
-                'credit_value': request.POST.get('credit_value')}
-        id = int(request.POST.get['id'])
-        edit = request.POST.get['edit']
+                'provider_id': int(request.POST.get('provider_id')),
+                'edagency_id': int(request.POST.get('edagency_id')),
+                'credit_area_id': int(request.POST.get('credit_area_id')),
+                'credit_value_type_id': int(request.POST.get('credit_value_type_id')),
+                'credit_value': int(request.POST.get('credit_value')),
+                'state': int(request.POST.get('state')),
+                'name': request.POST.get('name')}
+        id = request.POST.get('id')
+        edit = bool(request.POST.get('edit') == 'true')
         tnl_add_domain(id, edit, data)
         return HttpResponse(json.dumps({'success': True}), mimetype='application/json')
-    except:
-        return HttpResponse(json.dumps({'success': False}), mimetype='application/json')
+    except Exception, e:
+        return HttpResponse(json.dumps({'success': 'Error: {0}'.format(e)}), mimetype='application/json')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_domain_delete(request):
+    """
+    Deletes the requested domain from the DB.
+    """
+    pass
 
 
 @login_required
@@ -128,7 +141,7 @@ def tnl_district_add(request):
     """
     try:
         # Add the course to the enabled list.
-        tnl_add_district(request.POST.get('district'))
+        tnl_add_district(request.POST.get('district'), request.POST.get('domain'))
         return HttpResponse(json.dumps({'success': True}), mimetype='application/json')
     except:
         return HttpResponse(json.dumps({'success': False}), mimetype='application/json')
@@ -220,3 +233,22 @@ def tnl_drop_domains(request):
         r.append({"id": item.id, "name": item.name})
 
     return HttpResponse(json.dumps(r), content_type="application/json")
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def tnl_domain_data(request):
+    domain = tnl_get_domain(int(request.GET.get('domain')))
+    data = {'password': domain.password,
+            'salt': domain.salt,
+            'base_url': domain.base_url,
+            'admin_id': domain.admin_id,
+            'provider_id': domain.provider_id,
+            'edagency_id': domain.edagency_id,
+            'credit_area_id': domain.credit_area_id,
+            'credit_value_type_id': domain.credit_value_type_id,
+            'credit_value': domain.credit_value,
+            'state': domain.state.id,
+            'name': domain.name,
+            'id': domain.id}
+    return HttpResponse(json.dumps(data), content_type='application/json')

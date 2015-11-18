@@ -5,7 +5,7 @@ import json
 
 from django.conf import settings
 
-from student.models import District, User
+from student.models import District, User, State
 from tnl_integration.models import TNLCourses, TNLCompletionTrack, TNLDistricts, TNLDomains
 from web_client.crypt import salt_convert, PBEWithMD5AndDES
 from web_client.request import WebRequest
@@ -114,6 +114,7 @@ class TNLInstance:
             response = self.request.do_request(endpoint, 'post', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
             # Build the registration info for the local table.
             course_entry = TNLCourses(course=course.id,
+                                      domain=self.domain,
                                       tnl_id=response['courseid'],
                                       section_id=response['sectionid'],
                                       registered=1,
@@ -178,14 +179,21 @@ def tnl_add_domain(id, edit, data):
     Adds the domain to the table.
     """
     try:
+        data['state'] = State.objects.get(id=data['state'])
         if edit:
-            TNLDomains.objects.filter(id=id).update(**data)
-
+            TNLDomains.objects.filter(id=int(id)).update(**data)
         else:
             domain_entry = TNLDomains(**data)
             domain_entry.save()
-    except:
-        raise Exception('Problem adding/updating domain')
+    except Exception, e:
+        raise Exception('Problem adding/updating domain: {0}'.format(e))
+
+
+def tnl_delete_domain(ids):
+    """
+    Deletes selected domains from the DB.
+    """
+    pass
 
 
 def tnl_get_district(id='all'):
@@ -205,14 +213,16 @@ def tnl_get_district(id='all'):
     return district
 
 
-def tnl_add_district(id):
+def tnl_add_district(id, domain):
     """
     Adds a district to the TNL-enabled districts
     """
-    # Load the actual district data
+    # Load the actual district data.
     district = District.objects.get(id=id)
+    # Load the Domain.
+    domain = TNLDomains.objects.get(id=domain)
     # Store this district as enabled.
-    district_entry = TNLDistricts(district=district)
+    district_entry = TNLDistricts(district=district, domain=domain)
     district_entry.save()
 
 
