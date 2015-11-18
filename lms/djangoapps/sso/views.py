@@ -250,12 +250,12 @@ def create_unknown_user(request, ms, data):
 
         # Save mapped attributes
         for k, v in parsed_data.items():
-            if k == 'sso_user_id':
-                user.sso_user_id = parsed_data['sso_user_id']
             if k == 'first_name':
                 user.first_name = parsed_data['first_name']
             if k == 'last_name':
                 user.last_name = parsed_data['last_name']
+            if k == 'sso_user_id':
+                profile.sso_user_id = parsed_data['sso_user_id']
             if k == 'district':
                 profile.district = District.object.get(name=parsed_data['district'])
             if k == 'school':
