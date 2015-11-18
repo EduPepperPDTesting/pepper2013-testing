@@ -311,7 +311,7 @@
                 </tbody>
             </table>
             <input class="delete" type="submit" value="Delete Selected" />
-            <div class="pager">
+            <div id="domain-pager" class="pager">
                 <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
                 <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
                 <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
@@ -360,7 +360,7 @@
                 </tbody>
             </table>
             <input class="delete" type="submit" value="Delete Selected" />
-            <div class="pager">
+            <div id="district-pager" class="pager">
                 <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
                 <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
                 <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
@@ -402,7 +402,7 @@
                 </tbody>
             </table>
             <input class="delete" type="submit" value="Delete Selected" />
-            <div class="pager">
+            <div id="course-pager" class="pager">
                 <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
                 <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
                 <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
@@ -433,7 +433,6 @@
 <script type="text/javascript">
     // Options for the
     var pagerOptions = {
-        container: $(".pager"),
         ajaxUrl: null,
         customAjaxUrl: function(table, url) { return url; },
         ajaxObject: { dataType: 'json' },
@@ -459,12 +458,16 @@
     };
 
     // Initialize the tablesorter tables.
-    $('.sorted').tablesorter({
+    $('.sorted').each(function() {
+        var id = $(this).siblings('.pager').attr('id');
+        pagerOptions['container'] = $('#' + id);
+        $(this).tablesorter({
             headers: {
                 '.menu-trigger': {sorter: false, parser: false}
             },
             theme: 'blue'
         }).tablesorterPager(pagerOptions);
+    });
 
     // Adds the data to the domain form.
     function buildDomainEdit(domain) {
@@ -549,7 +552,7 @@
             // Closing tag
             domains += '</tbody>';
             // Do a replace, and trigger the tablesorter update.
-            $('#domains').find('tbody').replaceWith(domains).trigger('update');
+            $('#domains').find('tbody').replaceWith(domains);
             domainAdd();
 
             // Init with the tbody for districts, as we're going to replace it wholesale.
@@ -567,7 +570,7 @@
             // Closing tag
             districts += '</tbody>';
             // Do a replace, and trigger the tablesorter update.
-            $('#districts').find('tbody').replaceWith(districts).trigger('update');
+            $('#districts').find('tbody').replaceWith(districts);
 
             // Init with the tbody for courses, as we're going to replace it wholesale.
             var courses = '<tbody>';
@@ -583,7 +586,9 @@
             // Closing tag
             courses += '</tbody>';
             // Do a replace, and trigger the tablesorter update.
-            $('#courses').find('tbody').replaceWith(courses).trigger('update');
+            $('#courses').find('tbody').replaceWith(courses);
+
+            $('.sorted').trigger('update');
         });
     }
     function domainAdd() {
