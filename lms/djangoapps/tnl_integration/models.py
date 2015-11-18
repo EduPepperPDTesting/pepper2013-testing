@@ -13,7 +13,7 @@ class TNLDomains(models.Model):
     base_url = models.CharField(null=False, max_length=255, db_index=False)
     admin_id = models.CharField(null=False, max_length=255, db_index=False)
     provider_id = models.CharField(null=False, max_length=255, db_index=False)
-    edagancy_id = models.CharField(null=False, max_length=255, db_index=False)
+    edagency_id = models.CharField(null=False, max_length=255, db_index=False)
     credit_value_type_id = models.IntegerField(null=False)
     credit_area_id = models.IntegerField(null=False)
     credit_value = models.IntegerField(null=False)
