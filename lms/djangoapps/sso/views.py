@@ -49,14 +49,16 @@ def genericsso(request):
     idp_name = request.REQUEST.get('idp', '')
 
     if idp_name == '':
-        log.error("error: No IDP name passed")
-        raise Http404()
+        raise Exception("error: No IDP name passed")
+        # log.error("error: No IDP name passed")
+        # raise Http404()
 
     metadata_setting = metadata.idp_by_name(idp_name)
 
     if metadata_setting is None:
-        log.error("error: Unkonwn IDP")
-        raise Http404()
+        raise Exception("error: Unkonwn IDP")
+        # log.error("error: Unkonwn IDP")
+        # raise Http404()
     
     # Call different type of ACS seperatly
     if metadata_setting.get('sso_type') == 'SAML':
@@ -249,7 +251,7 @@ def create_unknown_user(request, ms, data):
         # Save mapped attributes
         for k, v in parsed_data.items():
             if k == 'sso_user_id':
-                user.sso_usre_id = parsed_data['sso_usre_id']
+                user.sso_user_id = parsed_data['sso_user_id']
             if k == 'first_name':
                 user.first_name = parsed_data['first_name']
             if k == 'last_name':
