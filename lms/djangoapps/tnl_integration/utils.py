@@ -292,5 +292,5 @@ def get_post_array(post, name):
     output = list()
     for k in post.keys():
         if k.startswith(name):
-            output.append(post.get[k])
+            output.append(post.get(k))
     return output

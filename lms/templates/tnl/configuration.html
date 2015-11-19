@@ -598,9 +598,10 @@
     }
 
     function getCheckBoxes(selector) {
-        var ids = { ids: [] };
+        var ids = {};
         selector.find('input:checkbox:checked').each(function() {
-            ids['ids'].push($(this).val());
+            var value = $(this).val();
+            ids['ids' + value] = value;
         });
         return ids;
     }
