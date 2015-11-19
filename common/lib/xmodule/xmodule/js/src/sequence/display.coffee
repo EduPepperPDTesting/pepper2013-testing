@@ -6,7 +6,7 @@ class @Sequence
     @id = @el.data('id')
     @modx_url = @el.data('course_modx_root')
     #20151026b Analysis the url and get the parameter
-    @url_split_array = @el[0].baseURI.split('/')
+    @url_split_array = window.location.href.split('/')
     @prev_button_para = @url_split_array[@url_split_array.length-1]
     @initProgress()
     @bind()

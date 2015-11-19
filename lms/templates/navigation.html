@@ -376,6 +376,7 @@ except:
                         <li><a href="${reverse('configuration')}">Configuration</a></li>
                         <li><a href="${reverse('pepconn')}">PepConn</a></li>
                         <li><a href="${reverse('time_report')}">Time Report</a></li>
+                        <li><a href="${reverse('sso_metadata_edit')}">SSO Metadata</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if(!$(event.target).closest('.admin-menu-holder').length){
@@ -624,6 +625,7 @@ except:
         function course_refresh_or_exit() {
             %if request.user.id is not None:
                 sessionStorage['user_id'] = "${request.user.id}";
+                RecordTime.sessionInit();
             %else:
                 RecordTime.setSessionVerticalId('');
                 RecordTime.setSessionCourseTime(0);
@@ -631,7 +633,7 @@ except:
             %if course:
                 RecordTime.setSessionCourseID("${course.id}");
             %endif
-            RecordTime.sessionInit();
+            //RecordTime.sessionInit();
             if (RecordTime.getSessionVerticalId() != "" && document.URL.indexOf('courseware') < 1 && !timer_record) {
                 var data = {
                     'type': 'new_page',
@@ -657,13 +659,14 @@ except:
         //---------------------------------------------------------------------------//
         function onfocusEventDelay(e){
             course_refresh_or_exit();
+            var is_press_logout = $(document.activeElement).is('.dropdown');
             if (document.URL.indexOf('courseware') < 0) {
-                if(courseTimer.loadComplete){
+                if(courseTimer.loadComplete && !is_press_logout){
                     courseTimer.isrun = false;
                     courseTimer.create();
                 }
             } else {
-                if (RecordTime.getSessionVerticalId() == "" && timer_record) {
+                if (RecordTime.getSessionVerticalId() == "" && !is_press_logout && timer_record) {
                     record_time(RecordTime.coursePosition);
                 }
             }
@@ -709,9 +712,9 @@ except:
                     }
                 }
                 else{
-                     if(RecordTime.getSessionCourseTime() > 0){
+                    if(RecordTime.getSessionCourseTime(RecordTime.getSessionCourseType()) > 0){
                         setTimeout(function(){onblurEventDelay(null);}, 200);
-                     }
+                    }
                 }
             })
 

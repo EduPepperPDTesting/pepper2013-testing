@@ -23,7 +23,18 @@ from student.models import State,District,School
 <!-- Tablesorter: optional -->
   <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
   <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
-
+<style>
+  .tblUserTime{
+    white-space:nowrap;
+  }
+  .tablesorter-header-inner{
+    white-space:nowrap;
+  }
+  .table_scroll{
+    width:auto;
+    overflow-x:auto;
+  }
+</style>
 <!-- Time Report -->
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
@@ -55,7 +66,7 @@ from student.models import State,District,School
         </div>
         <div class="table">      
           <div class="" style="padding:5px;"></div>
-          <span class="body"></span>
+          <div class="body table_scroll">
           <table class="tblUserTime">
             <thead>
               <th>First Name</th>
@@ -72,6 +83,7 @@ from student.models import State,District,School
             </thead>
             <tbody></tbody>
           </table>
+          </div>
            <span class="footer">
             <div class="pager">
               <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
@@ -138,7 +150,6 @@ from student.models import State,District,School
     // output string - default is '{page}/{totalPages}'
     // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
     // also {page:input} & {startRow:input} will add a modifiable input in place of the value
-
     output: '{startRow} to {endRow} ({totalRows})',
 
     // apply disabled classname (cssDisabled option) to the pager arrows when the rows
@@ -215,7 +226,10 @@ from student.models import State,District,School
     }
   });
   $(function() {
-    $(".tblUserTime").tablesorter({ theme : 'blue' }).tablesorterPager(pagerOptions);
+    $(".tblUserTime").tablesorter({
+      theme : 'blue',
+      widgets:['uitheme','zebra','filter']
+    }).tablesorterPager(pagerOptions);
   })
   
   var userTimeReport = {
