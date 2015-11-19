@@ -193,7 +193,11 @@ def tnl_delete_domain(ids):
     """
     Deletes selected domains from the DB.
     """
-    pass
+    try:
+        for id in ids:
+            TNLDomains.objects.filter(id=id).delete()
+    except Exception, e:
+        raise Exception('Problem deleting domain(s): {0}'.format(e))
 
 
 def tnl_get_district(id='all'):
@@ -228,9 +232,24 @@ def tnl_add_district(id, domain):
 
 def tnl_delete_district(ids):
     """
-    Adds a district to the TNL-enabled districts
+    Deletes district(s) from the TNL-enabled districts.
     """
-    pass
+    try:
+        for id in ids:
+            TNLDistricts.objects.filter(id=id).delete()
+    except Exception, e:
+        raise Exception('Problem deleting district(s): {0}'.format(e))
+
+
+def tnl_delete_course(ids):
+    """
+    Deletes course(s) from the list of enabled ones (doesn't remove from TNL).
+    """
+    try:
+        for id in ids:
+            TNLCourses.objects.filter(id=id).delete()
+    except Exception, e:
+        raise Exception('Problem deleting course(s): {0}'.format(e))
 
 
 def tnl_course(user, course_instance):
@@ -264,3 +283,14 @@ def tnl_domain_from_user(user):
     domain = district.tnl_districts.domain
 
     return domain
+
+
+def get_post_array(post, name):
+    """
+    Gets array values from a jQuery POST.
+    """
+    output = list()
+    for k in post.keys():
+        if k.startswith(name):
+            output.append(post.get[k])
+    return output

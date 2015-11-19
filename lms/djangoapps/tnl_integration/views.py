@@ -10,7 +10,7 @@ from xmodule.modulestore.django import modulestore
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
-from .utils import tnl_get_domain, tnl_get_district, tnl_get_course, tnl_add_district, tnl_add_domain, TNLInstance
+from .utils import *
 import json
 
 
@@ -182,7 +182,12 @@ def tnl_course_delete(request):
     """
     Deletes the requested courses from the TNL enabled courses.
     """
-    pass
+    try:
+        ids = get_post_array(request.POST, 'ids')
+        tnl_delete_course(ids)
+        return HttpResponse(json.dumps({'success': True}), mimetype='application/json')
+    except:
+        return HttpResponse(json.dumps({'success': False}), mimetype='application/json')
 
 
 @login_required

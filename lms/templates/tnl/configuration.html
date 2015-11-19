@@ -597,6 +597,14 @@
         });
     }
 
+    function getCheckBoxes(selector) {
+        var ids = { ids: [] };
+        selector.find('input:checkbox:checked').each(function() {
+            ids['ids'].push($(this).val());
+        });
+        return ids;
+    }
+
     // Made this a function, as it needs to be re-applied to the edit buttons after they are refreshed.
     function domainAdd() {
         var add_buttons = $('.tnl-domain-edit');
@@ -687,13 +695,27 @@
     domainAdd();
 
     // Delete the selected Districts from the enabled districts.
-    $('#tnl-district-delete').submit(function() {
-        var ids = [];
-        $(this).find('input:checkbox:checked').each(function() {
-            ids.push($(this).val());
-        });
-        $.post('${reverse('tnl_district_delete')}', ids, function() {
-            tableUpdate();
+    $('#tnl-domain-delete').submit(function() {
+        // Need to preserve the selector.
+        var selector = this;
+        // Going to use a confirm dialog for domains, since deleting one will delete associations as well.
+        var message = 'Deleting a domain will delete all course and district associations as well.<br/>' +
+                      'Are you sure you want to do this?';
+        new Dialog($('#dialog')).showButtons('Confirm', message, ['Yes', 'No'], function(choice) {
+            // If the user chose Yes, go ahead with delete.
+            if (choice == 0) {
+                var self = this;
+                // Grab the checkbox values.
+                var ids = getCheckBoxes($(selector));
+                // Post to the delete endpoint, update the tables, and hide the dialog.
+                $.post('${reverse('tnl_domain_delete')}', ids, function() {
+                    tableUpdate();
+                    self.hide();
+                });
+            } else {
+                // Just hide the dialog if they chose No.
+                this.hide();
+            }
         });
         return false;
     });
@@ -729,10 +751,9 @@
 
     // Delete the selected Districts from the enabled districts.
     $('#tnl-district-delete').submit(function() {
-        var ids = [];
-        $(this).find('input:checkbox:checked').each(function() {
-            ids.push($(this).val());
-        });
+        // Grab the checkbox values
+        var ids = getCheckBoxes($(this));
+        // Post to the delete endpoint and update the tables.
         $.post('${reverse('tnl_district_delete')}', ids, function() {
             tableUpdate();
         });
@@ -769,10 +790,9 @@
 
     // Delete the selected Courses from the integration handler (doesn't delete from TNL).
     $('#tnl-course-delete').submit(function() {
-        var ids = [];
-        $(this).find('input:checkbox:checked').each(function() {
-            ids.push($(this).val());
-        });
+        // Grab the checkbox values.
+        var ids = getCheckBoxes($(this));
+        // Post to the delete endpoint and update the tables.
         $.post('${reverse('tnl_course_delete')}', ids, function() {
             tableUpdate();
         });
