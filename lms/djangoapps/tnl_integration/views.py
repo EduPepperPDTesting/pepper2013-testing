@@ -130,7 +130,12 @@ def tnl_domain_delete(request):
     """
     Deletes the requested domain from the DB.
     """
-    pass
+    try:
+        ids = get_post_array(request.POST, 'ids')
+        tnl_delete_domain(ids)
+        return HttpResponse(json.dumps({'success': True}), mimetype='application/json')
+    except:
+        return HttpResponse(json.dumps({'success': False}), mimetype='application/json')
 
 
 @login_required
@@ -153,7 +158,12 @@ def tnl_district_delete(request):
     """
     Deletes the requested districts from the TNL enabled districts.
     """
-    pass
+    try:
+        ids = get_post_array(request.POST, 'ids')
+        tnl_delete_district(ids)
+        return HttpResponse(json.dumps({'success': True}), mimetype='application/json')
+    except:
+        return HttpResponse(json.dumps({'success': False}), mimetype='application/json')
 
 
 @login_required
