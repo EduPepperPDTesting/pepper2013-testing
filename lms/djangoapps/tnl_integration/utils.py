@@ -64,29 +64,35 @@ class TNLInstance:
         This registers a competed course for a particular user with TNL
         """
 
-        # Registered course
+        # Registered course.
         course = tnl_get_course(course_instance.course_id)
-        # markComplete endpoint
+        # markComplete endpoint.
         endpoint = 'ia/app/webservices/section/markComplete'
-        # Assign needed parameters
-        data = {'adminid': self.domain.admin_id,
-                'personid': self.get_person(user),
-                'sectionid': course.section_id,
-                'gradeid': self.get_grade(percent)}
+        # Get the TNL user id.
+        personid = self.get_person(user)
+        if personid:
+            # Assign needed parameters.
+            data = {'adminid': self.domain.admin_id,
+                    'personid': personid,
+                    'sectionid': course.section_id,
+                    'gradeid': self.get_grade(percent)}
 
-        try:
-            # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-            self.request.do_request(endpoint, 'put', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
-            # Store the completion locally for tracking, with the date.
-            track = TNLCompletionTrack(user=user,
-                                       course=course,
-                                       registered=1,
-                                       registration_date=datetime.datetime.utcnow())
-        except:
-            # If the TNL completion registration failed, we still want to store that we tried so we can follow up.
-            track = TNLCompletionTrack(user=user, course=course, registered=0)
+            try:
+                # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
+                self.request.do_request(endpoint, 'put', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
+                # Store the completion locally for tracking, with the date.
+                track = TNLCompletionTrack(user=user,
+                                           course=course,
+                                           registered=1,
+                                           registration_date=datetime.datetime.utcnow())
+            except:
+                # If the TNL completion registration failed, we still want to store that we tried so we can follow up.
+                track = TNLCompletionTrack(user=user, course=course, registered=0)
 
-        track.save()
+            track.save()
+            return True
+        else:
+            return False
 
     def register_course(self, course):
         """

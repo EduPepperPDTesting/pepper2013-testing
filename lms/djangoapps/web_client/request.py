@@ -63,7 +63,7 @@ class WebRequest:
             if response.status_code == 200:
                 # Parse the JSON returned.
                 parsed = json.loads(response.text)
-                # If a JSON attribute was specified, check to see if it matches the supplied value.
+                # If a JSON success attribute was specified, check to see if it matches the supplied value.
                 if self.success_attribute and not parsed[self.success_attribute] == self.success_value:
                     raise Exception(u"Unsuccessful request: {0}".format(parsed[self.error_message]))
                 return parsed
