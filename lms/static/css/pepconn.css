@@ -12,7 +12,24 @@ label {
             width: 100%;
             z-index: 100;
         }
+        .select-columns {
+            display:none;
+            position: absolute;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 20px;
+            padding-left: 5px;
+            margin-left: 0px;
 
+        }
+        .down-arrow{
+            position:relative;
+            top: 5px;
+            width: 23px;
+            height: 23px;
+            background: url("../images/arrows.png") no-repeat 0 0;
+            display:inline;
+        }
         .modal {
             display: block;
             position: absolute;
@@ -114,6 +131,15 @@ label {
             display: inline-block;
             font-weight: bold;
             padding: 5px 0 0 10px;
+        }
+        .select-add-area{
+            display:inline-block;
+            font-weight:bold;
+            color: #gg;;
+        }
+        .select-add-area:hover{
+            color:black;
+            cursor: pointer;
         }
         .add-area:hover{
             cursor: pointer;

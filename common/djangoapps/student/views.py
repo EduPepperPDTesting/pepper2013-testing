@@ -966,7 +966,6 @@ def _do_create_account(post_vars):
     # profile.name = post_vars['name']
     profile.user.first_name = post_vars['first_name']
     profile.user.last_name = post_vars['last_name']
-
     profile.major_subject_area_id = post_vars['major_subject_area_id']
     profile.grade_level_id = post_vars['grade_level_id']
     profile.district_id = post_vars['district_id']
@@ -2061,6 +2060,7 @@ def user_photo(request,user_id=None):
         response.write(f.read())
         f.close()
     return response
+
 
 def request_course_access_ajax(request):
     try:
