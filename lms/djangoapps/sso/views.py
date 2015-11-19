@@ -23,7 +23,7 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib import auth
-from student.models import UserProfile, Registration, CourseEnrollmentAllowed
+from student.models import UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
 from mitxmako.shortcuts import render_to_response, render_to_string
 import time
 import calendar
@@ -381,6 +381,7 @@ def activate_account(request):
         profile.district_id = vars.get('district_id', '')
         profile.school_id = vars.get('school_id', '')
         profile.subscription_status = 'Registered'
+        profile.grade_level_id = vars.get('grade_level_id', '')
         profile.major_subject_area_id = vars.get('major_subject_area_id', '')
         profile.years_in_education_id = vars.get('years_in_education_id', '')
         profile.percent_lunch = vars.get('percent_lunch', '')
@@ -393,6 +394,13 @@ def activate_account(request):
         #** upload photo
         photo = request.FILES.get("photo")
         upload_user_photo(profile.user.id, photo)
+
+        #** auto enroll courses
+        ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
+        for cea in ceas:
+            if cea.auto_enroll:
+                CourseEnrollment.enroll(profile.user, cea.course_id)
+        
         js = {'success': True}
     except Exception as e:
         transaction.rollback()
