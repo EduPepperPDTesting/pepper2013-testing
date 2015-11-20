@@ -141,9 +141,9 @@ def cohort_submit(request):
         d.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 
@@ -275,9 +275,9 @@ def single_district_submit(request):
         district.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 ##############################################
@@ -402,9 +402,9 @@ def single_school_submit(request):
         school.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 #* -------------- User Data Import -------------
@@ -456,7 +456,7 @@ def import_user_progress(request):
         task = ImportTask.objects.get(id=request.POST.get('taskId'))
         j = json.dumps({'task': task.filename, 'percent': '%.2f' % (task.process_lines*100/task.total_lines)})
     except Exception as e:
-        j = json.dumps({'task': 'no', 'percent':100})
+        j = json.dumps({'task': 'no', 'percent': 100})
     return HttpResponse(j, content_type="application/json")
 
 
@@ -684,9 +684,10 @@ def single_user_submit(request):
 
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e, "message": message}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e, "message": message}),
+                            content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True, "message":message}))
+    return HttpResponse(json.dumps({'success': True, "message": message}), content_type="application/json")
 
 
 def task_close(request):
