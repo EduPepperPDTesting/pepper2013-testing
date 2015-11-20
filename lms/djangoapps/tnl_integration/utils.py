@@ -40,7 +40,7 @@ class TNLInstance:
 
         try:
             # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-            response = self.request.do_request(endpoint, 'get', self.encryptor.encrypt(json.dumps(data)).rtrim("\n"))
+            response = self.request.do_request(endpoint, 'post', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
             return response['personid']
         except:
             return False
@@ -65,7 +65,7 @@ class TNLInstance:
         """
 
         # Registered course.
-        course = tnl_get_course(course_instance.course_id)
+        course = tnl_get_course(course_instance.id)
         # markComplete endpoint.
         endpoint = 'ia/app/webservices/section/markComplete'
         # Get the TNL user id.
@@ -263,7 +263,7 @@ def tnl_course(user, course_instance):
     Checks to see if this is in fact a course and user registered with TNL.
     """
     # Get the course, if registered.
-    course = tnl_get_course(course_instance.course_id)
+    course = tnl_get_course(course_instance.id)
     # Get the specified user.
     user = User.objects.get(id=user.id)
     if course:
@@ -285,8 +285,9 @@ def tnl_domain_from_user(user):
     Gets the domain associated with the district of the current user.
     """
     user = User.objects.get(id=user.id)
-    district = District.objects.get(id=user.profile.district_id).select_related()
-    domain = district.tnl_districts.domain
+    district = District.objects.get(id=user.profile.district_id)
+    tnl_district = TNLDistricts.objects.get(district=district)
+    domain = tnl_district.domain.id
 
     return domain
 
