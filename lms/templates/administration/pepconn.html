@@ -397,12 +397,7 @@ f.close()
                   <option id = "${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
-                <select type = "search" data-column = "1" class = "search" id = "District_district_select">
-                  <option value="" selected>Select District</option>
-                  %for item in District.objects.all().order_by('name'):
-                  <option id = "${item.id}" value="${item.name}">${item.name}</option>
-                  %endfor
-                </select>
+
                 <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
                 <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
                 <span onclick = "$('#district-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
@@ -557,19 +552,35 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea2">
+                <select type = "search" class="search" data-column="6" id = "User_state_select">
+                    <option value="" id = "null_case">Select State</option>
+                    %for item in State.objects.all().order_by('name'):
+                        <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                    %endfor
+                </select>
                 <select type="search" class="search" data-column="4" id = "User_district_select">
-
-                      <option value="">Select District</option>
-                      %for item in District.objects.all():
-                      <option id = "${item.name}" value="${item.name}">${item.name}</option>
+                      <option value="" id = "null_case">Select District</option>
+                      %for item in District.objects.all().order_by('name'):
+                      <option id = "${item.state.id}" value="${item.name}" class = "${item.id}">${item.name}</option>
                       %endfor
+                </select>
+                <select type="search" class="search" data-column="3" id = "User_school_select">
+                      <option value="" id = "null_case">Select School</option>
+                      %for item in School.objects.all().order_by('name'):
+                      <option id = "${item.district_id}" value="${item.name}">${item.name}</option>
+                      %endfor
+                </select>
+                <select type="search" class="search" data-column="8" id = "User_registration_select">
+                      <option value="" id = "null_case">Select Registration Status</option>
+                    <option value = "Registered">Registered</option>
+                    <option value = "Unregistered">Unregistered</option>
+                    <option value = "Imported">Imported</option>
+                    <option value = "Inactive">Inactive</option>
                 </select>
                 <input placeholder = "Search by Last Name" class="search" type="search" data-column="1" id = "User_search_last">
                 <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
-                <input placeholder = "Search by School" class="search" type="search" data-column="3" id = "User_search_school">
-                <input placeholder = "Search by District" class="search" type="search" data-column="4" id = "User_search_district">
                 <input placeholder = "Search by Cohort" class="search" type="search" data-column="5" id = "User_search_cohort">
-                <input placeholder = "Search by Email" class="search" type="search" data-column="6" id = "User_search_email">
+                <input placeholder = "Search by Email" class="search" type="search" data-column="7" id = "User_search_email">
                 <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
                 <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
                 <span onclick = "$('#user-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
@@ -579,9 +590,11 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>State</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>School</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_district').toggle();"></input><label><i>District</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
                 </div>
             </div>
@@ -596,7 +609,9 @@ f.close()
               <th class = "user_school">School</th>
               <th class = "user_district">District</th>
               <th class = "user_cohort">Cohort</th>
+              <th class = "user_state">State</th>
               <th class = "user_email">E-Mail</th>
+              <th class = "user_registration">Registration Status</th>
               <th class = "user_enrollment_status">Enrollment Start</th>
                 <th></th>
             </tr>
@@ -614,17 +629,21 @@ f.close()
                     user_school = ""
                 try:
                     user_district = item.district.name
+                    user_district_state = item.district.state.name
                 except:
                     user_district = ""
+                    user_district_state = ""
                 try:
-                    user_cohort = item.cohort.name
+                    user_cohort = item.cohort.code
                 except:
                     user_cohort = ""
                 %>
               <td class = "user_school">${user_school}</td>
               <td class = "user_district">${user_district}</td>
               <td class = "user_cohort">${user_cohort}</td>
+              <td class = "user_state">${user_district_state}</td>
               <td class = "user_email">${item.user.email}</td>
+              <td class = "user_registration">${item.subscription_status}</td>
               <td class = "user_enrollment_status">${item.user.date_joined}</td>
               <td><input class = "user_select_box" type="checkbox" name="id" value="${item.user.id}"/></td>
 
@@ -654,6 +673,7 @@ f.close()
           <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
+
         <span style = "float:right">
             <input type="button" value = "Delete Selected Users" sytle = "padding-right:10px;" class ="small" id = "delete_selected_user"/>
             <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
@@ -666,11 +686,16 @@ f.close()
         </div>
         <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id = "filterArea3">
+                <select type = "search" class="search" data-column="5" id = "Cohort_state_select">
+                    <option value="" id = "null_case">Select State</option>
+                    %for item in State.objects.all().order_by('name'):
+                        <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                    %endfor
+                </select>
                 <select type="search" class="search" data-column="4" id = "Cohort_district_select">
-
-                      <option value="">Select District</option>
-                      %for item in District.objects.all():
-                      <option value="${item.id}">${item.name}</option>
+                      <option value="" id = "null_case">Select District</option>
+                      %for item in District.objects.all().order_by('name'):
+                      <option id = "${item.state.id}" value="${item.id}" class = "${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
@@ -694,6 +719,7 @@ f.close()
                 <th class = "cohort_term">Terms Months</th>
                 <th class = "cohort_start">Subscription Start Date</th>
                 <th></th>
+                <th style = "display:none"></th>
             </tr>
             </thead>
                 <tbody>
@@ -704,6 +730,13 @@ f.close()
                 <td class = "cohort_term">${item.term_months}</td>
                 <td class = "cohort_start">${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
                 <td style = "display:none;">${item.district_id}</td>
+                <%
+                    try:
+                        district_state = item.district.state.id
+                    except:
+                        district_state = "dne"
+                %>
+                <td style = "display:none">${district_state}</td>
                 <td><input class = "cohort_select_box" type="checkbox" name="id" value="${item.id}" /></td>
             </tr>
             % endfor
@@ -752,6 +785,7 @@ $("#singleDistrictImportForm").submit(function(){
     var flds = ["id", "name", "state","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
+                alert("District creation submitted. Refresh the page to see results in the reports.");
              r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
@@ -769,6 +803,7 @@ $("#singleSchoolImportForm").submit(function(){
     var flds = ["name", "id", "state", "district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
+                alert("School creation submitted. Refresh the page to see results in the reports.");
              r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
@@ -785,12 +820,14 @@ $("#singleUserImportForm").submit(function(){
 
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
     var data = getFormData(this,flds);
-    $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
+    alert(data.district);
+    $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
+
              r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
                } else {
-                 alert("This user already exists.");
+                 alert("This user already exists. "+ r.error);
                }
            }
     );
@@ -854,6 +891,7 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected districts?")) return;
       $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
         r=$.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
@@ -873,6 +911,7 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected schools?")) return;
       $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
         r=$.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Schools.');
@@ -892,6 +931,7 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected users?")) return;
       $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
         r=$.parseJSON(r);
 
         if(r.success){
@@ -912,6 +952,7 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected cohorts?")) return;
       $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
         r=$.parseJSON(r);
 
         if(r.success){
@@ -927,11 +968,14 @@ $(document).ready(function(){
     $("#register_selected_user").click(function(){
        var ids = [];
         $(".user_select_box:checked").each(function(){
-            ids.push(this.value);
+            ids.push($(this).attr("value"));
+            $.get("${reverse('pepconn_registration_send_email_report')}", {id : $(this).attr("value")}, function(r){
+                alert(r.email);
+            });
         });
         if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Send Registration Emails to Selected Users?")) return;
-      $.get("${reverse('pepconn_registration_send_email')}",{ids:ids.join(",")},function(r){
+      /*$.get("${reverse('pepconn_registration_send_email')}",{ids:ids.join(",")},function(r){
         r=$.parseJSON(r);
         if(r.success){
             alert('Registration Emails Sending.');
@@ -941,7 +985,35 @@ $(document).ready(function(){
               });
         }else
         alert(r.error);
-      });
+      });*/
+    });
+    $("#User_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#User_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+
+    });
+    $("#User_district_select").change(function(){
+        var id = $(this).children(":selected").attr("class");
+        $("#User_school_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+
     });
 });
 function addToCohort(){
@@ -977,8 +1049,9 @@ function openBookmark(table){
     $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
         for(i = 0; i < r.length; i++){
             var data = jQuery.parseJSON(r[i].filter);
-            if(data.table == table)
-                code += "<option id = '"+i+"' value = '"+i+"'>"+r[i].name+"</option>";
+            if(data.table == table) {
+                code += "<option class = '"+r[i].id+"' id = '" + i + "' value = '" + i + "'>" + r[i].name + "</option>";
+            }
         }
         code += "</select><br><br><button onClick = 'loadBookmark(\""+table+"\");'>Load</button>&nbsp &nbsp <button onClick = 'deleteBookmark(\""+table+"\");'>Delete</button></p><span style = 'color:green' id = 'modalMessage'></span><hr>";
         new Dialog($('#dialog')).show(table+' Bookmarks', code+saveCode);
@@ -1013,15 +1086,10 @@ function loadBookmark(table){
 }
 function deleteBookmark(table){
     if(confirm("Are you sure you want to delete the selected Bookmark?")) {
-        var ids = $("#bookmark_select_" + table + " :selected").text();
-        $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
-            for(i = 0; i < r.length; i++){
-                if (r[i].name == ids){
-                    ids = r[i].id;
-                }
-            }
-        });
+        var ids = $("#bookmark_select_" + table + " :selected").attr('class');
+
         $.get("${reverse('pepconn_favorite_filter_delete')}", {id: ids}, function (data) {
+
             $("#modalMessage").html("Your filter was deleted.");
         });
     }

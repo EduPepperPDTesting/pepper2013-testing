@@ -157,7 +157,7 @@ class School(models.Model):
     district = models.ForeignKey(District,on_delete=models.PROTECT)
     code = models.CharField(blank=True, max_length=50, db_index=True) 
     name = models.CharField(blank=False, max_length=255, db_index=True) 
-    # district_id = models.CharField(blank=False, max_length=255, db_index=True) 
+    district_id = models.CharField(blank=False, max_length=255, db_index=True)
 
 # todo: Remove functions no use 
 def dictfetchall(cursor):
