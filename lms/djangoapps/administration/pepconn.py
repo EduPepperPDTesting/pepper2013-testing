@@ -1001,7 +1001,7 @@ def registration_send_email(request):
 
     ids=[]
     if request.POST.get('ids'):
-        message = request.POST['customize_email'];
+        message = request.POST.get("custom_email")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()

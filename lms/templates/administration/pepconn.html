@@ -929,19 +929,19 @@ $(document).ready(function(){
        var ids = [];
         $(".user_select_box:checked").each(function(){
             ids.push($(this).attr("value"));
-            alert(ids.length);
+            //alert(ids.length);
         });
         var filter = {'ids' : ids.join()};
         if(!ids.length == 0){
             if(confirm("Send Registration Emails to Selected Users?")){
             var data={
+                'ids' : ids.join(),
                 'customize_email':$("#user_table_custom_email_form .customize_email").val(),
                 'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
                 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
               };
-              data=$.extend(data,filter);
               $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
-                  alert(r.message);
+                  //alert(r.message);
                 if(r.success){
                   self.taskId=r.taskId;
                   self.updateProgress();
