@@ -75,11 +75,12 @@ class TNLInstance:
             data = {'adminid': self.domain.admin_id,
                     'personid': personid,
                     'sectionid': course.section_id,
-                    'gradeid': self.get_grade(percent)}
+                    'gradeid': self.get_grade(percent),
+                    'sectionrosterid': ''}
 
             try:
                 # Need to encrypt the data we send to TNL. Encryption adds a trailing newline, so get rid of it.
-                self.request.do_request(endpoint, 'put', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
+                self.request.do_request(endpoint, 'post', self.encryptor.encrypt(json.dumps(data)).rstrip("\n"))
                 # Store the completion locally for tracking, with the date.
                 track = TNLCompletionTrack(user=user,
                                            course=course,
