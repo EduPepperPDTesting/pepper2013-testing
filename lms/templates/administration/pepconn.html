@@ -637,6 +637,21 @@ f.close()
             <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
             <input type ="button" name = "" onclick = "addToCohort()" sytle = "padding-left:10px;" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
         </span>
+        <ul class="list" id = "user_table_custom_email_form">
+          <li>
+            <label>
+              <input style = "display:none" type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+
+            </label>
+          </li>
+          <li class="customize-email" style = "display:list-item">
+            <label style="cursor:normal !important;">
+              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              Customize registration email
+            </label>
+          </li>
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+        </ul>
     </div>
     <div class="cohort_table-section table-section">
         <div class="add-area" onclick = "$('#filterArea3').slideToggle()">
@@ -914,23 +929,27 @@ $(document).ready(function(){
        var ids = [];
         $(".user_select_box:checked").each(function(){
             ids.push($(this).attr("value"));
-            $.get("${reverse('pepconn_registration_send_email_report')}", {id : $(this).attr("value")}, function(r){
-                alert(r.email);
-            });
+            alert(ids.length);
         });
-        if(!ids.length)return alert("Nothing selected to delete.");
-      if(!confirm("Send Registration Emails to Selected Users?")) return;
-      /*$.get("${reverse('pepconn_registration_send_email')}",{ids:ids.join(",")},function(r){
-        r=$.parseJSON(r);
-        if(r.success){
-            alert('Registration Emails Sending.');
-            $(".cohort_select_box:checked").each(function(){
-                var identify = $(this).val();
-                $("#cohort_"+identify).hide();
+        var filter = {'ids' : ids.join()};
+        if(!ids.length == 0){
+            if(confirm("Send Registration Emails to Selected Users?")){
+            var data={
+                'customize_email':$("#user_table_custom_email_form .customize_email").val(),
+                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
+                'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
+              };
+              data=$.extend(data,filter);
+              $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
+                  alert(r.message);
+                if(r.success){
+                  self.taskId=r.taskId;
+                  self.updateProgress();
+                }
               });
-        }else
-        alert(r.error);
-      });*/
+            }
+        }else alert("Select at least one user.");
+
     });
     $("#User_state_select").change(function(){
         var id = $(this).children(":selected").attr("id");
@@ -983,9 +1002,9 @@ $(document).ready(function(){
             }
         });
     });
-    loadUserTable();
     loadDistrictTable();
     loadSchoolTable();
+    loadUserTable();
     loadCohortTable();
 });
 

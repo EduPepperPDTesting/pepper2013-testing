@@ -1001,6 +1001,7 @@ def registration_send_email(request):
 
     ids=[]
     if request.POST.get('ids'):
+        message = request.POST['customize_email'];
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()
@@ -1013,26 +1014,9 @@ def registration_send_email(request):
     task.save()
     
     do_send_registration_email(task, ids, request)
-    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
 
 
-def registration_send_email_report(request):
-    user = User.objects.filter(id=request.POST.get("id"))
-    email_address = user.email
-    use_custom = 'false'
-    if use_custom == 'true':
-        custom_email = request.POST.get("custom_email_002")
-        custom_email_subject = request.POST.get("custom_email_subject")
-        subject = render_from_string(custom_email_subject, props)
-        body = render_from_string(custom_email, props)
-    else:
-        subject = render_to_string('emails/activation_email_subject.txt', props)
-        body = render_to_string('emails/activation_email.txt', props)
-
-    subject = ''.join(subject.splitlines())
-
-    send_html_mail(subject, body, settings.SUPPORT_EMAIL, email_address)
-    return HttpResponse(json.dumps({'success':'true', 'email':email_address}), content_type="application/json")
 
 @postpone
 def do_send_registration_email(task, user_ids, request):

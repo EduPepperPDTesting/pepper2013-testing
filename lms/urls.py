@@ -86,7 +86,6 @@ urlpatterns = (
     url(r'^pepconn/favorite_filter_delete$', 'administration.pepconn.favorite_filter_delete', name="pepconn_favorite_filter_delete"),
 
     url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table', name="pepconn_registration_table"),
-    url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email_report', name="pepconn_registration_send_email_report"),
     url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email', name="pepconn_registration_send_email"),
     url(r'^pepconn/registration/email_progress$', 'administration.pepconn.registration_email_progress', name="pepconn_registration_email_progress"),
     url(r'^pepconn/registration/invite_count/$', 'administration.pepconn.registration_invite_count', name="pepconn_registration_invite_count"),
