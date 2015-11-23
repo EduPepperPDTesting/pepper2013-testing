@@ -95,6 +95,16 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
+    url(r'^pepconn/tables/get_user_count/$', 'administration.pepconn.get_user_count', name="pepconn_get_user_count"),
+    url(r'^pepconn/tables/get_cohort_count/$', 'administration.pepconn.get_cohort_count', name="pepconn_get_cohort_count"),
+    url(r'^pepconn/tables/get_school_count/$', 'administration.pepconn.get_school_count', name="pepconn_get_school_count"),
+    url(r'^pepconn/tables/get_district_count/$', 'administration.pepconn.get_district_count', name="pepconn_get_district_count"),
+
+    url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
+    url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
+    url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
+    url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
+
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
     url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),

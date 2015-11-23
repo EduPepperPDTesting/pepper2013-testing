@@ -392,7 +392,7 @@ f.close()
             <div id = "filterArea">
 
                 <select type = "search" data-column = "2" class = "search" id = "District_state_select">
-                  <option value="" selected class = "select-option">Select State</option>
+                  <option value="" selected class = "select-option" id = "null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
                   <option id = "${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
@@ -419,18 +419,15 @@ f.close()
                 <th></th>
             </tr>
             </thead>
-                <tbody>
-            % for  item in District.objects.all():
-            <tr id = "district_${item.id}" class = "district_${item.code}">
-                <td class = "district_code">${item.code}</td>
-                <td class = "district_name">${item.name}</td>
-                <td class = "district_state_name">${item.state.name}</td>
-                <td><input type="checkbox" name="id" class = "district_select_box" value="${item.id}" /></td>
+                <tbody id = "district_data_tbody">
 
-            </tr>
-            % endfor
                 </tbody>
             </table>
+            <center>
+                <h3 id = "district_load_progress">
+
+                </h3>
+            </center>
         </div>
 
         <span id="district-pager" class="pager">
@@ -463,7 +460,7 @@ f.close()
             <div id = "filterArea2">
                 <select type="search" class="search" data-column="3" id = "School_state_select">
 
-                      <option value="">Select State</option>
+                      <option value="" id = "null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
                       <option id = "${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
@@ -500,28 +497,15 @@ f.close()
                 <th></th>
             </tr>
             </thead>
-                <tbody>
-            % for  item in School.objects.all():
-            <tr id = "school_${item.id}">
-              <td class = "school_code">${item.code}</td>
-              <td class = "school_name">${item.name}
-              <%
-                try:
-                    district_state = item.district.state.name
-                    district_name = item.district.name
-                except:
-                    district_state = ""
-                    district_name = ""
-              %>
-              </td>
-              <td class = "school_district_id" id = "school_${item.id}_district">${district_name}</td>
-              <td class = "school_state">${district_state}</td>
-              <td><input type="checkbox" class = "school_select_box" name="id" value="${item.id}"/></td>
+                <tbody id = "school_data_tbody">
 
-            </tr>
-            % endfor
                 </tbody>
             </table>
+            <center>
+                <h3 id = "school_load_progress">
+
+                </h3>
+            </center>
         </div>
 
         <span id="school-pager" class="pager">
@@ -559,7 +543,7 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search" data-column="4" id = "User_district_select">
-                      <option value="" id = "null_case">Select District</option>
+                      <option value="" id = "-1" name = "null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
                       <option id = "${item.state.id}" value="${item.name}" class = "${item.id}">${item.name}</option>
                       %endfor
@@ -616,41 +600,15 @@ f.close()
                 <th></th>
             </tr>
             </thead>
-                <tbody>
-            % for item in UserProfile.objects.all():
-            <tr id = "user_${item.user.id}">
-              <td class = "user_id_select">${item.user.id} </td>
-              <td class = "user_lname">${item.user.last_name}</a></td>
-              <td class = "user_fname">${item.user.first_name}</td>
-                <%
-                try:
-                    user_school = item.school.name
-                except:
-                    user_school = ""
-                try:
-                    user_district = item.district.name
-                    user_district_state = item.district.state.name
-                except:
-                    user_district = ""
-                    user_district_state = ""
-                try:
-                    user_cohort = item.cohort.code
-                except:
-                    user_cohort = ""
-                %>
-              <td class = "user_school">${user_school}</td>
-              <td class = "user_district">${user_district}</td>
-              <td class = "user_cohort">${user_cohort}</td>
-              <td class = "user_state">${user_district_state}</td>
-              <td class = "user_email">${item.user.email}</td>
-              <td class = "user_registration">${item.subscription_status}</td>
-              <td class = "user_enrollment_status">${item.user.date_joined}</td>
-              <td><input class = "user_select_box" type="checkbox" name="id" value="${item.user.id}"/></td>
+                <tbody id = "user_data_tbody">
 
-            </tr>
-            % endfor
                 </tbody>
             </table>
+            <center>
+                <h3 id = "user_load_progress">
+
+                </h3>
+            </center>
         </div>
 
         <span id="user-pager" class="pager">
@@ -722,26 +680,15 @@ f.close()
                 <th style = "display:none"></th>
             </tr>
             </thead>
-                <tbody>
-            % for  item in Cohort.objects.all():
-            <tr id = "cohort_${item.id}">
-                <td class = "cohort_id">${item.code}</td>
-                <td class = "cohort_liscense">${item.licences}</td>
-                <td class = "cohort_term">${item.term_months}</td>
-                <td class = "cohort_start">${'{d:%Y-%m-%d}'.format(d=item.start_date)}</td>
-                <td style = "display:none;">${item.district_id}</td>
-                <%
-                    try:
-                        district_state = item.district.state.id
-                    except:
-                        district_state = "dne"
-                %>
-                <td style = "display:none">${district_state}</td>
-                <td><input class = "cohort_select_box" type="checkbox" name="id" value="${item.id}" /></td>
-            </tr>
-            % endfor
+                <tbody id = "cohort_data_tbody">
+
                 </tbody>
             </table>
+            <center>
+                <h3 id = "cohort_load_progress">
+
+                </h3>
+            </center>
         </div>
         <span id="cohort-pager" class="pager">
           <form>
@@ -785,7 +732,6 @@ $("#singleDistrictImportForm").submit(function(){
     var flds = ["id", "name", "state","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
-                alert("District creation submitted. Refresh the page to see results in the reports.");
              r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
@@ -803,7 +749,6 @@ $("#singleSchoolImportForm").submit(function(){
     var flds = ["name", "id", "state", "district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
-                alert("School creation submitted. Refresh the page to see results in the reports.");
              r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
@@ -999,11 +944,10 @@ $(document).ready(function(){
                 $(this).css("display", "");
             }
         });
-
     });
-    $("#User_district_select").change(function(){
-        var id = $(this).children(":selected").attr("class");
-        $("#User_school_select > option").each(function() {
+    $("#School_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#School_district_select > option").each(function() {
             if($(this).attr("id") != id){
                 $(this).css("display", "none");
             }else{
@@ -1013,9 +957,110 @@ $(document).ready(function(){
                 $(this).css("display", "");
             }
         });
-
     });
+    $("#Cohort_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#Cohort_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#User_district_select").change(function(){
+        var id = $(this).children(":selected").attr("class");
+        var name = $(this).children(":selected").attr("name");
+        $("#User_school_select > option").each(function() {
+            $(this).css("display", "");
+            if(name != "null_case") {
+                if ($(this).attr("id") != id) {
+                    $(this).css("display", "none");
+                }
+            }
+        });
+    });
+    loadUserTable();
+    loadDistrictTable();
+    loadSchoolTable();
+    loadCohortTable();
 });
+
+function loadUserTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_user_count')}", {}, function(r){
+        size = r.count;
+        $("#user_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_user_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#user_data_tbody").append(code);
+                $("#user_load_progress").text("Load Progress: "+$("#user_data_tbody").children('tr').length+"/"+(size));
+                $("#user_table_init").trigger("update");
+            });
+        }
+    });
+}
+
+function loadDistrictTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_district_count')}", {}, function(r){
+        size = r.count;
+        $("#district_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_district_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#district_data_tbody").append(code);
+                $("#district_load_progress").text("Load Progress: "+$("#district_data_tbody").children('tr').length+"/"+(size));
+                $("#district_table_init").trigger("update");
+            });
+        }
+    });
+}
+function loadSchoolTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_school_count')}", {}, function(r){
+        size = r.count;
+        $("#school_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_school_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#school_data_tbody").append(code);
+                $("#school_load_progress").text("Load Progress: "+$("#school_data_tbody").children('tr').length+"/"+(size));
+                $("#school_table_init").trigger("update");
+            });
+        }
+    });
+}
+
+function loadCohortTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_cohort_count')}", {}, function(r){
+        size = r.count;
+
+        $("#cohort_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_cohort_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#cohort_data_tbody").append(code);
+                $("#cohort_load_progress").text("Load Progress: "+$("#cohort_data_tbody").children('tr').length+"/"+(size));
+                $("#cohort_table_init").trigger("update");
+            });
+        }
+    });
+}
+
 function addToCohort(){
     var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);
