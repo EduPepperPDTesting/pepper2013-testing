@@ -558,7 +558,7 @@ f.close()
                 <select type="search" class="search" data-column="3" id = "User_school_select">
                       <option value="" id = "null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
-                      <option id = "${item.district_id}" value="${item.name}">${item.name}</option>
+                      <option id = "${item.district_id}" value = '${item.name}' class = "">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search" data-column="8" id = "User_registration_select">
