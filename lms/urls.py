@@ -10,24 +10,7 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8
-
-####### Ancestor
-    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
-    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
-    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
-    
-    url(r'^genericsso/$', 'sso.views.genericsso'),
-    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
-    
-    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
-    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
-    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
-
-    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
-
-    (r'^saml2/', include('djangosaml2.urls')),
-    (r'^test/', 'djangosaml2.views.echo_attributes'),
+    '',  # nopep8  
     
 ####### Ancestor
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
@@ -52,8 +35,6 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
-
-    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
 
