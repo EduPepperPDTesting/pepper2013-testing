@@ -78,28 +78,17 @@ def url_class(tab):
           <!--20151124 use new parameter "hide_discussions" to judge whether show "Discussion" in course navigation-->
           <!--begin-->
           <li>
-            % if tab.name!='Discussion':
-              <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
-            % else:
-              % if not course.hide_discussions:
-                <a href="${tab.link | h}" class="${url_class(tab.is_active)}">
-              % endif
-            % endif
-            % if tab.name=='Discussion':
-              % if not course.hide_discussions:
-                ${tab.name | h}
-              % endif
-            % else:
+            % if tab.name!='Discussion' or tab.name=='Discussion' and not course.hide_discussions:
+              <a href="${tab.link | h}" class="${url_class(tab)}">
               ${tab.name | h}
-            % endif
-            <!--end-->
-            % if tab.is_active == True:
-              <span class="sr">, current location</span> 
+              % if tab.is_active == True:
+                  <span class="sr">, current location</span> 
+              %endif
+              % if tab.has_img == True:
+                  <img src="${tab.img}"/> 
+              %endif
+              </a>
             %endif
-            % if tab.has_img == True:
-              <img src="${tab.img}"/> 
-            %endif
-            </a>
           </li>
       %else:
         %if tab.name=='My Course Portfolio':
