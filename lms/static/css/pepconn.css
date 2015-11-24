@@ -104,6 +104,7 @@ label {
 
         .custom-email, .customize-email {
             display: none;
+            padding-top:50px;
         }
 
         .variable-key {

@@ -123,15 +123,20 @@ f.close()
                             <input name="name" value="" chkmsg="School Name cant't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label">State:<br/>
-                            <select id="state" name="state_id" autocomplete="off">
-                          <option value=""></option>
+                            <select id="state_single" name="state_id" autocomplete="off">
+                          <option value="" id = "null_case"></option>
                           %for item in State.objects.all().order_by('name'):
-                          <option value="${item.id}">${item.name}</option>
+                            <option id = "${item.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
-                                <input name="district_id" value="" chkmsg="." chktype="number" type="">
+                            <select id="district_id_single" name="district_id" autocomplete="off">
+                              <option id = "null_case" value="null_case"></option>
+                                  %for item in District.objects.all().order_by('name'):
+                                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                                  %endfor
+                            </select>
                         </label><br/>
                     </div>
                     <div style="padding:10px 5px">
@@ -469,7 +474,7 @@ f.close()
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                 </select>
 
@@ -481,6 +486,7 @@ f.close()
                 <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_district_two').toggle();"></input><label><i>District ID</i></label><br>
                 <input type = "checkbox" checked onchange = "$('.school_state').toggle();"></input><label><i>State</i></label><br>
                 </div>
 
@@ -493,6 +499,7 @@ f.close()
               <th class = "school_code">School Code</th>
               <th class = "school_name">School Name</th>
               <th class = "school_district_id">District</th>
+                <th class = "school_district_two">District ID</th>
                 <th class = "school_state">State</th>
                 <th></th>
             </tr>
@@ -645,12 +652,12 @@ f.close()
             </label>
           </li>
           <li class="customize-email" style = "display:list-item">
-            <label style="cursor:normal !important;">
-              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+            <label style="cursor:normal !important; float:right;">
+              <input  class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
           </li>
-          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'"/>
         </ul>
     </div>
     <div class="cohort_table-section table-section">
@@ -761,7 +768,7 @@ $("#singleDistrictImportForm").submit(function(){
 
 
 $("#singleSchoolImportForm").submit(function(){
-    var flds = ["name", "id", "state", "district_id","csrfmiddlewaretoken"];
+    var flds = ["name", "id", "state_id", "district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
              r=$.parseJSON(r)
@@ -959,7 +966,7 @@ $(document).ready(function(){
             }else{
                 $(this).css("display", "");
             }
-            if(id == "null_case"){
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
                 $(this).css("display", "");
             }
         });
@@ -972,7 +979,7 @@ $(document).ready(function(){
             }else{
                 $(this).css("display", "");
             }
-            if(id == "null_case"){
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
                 $(this).css("display", "");
             }
         });
@@ -985,7 +992,7 @@ $(document).ready(function(){
             }else{
                 $(this).css("display", "");
             }
-            if(id == "null_case"){
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
                 $(this).css("display", "");
             }
         });
@@ -995,10 +1002,24 @@ $(document).ready(function(){
         var name = $(this).children(":selected").attr("name");
         $("#User_school_select > option").each(function() {
             $(this).css("display", "");
-            if(name != "null_case") {
+            if(name != "null_case" || $(this).attr("id") == "null_case") {
                 if ($(this).attr("id") != id) {
                     $(this).css("display", "none");
                 }
+            }
+        });
+    });
+    $("#state_single").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#district_id_single > option").each(function() {
+           // alert("result: " + $(this).attr("id"));
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
             }
         });
     });

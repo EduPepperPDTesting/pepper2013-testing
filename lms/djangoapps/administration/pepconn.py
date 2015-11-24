@@ -217,10 +217,12 @@ def get_school_rows(request):
         try:
             district_state = item.district.state.name
             district_name = item.district.name
+            district_id = item.district_id
         except:
             district_state = ""
             district_name = ""
         code += "<td class = 'school_district_id'>" + str(district_name) + "</td>"
+        code += "<td class = 'school_district_two'>" + str(district_id) + "</td>"
         code += "<td class = 'school_state'>" + str(district_state) + "</td>"
         code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
 
@@ -542,7 +544,7 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district_id = request.POST['district_id']
+        school.district = int(request.POST['district_id'])
         school.save()
     except Exception as e:
         db.transaction.rollback()
@@ -1055,7 +1057,7 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
 
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+            send_html_mail(subject, body, [user.email], settings.SUPPORT_EMAIL)
 
         except Exception as e:
             db.transaction.rollback()
