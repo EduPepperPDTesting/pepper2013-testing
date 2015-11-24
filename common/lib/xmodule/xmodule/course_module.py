@@ -220,6 +220,10 @@ class CourseFields(object):
     is_new = Boolean(help="Whether this course should be flagged as new", scope=Scope.settings)
     no_grade = Boolean(help="True if this course isn't graded", default=False, scope=Scope.settings)
     disable_progress_graph = Boolean(help="True if this course shouldn't display the progress graph", default=False, scope=Scope.settings)
+    #20151124 add new parameter in "Advanced Settings" of cms
+    #begin
+    hide_discussions = Boolean(help="True if this course shouldn't display the discussion", default=False, scope=Scope.settings)
+    #end
     pdf_textbooks = List(help="List of dictionaries containing pdf_textbook configuration", scope=Scope.settings)
     html_textbooks = List(help="List of dictionaries containing html_textbook configuration", scope=Scope.settings)
     remote_gradebook = Dict(scope=Scope.settings)
