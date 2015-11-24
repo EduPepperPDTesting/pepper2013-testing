@@ -10,7 +10,24 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8  
+    '',  # nopep8
+
+####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+    
+    url(r'^genericsso/$', 'sso.views.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
+    
+    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
+    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
+    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
+
+    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
+
+    (r'^saml2/', include('djangosaml2.urls')),
+    (r'^test/', 'djangosaml2.views.echo_attributes'),
     
 ####### Ancestor
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
@@ -35,13 +52,30 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
-    
+
+    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
+
+    url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
     url(r'^pepconn/import_user/tasks$', 'administration.pepconn.import_user_tasks', name="pepconn_import_user_tasks"),
     url(r'^pepconn/tasks/close$', 'administration.pepconn.task_close', name="pepconn_task_close"),
-    
+
+    url(r'^pepconn/cohort/submit/$', 'administration.pepconn.cohort_submit', name="pepconn_cohort_submit"),
+    url(r'^pepconn/import_district/single_submit/$', 'administration.pepconn.single_district_submit', name="pepconn_single_district_submit"),
+    url(r'^pepconn/import_school/single_submit/$', 'administration.pepconn.single_school_submit', name="pepconn_single_school_submit"),
+    url(r'^pepconn/import_user/single_submit/$', 'administration.pepconn.single_user_submit', name="pepconn_single_user_submit"),
+
+    url(r'^pepconn/import_district/submit/$', 'administration.pepconn.import_district_submit', name="pepconn_import_district_submit"),
+    url(r'^pepconn/import_district/progress/$', 'administration.pepconn.import_district_progress', name="pepconn_import_district_progress"),
+    url(r'^pepconn/import_district/tasks/$', 'administration.pepconn.import_district_tasks', name="pepconn_import_district_tasks"),
+
+    url(r'^pepconn/import_school/submit/$', 'administration.pepconn.import_school_submit', name="pepconn_import_school_submit"),
+    url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
+    url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
+
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),
     url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools', name="pepconn_drop_schools"),
@@ -59,6 +93,16 @@ urlpatterns = (
     url(r'^pepconn/registration/download_csv/$', 'administration.pepconn.registration_download_csv', name="pepconn_registration_download_csv"),
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
+
+    url(r'^pepconn/tables/get_user_count/$', 'administration.pepconn.get_user_count', name="pepconn_get_user_count"),
+    url(r'^pepconn/tables/get_cohort_count/$', 'administration.pepconn.get_cohort_count', name="pepconn_get_cohort_count"),
+    url(r'^pepconn/tables/get_school_count/$', 'administration.pepconn.get_school_count', name="pepconn_get_school_count"),
+    url(r'^pepconn/tables/get_district_count/$', 'administration.pepconn.get_district_count', name="pepconn_get_district_count"),
+
+    url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
+    url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
+    url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
+    url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
 
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
@@ -104,7 +148,7 @@ urlpatterns = (
     url(r'^reg_kits/cohort/form/(?P<cohort_id>\d+)$', 'reg_kits.views.cohort_form', name="cohort_form"),
     url(r'^reg_kits/cohort/delete/$', 'reg_kits.views.cohort_delete', name="cohort_delete"),
     url(r'^reg_kits/cohort/submit/$', 'reg_kits.views.cohort_submit', name="cohort_submit"),
- 
+
     url(r'^reg_kits/school/$', 'reg_kits.views.school', name="school"),
     url(r'^reg_kits/school/form/$', 'reg_kits.views.school_form', name="school_form"),
     url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form', name="school_form"),

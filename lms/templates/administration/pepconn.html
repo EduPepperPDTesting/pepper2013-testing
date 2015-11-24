@@ -7,7 +7,8 @@ from courseware.access import has_access
 from certificates.models import CertificateStatuses
 from xmodule.modulestore import MONGO_MODULESTORE_TYPE
 from xmodule.modulestore.django import modulestore
-from student.models import State,District,School
+import json
+from student.models import State,District,School,Cohort,User,UserProfile
 %>
 
 <%
@@ -28,17 +29,127 @@ f.close()
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
 
 <!-- User Data Import -->
 <div class = "data_import_top">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
-      User Data Import <div class="icon"></div>
+      Data Import <div class="icon"></div>
     </div>
-    <div class="expand_div">
+
+      <div class="expand_div">
+        <a href="#" onclick = "toggle('district')" class="district-button"><div class="section-tab district">Districts</div></a>
+        <a href="#" onclick = "toggle('school')" class="school-button"><div class="section-tab school">Schools</div></a>
+        <a href="#" onclick = "toggle('user')" class="user-button"><div class="section-tab user">Users</div></a>
+        <a href="#" onclick = "toggle('cohort')" class="cohort-button"><div class="section-tab cohort">Cohorts</div></a>
+        <div class="district-section import-section">
+            <form method="" id="districtDataImportForm" action="">
+
+                <div style="padding: 1em 7px 7px 7px;">
+                    CSV File: <input name="file" value="" type="file">
+
+                    <p style="margin-top:1em;"><label style="font-style:normal;color:#555;">* CSV file should
+                        contain the following columns (District ID, District Name, State).</label></p>
+
+                </div>
+                <div style="padding:10px 5px">
+                    <input class="form_submit" name="" value="Import Districts" type="submit">
+                    <div class="add-area" onclick = "$('#singleDistrictForm').slideToggle()">Add Single <span>[+]</span></div>
+                </div>
+            </form>
+            <div id = "singleDistrictForm" style = "display:none">
+                <form method="post" id="singleDistrictImportForm" action="${reverse('pepconn_single_district_submit')}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+
+                    <div style="padding: 1em 7px 7px 7px;">
+                        <label class="label required">District ID:<br/>
+                            <input name="id" value="" chkmsg="District ID cant't be empty." chktype="Require" type="">
+                        </label><br/>
+                        <label class="label">State:<br/>
+                            <select id="state" name="state_id" autocomplete="off">
+                          <option value=""></option>
+                          %for item in State.objects.all().order_by('name'):
+                          <option value="${item.id}">${item.name}</option>
+                          %endfor
+                        </select>
+                        </label><br/>
+                        <label class="label required">District Name:<br/>
+                                <input name="name" value="" chkmsg="." chktype="Require" type="">
+                        </label><br/>
+                    </div>
+                    <div style="padding:10px 5px">
+                        <input class="form_submit" name="" value="Create District" type="submit">
+                    </div>
+                </form>
+            </div>
+        </div><span style = "display:none" id = "cohort_select"><select class = "cohort_selector"><option value=""></option>
+        %for item in Cohort.objects.all().order_by('code'):
+            <option value="${item.id}">${item.code}</option>
+        %endfor
+      </select></span>
+        <div class="school-section import-section">
+            <form method="" id="schoolDataImportForm" action="">
+                <div style="padding: 1em 7px 7px 7px;">
+                    CSV File: <input name="file" value="" type="file">
+
+                    <p style="margin-top:1em;"><label style="font-style:normal;color:#555;">* CSV file should
+                        contain the following column (School Name, School Code, State, District ID).</label></p>
+
+                </div>
+                <div style="padding:10px 5px">
+                    <input class="form_submit" name="" value="Import Schools" type="submit">
+                     <div class="add-area" onclick = "$('#singleSchoolForm').slideToggle()">Add Single <span>[+]</span></div>
+                </div>
+
+            </form>
+            <div id = "singleSchoolForm" style = "display:none">
+                <form method="post" id="singleSchoolImportForm" action="${reverse('pepconn_single_school_submit')}">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+
+                    <div style="padding: 1em 7px 7px 7px;">
+                        <label class="label required">School Code:<br/>
+                            <input name="id" value="" chkmsg="School Code cant't be empty." chktype="Require" type="">
+                        </label><br/>
+                        <label class="label required">School Name:<br/>
+                            <input name="name" value="" chkmsg="School Name cant't be empty." chktype="Require" type="">
+                        </label><br/>
+                        <label class="label">State:<br/>
+                            <select id="state_single" name="state_id" autocomplete="off">
+                          <option value="" id = "null_case"></option>
+                          %for item in State.objects.all().order_by('name'):
+                            <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                          %endfor
+                        </select>
+                        </label><br/>
+                        <label class="label required">District ID:<br/>
+                            <select id="district_id_single" name="district_id" autocomplete="off">
+                              <option id = "null_case" value="null_case"></option>
+                                  %for item in District.objects.all().order_by('name'):
+                                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                                  %endfor
+                            </select>
+                        </label><br/>
+                    </div>
+                    <div style="padding:10px 5px">
+                        <input class="form_submit" name="" value="Create School" type="submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+    <div class="user-section import-section">
       <form method="" id="userDataImportForm" action="">
-        <!-- 
+        <!--
         <div class="control filter">
           <textarea class="setting">
             {
@@ -56,7 +167,7 @@ f.close()
                 }
             }
             }
-          </textarea>       
+          </textarea>
           <span class="body" style="display:inline-block;"></span>
         </div>
          -->
@@ -85,13 +196,102 @@ f.close()
         </div>
         <div style="padding:10px 5px">
           <input class="form_submit" type="submit" name="" value="Import Users" />
+        <div class="add-area" onclick = "$('#singleUserForm').slideToggle()">Add Single <span>[+]</span></div>
+      </div>
+    </form>
+        <div id = "singleUserForm" style = "display:none">
+            <form method="post" id="singleUserImportForm" action="${reverse('pepconn_single_user_submit')}">
+                <ul class="list">
+                  <li>
+                    <label>
+                      <input type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+                      Send registration emails to imported users
+                    </label>
+                  </li>
+                  <li class="customize-email">
+                    <label style="cursor:normal !important;">
+                      <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+                      Customize registration email
+                    </label>
+                  </li>
+                  <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
+                </ul>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+
+                <div style="padding: 1em 7px 7px 7px;">
+                    <label class="label">State:<br/>
+                        <select id="state" name="state" autocomplete="off">
+                      <option value=""></option>
+                      %for item in State.objects.all().order_by('name'):
+                      <option value="${item.id}">${item.name}</option>
+                      %endfor
+                    </select>
+                    </label><br/>
+                    <label class="label required">District:<br/>
+                        <select id="district_id" name="district" autocomplete="off">
+                          <option value=""></option>
+                          %for item in District.objects.all().order_by('name'):
+                          <option value="${item.id}">${item.name}</option>
+                          %endfor
+                        </select>
+                    </label><br/>
+                    <label class="label required">E-Mail:<br/>
+                        <input name="email" value="" chkmsg="E-Mail cant't be empty." chktype="Require" type="">
+                    </label><br/>
+                </div>
+                <div style="padding:10px 5px">
+                    <input class="form_submit" name="" value="Create User" type="submit">
+                </div>
+            </form>
         </div>
-      </form>
     </div>
+    <div class="cohort-section import-section">
+        <form method="post" id="cohortImportForm" action="${reverse('pepconn_cohort_submit')}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+            <input type="hidden" name="id" value="" />
+            <div style="padding: 1em 7px 7px 7px;">
+                <label class="label required">Cohort ID:<br/>
+                    <input name="code" value="" chkmsg="Cohort ID cant't be empty." chktype="Require" type="">
+                </label><br/>
+                <label class="label">State:<br/>
+                    <select id="state_id" name="state_id" autocomplete="off">
+                  <option value=""></option>
+                  %for item in State.objects.all().order_by('name'):
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                </select>
+                </label><br/>
+                <label class="label required">District:<br/>
+                    <select id="district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
+                      <option value=""></option>
+                      %for item in District.objects.all():
+                      <option value="${item.id}">${item.code}</option>
+                      %endfor
+                    </select>
+                </label><br/>
+                <label class="label required">Licences:<br/>
+                        <input name="licences" value="" chkmsg="Licences must be a number." chktype="Number" type="">
+                </label><br/>
+                <label class="label required">Term Months:<br/>
+                        <input name="term_months" value="12" chkmsg="Term Months must be a number." chktype="Number" type="">
+                </label><br/>
+                <label class="label required">Start Date:<br/>
+                        <input id="start_date" name="start_date" value="" chkmsg="Start Date is invalid." chktype="Date">
+                        <span style="color:#999;">Format: YYYY-MM-DD.</span>
+                </label>
+            </div>
+            <div style="padding:10px 5px">
+                <input class="form_submit" name="" value="Create Cohort" type="submit">
+            </div>
+        </form>
+    </div>
+
   </div>
 </div>
 <div class = "data_import_bottom">
-  <div class="main, data_import_content">
+
+  <div style = "display:none" class="main, data_import_content">
+
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
     </div>
@@ -122,17 +322,17 @@ f.close()
           <label style="cursor:normal !important;">
             <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
             Customize registration email
-          </label>            
+          </label>
         </div>
         <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'" />
-        <div class="control table" id="tblUserRegistration">      
+        <div class="control table" id="tblUserRegistration">
           <div class="" style="padding:5px;">
-            <!--<a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
+            <a href="#" id="inviteEmailSender" onclick="userRegistration.sendRegistrationEmails('filter')">
               Send registration email to: <span class="count"></span> users(haven't invited).
-            </a>-->
-            <div style="text-align: right; padding-right: 4px;"><label style="font-weight:bold;font-style:normal">
+            </a>
+            <label style="float:right;font-weight:bold;font-style:normal">
               Select All <input name="check_all" class="check_all" type="checkbox" autocomplete="off" onclick="$('#tblUserRegistration')[0].control.checkAll(this.checked)"/>
-            </label></div>
+            </label>
           </div>
           <span class="body"></span>
           <div class="footer">
@@ -143,7 +343,7 @@ f.close()
               <option value="Imported">Imported</option>
               <option value="Unregistered">Unregistered</option>
               <option value="Registered">Registered</option>
-              <option value="Inactive">Inactive</optio>              
+              <option value="Inactive">Inactive</optio>
             </select>
             <input type="button" id="btnDeleteUsers" name="" value="Delete" class="small"/>
             <span class="download">
@@ -167,7 +367,7 @@ f.close()
             "data":"${reverse('pepconn_registration_table')}"
             },
             "paging":{
-            "size":20,
+            "size":10,
             "sizes":[10,20,50,100,200]
             }
             }
@@ -177,6 +377,364 @@ f.close()
           <input type="button" name="" value="SEND REGISTRATION EMAILS" onclick="userRegistration.sendRegistrationEmails('ids')"/>
         </div>
       </form>
+    </div>
+  </div>
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      Management & Reporting <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+          <a href="#" onclick = "toggle2('district_table'); return false;" class="district-button"><div class="table-tab district district_table">Districts</div></a>
+          <a href="#" onclick = "toggle2('school_table'); return false;" class="school-button"><div class="table-tab school school_table">Schools</div></a>
+          <a href="#" onclick = "toggle2('user_table'); return false;" class="user-button"><div class="table-tab user user_table">Users</div></a>
+          <a href="#" onclick = "toggle2('cohort_table'); return false;" class="cohort-button"><div class="table-tab cohort cohort_table">Cohorts</div></a><br>
+
+    <div class="district_table-section table-section">
+        <div class="add-area" onclick = "$('#filterArea').slideToggle()">
+            FILTER
+        </div>
+        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id = "filterArea">
+
+                <select type = "search" data-column = "2" class = "search" id = "District_state_select">
+                  <option value="" selected class = "select-option" id = "null_case">Select State</option>
+                  %for item in State.objects.all().order_by('name'):
+                  <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                  %endfor
+                </select>
+
+                <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
+                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <span onclick = "$('#district-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
+                <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div  class = "select-columns" id="district-select"><br>
+                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label><br>
+                </div>
+                </div>
+        </div>
+        <div>
+            <table class="tablesorter-blue" id="district_table_init">
+                <thead>
+            <tr>
+                <th class = "district_code">District Id</th>
+                <th class = "district_name">District Name</th>
+                <th class = "district_state_name">State</th>
+                <th></th>
+            </tr>
+            </thead>
+                <tbody id = "district_data_tbody">
+
+                </tbody>
+            </table>
+            <center>
+                <h3 id = "district_load_progress">
+
+                </h3>
+            </center>
+        </div>
+
+        <span id="district-pager" class="pager">
+          <form>
+            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+            <select class="pagesize">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+            </select>
+          </form>
+        </span><hr>
+        <span class="download">
+          Download Districts:
+          <input type="button" name="" value="Download CSV" class="small" id="downloadDistrictCSV"/>
+          <input type="button" name="" value="Download Excel" class="small" id="downloadDistrictXLS"/>
+          <input type="button" value = "Delete Selected Districts" class ="small" style = "float:right" id = "delete_selected_districts"/>
+        </span>
+    </div>
+    <div class="school_table-section table-section">
+        <div class="add-area" onclick = "$('#filterArea2').slideToggle()">
+            FILTER
+        </div>
+        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id = "filterArea2">
+                <select type="search" class="search" data-column="3" id = "School_state_select">
+
+                      <option value="" id = "null_case">Select State</option>
+                      %for item in State.objects.all().order_by("name"):
+                      <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                      %endfor
+                </select>
+                <select type="search" class="search" data-column="2" id = "School_district_select">
+
+                      <option value="">Select District</option>
+                      %for item in District.objects.all():
+                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                      %endfor
+                </select>
+
+                <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
+                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <span onclick = "$('#school-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
+                <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div id = "school-select" class = "select-columns"><br>
+                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_district_two').toggle();"></input><label><i>District ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.school_state').toggle();"></input><label><i>State</i></label><br>
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <table class="tablesorter-blue" id="school_table_init">
+                <thead>
+            <tr>
+              <th class = "school_code">School Code</th>
+              <th class = "school_name">School Name</th>
+              <th class = "school_district_id">District</th>
+                <th class = "school_district_two">District ID</th>
+                <th class = "school_state">State</th>
+                <th></th>
+            </tr>
+            </thead>
+                <tbody id = "school_data_tbody">
+
+                </tbody>
+            </table>
+            <center>
+                <h3 id = "school_load_progress">
+
+                </h3>
+            </center>
+        </div>
+
+        <span id="school-pager" class="pager">
+          <form>
+            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+            <select class="pagesize">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+            </select>
+          </form>
+        </span><hr>
+        <span class="download">
+          Download Districts:
+          <input type="button" name="" value="Download CSV" class="small" id="downloadSchoolCSV"/>
+          <input type="button" name="" value="Download Excel" class="small" id="downloadSchoolXLS"/>
+          <input type="button" value = "Delete Selected Schools" class ="small" style = "float:right" id = "delete_selected_schools"/>
+        </span>
+    </div>
+    <div class="user_table-section table-section">
+        <div class="add-area" onclick = "$('#filterArea2').slideToggle()">
+            FILTER
+        </div>
+        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id = "filterArea2">
+                <select type = "search" class="search" data-column="6" id = "User_state_select">
+                    <option value="" id = "null_case">Select State</option>
+                    %for item in State.objects.all().order_by('name'):
+                        <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                    %endfor
+                </select>
+                <select type="search" class="search" data-column="4" id = "User_district_select">
+                      <option value="" id = "-1" name = "null_case">Select District</option>
+                      %for item in District.objects.all().order_by('name'):
+                      <option id = "${item.state.id}" value="${item.name}" class = "${item.id}">${item.name}</option>
+                      %endfor
+                </select>
+                <select type="search" class="search" data-column="3" id = "User_school_select">
+                      <option value="" id = "null_case">Select School</option>
+                      %for item in School.objects.all().order_by('name'):
+                      <option id = "${item.district_id}" value = '${item.name}' class = "">${item.name}</option>
+                      %endfor
+                </select>
+                <select type="search" class="search" data-column="8" id = "User_registration_select">
+                      <option value="" id = "null_case">Select Registration Status</option>
+                    <option value = "Registered">Registered</option>
+                    <option value = "Unregistered">Unregistered</option>
+                    <option value = "Imported">Imported</option>
+                    <option value = "Inactive">Inactive</option>
+                </select>
+                <input placeholder = "Search by Last Name" class="search" type="search" data-column="1" id = "User_search_last">
+                <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
+                <input placeholder = "Search by Cohort" class="search" type="search" data-column="5" id = "User_search_cohort">
+                <input placeholder = "Search by Email" class="search" type="search" data-column="7" id = "User_search_email">
+                <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
+                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <span onclick = "$('#user-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
+                <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div class = "select-columns" id = "user-select"><br>
+                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>State</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>School</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_district').toggle();"></input><label><i>District</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                </div>
+            </div>
+        </div>
+        <div>
+            <table class="tablesorter-blue" id="user_table_init">
+                <thead>
+            <tr>
+              <th class = "user_id_select">ID</th>
+              <th class = "user_lname">Last Name</th>
+              <th class = "user_fname">First Name</th>
+              <th class = "user_school">School</th>
+              <th class = "user_district">District</th>
+              <th class = "user_cohort">Cohort</th>
+              <th class = "user_state">State</th>
+              <th class = "user_email">E-Mail</th>
+              <th class = "user_registration">Registration Status</th>
+              <th class = "user_enrollment_status">Enrollment Start</th>
+                <th></th>
+            </tr>
+            </thead>
+                <tbody id = "user_data_tbody">
+
+                </tbody>
+            </table>
+            <center>
+                <h3 id = "user_load_progress">
+
+                </h3>
+            </center>
+        </div>
+
+        <span id="user-pager" class="pager">
+          <form>
+            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+            <select class="pagesize">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+            </select>
+          </form>
+        </span><hr>
+        <span class="download">
+          Download Users:
+          <input type="button" name="" value="Download CSV" class="small" id="downloadUserCSV"/>
+          <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
+        </span>
+
+        <span style = "float:right">
+            <input type="button" value = "Delete Selected Users" sytle = "padding-right:10px;" class ="small" id = "delete_selected_user"/>
+            <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
+            <input type ="button" name = "" onclick = "addToCohort()" sytle = "padding-left:10px;" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+        </span>
+        <ul class="list" id = "user_table_custom_email_form">
+          <li>
+            <label>
+              <input style = "display:none" type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+
+            </label>
+          </li>
+          <li class="customize-email" style = "display:list-item">
+            <label style="cursor:normal !important; float:right;">
+              <input  class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              Customize registration email
+            </label>
+          </li>
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'"/>
+        </ul>
+    </div>
+    <div class="cohort_table-section table-section">
+        <div class="add-area" onclick = "$('#filterArea3').slideToggle()">
+            FILTER
+        </div>
+        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id = "filterArea3">
+                <select type = "search" class="search" data-column="5" id = "Cohort_state_select">
+                    <option value="" id = "null_case">Select State</option>
+                    %for item in State.objects.all().order_by('name'):
+                        <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                    %endfor
+                </select>
+                <select type="search" class="search" data-column="4" id = "Cohort_district_select">
+                      <option value="" id = "null_case">Select District</option>
+                      %for item in District.objects.all().order_by('name'):
+                      <option id = "${item.state.id}" value="${item.id}" class = "${item.id}">${item.name}</option>
+                      %endfor
+                </select>
+                <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
+                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <span onclick = "$('#cohort-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
+                <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div id = "cohort-select" class = "select-columns"><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
+                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label><br>
+                </div>
+            </div>
+        </div>
+        <div>
+            <table class="tablesorter-blue" id="cohort_table_init">
+                <thead>
+            <tr>
+                <th class = "cohort_id">Cohort ID</th>
+                <th class = "cohort_liscense">Licences</th>
+                <th class = "cohort_term">Terms Months</th>
+                <th class = "cohort_start">Subscription Start Date</th>
+                <th></th>
+                <th style = "display:none"></th>
+            </tr>
+            </thead>
+                <tbody id = "cohort_data_tbody">
+
+                </tbody>
+            </table>
+            <center>
+                <h3 id = "cohort_load_progress">
+
+                </h3>
+            </center>
+        </div>
+        <span id="cohort-pager" class="pager">
+          <form>
+            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+            <select class="pagesize">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40">40</option>
+            </select>
+          </form>
+        </span><hr>
+        <span class="download">
+          Download Cohorts:
+          <input type="button" name="" value="Download CSV" class="small" id="downloadCohortCSV"/>
+          <input type="button" name="" value="Download Excel" class="small" id="downloadCohortXLS"/>
+          <input type="button" value = "Delete Selected Cohorts" class ="small" style = "float:right" id = "delete_selected_cohort"/>
+        </span>
+    </div><br><br>
+
     </div>
   </div>
 </div>
@@ -191,6 +749,705 @@ f.close()
   </div>
 </div>
 <script type="text/javascript">
+
+$("#singleDistrictImportForm").submit(function(){
+    var flds = ["id", "name", "state","csrfmiddlewaretoken"];
+    var data = getFormData(this,flds);
+    $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
+             r=$.parseJSON(r)
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This district already exists.");
+               }
+           }
+    );
+    return false;
+  });
+
+
+
+$("#singleSchoolImportForm").submit(function(){
+    var flds = ["name", "id", "state_id", "district_id","csrfmiddlewaretoken"];
+    var data = getFormData(this,flds);
+    $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
+             r=$.parseJSON(r)
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This school already exists.");
+               }
+           }
+    );
+    return false;
+  });
+
+
+$("#singleUserImportForm").submit(function(){
+
+    var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
+    var data = getFormData(this,flds);
+    alert(data.district);
+    $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
+
+             r=$.parseJSON(r)
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This user already exists. "+ r.error);
+               }
+           }
+    );
+    return false;
+  });
+
+
+$(document).ready(function(){
+    $(".table-section").hide();
+    $(".district_table-section").show();
+    $("#selectalldistrict").click(function(){
+        if(this.checked){
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#district_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallschool").click(function(){
+        if(this.checked){
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#school_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectalluser").click(function(){
+        if(this.checked){
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#user_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+    $("#selectallcohort").click(function(){
+        if(this.checked){
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=true;
+            });
+        }else{
+            $("#cohort_table_init input[type=checkbox]").each(function(){
+                this.checked=false;
+            });
+        }
+    });
+
+    $("#delete_selected_districts").click(function(){
+      var ids=[];
+      $(".district_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected districts?")) return;
+      $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Deleted Selected Users.');
+            $(".district_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#district_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_schools").click(function(){
+      var ids=[];
+      $(".school_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected schools?")) return;
+      $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
+        r=$.parseJSON(r);
+        if(r.success){
+            alert('Deleted Selected Schools.');
+            $(".school_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#school_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_user").click(function(){
+      var ids=[];
+      $(".user_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected users?")) return;
+      $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
+        r=$.parseJSON(r);
+
+        if(r.success){
+            alert('Deleted Selected Users.');
+            $(".user_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#user_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#delete_selected_cohort").click(function(){
+      var ids=[];
+      $(".cohort_select_box:checked").each(function(){
+        ids.push(this.value);
+      });
+      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!confirm("Really delete selected cohorts?")) return;
+      $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
+          alert("Delete processed. You may need to refresh the page to see results.");
+        r=$.parseJSON(r);
+
+        if(r.success){
+            alert('Deleted Selected Cohorts.');
+            $(".cohort_select_box:checked").each(function(){
+                var identify = $(this).val();
+                $("#cohort_"+identify).hide();
+              });
+        }else
+        alert(r.error);
+      });
+    });
+    $("#register_selected_user").click(function(){
+       var ids = [];
+        $(".user_select_box:checked").each(function(){
+            ids.push($(this).attr("value"));
+            //alert(ids.length);
+        });
+        var filter = {'ids' : ids.join()};
+        if(!ids.length == 0){
+            if(confirm("Send Registration Emails to Selected Users?")){
+            var data={
+                'ids' : ids.join(),
+                'customize_email':$("#user_table_custom_email_form .customize_email").val(),
+                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
+                'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
+              };
+              $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
+                  //alert(r.message);
+                if(r.success){
+                  self.taskId=r.taskId;
+                  self.updateProgress();
+                }
+              });
+            }
+        }else alert("Select at least one user.");
+
+    });
+    $("#User_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#User_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#School_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#School_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#Cohort_state_select").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#Cohort_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#User_district_select").change(function(){
+        var id = $(this).children(":selected").attr("class");
+        var name = $(this).children(":selected").attr("name");
+        $("#User_school_select > option").each(function() {
+            $(this).css("display", "");
+            if(name != "null_case" || $(this).attr("id") == "null_case") {
+                if ($(this).attr("id") != id) {
+                    $(this).css("display", "none");
+                }
+            }
+        });
+    });
+    $("#state_single").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#district_id_single > option").each(function() {
+           // alert("result: " + $(this).attr("id"));
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    loadDistrictTable();
+    loadSchoolTable();
+    loadUserTable();
+    loadCohortTable();
+});
+
+function loadUserTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_user_count')}", {}, function(r){
+        size = r.count;
+        $("#user_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_user_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#user_data_tbody").append(code);
+                $("#user_load_progress").text("Load Progress: "+$("#user_data_tbody").children('tr').length+"/"+(size));
+                $("#user_table_init").trigger("update");
+            });
+        }
+    });
+}
+
+function loadDistrictTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_district_count')}", {}, function(r){
+        size = r.count;
+        $("#district_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_district_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#district_data_tbody").append(code);
+                $("#district_load_progress").text("Load Progress: "+$("#district_data_tbody").children('tr').length+"/"+(size));
+                $("#district_table_init").trigger("update");
+            });
+        }
+    });
+}
+function loadSchoolTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_school_count')}", {}, function(r){
+        size = r.count;
+        $("#school_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_school_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#school_data_tbody").append(code);
+                $("#school_load_progress").text("Load Progress: "+$("#school_data_tbody").children('tr').length+"/"+(size));
+                $("#school_table_init").trigger("update");
+            });
+        }
+    });
+}
+
+function loadCohortTable(){
+    var size = 0;
+    var code = "";
+    var increase = 122;
+    $.get("${reverse('pepconn_get_cohort_count')}", {}, function(r){
+        size = r.count;
+
+        $("#cohort_load_progress").text("Load Progress: 0/"+(size));
+        for(var i = 0; i <= size; i+=increase){
+            $.get("${reverse('pepconn_get_cohort_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
+                code = r.code;
+                $("#cohort_data_tbody").append(code);
+                $("#cohort_load_progress").text("Load Progress: "+$("#cohort_data_tbody").children('tr').length+"/"+(size));
+                $("#cohort_table_init").trigger("update");
+            });
+        }
+    });
+}
+
+function addToCohort(){
+    var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
+    new Dialog($("#dialog")).show("Select Cohort", code);
+
+
+}
+function submitAddToCohort(){
+    console.log("processing");
+    var ids = [];
+    $("#user_table_init tr").each(function(i, val){
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        $checkedBoxes.each(function(i, box){
+           var $checkbox = $(box);
+
+            $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
+                console.log(r.message);
+                if(r.message = "success"){
+                    $("#cohortAddSuccess").html("Added successfully to Cohort");
+                }else alert(r.message);
+            });
+
+        });
+    });
+
+}
+
+function openBookmark(table){
+    var code = "<p>Select Filter: <select id = 'bookmark_select_"+table+"'>";
+    var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_"+table+"'></input><br><br><button onClick = 'saveBookmark(\""+table+"\");'>Save Bookmark</button></p>";
+    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+        for(i = 0; i < r.length; i++){
+            var data = jQuery.parseJSON(r[i].filter);
+            if(data.table == table) {
+                code += "<option class = '"+r[i].id+"' id = '" + i + "' value = '" + i + "'>" + r[i].name + "</option>";
+            }
+        }
+        code += "</select><br><br><button onClick = 'loadBookmark(\""+table+"\");'>Load</button>&nbsp &nbsp <button onClick = 'deleteBookmark(\""+table+"\");'>Delete</button></p><span style = 'color:green' id = 'modalMessage'></span><hr>";
+        new Dialog($('#dialog')).show(table+' Bookmarks', code+saveCode);
+    });
+
+}
+function saveBookmark(table){
+    var nameData = $("#bookmark_newname_"+table).val();
+    var state = $("#"+table+"_state_select :selected").attr("id");
+    var district = $("#"+table+"_district_select :selected").attr("id");
+    var search = $("#"+table+"_search").val();
+    var first = $("#"+table+"_search_first").val();
+    var last = $("#"+table+"_search_last").val();
+    var email = $("#"+table+"_search_email").val();
+    var filterData = '{"table":"'+table+'", "state":"'+state+'", "district":"'+district+'", "search":"'+search+'", "firstName":"'+first+'", "lastName":"'+last+'", "email":"'+email+'"}';
+    $.get("${reverse('pepconn_favorite_filter_save')}", {name:nameData, filter:filterData}, function(data){
+        $("#modalMessage").html("Your filter was saved!");
+    });
+}
+function loadBookmark(table){
+    var id = $("#bookmark_select_"+table).val();
+    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+        var data = jQuery.parseJSON(r[id].filter);
+        $("#"+table+"_district_select option[id="+data.district+"]").prop("selected", true).change();
+        $("#"+table+"_state_select option[id="+data.state+"]").prop("selected", true).change();
+        $("#"+table+"_search").val(data.search).change();
+        $("#"+table+"_search_first").val(data.firstName).change();
+        $("#"+table+"_search_last").val(data.lastName).change();
+        $("#"+table+"_search_email").val(data.email).change();
+        $("#modalMessage").html("Your filter was loaded!");
+    });
+}
+function deleteBookmark(table){
+    if(confirm("Are you sure you want to delete the selected Bookmark?")) {
+        var ids = $("#bookmark_select_" + table + " :selected").attr('class');
+
+        $.get("${reverse('pepconn_favorite_filter_delete')}", {id: ids}, function (data) {
+
+            $("#modalMessage").html("Your filter was deleted.");
+        });
+    }
+}
+$(function() {
+
+  var pagerOptions = {
+    // target the pager markup - see the HTML block below
+    container: $("#district-pager"),
+    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+    // go to page selector - select dropdown that sets the current page
+    cssGoto: '.gotoPage'
+  };
+  var $table = $('#district_table_init').tablesorter({
+    theme: 'blue',
+    widgets: ["zebra", "filter", "output"],
+    widgetOptions : {
+      // filter_anyMatch replaced! Instead use the filter_external option
+      // Set to use a jQuery selector (or jQuery object) pointing to the
+      // external filter (column specific or any match)
+      filter_external : '.search',
+      // add a default type search to the first name column
+      filter_defaultFilter: { 1 : '~{query}' },
+      // include column filters
+      filter_columnFilters: false,
+      filter_placeholder: { search : 'Search...' },
+      filter_saveFilters : true,
+      filter_reset: '.reset',
+         output_saveFileName  : 'district.csv'
+    }
+  }).tablesorterPager(pagerOptions);
+  $("#downloadDistrictCSV").click(function(){
+    $("#district_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName ="district.csv";
+    $("#district_table_init").trigger('outputTable');
+  });
+  $("#downloadDistrictXLS").click(function(){
+    $("#district_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName ="district.xls";
+    $("#district_table_init").trigger('outputTable');
+  });
+  // make demo search buttons work
+  $('button[data-column]').on('click', function(){
+    var $this = $(this),
+      totalColumns = $table[0].config.columns,
+      col = $this.data('column'), // zero-based index or "all"
+      filter = [];
+
+    // text to add to filter
+    filter[ col === 'all' ? totalColumns : col ] = $this.text();
+    $table.trigger('search', [ filter ]);
+    return false;
+  });
+
+});
+
+
+$(function() {
+
+  var pagerOptions = {
+    // target the pager markup - see the HTML block below
+    container: $("#user-pager"),
+    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+    // go to page selector - select dropdown that sets the current page
+    cssGoto: '.gotoPage'
+  };
+  var $table = $('#user_table_init').tablesorter({
+    theme: 'blue',
+    widgets: ["zebra", "filter", "output"],
+    widgetOptions : {
+      // filter_anyMatch replaced! Instead use the filter_external option
+      // Set to use a jQuery selector (or jQuery object) pointing to the
+      // external filter (column specific or any match)
+      filter_external : '.search',
+      // add a default type search to the first name column
+      filter_defaultFilter: { 1 : '~{query}' },
+      // include column filters
+      filter_columnFilters: false,
+      filter_placeholder: { search : 'Search...' },
+      filter_saveFilters : true,
+      filter_reset: '.reset',
+    }
+  }).tablesorterPager(pagerOptions);
+  $("#downloadUserCSV").click(function(){
+    $("#user_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName ="user.csv";
+    $("#user_table_init").trigger('outputTable');
+  });
+  $("#downloadUserXLS").click(function(){
+    $("#user_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName ="user.xls";
+    $("#user_table_init").trigger('outputTable');
+  });
+  // make demo search buttons work
+  $('button[data-column]').on('click', function(){
+    var $this = $(this),
+      totalColumns = $table[0].config.columns,
+      col = $this.data('column'), // zero-based index or "all"
+      filter = [];
+
+    // text to add to filter
+    filter[ col === 'all' ? totalColumns : col ] = $this.text();
+    $table.trigger('search', [ filter ]);
+    return false;
+  });
+
+});
+
+
+$(function() {
+  var pagerOptions = {
+    // target the pager markup - see the HTML block below
+    container: $("#school-pager"),
+    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+    // go to page selector - select dropdown that sets the current page
+    cssGoto: '.gotoPage'
+  };
+  var $table = $('#school_table_init').tablesorter({
+    theme: 'blue',
+    widgets: ["zebra", "filter", "output"],
+    widgetOptions : {
+      // filter_anyMatch replaced! Instead use the filter_external option
+      // Set to use a jQuery selector (or jQuery object) pointing to the
+      // external filter (column specific or any match)
+      filter_external : '.search',
+      // add a default type search to the first name column
+      filter_defaultFilter: { 1 : '~{query}' },
+      // include column filters
+      filter_columnFilters: false,
+      filter_placeholder: { search : 'Search...' },
+      filter_saveFilters : true,
+      filter_reset: '.reset'
+    }
+  }).tablesorterPager(pagerOptions);
+  $("#downloadSchoolCSV").click(function(){
+    $("#school_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName ="school.csv";
+    $("#school_table_init").trigger('outputTable');
+  });
+  $("#downloadSchoolXLS").click(function(){
+    $("#school_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName ="school.xls";
+    $("#school_table_init").trigger('outputTable');
+  });
+  // make demo search buttons work
+  $('button[data-column]').on('click', function(){
+    var $this = $(this),
+      totalColumns = $table[0].config.columns,
+      col = $this.data('column'), // zero-based index or "all"
+      filter = [];
+
+    // text to add to filter
+    filter[ col === 'all' ? totalColumns : col ] = $this.text();
+    $table.trigger('search', [ filter ]);
+    return false;
+  });
+
+});
+
+$(function() {
+  var pagerOptions = {
+    // target the pager markup - see the HTML block below
+    container: $("#cohort-pager"),
+    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+    // go to page selector - select dropdown that sets the current page
+    cssGoto: '.gotoPage'
+  };
+  var $table = $('#cohort_table_init').tablesorter({
+    theme: 'blue',
+    widgets: ["zebra", "filter", "output"],
+    widgetOptions : {
+      // filter_anyMatch replaced! Instead use the filter_external option
+      // Set to use a jQuery selector (or jQuery object) pointing to the
+      // external filter (column specific or any match)
+      filter_external : '.search',
+      // add a default type search to the first name column
+      filter_defaultFilter: { 1 : '~{query}' },
+      // include column filters
+      filter_columnFilters: false,
+      filter_placeholder: { search : 'Search...' },
+      filter_saveFilters : true,
+      filter_reset: '.reset'
+    }
+  }).tablesorterPager(pagerOptions);
+  $("#downloadCohortCSV").click(function(){
+    $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName ="cohort.csv";
+    $("#cohort_table_init").trigger('outputTable');
+  });
+  $("#downloadCohortXLS").click(function(){
+    $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
+    $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName ="cohort.xls";
+    $("#cohort_table_init").trigger('outputTable');
+  });
+  // make demo search buttons work
+  $('button[data-column]').on('click', function(){
+    var $this = $(this),
+      totalColumns = $table[0].config.columns,
+      col = $this.data('column'), // zero-based index or "all"
+      filter = [];
+
+    // text to add to filter
+    filter[ col === 'all' ? totalColumns : col ] = $this.text();
+    $table.trigger('search', [ filter ]);
+    return false;
+  });
+
+});
+
+function getFormData(form,flds){
+  var data={}
+  $.each(flds,function(i,n){
+    data[n]=$(form[n]).val();
+  })
+  return data;
+}
+
+$("#cohortImportForm").submit(function(){
+    var flds = ["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
+    var data = getFormData(this,flds);
+    $.post('${reverse("pepconn_cohort_submit")}',data, function(r) {
+             r=$.parseJSON(r)
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert(r.error);
+               }
+           }
+    );
+    return false;
+  });
+
+function toggle(which){
+    $(".import-section").hide();
+    $("."+which+"-section").show();
+    $(".section-tab").css("padding-top", "4px");
+    $(".section-tab."+which).css("padding-top", "10px")
+}function toggle2(which){
+    $(".table-section").hide();
+    $("."+which+"-section").show();
+    $(".table-tab").css("padding-top", "4px");
+    $(".table-tab."+which).css("padding-top", "10px");
+    $(".search").val('').change();
+}
+
   if (typeof CKEDITOR != 'undefined') {
       CKEDITOR.replaceAll(function (textarea, config) {
           if (textarea.className == 'email-editor') {
@@ -209,7 +1466,7 @@ f.close()
           return false;
       });
   }
-  
+
   //* global
   //** add csrf token to json
   function safeJSON(j){
@@ -273,7 +1530,7 @@ f.close()
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
         if(!ids.length){
           new Dialog($('#dialog')).show('Error','You must select at least one user to send emails.');
-          return; 
+          return;
         }
         var filter={'ids':ids.join()};
       } else if(type=='filter') {
@@ -294,7 +1551,7 @@ f.close()
           self.taskId=r.taskId;
           self.updateProgress();
         }
-      });          
+      });
     },
     updateProgress:function(){
       var self=this;
@@ -349,7 +1606,7 @@ f.close()
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
-    },    
+    },
     downloadUserCsv:function(){
       var filter=$('#fltUserRegistration')[0].control.getFilter();
       this.postToNewTab("${reverse('pepconn_registration_download_csv')}",safeJSON(filter));
@@ -386,7 +1643,7 @@ f.close()
   //* controller for user data import
   var userDataImport={
     submit:function(form){
-      var self=this
+      var self=this;
       var form=this.$form[0];
       // input checking
       /* var state_id=$(form.state_id).val();
@@ -443,4 +1700,105 @@ f.close()
     }
   };
   userDataImport.init();
+
+
+
+
+  //* controller for district data import
+  var districtDataImport={
+    submit:function(form){
+      var self=this;
+      var form=this.$form[0];
+      // input checking
+      /* var state_id=$(form.state_id).val();
+         var district_id=$(form.district_id).val();
+         if(!state_id || !district_id){
+         new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
+         return false;
+         } */
+      if(!((/\.csv/i).test(form.file.value))){
+        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
+        return false;
+      }
+      syncCKEditorData();
+      $.ajax({
+        url: "${reverse('pepconn_import_district_submit')}",
+        data: new FormData(form), processData: false, contentType: false, type: 'POST',
+        /* enctype: 'multipart/form-data',
+           mimeType: 'multipart/form-data', */
+        success: function(data){
+          self.renderProgress(data.taskId);
+        }
+      });
+    },
+    renderProgress:function(taskId){
+      var dialog=new Dialog($('#dialog'));
+      dialog.show("District Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+<br>You may monitor the progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
+    },
+    init:function(){
+        function pcSlider(clicked, target) {
+            if (clicked.prop('checked')){
+                target.slideDown();
+            } else {
+                target.slideUp();
+            }
+        }
+        var self=this;
+        this.$form=$("#districtDataImportForm");
+
+        this.$form.submit(function(){
+            self.submit();
+            return false;
+        });
+    }
+  };
+  districtDataImport.init();
+
+
+   //* controller for school data import
+  var schoolDataImport={
+    submit:function(form){
+      var self=this;
+      var form=this.$form[0];
+
+      if(!((/\.csv/i).test(form.file.value))){
+        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
+        return false;
+      }
+      syncCKEditorData();
+      $.ajax({
+        url: "${reverse('pepconn_import_school_submit')}",
+        data: new FormData(form), processData: false, contentType: false, type: 'POST',
+        /* enctype: 'multipart/form-data',
+           mimeType: 'multipart/form-data', */
+        success: function(data){
+          self.renderProgress(data.taskId);
+        }
+      });
+    },
+    renderProgress:function(taskId){
+      var dialog=new Dialog($('#dialog'));
+      dialog.show("School Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+<br>You may monitor the progress in the Unread Tasks, below.\
+<br>If there are any errors, you will receive them in an email.");
+    },
+    init:function(){
+        function pcSlider(clicked, target) {
+            if (clicked.prop('checked')){
+                target.slideDown();
+            } else {
+                target.slideUp();
+            }
+        }
+        var self=this;
+        this.$form=$("#schoolDataImportForm");
+        this.$form.submit(function(){
+            self.submit();
+            return false;
+        });
+    }
+  };
+  schoolDataImport.init();
 </script>

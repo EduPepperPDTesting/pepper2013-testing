@@ -43,6 +43,8 @@ from django.db.models import F
 
 log = logging.getLogger("tracking")
 USER_CSV_COLS = ('email', 'state_name', 'district_name',)
+DISTRICT_CSV_COLS = ('id', 'name', 'state')
+SCHOOL_CSV_COLS = ('name', 'id', 'state', 'district_id')
 
 # from gevent import monkey
 
@@ -120,6 +122,436 @@ def main(request):
     # from django.contrib.sessions.models import Session
     return render_to_response('administration/pepconn.html', {})
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def cohort_submit(request):
+    if not request.user.is_authenticated:
+        raise Http404
+    try:
+        if request.POST.get('id'):
+            d=Cohort(request.POST['id'])
+        else:
+            d=Cohort()
+        d.id==request.POST['id']
+        d.code=request.POST['code']
+        d.licences=request.POST['licences']
+        d.term_months=request.POST['term_months']
+        d.start_date=request.POST['start_date']
+        d.district_id=request.POST['district_id']
+        d.save()
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+
+def get_user_count(request):
+    return HttpResponse(json.dumps({'count': UserProfile.objects.all().count()}), content_type="application/json")
+
+
+def get_user_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in UserProfile.objects.all()[low:high]:
+        code += "<tr id = 'user_" + str(item.user.id) + "'>"
+        code += "<td class = 'user_id_select'>" + str(item.user.id) + "</td>"
+        code += "<td class = 'user_lname'>" + str(item.user.last_name) + "</td>"
+        code += "<td class = 'user_fname'>" + str(item.user.first_name) + "</td>"
+
+        try:
+            user_school = item.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.district.name)
+            user_district_state = str(item.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+        try:
+            user_cohort = str(item.cohort.code)
+        except:
+            user_cohort = ""
+
+        code += ("<td class = 'user_school'>" + str(user_school) + "</td>")
+        code += ("<td class = 'user_district'>" + str(user_district) + "</td>")
+        code += ("<td class = 'user_cohort'>" + str(user_cohort) + "</td>")
+        code += ("<td class = 'user_state'>" + str(user_district_state) + "</td>")
+        code += ("<td class = 'user_email'>" + str(item.user.email) + "</td>")
+
+        code += "<td class = 'user_registration'>" + str(item.subscription_status) + "</td>"
+        code += "<td class = 'user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
+        code += "<td><input class = 'user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_school_count(request):
+    return HttpResponse(json.dumps({'count': School.objects.all().count()}), content_type="application/json")
+
+
+def get_school_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in School.objects.all()[low:high]:
+        code += "<tr id = 'school_" + str(item.id) + "'>"
+
+        code += "<td class = 'school_code'>" + str(item.code) + "</td>"
+        code += "<td class = 'school_name'>" + str(item.name) + "</td>"
+        try:
+            district_state = item.district.state.name
+            district_name = item.district.name
+            district_id = item.district_id
+        except:
+            district_state = ""
+            district_name = ""
+        code += "<td class = 'school_district_id'>" + str(district_name) + "</td>"
+        code += "<td class = 'school_district_two'>" + str(district_id) + "</td>"
+        code += "<td class = 'school_state'>" + str(district_state) + "</td>"
+        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_district_count(request):
+    return HttpResponse(json.dumps({'count': District.objects.all().count()}), content_type="application/json")
+
+def get_district_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in District.objects.all()[low:high]:
+        code += "<tr id = 'district_" + str(item.id) + "'>"
+
+        code += "<td class = 'district_code'>" + str(item.code) + "</td>"
+        code += "<td class = 'district_name'>" + str(item.name) + "</td>"
+        code += "<td class = 'district_state_name'>" + str(item.state.name) + "</td>"
+        code += "<td><input type='checkbox' name='id' class = 'district_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_cohort_count(request):
+    return HttpResponse(json.dumps({'count': Cohort.objects.all().count()}), content_type="application/json")
+
+
+def get_cohort_rows(request):
+
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in Cohort.objects.all()[low:high]:
+        code += "<tr id = 'cohort_" + str(item.id) + "'>"
+
+        code += "<td class = 'cohort_id'>" + str(item.code) + "</td>"
+        code += "<td class = 'cohort_liscense'>" + str(item.licences) + "</td>"
+        code += "<td class = 'cohort_term'>" + str(item.term_months) + "</td>"
+        code += "<td class = 'cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
+        code += "<td style = 'display:none;'>" + str(item.district_id) + "</td>"
+        try:
+            district_state = item.district.state.id
+        except:
+            district_state = ""
+        code += "<td style = 'display:none;'>" + str(district_state) + "</td>"
+
+        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+###############################################
+#            District Data Import             #
+###############################################
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_district_submit(request):
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+
+        r = csv.reader(file, dialect=csv.excel)
+        r1 = []
+        r1.extend(r)
+
+        task = ImportTask()
+        task.filename = file.name
+        task.total_lines = len(r1)
+        task.user = request.user
+        task.save()
+        db.transaction.commit()
+
+        from django.db import connection
+        connection.close()
+
+        do_import_district(task, r1, request)
+
+        return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'success': False}), content_type="application/json")
+
+
+def import_district_progress(request):
+    try:
+        task = ImportTask.objects.get(id=request.POST.get('taskId'))
+        j = json.dumps({'task': task.filename, 'percent': '%.2f' % (task.process_lines*100/task.total_lines)})
+    except Exception as e:
+        j = json.dumps({'task': 'no', 'percent': 100})
+    return HttpResponse(j, content_type="application/json")
+
+
+def validate_district_cvs_line(line):
+    exist=False
+    # check field count
+    n=0
+    for item in line:
+        if len(item.strip()):
+            n=n+1
+    if n != 3:
+        raise Exception("Wrong column count %s" % n)
+
+    name=line[DISTRICT_CSV_COLS.index('name')]
+    code=line[DISTRICT_CSV_COLS.index('id')]
+
+    if len(District.objects.filter(name=name,code=code)) > 0:
+        raise Exception("A district named '{name}' already exists".format(name=name))
+
+
+@postpone
+def do_import_district(task, csv_lines, request):
+    gevent.sleep(0)
+
+    count_success = 0
+
+    for i, line in enumerate(csv_lines):
+        tasklog = ImportTaskLog()
+        tasklog.create_date = datetime.now(UTC)
+        tasklog.line = i + 1
+        tasklog.task = task
+        tasklog.error = line
+        try:
+            task.process_lines = i + 1
+
+            id = line[DISTRICT_CSV_COLS.index('id')]
+            name = line[DISTRICT_CSV_COLS.index('name')]
+            state_name = line[DISTRICT_CSV_COLS.index('state')]
+
+            validate_district_cvs_line(line)
+
+            state = State.objects.get(name=state_name).id
+
+            district = District()
+            district.code = id
+            district.name = name
+            district.state_id = state
+            district.save()
+        except Exception as e:
+            db.transaction.rollback()
+            tasklog.error = "%s" % e
+            log.debug("import error: %s" %e)
+        finally:
+            count_success += 1
+            task.success_lines = count_success
+            task.update_time = datetime.now(UTC)
+            task.save()
+            tasklog.save()
+            db.transaction.commit()
+
+
+def import_district_tasks(request):
+    tasks = []
+    timeout = datetime.now(UTC) - timedelta(minute=5)
+    for t in ImportTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
+        task = {"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines, "error": False}
+        if t.update_time <= timeout and t.process_lines < t.total_lines:
+            task['error'] = True
+        tasks.append(task)
+
+    for t in EmailTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
+        task = {"type": "email", "id": t.id, "total": t.total_emails, "progress": t.process_emails*100/t.total_emails, "error": False}
+        if t.update_time <= timeout and t.process_emails < t.total_emails:
+            task['error'] = True
+        tasks.append(task)
+
+    return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
+
+
+def single_district_submit(request):
+    if not request.user.is_authenticated:
+        raise Http404
+    try:
+        #state = State.objects.get(name=request.POST['state']).id
+        district = District()
+        district.code = request.POST['id']
+        district.name = request.POST['name']
+        district.state_id = request.POST['state']
+        district.save()
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+
+##############################################
+#             School Data Import             #
+##############################################
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_school_submit(request):
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+
+        r = csv.reader(file, dialect=csv.excel)
+        r1 = []
+        r1.extend(r)
+
+        task = ImportTask()
+        task.filename = file.name
+        task.total_lines = len(r1)
+        task.user = request.user
+        task.save()
+        db.transaction.commit()
+
+        from django.db import connection
+        connection.close()
+
+        do_import_school(task, r1, request)
+
+        return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'success': False}), content_type="application/json")
+
+
+def import_school_progress(request):
+    try:
+        task = ImportTask.objects.get(id=request.POST.get('taskId'))
+        j = json.dumps({'task': task.filename, 'percent': '%.2f' % (task.process_lines*100/task.total_lines)})
+    except Exception as e:
+        j = json.dumps({'task': 'no', 'percent': 100})
+    return HttpResponse(j, content_type="application/json")
+
+
+def validate_school_cvs_line(line, district_id):
+    name=line[SCHOOL_CSV_COLS.index('name')]
+
+    n=0
+    for item in line:
+        if len(item.strip()):
+            n += 1
+    if n != 4:
+        raise Exception("Wrong column count")
+    if len(School.objects.filter(name=name, district_id=district_id)) > 0:
+        raise Exception("A school named '{name}' already exists in the district".format(name=name))
+
+
+@postpone
+def do_import_school(task, csv_lines, request):
+    gevent.sleep(0)
+
+    count_success = 0
+
+    for i, line in enumerate(csv_lines):
+        tasklog = ImportTaskLog()
+        tasklog.create_date = datetime.now(UTC)
+        tasklog.line = i + 1
+        tasklog.task = task
+        tasklog.error = line
+        try:
+            task.process_lines = i + 1
+
+            name = line[SCHOOL_CSV_COLS.index('name')]
+            id = line[SCHOOL_CSV_COLS.index('id')]
+            state = line[SCHOOL_CSV_COLS.index('state')]
+            district_id = line[SCHOOL_CSV_COLS.index('district_id')]
+
+            validate_school_cvs_line(line, district_id)
+
+            school = School()
+            school.name = name
+            school.code = id
+            school.district_id = district_id
+            school.save()
+        except Exception as e:
+            db.transaction.rollback()
+            tasklog.error = "%s" % e
+            log.debug("import error: %s" %e)
+        finally:
+            count_success += 1
+            task.success_lines = count_success
+            task.update_time = datetime.now(UTC)
+            task.save()
+            tasklog.save()
+            db.transaction.commit()
+
+
+def import_school_tasks(request):
+    tasks = []
+    timeout = datetime.now(UTC) - timedelta(minute=5)
+    for t in ImportTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
+        task = {"type": "import", "id": t.id, "filename": t.filename, "progress": t.process_lines*100/t.total_lines, "error": False}
+        if t.update_time <= timeout and t.process_lines < t.total_lines:
+            task['error'] = True
+        tasks.append(task)
+
+    for t in EmailTask.objects.filter(Q(task_read__exact=0) & Q(user__exact=request.user)).order_by("-id"):
+        task = {"type": "email", "id": t.id, "total": t.total_emails, "progress": t.process_emails*100/t.total_emails, "error": False}
+        if t.update_time <= timeout and t.process_emails < t.total_emails:
+            task['error'] = True
+        tasks.append(task)
+
+    return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
+
+
+def single_school_submit(request):
+    if not request.user.is_authenticated:
+        raise Http404
+    try:
+        school = School()
+        school.name = request.POST['name']
+        school.code = request.POST['id']
+        school.district_id = int(request.POST['district_id'])
+        school.save()
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
 
 #* -------------- User Data Import -------------
 
@@ -170,7 +602,7 @@ def import_user_progress(request):
         task = ImportTask.objects.get(id=request.POST.get('taskId'))
         j = json.dumps({'task': task.filename, 'percent': '%.2f' % (task.process_lines*100/task.total_lines)})
     except Exception as e:
-        j = json.dumps({'task': 'no', 'percent':100})
+        j = json.dumps({'task': 'no', 'percent': 100})
     return HttpResponse(j, content_type="application/json")
 
 
@@ -198,14 +630,14 @@ def do_import_user(task, csv_lines, request):
         try:
             #** record processed count
             task.process_lines = i + 1
-            
+
             email = line[USER_CSV_COLS.index('email')]
             state_name = line[USER_CSV_COLS.index('state_name')]
             district_name = line[USER_CSV_COLS.index('district_name')]
             
             #** generating origin username
             username = random_mark(20)
-            
+
             #** create log
             tasklog.username = username
             tasklog.email = email
@@ -259,6 +691,7 @@ def do_import_user(task, csv_lines, request):
                     subject = ''.join(subject.splitlines())
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
 
+
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
             
@@ -296,7 +729,9 @@ def do_import_user(task, csv_lines, request):
         attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
+
                        settings.SUPPORT_EMAIL, [request.user.email], attach)
+
         output.close()
 
 
@@ -336,6 +771,71 @@ def import_user_tasks(request):
     return HttpResponse(json.dumps({'success': True, 'tasks': tasks}), content_type="application/json")
 
 
+def single_user_submit(request):
+
+    send_registration_email = request.POST.get('send_registration_email') == 'true'
+    message = "Message Begin: Email? " + send_registration_email
+    if not request.user.is_authenticated:
+        raise Http404
+    try:
+        email = request.POST['email']
+        district = request.POST['district']
+        username = random_mark(20)
+        user = User(username=username, email=email, is_active=False)
+        user.set_password(username)
+        user.save()
+
+        message += "  email? "+email+"   district? "+district
+
+        #** registration
+        registration = Registration()
+        registration.register(user)
+
+        #** profile
+        profile = UserProfile(user=user)
+        profile.district = district
+        profile.subscription_status = "Imported"
+        # if school_id:
+        #     profile.school=School.objects.get(id=school_id)
+        profile.save()
+
+        #** course enroll
+        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+        cea.is_active = True
+        cea.auto_enroll = True
+        cea.save()
+
+        #** send activation email if required
+        if send_registration_email:
+            try:
+                reg = Registration.objects.get(user=user)
+                props = {'key': reg.activation_key, 'district': district.name, 'email': email}
+
+                use_custom = request.POST.get("customize_email")
+                if use_custom == 'true':
+                    custom_email = request.POST.get("custom_email_001")
+                    custom_email_subject = request.POST.get("custom_email_subject")
+                    subject = render_from_string(custom_email_subject, props)
+                    body = render_from_string(custom_email, props)
+                else:
+                    subject = render_to_string('emails/activation_email_subject.txt', props)
+                    body = render_to_string('emails/activation_email.txt', props)
+
+                subject = ''.join(subject.splitlines())
+                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [email])
+
+
+            except Exception as e:
+                raise Exception("Failed to send registration email %s" % e)
+
+    except Exception as e:
+        db.transaction.rollback()
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e, "message": message}),
+                            content_type="application/json")
+
+    return HttpResponse(json.dumps({'success': True, "message": message}), content_type="application/json")
+
+
 def task_close(request):
     try:
         type = request.POST.get('taskType')
@@ -354,6 +854,19 @@ def task_close(request):
 
     return HttpResponse(j, content_type="application/json")
 
+
+def add_to_cohort(request):
+    try:
+        change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
+        change.cohort_id = int(request.POST.get('cohort'))
+        change.save()
+        message = "success"
+    except Exception as e:
+        db.transaction.rollback()
+        message = "Error: " + e
+
+    j = json.dumps({"message": message})
+    return HttpResponse(j, content_type="application/json")
 
 #* -------------- Dropdown List -------------
 
@@ -490,6 +1003,7 @@ def registration_send_email(request):
 
     ids=[]
     if request.POST.get('ids'):
+        message = request.POST.get("custom_email")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()
@@ -502,7 +1016,8 @@ def registration_send_email(request):
     task.save()
     
     do_send_registration_email(task, ids, request)
-    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
+
 
 
 @postpone
@@ -532,7 +1047,7 @@ def do_send_registration_email(task, user_ids, request):
 
             use_custom = request.POST.get("customize_email")
             if use_custom == 'true':
-                custom_email = request.POST.get("custom_email")
+                custom_email = request.POST.get("custom_email_002")
                 custom_email_subject = request.POST.get("custom_email_subject")
                 subject = render_from_string(custom_email_subject, props)
                 body = render_from_string(custom_email, props)
@@ -541,8 +1056,8 @@ def do_send_registration_email(task, user_ids, request):
                 body = render_to_string('emails/activation_email.txt', props)
             
             subject = ''.join(subject.splitlines())
-            
-            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+
+            send_html_mail(subject, body, [user.email], settings.SUPPORT_EMAIL)
 
         except Exception as e:
             db.transaction.rollback()
@@ -556,7 +1071,9 @@ def do_send_registration_email(task, user_ids, request):
             db.transaction.commit()
 
     #** post process
+
     tasklogs = EmailTaskLog.objects.filter(task=task).exclude(error='ok')
+
     if len(tasklogs):
         FIELDS = ["username", "email", "district", "send_date", "error"]
         TITLES = ["Username", "Email", "District", "Send Date", "Error"]
@@ -576,6 +1093,7 @@ def do_send_registration_email(task, user_ids, request):
         send_html_mail("Sending Registration Email Report",
                        "Report of sending registration email, see attachment.",
                        settings.SUPPORT_EMAIL, [request.user.email], attach)
+
         output.close()
 
 
