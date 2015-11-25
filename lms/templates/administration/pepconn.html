@@ -754,53 +754,41 @@ $("#singleDistrictImportForm").submit(function(){
     var flds = ["id", "name", "state","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
-             r=$.parseJSON(r)
-               if (r.success) {
-                 alert("Successful import!");
-               } else {
-                 alert("This district already exists.");
-               }
-           }
-    );
+        if (r.success) {
+            alert("Successful import!");
+        } else {
+            alert("This district already exists.");
+        }
+    });
     return false;
-  });
-
-
+});
 
 $("#singleSchoolImportForm").submit(function(){
     var flds = ["name", "id", "state_id", "district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
-             r=$.parseJSON(r)
-               if (r.success) {
-                 alert("Successful import!");
-               } else {
-                 alert("This school already exists.");
-               }
-           }
-    );
+        if (r.success) {
+            alert("Successful import!");
+        } else {
+            alert("This school already exists.");
+        }
+    });
     return false;
-  });
-
+});
 
 $("#singleUserImportForm").submit(function(){
-
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
     var data = getFormData(this,flds);
     alert(data.district);
     $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
-
-             r=$.parseJSON(r)
-               if (r.success) {
-                 alert("Successful import!");
-               } else {
-                 alert("This user already exists. "+ r.error);
-               }
-           }
-    );
+        if (r.success) {
+            alert("Successful import!");
+        } else {
+            alert("This user already exists.");
+        }
+    });
     return false;
-  });
-
+});
 
 $(document).ready(function(){
     $(".table-section").hide();
