@@ -544,7 +544,7 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district = int(request.POST['district_id'])
+        school.district_id = int(request.POST['district_id'])
         school.save()
     except Exception as e:
         db.transaction.rollback()
@@ -694,7 +694,7 @@ def do_import_user(task, csv_lines, request):
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
-            
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -774,18 +774,20 @@ def import_user_tasks(request):
 def single_user_submit(request):
 
     send_registration_email = request.POST.get('send_registration_email') == 'true'
-    message = "Message Begin: Email? " + send_registration_email
+    message = "Message Begin: Email? " + str(send_registration_email)
     if not request.user.is_authenticated:
         raise Http404
     try:
         email = request.POST['email']
-        district = request.POST['district']
+        district_id = request.POST['district']
         username = random_mark(20)
         user = User(username=username, email=email, is_active=False)
         user.set_password(username)
         user.save()
 
-        message += "  email? "+email+"   district? "+district
+        district = District.objects.get(id=district_id)
+
+        message += "  email? "+email+"   district? "+str(district)
 
         #** registration
         registration = Registration()

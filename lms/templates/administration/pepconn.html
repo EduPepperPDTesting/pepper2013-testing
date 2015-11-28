@@ -220,18 +220,18 @@ f.close()
 
                 <div style="padding: 1em 7px 7px 7px;">
                     <label class="label">State:<br/>
-                        <select id="state" name="state" autocomplete="off">
-                      <option value=""></option>
+                        <select id="user_state_single" name="state" autocomplete="off">
+                      <option id = "null_case" value=""></option>
                       %for item in State.objects.all().order_by('name'):
-                      <option value="${item.id}">${item.name}</option>
+                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
-                        <select id="district_id" name="district" autocomplete="off">
-                          <option value=""></option>
+                        <select id="user_district_id" name="district" autocomplete="off">
+                          <option id = "null_case" value=""></option>
                           %for item in District.objects.all().order_by('name'):
-                          <option value="${item.id}">${item.name}</option>
+                          <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                     </label><br/>
@@ -254,18 +254,18 @@ f.close()
                     <input name="code" value="" chkmsg="Cohort ID cant't be empty." chktype="Require" type="">
                 </label><br/>
                 <label class="label">State:<br/>
-                    <select id="state_id" name="state_id" autocomplete="off">
-                  <option value=""></option>
+                    <select id="cohort_state_single" name="state_id" autocomplete="off">
+                  <option id = "null_case" value=""></option>
                   %for item in State.objects.all().order_by('name'):
-                  <option value="${item.id}">${item.name}</option>
+                  <option id = "${item.id}" value="${item.id}">${item.name}</option>
                   %endfor
                 </select>
                 </label><br/>
                 <label class="label required">District:<br/>
-                    <select id="district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
-                      <option value=""></option>
+                    <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
+                      <option id = "null_case" value=""></option>
                       %for item in District.objects.all():
-                      <option value="${item.id}">${item.code}</option>
+                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                 </label><br/>
@@ -754,41 +754,49 @@ $("#singleDistrictImportForm").submit(function(){
     var flds = ["id", "name", "state","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
-        if (r.success) {
-            alert("Successful import!");
-        } else {
-            alert("This district already exists.");
-        }
-    });
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This district already exists.");
+               }
+           }
+    );
     return false;
-});
+  });
+
+
 
 $("#singleSchoolImportForm").submit(function(){
     var flds = ["name", "id", "state_id", "district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
-        if (r.success) {
-            alert("Successful import!");
-        } else {
-            alert("This school already exists.");
-        }
-    });
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This school already exists.");
+               }
+           }
+    );
     return false;
-});
+  });
+
 
 $("#singleUserImportForm").submit(function(){
-    var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email001", "custom_email_subject"];
+
+    var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_001", "custom_email_subject"];
     var data = getFormData(this,flds);
-    alert(data.district);
     $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
-        if (r.success) {
-            alert("Successful import!");
-        } else {
-            alert("This user already exists.");
-        }
-    });
+
+               if (r.success) {
+                 alert("Successful import!");
+               } else {
+                 alert("This user already exists. "+ r.error);
+               }
+           }
+    );
     return false;
-});
+  });
+
 
 $(document).ready(function(){
     $(".table-section").hide();
@@ -847,7 +855,6 @@ $(document).ready(function(){
       if(!confirm("Really delete selected districts?")) return;
       $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
           alert("Delete processed. You may need to refresh the page to see results.");
-        r=$.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
             $(".district_select_box:checked").each(function(){
@@ -867,7 +874,6 @@ $(document).ready(function(){
       if(!confirm("Really delete selected schools?")) return;
       $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
           alert("Delete processed. You may need to refresh the page to see results.");
-        r=$.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Schools.');
             $(".school_select_box:checked").each(function(){
@@ -887,7 +893,6 @@ $(document).ready(function(){
       if(!confirm("Really delete selected users?")) return;
       $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
           alert("Delete processed. You may need to refresh the page to see results.");
-        r=$.parseJSON(r);
 
         if(r.success){
             alert('Deleted Selected Users.');
@@ -908,7 +913,6 @@ $(document).ready(function(){
       if(!confirm("Really delete selected cohorts?")) return;
       $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
           alert("Delete processed. You may need to refresh the page to see results.");
-        r=$.parseJSON(r);
 
         if(r.success){
             alert('Deleted Selected Cohorts.');
@@ -949,6 +953,32 @@ $(document).ready(function(){
     $("#User_state_select").change(function(){
         var id = $(this).children(":selected").attr("id");
         $("#User_district_select > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#user_state_single").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#user_district_id > option").each(function() {
+            if($(this).attr("id") != id){
+                $(this).css("display", "none");
+            }else{
+                $(this).css("display", "");
+            }
+            if(id == "null_case" || $(this).attr("id") == "null_case"){
+                $(this).css("display", "");
+            }
+        });
+    });
+    $("#cohort_state_single").change(function(){
+        var id = $(this).children(":selected").attr("id");
+        $("#cohort_district_id > option").each(function() {
             if($(this).attr("id") != id){
                 $(this).css("display", "none");
             }else{
@@ -1412,7 +1442,6 @@ $("#cohortImportForm").submit(function(){
     var flds = ["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_cohort_submit")}',data, function(r) {
-             r=$.parseJSON(r)
                if (r.success) {
                  alert("Successful import!");
                } else {
