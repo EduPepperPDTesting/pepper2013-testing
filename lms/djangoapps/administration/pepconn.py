@@ -286,7 +286,7 @@ def get_cohort_rows(request):
             district_state = ""
         code += "<td style = 'display:none;'>" + str(district_state) + "</td>"
 
-        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td><input type='checkbox' name='id' class = 'cohort_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -1002,10 +1002,11 @@ def registration_filter_user(vars, data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
-
+    message = ""
+    message = str(request.POST.get('ids'))
     ids=[]
     if request.POST.get('ids'):
-        message = request.POST.get("custom_email")
+        message = request.POST.get("sending custom")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()

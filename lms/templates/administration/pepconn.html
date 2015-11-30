@@ -657,7 +657,7 @@ f.close()
               Customize registration email
             </label>
           </li>
-          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'"/>
+          <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'"/>
         </ul>
     </div>
     <div class="cohort_table-section table-section">
@@ -849,12 +849,12 @@ $(document).ready(function(){
     $("#delete_selected_districts").click(function(){
       var ids=[];
       $(".district_select_box:checked").each(function(){
-        ids.push(this.value);
+        ids.push($(this).val());
       });
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected districts?")) return;
-      $.get("${reverse('district_delete')}",{ids:ids.join(",")},function(r){
-          alert("Delete processed. You may need to refresh the page to see results.");
+      $.get("${reverse('district_delete')}",{ids:ids.join()},function(r){
+          r = $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
             $(".district_select_box:checked").each(function(){
@@ -862,18 +862,18 @@ $(document).ready(function(){
                 $("#district_"+identify).hide();
               });
         }else
-        alert(r.error);
+        alert("The following error occured: " + r.error);
       });
     });
     $("#delete_selected_schools").click(function(){
       var ids=[];
       $(".school_select_box:checked").each(function(){
-        ids.push(this.value);
+        ids.push($(this).val());
       });
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected schools?")) return;
-      $.get("${reverse('school_delete')}",{ids:ids.join(",")},function(r){
-          alert("Delete processed. You may need to refresh the page to see results.");
+      $.get("${reverse('school_delete')}",{ids:ids.join()},function(r){
+          r= $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Schools.');
             $(".school_select_box:checked").each(function(){
@@ -881,19 +881,18 @@ $(document).ready(function(){
                 $("#school_"+identify).hide();
               });
         }else
-        alert(r.error);
+        alert("The following error occured: " + r.error);
       });
     });
     $("#delete_selected_user").click(function(){
       var ids=[];
       $(".user_select_box:checked").each(function(){
-        ids.push(this.value);
+        ids.push($(this).val());
       });
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected users?")) return;
-      $.get("${reverse('user_delete')}",{ids:ids.join(",")},function(r){
-          alert("Delete processed. You may need to refresh the page to see results.");
-
+      $.post("${reverse('user_delete')}",{ids:ids.join()},function(r){
+          r= $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
             $(".user_select_box:checked").each(function(){
@@ -901,27 +900,26 @@ $(document).ready(function(){
                 $("#user_"+identify).hide();
               });
         }else
-        alert(r.error);
+        alert("The following error occured: " + r.error);
       });
     });
     $("#delete_selected_cohort").click(function(){
       var ids=[];
       $(".cohort_select_box:checked").each(function(){
-        ids.push(this.value);
+        ids.push($(this).val());
       });
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected cohorts?")) return;
-      $.get("${reverse('cohort_delete')}",{ids:ids.join(",")},function(r){
-          alert("Delete processed. You may need to refresh the page to see results.");
-
-        if(r.success){
+      $.get("${reverse('cohort_delete')}",{ids:ids.join()},function(r){
+        r = $.parseJSON(r);
+          if(r.success){
             alert('Deleted Selected Cohorts.');
             $(".cohort_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#cohort_"+identify).hide();
               });
         }else
-        alert(r.error);
+        alert("The following error occured: " + r.error);
       });
     });
     $("#register_selected_user").click(function(){
@@ -930,20 +928,18 @@ $(document).ready(function(){
             ids.push($(this).attr("value"));
             //alert(ids.length);
         });
-        var filter = {'ids' : ids.join()};
         if(!ids.length == 0){
             if(confirm("Send Registration Emails to Selected Users?")){
+                alert(ids.join());
             var data={
                 'ids' : ids.join(),
                 'customize_email':$("#user_table_custom_email_form .customize_email").val(),
-                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
-                'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
+                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(), 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
               };
-              $.post("${reverse('pepconn_registration_send_email')}",safeJSON(data),function(r){
-                  //alert(r.message);
+              $.post("${reverse('pepconn_registration_send_email')}",{'ids': ids.join(),'customize_email':$("#user_table_custom_email_form .customize_email").val(),'custom_email_002':$("#user_table_custom_email_form .custom_email_002").val(), 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()},function(r){
+                alert(r.message);
                 if(r.success){
                   self.taskId=r.taskId;
-                  self.updateProgress();
                 }
               });
             }
