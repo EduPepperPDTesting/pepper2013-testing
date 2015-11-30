@@ -754,9 +754,9 @@ $("#singleDistrictImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
                if (r.success) {
-                 alert("Successful import!");
+                 new Dialog($('#dialog')).show('Success','The district was successfully created!.');
                } else {
-                 alert("This district already exists.");
+                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
                }
            }
     );
@@ -770,9 +770,9 @@ $("#singleSchoolImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
                if (r.success) {
-                 alert("Successful import!");
+                 new Dialog($('#dialog')).show('Success','The school was successfully created!.');
                } else {
-                 alert("This school already exists.");
+                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
                }
            }
     );
@@ -785,11 +785,10 @@ $("#singleUserImportForm").submit(function(){
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_001", "custom_email_subject"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
-
                if (r.success) {
-                 alert("Successful import!");
+                 new Dialog($('#dialog')).show('Success','The user was successfully created!.');
                } else {
-                 alert("This user already exists. "+ r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
                }
            }
     );
@@ -850,17 +849,20 @@ $(document).ready(function(){
       $(".district_select_box:checked").each(function(){
         ids.push($(this).val());
       });
-      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one district to delete.");
+
+
+
+
       if(!confirm("Really delete selected districts?")) return;
       $.get("${reverse('district_delete')}",{ids:ids.join()},function(r){
         if(r.success){
-            alert('Deleted Selected Users.');
+            new Dialog($('#dialog')).show("Success", "Selected districts have been deleted successfully.");
             $(".district_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#district_"+identify).hide();
               });
-        }else
-        alert("The following error occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occured: " + r.error);
       });
     });
     $("#delete_selected_schools").click(function(){
@@ -868,17 +870,16 @@ $(document).ready(function(){
       $(".school_select_box:checked").each(function(){
         ids.push($(this).val());
       });
-      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one school to delete.");
       if(!confirm("Really delete selected schools?")) return;
       $.get("${reverse('school_delete')}",{ids:ids.join()},function(r){
         if(r.success){
-            alert('Deleted Selected Schools.');
+            new Dialog($('#dialog')).show("Success", "Selected schools have been deleted.");
             $(".school_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#school_"+identify).hide();
               });
-        }else
-        alert("The following error occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occured: " + r.error);
       });
     });
     $("#delete_selected_user").click(function(){
@@ -886,17 +887,16 @@ $(document).ready(function(){
       $(".user_select_box:checked").each(function(){
         ids.push($(this).val());
       });
-      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one user to delete.");
       if(!confirm("Really delete selected users?")) return;
       $.post("${reverse('user_delete')}",{ids:ids.join()},function(r){
         if(r.success){
-            alert('Deleted Selected Users.');
+            new Dialog($('#dialog')).show("Success", "Selected users successfully deleted.");
             $(".user_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#user_"+identify).hide();
               });
-        }else
-        alert("The following error occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occured: "+ r.error);
       });
     });
     $("#delete_selected_cohort").click(function(){
@@ -904,29 +904,26 @@ $(document).ready(function(){
       $(".cohort_select_box:checked").each(function(){
         ids.push($(this).val());
       });
-      if(!ids.length)return alert("Nothing selected to delete.");
+      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one cohort to delete.");
       if(!confirm("Really delete selected cohorts?")) return;
       $.get("${reverse('cohort_delete')}",{ids:ids.join()},function(r){
           if(r.success){
-            alert('Deleted Selected Cohorts.');
+              new Dialog($('#dialog')).show("Success", "Selectd cohorts deleted..");
             $(".cohort_select_box:checked").each(function(){
                 var identify = $(this).val();
                 $("#cohort_"+identify).hide();
               });
-        }else
-        alert("The following error occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error occured: " + r.error);
       });
     });
     $("#register_selected_user").click(function(){
        var ids = [];
         $(".user_select_box:checked").each(function(){
             ids.push($(this).attr("value"));
-            //alert(ids.length);
         });
         if(!ids.length == 0){
             if(confirm("Send Registration Emails to Selected Users?")){
                 syncCKEditorData();
-                //alert(ids.join());
             var data={
                 'ids' : ids.join(),'customize_email':$("#user_table_custom_email_form .custom-email-checkbox").val(),'custom_email_002':$("#user_table_custom_email_form .email-editor").val(),'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
               };
@@ -936,7 +933,7 @@ $(document).ready(function(){
                 }
               });
             }
-        }else alert("Select at least one user.");
+        }else new Dialog($('#dialog')).show("Error", "Please select at least one user.");
 
     });
     $("#User_state_select").change(function(){
@@ -1019,7 +1016,6 @@ $(document).ready(function(){
     $("#state_single").change(function(){
         var id = $(this).children(":selected").attr("id");
         $("#district_id_single > option").each(function() {
-           // alert("result: " + $(this).attr("id"));
             if($(this).attr("id") != id){
                 $(this).css("display", "none");
             }else{
@@ -1127,7 +1123,7 @@ function submitAddToCohort(){
                 console.log(r.message);
                 if(r.message = "success"){
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
-                }else alert(r.message);
+                }else new Dialog($('#dialog')).show("Error", "The fofollowing error has occured: " + r.mesage);
             });
 
         });
@@ -1432,9 +1428,9 @@ $("#cohortImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_cohort_submit")}',data, function(r) {
                if (r.success) {
-                 alert("Successful import!");
+                 new Dialog($('#dialog')).show('Success','The cohort was successfully created!.');
                } else {
-                 alert(r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
                }
            }
     );
@@ -1531,7 +1527,6 @@ function toggle(which){
       /*this.updateInviteNumber(filter);*/
     },
     sendRegistrationEmails:function(type){
-      alert('not where things should be');
       var self=this;
       if (type=='ids') {
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
