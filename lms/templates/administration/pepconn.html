@@ -925,14 +925,11 @@ $(document).ready(function(){
         });
         if(!ids.length == 0){
             if(confirm("Send Registration Emails to Selected Users?")){
-                alert(ids.join());
+                //alert(ids.join());
             var data={
-                'ids' : ids.join(),
-                'customize_email':$("#user_table_custom_email_form .customize_email").val(),
-                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
-                'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
+                'ids' : ids.join(),'customize_email':$("#user_table_custom_email_form .custom-email-checkbox").val(),'custom_email_002':$("#user_table_custom_email_form .email-editor").val(),'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
               };
-              $.post("${reverse('pepconn_registration_send_email')}",{'ids': ids.join(),'customize_email':$("#user_table_custom_email_form .customize_email").val(),'custom_email_002':$("#user_table_custom_email_form .custom_email_002").val(), 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()},function(r){
+              $.post("${reverse('pepconn_registration_send_email')}",{'ids' : ids.join(),'customize_email':$("#user_table_custom_email_form .custom-email-checkbox").val(),'custom_email_002':$("#user_table_custom_email_form .email-editor").val(),'custom_email_subject':$("#user_table_custom_email_form input[name='custom_email_subject']").val()},function(r){
                 if(r.success){
                   self.taskId=r.taskId;
                 }
