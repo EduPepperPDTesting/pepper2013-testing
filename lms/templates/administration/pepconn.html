@@ -364,7 +364,6 @@ f.close()
             },
             "field_row_identifier":"id",
             "urls":{
-            "data":"${reverse('pepconn_registration_table')}"
             },
             "paging":{
             "size":10,
@@ -854,7 +853,6 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected districts?")) return;
       $.get("${reverse('district_delete')}",{ids:ids.join()},function(r){
-          r = $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
             $(".district_select_box:checked").each(function(){
@@ -873,7 +871,6 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected schools?")) return;
       $.get("${reverse('school_delete')}",{ids:ids.join()},function(r){
-          r= $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Schools.');
             $(".school_select_box:checked").each(function(){
@@ -892,7 +889,6 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected users?")) return;
       $.post("${reverse('user_delete')}",{ids:ids.join()},function(r){
-          r= $.parseJSON(r);
         if(r.success){
             alert('Deleted Selected Users.');
             $(".user_select_box:checked").each(function(){
@@ -911,7 +907,6 @@ $(document).ready(function(){
       if(!ids.length)return alert("Nothing selected to delete.");
       if(!confirm("Really delete selected cohorts?")) return;
       $.get("${reverse('cohort_delete')}",{ids:ids.join()},function(r){
-        r = $.parseJSON(r);
           if(r.success){
             alert('Deleted Selected Cohorts.');
             $(".cohort_select_box:checked").each(function(){
@@ -1538,6 +1533,7 @@ function toggle(which){
       /*this.updateInviteNumber(filter);*/
     },
     sendRegistrationEmails:function(type){
+      alert('not where things should be');
       var self=this;
       if (type=='ids') {
         var ids=$('#tblUserRegistration')[0].control.getCheckedValues();
