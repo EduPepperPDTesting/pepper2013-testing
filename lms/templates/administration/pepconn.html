@@ -781,7 +781,7 @@ $("#singleSchoolImportForm").submit(function(){
 
 
 $("#singleUserImportForm").submit(function(){
-
+    syncCKEditorData();
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_001", "custom_email_subject"];
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
