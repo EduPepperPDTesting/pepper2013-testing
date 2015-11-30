@@ -11,7 +11,6 @@ import os,sys
 sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
 
-
 from logsettings import get_logger_config
 
 DEBUG = False
@@ -24,7 +23,7 @@ LOGGING = get_logger_config(ENV_ROOT / "log",
 
 modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
-    'db': 'xmodule',
+    'db': MONGO_DB_XMODULE,
     'host': MONGO_HOST,
     'port': MONGO_PORT,       
     'user':MONGO_USER,
@@ -55,11 +54,11 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'db': 'xcontent',
+        'db': MONGO_DB_XCONTENT,
         'host': MONGO_HOST,
-        'port': MONGO_PORT,   
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     },
     # allow for additional options that can be keyed on a name, e.g. 'trashcan'
     'ADDITIONAL_OPTIONS': {
