@@ -639,19 +639,19 @@ f.close()
         </span>
 
         <span style = "float:right">
-            <input type="button" value = "Delete Selected Users" sytle = "padding-right:10px;" class ="small" id = "delete_selected_user"/>
-            <input type="button" value = "Send Registration Mail" class ="small" id = "register_selected_user"/>
-            <input type ="button" name = "" onclick = "addToCohort()" sytle = "padding-left:10px;" value ="Add To Cohort" class="small" id ="userAddToCohort"/>
+            <input type="button" value="Delete Selected Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
+            <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
+            <input type="button" name="" onclick="addToCohort()" style="padding-left:10px;" value="Add To Cohort" class="small" id="userAddToCohort"/>
         </span>
-        <ul class="list" id = "user_table_custom_email_form">
+        <ul class="list" id="user_table_custom_email_form">
           <li>
             <label>
-              <input style = "display:none" type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
+              <input style="display:none" type="checkbox" class="send-email" name="send_registration_email" value="true" autocomplete="off"/>
 
             </label>
           </li>
-          <li class="customize-email" style = "display:list-item">
-            <label style="cursor:normal !important; float:right;">
+          <li class="customize-email" style="display: list-item">
+            <label style="cursor: normal !important; float: right;">
               <input  class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
@@ -678,14 +678,14 @@ f.close()
                       %endfor
                 </select>
                 <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
-                <img onclick = "openBookmark('Cohort')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
+                <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick = "$('#cohort-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
                 <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
                 <div id = "cohort-select" class = "select-columns"><br>
-                <input type = "checkbox" checked onchange = "$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.cohort_liscense').toggle();"></input><label><i>Liscenses</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_license').toggle();"></input><label><i>Liscenses</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label><br>
                 </div>
             </div>
         </div>
@@ -693,20 +693,20 @@ f.close()
             <table class="tablesorter-blue" id="cohort_table_init">
                 <thead>
             <tr>
-                <th class = "cohort_id">Cohort ID</th>
-                <th class = "cohort_liscense">Licences</th>
-                <th class = "cohort_term">Terms Months</th>
-                <th class = "cohort_start">Subscription Start Date</th>
+                <th class="cohort_id">Cohort ID</th>
+                <th class="cohort_license">Licences</th>
+                <th class="cohort_term">Terms Months</th>
+                <th class="cohort_start">Subscription Start Date</th>
                 <th></th>
-                <th style = "display:none"></th>
+                <th style="display:none"></th>
             </tr>
             </thead>
-                <tbody id = "cohort_data_tbody">
+                <tbody id="cohort_data_tbody">
 
                 </tbody>
             </table>
             <center>
-                <h3 id = "cohort_load_progress">
+                <h3 id="cohort_load_progress">
 
                 </h3>
             </center>
