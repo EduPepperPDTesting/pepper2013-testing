@@ -1060,7 +1060,7 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
 
-            send_html_mail(subject, body, [user.email], settings.SUPPORT_EMAIL)
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         except Exception as e:
             db.transaction.rollback()
