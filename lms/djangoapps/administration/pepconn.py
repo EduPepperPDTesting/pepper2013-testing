@@ -545,7 +545,9 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district_id = int(request.POST['district_id'])
+        district_id = request.POST['district_id']
+        district_object = District.objects.get(id=district_id)
+        school.district = district_object
         school.save()
     except Exception as e:
         db.transaction.rollback()
