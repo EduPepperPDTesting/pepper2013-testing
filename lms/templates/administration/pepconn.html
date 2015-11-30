@@ -754,9 +754,9 @@ $("#singleDistrictImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
                if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The district was successfully created!.');
+                 new Dialog($('#dialog')).show('Success','The district was successfully created!');
                } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
                }
            }
     );
@@ -770,9 +770,9 @@ $("#singleSchoolImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
                if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The school was successfully created!.');
+                 new Dialog($('#dialog')).show('Success','The school was successfully created!');
                } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
                }
            }
     );
@@ -786,9 +786,9 @@ $("#singleUserImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
                if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The user was successfully created!.');
+                 new Dialog($('#dialog')).show('Success','The user was successfully created!');
                } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
                }
            }
     );
@@ -862,7 +862,7 @@ $(document).ready(function(){
                 var identify = $(this).val();
                 $("#district_"+identify).hide();
               });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
       });
     });
     $("#delete_selected_schools").click(function(){
@@ -879,7 +879,7 @@ $(document).ready(function(){
                 var identify = $(this).val();
                 $("#school_"+identify).hide();
               });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
       });
     });
     $("#delete_selected_user").click(function(){
@@ -896,7 +896,7 @@ $(document).ready(function(){
                 var identify = $(this).val();
                 $("#user_"+identify).hide();
               });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occured: "+ r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: "+ r.error);
       });
     });
     $("#delete_selected_cohort").click(function(){
@@ -913,7 +913,7 @@ $(document).ready(function(){
                 var identify = $(this).val();
                 $("#cohort_"+identify).hide();
               });
-        }else new Dialog($('#dialog')).show("Error", "The following error occured: " + r.error);
+        }else new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
       });
     });
     $("#register_selected_user").click(function(){
@@ -1111,7 +1111,7 @@ function addToCohort(){
 
 }
 function submitAddToCohort(){
-    console.log("processing");
+    //console.log("processing");
     var ids = [];
     $("#user_table_init tr").each(function(i, val){
         var $row = $(val);
@@ -1120,10 +1120,10 @@ function submitAddToCohort(){
            var $checkbox = $(box);
 
             $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
-                console.log(r.message);
+                //console.log(r.message);
                 if(r.message = "success"){
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
-                }else new Dialog($('#dialog')).show("Error", "The fofollowing error has occured: " + r.mesage);
+                }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
             });
 
         });
@@ -1428,9 +1428,9 @@ $("#cohortImportForm").submit(function(){
     var data = getFormData(this,flds);
     $.post('${reverse("pepconn_cohort_submit")}',data, function(r) {
                if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The cohort was successfully created!.');
+                 new Dialog($('#dialog')).show('Success','The cohort was successfully created!');
                } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occured: "+ r.error);
+                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
                }
            }
     );
