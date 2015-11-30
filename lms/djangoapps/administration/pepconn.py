@@ -498,13 +498,14 @@ def do_import_school(task, csv_lines, request):
             id = line[SCHOOL_CSV_COLS.index('id')]
             state = line[SCHOOL_CSV_COLS.index('state')]
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
+            district_object = District.objects.get(code=district_id)
 
             validate_school_cvs_line(line, district_id)
 
             school = School()
             school.name = name
             school.code = id
-            school.district_id = district_id
+            school.district = district_object
             school.save()
         except Exception as e:
             db.transaction.rollback()
