@@ -929,10 +929,10 @@ $(document).ready(function(){
             var data={
                 'ids' : ids.join(),
                 'customize_email':$("#user_table_custom_email_form .customize_email").val(),
-                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(), 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
+                'custom_email':$("#user_table_custom_email_form .custom_email_002").val(),
+                'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
               };
               $.post("${reverse('pepconn_registration_send_email')}",{'ids': ids.join(),'customize_email':$("#user_table_custom_email_form .customize_email").val(),'custom_email_002':$("#user_table_custom_email_form .custom_email_002").val(), 'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()},function(r){
-                alert(r.message);
                 if(r.success){
                   self.taskId=r.taskId;
                 }
