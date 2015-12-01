@@ -338,19 +338,18 @@ def import_district_progress(request):
 
 
 def validate_district_cvs_line(line):
-    exist=False
     # check field count
-    n=0
+    n = 0
     for item in line:
         if len(item.strip()):
-            n=n+1
-    if n != 3:
+            n += 1
+    if n != len(DISTRICT_CSV_COLS):
         raise Exception("Wrong column count %s" % n)
 
-    name=line[DISTRICT_CSV_COLS.index('name')]
-    code=line[DISTRICT_CSV_COLS.index('id')]
+    name = line[DISTRICT_CSV_COLS.index('name')]
+    code = line[DISTRICT_CSV_COLS.index('id')]
 
-    if len(District.objects.filter(name=name,code=code)) > 0:
+    if len(District.objects.filter(name=name, code=code)) > 0:
         raise Exception("A district named '{name}' already exists".format(name=name))
 
 
@@ -365,7 +364,7 @@ def do_import_district(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             task.process_lines = i + 1
 
@@ -382,6 +381,8 @@ def do_import_district(task, csv_lines, request):
             district.name = name
             district.state_id = state
             district.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -393,6 +394,8 @@ def do_import_district(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_district_tasks(request):
@@ -470,16 +473,15 @@ def import_school_progress(request):
     return HttpResponse(j, content_type="application/json")
 
 
-def validate_school_cvs_line(line, district_id):
-    name=line[SCHOOL_CSV_COLS.index('name')]
-
-    n=0
+def validate_school_cvs_line(line, district):
+    name = line[SCHOOL_CSV_COLS.index('name')]
+    n = 0
     for item in line:
         if len(item.strip()):
             n += 1
-    if n != 4:
+    if n != len(SCHOOL_CSV_COLS):
         raise Exception("Wrong column count")
-    if len(School.objects.filter(name=name, district_id=district_id)) > 0:
+    if len(School.objects.filter(name=name, district=district)) > 0:
         raise Exception("A school named '{name}' already exists in the district".format(name=name))
 
 
@@ -494,7 +496,8 @@ def do_import_school(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
+
         try:
             task.process_lines = i + 1
 
@@ -504,13 +507,15 @@ def do_import_school(task, csv_lines, request):
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
             district_object = District.objects.get(code=district_id)
 
-            validate_school_cvs_line(line, district_id)
+            validate_school_cvs_line(line, district_object)
 
             school = School()
             school.name = name
             school.code = id
             school.district = district_object
             school.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -522,6 +527,8 @@ def do_import_school(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_school_tasks(request):
@@ -633,7 +640,7 @@ def do_import_user(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             #** record processed count
             task.process_lines = i + 1
@@ -647,8 +654,6 @@ def do_import_user(task, csv_lines, request):
 
             #** create log
             tasklog.username = username
-            tasklog.email = email
-            tasklog.district_name = district_name
             tasklog.error = "ok"
               
             validate_user_cvs_line(line)
@@ -715,19 +720,21 @@ def do_import_user(task, csv_lines, request):
             tasklog.save()
             db.transaction.commit()
 
-    #** post process
+    email_results(task, request.user.email)
+
+
+def email_results(task, email):
     tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
-        FIELDS = ["line", "username", "email", "district", "create_date", "error"]
-        TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
+        FIELDS = ["line", "username", "import_data", "create_date", "error"]
+        TITLES = ["Line", "Username", "Import Data", "Create Date", "Error"]
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=FIELDS)
         writer.writerow(dict(zip(FIELDS, TITLES)))
         for d in tasklogs:
             row = {"line": d.line,
                    "username": d.username,
-                   "email": d.email,
-                   "district": d.district_name,
+                   "import_data": d.import_data,
                    "create_date": d.create_date,
                    "error": d.error
                    }
@@ -737,8 +744,7 @@ def do_import_user(task, csv_lines, request):
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
 
-                       settings.SUPPORT_EMAIL, [request.user.email], attach)
-
+                       settings.SUPPORT_EMAIL, [email], attach)
         output.close()
 
 
