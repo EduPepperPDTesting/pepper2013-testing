@@ -161,13 +161,13 @@ def get_user_rows(request):
     code = ""
 
     for item in UserProfile.objects.all()[low:high]:
-        code += "<tr id = 'user_" + str(item.user.id) + "'>"
-        code += "<td class = 'user_id_select'>" + str(item.user.id) + "</td>"
-        code += "<td class = 'user_lname'>" + str(item.user.last_name) + "</td>"
-        code += "<td class = 'user_fname'>" + str(item.user.first_name) + "</td>"
+        code += "<tr id='user_" + str(item.user.id) + "'>"
+        code += "<td class='user_id_select'>" + str(item.user.id) + "</td>"
+        code += "<td class='user_lname'>" + str(item.user.last_name) + "</td>"
+        code += "<td class='user_fname'>" + str(item.user.first_name) + "</td>"
 
         try:
-            user_school = item.school.name
+            user_school=item.school.name
         except:
             user_school = ""
         try:
@@ -181,15 +181,19 @@ def get_user_rows(request):
         except:
             user_cohort = ""
 
-        code += ("<td class = 'user_school'>" + str(user_school) + "</td>")
-        code += ("<td class = 'user_district'>" + str(user_district) + "</td>")
-        code += ("<td class = 'user_cohort'>" + str(user_cohort) + "</td>")
-        code += ("<td class = 'user_state'>" + str(user_district_state) + "</td>")
-        code += ("<td class = 'user_email'>" + str(item.user.email) + "</td>")
+        code += ("<td class='user_school'>" + str(user_school) + "</td>")
+        code += ("<td class='user_district'>" + str(user_district) + "</td>")
+        code += ("<td class='user_cohort'>" + str(user_cohort) + "</td>")
+        code += ("<td class='user_state'>" + str(user_district_state) + "</td>")
+        code += ("<td class='user_email'>" + str(item.user.email) + "</td>")
 
-        code += "<td class = 'user_registration'>" + str(item.subscription_status) + "</td>"
-        code += "<td class = 'user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
-        code += "<td><input class = 'user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
+        code += "<td class='user_registration'>" + str(item.subscription_status) + "</td>"
+        code += "<td class='user_activation_link'>"
+        if Registration.objects.filter(user_id=item.user_id).count():
+            code += "<a href='/register/"+str(Registration.objects.get(user_id=item.user_id).activation_key) +"' target='_blank'>Activation Link</a>"
+        code += "</td>"
+        code += "<td class='user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
+        code += "<td><input class='user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
         code += "</tr>"
 
     return HttpResponse(json.dumps({'code': code}), content_type="application/json")
@@ -210,10 +214,10 @@ def get_school_rows(request):
     code = ""
 
     for item in School.objects.all()[low:high]:
-        code += "<tr id = 'school_" + str(item.id) + "'>"
+        code += "<tr id='school_" + str(item.id) + "'>"
 
-        code += "<td class = 'school_code'>" + str(item.code) + "</td>"
-        code += "<td class = 'school_name'>" + str(item.name) + "</td>"
+        code += "<td class='school_code'>" + str(item.code) + "</td>"
+        code += "<td class='school_name'>" + str(item.name) + "</td>"
         try:
             district_state = item.district.state.name
             district_name = item.district.name
@@ -221,10 +225,10 @@ def get_school_rows(request):
         except:
             district_state = ""
             district_name = ""
-        code += "<td class = 'school_district_id'>" + str(district_name) + "</td>"
-        code += "<td class = 'school_district_two'>" + str(district_id) + "</td>"
-        code += "<td class = 'school_state'>" + str(district_state) + "</td>"
-        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td class='school_district_id'>" + str(district_name) + "</td>"
+        code += "<td class='school_district_two'>" + str(district_id) + "</td>"
+        code += "<td class='school_state'>" + str(district_state) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='school_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -245,12 +249,12 @@ def get_district_rows(request):
     code = ""
 
     for item in District.objects.all()[low:high]:
-        code += "<tr id = 'district_" + str(item.id) + "'>"
+        code += "<tr id='district_" + str(item.id) + "'>"
 
-        code += "<td class = 'district_code'>" + str(item.code) + "</td>"
-        code += "<td class = 'district_name'>" + str(item.name) + "</td>"
-        code += "<td class = 'district_state_name'>" + str(item.state.name) + "</td>"
-        code += "<td><input type='checkbox' name='id' class = 'district_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td class='district_code'>" + str(item.code) + "</td>"
+        code += "<td class='district_name'>" + str(item.name) + "</td>"
+        code += "<td class='district_state_name'>" + str(item.state.name) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='district_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -273,20 +277,20 @@ def get_cohort_rows(request):
     code = ""
 
     for item in Cohort.objects.all()[low:high]:
-        code += "<tr id = 'cohort_" + str(item.id) + "'>"
+        code += "<tr id='cohort_" + str(item.id) + "'>"
 
-        code += "<td class = 'cohort_id'>" + str(item.code) + "</td>"
-        code += "<td class = 'cohort_liscense'>" + str(item.licences) + "</td>"
-        code += "<td class = 'cohort_term'>" + str(item.term_months) + "</td>"
-        code += "<td class = 'cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
-        code += "<td style = 'display:none;'>" + str(item.district_id) + "</td>"
+        code += "<td class='cohort_id'>" + str(item.code) + "</td>"
+        code += "<td class='cohort_liscense'>" + str(item.licences) + "</td>"
+        code += "<td class='cohort_term'>" + str(item.term_months) + "</td>"
+        code += "<td class='cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
+        code += "<td style='display:none;'>" + str(item.district_id) + "</td>"
         try:
             district_state = item.district.state.id
         except:
             district_state = ""
-        code += "<td style = 'display:none;'>" + str(district_state) + "</td>"
+        code += "<td style='display:none;'>" + str(district_state) + "</td>"
 
-        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td><input type='checkbox' name='id' class='cohort_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -498,13 +502,14 @@ def do_import_school(task, csv_lines, request):
             id = line[SCHOOL_CSV_COLS.index('id')]
             state = line[SCHOOL_CSV_COLS.index('state')]
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
+            district_object = District.objects.get(code=district_id)
 
             validate_school_cvs_line(line, district_id)
 
             school = School()
             school.name = name
             school.code = id
-            school.district_id = district_id
+            school.district = district_object
             school.save()
         except Exception as e:
             db.transaction.rollback()
@@ -544,7 +549,9 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district_id = int(request.POST['district_id'])
+        district_id = request.POST['district_id']
+        district_object = District.objects.get(id=district_id)
+        school.district = district_object
         school.save()
     except Exception as e:
         db.transaction.rollback()
@@ -694,7 +701,7 @@ def do_import_user(task, csv_lines, request):
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
-            
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -774,18 +781,20 @@ def import_user_tasks(request):
 def single_user_submit(request):
 
     send_registration_email = request.POST.get('send_registration_email') == 'true'
-    message = "Message Begin: Email? " + send_registration_email
+    message = "Message Begin: Email? " + str(send_registration_email)
     if not request.user.is_authenticated:
         raise Http404
     try:
         email = request.POST['email']
-        district = request.POST['district']
+        district_id = request.POST['district']
         username = random_mark(20)
         user = User(username=username, email=email, is_active=False)
         user.set_password(username)
         user.save()
 
-        message += "  email? "+email+"   district? "+district
+        district = District.objects.get(id=district_id)
+
+        message += "  email? "+email+"   district? "+str(district)
 
         #** registration
         registration = Registration()
@@ -1000,10 +1009,11 @@ def registration_filter_user(vars, data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
-
+    message = ""
+    message = str(request.POST.get('ids'))
     ids=[]
     if request.POST.get('ids'):
-        message = request.POST.get("custom_email")
+        message = request.POST.get("sending custom")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()
@@ -1057,7 +1067,7 @@ def do_send_registration_email(task, user_ids, request):
             
             subject = ''.join(subject.splitlines())
 
-            send_html_mail(subject, body, [user.email], settings.SUPPORT_EMAIL)
+            send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         except Exception as e:
             db.transaction.rollback()
