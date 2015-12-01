@@ -674,9 +674,6 @@ def do_import_user(task, csv_lines, request):
             profile = UserProfile(user=user)
             profile.district = district
             profile.subscription_status = "Imported"
-            # if school_id:
-            #     profile.school=School.objects.get(id=school_id)
-            profile.save()
 
             #** course enroll
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
@@ -687,6 +684,7 @@ def do_import_user(task, csv_lines, request):
             #** send activation email if required
             if send_registration_email:
                 try:
+                    profile.subscription_status = "Unregistered"
                     reg = Registration.objects.get(user=user)
                     props = {'key': reg.activation_key, 'district': district.name, 'email': email}
 
@@ -706,6 +704,9 @@ def do_import_user(task, csv_lines, request):
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
+
+            # Save the profile after we know everything has been set correctly.
+            profile.save()
 
         except Exception as e:
             db.transaction.rollback()
@@ -810,9 +811,6 @@ def single_user_submit(request):
         profile = UserProfile(user=user)
         profile.district = district
         profile.subscription_status = "Imported"
-        # if school_id:
-        #     profile.school=School.objects.get(id=school_id)
-        profile.save()
 
         #** course enroll
         cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
@@ -823,6 +821,7 @@ def single_user_submit(request):
         #** send activation email if required
         if send_registration_email:
             try:
+                profile.subscription_status = "Unregistered"
                 reg = Registration.objects.get(user=user)
                 props = {'key': reg.activation_key, 'district': district.name, 'email': email}
 
@@ -842,6 +841,9 @@ def single_user_submit(request):
 
             except Exception as e:
                 raise Exception("Failed to send registration email %s" % e)
+
+        # Save profile now that we have everything set.
+        profile.save()
 
     except Exception as e:
         db.transaction.rollback()
@@ -1044,6 +1046,8 @@ def do_send_registration_email(task, user_ids, request):
     for i, user_id in enumerate(user_ids):
         try:
             user = User.objects.get(id=user_id)
+            profile = UserProfile.objects.get(user=user)
+            profile.subscription_status = 'Unregistered'
 
             #** record processed count
             task.process_emails = i + 1
@@ -1076,7 +1080,6 @@ def do_send_registration_email(task, user_ids, request):
             send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         except Exception as e:
-            db.transaction.rollback()
             tasklog.error = "%s" % e
         finally:
             count_success += 1
@@ -1084,6 +1087,7 @@ def do_send_registration_email(task, user_ids, request):
             task.update_time = datetime.now(UTC)
             task.save()
             tasklog.save()
+            profile.save()
             db.transaction.commit()
 
     #** post process
