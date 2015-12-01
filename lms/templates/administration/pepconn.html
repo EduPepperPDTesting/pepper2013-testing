@@ -40,17 +40,17 @@ f.close()
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
 
 <!-- User Data Import -->
-<div class = "data_import_top">
+<div class="data_import_top">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
       Data Import <div class="icon"></div>
     </div>
 
       <div class="expand_div">
-        <a href="#" onclick = "toggle('district')" class="district-button"><div class="section-tab district">Districts</div></a>
-        <a href="#" onclick = "toggle('school')" class="school-button"><div class="section-tab school">Schools</div></a>
-        <a href="#" onclick = "toggle('user')" class="user-button"><div class="section-tab user">Users</div></a>
-        <a href="#" onclick = "toggle('cohort')" class="cohort-button"><div class="section-tab cohort">Cohorts</div></a>
+        <a href="#" onclick="toggle('district')" class="district-button"><div class="section-tab district">Districts</div></a>
+        <a href="#" onclick="toggle('school')" class="school-button"><div class="section-tab school">Schools</div></a>
+        <a href="#" onclick="toggle('user')" class="user-button"><div class="section-tab user">Users</div></a>
+        <a href="#" onclick="toggle('cohort')" class="cohort-button"><div class="section-tab cohort">Cohorts</div></a>
         <div class="district-section import-section">
             <form method="" id="districtDataImportForm" action="">
 
@@ -63,10 +63,10 @@ f.close()
                 </div>
                 <div style="padding:10px 5px">
                     <input class="form_submit" name="" value="Import Districts" type="submit">
-                    <div class="add-area" onclick = "$('#singleDistrictForm').slideToggle()">Add Single <span>[+]</span></div>
+                    <div class="add-area" onclick="$('#singleDistrictForm').slideToggle()">Add Single <span>[+]</span></div>
                 </div>
             </form>
-            <div id = "singleDistrictForm" style = "display:none">
+            <div id="singleDistrictForm" style="display:none">
                 <form method="post" id="singleDistrictImportForm" action="${reverse('pepconn_single_district_submit')}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
@@ -91,7 +91,7 @@ f.close()
                     </div>
                 </form>
             </div>
-        </div><span style = "display:none" id = "cohort_select"><select class = "cohort_selector"><option value=""></option>
+        </div><span style="display:none" id="cohort_select"><select class="cohort_selector"><option value=""></option>
         %for item in Cohort.objects.all().order_by('code'):
             <option value="${item.id}">${item.code}</option>
         %endfor
@@ -107,11 +107,11 @@ f.close()
                 </div>
                 <div style="padding:10px 5px">
                     <input class="form_submit" name="" value="Import Schools" type="submit">
-                     <div class="add-area" onclick = "$('#singleSchoolForm').slideToggle()">Add Single <span>[+]</span></div>
+                     <div class="add-area" onclick="$('#singleSchoolForm').slideToggle()">Add Single <span>[+]</span></div>
                 </div>
 
             </form>
-            <div id = "singleSchoolForm" style = "display:none">
+            <div id="singleSchoolForm" style="display:none">
                 <form method="post" id="singleSchoolImportForm" action="${reverse('pepconn_single_school_submit')}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
@@ -124,17 +124,17 @@ f.close()
                         </label><br/>
                         <label class="label">State:<br/>
                             <select id="state_single" name="state_id" autocomplete="off">
-                          <option value="" id = "null_case"></option>
+                          <option value="" id="null_case"></option>
                           %for item in State.objects.all().order_by('name'):
-                            <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                            <option id="${item.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
                             <select id="district_id_single" name="district_id" autocomplete="off">
-                              <option id = "null_case" value="null_case"></option>
+                              <option id="null_case" value="null_case"></option>
                                   %for item in District.objects.all().order_by('name'):
-                                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
                                   %endfor
                             </select>
                         </label><br/>
@@ -196,10 +196,10 @@ f.close()
         </div>
         <div style="padding:10px 5px">
           <input class="form_submit" type="submit" name="" value="Import Users" />
-        <div class="add-area" onclick = "$('#singleUserForm').slideToggle()">Add Single <span>[+]</span></div>
+        <div class="add-area" onclick="$('#singleUserForm').slideToggle()">Add Single <span>[+]</span></div>
       </div>
     </form>
-        <div id = "singleUserForm" style = "display:none">
+        <div id="singleUserForm" style="display:none">
             <form method="post" id="singleUserImportForm" action="${reverse('pepconn_single_user_submit')}">
                 <ul class="list">
                   <li>
@@ -221,17 +221,17 @@ f.close()
                 <div style="padding: 1em 7px 7px 7px;">
                     <label class="label">State:<br/>
                         <select id="user_state_single" name="state" autocomplete="off">
-                      <option id = "null_case" value=""></option>
+                      <option id="null_case" value=""></option>
                       %for item in State.objects.all().order_by('name'):
-                      <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                      <option id="${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
                         <select id="user_district_id" name="district" autocomplete="off">
-                          <option id = "null_case" value=""></option>
+                          <option id="null_case" value=""></option>
                           %for item in District.objects.all().order_by('name'):
-                          <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                          <option id="${item.state.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                     </label><br/>
@@ -255,17 +255,17 @@ f.close()
                 </label><br/>
                 <label class="label">State:<br/>
                     <select id="cohort_state_single" name="state_id" autocomplete="off">
-                  <option id = "null_case" value=""></option>
+                  <option id="null_case" value=""></option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                  <option id="${item.id}" value="${item.id}">${item.name}</option>
                   %endfor
                 </select>
                 </label><br/>
                 <label class="label required">District:<br/>
                     <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
-                      <option id = "null_case" value=""></option>
+                      <option id="null_case" value=""></option>
                       %for item in District.objects.all():
-                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                 </label><br/>
@@ -288,9 +288,9 @@ f.close()
 
   </div>
 </div>
-<div class = "data_import_bottom">
+<div class="data_import_bottom">
 
-  <div style = "display:none" class="main, data_import_content">
+  <div style="display:none" class="main, data_import_content">
 
     <div class="expand_title expand_title_collapse">
       User Registration <div class="icon"></div>
@@ -383,33 +383,33 @@ f.close()
       Management & Reporting <div class="icon"></div>
     </div>
     <div class="expand_div">
-          <a href="#" onclick = "toggle2('district_table'); return false;" class="district-button"><div class="table-tab district district_table">Districts</div></a>
-          <a href="#" onclick = "toggle2('school_table'); return false;" class="school-button"><div class="table-tab school school_table">Schools</div></a>
-          <a href="#" onclick = "toggle2('user_table'); return false;" class="user-button"><div class="table-tab user user_table">Users</div></a>
-          <a href="#" onclick = "toggle2('cohort_table'); return false;" class="cohort-button"><div class="table-tab cohort cohort_table">Cohorts</div></a><br>
+          <a href="#" onclick="toggle2('district_table'); return false;" class="district-button"><div class="table-tab district district_table">Districts</div></a>
+          <a href="#" onclick="toggle2('school_table'); return false;" class="school-button"><div class="table-tab school school_table">Schools</div></a>
+          <a href="#" onclick="toggle2('user_table'); return false;" class="user-button"><div class="table-tab user user_table">Users</div></a>
+          <a href="#" onclick="toggle2('cohort_table'); return false;" class="cohort-button"><div class="table-tab cohort cohort_table">Cohorts</div></a><br>
 
     <div class="district_table-section table-section">
-        <div class="add-area" onclick = "$('#filterArea').slideToggle()">
+        <div class="add-area" onclick="$('#filterArea').slideToggle()">
             FILTER
         </div>
-        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div id = "filterArea">
+        <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id="filterArea">
 
-                <select type = "search" data-column = "2" class = "search" id = "District_state_select">
-                  <option value="" selected class = "select-option" id = "null_case">Select State</option>
+                <select type="search" data-column="2" class="search" id="District_state_select">
+                  <option value="" selected class="select-option" id="null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                  <option id="${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
 
-                <input id = "District_search" placeholder = "Search" class="search" type="search" data-column="all">
-                <img onclick = "openBookmark('District')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <span onclick = "$('#district-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
-                <span class = "selectall"><input type = "checkbox" id = "selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-                <div  class = "select-columns" id="district-select"><br>
-                <input type = "checkbox" checked onchange = "$('.district_code').toggle();"></input><label><i>District ID</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.district_name').toggle();"></input><label><i>District Name</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.district_state_name').toggle();"></input><label><i>State</i></label><br>
+                <input id="District_search" placeholder="Search" class="search" type="search" data-column="all">
+                <img onclick="openBookmark('District')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <span onclick="$('#district-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
+                <span class="selectall"><input type="checkbox" id="selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div  class="select-columns" id="district-select"><br>
+                <input type="checkbox" checked onchange="$('.district_code').toggle();"></input><label><i>District ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.district_name').toggle();"></input><label><i>District Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.district_state_name').toggle();"></input><label><i>State</i></label><br>
                 </div>
                 </div>
         </div>
@@ -417,18 +417,18 @@ f.close()
             <table class="tablesorter-blue" id="district_table_init">
                 <thead>
             <tr>
-                <th class = "district_code">District Id</th>
-                <th class = "district_name">District Name</th>
-                <th class = "district_state_name">State</th>
+                <th class="district_code">District Id</th>
+                <th class="district_name">District Name</th>
+                <th class="district_state_name">State</th>
                 <th></th>
             </tr>
             </thead>
-                <tbody id = "district_data_tbody">
+                <tbody id="district_data_tbody">
 
                 </tbody>
             </table>
             <center>
-                <h3 id = "district_load_progress">
+                <h3 id="district_load_progress">
 
                 </h3>
             </center>
@@ -453,40 +453,40 @@ f.close()
           Download Districts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadDistrictCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadDistrictXLS"/>
-          <input type="button" value = "Delete Selected Districts" class ="small" style = "float:right" id = "delete_selected_districts"/>
+          <input type="button" value="Delete Selected Districts" class ="small" style="float:right" id="delete_selected_districts"/>
         </span>
     </div>
     <div class="school_table-section table-section">
-        <div class="add-area" onclick = "$('#filterArea2').slideToggle()">
+        <div class="add-area" onclick="$('#filterArea2').slideToggle()">
             FILTER
         </div>
-        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div id = "filterArea2">
-                <select type="search" class="search" data-column="3" id = "School_state_select">
+        <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id="filterArea2">
+                <select type="search" class="search" data-column="3" id="School_state_select">
 
-                      <option value="" id = "null_case">Select State</option>
+                      <option value="" id="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
-                      <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                      <option id="${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="2" id = "School_district_select">
+                <select type="search" class="search" data-column="2" id="School_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id = "${item.state.id}" value="${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                 </select>
 
-                <input placeholder = "Search" class="search" type="search" data-column="all" id = "School_search">
-                <img onclick = "openBookmark('School')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <span onclick = "$('#school-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
-                <span class = "selectall"><input type = "checkbox" id = "selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-                <div id = "school-select" class = "select-columns"><br>
-                <input type = "checkbox" checked onchange = "$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.school_district_two').toggle();"></input><label><i>District ID</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.school_state').toggle();"></input><label><i>State</i></label><br>
+                <input placeholder="Search" class="search" type="search" data-column="all" id="School_search">
+                <img onclick="openBookmark('School')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <span onclick="$('#school-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
+                <span class="selectall"><input type="checkbox" id="selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div id="school-select" class="select-columns"><br>
+                <input type="checkbox" checked onchange="$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_district_two').toggle();"></input><label><i>District ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_state').toggle();"></input><label><i>State</i></label><br>
                 </div>
 
             </div>
@@ -495,20 +495,20 @@ f.close()
             <table class="tablesorter-blue" id="school_table_init">
                 <thead>
             <tr>
-              <th class = "school_code">School Code</th>
-              <th class = "school_name">School Name</th>
-              <th class = "school_district_id">District</th>
-                <th class = "school_district_two">District ID</th>
-                <th class = "school_state">State</th>
+              <th class="school_code">School Code</th>
+              <th class="school_name">School Name</th>
+              <th class="school_district_id">District</th>
+                <th class="school_district_two">District ID</th>
+                <th class="school_state">State</th>
                 <th></th>
             </tr>
             </thead>
-                <tbody id = "school_data_tbody">
+                <tbody id="school_data_tbody">
 
                 </tbody>
             </table>
             <center>
-                <h3 id = "school_load_progress">
+                <h3 id="school_load_progress">
 
                 </h3>
             </center>
@@ -533,59 +533,59 @@ f.close()
           Download Districts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadSchoolCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadSchoolXLS"/>
-          <input type="button" value = "Delete Selected Schools" class ="small" style = "float:right" id = "delete_selected_schools"/>
+          <input type="button" value="Delete Selected Schools" class ="small" style="float:right" id="delete_selected_schools"/>
         </span>
     </div>
     <div class="user_table-section table-section">
-        <div class="add-area" onclick = "$('#filterArea2').slideToggle()">
+        <div class="add-area" onclick="$('#filterArea2').slideToggle()">
             FILTER
         </div>
-        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div id = "filterArea2">
-                <select type = "search" class="search" data-column="6" id = "User_state_select">
-                    <option value="" id = "null_case">Select State</option>
+        <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id="filterArea2">
+                <select type="search" class="search" data-column="6" id="User_state_select">
+                    <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id = "${item.id}" value="${item.name}">${item.name}</option>
+                        <option id="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
-                <select type="search" class="search" data-column="4" id = "User_district_select">
-                      <option value="" id = "-1" name = "null_case">Select District</option>
+                <select type="search" class="search" data-column="4" id="User_district_select">
+                      <option value="" id="-1" name="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id = "${item.state.id}" value="${item.name}" class = "${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="3" id = "User_school_select">
-                      <option value="" id = "null_case">Select School</option>
+                <select type="search" class="search" data-column="3" id="User_school_select">
+                      <option value="" id="null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
-                      <option id = "${item.district_id}" value = '${item.name}' class = "">${item.name}</option>
+                      <option id="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="8" id = "User_registration_select">
-                      <option value="" id = "null_case">Select Registration Status</option>
-                    <option value = "Registered">Registered</option>
-                    <option value = "Unregistered">Unregistered</option>
-                    <option value = "Imported">Imported</option>
-                    <option value = "Inactive">Inactive</option>
+                <select type="search" class="search" data-column="8" id="User_registration_select">
+                      <option value="" id="null_case">Select Registration Status</option>
+                    <option value="Registered">Registered</option>
+                    <option value="Unregistered">Unregistered</option>
+                    <option value="Imported">Imported</option>
+                    <option value="Inactive">Inactive</option>
                 </select>
-                <input placeholder = "Search by Last Name" class="search" type="search" data-column="1" id = "User_search_last">
-                <input placeholder = "Search by First Name" class="search" type="search" data-column="2" id = "User_search_first">
-                <input placeholder = "Search by Cohort" class="search" type="search" data-column="5" id = "User_search_cohort">
-                <input placeholder = "Search by Email" class="search" type="search" data-column="7" id = "User_search_email">
-                <input placeholder = "Search All" class="search" type="search" data-column="all" id = "User_search">
-                <img onclick = "openBookmark('User')" class = "bookmark_icon" src = "/static/images/bookmark.png"></img><br><br>
-                <span onclick = "$('#user-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
-                <span class = "selectall"><input type = "checkbox" id = "selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-                <div class = "select-columns" id = "user-select"><br>
-                <input type = "checkbox" checked onchange = "$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>State</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_school').toggle();"></input><label><i>School</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_district').toggle();"></input><label><i>District</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                <input type = "checkbox" checked onchange = "$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                <input placeholder="Search by Last Name" class="search" type="search" data-column="1" id="User_search_last">
+                <input placeholder="Search by First Name" class="search" type="search" data-column="2" id="User_search_first">
+                <input placeholder="Search by Cohort" class="search" type="search" data-column="5" id="User_search_cohort">
+                <input placeholder="Search by Email" class="search" type="search" data-column="7" id="User_search_email">
+                <input placeholder="Search All" class="search" type="search" data-column="all" id="User_search">
+                <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <span onclick="$('#user-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
+                <span class="selectall"><input type="checkbox" id="selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div class="select-columns" id="user-select"><br>
+                <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_school').toggle();"></input><label><i>State</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_school').toggle();"></input><label><i>School</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_district').toggle();"></input><label><i>District</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
                 </div>
             </div>
         </div>
@@ -593,25 +593,25 @@ f.close()
             <table class="tablesorter-blue" id="user_table_init">
                 <thead>
             <tr>
-              <th class = "user_id_select">ID</th>
-              <th class = "user_lname">Last Name</th>
-              <th class = "user_fname">First Name</th>
-              <th class = "user_school">School</th>
-              <th class = "user_district">District</th>
-              <th class = "user_cohort">Cohort</th>
-              <th class = "user_state">State</th>
-              <th class = "user_email">E-Mail</th>
-              <th class = "user_registration">Registration Status</th>
-              <th class = "user_enrollment_status">Enrollment Start</th>
+              <th class="user_id_select">ID</th>
+              <th class="user_lname">Last Name</th>
+              <th class="user_fname">First Name</th>
+              <th class="user_school">School</th>
+              <th class="user_district">District</th>
+              <th class="user_cohort">Cohort</th>
+              <th class="user_state">State</th>
+              <th class="user_email">E-Mail</th>
+              <th class="user_registration">Registration Status</th>
+              <th class="user_enrollment_status">Enrollment Start</th>
                 <th></th>
             </tr>
             </thead>
-                <tbody id = "user_data_tbody">
+                <tbody id="user_data_tbody">
 
                 </tbody>
             </table>
             <center>
-                <h3 id = "user_load_progress">
+                <h3 id="user_load_progress">
 
                 </h3>
             </center>
@@ -638,7 +638,7 @@ f.close()
           <input type="button" name="" value="Download Excel" class="small" id="downloadUserXLS"/>
         </span>
 
-        <span style = "float:right">
+        <span style="float:right">
             <input type="button" value="Delete Selected Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
             <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
             <input type="button" name="" onclick="addToCohort()" style="padding-left:10px;" value="Add To Cohort" class="small" id="userAddToCohort"/>
@@ -660,28 +660,28 @@ f.close()
         </ul>
     </div>
     <div class="cohort_table-section table-section">
-        <div class="add-area" onclick = "$('#filterArea3').slideToggle()">
+        <div class="add-area" onclick="$('#filterArea3').slideToggle()">
             FILTER
         </div>
-        <div class="filter" style = "padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div id = "filterArea3">
-                <select type = "search" class="search" data-column="5" id = "Cohort_state_select">
-                    <option value="" id = "null_case">Select State</option>
+        <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+            <div id="filterArea3">
+                <select type="search" class="search" data-column="5" id="Cohort_state_select">
+                    <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id = "${item.id}" value="${item.id}">${item.name}</option>
+                        <option id="${item.id}" value="${item.id}">${item.name}</option>
                     %endfor
                 </select>
-                <select type="search" class="search" data-column="4" id = "Cohort_district_select">
-                      <option value="" id = "null_case">Select District</option>
+                <select type="search" class="search" data-column="4" id="Cohort_district_select">
+                      <option value="" id="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id = "${item.state.id}" value="${item.id}" class = "${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <input placeholder = "Search" class="search" type="search" data-column="all" id = "Cohort_search">
+                <input placeholder="Search" class="search" type="search" data-column="all" id="Cohort_search">
                 <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
-                <span onclick = "$('#cohort-select').slideToggle();" class = "select-add-area"><b>Select Columns</b></span>
-                <span class = "selectall"><input type = "checkbox" id = "selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
-                <div id = "cohort-select" class = "select-columns"><br>
+                <span onclick="$('#cohort-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
+                <span class="selectall"><input type="checkbox" id="selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <div id="cohort-select" class="select-columns"><br>
                 <input type="checkbox" checked onchange="$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
                 <input type="checkbox" checked onchange="$('.cohort_license').toggle();"></input><label><i>Liscenses</i></label><br>
                 <input type="checkbox" checked onchange="$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
@@ -730,7 +730,7 @@ f.close()
           Download Cohorts:
           <input type="button" name="" value="Download CSV" class="small" id="downloadCohortCSV"/>
           <input type="button" name="" value="Download Excel" class="small" id="downloadCohortXLS"/>
-          <input type="button" value = "Delete Selected Cohorts" class ="small" style = "float:right" id = "delete_selected_cohort"/>
+          <input type="button" value="Delete Selected Cohorts" class ="small" style="float:right" id="delete_selected_cohort"/>
         </span>
     </div><br><br>
 

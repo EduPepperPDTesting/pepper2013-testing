@@ -161,13 +161,13 @@ def get_user_rows(request):
     code = ""
 
     for item in UserProfile.objects.all()[low:high]:
-        code += "<tr id = 'user_" + str(item.user.id) + "'>"
-        code += "<td class = 'user_id_select'>" + str(item.user.id) + "</td>"
-        code += "<td class = 'user_lname'>" + str(item.user.last_name) + "</td>"
-        code += "<td class = 'user_fname'>" + str(item.user.first_name) + "</td>"
+        code += "<tr id='user_" + str(item.user.id) + "'>"
+        code += "<td class='user_id_select'>" + str(item.user.id) + "</td>"
+        code += "<td class='user_lname'>" + str(item.user.last_name) + "</td>"
+        code += "<td class='user_fname'>" + str(item.user.first_name) + "</td>"
 
         try:
-            user_school = item.school.name
+            user_school=item.school.name
         except:
             user_school = ""
         try:
@@ -181,15 +181,15 @@ def get_user_rows(request):
         except:
             user_cohort = ""
 
-        code += ("<td class = 'user_school'>" + str(user_school) + "</td>")
-        code += ("<td class = 'user_district'>" + str(user_district) + "</td>")
-        code += ("<td class = 'user_cohort'>" + str(user_cohort) + "</td>")
-        code += ("<td class = 'user_state'>" + str(user_district_state) + "</td>")
-        code += ("<td class = 'user_email'>" + str(item.user.email) + "</td>")
+        code += ("<td class='user_school'>" + str(user_school) + "</td>")
+        code += ("<td class='user_district'>" + str(user_district) + "</td>")
+        code += ("<td class='user_cohort'>" + str(user_cohort) + "</td>")
+        code += ("<td class='user_state'>" + str(user_district_state) + "</td>")
+        code += ("<td class='user_email'>" + str(item.user.email) + "</td>")
 
-        code += "<td class = 'user_registration'>" + str(item.subscription_status) + "</td>"
-        code += "<td class = 'user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
-        code += "<td><input class = 'user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
+        code += "<td class='user_registration'>" + str(item.subscription_status) + "</td>"
+        code += "<td class='user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
+        code += "<td><input class='user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
         code += "</tr>"
 
     return HttpResponse(json.dumps({'code': code}), content_type="application/json")
@@ -210,10 +210,10 @@ def get_school_rows(request):
     code = ""
 
     for item in School.objects.all()[low:high]:
-        code += "<tr id = 'school_" + str(item.id) + "'>"
+        code += "<tr id='school_" + str(item.id) + "'>"
 
-        code += "<td class = 'school_code'>" + str(item.code) + "</td>"
-        code += "<td class = 'school_name'>" + str(item.name) + "</td>"
+        code += "<td class='school_code'>" + str(item.code) + "</td>"
+        code += "<td class='school_name'>" + str(item.name) + "</td>"
         try:
             district_state = item.district.state.name
             district_name = item.district.name
@@ -221,10 +221,10 @@ def get_school_rows(request):
         except:
             district_state = ""
             district_name = ""
-        code += "<td class = 'school_district_id'>" + str(district_name) + "</td>"
-        code += "<td class = 'school_district_two'>" + str(district_id) + "</td>"
-        code += "<td class = 'school_state'>" + str(district_state) + "</td>"
-        code += "<td><input type='checkbox' name='id' class = 'school_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td class='school_district_id'>" + str(district_name) + "</td>"
+        code += "<td class='school_district_two'>" + str(district_id) + "</td>"
+        code += "<td class='school_state'>" + str(district_state) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='school_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -245,12 +245,12 @@ def get_district_rows(request):
     code = ""
 
     for item in District.objects.all()[low:high]:
-        code += "<tr id = 'district_" + str(item.id) + "'>"
+        code += "<tr id='district_" + str(item.id) + "'>"
 
-        code += "<td class = 'district_code'>" + str(item.code) + "</td>"
-        code += "<td class = 'district_name'>" + str(item.name) + "</td>"
-        code += "<td class = 'district_state_name'>" + str(item.state.name) + "</td>"
-        code += "<td><input type='checkbox' name='id' class = 'district_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td class='district_code'>" + str(item.code) + "</td>"
+        code += "<td class='district_name'>" + str(item.name) + "</td>"
+        code += "<td class='district_state_name'>" + str(item.state.name) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='district_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
@@ -273,20 +273,20 @@ def get_cohort_rows(request):
     code = ""
 
     for item in Cohort.objects.all()[low:high]:
-        code += "<tr id = 'cohort_" + str(item.id) + "'>"
+        code += "<tr id='cohort_" + str(item.id) + "'>"
 
-        code += "<td class = 'cohort_id'>" + str(item.code) + "</td>"
-        code += "<td class = 'cohort_liscense'>" + str(item.licences) + "</td>"
-        code += "<td class = 'cohort_term'>" + str(item.term_months) + "</td>"
-        code += "<td class = 'cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
-        code += "<td style = 'display:none;'>" + str(item.district_id) + "</td>"
+        code += "<td class='cohort_id'>" + str(item.code) + "</td>"
+        code += "<td class='cohort_liscense'>" + str(item.licences) + "</td>"
+        code += "<td class='cohort_term'>" + str(item.term_months) + "</td>"
+        code += "<td class='cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
+        code += "<td style='display:none;'>" + str(item.district_id) + "</td>"
         try:
             district_state = item.district.state.id
         except:
             district_state = ""
-        code += "<td style = 'display:none;'>" + str(district_state) + "</td>"
+        code += "<td style='display:none;'>" + str(district_state) + "</td>"
 
-        code += "<td><input type='checkbox' name='id' class = 'cohort_select_box' value='" + str(item.id) + "'/></td>"
+        code += "<td><input type='checkbox' name='id' class='cohort_select_box' value='" + str(item.id) + "'/></td>"
 
         code += "</tr>"
 
