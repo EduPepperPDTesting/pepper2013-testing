@@ -163,6 +163,10 @@ def get_user_rows(request):
     for item in UserProfile.objects.all()[low:high]:
         code += "<tr id = 'user_" + str(item.user.id) + "'>"
         code += "<td class = 'user_id_select'>" + str(item.user.id) + "</td>"
+        code += "<td class = 'user_activation_link'>"
+        if Registration.objects.filter(user_id=item.user_id).count():
+            code += "<a href = '/register/"+str(Registration.objects.get(user_id = item.user_id).activation_key) +"' target = '_blank'>Activation Link</a>"
+        code += "</td>"
         code += "<td class = 'user_lname'>" + str(item.user.last_name) + "</td>"
         code += "<td class = 'user_fname'>" + str(item.user.first_name) + "</td>"
 
