@@ -827,7 +827,7 @@ def single_user_submit(request):
 
                 use_custom = request.POST.get("customize_email")
                 if use_custom == 'true':
-                    custom_email = request.POST.get("custom_email_001")
+                    custom_email = request.POST.get("custom_email_003")
                     custom_email_subject = request.POST.get("custom_email_subject")
                     subject = render_from_string(custom_email_subject, props)
                     body = render_from_string(custom_email, props)
@@ -1080,6 +1080,7 @@ def do_send_registration_email(task, user_ids, request):
             send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
         except Exception as e:
+            db.transaction.rollback()
             tasklog.error = "%s" % e
         finally:
             count_success += 1
