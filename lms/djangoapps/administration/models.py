@@ -21,7 +21,7 @@ class ImportTaskLog(models.Model):
     task = models.ForeignKey(ImportTask, on_delete=models.PROTECT)
     line = models.IntegerField(blank=False, default=0)
     username = models.CharField(blank=False, max_length=30, db_index=True)
-    import_data = models.CharField(blank=True, max_length=255, default='')
+    import_data = models.CharField(blank=False, max_length=255, default='')
     create_date = models.DateTimeField(auto_now_add=True, db_index=False)
     error = models.CharField(blank=False, max_length=255, db_index=True)
 
