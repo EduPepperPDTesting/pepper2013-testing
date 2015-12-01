@@ -146,6 +146,156 @@ def cohort_submit(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
+def get_user_count(request):
+    return HttpResponse(json.dumps({'count': UserProfile.objects.all().count()}), content_type="application/json")
+
+
+def get_user_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in UserProfile.objects.all()[low:high]:
+        code += "<tr id='user_" + str(item.user.id) + "'>"
+        code += "<td class='user_id_select'>" + str(item.user.id) + "</td>"
+        code += "<td class='user_lname'>" + str(item.user.last_name) + "</td>"
+        code += "<td class='user_fname'>" + str(item.user.first_name) + "</td>"
+
+        try:
+            user_school=item.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.district.name)
+            user_district_state = str(item.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+        try:
+            user_cohort = str(item.cohort.code)
+        except:
+            user_cohort = ""
+
+        code += ("<td class='user_school'>" + str(user_school) + "</td>")
+        code += ("<td class='user_district'>" + str(user_district) + "</td>")
+        code += ("<td class='user_cohort'>" + str(user_cohort) + "</td>")
+        code += ("<td class='user_state'>" + str(user_district_state) + "</td>")
+        code += ("<td class='user_email'>" + str(item.user.email) + "</td>")
+
+        code += "<td class='user_registration'>" + str(item.subscription_status) + "</td>"
+        code += "<td class='user_activation_link'>"
+        if Registration.objects.filter(user_id=item.user_id).count():
+            code += "<a href='/register/"+str(Registration.objects.get(user_id=item.user_id).activation_key) +"' target='_blank'>Activation Link</a>"
+        code += "</td>"
+        code += "<td class='user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
+        code += "<td><input class='user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_school_count(request):
+    return HttpResponse(json.dumps({'count': School.objects.all().count()}), content_type="application/json")
+
+
+def get_school_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in School.objects.all()[low:high]:
+        code += "<tr id='school_" + str(item.id) + "'>"
+
+        code += "<td class='school_code'>" + str(item.code) + "</td>"
+        code += "<td class='school_name'>" + str(item.name) + "</td>"
+        try:
+            district_state = item.district.state.name
+            district_name = item.district.name
+            district_id = item.district_id
+        except:
+            district_state = ""
+            district_name = ""
+        code += "<td class='school_district_id'>" + str(district_name) + "</td>"
+        code += "<td class='school_district_two'>" + str(district_id) + "</td>"
+        code += "<td class='school_state'>" + str(district_state) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='school_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_district_count(request):
+    return HttpResponse(json.dumps({'count': District.objects.all().count()}), content_type="application/json")
+
+def get_district_rows(request):
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in District.objects.all()[low:high]:
+        code += "<tr id='district_" + str(item.id) + "'>"
+
+        code += "<td class='district_code'>" + str(item.code) + "</td>"
+        code += "<td class='district_name'>" + str(item.name) + "</td>"
+        code += "<td class='district_state_name'>" + str(item.state.name) + "</td>"
+        code += "<td><input type='checkbox' name='id' class='district_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
+
+def get_cohort_count(request):
+    return HttpResponse(json.dumps({'count': Cohort.objects.all().count()}), content_type="application/json")
+
+
+def get_cohort_rows(request):
+
+    low = float(request.GET['start'])
+    increment = float(request.GET['increment'])
+    high = float(request.GET['max'])
+
+    if (low + increment) <= high:
+        high = (low+increment)
+
+    code = ""
+
+    for item in Cohort.objects.all()[low:high]:
+        code += "<tr id='cohort_" + str(item.id) + "'>"
+
+        code += "<td class='cohort_id'>" + str(item.code) + "</td>"
+        code += "<td class='cohort_liscense'>" + str(item.licences) + "</td>"
+        code += "<td class='cohort_term'>" + str(item.term_months) + "</td>"
+        code += "<td class='cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
+        code += "<td style='display:none;'>" + str(item.district_id) + "</td>"
+        try:
+            district_state = item.district.state.id
+        except:
+            district_state = ""
+        code += "<td style='display:none;'>" + str(district_state) + "</td>"
+
+        code += "<td><input type='checkbox' name='id' class='cohort_select_box' value='" + str(item.id) + "'/></td>"
+
+        code += "</tr>"
+
+    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+
 
 ###############################################
 #            District Data Import             #
@@ -188,19 +338,18 @@ def import_district_progress(request):
 
 
 def validate_district_cvs_line(line):
-    exist=False
     # check field count
-    n=0
+    n = 0
     for item in line:
         if len(item.strip()):
-            n=n+1
-    if n != 3:
+            n += 1
+    if n != len(DISTRICT_CSV_COLS):
         raise Exception("Wrong column count %s" % n)
 
-    name=line[DISTRICT_CSV_COLS.index('name')]
-    code=line[DISTRICT_CSV_COLS.index('id')]
+    name = line[DISTRICT_CSV_COLS.index('name')]
+    code = line[DISTRICT_CSV_COLS.index('id')]
 
-    if len(District.objects.filter(name=name,code=code)) > 0:
+    if len(District.objects.filter(name=name, code=code)) > 0:
         raise Exception("A district named '{name}' already exists".format(name=name))
 
 
@@ -215,7 +364,7 @@ def do_import_district(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             task.process_lines = i + 1
 
@@ -232,6 +381,8 @@ def do_import_district(task, csv_lines, request):
             district.name = name
             district.state_id = state
             district.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -243,6 +394,8 @@ def do_import_district(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_district_tasks(request):
@@ -320,16 +473,15 @@ def import_school_progress(request):
     return HttpResponse(j, content_type="application/json")
 
 
-def validate_school_cvs_line(line, district_id):
-    name=line[SCHOOL_CSV_COLS.index('name')]
-
-    n=0
+def validate_school_cvs_line(line, district):
+    name = line[SCHOOL_CSV_COLS.index('name')]
+    n = 0
     for item in line:
         if len(item.strip()):
             n += 1
-    if n != 4:
+    if n != len(SCHOOL_CSV_COLS):
         raise Exception("Wrong column count")
-    if len(School.objects.filter(name=name, district_id=district_id)) > 0:
+    if len(School.objects.filter(name=name, district=district)) > 0:
         raise Exception("A school named '{name}' already exists in the district".format(name=name))
 
 
@@ -344,7 +496,8 @@ def do_import_school(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
+
         try:
             task.process_lines = i + 1
 
@@ -352,14 +505,17 @@ def do_import_school(task, csv_lines, request):
             id = line[SCHOOL_CSV_COLS.index('id')]
             state = line[SCHOOL_CSV_COLS.index('state')]
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
+            district_object = District.objects.get(code=district_id)
 
-            validate_school_cvs_line(line, district_id)
+            validate_school_cvs_line(line, district_object)
 
             school = School()
             school.name = name
             school.code = id
-            school.district_id = district_id
+            school.district = district_object
             school.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -371,6 +527,8 @@ def do_import_school(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_school_tasks(request):
@@ -398,7 +556,9 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district_id = request.POST['district_id']
+        district_id = request.POST['district_id']
+        district_object = District.objects.get(id=district_id)
+        school.district = district_object
         school.save()
     except Exception as e:
         db.transaction.rollback()
@@ -480,7 +640,7 @@ def do_import_user(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             #** record processed count
             task.process_lines = i + 1
@@ -494,8 +654,6 @@ def do_import_user(task, csv_lines, request):
 
             #** create log
             tasklog.username = username
-            tasklog.email = email
-            tasklog.district_name = district_name
             tasklog.error = "ok"
               
             validate_user_cvs_line(line)
@@ -548,7 +706,7 @@ def do_import_user(task, csv_lines, request):
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
-            
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -562,19 +720,21 @@ def do_import_user(task, csv_lines, request):
             tasklog.save()
             db.transaction.commit()
 
-    #** post process
+    email_results(task, request.user.email)
+
+
+def email_results(task, email):
     tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
-        FIELDS = ["line", "username", "email", "district", "create_date", "error"]
-        TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
+        FIELDS = ["line", "username", "import_data", "create_date", "error"]
+        TITLES = ["Line", "Username", "Import Data", "Create Date", "Error"]
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=FIELDS)
         writer.writerow(dict(zip(FIELDS, TITLES)))
         for d in tasklogs:
             row = {"line": d.line,
                    "username": d.username,
-                   "email": d.email,
-                   "district": d.district_name,
+                   "import_data": d.import_data,
                    "create_date": d.create_date,
                    "error": d.error
                    }
@@ -584,8 +744,7 @@ def do_import_user(task, csv_lines, request):
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
 
-                       settings.SUPPORT_EMAIL, [request.user.email], attach)
-
+                       settings.SUPPORT_EMAIL, [email], attach)
         output.close()
 
 
@@ -628,18 +787,20 @@ def import_user_tasks(request):
 def single_user_submit(request):
 
     send_registration_email = request.POST.get('send_registration_email') == 'true'
-    message = "Message Begin: Email? " + send_registration_email
+    message = "Message Begin: Email? " + str(send_registration_email)
     if not request.user.is_authenticated:
         raise Http404
     try:
         email = request.POST['email']
-        district = request.POST['district']
+        district_id = request.POST['district']
         username = random_mark(20)
         user = User(username=username, email=email, is_active=False)
         user.set_password(username)
         user.save()
 
-        message += "  email? "+email+"   district? "+district
+        district = District.objects.get(id=district_id)
+
+        message += "  email? "+email+"   district? "+str(district)
 
         #** registration
         registration = Registration()
@@ -854,9 +1015,11 @@ def registration_filter_user(vars, data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
-
+    message = ""
+    message = str(request.POST.get('ids'))
     ids=[]
     if request.POST.get('ids'):
+        message = request.POST.get("sending custom")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()
@@ -869,26 +1032,9 @@ def registration_send_email(request):
     task.save()
     
     do_send_registration_email(task, ids, request)
-    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
 
 
-def registration_send_email_report(request):
-    user = User.objects.filter(id=request.POST.get("id"))
-    email_address = user.email
-    use_custom = 'false'
-    if use_custom == 'true':
-        custom_email = request.POST.get("custom_email_002")
-        custom_email_subject = request.POST.get("custom_email_subject")
-        subject = render_from_string(custom_email_subject, props)
-        body = render_from_string(custom_email, props)
-    else:
-        subject = render_to_string('emails/activation_email_subject.txt', props)
-        body = render_to_string('emails/activation_email.txt', props)
-
-    subject = ''.join(subject.splitlines())
-
-    send_html_mail(subject, body, settings.SUPPORT_EMAIL, email_address)
-    return HttpResponse(json.dumps({'success':'true', 'email':email_address}), content_type="application/json")
 
 @postpone
 def do_send_registration_email(task, user_ids, request):
