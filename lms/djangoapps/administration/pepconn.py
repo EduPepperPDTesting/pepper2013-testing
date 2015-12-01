@@ -188,6 +188,10 @@ def get_user_rows(request):
         code += ("<td class='user_email'>" + str(item.user.email) + "</td>")
 
         code += "<td class='user_registration'>" + str(item.subscription_status) + "</td>"
+        code += "<td class='user_activation_link'>"
+        if Registration.objects.filter(user_id=item.user_id).count():
+            code += "<a href='/register/"+str(Registration.objects.get(user_id=item.user_id).activation_key) +"' target='_blank'>Activation Link</a>"
+        code += "</td>"
         code += "<td class='user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
         code += "<td><input class='user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
         code += "</tr>"
