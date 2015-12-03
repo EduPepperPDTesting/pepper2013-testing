@@ -20,6 +20,7 @@ import json
 # import time
 import logging
 import csv
+import urllib2
 
 # import multiprocessing
 from multiprocessing import Process, Queue, Pipe
@@ -129,15 +130,15 @@ def cohort_submit(request):
         raise Http404
     try:
         if request.POST.get('id'):
-            d=Cohort(request.POST['id'])
+            d = Cohort(request.POST['id'])
         else:
-            d=Cohort()
-        d.id==request.POST['id']
-        d.code=request.POST['code']
-        d.licences=request.POST['licences']
-        d.term_months=request.POST['term_months']
-        d.start_date=request.POST['start_date']
-        d.district_id=request.POST['district_id']
+            d = Cohort()
+        d.id = request.POST['id']
+        d.code = request.POST['code']
+        d.licences = request.POST['licences']
+        d.term_months = request.POST['term_months']
+        d.start_date = request.POST['start_date']
+        d.district_id = request.POST['district_id']
         d.save()
     except Exception as e:
         db.transaction.rollback()
@@ -146,28 +147,73 @@ def cohort_submit(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-def get_user_count(request):
-    return HttpResponse(json.dumps({'count': UserProfile.objects.all().count()}), content_type="application/json")
+# def get_user_count(request):
+#     return HttpResponse(json.dumps({'count': UserProfile.objects.all().count()}), content_type="application/json")
+
+
+def build_filters(columns, filters):
+    kwargs = dict()
+    for column, value in filters.iteritems():
+        if not column == 'all':
+            if value.isdigit():
+                out_value = int(value)
+            else:
+                out_value = value
+            kwargs[columns[int(column)]] = out_value
+    # try:
+    #     value = filters.get('all')
+    #     raise Exception(value)
+    #     args_list = list()
+    #     for column in columns:
+    #         args_list.append(Q(**{column: value}))
+    #     args = args_list.pop()
+    #     for item in args_list:
+    #         args |= item
+    # except:
+    #     args = False
+    args = False
+
+    return args, kwargs
 
 
 def get_user_rows(request):
-    low = float(request.GET['start'])
-    increment = float(request.GET['increment'])
-    high = float(request.GET['max'])
+    columns = ['user_id__exact',
+               'user__last_name__contains',
+               'user__first_name__contains',
+               'school__name__exact',
+               'district__name__exact',
+               'district__state__name__exact',
+               'cohort__code__contains',
+               'user__email__contains',
+               'subscription_status__exact']
+    # sorts = get_post_array(request.GET, 'col')
+    filters = get_post_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
 
-    if (low + increment) <= high:
-        high = (low+increment)
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            users = UserProfile.objects.prefetch_related().filter(args, **kwargs)
+        else:
+            users = UserProfile.objects.prefetch_related().filter(**kwargs)
+    else:
+        users = UserProfile.objects.prefetch_related().all()
+    count = users.count()
+    json_out = [count]
+    rows = list()
 
-    code = ""
-
-    for item in UserProfile.objects.all()[low:high]:
-        code += "<tr id='user_" + str(item.user.id) + "'>"
-        code += "<td class='user_id_select'>" + str(item.user.id) + "</td>"
-        code += "<td class='user_lname'>" + str(item.user.last_name) + "</td>"
-        code += "<td class='user_fname'>" + str(item.user.first_name) + "</td>"
+    # for item in users:
+    for item in users[start:end]:
+        row = list()
+        row.append(int(item.user.id))
+        row.append(str(item.user.last_name))
+        row.append(str(item.user.first_name))
 
         try:
-            user_school=item.school.name
+            user_school = item.school.name
         except:
             user_school = ""
         try:
@@ -181,120 +227,194 @@ def get_user_rows(request):
         except:
             user_cohort = ""
 
-        code += ("<td class='user_school'>" + str(user_school) + "</td>")
-        code += ("<td class='user_district'>" + str(user_district) + "</td>")
-        code += ("<td class='user_cohort'>" + str(user_cohort) + "</td>")
-        code += ("<td class='user_state'>" + str(user_district_state) + "</td>")
-        code += ("<td class='user_email'>" + str(item.user.email) + "</td>")
+        row.append(str(user_school))
+        row.append(str(user_district))
+        row.append(str(user_cohort))
+        row.append(str(user_district_state))
+        row.append(str(item.user.email))
+        row.append(str(item.subscription_status))
+        try:
+            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        except:
+            activation_key = ''
+        row.append('<a href="/register/' + activation_key + '" target="_blank">Activation Link</a>')
+        row.append(str(item.user.date_joined))
+        row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
+        rows.append(row)
 
-        code += "<td class='user_registration'>" + str(item.subscription_status) + "</td>"
-        code += "<td class='user_activation_link'>"
-        if Registration.objects.filter(user_id=item.user_id).count():
-            code += "<a href='/register/"+str(Registration.objects.get(user_id=item.user_id).activation_key) +"' target='_blank'>Activation Link</a>"
-        code += "</td>"
-        code += "<td class='user_enrollment_status'>" + str(item.user.date_joined) + "</td>"
-        code += "<td><input class='user_select_box' type='checkbox' name='id' value='" + str(item.user.id) + "'/></td>"
-        code += "</tr>"
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
-    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def get_school_count(request):
-    return HttpResponse(json.dumps({'count': School.objects.all().count()}), content_type="application/json")
+# def get_school_count(request):
+#     return HttpResponse(json.dumps({'count': School.objects.all().count()}), content_type="application/json")
 
 
 def get_school_rows(request):
-    low = float(request.GET['start'])
-    increment = float(request.GET['increment'])
-    high = float(request.GET['max'])
+    columns = ['code__contains',
+               'name__contains',
+               'district__name__exact',
+               'district__code__contains',
+               'district__state__name__exact']
+    # sorts = get_post_array(request.GET, 'col')
+    filters = get_post_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
 
-    if (low + increment) <= high:
-        high = (low+increment)
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            schools = School.objects.prefetch_related().filter(args, **kwargs)
+        else:
+            schools = School.objects.prefetch_related().filter(**kwargs)
+    else:
+        schools = School.objects.prefetch_related().all()
+    count = schools.count()
+    json_out = [count]
+    rows = list()
 
-    code = ""
-
-    for item in School.objects.all()[low:high]:
-        code += "<tr id='school_" + str(item.id) + "'>"
-
-        code += "<td class='school_code'>" + str(item.code) + "</td>"
-        code += "<td class='school_name'>" + str(item.name) + "</td>"
+    # for item in schools:
+    for item in schools[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.name))
         try:
             district_state = item.district.state.name
-            district_name = item.district.name
-            district_id = item.district_id
         except:
             district_state = ""
+        try:
+            district_name = item.district.name
+        except:
             district_name = ""
-        code += "<td class='school_district_id'>" + str(district_name) + "</td>"
-        code += "<td class='school_district_two'>" + str(district_id) + "</td>"
-        code += "<td class='school_state'>" + str(district_state) + "</td>"
-        code += "<td><input type='checkbox' name='id' class='school_select_box' value='" + str(item.id) + "'/></td>"
+        try:
+            district_id = item.district.code
+        except:
+            district_id = ""
+        row.append(str(district_name))
+        row.append(str(district_id))
+        row.append(str(district_state))
+        row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
 
-        code += "</tr>"
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
-    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def get_district_count(request):
-    return HttpResponse(json.dumps({'count': District.objects.all().count()}), content_type="application/json")
+# def get_district_count(request):
+#     return HttpResponse(json.dumps({'count': District.objects.all().count()}), content_type="application/json")
 
 def get_district_rows(request):
-    low = float(request.GET['start'])
-    increment = float(request.GET['increment'])
-    high = float(request.GET['max'])
+    columns = ['code__contains',
+               'name__contains',
+               'state__name__exact']
+    # sorts = get_post_array(request.GET, 'col')
+    filters = get_post_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
 
-    if (low + increment) <= high:
-        high = (low+increment)
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            districts = District.objects.prefetch_related().filter(args, **kwargs)
+        else:
+            districts = District.objects.prefetch_related().filter(**kwargs)
+    else:
+        districts = District.objects.prefetch_related().all()
+    count = districts.count()
+    json_out = [count]
+    rows = list()
 
-    code = ""
+    # for item in districts:
+    for item in districts[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.name))
+        row.append(str(item.state.name))
+        row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
 
-    for item in District.objects.all()[low:high]:
-        code += "<tr id='district_" + str(item.id) + "'>"
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
-        code += "<td class='district_code'>" + str(item.code) + "</td>"
-        code += "<td class='district_name'>" + str(item.name) + "</td>"
-        code += "<td class='district_state_name'>" + str(item.state.name) + "</td>"
-        code += "<td><input type='checkbox' name='id' class='district_select_box' value='" + str(item.id) + "'/></td>"
-
-        code += "</tr>"
-
-    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-def get_cohort_count(request):
-    return HttpResponse(json.dumps({'count': Cohort.objects.all().count()}), content_type="application/json")
+# def get_cohort_count(request):
+#     return HttpResponse(json.dumps({'count': Cohort.objects.all().count()}), content_type="application/json")
 
 
 def get_cohort_rows(request):
+    columns = ['code__contains',
+               'licenses__exact',
+               'term_months__exact',
+               'start_date__contains',
+               'district__name__exact',
+               'district__code__exact',
+               'district__state__exact']
+    # sorts = get_post_array(request.GET, 'col')
+    filters = get_post_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
 
-    low = float(request.GET['start'])
-    increment = float(request.GET['increment'])
-    high = float(request.GET['max'])
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs)
+        else:
+            cohorts = Cohort.objects.prefetch_related().filter(**kwargs)
+    else:
+        cohorts = Cohort.objects.prefetch_related().all()
+    count = cohorts.count()
+    json_out = [count]
+    rows = list()
 
-    if (low + increment) <= high:
-        high = (low+increment)
-
-    code = ""
-
-    for item in Cohort.objects.all()[low:high]:
-        code += "<tr id='cohort_" + str(item.id) + "'>"
-
-        code += "<td class='cohort_id'>" + str(item.code) + "</td>"
-        code += "<td class='cohort_liscense'>" + str(item.licences) + "</td>"
-        code += "<td class='cohort_term'>" + str(item.term_months) + "</td>"
-        code += "<td class='cohort_start'>" + str('{d:%Y-%m-%d}'.format(d=item.start_date)) + "</td>"
-        code += "<td style='display:none;'>" + str(item.district_id) + "</td>"
+    # for item in cohorts:
+    for item in cohorts[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.licences))
+        row.append(str(item.term_months))
+        row.append(str('{d:%Y-%m-%d}'.format(d=item.start_date)))
         try:
-            district_state = item.district.state.id
+            district_name = item.district.name
+        except:
+            district_name = ""
+        try:
+            district_code = item.district.code
+        except:
+            district_code = ""
+        try:
+            district_state = item.district.state.name
         except:
             district_state = ""
-        code += "<td style='display:none;'>" + str(district_state) + "</td>"
+        row.append(str(district_name))
+        row.append(str(district_code))
+        row.append(str(district_state))
+        row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
 
-        code += "<td><input type='checkbox' name='id' class='cohort_select_box' value='" + str(item.id) + "'/></td>"
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
-        code += "</tr>"
-
-    return HttpResponse(json.dumps({'code': code}), content_type="application/json")
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
 ###############################################
@@ -1271,3 +1391,16 @@ def registration_download_excel(request):
     response.write(output.getvalue())    
     return response
 
+
+def get_post_array(post, name):
+    """
+    Gets array values from a jQuery POST.
+    """
+    output = dict()
+    for key in post.keys():
+        value = urllib2.unquote(post.get(key))
+        if key.startswith(name + '[') and not value == 'undefined':
+            start = key.find('[')
+            i = key[start + 1:-1]
+            output.update({i: value})
+    return output
