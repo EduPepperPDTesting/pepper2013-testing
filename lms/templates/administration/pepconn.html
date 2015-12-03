@@ -378,7 +378,7 @@ f.close()
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
 
@@ -568,7 +568,7 @@ f.close()
                 <select type="search" class="search" data-column="4" id="Cohort_district_select">
                       <option value="" id="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <!--<input placeholder="Search" class="search" type="search" data-column="all" id="Cohort_search">-->
