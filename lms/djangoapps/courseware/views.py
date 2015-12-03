@@ -79,6 +79,20 @@ def courses(request):
 
     return render_to_response("courseware/courses.html", {'courses': courses, 'link': True})
 
+#20151203 add for dipcourses	
+#begin	
+@ensure_csrf_cookie
+@cache_if_anonymous
+def newgroup_courses(request):
+    """
+    Render "find courses" page.  The course selection work is done in courseware.courses.
+    """
+    courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    # courses = sort_by_announcement(courses)
+    courses = sort_by_custom(courses)
+
+    return render_to_response("courseware/dpicourses.html", {'courses': courses, 'link': True})
+#end
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
     #20151130 modify the courses shown in different course grade after press ALl button
@@ -122,7 +136,11 @@ def course_list(request):
     state = request.GET.get('state', '')
     credit = request.GET.get('credit', '')
     is_new = request.GET.get('is_new', '')
-
+	#20151203 add new parameter for dipcourses	
+	#begin
+	group_new = request.GET.get('group_new','')
+	#end
+	
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
         filterDic['metadata.display_subject'] = subject_id
@@ -160,8 +178,13 @@ def course_list(request):
     for gc in g_courses:
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
-    return render_to_response("courseware/courses.html", {'courses': g_courses})
-
+	#20151203 modify for dipcourses	
+	#begin
+	if group_new == 'tnl3':        
+        return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
+    else:
+        return render_to_response("courseware/courses.html", {'courses': g_courses})
+	#end
 
 def render_accordion(request, course, chapter, section, field_data_cache):
     """

@@ -220,6 +220,10 @@ class CourseFields(object):
     is_new = Boolean(help="Whether this course should be flagged as new", scope=Scope.settings)
     no_grade = Boolean(help="True if this course isn't graded", default=False, scope=Scope.settings)
     disable_progress_graph = Boolean(help="True if this course shouldn't display the progress graph", default=False, scope=Scope.settings)
+	#20151203 add new parameter in "Advanced Settings" of cms for dpiscourse
+    #begin
+    display_tnl = Boolean(help="True if this course should display in the TNL3 courses of dpiscourse page", default=False, scope=Scope.settings)
+    #end
     #20151124 add new parameter in "Advanced Settings" of cms
     #begin
     hide_discussions = Boolean(help="True if this course shouldn't display the discussion", default=False, scope=Scope.settings)
