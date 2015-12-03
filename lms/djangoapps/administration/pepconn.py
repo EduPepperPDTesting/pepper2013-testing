@@ -196,11 +196,11 @@ def get_user_rows(request):
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            users = UserProfile.objects.select_related().filter(args, **kwargs)
+            users = UserProfile.objects.prefetch_related().filter(args, **kwargs)
         else:
-            users = UserProfile.objects.select_related().filter(**kwargs)
+            users = UserProfile.objects.prefetch_related().filter(**kwargs)
     else:
-        users = UserProfile.objects.select_related().all()
+        users = UserProfile.objects.prefetch_related().all()
     count = users.count()
     json_out = [count]
     rows = list()
@@ -268,11 +268,11 @@ def get_school_rows(request):
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            schools = School.objects.select_related().filter(args, **kwargs)
+            schools = School.objects.prefetch_related().filter(args, **kwargs)
         else:
-            schools = School.objects.select_related().filter(**kwargs)
+            schools = School.objects.prefetch_related().filter(**kwargs)
     else:
-        schools = School.objects.select_related().all()
+        schools = School.objects.prefetch_related().all()
     count = schools.count()
     json_out = [count]
     rows = list()
@@ -323,11 +323,11 @@ def get_district_rows(request):
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            districts = District.objects.select_related().filter(args, **kwargs)
+            districts = District.objects.prefetch_related().filter(args, **kwargs)
         else:
-            districts = District.objects.select_related().filter(**kwargs)
+            districts = District.objects.prefetch_related().filter(**kwargs)
     else:
-        districts = District.objects.select_related().all()
+        districts = District.objects.prefetch_related().all()
     count = districts.count()
     json_out = [count]
     rows = list()
@@ -369,11 +369,11 @@ def get_cohort_rows(request):
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            cohorts = Cohort.objects.select_related().filter(args, **kwargs)
+            cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs)
         else:
-            cohorts = Cohort.objects.select_related().filter(**kwargs)
+            cohorts = Cohort.objects.prefetch_related().filter(**kwargs)
     else:
-        cohorts = Cohort.objects.select_related().all()
+        cohorts = Cohort.objects.prefetch_related().all()
     count = cohorts.count()
     json_out = [count]
     rows = list()
