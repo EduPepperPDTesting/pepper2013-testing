@@ -159,7 +159,7 @@ def build_filters(columns, filters):
                 out_value = int(value)
             else:
                 out_value = value
-            kwargs[columns[int(column)]] = out_value
+            kwargs[columns[int(column)][0] + columns[int(column)][1]] = out_value
     # try:
     #     value = filters.get('all')
     #     raise Exception(value)
@@ -176,36 +176,48 @@ def build_filters(columns, filters):
     return args, kwargs
 
 
+def build_sorts(columns, sorts):
+    order = list()
+    for column, sort in sorts.iteritems():
+        pre = ''
+        if bool(int(sort)):
+            pre = '-'
+        order.append(pre + columns[int(column)][0])
+    return order
+
+
 def get_user_rows(request):
-    columns = ['user_id__exact',
-               'user__last_name__contains',
-               'user__first_name__contains',
-               'school__name__exact',
-               'district__name__exact',
-               'district__state__name__exact',
-               'cohort__code__contains',
-               'user__email__contains',
-               'subscription_status__exact']
-    # sorts = get_post_array(request.GET, 'col')
+    columns = {0: ['user_id', '__exact'],
+               1: ['user__last_name', '__contains'],
+               2: ['user__first_name', '__contains'],
+               3: ['school__name', '__exact'],
+               4: ['district__name', '__exact'],
+               5: ['district__state__name', '__exact'],
+               6: ['cohort__code', '__contains'],
+               7: ['user__email', '__contains'],
+               8: ['subscription_status', '__exact'],
+               10: ['user__date_joined', '__contains']}
+    sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    order = build_sorts(columns, sorts)
+
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            users = UserProfile.objects.prefetch_related().filter(args, **kwargs)
+            users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
-            users = UserProfile.objects.prefetch_related().filter(**kwargs)
+            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
     else:
-        users = UserProfile.objects.prefetch_related().all()
+        users = UserProfile.objects.prefetch_related().all().order_by(*order)
     count = users.count()
     json_out = [count]
     rows = list()
 
-    # for item in users:
     for item in users[start:end]:
         row = list()
         row.append(int(item.user.id))
@@ -242,44 +254,38 @@ def get_user_rows(request):
         row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
         rows.append(row)
 
-    # for key, sort in sorts.iteritems():
-    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    # json_out.append(rows[start:end])
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-# def get_school_count(request):
-#     return HttpResponse(json.dumps({'count': School.objects.all().count()}), content_type="application/json")
-
-
 def get_school_rows(request):
-    columns = ['code__contains',
-               'name__contains',
-               'district__name__exact',
-               'district__code__contains',
-               'district__state__name__exact']
-    # sorts = get_post_array(request.GET, 'col')
+    columns = {0: ['code', '__contains'],
+               1: ['name', '__contains'],
+               2: ['district__name', '__exact'],
+               3: ['district__code', '__contains'],
+               4: ['district__state__name', '__exact']}
+    sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    order = build_sorts(columns, sorts)
+
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            schools = School.objects.prefetch_related().filter(args, **kwargs)
+            schools = School.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
-            schools = School.objects.prefetch_related().filter(**kwargs)
+            schools = School.objects.prefetch_related().filter(**kwargs).order_by(*order)
     else:
-        schools = School.objects.prefetch_related().all()
+        schools = School.objects.prefetch_related().all().order_by(*order)
     count = schools.count()
     json_out = [count]
     rows = list()
 
-    # for item in schools:
     for item in schools[start:end]:
         row = list()
         row.append(str(item.code))
@@ -302,41 +308,36 @@ def get_school_rows(request):
         row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    # for key, sort in sorts.iteritems():
-    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    # json_out.append(rows[start:end])
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-# def get_district_count(request):
-#     return HttpResponse(json.dumps({'count': District.objects.all().count()}), content_type="application/json")
-
 def get_district_rows(request):
-    columns = ['code__contains',
-               'name__contains',
-               'state__name__exact']
-    # sorts = get_post_array(request.GET, 'col')
+    columns = {0: ['code', '__contains'],
+               1: ['name', '__contains'],
+               2: ['state__name', '__exact']}
+    sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    order = build_sorts(columns, sorts)
+
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            districts = District.objects.prefetch_related().filter(args, **kwargs)
+            districts = District.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
-            districts = District.objects.prefetch_related().filter(**kwargs)
+            districts = District.objects.prefetch_related().filter(**kwargs).order_by(*order)
     else:
-        districts = District.objects.prefetch_related().all()
+        districts = District.objects.prefetch_related().all().order_by(*order)
     count = districts.count()
     json_out = [count]
     rows = list()
 
-    # for item in districts:
     for item in districts[start:end]:
         row = list()
         row.append(str(item.code))
@@ -345,46 +346,40 @@ def get_district_rows(request):
         row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    # for key, sort in sorts.iteritems():
-    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    # json_out.append(rows[start:end])
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
-# def get_cohort_count(request):
-#     return HttpResponse(json.dumps({'count': Cohort.objects.all().count()}), content_type="application/json")
-
-
 def get_cohort_rows(request):
-    columns = ['code__contains',
-               'licenses__exact',
-               'term_months__exact',
-               'start_date__contains',
-               'district__name__exact',
-               'district__code__exact',
-               'district__state__exact']
-    # sorts = get_post_array(request.GET, 'col')
+    columns = {0: ['code', '__contains'],
+               1: ['licenses', '__exact'],
+               2: ['term_months', '__exact'],
+               3: ['start_date', '__contains'],
+               4: ['district__name', '__exact'],
+               5: ['district__code', '__exact'],
+               6: ['district__state', '__exact']}
+    sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    order = build_sorts(columns, sorts)
+
     if len(filters):
         args, kwargs = build_filters(columns, filters)
         if args:
-            cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs)
+            cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
-            cohorts = Cohort.objects.prefetch_related().filter(**kwargs)
+            cohorts = Cohort.objects.prefetch_related().filter(**kwargs).order_by(*order)
     else:
-        cohorts = Cohort.objects.prefetch_related().all()
+        cohorts = Cohort.objects.prefetch_related().all().order_by(*order)
     count = cohorts.count()
     json_out = [count]
     rows = list()
 
-    # for item in cohorts:
     for item in cohorts[start:end]:
         row = list()
         row.append(str(item.code))
@@ -409,9 +404,6 @@ def get_cohort_rows(request):
         row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    # for key, sort in sorts.iteritems():
-    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    # json_out.append(rows[start:end])
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
