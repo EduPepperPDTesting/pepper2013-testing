@@ -474,7 +474,8 @@ def dashboard(request, user_id=None):
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
     collaboration_time = discussion_time + portfolio_time
-    total_time_in_pepper = all_course_time + collaboration_time
+    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
@@ -492,7 +493,8 @@ def dashboard(request, user_id=None):
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
-        'external_times': external_times
+        'external_times': external_times,
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
     }
 
     return render_to_response('dashboard.html', context)
@@ -2096,7 +2098,11 @@ Request Date: {date_time}""".format(first_name=request.user.first_name,
     return HttpResponse(json.dumps({'success': True}))
 
 
-def study_time_format(t):
+def study_time_format(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
     hour_unit = ' Hour, '
     minute_unit = ' Minute'
     hour = int(t / 60 / 60)
@@ -2109,7 +2115,7 @@ def study_time_format(t):
         hour_full = str(hour) + hour_unit
     else:
         hour_full = ''
-    return ('{0} {1} {2}').format(hour_full, minute, minute_unit)
+    return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
 
 
 def drop_states(request):
@@ -2182,12 +2188,16 @@ def get_pepper_stats(request):
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
     collaboration_time = discussion_time + portfolio_time
-    total_time_in_pepper = all_course_time + collaboration_time
+    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
     context = {
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
-        'external_times': external_times
+        'external_times': external_times,
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
+
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
+
