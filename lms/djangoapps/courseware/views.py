@@ -136,10 +136,6 @@ def course_list(request):
     state = request.GET.get('state', '')
     credit = request.GET.get('credit', '')
     is_new = request.GET.get('is_new', '')
-	#20151203 add new parameter for dipcourses	
-	#begin
-	group_new = request.GET.get('group_new','')
-	#end
 	
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
@@ -178,13 +174,60 @@ def course_list(request):
     for gc in g_courses:
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
-	#20151203 modify for dipcourses	
-	#begin
-	if group_new == 'tnl3':        
-        return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
+    return render_to_response("courseware/courses.html", {'courses': g_courses})
+	
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def dpicourse_list(request):
+    """
+    Render "find courses" page.  The course selection work is done in courseware.courses.
+    """
+    subject_id = request.GET.get('subject_id', '')
+    grade_id = request.GET.get('grade_id', '')
+    author_id = request.GET.get('author_id', '')
+    district = request.GET.get('district', '')
+    state = request.GET.get('state', '')
+    credit = request.GET.get('credit', '')
+    is_new = request.GET.get('is_new', '')
+    
+    filterDic = {'_id.category': 'course'}
+    if subject_id != 'all':
+        filterDic['metadata.display_subject'] = subject_id
+
+    if grade_id != 'all':
+        if grade_id == '6-8' or grade_id == '9-12':
+            filterDic['metadata.display_grades'] = {'$in': [grade_id, '6-12']}
+        else:
+            filterDic['metadata.display_grades'] = grade_id
+
+    if author_id != 'all':
+        filterDic['metadata.display_organization'] = author_id
+
+    if district != '':
+        filterDic['metadata.display_district'] = district
+
+    if state != '':
+        filterDic['metadata.display_state'] = state
+
+    if credit != '':
+        filterDic['metadata.display_credit'] = True
+
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+    subject_index = [-1, -1, -1, -1]
+    currSubject = ["", "", "", ""]
+    g_courses = [[], [], [], []]
+    if is_new != '':
+        for course in courses:
+            if course.is_newish:
+                course_filter(course, subject_index, currSubject, g_courses, grade_id)
     else:
-        return render_to_response("courseware/courses.html", {'courses': g_courses})
-	#end
+        for course in courses:
+            course_filter(course, subject_index, currSubject, g_courses, grade_id)
+    for gc in g_courses:
+        for sc in gc:
+            sc.sort(key=lambda x: x.display_coursenumber)
+    return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
 
 def render_accordion(request, course, chapter, section, field_data_cache):
     """

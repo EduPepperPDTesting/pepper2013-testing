@@ -394,6 +394,7 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
 		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
