@@ -187,16 +187,16 @@ def build_sorts(columns, sorts):
 
 
 def get_user_rows(request):
-    columns = {0: ['user_id', '__exact'],
-               1: ['user__last_name', '__contains'],
-               2: ['user__first_name', '__contains'],
-               3: ['school__name', '__exact'],
-               4: ['district__name', '__exact'],
-               5: ['district__state__name', '__exact'],
-               6: ['cohort__code', '__contains'],
-               7: ['user__email', '__contains'],
-               8: ['subscription_status', '__exact'],
-               10: ['user__date_joined', '__contains']}
+    columns = {0: ['user_id', '__iexact'],
+               1: ['user__last_name', '__icontains'],
+               2: ['user__first_name', '__icontains'],
+               3: ['school__name', '__iexact'],
+               4: ['district__name', '__iexact'],
+               5: ['district__state__name', '__iexact'],
+               6: ['cohort__code', '__icontains'],
+               7: ['user__email', '__icontains'],
+               8: ['subscription_status', '__iexact'],
+               10: ['user__date_joined', '__icontains']}
     sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
@@ -260,11 +260,11 @@ def get_user_rows(request):
 
 
 def get_school_rows(request):
-    columns = {0: ['code', '__contains'],
-               1: ['name', '__contains'],
-               2: ['district__name', '__exact'],
-               3: ['district__code', '__contains'],
-               4: ['district__state__name', '__exact']}
+    columns = {0: ['code', '__icontains'],
+               1: ['name', '__icontains'],
+               2: ['district__name', '__iexact'],
+               3: ['district__code', '__icontains'],
+               4: ['district__state__name', '__iexact']}
     sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
@@ -314,9 +314,9 @@ def get_school_rows(request):
 
 
 def get_district_rows(request):
-    columns = {0: ['code', '__contains'],
-               1: ['name', '__contains'],
-               2: ['state__name', '__exact']}
+    columns = {0: ['code', '__icontains'],
+               1: ['name', '__icontains'],
+               2: ['state__name', '__iexact']}
     sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
@@ -352,13 +352,13 @@ def get_district_rows(request):
 
 
 def get_cohort_rows(request):
-    columns = {0: ['code', '__contains'],
-               1: ['licenses', '__exact'],
-               2: ['term_months', '__exact'],
-               3: ['start_date', '__contains'],
-               4: ['district__name', '__exact'],
-               5: ['district__code', '__exact'],
-               6: ['district__state', '__exact']}
+    columns = {0: ['code', '__icontains'],
+               1: ['licenses', '__iexact'],
+               2: ['term_months', '__iexact'],
+               3: ['start_date', '__icontains'],
+               4: ['district__name', '__iexact'],
+               5: ['district__code', '__iexact'],
+               6: ['district__state', '__iexact']}
     sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
