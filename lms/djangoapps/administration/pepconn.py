@@ -184,7 +184,7 @@ def get_user_rows(request):
                'district__name__exact',
                'district__state__name__exact',
                'cohort__code__contains',
-               'user__email_contains',
+               'user__email__contains',
                'subscription_status__exact']
     sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
