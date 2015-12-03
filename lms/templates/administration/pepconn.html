@@ -313,7 +313,7 @@ f.close()
                   %endfor
                 </select>
 
-                <input id="District_search" placeholder="Search" class="search" type="search" data-column="all">
+                <!--<input id="District_search" placeholder="Search" class="search" type="search" data-column="all">-->
                 <img onclick="openBookmark('District')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#district-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -327,22 +327,16 @@ f.close()
         <div>
             <table class="tablesorter-blue" id="district_table_init">
                 <thead>
-            <tr>
-                <th class="district_code">District Id</th>
-                <th class="district_name">District Name</th>
-                <th class="district_state_name">State</th>
-                <th></th>
-            </tr>
-            </thead>
+                    <tr>
+                        <th class="district_code">District Id</th>
+                        <th class="district_name">District Name</th>
+                        <th class="district_state_name">State</th>
+                        <th></th>
+                    </tr>
+                </thead>
                 <tbody id="district_data_tbody">
-
                 </tbody>
             </table>
-            <center>
-                <h3 id="district_load_progress">
-
-                </h3>
-            </center>
         </div>
 
         <span id="district-pager" class="pager">
@@ -373,7 +367,7 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
-                <select type="search" class="search" data-column="3" id="School_state_select">
+                <select type="search" class="search" data-column="4" id="School_state_select">
 
                       <option value="" id="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
@@ -388,7 +382,7 @@ f.close()
                       %endfor
                 </select>
 
-                <input placeholder="Search" class="search" type="search" data-column="all" id="School_search">
+                <!--<input placeholder="Search" class="search" type="search" data-column="all" id="School_search">-->
                 <img onclick="openBookmark('School')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#school-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -405,24 +399,18 @@ f.close()
         <div>
             <table class="tablesorter-blue" id="school_table_init">
                 <thead>
-            <tr>
-              <th class="school_code">School Code</th>
-              <th class="school_name">School Name</th>
-              <th class="school_district_id">District</th>
-                <th class="school_district_two">District ID</th>
-                <th class="school_state">State</th>
-                <th></th>
-            </tr>
-            </thead>
+                    <tr>
+                        <th class="school_code">School Code</th>
+                        <th class="school_name">School Name</th>
+                        <th class="school_district_id">District</th>
+                        <th class="school_district_two">District ID</th>
+                        <th class="school_state">State</th>
+                        <th></th>
+                    </tr>
+                </thead>
                 <tbody id="school_data_tbody">
-
                 </tbody>
             </table>
-            <center>
-                <h3 id="school_load_progress">
-
-                </h3>
-            </center>
         </div>
 
         <span id="school-pager" class="pager">
@@ -453,7 +441,7 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
-                <select type="search" class="search" data-column="6" id="User_state_select">
+                <select type="search" class="search" data-column="5" id="User_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
                         <option id="${item.id}" value="${item.name}">${item.name}</option>
@@ -480,9 +468,9 @@ f.close()
                 </select>
                 <input placeholder="Search by Last Name" class="search" type="search" data-column="1" id="User_search_last">
                 <input placeholder="Search by First Name" class="search" type="search" data-column="2" id="User_search_first">
-                <input placeholder="Search by Cohort" class="search" type="search" data-column="5" id="User_search_cohort">
+                <input placeholder="Search by Cohort" class="search" type="search" data-column="6" id="User_search_cohort">
                 <input placeholder="Search by Email" class="search" type="search" data-column="7" id="User_search_email">
-                <input placeholder="Search All" class="search" type="search" data-column="all" id="User_search">
+                <!--<input placeholder="Search All" class="search" type="search" data-column="all" id="User_search">-->
                 <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#user-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -503,30 +491,24 @@ f.close()
         <div>
             <table class="tablesorter-blue" id="user_table_init">
                 <thead>
-            <tr>
-              <th class="user_id_select">ID</th>
-              <th class="user_lname">Last Name</th>
-              <th class="user_fname">First Name</th>
-              <th class="user_school">School</th>
-              <th class="user_district">District</th>
-              <th class="user_cohort">Cohort</th>
-              <th class="user_state">State</th>
-              <th class="user_email">E-Mail</th>
-              <th class="user_registration">Registration Status</th>
-              <th class="user_activation_link">Activation Link</th>
-              <th class="user_enrollment_status">Enrollment Start</th>
-              <th></th>
-            </tr>
-            </thead>
+                    <tr>
+                      <th class="user_id_select">ID</th>
+                      <th class="user_lname">Last Name</th>
+                      <th class="user_fname">First Name</th>
+                      <th class="user_school">School</th>
+                      <th class="user_district">District</th>
+                      <th class="user_cohort">Cohort</th>
+                      <th class="user_state">State</th>
+                      <th class="user_email">E-Mail</th>
+                      <th class="user_registration">Registration Status</th>
+                      <th class="user_activation_link">Activation Link</th>
+                      <th class="user_enrollment_status">Enrollment Start</th>
+                      <th></th>
+                    </tr>
+                </thead>
                 <tbody id="user_data_tbody">
-
                 </tbody>
             </table>
-            <center>
-                <h3 id="user_load_progress">
-
-                </h3>
-            </center>
         </div>
 
         <span id="user-pager" class="pager">
@@ -577,7 +559,7 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea3">
-                <select type="search" class="search" data-column="5" id="Cohort_state_select">
+                <select type="search" class="search" data-column="6" id="Cohort_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
                         <option id="${item.id}" value="${item.id}">${item.name}</option>
@@ -589,7 +571,7 @@ f.close()
                       <option id="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <input placeholder="Search" class="search" type="search" data-column="all" id="Cohort_search">
+                <!--<input placeholder="Search" class="search" type="search" data-column="all" id="Cohort_search">-->
                 <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#cohort-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -604,24 +586,20 @@ f.close()
         <div>
             <table class="tablesorter-blue" id="cohort_table_init">
                 <thead>
-            <tr>
-                <th class="cohort_id">Cohort ID</th>
-                <th class="cohort_license">Licences</th>
-                <th class="cohort_term">Terms Months</th>
-                <th class="cohort_start">Subscription Start Date</th>
-                <th></th>
-                <th style="display:none"></th>
-            </tr>
-            </thead>
+                    <tr>
+                        <th class="cohort_id">Cohort ID</th>
+                        <th class="cohort_license">Licences</th>
+                        <th class="cohort_term">Terms Months</th>
+                        <th class="cohort_start">Subscription Start Date</th>
+                        <th class="cohort_district_name">District Name</th>
+                        <th class="cohort_district_code">District Code</th>
+                        <th class="cohort_state">State</th>
+                        <th></th>
+                    </tr>
+                </thead>
                 <tbody id="cohort_data_tbody">
-
                 </tbody>
             </table>
-            <center>
-                <h3 id="cohort_load_progress">
-
-                </h3>
-            </center>
         </div>
         <span id="cohort-pager" class="pager">
           <form>
@@ -661,381 +639,307 @@ f.close()
 </div>
 <script type="text/javascript">
 
-$("#singleDistrictImportForm").submit(function(){
-    var flds = ["id", "name", "state","csrfmiddlewaretoken"];
-    var data = getFormData(this,flds);
-    $.post('${reverse("pepconn_single_district_submit")}',data, function(r) {
-               if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The district was successfully created!');
-               } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
-               }
-           }
+$("#singleDistrictImportForm").submit(function () {
+    var flds = ["id", "name", "state", "csrfmiddlewaretoken"];
+    var data = getFormData(this, flds);
+    $.post('${reverse("pepconn_single_district_submit")}', data, function (r) {
+                if (r.success) {
+                    new Dialog($('#dialog')).show('Success', 'The district was successfully created!');
+                } else {
+                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                }
+            }
     );
     return false;
-  });
+});
 
 
-
-$("#singleSchoolImportForm").submit(function(){
-    var flds = ["name", "id", "state_id", "district_id","csrfmiddlewaretoken"];
-    var data = getFormData(this,flds);
-    $.post('${reverse("pepconn_single_school_submit")}',data, function(r) {
-               if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The school was successfully created!');
-               } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
-               }
-           }
+$("#singleSchoolImportForm").submit(function () {
+    var flds = ["name", "id", "state_id", "district_id", "csrfmiddlewaretoken"];
+    var data = getFormData(this, flds);
+    $.post('${reverse("pepconn_single_school_submit")}', data, function (r) {
+                if (r.success) {
+                    new Dialog($('#dialog')).show('Success', 'The school was successfully created!');
+                } else {
+                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                }
+            }
     );
     return false;
-  });
+});
 
 
-$("#singleUserImportForm").submit(function(){
+$("#singleUserImportForm").submit(function () {
     syncCKEditorData();
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_003", "custom_email_subject"];
-    var data = getFormData(this,flds);
-    $.post('${reverse("pepconn_single_user_submit")}',data, function(r) {
-               if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The user was successfully created!');
-               } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
-               }
-           }
+    var data = getFormData(this, flds);
+    $.post('${reverse("pepconn_single_user_submit")}', data, function (r) {
+                if (r.success) {
+                    new Dialog($('#dialog')).show('Success', 'The user was successfully created!');
+                } else {
+                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                }
+            }
     );
     return false;
-  });
+});
 
 
-$(document).ready(function(){
+$(document).ready(function () {
     $(".table-section").hide();
     $(".district_table-section").show();
-    $("#selectalldistrict").click(function(){
-        if(this.checked){
-            $("#district_table_init input[type=checkbox]").each(function(){
-                this.checked=true;
+    $("#selectalldistrict").click(function () {
+        if (this.checked) {
+            $("#district_table_init input[type=checkbox]").each(function () {
+                this.checked = true;
             });
-        }else{
-            $("#district_table_init input[type=checkbox]").each(function(){
-                this.checked=false;
-            });
-        }
-    });
-    $("#selectallschool").click(function(){
-        if(this.checked){
-            $("#school_table_init input[type=checkbox]").each(function(){
-                this.checked=true;
-            });
-        }else{
-            $("#school_table_init input[type=checkbox]").each(function(){
-                this.checked=false;
+        } else {
+            $("#district_table_init input[type=checkbox]").each(function () {
+                this.checked = false;
             });
         }
     });
-    $("#selectalluser").click(function(){
-        if(this.checked){
-            $("#user_table_init input[type=checkbox]").each(function(){
-                this.checked=true;
+    $("#selectallschool").click(function () {
+        if (this.checked) {
+            $("#school_table_init input[type=checkbox]").each(function () {
+                this.checked = true;
             });
-        }else{
-            $("#user_table_init input[type=checkbox]").each(function(){
-                this.checked=false;
-            });
-        }
-    });
-    $("#selectallcohort").click(function(){
-        if(this.checked){
-            $("#cohort_table_init input[type=checkbox]").each(function(){
-                this.checked=true;
-            });
-        }else{
-            $("#cohort_table_init input[type=checkbox]").each(function(){
-                this.checked=false;
+        } else {
+            $("#school_table_init input[type=checkbox]").each(function () {
+                this.checked = false;
             });
         }
     });
-
-    $("#delete_selected_districts").click(function(){
-      var ids=[];
-      $(".district_select_box:checked").each(function(){
-        ids.push($(this).val());
-      });
-      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one district to delete.");
-
-
-
-
-      if(!confirm("Really delete selected districts?")) return;
-      $.get("${reverse('district_delete')}",{ids:ids.join()},function(r){
-        if(r.success){
-            new Dialog($('#dialog')).show("Success", "Selected districts have been deleted successfully.");
-            $(".district_select_box:checked").each(function(){
-                var identify = $(this).val();
-                $("#district_"+identify).hide();
-              });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
-      });
+    $("#selectalluser").click(function () {
+        if (this.checked) {
+            $("#user_table_init input[type=checkbox]").each(function () {
+                this.checked = true;
+            });
+        } else {
+            $("#user_table_init input[type=checkbox]").each(function () {
+                this.checked = false;
+            });
+        }
     });
-    $("#delete_selected_schools").click(function(){
-      var ids=[];
-      $(".school_select_box:checked").each(function(){
-        ids.push($(this).val());
-      });
-      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one school to delete.");
-      if(!confirm("Really delete selected schools?")) return;
-      $.get("${reverse('school_delete')}",{ids:ids.join()},function(r){
-        if(r.success){
-            new Dialog($('#dialog')).show("Success", "Selected schools have been deleted.");
-            $(".school_select_box:checked").each(function(){
-                var identify = $(this).val();
-                $("#school_"+identify).hide();
-              });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
-      });
+    $("#selectallcohort").click(function () {
+        if (this.checked) {
+            $("#cohort_table_init input[type=checkbox]").each(function () {
+                this.checked = true;
+            });
+        } else {
+            $("#cohort_table_init input[type=checkbox]").each(function () {
+                this.checked = false;
+            });
+        }
     });
-    $("#delete_selected_user").click(function(){
-      var ids=[];
-      $(".user_select_box:checked").each(function(){
-        ids.push($(this).val());
-      });
-      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one user to delete.");
-      if(!confirm("Really delete selected users?")) return;
-      $.post("${reverse('user_delete')}",{ids:ids.join()},function(r){
-        if(r.success){
-            new Dialog($('#dialog')).show("Success", "Selected users successfully deleted.");
-            $(".user_select_box:checked").each(function(){
-                var identify = $(this).val();
-                $("#user_"+identify).hide();
-              });
-        }else new Dialog($('#dialog')).show("Error", "The following error has occurred: "+ r.error);
-      });
+
+    $("#delete_selected_districts").click(function () {
+        var ids = [];
+        $(".district_select_box:checked").each(function () {
+            ids.push($(this).val());
+        });
+        if (!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one district to delete.");
+
+
+        if (!confirm("Really delete selected districts?")) return;
+        $.get("${reverse('district_delete')}", {ids: ids.join()}, function (r) {
+            if (r.success) {
+                new Dialog($('#dialog')).show("Success", "Selected districts have been deleted successfully.");
+                $(".district_select_box:checked").each(function () {
+                    var identify = $(this).val();
+                    $("#district_" + identify).hide();
+                });
+            } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
+        });
     });
-    $("#delete_selected_cohort").click(function(){
-      var ids=[];
-      $(".cohort_select_box:checked").each(function(){
-        ids.push($(this).val());
-      });
-      if(!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one cohort to delete.");
-      if(!confirm("Really delete selected cohorts?")) return;
-      $.get("${reverse('cohort_delete')}",{ids:ids.join()},function(r){
-          if(r.success){
-              new Dialog($('#dialog')).show("Success", "Selectd cohorts deleted..");
-            $(".cohort_select_box:checked").each(function(){
-                var identify = $(this).val();
-                $("#cohort_"+identify).hide();
-              });
-        }else new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
-      });
+    $("#delete_selected_schools").click(function () {
+        var ids = [];
+        $(".school_select_box:checked").each(function () {
+            ids.push($(this).val());
+        });
+        if (!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one school to delete.");
+        if (!confirm("Really delete selected schools?")) return;
+        $.get("${reverse('school_delete')}", {ids: ids.join()}, function (r) {
+            if (r.success) {
+                new Dialog($('#dialog')).show("Success", "Selected schools have been deleted.");
+                $(".school_select_box:checked").each(function () {
+                    var identify = $(this).val();
+                    $("#school_" + identify).hide();
+                });
+            } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
+        });
     });
-    $("#register_selected_user").click(function(){
-       var ids = [];
-        $(".user_select_box:checked").each(function(){
+    $("#delete_selected_user").click(function () {
+        var ids = [];
+        $(".user_select_box:checked").each(function () {
+            ids.push($(this).val());
+        });
+        if (!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one user to delete.");
+        if (!confirm("Really delete selected users?")) return;
+        $.post("${reverse('user_delete')}", {ids: ids.join()}, function (r) {
+            if (r.success) {
+                new Dialog($('#dialog')).show("Success", "Selected users successfully deleted.");
+                $(".user_select_box:checked").each(function () {
+                    var identify = $(this).val();
+                    $("#user_" + identify).hide();
+                });
+            } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
+        });
+    });
+    $("#delete_selected_cohort").click(function () {
+        var ids = [];
+        $(".cohort_select_box:checked").each(function () {
+            ids.push($(this).val());
+        });
+        if (!ids.length)return new Dialog($('#dialog')).show("Error", "Please select at least one cohort to delete.");
+        if (!confirm("Really delete selected cohorts?")) return;
+        $.get("${reverse('cohort_delete')}", {ids: ids.join()}, function (r) {
+            if (r.success) {
+                new Dialog($('#dialog')).show("Success", "Selectd cohorts deleted..");
+                $(".cohort_select_box:checked").each(function () {
+                    var identify = $(this).val();
+                    $("#cohort_" + identify).hide();
+                });
+            } else new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+        });
+    });
+    $("#register_selected_user").click(function () {
+        var ids = [];
+        $(".user_select_box:checked").each(function () {
             ids.push($(this).attr("value"));
         });
-        if(!ids.length == 0){
-            if(confirm("Send Registration Emails to Selected Users?")){
+        if (!ids.length == 0) {
+            if (confirm("Send Registration Emails to Selected Users?")) {
                 syncCKEditorData();
-            var data={
-                'ids' : ids.join(),'customize_email':$("#user_table_custom_email_form .custom-email-checkbox").val(),'custom_email_002':$("#user_table_custom_email_form .email-editor").val(),'custom_email_subject':$("#user_table_custom_email_form .custom_email_subject").val()
-              };
-              $.post("${reverse('pepconn_registration_send_email')}",{'ids' : ids.join(),'customize_email':$("#user_table_custom_email_form .custom-email-checkbox").val(),'custom_email_002':$("#user_table_custom_email_form .email-editor").val(),'custom_email_subject':$("#user_table_custom_email_form input[name='custom_email_subject']").val()},function(r){
-                if(r.success){
-                  self.taskId=r.taskId;
-                }
-              });
+                $.post("${reverse('pepconn_registration_send_email')}", {
+                    'ids': ids.join(),
+                    'customize_email': $("#user_table_custom_email_form .custom-email-checkbox").val(),
+                    'custom_email_002': $("#user_table_custom_email_form .email-editor").val(),
+                    'custom_email_subject': $("#user_table_custom_email_form input[name='custom_email_subject']").val()
+                }, function (r) {
+                    if (r.success) {
+                        self.taskId = r.taskId;
+                    }
+                });
             }
-        }else new Dialog($('#dialog')).show("Error", "Please select at least one user.");
+        } else new Dialog($('#dialog')).show("Error", "Please select at least one user.");
 
     });
-    $("#User_state_select").change(function(){
+    $("#User_state_select").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#User_district_select > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#User_district_select > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    $("#user_state_single").change(function(){
+    $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#user_district_id > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#user_district_id > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    $("#cohort_state_single").change(function(){
+    $("#cohort_state_single").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#cohort_district_id > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#cohort_district_id > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    $("#School_state_select").change(function(){
+    $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#School_district_select > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#School_district_select > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    $("#Cohort_state_select").change(function(){
+    $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#Cohort_district_select > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#Cohort_district_select > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    $("#User_district_select").change(function(){
+    $("#User_district_select").change(function () {
         var id = $(this).children(":selected").attr("class");
         var name = $(this).children(":selected").attr("name");
-        $("#User_school_select > option").each(function() {
+        $("#User_school_select > option").each(function () {
             $(this).css("display", "");
-            if(name != "null_case" || $(this).attr("id") == "null_case") {
+            if (name != "null_case" || $(this).attr("id") == "null_case") {
                 if ($(this).attr("id") != id) {
                     $(this).css("display", "none");
                 }
             }
         });
     });
-    $("#state_single").change(function(){
+    $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("id");
-        $("#district_id_single > option").each(function() {
-            if($(this).attr("id") != id){
+        $("#district_id_single > option").each(function () {
+            if ($(this).attr("id") != id) {
                 $(this).css("display", "none");
-            }else{
+            } else {
                 $(this).css("display", "");
             }
-            if(id == "null_case" || $(this).attr("id") == "null_case"){
+            if (id == "null_case" || $(this).attr("id") == "null_case") {
                 $(this).css("display", "");
             }
         });
     });
-    loadDistrictTable();
-    loadSchoolTable();
-    loadUserTable();
-    loadCohortTable();
 });
 
-function loadUserTable(){
-    var size = 0;
-    var code = "";
-    var increase = 122;
-    $.get("${reverse('pepconn_get_user_count')}", {}, function(r){
-        size = r.count;
-        $("#user_load_progress").text("Load Progress: 0/"+(size));
-        for(var i = 0; i <= size; i+=increase){
-            $.get("${reverse('pepconn_get_user_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
-                code = r.code;
-                $("#user_data_tbody").append(code);
-                $("#user_load_progress").text("Load Progress: "+$("#user_data_tbody").children('tr').length+"/"+(size));
-                $("#user_table_init").trigger("update");
-            });
-        }
-    });
-}
-
-function loadDistrictTable(){
-    var size = 0;
-    var code = "";
-    var increase = 122;
-    $.get("${reverse('pepconn_get_district_count')}", {}, function(r){
-        size = r.count;
-        $("#district_load_progress").text("Load Progress: 0/"+(size));
-        for(var i = 0; i <= size; i+=increase){
-            $.get("${reverse('pepconn_get_district_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
-                code = r.code;
-                $("#district_data_tbody").append(code);
-                $("#district_load_progress").text("Load Progress: "+$("#district_data_tbody").children('tr').length+"/"+(size));
-                $("#district_table_init").trigger("update");
-            });
-        }
-    });
-}
-function loadSchoolTable(){
-    var size = 0;
-    var code = "";
-    var increase = 122;
-    $.get("${reverse('pepconn_get_school_count')}", {}, function(r){
-        size = r.count;
-        $("#school_load_progress").text("Load Progress: 0/"+(size));
-        for(var i = 0; i <= size; i+=increase){
-            $.get("${reverse('pepconn_get_school_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
-                code = r.code;
-                $("#school_data_tbody").append(code);
-                $("#school_load_progress").text("Load Progress: "+$("#school_data_tbody").children('tr').length+"/"+(size));
-                $("#school_table_init").trigger("update");
-            });
-        }
-    });
-}
-
-function loadCohortTable(){
-    var size = 0;
-    var code = "";
-    var increase = 122;
-    $.get("${reverse('pepconn_get_cohort_count')}", {}, function(r){
-        size = r.count;
-
-        $("#cohort_load_progress").text("Load Progress: 0/"+(size));
-        for(var i = 0; i <= size; i+=increase){
-            $.get("${reverse('pepconn_get_cohort_rows')}", {'start':i, 'increment':increase, 'max':size}, function(r){
-                code = r.code;
-                $("#cohort_data_tbody").append(code);
-                $("#cohort_load_progress").text("Load Progress: "+$("#cohort_data_tbody").children('tr').length+"/"+(size));
-                $("#cohort_table_init").trigger("update");
-            });
-        }
-    });
-}
-
-function addToCohort(){
-    var code = "<p id = 'innercohort'>Select Cohort: "+$("#cohort_select").html()+"</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
+function addToCohort() {
+    var code = "<p id = 'innercohort'>Select Cohort: " + $("#cohort_select").html() + "</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);
 
 
 }
-function submitAddToCohort(){
+function submitAddToCohort() {
     //console.log("processing");
     var ids = [];
-    $("#user_table_init tr").each(function(i, val){
+    $("#user_table_init tr").each(function (i, val) {
         var $row = $(val);
         var $checkedBoxes = $row.find("input:checked");
-        $checkedBoxes.each(function(i, box){
-           var $checkbox = $(box);
+        $checkedBoxes.each(function (i, box) {
+            var $checkbox = $(box);
 
-            $.post('${reverse("pepconn_cohort_add_submit")}', {id:$checkbox.val(), cohort:$("#innercohort .cohort_selector").val()}, function(r){
+            $.post('${reverse("pepconn_cohort_add_submit")}', {
+                id: $checkbox.val(),
+                cohort: $("#innercohort .cohort_selector").val()
+            }, function (r) {
                 //console.log(r.message);
-                if(r.message = "success"){
+                if (r.message = "success") {
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
-                }else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
+                } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
             });
 
         });
@@ -1043,49 +947,49 @@ function submitAddToCohort(){
 
 }
 
-function openBookmark(table){
-    var code = "<p>Select Filter: <select id = 'bookmark_select_"+table+"'>";
-    var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_"+table+"'></input><br><br><button onClick = 'saveBookmark(\""+table+"\");'>Save Bookmark</button></p>";
-    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
-        for(i = 0; i < r.length; i++){
+function openBookmark(table) {
+    var code = "<p>Select Filter: <select id = 'bookmark_select_" + table + "'>";
+    var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_" + table + "'></input><br><br><button onClick = 'saveBookmark(\"" + table + "\");'>Save Bookmark</button></p>";
+    $.post('${reverse("pepconn_favorite_filter_load")}', function (r) {
+        for (i = 0; i < r.length; i++) {
             var data = jQuery.parseJSON(r[i].filter);
-            if(data.table == table) {
-                code += "<option class = '"+r[i].id+"' id = '" + i + "' value = '" + i + "'>" + r[i].name + "</option>";
+            if (data.table == table) {
+                code += "<option class = '" + r[i].id + "' id = '" + i + "' value = '" + i + "'>" + r[i].name + "</option>";
             }
         }
-        code += "</select><br><br><button onClick = 'loadBookmark(\""+table+"\");'>Load</button>&nbsp &nbsp <button onClick = 'deleteBookmark(\""+table+"\");'>Delete</button></p><span style = 'color:green' id = 'modalMessage'></span><hr>";
-        new Dialog($('#dialog')).show(table+' Bookmarks', code+saveCode);
+        code += "</select><br><br><button onClick = 'loadBookmark(\"" + table + "\");'>Load</button>&nbsp &nbsp <button onClick = 'deleteBookmark(\"" + table + "\");'>Delete</button></p><span style = 'color:green' id = 'modalMessage'></span><hr>";
+        new Dialog($('#dialog')).show(table + ' Bookmarks', code + saveCode);
     });
 
 }
-function saveBookmark(table){
-    var nameData = $("#bookmark_newname_"+table).val();
-    var state = $("#"+table+"_state_select :selected").attr("id");
-    var district = $("#"+table+"_district_select :selected").attr("id");
-    var search = $("#"+table+"_search").val();
-    var first = $("#"+table+"_search_first").val();
-    var last = $("#"+table+"_search_last").val();
-    var email = $("#"+table+"_search_email").val();
-    var filterData = '{"table":"'+table+'", "state":"'+state+'", "district":"'+district+'", "search":"'+search+'", "firstName":"'+first+'", "lastName":"'+last+'", "email":"'+email+'"}';
-    $.get("${reverse('pepconn_favorite_filter_save')}", {name:nameData, filter:filterData}, function(data){
+function saveBookmark(table) {
+    var nameData = $("#bookmark_newname_" + table).val();
+    var state = $("#" + table + "_state_select :selected").attr("id");
+    var district = $("#" + table + "_district_select :selected").attr("id");
+    var search = $("#" + table + "_search").val();
+    var first = $("#" + table + "_search_first").val();
+    var last = $("#" + table + "_search_last").val();
+    var email = $("#" + table + "_search_email").val();
+    var filterData = '{"table":"' + table + '", "state":"' + state + '", "district":"' + district + '", "search":"' + search + '", "firstName":"' + first + '", "lastName":"' + last + '", "email":"' + email + '"}';
+    $.get("${reverse('pepconn_favorite_filter_save')}", {name: nameData, filter: filterData}, function (data) {
         $("#modalMessage").html("Your filter was saved!");
     });
 }
-function loadBookmark(table){
-    var id = $("#bookmark_select_"+table).val();
-    $.post('${reverse("pepconn_favorite_filter_load")}',function(r){
+function loadBookmark(table) {
+    var id = $("#bookmark_select_" + table).val();
+    $.post('${reverse("pepconn_favorite_filter_load")}', function (r) {
         var data = jQuery.parseJSON(r[id].filter);
-        $("#"+table+"_district_select option[id="+data.district+"]").prop("selected", true).change();
-        $("#"+table+"_state_select option[id="+data.state+"]").prop("selected", true).change();
-        $("#"+table+"_search").val(data.search).change();
-        $("#"+table+"_search_first").val(data.firstName).change();
-        $("#"+table+"_search_last").val(data.lastName).change();
-        $("#"+table+"_search_email").val(data.email).change();
+        $("#" + table + "_district_select option[id=" + data.district + "]").prop("selected", true).change();
+        $("#" + table + "_state_select option[id=" + data.state + "]").prop("selected", true).change();
+        $("#" + table + "_search").val(data.search).change();
+        $("#" + table + "_search_first").val(data.firstName).change();
+        $("#" + table + "_search_last").val(data.lastName).change();
+        $("#" + table + "_search_email").val(data.email).change();
         $("#modalMessage").html("Your filter was loaded!");
     });
 }
-function deleteBookmark(table){
-    if(confirm("Are you sure you want to delete the selected Bookmark?")) {
+function deleteBookmark(table) {
+    if (confirm("Are you sure you want to delete the selected Bookmark?")) {
         var ids = $("#bookmark_select_" + table + " :selected").attr('class');
 
         $.get("${reverse('pepconn_favorite_filter_delete')}", {id: ids}, function (data) {
@@ -1094,383 +998,313 @@ function deleteBookmark(table){
         });
     }
 }
-$(function() {
 
-  var pagerOptions = {
+var pagerOptions = {
     // target the pager markup - see the HTML block below
-    container: $("#district-pager"),
+    container: '',
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
     output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
     // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
     // table row set to a height to compensate; default is false
-    fixedHeight: true,
+    fixedHeight: false,
     // remove rows from the table to speed up the sort of large tables.
     // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
     removeRows: false,
     // go to page selector - select dropdown that sets the current page
-    cssGoto: '.gotoPage'
-  };
-  var $table = $('#district_table_init').tablesorter({
+    cssGoto: '.gotoPage',
+    ajaxUrl: '',
+    ajaxProcessing: function(data){
+        return data;
+    },
+    processAjaxOnInit: true,
+    page: 0,
+    size: 10
+};
+var tablesorterOptions = {
     theme: 'blue',
+    widthFixed: true,
     widgets: ["zebra", "filter", "output"],
-    widgetOptions : {
-      // filter_anyMatch replaced! Instead use the filter_external option
-      // Set to use a jQuery selector (or jQuery object) pointing to the
-      // external filter (column specific or any match)
-      filter_external : '.search',
-      // add a default type search to the first name column
-      filter_defaultFilter: { 1 : '~{query}' },
-      // include column filters
-      filter_columnFilters: false,
-      filter_placeholder: { search : 'Search...' },
-      filter_saveFilters : true,
-      filter_reset: '.reset',
-         output_saveFileName  : 'district.csv'
+    widgetOptions: {
+        // filter_anyMatch replaced! Instead use the filter_external option
+        // Set to use a jQuery selector (or jQuery object) pointing to the
+        // external filter (column specific or any match)
+        filter_external: '.search',
+        // add a default type search to the first name column
+        filter_defaultFilter: {1: '~{query}'},
+        // include column filters
+        filter_columnFilters: false,
+        filter_placeholder: {search: 'Search...'},
+        filter_saveFilters: true,
+        filter_reset: '.reset',
+        output_saveFileName: 'data.csv'
     }
-  }).tablesorterPager(pagerOptions);
-  $("#downloadDistrictCSV").click(function(){
-    $("#district_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName ="district.csv";
-    $("#district_table_init").trigger('outputTable');
-  });
-  $("#downloadDistrictXLS").click(function(){
-    $("#district_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName ="district.xls";
-    $("#district_table_init").trigger('outputTable');
-  });
-  // make demo search buttons work
-  $('button[data-column]').on('click', function(){
-    var $this = $(this),
-      totalColumns = $table[0].config.columns,
-      col = $this.data('column'), // zero-based index or "all"
-      filter = [];
+};
 
-    // text to add to filter
-    filter[ col === 'all' ? totalColumns : col ] = $this.text();
-    $table.trigger('search', [ filter ]);
-    return false;
-  });
+$(function () {
+    pagerOptions.container = $("#district-pager");
+    pagerOptions.ajaxUrl = '${reverse('pepconn_get_district_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
+    var $table = $('#district_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $("#downloadDistrictCSV").click(function () {
+        $("#district_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName = "district.csv";
+        $("#district_table_init").trigger('outputTable');
+    });
+    $("#downloadDistrictXLS").click(function () {
+        $("#district_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName = "district.xls";
+        $("#district_table_init").trigger('outputTable');
+    });
+    // make demo search buttons work
+    $('button[data-column]').on('click', function () {
+        var $this = $(this),
+                totalColumns = $table[0].config.columns,
+                col = $this.data('column'), // zero-based index or "all"
+                filter = [];
+
+        // text to add to filter
+        filter[col === 'all' ? totalColumns : col] = $this.text();
+        $table.trigger('search', [filter]);
+        return false;
+    });
+
+});
+
+$(function () {
+    pagerOptions.container = $("#user-pager");
+    pagerOptions.ajaxUrl = '${reverse('pepconn_get_user_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
+    var $table = $('#user_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $("#downloadUserCSV").click(function () {
+        $("#user_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName = "user.csv";
+        $("#user_table_init").trigger('outputTable');
+    });
+    $("#downloadUserXLS").click(function () {
+        $("#user_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName = "user.xls";
+        $("#user_table_init").trigger('outputTable');
+    });
+    // make demo search buttons work
+    $('button[data-column]').on('click', function () {
+        var $this = $(this),
+                totalColumns = $table[0].config.columns,
+                col = $this.data('column'), // zero-based index or "all"
+                filter = [];
+
+        // text to add to filter
+        filter[col === 'all' ? totalColumns : col] = $this.text();
+        $table.trigger('search', [filter]);
+        return false;
+    });
 
 });
 
 
-$(function() {
+$(function () {
+    pagerOptions.container = $("#school-pager");
+    pagerOptions.ajaxUrl = '${reverse('pepconn_get_school_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
+    var $table = $('#school_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $("#downloadSchoolCSV").click(function () {
+        $("#school_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName = "school.csv";
+        $("#school_table_init").trigger('outputTable');
+    });
+    $("#downloadSchoolXLS").click(function () {
+        $("#school_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName = "school.xls";
+        $("#school_table_init").trigger('outputTable');
+    });
+    // make demo search buttons work
+    $('button[data-column]').on('click', function () {
+        var $this = $(this),
+                totalColumns = $table[0].config.columns,
+                col = $this.data('column'), // zero-based index or "all"
+                filter = [];
 
-  var pagerOptions = {
-    // target the pager markup - see the HTML block below
-    container: $("#user-pager"),
-    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-    // table row set to a height to compensate; default is false
-    fixedHeight: true,
-    // remove rows from the table to speed up the sort of large tables.
-    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-    removeRows: false,
-    // go to page selector - select dropdown that sets the current page
-    cssGoto: '.gotoPage'
-  };
-  var $table = $('#user_table_init').tablesorter({
-    theme: 'blue',
-    widgets: ["zebra", "filter", "output"],
-    widgetOptions : {
-      // filter_anyMatch replaced! Instead use the filter_external option
-      // Set to use a jQuery selector (or jQuery object) pointing to the
-      // external filter (column specific or any match)
-      filter_external : '.search',
-      // add a default type search to the first name column
-      filter_defaultFilter: { 1 : '~{query}' },
-      // include column filters
-      filter_columnFilters: false,
-      filter_placeholder: { search : 'Search...' },
-      filter_saveFilters : true,
-      filter_reset: '.reset',
-    }
-  }).tablesorterPager(pagerOptions);
-  $("#downloadUserCSV").click(function(){
-    $("#user_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName ="user.csv";
-    $("#user_table_init").trigger('outputTable');
-  });
-  $("#downloadUserXLS").click(function(){
-    $("#user_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName ="user.xls";
-    $("#user_table_init").trigger('outputTable');
-  });
-  // make demo search buttons work
-  $('button[data-column]').on('click', function(){
-    var $this = $(this),
-      totalColumns = $table[0].config.columns,
-      col = $this.data('column'), // zero-based index or "all"
-      filter = [];
-
-    // text to add to filter
-    filter[ col === 'all' ? totalColumns : col ] = $this.text();
-    $table.trigger('search', [ filter ]);
-    return false;
-  });
+        // text to add to filter
+        filter[col === 'all' ? totalColumns : col] = $this.text();
+        $table.trigger('search', [filter]);
+        return false;
+    });
 
 });
 
+$(function () {
+    pagerOptions.container = $("#cohort-pager");
+    pagerOptions.ajaxUrl = '${reverse('pepconn_get_cohort_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
+    var $table = $('#cohort_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $("#downloadCohortCSV").click(function () {
+        $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName = "cohort.csv";
+        $("#cohort_table_init").trigger('outputTable');
+    });
+    $("#downloadCohortXLS").click(function () {
+        $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
+        $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName = "cohort.xls";
+        $("#cohort_table_init").trigger('outputTable');
+    });
+    // make demo search buttons work
+    $('button[data-column]').on('click', function () {
+        var $this = $(this),
+                totalColumns = $table[0].config.columns,
+                col = $this.data('column'), // zero-based index or "all"
+                filter = [];
 
-$(function() {
-  var pagerOptions = {
-    // target the pager markup - see the HTML block below
-    container: $("#school-pager"),
-    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-    // table row set to a height to compensate; default is false
-    fixedHeight: true,
-    // remove rows from the table to speed up the sort of large tables.
-    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-    removeRows: false,
-    // go to page selector - select dropdown that sets the current page
-    cssGoto: '.gotoPage'
-  };
-  var $table = $('#school_table_init').tablesorter({
-    theme: 'blue',
-    widgets: ["zebra", "filter", "output"],
-    widgetOptions : {
-      // filter_anyMatch replaced! Instead use the filter_external option
-      // Set to use a jQuery selector (or jQuery object) pointing to the
-      // external filter (column specific or any match)
-      filter_external : '.search',
-      // add a default type search to the first name column
-      filter_defaultFilter: { 1 : '~{query}' },
-      // include column filters
-      filter_columnFilters: false,
-      filter_placeholder: { search : 'Search...' },
-      filter_saveFilters : true,
-      filter_reset: '.reset'
-    }
-  }).tablesorterPager(pagerOptions);
-  $("#downloadSchoolCSV").click(function(){
-    $("#school_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName ="school.csv";
-    $("#school_table_init").trigger('outputTable');
-  });
-  $("#downloadSchoolXLS").click(function(){
-    $("#school_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName ="school.xls";
-    $("#school_table_init").trigger('outputTable');
-  });
-  // make demo search buttons work
-  $('button[data-column]').on('click', function(){
-    var $this = $(this),
-      totalColumns = $table[0].config.columns,
-      col = $this.data('column'), // zero-based index or "all"
-      filter = [];
-
-    // text to add to filter
-    filter[ col === 'all' ? totalColumns : col ] = $this.text();
-    $table.trigger('search', [ filter ]);
-    return false;
-  });
+        // text to add to filter
+        filter[col === 'all' ? totalColumns : col] = $this.text();
+        $table.trigger('search', [filter]);
+        return false;
+    });
 
 });
 
-$(function() {
-  var pagerOptions = {
-    // target the pager markup - see the HTML block below
-    container: $("#cohort-pager"),
-    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-    // table row set to a height to compensate; default is false
-    fixedHeight: true,
-    // remove rows from the table to speed up the sort of large tables.
-    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-    removeRows: false,
-    // go to page selector - select dropdown that sets the current page
-    cssGoto: '.gotoPage'
-  };
-  var $table = $('#cohort_table_init').tablesorter({
-    theme: 'blue',
-    widgets: ["zebra", "filter", "output"],
-    widgetOptions : {
-      // filter_anyMatch replaced! Instead use the filter_external option
-      // Set to use a jQuery selector (or jQuery object) pointing to the
-      // external filter (column specific or any match)
-      filter_external : '.search',
-      // add a default type search to the first name column
-      filter_defaultFilter: { 1 : '~{query}' },
-      // include column filters
-      filter_columnFilters: false,
-      filter_placeholder: { search : 'Search...' },
-      filter_saveFilters : true,
-      filter_reset: '.reset'
-    }
-  }).tablesorterPager(pagerOptions);
-  $("#downloadCohortCSV").click(function(){
-    $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName ="cohort.csv";
-    $("#cohort_table_init").trigger('outputTable');
-  });
-  $("#downloadCohortXLS").click(function(){
-    $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery ="d";
-    $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName ="cohort.xls";
-    $("#cohort_table_init").trigger('outputTable');
-  });
-  // make demo search buttons work
-  $('button[data-column]').on('click', function(){
-    var $this = $(this),
-      totalColumns = $table[0].config.columns,
-      col = $this.data('column'), // zero-based index or "all"
-      filter = [];
-
-    // text to add to filter
-    filter[ col === 'all' ? totalColumns : col ] = $this.text();
-    $table.trigger('search', [ filter ]);
-    return false;
-  });
-
-});
-
-function getFormData(form,flds){
-  var data={}
-  $.each(flds,function(i,n){
-    data[n]=$(form[n]).val();
-  })
-  return data;
+function getFormData(form, flds) {
+    var data = {};
+    $.each(flds, function (i, n) {
+        data[n] = $(form[n]).val();
+    });
+    return data;
 }
 
-$("#cohortImportForm").submit(function(){
-    var flds = ["id","code","licences","term_months","start_date","district_id","csrfmiddlewaretoken"];
-    var data = getFormData(this,flds);
-    $.post('${reverse("pepconn_cohort_submit")}',data, function(r) {
-               if (r.success) {
-                 new Dialog($('#dialog')).show('Success','The cohort was successfully created!');
-               } else {
-                 new Dialog($('#dialog')).show("Error", "The following error occurred: "+ r.error);
-               }
-           }
+$("#cohortImportForm").submit(function () {
+    var flds = ["id", "code", "licences", "term_months", "start_date", "district_id", "csrfmiddlewaretoken"];
+    var data = getFormData(this, flds);
+    $.post('${reverse("pepconn_cohort_submit")}', data, function (r) {
+                if (r.success) {
+                    new Dialog($('#dialog')).show('Success', 'The cohort was successfully created!');
+                } else {
+                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                }
+            }
     );
     return false;
-  });
+});
 
-function toggle(which){
+function toggle(which) {
     $(".import-section").hide();
-    $("."+which+"-section").show();
+    $("." + which + "-section").show();
     $(".section-tab").css("padding-top", "4px");
-    $(".section-tab."+which).css("padding-top", "10px")
-}function toggle2(which){
+    $(".section-tab." + which).css("padding-top", "10px")
+}
+function toggle2(which) {
     $(".table-section").hide();
-    $("."+which+"-section").show();
+    $("." + which + "-section").show();
     $(".table-tab").css("padding-top", "4px");
-    $(".table-tab."+which).css("padding-top", "10px");
+    $(".table-tab." + which).css("padding-top", "10px");
     $(".search").val('').change();
 }
 
-  if (typeof CKEDITOR != 'undefined') {
-      CKEDITOR.replaceAll(function (textarea, config) {
-          if (textarea.className == 'email-editor') {
-              // Add token plugin
-              config.extraPlugins = 'token';
-              // Configure available tokens
-              config.availableTokens = [
-                  ["", ""],
-                  ["email", "email"],
-                  ["district", "district"],
-                  ["site", "site"],
-                  ["key", "key"]
-              ];
-              return true;
-          }
-          return false;
-      });
-  }
-
-  //* global
-  //** add csrf token to json
-  function safeJSON(j){
-    j.csrfmiddlewaretoken="${csrf_token}"
-    return j;
-  }
-  function syncCKEditorData(){
-    $.each(CKEDITOR.instances,function(name,inst){
-      if(inst.element.$.tagName.toLowerCase()=='textarea'){
-        $(inst.element.$).val(inst.getData());
-      }
-    });
-  }
-  //** init custom email
-  $(".custom-email-checkbox").click(function(){
-    var textarea = $(this).parent().parent().next(".custom-email");
-    if ($(this).prop('checked')){
-      textarea.slideDown();
-    } else {
-      textarea.slideUp();
-    }
-  });
-  //** init expand title
-  $(".expand_title").click(function(){
-    var $div=$(this).next("div.expand_div");
-    if($div.is(':visible')){
-      $div.slideUp();
-      $(this).removeClass("expand_title_expanded");
-    }else{
-      $div.slideDown();
-      $(this).addClass("expand_title_expanded");
-    }
-  });
-  //** init filter controls
-  $(".control.filter").each(function(){
-    var el=this;
-    new FilterControl(this);
-    this.onFavoriteServerUpdated=function(){
-      $(".control.filter").each(function(){
-        if(!$(el).is(this)) this.control.createFavorite();
-      });
-    }
-  });
-  //** init table controls
-  $(".control.table").each(function(){new TableControl(this)});
-
-  //* controller for user data import
-  var userDataImport={
-    submit:function(){
-      var self = this;
-      var form = this.$form[0];
-      // input checking
-      /* var state_id=$(form.state_id).val();
-         var district_id=$(form.district_id).val();
-         if(!state_id || !district_id){
-         new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
-         return false;
-         } */
-      if (!((/\.csv/i).test(form.file.value))) {
-        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
-        return false;
-      }
-      syncCKEditorData();
-      $.ajax({
-        url: "${reverse('pepconn_import_user_submit')}",
-        data: new FormData(form), processData: false, contentType: false, type: 'POST',
-        /* enctype: 'multipart/form-data',
-           mimeType: 'multipart/form-data', */
-        success: function(data){
-          self.renderProgress(data.taskId);
+if (typeof CKEDITOR != 'undefined') {
+    CKEDITOR.replaceAll(function (textarea, config) {
+        if (textarea.className == 'email-editor') {
+            // Add token plugin
+            config.extraPlugins = 'token';
+            // Configure available tokens
+            config.availableTokens = [
+                ["", ""],
+                ["email", "email"],
+                ["district", "district"],
+                ["site", "site"],
+                ["key", "key"]
+            ];
+            return true;
         }
-      });
+        return false;
+    });
+}
+
+//* global
+//** add csrf token to json
+function safeJSON(j) {
+    j.csrfmiddlewaretoken = "${csrf_token}"
+    return j;
+}
+function syncCKEditorData() {
+    $.each(CKEDITOR.instances, function (name, inst) {
+        if (inst.element.$.tagName.toLowerCase() == 'textarea') {
+            $(inst.element.$).val(inst.getData());
+        }
+    });
+}
+//** init custom email
+$(".custom-email-checkbox").click(function () {
+    var textarea = $(this).parent().parent().next(".custom-email");
+    if ($(this).prop('checked')) {
+        textarea.slideDown();
+    } else {
+        textarea.slideUp();
+    }
+});
+//** init expand title
+$(".expand_title").click(function () {
+    var $div = $(this).next("div.expand_div");
+    if ($div.is(':visible')) {
+        $div.slideUp();
+        $(this).removeClass("expand_title_expanded");
+    } else {
+        $div.slideDown();
+        $(this).addClass("expand_title_expanded");
+    }
+});
+//** init filter controls
+$(".control.filter").each(function () {
+    var el = this;
+    new FilterControl(this);
+    this.onFavoriteServerUpdated = function () {
+        $(".control.filter").each(function () {
+            if (!$(el).is(this)) this.control.createFavorite();
+        });
+    }
+});
+//** init table controls
+$(".control.table").each(function () {
+    new TableControl(this)
+});
+
+//* controller for user data import
+var userDataImport = {
+    submit: function () {
+        var self = this;
+        var form = this.$form[0];
+        // input checking
+        /* var state_id=$(form.state_id).val();
+           var district_id=$(form.district_id).val();
+           if(!state_id || !district_id){
+           new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
+           return false;
+           } */
+        if (!((/\.csv/i).test(form.file.value))) {
+            new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
+            return false;
+        }
+        syncCKEditorData();
+        $.ajax({
+            url: "${reverse('pepconn_import_user_submit')}",
+            data: new FormData(form), processData: false, contentType: false, type: 'POST',
+            /* enctype: 'multipart/form-data',
+               mimeType: 'multipart/form-data', */
+            success: function (data) {
+                self.renderProgress(data.taskId);
+            }
+        });
     },
-    renderProgress:function(taskId){
-      var dialog=new Dialog($('#dialog'));
-      dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+    renderProgress: function (taskId) {
+        var dialog = new Dialog($('#dialog'));
+        dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
 <br>You may monitor the progress in the Unread Tasks, below.\
 <br>If there are any errors, you will receive them in an email.");
     },
-    init:function(){
+    init: function () {
         function pcSlider(clicked, target) {
-            if (clicked.prop('checked')){
+            if (clicked.prop('checked')) {
                 target.slideDown();
             } else {
                 target.slideUp();
             }
         }
-        var self=this;
-        this.$form=$("#userDataImportForm");
-        $(".send-email").click(function(){
+
+        var self = this;
+        this.$form = $("#userDataImportForm");
+        $(".send-email").click(function () {
             var checkboxArea = $(this).parent().parent().next(".customize-email");
             var checkbox = $(checkboxArea).children("label").children(".custom-email-checkbox");
             if (checkbox.prop('checked')) {
@@ -1480,109 +1314,111 @@ function toggle(which){
             }
             pcSlider($(this), checkboxArea);
         });
-        this.$form.submit(function(){
+        this.$form.submit(function () {
             self.submit();
             return false;
         });
     }
-  };
-  userDataImport.init();
+};
+userDataImport.init();
 
-  //* controller for district data import
-  var districtDataImport={
-    submit:function(form){
-      var self=this;
-      var form=this.$form[0];
-      // input checking
-      /* var state_id=$(form.state_id).val();
-         var district_id=$(form.district_id).val();
-         if(!state_id || !district_id){
-         new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
-         return false;
-         } */
-      if(!((/\.csv/i).test(form.file.value))){
-        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
-        return false;
-      }
-      syncCKEditorData();
-      $.ajax({
-        url: "${reverse('pepconn_import_district_submit')}",
-        data: new FormData(form), processData: false, contentType: false, type: 'POST',
-        /* enctype: 'multipart/form-data',
-           mimeType: 'multipart/form-data', */
-        success: function(data){
-          self.renderProgress(data.taskId);
+//* controller for district data import
+var districtDataImport = {
+    submit: function (form) {
+        var self = this;
+        var form = this.$form[0];
+        // input checking
+        /* var state_id=$(form.state_id).val();
+           var district_id=$(form.district_id).val();
+           if(!state_id || !district_id){
+           new Dialog($('#dialog')).show('Error','You must select a State, District and file to import.');
+           return false;
+           } */
+        if (!((/\.csv/i).test(form.file.value))) {
+            new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
+            return false;
         }
-      });
+        syncCKEditorData();
+        $.ajax({
+            url: "${reverse('pepconn_import_district_submit')}",
+            data: new FormData(form), processData: false, contentType: false, type: 'POST',
+            /* enctype: 'multipart/form-data',
+               mimeType: 'multipart/form-data', */
+            success: function (data) {
+                self.renderProgress(data.taskId);
+            }
+        });
     },
-    renderProgress:function(taskId){
-      var dialog=new Dialog($('#dialog'));
-      dialog.show("District Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+    renderProgress: function (taskId) {
+        var dialog = new Dialog($('#dialog'));
+        dialog.show("District Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
 <br>You may monitor the progress in the Unread Tasks, below.\
 <br>If there are any errors, you will receive them in an email.");
     },
-    init:function(){
+    init: function () {
         function pcSlider(clicked, target) {
-            if (clicked.prop('checked')){
+            if (clicked.prop('checked')) {
                 target.slideDown();
             } else {
                 target.slideUp();
             }
         }
-        var self=this;
-        this.$form=$("#districtDataImportForm");
 
-        this.$form.submit(function(){
+        var self = this;
+        this.$form = $("#districtDataImportForm");
+
+        this.$form.submit(function () {
             self.submit();
             return false;
         });
     }
-  };
-  districtDataImport.init();
+};
+districtDataImport.init();
 
 
-   //* controller for school data import
-  var schoolDataImport={
-    submit:function(form){
-      var self=this;
-      var form=this.$form[0];
+//* controller for school data import
+var schoolDataImport = {
+    submit: function (form) {
+        var self = this;
+        var form = this.$form[0];
 
-      if(!((/\.csv/i).test(form.file.value))){
-        new Dialog($('#dialog')).show('Error','Please select a CSV file.');
-        return false;
-      }
-      syncCKEditorData();
-      $.ajax({
-        url: "${reverse('pepconn_import_school_submit')}",
-        data: new FormData(form), processData: false, contentType: false, type: 'POST',
-        /* enctype: 'multipart/form-data',
-           mimeType: 'multipart/form-data', */
-        success: function(data){
-          self.renderProgress(data.taskId);
+        if (!((/\.csv/i).test(form.file.value))) {
+            new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
+            return false;
         }
-      });
+        syncCKEditorData();
+        $.ajax({
+            url: "${reverse('pepconn_import_school_submit')}",
+            data: new FormData(form), processData: false, contentType: false, type: 'POST',
+            /* enctype: 'multipart/form-data',
+               mimeType: 'multipart/form-data', */
+            success: function (data) {
+                self.renderProgress(data.taskId);
+            }
+        });
     },
-    renderProgress:function(taskId){
-      var dialog=new Dialog($('#dialog'));
-      dialog.show("School Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+    renderProgress: function (taskId) {
+        var dialog = new Dialog($('#dialog'));
+        dialog.show("School Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
 <br>You may monitor the progress in the Unread Tasks, below.\
 <br>If there are any errors, you will receive them in an email.");
     },
-    init:function(){
+    init: function () {
         function pcSlider(clicked, target) {
-            if (clicked.prop('checked')){
+            if (clicked.prop('checked')) {
                 target.slideDown();
             } else {
                 target.slideUp();
             }
         }
-        var self=this;
-        this.$form=$("#schoolDataImportForm");
-        this.$form.submit(function(){
+
+        var self = this;
+        this.$form = $("#schoolDataImportForm");
+        this.$form.submit(function () {
             self.submit();
             return false;
         });
     }
-  };
-  schoolDataImport.init();
+};
+schoolDataImport.init();
 </script>
