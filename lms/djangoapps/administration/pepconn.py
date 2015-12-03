@@ -207,7 +207,7 @@ def get_user_rows(request):
 
     for item in users:
         row = list()
-        row.append(str(item.user.id))
+        row.append(int(item.user.id))
         row.append(str(item.user.last_name))
         row.append(str(item.user.first_name))
 
