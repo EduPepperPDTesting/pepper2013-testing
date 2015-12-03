@@ -186,7 +186,7 @@ def get_user_rows(request):
                'cohort__code__contains',
                'user__email__contains',
                'subscription_status__exact']
-    sorts = get_post_array(request.GET, 'col')
+    # sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -205,7 +205,8 @@ def get_user_rows(request):
     json_out = [count]
     rows = list()
 
-    for item in users:
+    # for item in users:
+    for item in users[start:end]:
         row = list()
         row.append(int(item.user.id))
         row.append(str(item.user.last_name))
@@ -241,9 +242,10 @@ def get_user_rows(request):
         row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
         rows.append(row)
 
-    for key, sort in sorts.iteritems():
-        rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    json_out.append(rows[start:end])
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
@@ -258,7 +260,7 @@ def get_school_rows(request):
                'district__name__exact',
                'district__code__contains',
                'district__state__name__exact']
-    sorts = get_post_array(request.GET, 'col')
+    # sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -277,7 +279,8 @@ def get_school_rows(request):
     json_out = [count]
     rows = list()
 
-    for item in schools:
+    # for item in schools:
+    for item in schools[start:end]:
         row = list()
         row.append(str(item.code))
         row.append(str(item.name))
@@ -299,9 +302,10 @@ def get_school_rows(request):
         row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    for key, sort in sorts.iteritems():
-        rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    json_out.append(rows[start:end])
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
@@ -313,7 +317,7 @@ def get_district_rows(request):
     columns = ['code__contains',
                'name__contains',
                'state__name__exact']
-    sorts = get_post_array(request.GET, 'col')
+    # sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -332,7 +336,8 @@ def get_district_rows(request):
     json_out = [count]
     rows = list()
 
-    for item in districts:
+    # for item in districts:
+    for item in districts[start:end]:
         row = list()
         row.append(str(item.code))
         row.append(str(item.name))
@@ -340,9 +345,10 @@ def get_district_rows(request):
         row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    for key, sort in sorts.iteritems():
-        rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    json_out.append(rows[start:end])
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
@@ -359,7 +365,7 @@ def get_cohort_rows(request):
                'district__name__exact',
                'district__code__exact',
                'district__state__exact']
-    sorts = get_post_array(request.GET, 'col')
+    # sorts = get_post_array(request.GET, 'col')
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -378,7 +384,8 @@ def get_cohort_rows(request):
     json_out = [count]
     rows = list()
 
-    for item in cohorts:
+    # for item in cohorts:
+    for item in cohorts[start:end]:
         row = list()
         row.append(str(item.code))
         row.append(str(item.licences))
@@ -402,9 +409,10 @@ def get_cohort_rows(request):
         row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
-    for key, sort in sorts.iteritems():
-        rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
-    json_out.append(rows[start:end])
+    # for key, sort in sorts.iteritems():
+    #     rows.sort(key=lambda row: row[int(key)], reverse=bool(int(sort)))
+    # json_out.append(rows[start:end])
+    json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
