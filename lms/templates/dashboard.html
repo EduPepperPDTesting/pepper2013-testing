@@ -429,7 +429,7 @@
         <!--     %endif -->
         <!--   </span> <span class="data">${ curr_user.email | h }</span> -->
         <!-- </li> -->
-        %if curr_user==request.user and not request.user.profile.sso_idp:
+        %if curr_user==request.user and not request.session.get('idp'):
         % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
         <li>
           <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
