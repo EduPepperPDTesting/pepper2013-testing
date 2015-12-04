@@ -48,6 +48,8 @@ def genericsso(request):
     # Both POST and GET method are supported to get IDP name
     idp_name = request.REQUEST.get('idp', '')
 
+    request.session['idp'] = idp_name
+
     if idp_name == '':
         raise Exception("error: No IDP name passed")
         # log.error("error: No IDP name passed")
