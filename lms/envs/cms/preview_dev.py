@@ -42,7 +42,7 @@ modulestore_options = {
 
 MODULESTORE = {
     'default': {
-        'ENGINE': 'xmodule.modulestore.mongo.MongoModuleStore',
+        'ENGINE': 'xmodule.modulestore.draft.DraftModuleStore',
         'OPTIONS': modulestore_options
     },
 }
@@ -102,22 +102,22 @@ CHUNKSSTORE = {
         'password': MONGO_PASSWORD,
     }
 }
-RECORDTIMESTORE = {
-    'OPTIONS': {
-        'db': MONGO_DB_ASSIST,
-        'collection': 'record_time',
-        'collection_page': 'page_time',
-        'collection_discussion': 'discussion_time',
-        'collection_portfolio': 'portfolio_time',
-        'collection_external': 'external_time',
-        'collection_result_set': 'result_set',
-        'collection_adjustment': 'adjustment_time',
-        'host': MONGO_HOST,
-        'port': MONGO_PORT,
-        'user': MONGO_USER,
-        'password': MONGO_PASSWORD,
-    }
-}
+# RECORDTIMESTORE = {
+#     'OPTIONS': {
+#         'db': MONGO_DB_ASSIST,
+#         'collection': 'record_time',
+#         'collection_page': 'page_time',
+#         'collection_discussion': 'discussion_time',
+#         'collection_portfolio': 'portfolio_time',
+#         'collection_external': 'external_time',
+#         'collection_result_set': 'result_set',
+#         'collection_adjustment': 'adjustment_time',
+#         'host': MONGO_HOST,
+#         'port': MONGO_PORT,
+#         'user': MONGO_USER,
+#         'password': MONGO_PASSWORD,
+#     }
+# }
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',
