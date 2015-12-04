@@ -30,11 +30,11 @@ META_UNIVERSITIES = {}
 
 modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
-    'db': 'xmodule',
+    'db': MONGO_DB_XMODULE,
     'host': MONGO_HOST,
-    'port': MONGO_PORT,       
-    'user':MONGO_USER,
-    'password':MONGO_PASSWORD,
+    'port': MONGO_PORT,
+    'user': MONGO_USER,
+    'password': MONGO_PASSWORD,
     'collection': 'modulestore',
     'fs_root': DATA_DIR,
     'render_template': 'mitxmako.shortcuts.render_to_string',
@@ -42,7 +42,7 @@ modulestore_options = {
 
 MODULESTORE = {
     'default': {
-        'ENGINE': 'xmodule.modulestore.draft.DraftModuleStore',
+        'ENGINE': 'xmodule.modulestore.mongo.MongoModuleStore',
         'OPTIONS': modulestore_options
     },
 }
@@ -50,24 +50,74 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'db': 'xcontent',
+        'db': MONGO_DB_XCONTENT,
         'host': MONGO_HOST,
-        'port': MONGO_PORT,           
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,        
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 
 USERSTORE = {
     'OPTIONS': {
-        'db': 'userstore',
+        'db': MONGO_DB_USERSTORE,
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
-
+REMINDSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoRemindStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'rmodule',
+        'collection_aid': 'bulletin_status',
+        'collection_status': 'rmodule_status',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+MESSAGESTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMessageStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'message_board',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+CHUNKSSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoChunksStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'chunks',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+RECORDTIMESTORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_ASSIST,
+        'collection': 'record_time',
+        'collection_page': 'page_time',
+        'collection_discussion': 'discussion_time',
+        'collection_portfolio': 'portfolio_time',
+        'collection_external': 'external_time',
+        'collection_result_set': 'result_set',
+        'collection_adjustment': 'adjustment_time',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',
