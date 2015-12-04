@@ -306,14 +306,14 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea">
 
-                <select type="search" data-column="2" class="search" id="District_state_select">
+                <select type="search" data-column="2" class="search-districts" id="District_state_select">
                   <option value="" selected class="select-option" id="null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
                   <option id="${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
 
-                <!--<input id="District_search" placeholder="Search" class="search" type="search" data-column="all">-->
+                <input id="District_search" placeholder="Search" class="search-districts" type="search" data-column="all">
                 <img onclick="openBookmark('District')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#district-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -367,14 +367,14 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
-                <select type="search" class="search" data-column="4" id="School_state_select">
+                <select type="search" class="search-schools" data-column="4" id="School_state_select">
 
                       <option value="" id="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
                       <option id="${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="2" id="School_district_select">
+                <select type="search" class="search-schools" data-column="2" id="School_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
@@ -382,7 +382,7 @@ f.close()
                       %endfor
                 </select>
 
-                <!--<input placeholder="Search" class="search" type="search" data-column="all" id="School_search">-->
+                <input placeholder="Search" class="search-schools" type="search" data-column="all" id="School_search">
                 <img onclick="openBookmark('School')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#school-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -441,36 +441,36 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
-                <select type="search" class="search" data-column="5" id="User_state_select">
+                <select type="search" class="search-users" data-column="5" id="User_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
                         <option id="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
-                <select type="search" class="search" data-column="4" id="User_district_select">
+                <select type="search" class="search-users" data-column="4" id="User_district_select">
                       <option value="" id="-1" name="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
                       <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="3" id="User_school_select">
+                <select type="search" class="search-users" data-column="3" id="User_school_select">
                       <option value="" id="null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
                       <option id="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                       %endfor
                 </select>
-                <select type="search" class="search" data-column="8" id="User_registration_select">
+                <select type="search" class="search-users" data-column="8" id="User_registration_select">
                       <option value="" id="null_case">Select Registration Status</option>
                     <option value="Registered">Registered</option>
                     <option value="Unregistered">Unregistered</option>
                     <option value="Imported">Imported</option>
                     <option value="Inactive">Inactive</option>
                 </select>
-                <input placeholder="Search by Last Name" class="search" type="search" data-column="1" id="User_search_last">
-                <input placeholder="Search by First Name" class="search" type="search" data-column="2" id="User_search_first">
-                <input placeholder="Search by Cohort" class="search" type="search" data-column="6" id="User_search_cohort">
-                <input placeholder="Search by Email" class="search" type="search" data-column="7" id="User_search_email">
-                <!--<input placeholder="Search All" class="search" type="search" data-column="all" id="User_search">-->
+                <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
+                <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
+                <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
+                <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
+                <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
                 <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#user-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -559,19 +559,19 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea3">
-                <select type="search" class="search" data-column="6" id="Cohort_state_select">
+                <select type="search" class="search-cohorts" data-column="6" id="Cohort_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
                         <option id="${item.id}" value="${item.id}">${item.name}</option>
                     %endfor
                 </select>
-                <select type="search" class="search" data-column="4" id="Cohort_district_select">
+                <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
                       <option value="" id="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
                       <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
-                <!--<input placeholder="Search" class="search" type="search" data-column="all" id="Cohort_search">-->
+                <input placeholder="Search" class="search-cohorts" type="search" data-column="all" id="Cohort_search">
                 <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
                 <span onclick="$('#cohort-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
                 <span class="selectall"><input type="checkbox" id="selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
@@ -1025,25 +1025,21 @@ var tablesorterOptions = {
     widthFixed: true,
     widgets: ["zebra", "filter", "output"],
     widgetOptions: {
-        // filter_anyMatch replaced! Instead use the filter_external option
-        // Set to use a jQuery selector (or jQuery object) pointing to the
-        // external filter (column specific or any match)
-        filter_external: '.search',
-        // add a default type search to the first name column
-        filter_defaultFilter: {1: '~{query}'},
-        // include column filters
+        filter_external: '',
         filter_columnFilters: false,
         filter_placeholder: {search: 'Search...'},
         filter_saveFilters: true,
         filter_reset: '.reset',
+        filter_serversideFiltering: true,
         output_saveFileName: 'data.csv'
     }
 };
 
 $(function () {
+    tablesorterOptions.widgetOptions.filter_external = '.search-districts';
     pagerOptions.container = $("#district-pager");
     pagerOptions.ajaxUrl = '${reverse('pepconn_get_district_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
-    var $table = $('#district_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $('#district_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#downloadDistrictCSV").click(function () {
         $("#district_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
         $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName = "district.csv";
@@ -1054,25 +1050,11 @@ $(function () {
         $("#district_table_init").data('tablesorter').widgetOptions.output_saveFileName = "district.xls";
         $("#district_table_init").trigger('outputTable');
     });
-    // make demo search buttons work
-    $('button[data-column]').on('click', function () {
-        var $this = $(this),
-                totalColumns = $table[0].config.columns,
-                col = $this.data('column'), // zero-based index or "all"
-                filter = [];
 
-        // text to add to filter
-        filter[col === 'all' ? totalColumns : col] = $this.text();
-        $table.trigger('search', [filter]);
-        return false;
-    });
-
-});
-
-$(function () {
+    tablesorterOptions.widgetOptions.filter_external = '.search-users';
     pagerOptions.container = $("#user-pager");
     pagerOptions.ajaxUrl = '${reverse('pepconn_get_user_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
-    var $table = $('#user_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $('#user_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#downloadUserCSV").click(function () {
         $("#user_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
         $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName = "user.csv";
@@ -1083,26 +1065,11 @@ $(function () {
         $("#user_table_init").data('tablesorter').widgetOptions.output_saveFileName = "user.xls";
         $("#user_table_init").trigger('outputTable');
     });
-    // make demo search buttons work
-    $('button[data-column]').on('click', function () {
-        var $this = $(this),
-                totalColumns = $table[0].config.columns,
-                col = $this.data('column'), // zero-based index or "all"
-                filter = [];
 
-        // text to add to filter
-        filter[col === 'all' ? totalColumns : col] = $this.text();
-        $table.trigger('search', [filter]);
-        return false;
-    });
-
-});
-
-
-$(function () {
+    tablesorterOptions.widgetOptions.filter_external = '.search-schools';
     pagerOptions.container = $("#school-pager");
     pagerOptions.ajaxUrl = '${reverse('pepconn_get_school_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
-    var $table = $('#school_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $('#school_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#downloadSchoolCSV").click(function () {
         $("#school_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
         $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName = "school.csv";
@@ -1113,25 +1080,11 @@ $(function () {
         $("#school_table_init").data('tablesorter').widgetOptions.output_saveFileName = "school.xls";
         $("#school_table_init").trigger('outputTable');
     });
-    // make demo search buttons work
-    $('button[data-column]').on('click', function () {
-        var $this = $(this),
-                totalColumns = $table[0].config.columns,
-                col = $this.data('column'), // zero-based index or "all"
-                filter = [];
 
-        // text to add to filter
-        filter[col === 'all' ? totalColumns : col] = $this.text();
-        $table.trigger('search', [filter]);
-        return false;
-    });
-
-});
-
-$(function () {
+    tablesorterOptions.widgetOptions.filter_external = '.search-cohorts';
     pagerOptions.container = $("#cohort-pager");
     pagerOptions.ajaxUrl = '${reverse('pepconn_get_cohort_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}';
-    var $table = $('#cohort_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    $('#cohort_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#downloadCohortCSV").click(function () {
         $("#cohort_table_init").data('tablesorter').widgetOptions.output_delivery = "d";
         $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName = "cohort.csv";
@@ -1142,19 +1095,6 @@ $(function () {
         $("#cohort_table_init").data('tablesorter').widgetOptions.output_saveFileName = "cohort.xls";
         $("#cohort_table_init").trigger('outputTable');
     });
-    // make demo search buttons work
-    $('button[data-column]').on('click', function () {
-        var $this = $(this),
-                totalColumns = $table[0].config.columns,
-                col = $this.data('column'), // zero-based index or "all"
-                filter = [];
-
-        // text to add to filter
-        filter[col === 'all' ? totalColumns : col] = $this.text();
-        $table.trigger('search', [filter]);
-        return false;
-    });
-
 });
 
 function getFormData(form, flds) {

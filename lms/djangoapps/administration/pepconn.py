@@ -147,77 +147,120 @@ def cohort_submit(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-# def get_user_count(request):
-#     return HttpResponse(json.dumps({'count': UserProfile.objects.all().count()}), content_type="application/json")
-
-
 def build_filters(columns, filters):
+    """
+    Builds the filters for the PepConn report data
+    :param columns: the columns in this table
+    :param filters: the filters requested
+    :return: the arguments to pass to filter()
+    """
     kwargs = dict()
+    args = None
+    # Iterate through the filters.
     for column, value in filters.iteritems():
+        # For the numerical columns, just filter that column by the passed value.
         if not column == 'all':
-            if value.isdigit():
+            c = int(column)
+            # If the column is an integer value, convert the search term.
+            out_value = value
+            if columns[c][2] == 'int' and value.isdigit():
                 out_value = int(value)
-            else:
-                out_value = value
-            kwargs[columns[int(column)][0] + columns[int(column)][1]] = out_value
-    # try:
-    #     value = filters.get('all')
-    #     raise Exception(value)
-    #     args_list = list()
-    #     for column in columns:
-    #         args_list.append(Q(**{column: value}))
-    #     args = args_list.pop()
-    #     for item in args_list:
-    #         args |= item
-    # except:
-    #     args = False
-    args = False
+            # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+            # type of selection to make ([1] - '__iexact').
+            kwargs[columns[c][0] + columns[c][1]] = out_value
+        # If this is a search for all, we need to do an OR search, so we build one with Q objects.
+        else:
+            args_list = list()
+            for key, data in columns.iteritems():
+                # [2] holds the column type (int, str, or False to ignore).
+                if data[2]:
+                    # If the column is an integer value, convert the search term (as long as the string is only digits).
+                    out_value = value
+                    if data[2] == 'int':
+                        if value.isdigit():
+                            out_value = int(value)
+                        else:
+                            out_value = None
+                    if out_value is not None:
+                        # Create the Q object and add it to the list.
+                        args_list.append(Q(**{data[0] + data[1]: out_value}))
+            # Start the list with the first object, then add the rest with ORs.
+            args = args_list.pop()
+            for item in args_list:
+                args |= item
 
     return args, kwargs
 
 
 def build_sorts(columns, sorts):
+    """
+    Builds the sorts for the PepConn report data
+    :param columns: the columns in this table
+    :param sorts: the sorts requested
+    :return: the arguments to pass to order_by()
+    """
     order = list()
+    # Iterate through the passed sorts.
     for column, sort in sorts.iteritems():
+        # Default to an ASC search, but if the sort is 1, change it to DESC by adding a -.
         pre = ''
         if bool(int(sort)):
             pre = '-'
+        # We just need the column selector out of the columns, not the type.
         order.append(pre + columns[int(column)][0])
     return order
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_user_rows(request):
-    columns = {0: ['user_id', '__iexact'],
-               1: ['user__last_name', '__icontains'],
-               2: ['user__first_name', '__icontains'],
-               3: ['school__name', '__iexact'],
-               4: ['district__name', '__iexact'],
-               5: ['district__state__name', '__iexact'],
-               6: ['cohort__code', '__icontains'],
-               7: ['user__email', '__icontains'],
-               8: ['subscription_status', '__iexact'],
-               10: ['user__date_joined', '__icontains']}
+    """
+    Builds the rows for display in the PepConn Users report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['user_id', '', 'int'],
+               1: ['user__last_name', '__icontains', 'str'],
+               2: ['user__first_name', '__icontains', 'str'],
+               3: ['school__name', '__iexact', 'str'],
+               4: ['district__name', '__iexact', 'str'],
+               5: ['district__state__name', '__iexact', 'str'],
+               6: ['cohort__code', '__icontains', 'str'],
+               7: ['user__email', '__icontains', 'str'],
+               8: ['subscription_status', '__iexact', 'str'],
+               10: ['user__date_joined', '__icontains', False]}
+    # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
-    filters = get_post_array(request.GET, 'fcol')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 11)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
     if len(filters):
         args, kwargs = build_filters(columns, filters)
+        # If there was a search for all, add the Q arguments.
         if args:
             users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
             users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
     else:
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
     count = users.count()
     json_out = [count]
-    rows = list()
 
+    # Add the row data to the list of rows.
+    rows = list()
     for item in users[start:end]:
         row = list()
         row.append(int(item.user.id))
@@ -254,38 +297,57 @@ def get_user_rows(request):
         row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
         rows.append(row)
 
+    # The list of rows is the second value in the return JSON.
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_school_rows(request):
-    columns = {0: ['code', '__icontains'],
-               1: ['name', '__icontains'],
-               2: ['district__name', '__iexact'],
-               3: ['district__code', '__icontains'],
-               4: ['district__state__name', '__iexact']}
+    """
+    Builds the rows for display in the PepConn Schools report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['name', '__icontains', 'str'],
+               2: ['district__name', '__iexact', 'str'],
+               3: ['district__code', '__icontains', 'str'],
+               4: ['district__state__name', '__iexact', 'str']}
+    # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
-    filters = get_post_array(request.GET, 'fcol')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 6)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
     if len(filters):
+        # If there was a search for all, add the Q arguments.
         args, kwargs = build_filters(columns, filters)
         if args:
             schools = School.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
             schools = School.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
     else:
         schools = School.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
     count = schools.count()
     json_out = [count]
-    rows = list()
 
+    # Add the row data to the list of rows.
+    rows = list()
     for item in schools[start:end]:
         row = list()
         row.append(str(item.code))
@@ -308,36 +370,55 @@ def get_school_rows(request):
         row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
+    # The list of rows is the second value in the return JSON.
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_district_rows(request):
-    columns = {0: ['code', '__icontains'],
-               1: ['name', '__icontains'],
-               2: ['state__name', '__iexact']}
+    """
+    Builds the rows for display in the PepConn Districts report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['name', '__icontains', 'str'],
+               2: ['state__name', '__iexact', 'str']}
+    # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
-    filters = get_post_array(request.GET, 'fcol')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 4)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
     if len(filters):
+        # If there was a search for all, add the Q arguments.
         args, kwargs = build_filters(columns, filters)
         if args:
             districts = District.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
             districts = District.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
     else:
         districts = District.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
     count = districts.count()
     json_out = [count]
-    rows = list()
 
+    # Add the row data to the list of rows.
+    rows = list()
     for item in districts[start:end]:
         row = list()
         row.append(str(item.code))
@@ -346,40 +427,59 @@ def get_district_rows(request):
         row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
+    # The list of rows is the second value in the return JSON.
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_cohort_rows(request):
-    columns = {0: ['code', '__icontains'],
-               1: ['licenses', '__iexact'],
-               2: ['term_months', '__iexact'],
-               3: ['start_date', '__icontains'],
-               4: ['district__name', '__iexact'],
-               5: ['district__code', '__iexact'],
-               6: ['district__state', '__iexact']}
+    """
+    Builds the rows for display in the PepConn Cohorts report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['licenses', '', 'int'],
+               2: ['term_months', '', 'int'],
+               3: ['start_date', '__icontains', False],
+               4: ['district__name', '__iexact', 'str'],
+               5: ['district__code', '__iexact', 'str'],
+               6: ['district__state', '__iexact', 'str']}
+    # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
-    filters = get_post_array(request.GET, 'fcol')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 8)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
+    # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
 
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
     if len(filters):
+        # If there was a search for all, add the Q arguments.
         args, kwargs = build_filters(columns, filters)
         if args:
             cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
         else:
             cohorts = Cohort.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
     else:
         cohorts = Cohort.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
     count = cohorts.count()
     json_out = [count]
-    rows = list()
 
+    # Add the row data to the list of rows.
+    rows = list()
     for item in cohorts[start:end]:
         row = list()
         row.append(str(item.code))
@@ -404,6 +504,7 @@ def get_cohort_rows(request):
         row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
         rows.append(row)
 
+    # The list of rows is the second value in the return JSON.
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
@@ -1384,7 +1485,7 @@ def registration_download_excel(request):
     return response
 
 
-def get_post_array(post, name):
+def get_post_array(post, name, max=None):
     """
     Gets array values from a jQuery POST.
     """
@@ -1394,5 +1495,7 @@ def get_post_array(post, name):
         if key.startswith(name + '[') and not value == 'undefined':
             start = key.find('[')
             i = key[start + 1:-1]
+            if max and int(i) > max:
+                i = 'all'
             output.update({i: value})
     return output
