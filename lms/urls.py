@@ -94,11 +94,6 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
-    url(r'^pepconn/tables/get_user_count/$', 'administration.pepconn.get_user_count', name="pepconn_get_user_count"),
-    url(r'^pepconn/tables/get_cohort_count/$', 'administration.pepconn.get_cohort_count', name="pepconn_get_cohort_count"),
-    url(r'^pepconn/tables/get_school_count/$', 'administration.pepconn.get_school_count', name="pepconn_get_school_count"),
-    url(r'^pepconn/tables/get_district_count/$', 'administration.pepconn.get_district_count', name="pepconn_get_district_count"),
-
     url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
@@ -393,6 +388,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
+		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
