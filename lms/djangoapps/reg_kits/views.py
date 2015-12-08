@@ -118,7 +118,7 @@ def district_delete(request):
     except Exception as e:
         db.transaction.rollback()
         message={'success': False,'error': "%s" % e}
-    return HttpResponse(json.dumps(message))
+    return HttpResponse(json.dumps(message), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -180,7 +180,7 @@ def cohort_delete(request):
     except Exception as e:
         db.transaction.rollback()
         message={'success': False,'error':"%s" % e}
-    return HttpResponse(json.dumps(message))
+    return HttpResponse(json.dumps(message), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -240,7 +240,7 @@ def school_delete(request):
     except Exception as e:
         db.transaction.rollback()
         message={'success': False,'error':"%s" % e}
-    return HttpResponse(json.dumps(message))
+    return HttpResponse(json.dumps(message), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -582,7 +582,7 @@ def user_delete(request):
     except Exception as e:
         db.transaction.rollback()
         message={'success': False,'error':'%s' % (e)}
-    return HttpResponse(json.dumps(message))
+    return HttpResponse(json.dumps(message), content_type="application/json")
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)

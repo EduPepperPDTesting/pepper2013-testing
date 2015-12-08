@@ -109,6 +109,11 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
+    url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
+    url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
+    url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
+    url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
+
     url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
     url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
     url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),
@@ -117,7 +122,13 @@ urlpatterns = (
     url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
     url(r'^time_report/time_table/progress/$', 'administration.time_report.time_table_progress', name="time_report_time_table_progress"),
     url(r'^time_report/time_table/get_result$', 'administration.time_report.get_time_table_result', name="time_report_get_time_table_result"),
-
+    url(r'^time_report/drop_courses$', 'administration.time_report.drop_courses', name="time_report_drop_courses"),
+    url(r'^time_report/drop_enroll_courses$', 'administration.time_report.drop_enroll_courses', name="time_report_drop_enroll_courses"),
+    url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
+    url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
+    url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_load_enrollment_courses"),
+    
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
@@ -392,6 +403,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
+		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),

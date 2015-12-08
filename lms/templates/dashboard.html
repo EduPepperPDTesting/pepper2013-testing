@@ -429,7 +429,7 @@
         <!--     %endif -->
         <!--   </span> <span class="data">${ curr_user.email | h }</span> -->
         <!-- </li> -->
-        %if curr_user==request.user and not request.user.profile.sso_idp:
+        %if curr_user==request.user and not request.session.get('idp'):
         % if external_auth_map is None or 'shib' not in external_auth_map.external_domain:
         <li>
           <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
@@ -440,8 +440,7 @@
         </li>
         % endif
         %endif
-<!--@begin:Add some profile info-->
-<!--@date:2013-11-02-->  
+        
 <!-------------------------------- My Pepper Stats------------------------------------->
     <li>
       <span class="title">
@@ -454,6 +453,9 @@
            </div>
            <div style="line-height:30px;"><b>Collaboration Time:</b>
            <span id="collaboration_time" style="display:inline;"></span>
+           </div>
+           <div style="line-height:30px;"><b>Adjusted Total Time:</b>
+            <span id="totle_adjustment_time" style="display:inline;"></span>
            </div>
            <div style="line-height:30px;"><b>Total Time:</b>
             <span id="total_time_in_pepper" style="display:inline;"></span>

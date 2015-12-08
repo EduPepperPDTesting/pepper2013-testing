@@ -20,6 +20,7 @@ import json
 # import time
 import logging
 import csv
+import urllib2
 
 # import multiprocessing
 from multiprocessing import Process, Queue, Pipe
@@ -129,22 +130,384 @@ def cohort_submit(request):
         raise Http404
     try:
         if request.POST.get('id'):
-            d=Cohort(request.POST['id'])
+            d = Cohort(request.POST['id'])
         else:
-            d=Cohort()
-        d.id==request.POST['id']
-        d.code=request.POST['code']
-        d.licences=request.POST['licences']
-        d.term_months=request.POST['term_months']
-        d.start_date=request.POST['start_date']
-        d.district_id=request.POST['district_id']
+            d = Cohort()
+        d.id = request.POST['id']
+        d.code = request.POST['code']
+        d.licences = request.POST['licences']
+        d.term_months = request.POST['term_months']
+        d.start_date = request.POST['start_date']
+        d.district_id = request.POST['district_id']
         d.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
+
+def build_filters(columns, filters):
+    """
+    Builds the filters for the PepConn report data
+    :param columns: the columns in this table
+    :param filters: the filters requested
+    :return: the arguments to pass to filter()
+    """
+    kwargs = dict()
+    args = None
+    # Iterate through the filters.
+    for column, value in filters.iteritems():
+        # For the numerical columns, just filter that column by the passed value.
+        if not column == 'all':
+            c = int(column)
+            # If the column is an integer value, convert the search term.
+            out_value = value
+            if columns[c][2] == 'int' and value.isdigit():
+                out_value = int(value)
+            # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+            # type of selection to make ([1] - '__iexact').
+            kwargs[columns[c][0] + columns[c][1]] = out_value
+        # If this is a search for all, we need to do an OR search, so we build one with Q objects.
+        else:
+            args_list = list()
+            for key, data in columns.iteritems():
+                # [2] holds the column type (int, str, or False to ignore).
+                if data[2]:
+                    # If the column is an integer value, convert the search term (as long as the string is only digits).
+                    out_value = value
+                    if data[2] == 'int':
+                        if value.isdigit():
+                            out_value = int(value)
+                        else:
+                            out_value = None
+                    if out_value is not None:
+                        # Create the Q object and add it to the list.
+                        args_list.append(Q(**{data[0] + data[1]: out_value}))
+            # Start the list with the first object, then add the rest with ORs.
+            args = args_list.pop()
+            for item in args_list:
+                args |= item
+
+    return args, kwargs
+
+
+def build_sorts(columns, sorts):
+    """
+    Builds the sorts for the PepConn report data
+    :param columns: the columns in this table
+    :param sorts: the sorts requested
+    :return: the arguments to pass to order_by()
+    """
+    order = list()
+    # Iterate through the passed sorts.
+    for column, sort in sorts.iteritems():
+        # Default to an ASC search, but if the sort is 1, change it to DESC by adding a -.
+        pre = ''
+        if bool(int(sort)):
+            pre = '-'
+        # We just need the column selector out of the columns, not the type.
+        order.append(pre + columns[int(column)][0])
+    return order
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_user_rows(request):
+    """
+    Builds the rows for display in the PepConn Users report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['user_id', '', 'int'],
+               1: ['user__last_name', '__icontains', 'str'],
+               2: ['user__first_name', '__icontains', 'str'],
+               3: ['school__name', '__iexact', 'str'],
+               4: ['district__name', '__iexact', 'str'],
+               5: ['district__state__name', '__iexact', 'str'],
+               6: ['cohort__code', '__icontains', 'str'],
+               7: ['user__email', '__icontains', 'str'],
+               8: ['subscription_status', '__iexact', 'str'],
+               10: ['user__date_joined', '__icontains', False]}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 11)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        # If there was a search for all, add the Q arguments.
+        if args:
+            users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        users = UserProfile.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
+    count = users.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in users[start:end]:
+        row = list()
+        row.append(int(item.user.id))
+        row.append(str(item.user.last_name))
+        row.append(str(item.user.first_name))
+
+        try:
+            user_school = item.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.district.name)
+            user_district_state = str(item.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+        try:
+            user_cohort = str(item.cohort.code)
+        except:
+            user_cohort = ""
+
+        row.append(str(user_school))
+        row.append(str(user_district))
+        row.append(str(user_cohort))
+        row.append(str(user_district_state))
+        row.append(str(item.user.email))
+        row.append(str(item.subscription_status))
+        try:
+            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        except:
+            activation_key = ''
+        row.append('<a href="/register/' + activation_key + '" target="_blank">Activation Link</a>')
+        row.append(str(item.user.date_joined))
+        row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_school_rows(request):
+    """
+    Builds the rows for display in the PepConn Schools report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['name', '__icontains', 'str'],
+               2: ['district__name', '__iexact', 'str'],
+               3: ['district__code', '__icontains', 'str'],
+               4: ['district__state__name', '__iexact', 'str']}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 6)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        # If there was a search for all, add the Q arguments.
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            schools = School.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            schools = School.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        schools = School.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
+    count = schools.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in schools[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.name))
+        try:
+            district_state = item.district.state.name
+        except:
+            district_state = ""
+        try:
+            district_name = item.district.name
+        except:
+            district_name = ""
+        try:
+            district_id = item.district.code
+        except:
+            district_id = ""
+        row.append(str(district_name))
+        row.append(str(district_id))
+        row.append(str(district_state))
+        row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_district_rows(request):
+    """
+    Builds the rows for display in the PepConn Districts report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['name', '__icontains', 'str'],
+               2: ['state__name', '__iexact', 'str']}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 4)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        # If there was a search for all, add the Q arguments.
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            districts = District.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            districts = District.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        districts = District.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
+    count = districts.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in districts[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.name))
+        row.append(str(item.state.name))
+        row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_cohort_rows(request):
+    """
+    Builds the rows for display in the PepConn Cohorts report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['code', '__icontains', 'str'],
+               1: ['licenses', '', 'int'],
+               2: ['term_months', '', 'int'],
+               3: ['start_date', '__icontains', False],
+               4: ['district__name', '__iexact', 'str'],
+               5: ['district__code', '__iexact', 'str'],
+               6: ['district__state', '__iexact', 'str']}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 8)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        # If there was a search for all, add the Q arguments.
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            cohorts = Cohort.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            cohorts = Cohort.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        cohorts = Cohort.objects.prefetch_related().all().order_by(*order)
+    # The number of results is the first value in the return JSON
+    count = cohorts.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in cohorts[start:end]:
+        row = list()
+        row.append(str(item.code))
+        row.append(str(item.licences))
+        row.append(str(item.term_months))
+        row.append(str('{d:%Y-%m-%d}'.format(d=item.start_date)))
+        try:
+            district_name = item.district.name
+        except:
+            district_name = ""
+        try:
+            district_code = item.district.code
+        except:
+            district_code = ""
+        try:
+            district_state = item.district.state.name
+        except:
+            district_state = ""
+        row.append(str(district_name))
+        row.append(str(district_code))
+        row.append(str(district_state))
+        row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
 ###############################################
@@ -188,19 +551,18 @@ def import_district_progress(request):
 
 
 def validate_district_cvs_line(line):
-    exist=False
     # check field count
-    n=0
+    n = 0
     for item in line:
         if len(item.strip()):
-            n=n+1
-    if n != 3:
+            n += 1
+    if n != len(DISTRICT_CSV_COLS):
         raise Exception("Wrong column count %s" % n)
 
-    name=line[DISTRICT_CSV_COLS.index('name')]
-    code=line[DISTRICT_CSV_COLS.index('id')]
+    name = line[DISTRICT_CSV_COLS.index('name')]
+    code = line[DISTRICT_CSV_COLS.index('id')]
 
-    if len(District.objects.filter(name=name,code=code)) > 0:
+    if len(District.objects.filter(name=name, code=code)) > 0:
         raise Exception("A district named '{name}' already exists".format(name=name))
 
 
@@ -215,7 +577,7 @@ def do_import_district(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             task.process_lines = i + 1
 
@@ -232,6 +594,8 @@ def do_import_district(task, csv_lines, request):
             district.name = name
             district.state_id = state
             district.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -243,6 +607,8 @@ def do_import_district(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_district_tasks(request):
@@ -275,9 +641,9 @@ def single_district_submit(request):
         district.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 ##############################################
@@ -320,16 +686,15 @@ def import_school_progress(request):
     return HttpResponse(j, content_type="application/json")
 
 
-def validate_school_cvs_line(line, district_id):
-    name=line[SCHOOL_CSV_COLS.index('name')]
-
-    n=0
+def validate_school_cvs_line(line, district):
+    name = line[SCHOOL_CSV_COLS.index('name')]
+    n = 0
     for item in line:
         if len(item.strip()):
             n += 1
-    if n != 4:
+    if n != len(SCHOOL_CSV_COLS):
         raise Exception("Wrong column count")
-    if len(School.objects.filter(name=name, district_id=district_id)) > 0:
+    if len(School.objects.filter(name=name, district=district)) > 0:
         raise Exception("A school named '{name}' already exists in the district".format(name=name))
 
 
@@ -344,7 +709,8 @@ def do_import_school(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
+
         try:
             task.process_lines = i + 1
 
@@ -352,14 +718,17 @@ def do_import_school(task, csv_lines, request):
             id = line[SCHOOL_CSV_COLS.index('id')]
             state = line[SCHOOL_CSV_COLS.index('state')]
             district_id = line[SCHOOL_CSV_COLS.index('district_id')]
+            district_object = District.objects.get(code=district_id)
 
-            validate_school_cvs_line(line, district_id)
+            validate_school_cvs_line(line, district_object)
 
             school = School()
             school.name = name
             school.code = id
-            school.district_id = district_id
+            school.district = district_object
             school.save()
+
+            tasklog.error = 'ok'
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -371,6 +740,8 @@ def do_import_school(task, csv_lines, request):
             task.save()
             tasklog.save()
             db.transaction.commit()
+
+    email_results(task, request.user.email)
 
 
 def import_school_tasks(request):
@@ -398,13 +769,15 @@ def single_school_submit(request):
         school = School()
         school.name = request.POST['name']
         school.code = request.POST['id']
-        school.district_id = request.POST['district_id']
+        district_id = request.POST['district_id']
+        district_object = District.objects.get(id=district_id)
+        school.district = district_object
         school.save()
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 #* -------------- User Data Import -------------
@@ -456,7 +829,7 @@ def import_user_progress(request):
         task = ImportTask.objects.get(id=request.POST.get('taskId'))
         j = json.dumps({'task': task.filename, 'percent': '%.2f' % (task.process_lines*100/task.total_lines)})
     except Exception as e:
-        j = json.dumps({'task': 'no', 'percent':100})
+        j = json.dumps({'task': 'no', 'percent': 100})
     return HttpResponse(j, content_type="application/json")
 
 
@@ -480,7 +853,7 @@ def do_import_user(task, csv_lines, request):
         tasklog.create_date = datetime.now(UTC)
         tasklog.line = i + 1
         tasklog.task = task
-        tasklog.error = line
+        tasklog.import_data = line
         try:
             #** record processed count
             task.process_lines = i + 1
@@ -494,8 +867,6 @@ def do_import_user(task, csv_lines, request):
 
             #** create log
             tasklog.username = username
-            tasklog.email = email
-            tasklog.district_name = district_name
             tasklog.error = "ok"
               
             validate_user_cvs_line(line)
@@ -516,9 +887,6 @@ def do_import_user(task, csv_lines, request):
             profile = UserProfile(user=user)
             profile.district = district
             profile.subscription_status = "Imported"
-            # if school_id:
-            #     profile.school=School.objects.get(id=school_id)
-            profile.save()
 
             #** course enroll
             cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
@@ -529,6 +897,7 @@ def do_import_user(task, csv_lines, request):
             #** send activation email if required
             if send_registration_email:
                 try:
+                    profile.subscription_status = "Unregistered"
                     reg = Registration.objects.get(user=user)
                     props = {'key': reg.activation_key, 'district': district.name, 'email': email}
 
@@ -548,7 +917,10 @@ def do_import_user(task, csv_lines, request):
 
                 except Exception as e:
                     raise Exception("Failed to send registration email %s" % e)
-            
+
+            # Save the profile after we know everything has been set correctly.
+            profile.save()
+
         except Exception as e:
             db.transaction.rollback()
             tasklog.error = "%s" % e
@@ -562,19 +934,21 @@ def do_import_user(task, csv_lines, request):
             tasklog.save()
             db.transaction.commit()
 
-    #** post process
+    email_results(task, request.user.email)
+
+
+def email_results(task, email):
     tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
     if len(tasklogs):
-        FIELDS = ["line", "username", "email", "district", "create_date", "error"]
-        TITLES = ["Line", "Username", "Email", "District", "Create Date", "Error"]
+        FIELDS = ["line", "username", "import_data", "create_date", "error"]
+        TITLES = ["Line", "Username", "Import Data", "Create Date", "Error"]
         output = StringIO()
         writer = csv.DictWriter(output, fieldnames=FIELDS)
         writer.writerow(dict(zip(FIELDS, TITLES)))
         for d in tasklogs:
             row = {"line": d.line,
                    "username": d.username,
-                   "email": d.email,
-                   "district": d.district_name,
+                   "import_data": d.import_data,
                    "create_date": d.create_date,
                    "error": d.error
                    }
@@ -584,8 +958,7 @@ def do_import_user(task, csv_lines, request):
         send_html_mail("User Data Import Report",
                        "Report of importing %s, see attachment." % task.filename,
 
-                       settings.SUPPORT_EMAIL, [request.user.email], attach)
-
+                       settings.SUPPORT_EMAIL, [email], attach)
         output.close()
 
 
@@ -628,16 +1001,20 @@ def import_user_tasks(request):
 def single_user_submit(request):
 
     send_registration_email = request.POST.get('send_registration_email') == 'true'
-
+    message = "Message Begin: Email? " + str(send_registration_email)
     if not request.user.is_authenticated:
         raise Http404
     try:
         email = request.POST['email']
-        district = request.POST['district']
+        district_id = request.POST['district']
         username = random_mark(20)
         user = User(username=username, email=email, is_active=False)
         user.set_password(username)
         user.save()
+
+        district = District.objects.get(id=district_id)
+
+        message += "  email? "+email+"   district? "+str(district)
 
         #** registration
         registration = Registration()
@@ -647,9 +1024,6 @@ def single_user_submit(request):
         profile = UserProfile(user=user)
         profile.district = district
         profile.subscription_status = "Imported"
-        # if school_id:
-        #     profile.school=School.objects.get(id=school_id)
-        profile.save()
 
         #** course enroll
         cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
@@ -660,12 +1034,13 @@ def single_user_submit(request):
         #** send activation email if required
         if send_registration_email:
             try:
+                profile.subscription_status = "Unregistered"
                 reg = Registration.objects.get(user=user)
                 props = {'key': reg.activation_key, 'district': district.name, 'email': email}
 
                 use_custom = request.POST.get("customize_email")
                 if use_custom == 'true':
-                    custom_email = request.POST.get("custom_email_001")
+                    custom_email = request.POST.get("custom_email_003")
                     custom_email_subject = request.POST.get("custom_email_subject")
                     subject = render_from_string(custom_email_subject, props)
                     body = render_from_string(custom_email, props)
@@ -680,11 +1055,15 @@ def single_user_submit(request):
             except Exception as e:
                 raise Exception("Failed to send registration email %s" % e)
 
+        # Save profile now that we have everything set.
+        profile.save()
+
     except Exception as e:
         db.transaction.rollback()
-        return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
+        return HttpResponse(json.dumps({'success': False, 'error': '%s' % e, "message": message}),
+                            content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}))
+    return HttpResponse(json.dumps({'success': True, "message": message}), content_type="application/json")
 
 
 def task_close(request):
@@ -851,9 +1230,11 @@ def registration_filter_user(vars, data):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def registration_send_email(request):
-
+    message = ""
+    message = str(request.POST.get('ids'))
     ids=[]
     if request.POST.get('ids'):
+        message = request.POST.get("sending custom")
         ids = [int(s) for s in request.POST.get('ids').split(',') if s.isdigit()]
     else:
         data = UserProfile.objects.all()
@@ -866,7 +1247,8 @@ def registration_send_email(request):
     task.save()
     
     do_send_registration_email(task, ids, request)
-    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
+
 
 
 @postpone
@@ -877,6 +1259,8 @@ def do_send_registration_email(task, user_ids, request):
     for i, user_id in enumerate(user_ids):
         try:
             user = User.objects.get(id=user_id)
+            profile = UserProfile.objects.get(user=user)
+            profile.subscription_status = 'Unregistered'
 
             #** record processed count
             task.process_emails = i + 1
@@ -917,6 +1301,7 @@ def do_send_registration_email(task, user_ids, request):
             task.update_time = datetime.now(UTC)
             task.save()
             tasklog.save()
+            profile.save()
             db.transaction.commit()
 
     #** post process
@@ -1099,3 +1484,18 @@ def registration_download_excel(request):
     response.write(output.getvalue())    
     return response
 
+
+def get_post_array(post, name, max=None):
+    """
+    Gets array values from a jQuery POST.
+    """
+    output = dict()
+    for key in post.keys():
+        value = urllib2.unquote(post.get(key))
+        if key.startswith(name + '[') and not value == 'undefined':
+            start = key.find('[')
+            i = key[start + 1:-1]
+            if max and int(i) > max:
+                i = 'all'
+            output.update({i: value})
+    return output

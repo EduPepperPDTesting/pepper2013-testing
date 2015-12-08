@@ -95,7 +95,7 @@ CACHES = {
 
 
 XQUEUE_INTERFACE = {
-    "url": "http://127.0.0.1:3032",
+    "url": XQUEUE_INTERFACE_URL,
     "django_auth": {
         "username": "lms",
         "password": "abcd"
@@ -170,12 +170,12 @@ MITX_VERSION_STRING = os.popen('cd %s; git describe' % REPO_ROOT).read().strip()
 ############################ Open ended grading config  #####################
 
 OPEN_ENDED_GRADING_INTERFACE = {
-    'url' : 'http://127.0.0.1:3033/',
-    'username' : 'lms',
-    'password' : 'abcd',
-    'staff_grading' : 'staff_grading',
-    'peer_grading' : 'peer_grading',
-    'grading_controller' : 'grading_controller'
+    'url': OPEN_ENDED_GRADING_INTERFACE_URL,
+    'username': 'lms',
+    'password': 'abcd',
+    'staff_grading': 'staff_grading',
+    'peer_grading': 'peer_grading',
+    'grading_controller': 'grading_controller'
 }
 
 ############################## LMS Migration ##################################
