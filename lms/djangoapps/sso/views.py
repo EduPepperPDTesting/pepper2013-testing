@@ -34,11 +34,12 @@ from student.models import State, District, SubjectArea, GradeLevel, YearsInEduc
 from baseinfo.models import Enum
 from django import db
 
+import oauth2
+
 log = logging.getLogger("tracking")
 BASEDIR = path.dirname("lms/")
 
 
-@require_POST
 @csrf_exempt
 def genericsso(request):
     '''Assertion consume service (acs) of pepper'''
@@ -65,10 +66,84 @@ def genericsso(request):
     # Call different type of ACS seperatly
     if metadata_setting.get('sso_type') == 'SAML':
         log.debug("message: it's SAML")
-        return samlACS(request, idp_name, metadata_setting)
+        return saml_acs(request, idp_name, metadata_setting)
+    elif metadata_setting.get('sso_type') == 'OAuth2':
+        return oauth2_acs(request, idp_name, metadata_setting)
+
+import requests
+import base64
+def oauth2_acs(request, idp_name, ms):
+    request_token_url = 'https://clever.com/oauth/tokens'
+    client_id = "172ddae01da8b5f08e6b"
+    client_secret = "f04b49c3477a607b19dc12a629b80a0190602c3f"
+
+    basic = base64.b64encode(client_id + ":" + client_secret)
+    headers = {'Authorization': "Basic " + basic, 'Content-Type': 'application/x-www-form-urlencoded'}
+
+    try:
+        print '========'
+        req = requests.request('POST', request_token_url,
+                               data={'code': request.GET.get('code'),
+                                     'grant_type': 'authorization_code',
+                                     'redirect_uri': 'https://59.45.37.54/genericsso/?idp=Clever'}, timeout=15,
+                               headers=headers)
+        print req.text
+        # {"access_token":"il9d179a3f6795b963439504adbf1bdd46ad5ec8","token_type":"bearer"}
+
+        content = json.loads(req.text)
+        print '========'
+
+        '''
+        body = "code=%s&grant_type=%s&redirect_uri=%s" % (
+            request.GET.get("code"),
+            "authorization_code",
+            "https://59.45.37.54/genericsso/?idp=Clever")
+
+        # Create our client.
+        consumer = oauth2.Consumer(key="172ddae01da8b5f08e6b", secret="f04b49c3477a607b19dc12a629b80a0190602c3f")
+        client = oauth2.Client(consumer, timeout=300, disable_ssl_certificate_validation=True)
+
+        # The OAuth Client request works just like httplib2 for the most part.
+        resp, content = client.request(request_token_url, "POST", headers=headers, body=body)
+
+        if resp["status"] != "200":
+            raise Exception("Invalid response from consumer.")
+
+        content = json.loads(content)
+        print resp
+        print content.get("access_token")
+        '''
+
+        print "~~~~~~~~~~~~~~~~"
+        # -----------------------
+        req = requests.request('GET', "https://clever.com/oauth/tokeninfo", timeout=15,
+                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
+        print req.text
+        tokeninfo = json.loads(req.text)
+        # -----------------------
+        req = requests.request('GET', "https://api.clever.com/me", timeout=15,
+                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        print req.text
+        # {"type":"teacher","data":{"id":"565cba28f64f6af001000083","district":"565cb804051821010000171d","type":"teacher"},"links":[{"rel":"self","uri":"/me"},{"rel":"canonical","uri":"/v1.1/teachers/565cba28f64f6af001000083"},{"rel":"district","uri":"/v1.1/districts/565cb804051821010000171d"}]}
+        me = json.loads(req.text)
+        # -----------------------
+        req = requests.request('GET', "https://api.clever.com/v1.1/teachers/"+me.get("data").get("id"), timeout=15,
+                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
+        profile = json.loads(req.text)
+        print req.text
+        # {"data":{"credentials":{"district_username":"braeden.glover"},"district":"565cb804051821010000171d","email":"braeden_glover@example.net","name":{"first":"Braeden","last":"Glover","middle":"L"},"school":"565cba223d6e6a9c01000005","sis_id":"47","teacher_number":"230186","title":"Grade 9 English Teacher","id":"565cba28f64f6af001000083"},"links":[{"rel":"self","uri":"/v1.1/teachers/565cba28f64f6af001000083"}]}
+        print profile.get("data").get("email")
+        print "~~~~~~~~~~~~~~~~"
+        
+    except Exception as e:
+        return HttpResponse(str(e))
+    
+    return HttpResponse('success')
 
 
-def samlACS(request, idp_name, ms):
+def saml_acs(request, idp_name, ms):
     '''SAML ACS'''
 
     xmlstr = request.POST.get("SAMLResponse")
@@ -204,17 +279,14 @@ def samlACS(request, idp_name, ms):
     else:
         return create_unknown_user(request, ms, data)
 
-
 def https_redirect(request, url):
     '''Force redirect to a https address'''
     absolute_URL = request.build_absolute_uri(url)
     new_URL = "https%s" % absolute_URL[4:]
     return HttpResponseRedirect(new_URL)
 
-
 def random_mark(length):
     return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
-
 
 def create_unknown_user(request, ms, data):
     '''Create the sso user who\'s not exists in pepper'''
@@ -290,7 +362,6 @@ def create_unknown_user(request, ms, data):
         db.transaction.rollback()
         log.error("error: failed to create SSO user: %s" % e)
 
-
 def register_sso(request, activation_key):
     '''Register page for not acitved sso auto created user.'''
     registration = Registration.objects.get(activation_key=activation_key)
@@ -311,7 +382,6 @@ def register_sso(request, activation_key):
         'attribute_mapping': attribute_mapping
     }
     return render_to_response('register_sso.html', context)
-
 
 def activate_account(request):
     '''Process posted data from registeration form'''

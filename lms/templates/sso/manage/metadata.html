@@ -38,7 +38,7 @@ from django.core.urlresolvers import reverse
       <span class="">Type</span>
       <select id="" name="sso_type" autocomplate="off">
         <option>EasyIEP</option>
-        <option>OAuth</option>
+        <option>OAuth2</option>
         <option>SAML</option>
       </select>
     </div>
@@ -46,38 +46,29 @@ from django.core.urlresolvers import reverse
       <span class="">Name</span>
       <input type="" name="sso_name" value="" style="width:500px;"/>
     </div>
-    <div class="row">
-      <span class="">Federation Metadata</span>
-      <textarea name="sso_metadata" value="" style="width:500px;"></textarea>
-    </div>
 
-    
-    <!--
-    <div class="row">
-      <span class="">Entity ID</span>
-      <input type="" name="sso_entity_id" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Issuer URL</span>
-      <input type="" name="sso_issuer_url" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Single sign-on service URL</span>
-      <input type="" name="sso_single_sign_on" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Single sign-out service URL</span>
-      <input type="" name="sso_single_sign_out" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Request Schema</span>
-      <textarea name="sso_request"></textarea>
-    </div>
-    <div class="row">
-      <span>Response Schema</span>
-      <textarea name="sso_response"></textarea>
-    </div>
-    -->
+    <section>
+      <div class="row">
+        <span class="">Federation Metadata</span>
+        <textarea name="sso_metadata" value="" style="width:500px;"></textarea>
+      </div>
+    </section>
+
+    <section>
+      <div class="row">
+        <span class="">Client ID</span>
+        <input type="" name="oauth2_client_id" value="" style="width:500px;"/>
+      </div>
+      <div class="row">
+        <span class="">Client Secret</span>
+        <input type="" name="oauth2_client_secret" value="" style="width:500px;"/>
+      </div>
+      <div class="row">
+        <span class="">Redirect URL</span>
+        <input type="" name="oauth2_redirect_url" value="" style="width:500px;"/>
+      </div>
+    </section>
+        
     <div class="section">Attributes</div>
     <div id="divIdpAttributeMapping"></div>
     <div style="margin-left:145px;padding:5px 0;">
