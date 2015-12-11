@@ -37,8 +37,10 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 from courseware.module_render import get_module
 from courseware.model_data import FieldDataCache
 from courseware.courses import get_courses
+from mail import send_html_mail
 log = logging.getLogger("tracking")
 
+ADJUSTMENT_TIME_CSV_COLS = ('email', 'time', 'type', 'course_id', 'comments')
 
 def attstr(obj, attr):
     r = obj
@@ -62,7 +64,7 @@ def postpone(function):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser or is_time_report_permission(u))
 def main(request):
     return render_to_response('administration/time_report.html', {})
 
@@ -72,32 +74,48 @@ def main(request):
 
 def drop_states(request):
     r = list()
-    data = State.objects.all()
-    data = data.order_by("name")
-    for item in data:
-        r.append({"id": item.id, "name": item.name})
+    if is_time_report_permission(request.user):
+        state_id = UserProfile.objects.filter(user_id=request.user.id)[0].district.state_id
+        data = State.objects.filter(id=state_id)[0]
+        r.append({"id": data.id, "name": data.name})
+    else:
+        data = State.objects.all()
+        data = data.order_by("name")
+        for item in data:
+            r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_districts(request):
     r = list()
-    if request.GET.get('state'):
-        data = District.objects.all()
-        data = data.filter(state=request.GET.get('state'))
-        data = data.order_by("name")
-        for item in data:
-            r.append({"id": item.id, "name": item.name, "code": item.code})
+    if is_time_report_permission(request.user):
+        data = UserProfile.objects.filter(user_id=request.user.id)[0].district
+        r.append({"id": data.id, "name": data.name})
+    else:
+        if request.GET.get('state'):
+            data = District.objects.all()
+            data = data.filter(state=request.GET.get('state'))
+            data = data.order_by("name")
+            for item in data:
+                r.append({"id": item.id, "name": item.name, "code": item.code})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_schools(request):
     r = list()
-    if request.GET.get('district'):
-        data = School.objects.all()
-        data = data.filter(district=request.GET.get('district'))
+    if is_time_report_permission(request.user):
+        district = UserProfile.objects.filter(user_id=request.user.id)[0].district
+        data = School.objects.filter(district=district.id)
         data = data.order_by("name")
         for item in data:
             r.append({"id": item.id, "name": item.name})
+    else:
+        if request.GET.get('district'):
+            data = School.objects.all()
+            data = data.filter(district=request.GET.get('district'))
+            data = data.order_by("name")
+            for item in data:
+                r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
@@ -118,7 +136,7 @@ def drop_courses(request):
     courses = get_courses(None)
     for course in courses:
         course = course_from_id(course.id)
-        r.append({"id": course.id, "name": course.display_name_with_default})
+        r.append({"id": course.id, "name": str(course.display_coursenumber) + ' ' + course.display_name})
     r.sort(key=lambda x: x['name'], reverse=False)
     return HttpResponse(json.dumps(r), content_type="application/json")
 
@@ -129,7 +147,7 @@ def drop_enroll_courses(request):
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             course = course_from_id(enrollment.course_id)
-            r.append({"id": course.id, "name": course.display_name_with_default})
+            r.append({"id": course.id, "name": str(course.display_coursenumber) + ' ' + course.display_name})
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}".format(user.username, enrollment.course_id))
     r.sort(key=lambda x: x['name'], reverse=False)
@@ -178,7 +196,7 @@ def filter_user(vars, data):
 
 #@csrf.csrf_exempt
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser or is_time_report_permission(u))
 def time_table(request):
     data = UserProfile.objects.all()
     data = filter_user(request.GET, data)
@@ -292,7 +310,7 @@ def do_get_report_data(task, data, request, course_id=None):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser or is_time_report_permission(u))
 def time_report_download_excel(request):
     import xlsxwriter
     output = StringIO()
@@ -302,7 +320,7 @@ def time_report_download_excel(request):
               "discussion_time", "portfolio_time", "external_time", "course_time", "complete_course_num", "current_course_num"]
 
     TITLES = ["First Name", "Last Name", "Email", "District", "School", "Total Time", "Collaboration Time",
-              "Discussion Time", "Portfolio Time", "External Time", "Course Time", "Completed Course", "Current Courses"]
+              "Discussion Time", "Portfolio Time", "External Time", "Course Units Time", "Completed Course", "Current Courses"]
     for i, k in enumerate(TITLES):
         worksheet.write(0, i, k)
     row = 1
@@ -335,12 +353,20 @@ def get_time_table_result(request):
 
 
 # save adjustment time
+@csrf.csrf_exempt
 @login_required
 def save_adjustment_time(request):
     rts = record_time_store()
+    adjustment_type = request.POST.get('type')
+    adjustment_time = request.POST.get('time')
+    course_id = request.POST.get('course_id')
     user_id = str(request.POST.get('user_id'))
-    rts.set_adjustment_time(user_id, request.POST.get('type'), request.POST.get('time'), request.POST.get('course_id'))
-    return HttpResponse(json.dumps({}), content_type="application/json")
+    comments = request.POST.get('comments', None)
+    success = validate_adjustment_time(rts, user_id, adjustment_type, adjustment_time, course_id)
+    if success:
+        rts.set_adjustment_time(user_id, adjustment_type, adjustment_time, course_id)
+        save_adjustment_log(request, user_id, adjustment_type, adjustment_time, course_id, comments)
+    return HttpResponse(json.dumps({'success': success}), content_type="application/json")
 
 
 # load adjustment time
@@ -402,3 +428,185 @@ def load_single_user_time(request):
            }
 
     return HttpResponse(json.dumps({'row': row}), content_type="application/json")
+
+
+# validate adjustment time / return ture is right
+def validate_adjustment_time(rts, user_id, type, adjustment_time, course_id):
+    type_time = 0
+    external_time = 0
+    adjustment_time = int(adjustment_time)
+    if adjustment_time < 0:
+        if type == 'total':
+            user = User.objects.get(id=user_id)
+            for enrollment in CourseEnrollment.enrollments_for_user(user):
+                try:
+                    course = course_from_id(enrollment.course_id)
+                    external_time += rts.get_external_time(user_id, course.id)
+                except ItemNotFoundError:
+                    log.error("User {0} enrolled in non-existent course {1}".format(user.username, enrollment.course_id))
+
+            course_time, discussion_time, portfolio_time = rts.get_stats_time(user_id)
+            adjustment_time_totle = rts.get_adjustment_time(user_id, 'total', None)
+            type_time = course_time + discussion_time + portfolio_time + external_time + adjustment_time_totle
+        else:
+            type_time = rts.get_course_time(user_id, course_id, type)
+        if type_time + adjustment_time < 0:
+            return False
+    return True
+
+
+def save_adjustment_log(request, user_id, type, adjustment_time, course_id, comments=None):
+    user = User.objects.get(id=user_id)
+    adjustment_log = AdjustmentTimeLog()
+    adjustment_log.user_id = user_id
+    adjustment_log.user_email = user.email
+    adjustment_log.admin_email = request.user.email
+    adjustment_log.type = type
+    adjustment_log.adjustment_time = adjustment_time
+    adjustment_log.create_time = datetime.now(UTC)
+    adjustment_log.comments = comments
+    if course_id:
+        course = course_from_id(course_id)
+        adjustment_log.course_number = course.display_coursenumber
+    adjustment_log.save()
+
+
+@login_required
+def load_adjustment_log(request):
+    rows = []
+    logs = AdjustmentTimeLog.objects.filter(user_id=request.POST.get('user_id')).order_by('-create_date')
+    for d in logs:
+        create_date = d.create_date.strftime('%b-%d-%y %H:%M:%S')
+        rows.append({"user_email": d.user_email,
+                     "admin_email": d.admin_email,
+                     "adjustment_time": study_time_format(d.adjustment_time, True),
+                     "type": d.type,
+                     "course_number": d.course_number,
+                     "create_date": create_date,
+                     "comments": d.comments
+                     })
+    return HttpResponse(json.dumps({'rows': rows}), content_type="application/json")
+
+
+def validate_adjustment_time_cvs_line(line, tasklog):
+    n = 0
+    adjustment_type_list = ['total', 'courseware', 'discussion', 'portfolio', 'external']
+    for item in line:
+        if len(item.strip()):
+            n += 1
+    if n != len(ADJUSTMENT_TIME_CSV_COLS):
+        raise Exception("Wrong column count %s" % n)
+    email = line[ADJUSTMENT_TIME_CSV_COLS.index('email')]
+    time = line[ADJUSTMENT_TIME_CSV_COLS.index('time')]
+    type = line[ADJUSTMENT_TIME_CSV_COLS.index('type')]
+    course_id = line[ADJUSTMENT_TIME_CSV_COLS.index('course_id')]
+    if len(User.objects.filter(email=email)) < 1:
+        tasklog.username = ''
+        raise Exception("An account with the Email '{email}' does not exist".format(email=email))
+    else:
+        tasklog.username = email
+    if type not in adjustment_type_list:
+        raise Exception("type:'{type}' does not exist".format(type=type))
+    if not (time[0] == '-' and time[1:] or time).isdigit():
+        raise Exception("adjustment time:'{time}' is not an integer".format(time=time))
+    try:
+        course_name = course_from_id(course_id).display_name
+    except:
+        raise Exception("course id:'{course_id}' does not exist".format(course_id=course_id))
+
+
+
+# Adjustment time import
+@csrf.csrf_exempt
+@login_required
+@user_passes_test(lambda u: u.is_superuser or is_time_report_permission(u))
+def import_adjustment_time_submit(request):
+    if request.method == 'POST':
+
+        file = request.FILES.get('file', None)
+        r = csv.reader(file, dialect=csv.excel)
+        r1 = []
+        r1.extend(r)
+
+        task = ImportTask()
+        task.filename = file.name
+        task.total_lines = len(r1)
+        task.user = request.user
+        task.save()
+        db.transaction.commit()
+
+        from django.db import connection
+        connection.close()
+
+        do_import_adjustment_time(task, r1, request)
+
+        return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'success_linescess': False}), content_type="application/json")
+
+
+@postpone
+def do_import_adjustment_time(task, csv_lines, request):
+    gevent.sleep(0)
+
+    count_success = 0
+    rts = record_time_store()
+    for i, line in enumerate(csv_lines):
+        tasklog = ImportTaskLog()
+        tasklog.create_date = datetime.now(UTC)
+        tasklog.line = i + 1
+        tasklog.task = task
+        tasklog.import_data = line
+        try:
+            task.process_lines = i + 1
+            validate_adjustment_time_cvs_line(line, tasklog)
+            email = line[ADJUSTMENT_TIME_CSV_COLS.index('email')]
+            adjustment_time = int(line[ADJUSTMENT_TIME_CSV_COLS.index('time')]) * 60
+            adjustment_type = line[ADJUSTMENT_TIME_CSV_COLS.index('type')]
+            course_id = line[ADJUSTMENT_TIME_CSV_COLS.index('course_id')]
+            comments = line[ADJUSTMENT_TIME_CSV_COLS.index('comments')]
+            user_id = str(User.objects.get(email=email).id)
+            success = validate_adjustment_time(rts, user_id, adjustment_type, adjustment_time, course_id)
+            if success:
+                rts.set_adjustment_time(user_id, adjustment_type, adjustment_time, course_id)
+                save_adjustment_log(request, user_id, adjustment_type, adjustment_time, course_id, comments)
+            tasklog.error = 'ok'
+        except Exception as e:
+            tasklog.error = "%s" % e
+            log.debug("import error %s" % e)
+        finally:
+            count_success += 1
+            task.success_lines = count_success
+            task.update_time = datetime.now(UTC)
+            task.save()
+            tasklog.save()
+
+    tasklogs = ImportTaskLog.objects.filter(task=task).exclude(error='ok')
+    if len(tasklogs):
+        FIELDS = ["line", "username", "import_data", "create_date", "error"]
+        TITLES = ["Line", "Useremail", "Import Data", "Create Date", "Error"]
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=FIELDS)
+        writer.writerow(dict(zip(FIELDS, TITLES)))
+        for d in tasklogs:
+            row = {"line": d.line,
+                   "username": d.username,
+                   "import_data": d.import_data,
+                   "create_date": d.create_date,
+                   "error": d.error
+                   }
+            writer.writerow(row)
+        output.seek(0)
+        attach = [{'filename': 'log.csv', 'mimetype': 'text/csv', 'data': output.read()}]
+        send_html_mail("Adjustment Time Import Report",
+                       "Report of importing %s, see attachment." % task.filename,
+                       settings.SUPPORT_EMAIL, [request.user.email], attach)
+        output.close()
+
+
+# Whether there is a right to see time report
+def is_time_report_permission(user):
+    if len(TimeReportPerm.objects.filter(user_id=user.id)) > 0:
+        return True
+    else:
+        return False

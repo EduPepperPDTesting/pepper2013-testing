@@ -127,7 +127,9 @@ urlpatterns = (
     url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
     url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
     url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
-    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_load_enrollment_courses"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
+    url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
+    url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
     
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),

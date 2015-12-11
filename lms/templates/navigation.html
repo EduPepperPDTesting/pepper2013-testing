@@ -12,6 +12,7 @@
     import branding
     # app that handles site status messages
     from status.status import get_site_status_msg
+    from administration.time_report import is_time_report_permission
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -367,7 +368,26 @@ except:
 
         %if curr_user==request.user:
 
-            <ol class="user admin" >
+        <ol class="user admin" >
+
+        %if is_time_report_permission(curr_user):
+          <!-- Time REPORT PERMISSION -->
+          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+            <ul class="admin-dropdown-menu">
+              <li><a href="${reverse('time_report')}">Time Report</a></li>
+              <script type="text/javascript">
+                $(document).on('click', function(event) {
+                  if(!$(event.target).closest('.admin-menu-holder').length){
+                    $(".admin-dropdown-menu").hide();
+                  }else if($(event.target).closest(".outside_menu").length){
+                    $(".admin-dropdown-menu").hide();
+                  }
+                });
+              </script>
+            </ul>
+          </li>
+        %else:
             %if show_extended and curr_user.is_superuser:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
@@ -390,7 +410,7 @@ except:
                     </ul>
                 </li>
             %endif
-
+        %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
@@ -1302,7 +1322,7 @@ except:
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser:
+%if curr_user.is_superuser or is_time_report_permission(curr_user):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
