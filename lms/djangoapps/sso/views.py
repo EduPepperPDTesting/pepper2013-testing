@@ -73,19 +73,21 @@ def genericsso(request):
 import requests
 import base64
 def oauth2_acs(request, idp_name, ms):
-    request_token_url = 'https://clever.com/oauth/tokens'
-    client_id = "172ddae01da8b5f08e6b"
-    client_secret = "f04b49c3477a607b19dc12a629b80a0190602c3f"
+    request_token_url = ms.get("oauth2_request_token_url")  # 'https://clever.com/oauth/tokens'
+    client_id = ms.get("oauth2_client_id")  # "172ddae01da8b5f08e6b"
+    client_secret = ms.get("oauth2_client_secret")  # "f04b49c3477a607b19dc12a629b80a0190602c3f"
 
     basic = base64.b64encode(client_id + ":" + client_secret)
     headers = {'Authorization': "Basic " + basic, 'Content-Type': 'application/x-www-form-urlencoded'}
+
+    redirect_url = ms.get("oauth2_redirect_url")
 
     try:
         print '========'
         req = requests.request('POST', request_token_url,
                                data={'code': request.GET.get('code'),
                                      'grant_type': 'authorization_code',
-                                     'redirect_uri': 'https://59.45.37.54/genericsso/?idp=Clever'}, timeout=15,
+                                     'redirect_uri': redirect_url}, timeout=15,
                                headers=headers)
         print req.text
         # {"access_token":"il9d179a3f6795b963439504adbf1bdd46ad5ec8","token_type":"bearer"}
