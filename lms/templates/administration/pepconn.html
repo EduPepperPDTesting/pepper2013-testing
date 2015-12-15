@@ -536,6 +536,7 @@ f.close()
             <input type="button" value="Delete Selected Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
             <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
             <input type="button" name="" onclick="addToCohort()" style="padding-left:10px;" value="Add To Cohort" class="small" id="userAddToCohort"/>
+            <input type="button" name="" onclick="removeFromCohort()" style="padding-left:10px;" value="Remove From Cohort" class="small" id="userRemoveFromCohort"/>
         </span>
         <ul class="list" id="user_table_custom_email_form">
           <li>
@@ -920,8 +921,9 @@ $(document).ready(function () {
 function addToCohort() {
     var code = "<p id = 'innercohort'>Select Cohort: " + $("#cohort_select").html() + "</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);
-
-
+}
+function removeFromCohort(){
+    new Dialog($("#dialog")).show("Remove From Cohort", "<span id = 'cohort_remove_span'><p>Really remove selected users from cohort?</p><button onClick='submitRemoveFromCohort()'>Submit</button></span>");
 }
 function submitAddToCohort() {
     //console.log("processing");
@@ -946,7 +948,29 @@ function submitAddToCohort() {
     });
 
 }
+function submitRemoveFromCohort() {
+    $("#user_table_init tr").each(function (i, val) {
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        var finished_good = true;
+        $checkedBoxes.each(function (i, box) {
+            var $checkbox = $(box);
+            $.post('${reverse("pepconn_cohort_remove_submit")}', {
+                id: $checkbox.val()
+            }, function (r) {
+                if (r.message = "success") {
 
+                } else {
+                    finished_good = false;
+                }
+            });
+        });
+        if (finished_good){
+            $("#cohort_remove_span").html("<p>The selected users have been removed from their cohorts.</p>");
+        }else $("#cohort_remove_span").html("<p>The following error has occurred: " + r.message + "</p>");
+
+    });
+}
 function openBookmark(table) {
     var code = "<p>Select Filter: <select id = 'bookmark_select_" + table + "'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_" + table + "'></input><br><br><button onClick = 'saveBookmark(\"" + table + "\");'>Save Bookmark</button></p>";

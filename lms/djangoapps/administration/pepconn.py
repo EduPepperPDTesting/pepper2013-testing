@@ -1098,6 +1098,21 @@ def add_to_cohort(request):
     j = json.dumps({"message": message})
     return HttpResponse(j, content_type="application/json")
 
+
+def remove_from_cohort(request):
+    message = {'success': True}
+    id = request.POST.get("id")
+    try:
+        user = UserProfile.objects.get(user_id=id)
+        user.cohort_id = 0
+        user.save()
+    except Exception as e:
+        db.transaction.rollback()
+        message = e
+    j = json.dumps({"message": message})
+    return HttpResponse(j, content_type="application/json")
+
+
 #* -------------- Dropdown List -------------
 
 def drop_states(request):
