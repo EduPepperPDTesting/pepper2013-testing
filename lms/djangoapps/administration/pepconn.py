@@ -448,7 +448,7 @@ def get_cohort_rows(request):
                3: ['start_date', '__icontains', False],
                4: ['district__name', '__iexact', 'str'],
                5: ['district__code', '__iexact', 'str'],
-               6: ['district__state', '__iexact', 'str']}
+               6: ['district__state__name', '__iexact', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
