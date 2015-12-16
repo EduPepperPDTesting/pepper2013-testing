@@ -309,7 +309,7 @@ f.close()
                 <select type="search" data-column="2" class="search-districts" id="District_state_select">
                   <option value="" selected class="select-option" id="null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id="${item.id}" value="${item.name}">${item.name}</option>
+                  <option value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
 
@@ -371,14 +371,14 @@ f.close()
 
                       <option value="" id="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
-                      <option id="${item.id}" value="${item.name}">${item.name}</option>
+                      <option value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
 
                       <option value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.name}">${item.name}</option>
+                      <option value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
 
@@ -444,19 +444,19 @@ f.close()
                 <select type="search" class="search-users" data-column="5" id="User_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.name}">${item.name}</option>
+                        <option value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
                       <option value="" id="-1" name="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
                       <option value="" id="null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
-                      <option id="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                      <option value='${item.name}' class="">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="8" id="User_registration_select">
@@ -562,13 +562,13 @@ f.close()
                 <select type="search" class="search-cohorts" data-column="6" id="Cohort_state_select">
                     <option value="" id="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.id}">${item.name}</option>
+                        <option value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
                       <option value="" id="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <input placeholder="Search" class="search-cohorts" type="search" data-column="all" id="Cohort_search">
