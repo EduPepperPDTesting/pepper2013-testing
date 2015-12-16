@@ -133,12 +133,11 @@ def cohort_submit(request):
             d = Cohort(request.POST['id'])
         else:
             d = Cohort()
-        d.id = request.POST['id']
         d.code = request.POST['code']
-        d.licences = request.POST['licences']
-        d.term_months = request.POST['term_months']
+        d.licences = int(request.POST['licences'])
+        d.term_months = int(request.POST['term_months'])
         d.start_date = request.POST['start_date']
-        d.district_id = request.POST['district_id']
+        d.district_id = int(request.POST['district_id'])
         d.save()
     except Exception as e:
         db.transaction.rollback()
