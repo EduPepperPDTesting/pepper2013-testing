@@ -196,6 +196,11 @@
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
           </div>
+          %elif request.user.profile.district.name=='Principal':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Principal&op=find" class="card-link image-bottom-style"><span>Principal's Playbook</span></a>
+          </div>
           %endif
           %endif
           

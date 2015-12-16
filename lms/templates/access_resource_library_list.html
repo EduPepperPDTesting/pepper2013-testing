@@ -134,6 +134,13 @@
           </div>
           %endif
 
+          %if request.user.profile.district.name=='Principal':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/course_libraries?name=Principal Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
+          </div>
+          %endif
+
         </div>
       </div>
     </section>
