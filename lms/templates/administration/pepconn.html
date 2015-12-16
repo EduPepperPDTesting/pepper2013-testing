@@ -826,7 +826,7 @@ $(document).ready(function () {
 
     });
 
-    function filterOptions(item, id) {
+    function filterOptions(index, item, id) {
         if ($(item).attr("class") != id) {
             $(item).css("display", "none");
         } else {
@@ -838,23 +838,23 @@ $(document).ready(function () {
     }
     $("#User_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#User_district_select > option").each(filterOptions(this, id));
+        $("#User_district_select > option").each(filterOptions(index, element, id));
     });
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#user_district_id > option").each(filterOptions(this, id));
+        $("#user_district_id > option").each(filterOptions(index, element, id));
     });
     $("#cohort_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#cohort_district_id > option").each(filterOptions(this, id));
+        $("#cohort_district_id > option").each(filterOptions(index, element, id));
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#School_district_select > option").each(filterOptions(this, id));
+        $("#School_district_select > option").each(filterOptions(index, element, id));
     });
     $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#Cohort_district_select > option").each(filterOptions(this, id));
+        $("#Cohort_district_select > option").each(filterOptions(index, element, id));
     });
     $("#User_district_select").change(function () {
         var id = $(this).children(":selected").attr("class");
@@ -870,7 +870,7 @@ $(document).ready(function () {
     });
     $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#district_id_single > option").each(filterOptions(this, id));
+        $("#district_id_single > option").each(filterOptions(index, element, id));
     });
 });
 
