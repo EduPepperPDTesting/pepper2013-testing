@@ -699,6 +699,8 @@ def sso(request, error=""):
     sso_usercode = sso_user.get('UserCode', '')
     sso_unique = str(sso_usercode) + '--' + str(sso_id)
 
+    request.session['idp'] = sso_usercode
+
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
                           .format("No SSO User loaded", text))
@@ -1956,7 +1958,7 @@ def activate_easyiep_account(request):
         profile.subscription_status = 'Registered'
         profile.major_subject_area_id = vars.get('major_subject_area_id', '')
         profile.years_in_education_id = vars.get('years_in_education_id', '')
-        # profile.grade_level_id=vars.get('grade_level_id','')
+        profile.grade_level_id = vars.get('grade_level_id', '')
         profile.percent_lunch = vars.get('percent_lunch', '')
         profile.percent_iep = vars.get('percent_iep', '')
         profile.percent_eng_learner = vars.get('percent_eng_learner', '')

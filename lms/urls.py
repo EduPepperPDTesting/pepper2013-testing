@@ -30,6 +30,20 @@ urlpatterns = (
     (r'^test/', 'djangosaml2.views.echo_attributes'),
     
 ####### Ancestor
+    # url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
+    # url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
+    url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
+    url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
+    url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
+    url(r'^tnl/district/delete$', 'tnl_integration.views.tnl_district_delete', name="tnl_district_delete"),
+    url(r'^tnl/course/add$', 'tnl_integration.views.tnl_course_add', name="tnl_course_add"),
+    url(r'^tnl/course/delete$', 'tnl_integration.views.tnl_course_delete', name="tnl_course_delete"),
+    url(r'^tnl/drop-courses$', 'tnl_integration.views.tnl_drop_courses', name="tnl_drop_courses"),
+    url(r'^tnl/drop-districts$', 'tnl_integration.views.tnl_drop_districts', name="tnl_drop_districts"),
+    url(r'^tnl/drop-domains$', 'tnl_integration.views.tnl_drop_domains', name="tnl_drop_domains"),
+    url(r'^tnl/domain/data$', 'tnl_integration.views.tnl_domain_data', name='tnl_domain_data'),
+    url(r'^tnl/tables$', 'tnl_integration.views.tnl_tables', name='tnl_tables'),
+
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
@@ -52,6 +66,7 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
+    url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
 
     url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
 
@@ -95,11 +110,6 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
-    # url(r'^pepconn/tables/get_user_count/$', 'administration.pepconn.get_user_count', name="pepconn_get_user_count"),
-    # url(r'^pepconn/tables/get_cohort_count/$', 'administration.pepconn.get_cohort_count', name="pepconn_get_cohort_count"),
-    # url(r'^pepconn/tables/get_school_count/$', 'administration.pepconn.get_school_count', name="pepconn_get_school_count"),
-    # url(r'^pepconn/tables/get_district_count/$', 'administration.pepconn.get_district_count', name="pepconn_get_district_count"),
-
     url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
@@ -118,7 +128,9 @@ urlpatterns = (
     url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
     url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
     url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
-    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_load_enrollment_courses"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
+    url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
+    url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
     
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),

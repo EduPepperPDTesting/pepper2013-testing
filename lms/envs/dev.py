@@ -95,7 +95,7 @@ CACHES = {
 
 
 XQUEUE_INTERFACE = {
-    "url": "http://127.0.0.1:3032",
+    "url": XQUEUE_INTERFACE_URL,
     "django_auth": {
         "username": "lms",
         "password": "abcd"
@@ -170,12 +170,12 @@ MITX_VERSION_STRING = os.popen('cd %s; git describe' % REPO_ROOT).read().strip()
 ############################ Open ended grading config  #####################
 
 OPEN_ENDED_GRADING_INTERFACE = {
-    'url' : 'http://127.0.0.1:3033/',
-    'username' : 'lms',
-    'password' : 'abcd',
-    'staff_grading' : 'staff_grading',
-    'peer_grading' : 'peer_grading',
-    'grading_controller' : 'grading_controller'
+    'url': OPEN_ENDED_GRADING_INTERFACE_URL,
+    'username': 'lms',
+    'password': 'abcd',
+    'staff_grading': 'staff_grading',
+    'peer_grading': 'peer_grading',
+    'grading_controller': 'grading_controller'
 }
 
 ############################## LMS Migration ##################################
@@ -337,8 +337,8 @@ AWS_SECRET_ACCESS_KEY = AUTH_TOKENS_PEPPER["AWS_SECRET_ACCESS_KEY"]
 AWS_STORAGE_BUCKET_NAME = AUTH_TOKENS_PEPPER['AWS_STORAGE_BUCKET_NAME']
 
 # ----- django-online-status -----
-USERS_ONLINE__TIME_IDLE = 60*5 # 5 minutes
-USERS_ONLINE__TIME_OFFLINE = 60*10 # 10 minutes
+USERS_ONLINE__TIME_IDLE = 60 * 5  # 5 minutes
+USERS_ONLINE__TIME_OFFLINE = 60 * 10  # 10 minutes
 # USERS_ONLINE__CACHE_PREFIX_USER = 'online_user'
 # USERS_ONLINE__CACHE_USERS = 'online_users'
 

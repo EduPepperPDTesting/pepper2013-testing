@@ -1,0 +1,17 @@
+<%!
+    from django.core.urlresolvers import reverse
+%>
+<%inherit file="../main.html"/>
+<script type="application/javascript">
+    $(".registerform").submit(function(e){
+        $.get("${reverse('tnl_test_register')}", function(data){
+            $(".response").val(data);
+        });
+        return false;
+    });
+</script>
+This is a TNL test page.
+<form class="registerform" method="get" action="${reverse('tnl_test_register')}">
+    <textarea class="response"></textarea>
+    <input class="register" type="submit" name="Register" value="Register" />
+</form>

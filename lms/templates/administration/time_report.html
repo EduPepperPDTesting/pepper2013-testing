@@ -8,11 +8,13 @@ from certificates.models import CertificateStatuses
 from xmodule.modulestore import MONGO_MODULESTORE_TYPE
 from xmodule.modulestore.django import modulestore
 from student.models import State,District,School
+from administration.time_report import is_time_report_permission
 %>
 
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/css/time_report.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css">
@@ -27,7 +29,7 @@ from student.models import State,District,School
   <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 
 <!-- Time Report -->
-<div class = "data_import_bottom">
+<div class = "data_import_top">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
       Time Report <div class="icon"></div>
@@ -71,7 +73,7 @@ from student.models import State,District,School
               <th>Discussion Time</th>
               <th>Portfolio Time</th>
               <th>External Time</th>
-              <th>Course Time</th>
+              <th>Course Units Time</th>
               <th>Completed Courses</th>
               <th>Current Courses</th>
               <th class="sorter-false filter-false">Time Adjustment</th>
@@ -114,6 +116,45 @@ from student.models import State,District,School
   </div>
 </div>
 </div>
+
+<!-- Adjustment Time Import -->
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      Adjustment Time Import <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+      <form method="" id="adjustmentTimeDataImportForm" action="">
+        <div style="padding:7px;">
+          CSV File: <input type="file" name="file" value="" />
+          <p style="margin-top:1em;">
+            <label style="font-style:normal;color:#555;cursor:default;">
+            * CSV file should contain the following columns (email address, adjustment time (in min), adjustment type, course URL, comments).
+            </label>
+          </p>
+          <p>
+            <label style="font-style:normal;color:#555;cursor:default;">
+            * 5 adjustment types are: total/courseware/discussion/portfolio/external
+            </label>
+          </p>
+          <p>
+            <label style="font-style:normal;color:#555;cursor:default;">
+            * Course URL 3 parts: eg. WestEd/ELA101E/2014_Summer
+            </label>
+          </p>
+          <p>
+            <label style="font-style:normal;color:#555;cursor:default;">
+            * When "Comments" is empty, "COMMENTS" must be filled in the cell.
+            </label>
+          </p>
+        </div>
+        <div style="padding:10px 5px">
+          <input class="form_submit" type="submit" name="" value="Import Data" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -136,7 +177,7 @@ from student.models import State,District,School
   </div>
 </div>
 <!-- Time Adjustment dialog -->
-<div style="width:580px;" id="time_edit_dialog" class="modal">
+<div style="width:600px;" id="time_edit_dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
       <h3 class="dialog-title"></h3>
@@ -145,7 +186,7 @@ from student.models import State,District,School
     <div id="tabs">
       <ul>
         <li><a href="#total_tab">Total Time</a></li>
-        <li><a href="#courseware_tab">Course Time</a></li>
+        <li><a href="#courseware_tab">Course Units Time</a></li>
         <li><a href="#discussion_tab">Discussion Time</a></li>
         <li><a href="#portfolio_tab">Portfolio Time</a></li>
         <li><a href="#external_tab">External Time</a></li> 
@@ -154,7 +195,7 @@ from student.models import State,District,School
         <table>
           <tr> 
             <td style="width:350px;">
-              <div>Adjust time: (3600/-3600 sec)</div><br/>
+              <div>Adjust time: (30/-30 min)</div><br/>
               <input type="text" class="adjustment_txt">
             </td>
             <td>
@@ -163,6 +204,10 @@ from student.models import State,District,School
             </td>
           </tr>
         </table>
+        <hr/>
+        <div>Comments:</div><br/>
+        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+        <div>(1,000 characters maximum)</div>
       </div>
       <div id="courseware_tab" class="tab_item">
         <select class="drop_course" style="width:300px;"></select>
@@ -170,7 +215,7 @@ from student.models import State,District,School
         <table>
           <tr> 
             <td style="width:350px;">
-              <div>Adjust time: (3600/-3600 sec)</div><br/>
+              <div>Adjust time: (30/-30 min)</div><br/>
               <input type="text" class="adjustment_txt">
             </td>
             <td>
@@ -179,6 +224,10 @@ from student.models import State,District,School
             </td>
           </tr>
         </table>
+        <hr/>
+        <div>Comments:</div><br/>
+        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+        <div>(1,000 characters maximum)</div>
       </div>
       <div id="discussion_tab" class="tab_item">
         <select class="drop_course" style="width:300px;"></select>
@@ -186,7 +235,7 @@ from student.models import State,District,School
         <table>
           <tr> 
             <td style="width:350px;">
-              <div>Adjust time: (3600/-3600 sec)</div><br/>
+              <div>Adjust time: (30/-30 min)</div><br/>
               <input type="text" class="adjustment_txt">
             </td>
             <td>
@@ -195,12 +244,16 @@ from student.models import State,District,School
             </td>
           </tr>
         </table>
+        <hr/>
+        <div>Comments:</div><br/>
+        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+        <div>(1,000 characters maximum)</div>
       </div>
       <div id="portfolio_tab" class="tab_item">
         <table>
           <tr> 
             <td style="width:350px;">
-              <div>Adjust time: (3600/-3600 sec)</div><br/>
+              <div>Adjust time: (30/-30 min)</div><br/>
               <input type="text" class="adjustment_txt">
             </td>
             <td>
@@ -209,6 +262,10 @@ from student.models import State,District,School
             </td>
           </tr>
         </table>
+        <hr/>
+        <div>Comments:</div><br/>
+        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+        <div>(1,000 characters maximum)</div>
       </div>
       <div id="external_tab" class="tab_item">
         <select class="drop_course" style="width:300px;"></select>
@@ -216,7 +273,7 @@ from student.models import State,District,School
         <table>
           <tr> 
             <td style="width:350px;">
-              <div>Adjust time: (3600/-3600 sec)</div><br/>
+              <div>Adjust time: (30/-30 min)</div><br/>
               <input type="text" class="adjustment_txt">
             </td>
             <td>
@@ -225,9 +282,22 @@ from student.models import State,District,School
             </td>
           </tr>
         </table>
+        <hr/>
+        <div>Comments:</div><br/>
+        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+        <div>(1,000 characters maximum)</div>
       </div>
+      <div class="details">
+        Details
+        <div class="icon"></div>
+      </div>
+      <div style="clear:both;"></div>
     </div>
     <div class="content"></div>
+    <div class="adjustment_log">
+      <div class="adjustment_log_title">Adjustment log:</div>
+      <div class="adjustment_log_list"></div>
+    </div>
   </div>
 </div>
 <script type="text/javascript">
@@ -347,7 +417,7 @@ from student.models import State,District,School
        columnSelector_mediaqueryName: 'All: '
       }
     }).tablesorterPager(pagerOptions);
-    $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,7,8,9,10,13]]);
+    $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,13]]);
 
     //----------- course drop change----------//
 
@@ -363,7 +433,53 @@ from student.models import State,District,School
         userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
       }
     });
+
+    //----------- column selector event----------//
+
+    $('.columnSelectorButton').click(function(e){
+      if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+        $('.columnSelector').show();
+      }
+      else {
+        $('.columnSelector').hide();
+      }
+    })
+
+    $(document).click(function(e){
+        var isout = !$('.columnSelectorWrapper').find(e.target).length;
+        if($('.columnSelector').is(":visible")){
+          if(isout && e.target.className != 'columnSelectorButton') {
+            $('.columnSelector').hide();
+          }
+        }
+     
+    })
+
+    //----------- time report permission UI init----------//
+    function timeReportPermInit() {
+      $('#fltUserTime')[0].control.getFieldArea('state').empty();
+      $('#fltUserTime')[0].control.getFieldArea('district').empty();
+      $.get("${reverse('time_report_drop_districts')}", {}, function(data) {
+        if (data) {
+           for(d in data){
+            $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+          }
+        }
+      });
+
+      $.get("${reverse('time_report_drop_schools')}", {}, function(data) {
+        if (data) {
+           for(d in data){
+            $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+          }
+        }
+      });
+    }
+    %if is_time_report_permission(request.user):
+      timeReportPermInit();
+    %endif
   })
+
   var userTimeReport = {
     timeID:null,
     dialog:null,
@@ -384,7 +500,7 @@ from student.models import State,District,School
         <td>'+course_num_format('complete', data[d].id, data[d].complete_course_num)+'</td>\
         <td>'+course_num_format('current', data[d].id, data[d].current_course_num)+'</td>\
         <td><center><a class="icon icon-edit time_edit_btn" href="javascript:void(0);" style="font-size:24px;\
-        color:#1D9DD9;"></a></center></td><td></td></tr>';
+        color:#89c252;"></a></center></td><td></td></tr>';
       }
       $(".tblUserTime tbody").append(table_con);
 
@@ -405,12 +521,15 @@ from student.models import State,District,School
               var active_tab_id = $(".ui-tabs-active").attr("aria-controls");
               var select_course_id = $("#"+active_tab_id).find(".drop_course option:selected").val();
               var timeVal = $("#"+active_tab_id).find(".adjustment_txt")[0].value;
+              var comments = $("#"+active_tab_id).find(".comments_txt")[0].value;
+              comments = comments.replaceAll('<', '&lt;');
+              comments = comments.replaceAll('>', '&gt;');
               var isInteger = new RegExp("^-?\\d+$").test(timeVal);
-
               if(isInteger && select_course_id != ""){
-                self.save_adjustment_time(self.user_id, active_tab_id, select_course_id, timeVal);
+                timeVal = parseInt(timeVal) * 60;
+                self.save_adjustment_time(self.user_id, active_tab_id, select_course_id, timeVal, comments, this);
               }
-              else{
+              else {
                 if(!isInteger){
                   alert("Please enter an integer!");
                   return 0;
@@ -422,17 +541,33 @@ from student.models import State,District,School
               }
               
            }
-           else{
+           else {
+            this.hide();
           }
-          this.hide();
         })
-
-        //----------- course drop / time text init----------//
+        //----------- UI init (course drop / time text ...)----------//
 
         self.create_course_drop_menu(self.user_id, 'courseware_tab');
         self.create_course_drop_menu(self.user_id, 'discussion_tab');
         self.create_course_drop_menu(self.user_id, 'external_tab');
         $(".adjustment_txt").val('');
+        $(".comments_txt").val('');
+        $(".adjustment_log").hide();
+        $(".adjustment_log_list").empty();
+        $(".details").removeClass("details_expanded");
+
+        //----------- Adjustment log ----------//
+
+        $(".details").unbind("click");
+        $(".details").click(function(){
+          var details = this;
+          console.log('click')
+          $(".adjustment_log").slideToggle('slow', function(){
+            console.log('slideToggle')
+            $(details).toggleClass('details_expanded');
+            self.load_adjustment_log(self.user_id);
+          });
+        })
       })
 
         //----------- (Completed courses / Current courses) click ----------//
@@ -447,7 +582,8 @@ from student.models import State,District,School
           self.load_enrollment_courses(self.user_id, 'current');
         })
 
-        //------------------------------------------------------------------//
+      //------------------------------------------------------------------//
+
       $(".tblUserTime").trigger("update");
       this.total_num = data.length;
       $(".time_download .total").html(data.length);
@@ -531,15 +667,22 @@ from student.models import State,District,School
             }
       });
     },
-    save_adjustment_time:function(user_id, active_tab_id, course_id, timeVal){
+    save_adjustment_time:function(user_id, active_tab_id, course_id, timeVal, comments, time_edit_dialog){
       var self = this;
       $.post("${reverse('time_report_adjustment_time_save')}", {
             'user_id': user_id,
             'course_id':course_id,
             'type': active_tab_id.split("_")[0],
-            'time':timeVal
+            'time':timeVal,
+            'comments':comments
             }, function(data) {
-              new Dialog($('#dialog')).show('Success','Save successful.')
+              if(data.success){
+                time_edit_dialog.hide();
+                new Dialog($('#dialog')).show('Success','Save successful.');
+              }
+              else {
+                alert('Adjustment was not saved because it made time negative.');
+              }
               self.load_single_user_time(user_id ,course_id);
           });
     },
@@ -576,18 +719,37 @@ from student.models import State,District,School
       var self = this;
       var dialog = $('#enrollment_courses_dialog');
       var course_list = dialog.find('.course_list');
-      $.post("${reverse('time_report_load_enrollment_courses')}", {
+      $.post("${reverse('time_report_enrollment_courses_load')}", {
         'user_id':user_id,
         'type':type
         }, function(data) {
         var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
+        var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
         course_list.empty();
         for(var d in data){
-          course_list.append('<div class="course_list_item">' + data[d].name + '</div>');
+          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');  
         }
         new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
           this.hide();
         })
+      });
+    },
+    load_adjustment_log:function(user_id){
+      var adjustment_list = $('.adjustment_log_list');
+      $.post("${reverse('time_report_adjustment_log_load')}", {
+        'user_id': user_id,
+        }, function(data) {
+          adjustment_list.empty();
+          for(var d in data.rows) {
+            var row = '';
+            for(var v in data.rows[d]) {
+              row += '<span>[' + v + ' : </span>\
+              <span style="color:red">'+ data.rows[d][v] + '</span>\
+              <span>]</span>';
+              
+            }
+            adjustment_list.append($('<div></div>').append(row));
+          }
       });
     },
     init:function(){
@@ -605,17 +767,62 @@ from student.models import State,District,School
   }
   userTimeReport.init();
 
+//--------------------------------------------------------------------------//
+  //* controller for adjustment time import
+  var adjustmentTimeDataImport = {
+      submit: function () {
+          var self = this;
+          var form = this.$form[0];
+
+          if (!((/\.csv/i).test(form.file.value))) {
+              new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
+              return false;
+          }
+          $.ajax({
+              url: "${reverse('time_report_import_adjustment_time_submit')}",
+              data: new FormData(form), processData: false, contentType: false, type: 'POST',
+              /* enctype: 'multipart/form-data',
+                 mimeType: 'multipart/form-data', */
+              success: function (data) {
+                  self.renderProgress(data.taskId);
+              }
+          });
+      },
+      renderProgress: function (taskId) {
+          var dialog = new Dialog($('#dialog'));
+          dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+  <br>You may monitor the progress in the Unread Tasks, below.\
+  <br>If there are any errors, you will receive them in an email.");
+      },
+      init: function () {
+          
+          var self = this;
+          this.$form = $("#adjustmentTimeDataImportForm");
+        
+          this.$form.submit(function () {
+              self.submit();
+              return false;
+          });
+      }
+  };
+  adjustmentTimeDataImport.init();
+
   //----------- (Completed courses / Current courses) column format ----------//
 
   function course_num_format(type, user_id, num) {
-    var item_class = type == 'complete' ? 'complete_courses_btn' : 'current_courses_btn';
+    var item_class = type == 'complete' ? 'complete_courses_btn complete_courses_color' : 'current_courses_btn current_courses_color';
     if(num > 0){
       return '<center>' + num + '&nbsp;<a class="' + item_class +' icon icon-list-ul" \
-      href="javascript:void(0);" style="font-size:20px;color:#1D9DD9;"></a></center>';
+      href="javascript:void(0);" style="font-size:20px;"></a></center>';
     }
     else{
       return '<center>' + num + '</center>';
     }
 
+  }
+
+  //------------------------------------------------------
+  String.prototype.replaceAll = function(s1, s2) { 
+    return this.replace(new RegExp(s1, "gm"), s2); 
   }
 </script>

@@ -115,8 +115,56 @@
         }
 
         #enrollment_courses_dialog .course_list_item{
-            color: #1D9DD9;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             margin: 20px;
+        }
+
+        .complete_courses_color{
+            color: #2bbaec !important;
+        }
+
+        .current_courses_color{
+            color: #f58220 !important;
+        }
+
+        .details{
+            float: right;
+            margin: 10px;
+            height: 20px;
+            font-size: 15px;
+            color: #900b09;
+            cursor: pointer;
+        }
+
+        .adjustment_log{
+            height: 200px;
+            display: none;
+            color: #000000;
+            border:1px solid #AAAAAA;
+            background-color:#FFFFFF;
+        }
+        .adjustment_log_title{
+            margin: 10px;
+            color: #900b09;
+            font-size: 14px;
+        }
+
+        .adjustment_log_list{
+            margin: 10px;
+            color: blue;
+            overflow: auto;
+            height: 150px;
+            white-space:nowrap; 
+        }
+
+        div.details .icon {
+            display: inline-block;
+            width: 12px;
+            height: 15px;
+            background: url("../images/configuration/arrow_dn.png");
+        }
+
+        div.details_expanded .icon {
+            background: url("../images/configuration/arrow_up.png");
         }
