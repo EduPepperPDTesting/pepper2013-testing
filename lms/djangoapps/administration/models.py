@@ -59,6 +59,25 @@ class TimeReportTask(models.Model):
     user = models.ForeignKey(User, default=0)
 
 
+class AdjustmentTimeLog(models.Model):
+    class Meta:
+        db_table = 'adjustment_time_log'
+    user_id = models.IntegerField(blank=False, max_length=11)
+    user_email = models.CharField(blank=False, max_length=75, db_index=True)
+    admin_email = models.CharField(blank=False, max_length=75, db_index=True)
+    type = models.CharField(blank=False, max_length=30, db_index=True)
+    adjustment_time = models.IntegerField(blank=False, default=0)
+    create_date = models.DateTimeField(auto_now_add=True, db_index=False)
+    course_number = models.CharField(blank=False, null=True, max_length=100, db_index=True)
+    comments = models.CharField(blank=False, null=True, max_length=1000, db_index=True)
+
+
+class TimeReportPerm(models.Model):
+    class Meta:
+        db_table = 'time_report_perm'
+    user = models.ForeignKey(User, default=0)
+
+
 class FilterFavorite(models.Model):
     class Meta:
         db_table = 'admin_filter_favorite'

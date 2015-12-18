@@ -930,3 +930,11 @@ class MongoModuleStore(ModuleStoreBase):
 
         field_data = DbModel(kvs)
         return field_data
+
+    def course_from_course_number(self, number):
+        item = self.collection.find_one(
+            {'_id.category': 'course',
+             'metadata.display_coursenumber': number
+             }
+        )
+        return self._load_items([item], 0)[0]
