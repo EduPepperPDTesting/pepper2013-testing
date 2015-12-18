@@ -124,17 +124,17 @@ f.close()
                         </label><br/>
                         <label class="label">State:<br/>
                             <select id="state_single" name="state_id" autocomplete="off">
-                          <option value="" id="null_case"></option>
+                          <option value="" class="null_case"></option>
                           %for item in State.objects.all().order_by('name'):
-                            <option id="${item.id}" value="${item.id}">${item.name}</option>
+                            <option class="${item.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
                             <select id="district_id_single" name="district_id" autocomplete="off">
-                              <option id="null_case" value="null_case"></option>
+                              <option class="null_case" value="null_case"></option>
                                   %for item in District.objects.all().order_by('name'):
-                                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                                   %endfor
                             </select>
                         </label><br/>
@@ -221,17 +221,17 @@ f.close()
                 <div style="padding: 1em 7px 7px 7px;">
                     <label class="label">State:<br/>
                         <select id="user_state_single" name="state" autocomplete="off">
-                      <option id="null_case" value=""></option>
+                      <option class="null_case" value=""></option>
                       %for item in State.objects.all().order_by('name'):
-                      <option id="${item.id}" value="${item.id}">${item.name}</option>
+                      <option class="${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
                         <select id="user_district_id" name="district" autocomplete="off">
-                          <option id="null_case" value=""></option>
+                          <option class="null_case" value=""></option>
                           %for item in District.objects.all().order_by('name'):
-                          <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                          <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                     </label><br/>
@@ -255,17 +255,17 @@ f.close()
                 </label><br/>
                 <label class="label">State:<br/>
                     <select id="cohort_state_single" name="state_id" autocomplete="off">
-                  <option id="null_case" value=""></option>
+                  <option class="null_case" value=""></option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id="${item.id}" value="${item.id}">${item.name}</option>
+                  <option class="${item.id}" value="${item.id}">${item.name}</option>
                   %endfor
                 </select>
                 </label><br/>
                 <label class="label required">District:<br/>
                     <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
-                      <option id="null_case" value=""></option>
+                      <option class="null_case" value=""></option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                 </label><br/>
@@ -307,9 +307,9 @@ f.close()
             <div id="filterArea">
 
                 <select type="search" data-column="2" class="search-districts" id="District_state_select">
-                  <option value="" selected class="select-option" id="null_case">Select State</option>
+                  <option value="" selected class="select-option" class="null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id="${item.id}" value="${item.name}">${item.name}</option>
+                  <option class="${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
 
@@ -369,16 +369,16 @@ f.close()
             <div id="filterArea2">
                 <select type="search" class="search-schools" data-column="4" id="School_state_select">
 
-                      <option value="" id="null_case">Select State</option>
+                      <option value="" class="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
-                      <option id="${item.id}" value="${item.name}">${item.name}</option>
+                      <option class="${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
 
-                      <option value="">Select District</option>
+                      <option class="null_case" value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.name}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
 
@@ -442,25 +442,25 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
                 <select type="search" class="search-users" data-column="5" id="User_state_select">
-                    <option value="" id="null_case">Select State</option>
+                    <option value="" class="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.name}">${item.name}</option>
+                        <option class="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-                      <option value="" id="-1" name="null_case">Select District</option>
+                      <option value="" class="-1" name="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                      <option value="" id="null_case">Select School</option>
+                      <option value="" class="null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
-                      <option id="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                      <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="8" id="User_registration_select">
-                      <option value="" id="null_case">Select Registration Status</option>
+                      <option value="" class="null_case">Select Registration Status</option>
                     <option value="Registered">Registered</option>
                     <option value="Unregistered">Unregistered</option>
                     <option value="Imported">Imported</option>
@@ -561,15 +561,15 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea3">
                 <select type="search" class="search-cohorts" data-column="6" id="Cohort_state_select">
-                    <option value="" id="null_case">Select State</option>
+                    <option value="" class="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.id}">${item.name}</option>
+                        <option class="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
-                      <option value="" id="null_case">Select District</option>
+                      <option value="" class="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <input placeholder="Search" class="search-cohorts" type="search" data-column="all" id="Cohort_search">
@@ -826,69 +826,45 @@ $(document).ready(function () {
         } else new Dialog($('#dialog')).show("Error", "Please select at least one user.");
 
     });
+
+    function filterOptions(item, id) {
+        if ($(item).attr("class") != id) {
+            $(item).css("display", "none");
+        } else {
+            $(item).css("display", "");
+        }
+        if (id == "null_case" || $(item).attr("class") == "null_case") {
+            $(this).css("display", "");
+        }
+    }
     $("#User_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#User_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#User_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#user_state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#user_district_id > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#user_district_id > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#cohort_state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#cohort_district_id > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#cohort_district_id > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#School_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#School_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#School_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#Cohort_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#Cohort_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#Cohort_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#User_district_select").change(function () {
@@ -896,24 +872,17 @@ $(document).ready(function () {
         var name = $(this).children(":selected").attr("name");
         $("#User_school_select > option").each(function () {
             $(this).css("display", "");
-            if (name != "null_case" || $(this).attr("id") == "null_case") {
-                if ($(this).attr("id") != id) {
+            if (name != "null_case" || $(this).attr("class") == "null_case") {
+                if ($(this).attr("class") != id) {
                     $(this).css("display", "none");
                 }
             }
         });
     });
     $("#state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#district_id_single > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#district_id_single > option").each(function() {
+            filterOptions(this, id)
         });
     });
 });

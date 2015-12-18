@@ -133,12 +133,11 @@ def cohort_submit(request):
             d = Cohort(request.POST['id'])
         else:
             d = Cohort()
-        d.id = request.POST['id']
         d.code = request.POST['code']
-        d.licences = request.POST['licences']
-        d.term_months = request.POST['term_months']
+        d.licences = int(request.POST['licences'])
+        d.term_months = int(request.POST['term_months'])
         d.start_date = request.POST['start_date']
-        d.district_id = request.POST['district_id']
+        d.district_id = int(request.POST['district_id'])
         d.save()
     except Exception as e:
         db.transaction.rollback()
@@ -449,7 +448,7 @@ def get_cohort_rows(request):
                3: ['start_date', '__icontains', False],
                4: ['district__name', '__iexact', 'str'],
                5: ['district__code', '__iexact', 'str'],
-               6: ['district__state', '__iexact', 'str']}
+               6: ['district__state__name', '__iexact', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
