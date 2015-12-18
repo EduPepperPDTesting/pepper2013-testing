@@ -129,7 +129,7 @@ from administration.time_report import is_time_report_permission
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
             <label style="font-style:normal;color:#555;cursor:default;">
-            * CSV file should contain the following columns (email address, adjustment time (in min), adjustment type, course URL, comments).
+            * CSV file should contain the following columns (email address, adjustment time (in min), adjustment type, course number, comments).
             </label>
           </p>
           <p>
@@ -139,12 +139,7 @@ from administration.time_report import is_time_report_permission
           </p>
           <p>
             <label style="font-style:normal;color:#555;cursor:default;">
-            * Course URL 3 parts: eg. WestEd/ELA101E/2014_Summer
-            </label>
-          </p>
-          <p>
-            <label style="font-style:normal;color:#555;cursor:default;">
-            * When "Comments" is empty, "COMMENTS" must be filled in the cell.
+            * Course number: eg. PEP101x
             </label>
           </p>
         </div>
@@ -561,11 +556,11 @@ from administration.time_report import is_time_report_permission
         $(".details").unbind("click");
         $(".details").click(function(){
           var details = this;
-          console.log('click')
           $(".adjustment_log").slideToggle('slow', function(){
-            console.log('slideToggle')
             $(details).toggleClass('details_expanded');
-            self.load_adjustment_log(self.user_id);
+            if ($(this).is(':visible')){
+              self.load_adjustment_log(self.user_id);
+            }
           });
         })
       })

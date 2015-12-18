@@ -33,6 +33,7 @@ import mitxmako
 from django.db.models import F
 from study_time.models import record_time_store
 from django.views.decorators import csrf
+from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from courseware.module_render import get_module
 from courseware.model_data import FieldDataCache
@@ -40,7 +41,7 @@ from courseware.courses import get_courses
 from mail import send_html_mail
 log = logging.getLogger("tracking")
 
-ADJUSTMENT_TIME_CSV_COLS = ('email', 'time', 'type', 'course_id', 'comments')
+ADJUSTMENT_TIME_CSV_COLS = ('email', 'time', 'type', 'course_number', 'comments')
 
 def attstr(obj, attr):
     r = obj
@@ -455,7 +456,7 @@ def validate_adjustment_time(rts, user_id, type, adjustment_time, course_id):
     return True
 
 
-def save_adjustment_log(request, user_id, type, adjustment_time, course_id, comments=None):
+def save_adjustment_log(request, user_id, type, adjustment_time, course_number, comments=None):
     user = User.objects.get(id=user_id)
     adjustment_log = AdjustmentTimeLog()
     adjustment_log.user_id = user_id
@@ -464,10 +465,8 @@ def save_adjustment_log(request, user_id, type, adjustment_time, course_id, comm
     adjustment_log.type = type
     adjustment_log.adjustment_time = adjustment_time
     adjustment_log.create_time = datetime.now(UTC)
+    adjustment_log.course_number = course_number
     adjustment_log.comments = comments
-    if course_id:
-        course = course_from_id(course_id)
-        adjustment_log.course_number = course.display_coursenumber
     adjustment_log.save()
 
 
@@ -489,17 +488,19 @@ def load_adjustment_log(request):
 
 
 def validate_adjustment_time_cvs_line(line, tasklog):
-    n = 0
     adjustment_type_list = ['total', 'courseware', 'discussion', 'portfolio', 'external']
+    '''
+    n = 0
     for item in line:
         if len(item.strip()):
             n += 1
     if n != len(ADJUSTMENT_TIME_CSV_COLS):
         raise Exception("Wrong column count %s" % n)
+    '''
     email = line[ADJUSTMENT_TIME_CSV_COLS.index('email')]
     time = line[ADJUSTMENT_TIME_CSV_COLS.index('time')]
     type = line[ADJUSTMENT_TIME_CSV_COLS.index('type')]
-    course_id = line[ADJUSTMENT_TIME_CSV_COLS.index('course_id')]
+    course_number = line[ADJUSTMENT_TIME_CSV_COLS.index('course_number')]
     if len(User.objects.filter(email=email)) < 1:
         tasklog.username = ''
         raise Exception("An account with the Email '{email}' does not exist".format(email=email))
@@ -510,9 +511,10 @@ def validate_adjustment_time_cvs_line(line, tasklog):
     if not (time[0] == '-' and time[1:] or time).isdigit():
         raise Exception("adjustment time:'{time}' is not an integer".format(time=time))
     try:
-        course_name = course_from_id(course_id).display_name
+        #course_name = course_from_id(course_id).display_name
+        course_id = get_course_id(course_number)
     except:
-        raise Exception("course id:'{course_id}' does not exist".format(course_id=course_id))
+        raise Exception("course number:'{number}' does not exist".format(number=course_number))
 
 
 
@@ -563,13 +565,14 @@ def do_import_adjustment_time(task, csv_lines, request):
             email = line[ADJUSTMENT_TIME_CSV_COLS.index('email')]
             adjustment_time = int(line[ADJUSTMENT_TIME_CSV_COLS.index('time')]) * 60
             adjustment_type = line[ADJUSTMENT_TIME_CSV_COLS.index('type')]
-            course_id = line[ADJUSTMENT_TIME_CSV_COLS.index('course_id')]
+            course_number = line[ADJUSTMENT_TIME_CSV_COLS.index('course_number')]
             comments = line[ADJUSTMENT_TIME_CSV_COLS.index('comments')]
             user_id = str(User.objects.get(email=email).id)
+            course_id = str(get_course_id(course_number))
             success = validate_adjustment_time(rts, user_id, adjustment_type, adjustment_time, course_id)
             if success:
                 rts.set_adjustment_time(user_id, adjustment_type, adjustment_time, course_id)
-                save_adjustment_log(request, user_id, adjustment_type, adjustment_time, course_id, comments)
+                save_adjustment_log(request, user_id, adjustment_type, adjustment_time, course_number, comments)
             tasklog.error = 'ok'
         except Exception as e:
             tasklog.error = "%s" % e
@@ -610,3 +613,7 @@ def is_time_report_permission(user):
         return True
     else:
         return False
+
+
+def get_course_id(course_number):
+    return modulestore().course_from_course_number(course_number).id
