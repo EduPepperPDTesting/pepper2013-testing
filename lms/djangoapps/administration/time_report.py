@@ -450,7 +450,10 @@ def validate_adjustment_time(rts, user_id, type, adjustment_time, course_id):
             adjustment_time_totle = rts.get_adjustment_time(user_id, 'total', None)
             type_time = course_time + discussion_time + portfolio_time + external_time + adjustment_time_totle
         else:
-            type_time = rts.get_course_time(user_id, course_id, type)
+            if type == 'external':
+                type_time = rts.get_external_time(user_id, course_id)
+            else:
+                type_time = rts.get_course_time(user_id, course_id, type)
         if type_time + adjustment_time < 0:
             return False
     return True
@@ -566,7 +569,10 @@ def do_import_adjustment_time(task, csv_lines, request):
             adjustment_time = int(line[ADJUSTMENT_TIME_CSV_COLS.index('time')]) * 60
             adjustment_type = line[ADJUSTMENT_TIME_CSV_COLS.index('type')]
             course_number = line[ADJUSTMENT_TIME_CSV_COLS.index('course_number')]
-            comments = line[ADJUSTMENT_TIME_CSV_COLS.index('comments')]
+            try:
+                comments = line[ADJUSTMENT_TIME_CSV_COLS.index('comments')]
+            except:
+                comments = ''
             user_id = str(User.objects.get(email=email).id)
             course_id = str(get_course_id(course_number))
             success = validate_adjustment_time(rts, user_id, adjustment_type, adjustment_time, course_id)
