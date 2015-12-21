@@ -361,6 +361,14 @@
   			notifications_update_delItem(notifications_update_currDelItem);
   		})
   		//20151211-----------------------------------------------------------------------------
+  		$(".delete_btn_float").mouseover(function(){
+			$(this).find('.del_btn_img_1').hide();
+			$(this).find('.del_btn_img_2').show();
+		})
+		$(".delete_btn_float").mouseout(function(){
+			$(this).find('.del_btn_img_1').show();
+			$(this).find('.del_btn_img_2').hide();
+		})
   		$("#lean_overlay").click(function(){
 	    	$("#del_selected_notification").hide();
 	    	$("#show_personalmessage").hide();
@@ -555,12 +563,9 @@ Add info that you would like to share about yourself here:
 			<img class="top_btn_img_1" src='/static/images/top_btn_1.png' alt="Top"/>
 			<img class="top_btn_img_2" src='/static/images/top_btn_2.png' alt="Top" style="display:none;"/>
 		</div>
-		<div class="delete_btn_float" style="position:fixed;right:50px;bottom:210px;cursor:pointer;border:1px solid #c8c8c8;">
-			<table border="0" width="45" height="45">
-				<tr>
-					<td style="background-color:#eeeff4;color:#b2b2b2;text-align:center;vertical-align:middle;font-size:13px;">Delete</td>
-				</tr>
-			</table>
+		<div class="delete_btn_float" style="position:fixed;right:50px;bottom:210px;cursor:pointer;display:block;">
+			<img class="del_btn_img_1" src='/static/images/delete_r3_border.png' alt="Delete"/>
+			<img class="del_btn_img_2" src='/static/images/lajixiang_r3_border.png' alt="Delete" style="display:none;"/>
 		</div>
 	</section>
 </section>
