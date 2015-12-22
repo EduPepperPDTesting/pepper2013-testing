@@ -35,7 +35,6 @@ from baseinfo.models import Enum
 from django import db
 import requests
 import base64
-import oauth2
 
 log = logging.getLogger("tracking")
 BASEDIR = path.dirname("lms/")
