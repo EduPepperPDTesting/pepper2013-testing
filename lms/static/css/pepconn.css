@@ -32,7 +32,7 @@ label {
         }
         .modal {
             display: block;
-            position: absolute;
+            position: fixed;
             opacity: 1;
             z-index: 11000;
             left: 50%;
@@ -174,7 +174,17 @@ label {
             text-shadow: 0 -1px 1px #555;
         }
         .form_submit:hover{
-            background-image: linear-gradient(to bottom, #888 0%, #666 50%, #555 50%, #555 100%);
+            background-image: linear-gradient(to bottom, #888 0%, #666 50%, #555 50%, #555 100%) !important;
+        }
+        .small{
+            border-color: #777 #777 #555 !important;
+            box-shadow: 0 1px 0 0 #aaa inset !important;
+            background-color: #888 !important;
+            background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%) !important;
+            text-shadow: 0 -1px 1px #555 !important;
+        }
+        .small:hover{
+            background-image: linear-gradient(to bottom, #888 0%, #666 50%, #555 50%, #555 100%) !important;
         }
         section.content-wrapper {
             background: transparent !important;

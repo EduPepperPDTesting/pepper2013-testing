@@ -832,7 +832,12 @@ INSTALLED_APPS = (
     # Different Course Modes
     'course_modes',
 
-    'administration'
+    # Admin pages
+    'administration',
+
+    # TNL Integration
+    'tnl_integration',
+    'web_client'
 )
 
 ######################### MARKETING SITE ###############################

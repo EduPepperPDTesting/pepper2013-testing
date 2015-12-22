@@ -102,8 +102,7 @@
           var u=decodeURI(window.location.search);
           next=u.split("next=")[1];
 
-          var next_to_dashboard_only=true
-          if (!next_to_dashboard_only && next && !isExternal(next)) {
+          if (next && !isExternal(next) && next.match(/^course.+courseware/)) {
             location.href=next;
           }  else {
             location.href="${reverse('dashboard')}";
