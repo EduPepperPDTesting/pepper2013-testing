@@ -1,8 +1,10 @@
 from ..dev import *
-
-import os,sys
-sys.path.append("..") # => /home/tahoe/edx_all
 from siteconf import *
+import sys
+
+sys.path.append("..")  # => /home/tahoe/edx_all
+
+sys.path.append(PROJECT_ROOT + "/sso/")
 
 # ========================================================================
 MITX_FEATURES['ENABLE_SQL_TRACKING_LOGS'] = False
@@ -24,11 +26,11 @@ META_UNIVERSITIES = {}
 
 modulestore_options = {
     'default_class': 'xmodule.raw_module.RawDescriptor',
-    'db': 'xmodule',
+    'db': MONGO_DB_XMODULE,
     'host': MONGO_HOST,
     'port': MONGO_PORT,
-    'user':MONGO_USER,
-    'password':MONGO_PASSWORD,
+    'user': MONGO_USER,
+    'password': MONGO_PASSWORD,
     'collection': 'modulestore',
     'fs_root': DATA_DIR,
     'render_template': 'mitxmako.shortcuts.render_to_string',
@@ -44,71 +46,72 @@ MODULESTORE = {
 CONTENTSTORE = {
     'ENGINE': 'xmodule.contentstore.mongo.MongoContentStore',
     'OPTIONS': {
-        'db': 'xcontent',
+        'db': MONGO_DB_XCONTENT,
         'host': MONGO_HOST,
-        'port': MONGO_PORT,           
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,        
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 
 USERSTORE = {
     'OPTIONS': {
-        'db': 'userstore',
+        'db': MONGO_DB_USERSTORE,
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 REMINDSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoRemindStore',
     'OPTIONS': {
-        'db': 'remind',
+        'db': MONGO_DB_REMIND,
         'collection': 'rmodule',
         'collection_aid': 'bulletin_status',
         'collection_status': 'rmodule_status',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 MESSAGESTORE = {
     'ENGINE': 'xmodule.remindstore.MongoMessageStore',
     'OPTIONS': {
-        'db': 'remind',
+        'db': MONGO_DB_REMIND,
         'collection': 'message_board',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 CHUNKSSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoChunksStore',
     'OPTIONS': {
-        'db': 'remind',
+        'db': MONGO_DB_REMIND,
         'collection': 'chunks',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 RECORDTIMESTORE = {
     'OPTIONS': {
-        'db': 'assist',
+        'db': MONGO_DB_ASSIST,
         'collection': 'record_time',
         'collection_page': 'page_time',
         'collection_discussion': 'discussion_time',
         'collection_portfolio': 'portfolio_time',
         'collection_external': 'external_time',
         'collection_result_set': 'result_set',
+        'collection_adjustment': 'adjustment_time',
         'host': MONGO_HOST,
-        'port': MONGO_PORT,        
-        'user':MONGO_USER,
-        'password':MONGO_PASSWORD,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
     }
 }
 INSTALLED_APPS += (
@@ -141,17 +144,17 @@ DATABASES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
-# PIPELINE=False 
-# PIPELINE_ENABLED=False
+# PIPELINE = False
+# PIPELINE_ENABLED = False
 STATIC_ROOT = ENV_ROOT / "staticfiles/lms"
 
 # MITX_FEATURES['USE_DJANGO_PIPELINE']=True
 
 
-SESSION_SAVE_EVERY_REQUEST=True 
+SESSION_SAVE_EVERY_REQUEST = True
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # disable django debug toolbars
-DEBUG_TOOLBAR_PATCH_SETTINGS = False 
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 INSTALLED_APPS = tuple([app for app in INSTALLED_APPS if not app.startswith('debug_toolbar')])
 MIDDLEWARE_CLASSES = tuple([mcl for mcl in MIDDLEWARE_CLASSES if not mcl.startswith('debug_toolbar')])
