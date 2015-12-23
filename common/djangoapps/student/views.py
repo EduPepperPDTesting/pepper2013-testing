@@ -218,6 +218,14 @@ def signin_user(request):
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
 
+    email = request.GET.get('regcheck')
+    reg = registration_check(email)
+    if reg['status'] == 'unregistered':
+        try:
+            next_page = request.GET.get('next')
+        except:
+            next_page = ''
+        return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
     context = {
         'course_id': request.GET.get('course_id'),
         'enrollment_action': request.GET.get('enrollment_action')
@@ -271,6 +279,20 @@ def register_user(request, activation_key=None):
     #     context.update(extra_context)
 
     return render_to_response('register.html', context)
+
+
+def registration_check(email):
+    try:
+        user = User.objects.get(email=email)
+        if user.is_active == 0:
+            reg = Registration.objects.get(user_id=user.id)
+            return_value = {'status': 'unregistered', 'key': reg.activation_key}
+        else:
+            raise Exception('User is already active.')
+    except Exception, e:
+        return_value = {'status': 'registered', 'error': '{e}'.format(e=e)}
+    return return_value
+
 
 # copy from lms/djangoapps/courseware/module_render.py
 def get_module_for_descriptor(user, request, descriptor, field_data_cache, course_id,
