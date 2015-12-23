@@ -1093,7 +1093,10 @@ $(function () {
 function getFormData(form, flds) {
     var data = {};
     $.each(flds, function (i, n) {
-        data[n] = $(form[n]).val();
+        var field = $(form[n]);
+        if (field.attr('type') != 'checkbox' || field.prop('checked')) {
+            data[n] = field.val();
+        }
     });
     return data;
 }
