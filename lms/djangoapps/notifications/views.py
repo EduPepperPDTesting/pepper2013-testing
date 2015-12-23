@@ -14,6 +14,8 @@ from django.conf import settings
 from datetime import datetime
 from pytz import UTC
 import json
+import logging 
+log = logging.getLogger("tracking") 
 
 @login_required
 def notifications(request,user_id=None):
@@ -66,8 +68,17 @@ def set_interactive_update(request):
 
 def del_interactive_update(request):
     rs = remindstore()
-    info = rs.del_item(request.POST.get('_id'),request.POST.get('_record_id'),request.POST.get('_user_id'),request.POST.get('_ismultiple'))
-    return utils.JsonResponse({})
+    list1 = []
+    list2 = []
+    if request.POST.get('_id'):
+        info = rs.del_item(request.POST.get('_id'),request.POST.get('_record_id'),request.POST.get('_user_id'),request.POST.get('_ismultiple'))
+    elif request.POST.get('data_str'):
+        list1 = request.POST.get('data_str').split('#')
+        for list1_ele in list1:
+            if list1_ele:
+                list2 = list1_ele.split(',')
+                info = rs.del_item(list2[0],list2[1],list2[2],list2[3])
+    return utils.JsonResponse({})    
     
 s3_interface = {
             'access_key': getattr(settings, 'AWS_ACCESS_KEY_ID', ''),
