@@ -22,9 +22,9 @@ class Migration(SchemaMigration):
 
 
         # Renaming column for 'Certificate.association_type' to match new field type.
-        db.rename_column('certificate', 'association_type', 'association_type_id')
+        db.rename_column('certificate', 'association_type_id_id', 'association_type_id')
         # Changing field 'Certificate.association_type'
-        db.alter_column('certificate', 'association_type_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType']))
+        # db.alter_column('certificate', 'association_type_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType']))
         # Adding index on 'Certificate', fields ['association_type']
         db.create_index('certificate', ['association_type_id'])
 

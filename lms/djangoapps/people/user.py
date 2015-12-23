@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from student.models import UserProfile, People
 from django.core.paginator import Paginator
-import sphinxapi
 import socket
 
 import logging

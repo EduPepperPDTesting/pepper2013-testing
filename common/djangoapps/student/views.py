@@ -699,6 +699,7 @@ def sso(request, error=""):
     sso_usercode = sso_user.get('UserCode', '')
     sso_unique = str(sso_usercode) + '--' + str(sso_id)
 
+    request.session['idp'] = sso_usercode
 
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
