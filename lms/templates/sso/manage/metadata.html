@@ -38,7 +38,7 @@ from django.core.urlresolvers import reverse
       <span class="">Type</span>
       <select id="" name="sso_type" autocomplate="off">
         <option>EasyIEP</option>
-        <option>OAuth</option>
+        <option>OAuth2</option>
         <option>SAML</option>
       </select>
     </div>
@@ -46,38 +46,52 @@ from django.core.urlresolvers import reverse
       <span class="">Name</span>
       <input type="" name="sso_name" value="" style="width:500px;"/>
     </div>
-    <div class="row">
-      <span class="">Federation Metadata</span>
-      <textarea name="sso_metadata" value="" style="width:500px;"></textarea>
-    </div>
 
+    <section class="typed_sec EasyIEP">
+    </section>
     
-    <!--
-    <div class="row">
-      <span class="">Entity ID</span>
-      <input type="" name="sso_entity_id" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Issuer URL</span>
-      <input type="" name="sso_issuer_url" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Single sign-on service URL</span>
-      <input type="" name="sso_single_sign_on" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Single sign-out service URL</span>
-      <input type="" name="sso_single_sign_out" value="" style="width:500px;"/>
-    </div>
-    <div class="row">
-      <span>Request Schema</span>
-      <textarea name="sso_request"></textarea>
-    </div>
-    <div class="row">
-      <span>Response Schema</span>
-      <textarea name="sso_response"></textarea>
-    </div>
-    -->
+    <section class="typed_sec SAML">
+      <div class="row">
+        <span class="">Federation Metadata</span>
+        <textarea name="saml_metadata" value="" style="width:500px;"></textarea>
+      </div>
+    </section>
+
+    <section class="typed_sec OAuth2">
+      <div class="row">
+        <span class="">Client ID</span>
+        <input type="" name="oauth2_client_id" value="" style="width:500px;"/>
+      </div>
+      <div class="row">
+        <span class="">Client Secret</span>
+        <input type="" name="oauth2_client_secret" value="" style="width:500px;"/>
+      </div>
+      <div class="row">
+        <span class="">Request Token URL</span>
+        <input type="" name="oauth2_request_token_url" value="" style="width:500px;"/>
+      </div>
+      <div class="row">
+        <span class="">Redirect URL</span>
+        <input type="" name="oauth2_redirect_url" value="" style="width:500px;"/>
+      </div>  
+      <div class="row">
+        <span class="">Grant Type</span>
+        <input type="" name="oauth2_grant_type" value="" style="width:500px;"/>
+      </div>
+      <!-- <div class="row">
+      <span class="">Tokeninfo URL</span>
+      <input type="" name="oauth2_tokeninfo_url" value="" style="width:500px;"/>
+      </div> -->
+      <div class="row">
+        <span class="">API URL</span>
+        <input type="" name="oauth2_api_url" value="" style="width:500px;"/>
+      </div>      
+      <div class="row">
+        <span class="">Me URL</span>
+        <input type="" name="oauth2_me_url" value="" style="width:500px;"/>
+      </div>
+    </section>
+        
     <div class="section">Attributes</div>
     <div id="divIdpAttributeMapping"></div>
     <div style="margin-left:145px;padding:5px 0;">
@@ -98,6 +112,10 @@ from django.core.urlresolvers import reverse
     $("#entityList").bind("change",function(e,index){
       self.showData(self.data[index])
     });
+    $("select[name=sso_type]").bind("change",function(e,index){
+      $(".typed_sec").hide();
+      $(".typed_sec."+$(this).val()).show();
+    });    
     $("input[name=sso_name]").keyup(function(){
       this.value=$.trim(this.value);
       self.list.getSelectedItems().html(self.name4List(this.value));
@@ -118,13 +136,13 @@ from django.core.urlresolvers import reverse
     this.data[index] = {}
     this.data[index]['sso_type'] = $("select[name=sso_type]").val();
     this.data[index]['sso_name'] = $("input[name=sso_name]").val();
-    this.data[index]['sso_metadata'] = $("textarea[name=sso_metadata]").val();
-    /* this.data[index]['sso_entity_id'] = entityID;
-       this.data[index]['sso_issuer_url'] = $("input[name=sso_issuer_url]").val();
-       this.data[index]['sso_single_sign_on'] = $("input[name=sso_single_sign_on]").val();
-       this.data[index]['sso_single_sign_out'] = $("input[name=sso_single_sign_out]").val();
-       this.data[index]['sso_request'] = $("textarea[name=sso_request]").val();
-       this.data[index]['sso_response'] = $("textarea[name=sso_response]").val(); */
+
+    var typed={};
+    $(".typed_sec:visible").find("*[name]").each(function(){
+      typed[this.name] = $(this).val();
+    });
+    this.data[index]['typed'] = typed;
+
     if(index >= 0){
       var attributes=[];
       $rows.each(function(){
@@ -171,7 +189,7 @@ from django.core.urlresolvers import reverse
     $("#divIdpAttributeMapping").html('');
     $("#form1").find("input,textarea,select").each(function(){
       if(this.name){
-        value=d[this.name];
+        value=d[this.name] || (d.typed && d.typed[this.name]);
         $(this).val(value || "");
       }
     });
@@ -182,6 +200,8 @@ from django.core.urlresolvers import reverse
       $row.find("input[name=name]").val(a.name);
       $row.find("input[name=map]").val(a.map);
     }
+    $(".typed_sec").hide();
+    $(".typed_sec."+d.sso_type).show();
   }
   Metadata.prototype.load = function(){
     var self=this;

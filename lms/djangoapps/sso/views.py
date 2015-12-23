@@ -33,12 +33,13 @@ import logging
 from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
 from django import db
+import requests
+import base64
 
 log = logging.getLogger("tracking")
 BASEDIR = path.dirname("lms/")
 
 
-@require_POST
 @csrf_exempt
 def genericsso(request):
     '''Assertion consume service (acs) of pepper'''
@@ -65,10 +66,84 @@ def genericsso(request):
     # Call different type of ACS seperatly
     if metadata_setting.get('sso_type') == 'SAML':
         log.debug("message: it's SAML")
-        return samlACS(request, idp_name, metadata_setting)
+        return saml_acs(request, idp_name, metadata_setting)
+    elif metadata_setting.get('sso_type') == 'OAuth2':
+        return oauth2_acs(request, idp_name, metadata_setting)
 
 
-def samlACS(request, idp_name, ms):
+def flat_dict(var, prefix=""):
+    out = {}
+    if isinstance(var,dict):
+        for k,v in var.items():
+            p = (prefix+".") if prefix else ""
+            out.update(flat_dict(v, p+k))
+    else:
+        out[prefix] = var
+
+    return out
+
+
+def oauth2_acs(request, idp_name, ms):
+    request_token_url = ms.get('typed').get("oauth2_request_token_url")
+    client_id = ms.get('typed').get("oauth2_client_id")
+    client_secret = ms.get('typed').get("oauth2_client_secret")
+    redirect_url = ms.get('typed').get("oauth2_redirect_url")
+
+    basic = base64.b64encode(client_id + ":" + client_secret)
+    headers = {'Authorization': "Basic " + basic, 'Content-Type': 'application/x-www-form-urlencoded'}
+
+    try:
+        req = requests.request('POST', request_token_url,
+                               data={'code': request.GET.get('code'),
+                                     'grant_type': 'authorization_code',
+                                     'redirect_uri': redirect_url}, timeout=15,
+                               headers=headers)
+
+        content = json.loads(req.text)
+
+        me_url = ms.get('typed').get("oauth2_me_url")
+        api_url = ms.get('typed').get("oauth2_api_url")
+        # tokeninfo_url = ms.get('typed').get("oauth2_tokeninfo_url")
+        
+        # -----------------------
+        # req = requests.request('GET', tokeninfo_url, timeout=15,
+        #                        headers={'Authorization': 'Bearer '+content.get('access_token')})
+        # # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
+        # print req.text
+        # tokeninfo = json.loads(req.text)
+        
+        # -----------------------
+        req = requests.request('GET', api_url+me_url, timeout=15,
+                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        me = json.loads(req.text)
+        
+        # -----------------------
+        profile_url = ""
+        for link in me.get("links"):
+            if link["rel"] == "canonical":
+                profile_url = link["uri"]
+
+        req = requests.request('GET', api_url+profile_url, timeout=15,
+                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+
+        profile = json.loads(req.text)
+    except Exception as e:
+        return HttpResponse(str(e))
+    
+    data = flat_dict(profile)
+    return post_acs(request, ms, data)
+
+
+def map_data(setting, data):
+    parsed_data = {}
+    for attr in setting:
+        mapped_name = attr['map'] if 'map' in attr else attr['name']
+        if attr['name']:
+            parsed_data[mapped_name] = data.get(attr['name'])
+    return parsed_data
+
+
+def saml_acs(request, idp_name, ms):
     '''SAML ACS'''
 
     xmlstr = request.POST.get("SAMLResponse")
@@ -178,7 +253,11 @@ def samlACS(request, idp_name, ms):
     data = {}
     for k, v in session_info['ava'].items():
         data[k] = v[0]
+    
+    return post_acs(request,  ms, data)
 
+
+def post_acs(request, ms, data):
     # Fetch email
     attribute_setting = ms.get('attributes')
     parsed_data = {}
@@ -186,10 +265,10 @@ def samlACS(request, idp_name, ms):
     for attr in attribute_setting:
         mapped_name = attr['map'] if 'map' in attr else attr['name']
         if attr['name']:
-            parsed_data[mapped_name] = data.get(attr['name'])
+            parsed_data[mapped_name] = data.get(attr['name'])    
+    
     email = parsed_data.get('email')
 
-    #** consume the assertion
     users = User.objects.filter(email=email)
 
     if users.exists():
@@ -204,7 +283,7 @@ def samlACS(request, idp_name, ms):
     else:
         return create_unknown_user(request, ms, data)
 
-
+    
 def https_redirect(request, url):
     '''Force redirect to a https address'''
     absolute_URL = request.build_absolute_uri(url)
@@ -228,6 +307,10 @@ def create_unknown_user(request, ms, data):
             mapped_name = attr['map'] if 'map' in attr else attr['name']
             if attr['name']:
                 parsed_data[mapped_name] = data.get(attr['name'])
+
+        print attribute_setting
+        print data
+        print parsed_data
 
         # Generate username if not provided
         if not parsed_data.get('username'):

@@ -26,19 +26,27 @@ def save(request):
         if not os.path.isdir(path):
             os.makedirs(path)
 
-        if d.get('sso_metadata'):
+        typed = d.get('typed')
+        if typed.get('saml_metadata'):
             mdfile = open(path + "/FederationMetadata.xml", "w")
-            mdfile.write(d.get('sso_metadata'))
+            mdfile.write(typed.get('saml_metadata'))
+            del typed['saml_metadata']
+
+        typed_setting = []
+        for k, v in typed.items():
+            typed_setting.append('''
+    <setting name="%s">%s</setting>''' % (k, v))
 
         attributes = []
-        for a in d['attributes']:
+        for a in d.get('attributes'):
             attributes.append('''
     <attribute name="%s" map="%s"></attribute>''' % (a['name'], a['map']))
 
         entities.append('''
-  <entity type="%s" name="%s">%s
+  <entity type="%s" name="%s">%s%s
   </entity>''' % (d.get('sso_type', ''),
                   name,
+                  ''.join(typed_setting),
                   ''.join(attributes)
                   ))
 
@@ -65,7 +73,6 @@ def idp_by_name(name):
 
 def parse_one_idp(entity):
     attribute_list = []
-
     if 'attribute' in entity:
         for attribute in entity['attribute']:
             attr = {
@@ -75,18 +82,22 @@ def parse_one_idp(entity):
                 }
             attribute_list.append(attr)
 
+    typed_setting = {}
+    if 'setting' in entity:
+        for attribute in entity['setting']:
+            typed_setting[attribute['@name']] = attribute['#text']
+
     path = settings.PROJECT_ROOT + "/sso/" + entity['@name'] + "/FederationMetadata.xml"
 
-    sso_metadata = ''
     if os.path.isfile(path):
         mdfile = open(path, "r")
-        sso_metadata = mdfile.read()
+        typed_setting['saml_metadata'] = mdfile.read()
 
     return {
         'sso_type': entity['@type'],
         'sso_name': entity['@name'],
-        'sso_metadata': sso_metadata,
-        'attributes': attribute_list
+        'attributes': attribute_list,
+        'typed': typed_setting
         }
 
 

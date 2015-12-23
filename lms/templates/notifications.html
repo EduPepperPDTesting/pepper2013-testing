@@ -62,6 +62,7 @@
 
         var notifications_update_allDelItem=[];
 		var notifications_update_allDelItem_ele={};
+		$(".allcheck").prop('checked',false);
         
         $(".allcheck").click(function(){
 	    	if(!$(this).prop('checked')){
@@ -548,6 +549,7 @@ Add info that you would like to share about yourself here:
 			<table border="0" width="100%">
 				<tr>
 					<td><h2 style="padding-left:20px;">${_("YOUR NOTIFICATIONS")}</h2></td>
+					<td width="56" style="vertical-align:middle;font-size:12px;">Select All</td>
 					<td width="20" style="vertical-align:middle;"><input class="allcheck" name="allcheck" type="checkbox" value=""/></td>
 				</tr>
 			</table>
