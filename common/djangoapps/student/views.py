@@ -474,7 +474,8 @@ def dashboard(request, user_id=None):
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
     collaboration_time = discussion_time + portfolio_time
-    total_time_in_pepper = all_course_time + collaboration_time
+    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
@@ -492,7 +493,8 @@ def dashboard(request, user_id=None):
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
-        'external_times': external_times
+        'external_times': external_times,
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
     }
 
     return render_to_response('dashboard.html', context)
@@ -696,6 +698,8 @@ def sso(request, error=""):
     sso_email = sso_user.get('Email', '')
     sso_usercode = sso_user.get('UserCode', '')
     sso_unique = str(sso_usercode) + '--' + str(sso_id)
+
+    request.session['idp'] = sso_usercode
 
     if not sso_user:
         AUDIT_LOG.warning(u"There was an EasyIEP SSO login error: {0}. This is the user info from EasyIEP: {1}"
@@ -966,7 +970,6 @@ def _do_create_account(post_vars):
     # profile.name = post_vars['name']
     profile.user.first_name = post_vars['first_name']
     profile.user.last_name = post_vars['last_name']
-
     profile.major_subject_area_id = post_vars['major_subject_area_id']
     profile.grade_level_id = post_vars['grade_level_id']
     profile.district_id = post_vars['district_id']
@@ -1955,7 +1958,7 @@ def activate_easyiep_account(request):
         profile.subscription_status = 'Registered'
         profile.major_subject_area_id = vars.get('major_subject_area_id', '')
         profile.years_in_education_id = vars.get('years_in_education_id', '')
-        # profile.grade_level_id=vars.get('grade_level_id','')
+        profile.grade_level_id = vars.get('grade_level_id', '')
         profile.percent_lunch = vars.get('percent_lunch', '')
         profile.percent_iep = vars.get('percent_iep', '')
         profile.percent_eng_learner = vars.get('percent_eng_learner', '')
@@ -2062,6 +2065,7 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
+
 def request_course_access_ajax(request):
     try:
         course=get_course_by_id(request.POST.get('course_id'))
@@ -2094,7 +2098,11 @@ Request Date: {date_time}""".format(first_name=request.user.first_name,
     return HttpResponse(json.dumps({'success': True}))
 
 
-def study_time_format(t):
+def study_time_format(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
     hour_unit = ' Hour, '
     minute_unit = ' Minute'
     hour = int(t / 60 / 60)
@@ -2107,7 +2115,7 @@ def study_time_format(t):
         hour_full = str(hour) + hour_unit
     else:
         hour_full = ''
-    return ('{0} {1} {2}').format(hour_full, minute, minute_unit)
+    return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
 
 
 def drop_states(request):
@@ -2180,12 +2188,16 @@ def get_pepper_stats(request):
     course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
     all_course_time = course_time + external_time
     collaboration_time = discussion_time + portfolio_time
-    total_time_in_pepper = all_course_time + collaboration_time
+    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
     context = {
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
-        'external_times': external_times
+        'external_times': external_times,
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
+
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
+

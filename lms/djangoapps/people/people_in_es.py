@@ -3,15 +3,15 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from student.models import CourseEnrollment, UserProfile
-
+from django.conf import settings
 
 import logging
 log = logging.getLogger("tracking")
 
 es=Elasticsearch()
 
-INDEX_NAME = 'people'
-DOC_TYPE   = 'user'
+INDEX_NAME = settings.PEOPLE_INDEX
+DOC_TYPE   = settings.PEOPLE_DOC_TYPE
 
 MAPPING_LONG={'index':'not_analyzed', 'type':'long'}
 MAPPING_STRING={'index':'not_analyzed', 'type':'string'}

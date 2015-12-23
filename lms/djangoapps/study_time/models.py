@@ -11,7 +11,7 @@ class MongoRecordTimeStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
     def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, collection_external, collection_result_set,
-                 port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
+                 collection_adjustment, port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
 
         super(MongoRecordTimeStore, self).__init__(**kwargs)
 
@@ -54,6 +54,12 @@ class MongoRecordTimeStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_result_set]
+        self.collection_adjustment = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection_adjustment]
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_page.database.authenticate(user, password)
@@ -61,6 +67,7 @@ class MongoRecordTimeStore(object):
             self.collection_portfolio.database.authenticate(user, password)
             self.collection_external.database.authenticate(user, password)
             self.collection_result_set.database.authenticate(user, password)
+            self.collection_adjustment.database.authenticate(user, password)
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_page.safe = True
@@ -68,6 +75,7 @@ class MongoRecordTimeStore(object):
         self.collection_portfolio.safe = True
         self.collection_external.safe = True
         self.collection_result_set.safe = True
+        self.collection_adjustment.safe = True
 
     def _find_one(self):
         item = self.collection.find_one(
@@ -156,7 +164,7 @@ class MongoRecordTimeStore(object):
     # Return course_time/discussion/portfolio
     # (add_time_out:Timer in My Course subtract session expiry time if it has been added.)
     def get_course_time(self, user_id, course_id, type='', add_time_out=False):
-        count_time = 0
+        count_time = self.get_adjustment_time(user_id, type, course_id)
         if type == 'courseware':
             if course_id is None:
                 course_time = {}
@@ -276,7 +284,8 @@ class MongoRecordTimeStore(object):
         for data in results:
             count_weight += int(data['weight'])
         course = get_course_with_access(user_id, course_id, 'load')
-        return count_weight * int(course.external_course_time)
+        adjustment_time = self.get_adjustment_time(user_id, 'external', course_id)
+        return count_weight * int(course.external_course_time) + adjustment_time
 
     def set_time_report_result(self, user_id, data):
         return self.collection_result_set.update(
@@ -295,6 +304,53 @@ class MongoRecordTimeStore(object):
             return result['data']
         else:
             return []
+
+    def set_adjustment_time(self, user_id, type, time, course_id=''):
+        time = int(time)
+        if type == 'portfolio' or type == 'total':
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+        else:
+            return self.collection_adjustment.update(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
+                    'type': type
+                },
+                {
+                    '$inc': {'time': time}
+                },
+                True
+            )
+
+    def get_adjustment_time(self, user_id, type, course_id=None):
+        count_time = 0
+        if course_id is None or type == 'portfolio' or type == 'total':
+            results = self.collection_adjustment.find(
+                {
+                    'user_id': user_id,
+                    'type': type
+                }
+            )
+        else:
+            results = self.collection_adjustment.find(
+                {
+                    'user_id': user_id,
+                    'course_id': course_id,
+                    'type': type
+                }
+            )
+        for data in results:
+            count_time += int(data['time'])
+        return count_time
 
 
 def record_time_store():

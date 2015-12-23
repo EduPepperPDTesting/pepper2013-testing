@@ -10,9 +10,24 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     admin.autodiscover()
 
 urlpatterns = (
-    '',  # nopep8  
-    
+    '',  # nopep8
+
 ####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+    
+    url(r'^genericsso/$', 'sso.views.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
+    
+    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
+    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
+    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
+
+    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
+
+####### Ancestor
+
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
@@ -75,10 +90,6 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
-    # url(r'^pepconn/tables/get_user_count/$', 'administration.pepconn.get_user_count', name="pepconn_get_user_count"),
-    # url(r'^pepconn/tables/get_cohort_count/$', 'administration.pepconn.get_cohort_count', name="pepconn_get_cohort_count"),
-    # url(r'^pepconn/tables/get_school_count/$', 'administration.pepconn.get_school_count', name="pepconn_get_school_count"),
-    # url(r'^pepconn/tables/get_district_count/$', 'administration.pepconn.get_district_count', name="pepconn_get_district_count"),
 
     url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
@@ -93,6 +104,14 @@ urlpatterns = (
     url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
     url(r'^time_report/time_table/progress/$', 'administration.time_report.time_table_progress', name="time_report_time_table_progress"),
     url(r'^time_report/time_table/get_result$', 'administration.time_report.get_time_table_result', name="time_report_get_time_table_result"),
+    url(r'^time_report/drop_courses$', 'administration.time_report.drop_courses', name="time_report_drop_courses"),
+    url(r'^time_report/drop_enroll_courses$', 'administration.time_report.drop_enroll_courses', name="time_report_drop_enroll_courses"),
+    url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
+    url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
+    url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
+    url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
+    url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
 
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
@@ -368,6 +387,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
+		# url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        # url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),

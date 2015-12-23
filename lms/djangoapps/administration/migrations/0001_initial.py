@@ -94,7 +94,7 @@ class Migration(SchemaMigration):
             ('certificate_name', self.gf('django.db.models.fields.CharField')(max_length=255)),
             ('certificate_blob', self.gf('django.db.models.fields.TextField')(null=True)),
             ('readonly', self.gf('django.db.models.fields.BooleanField')(default=True)),
-            ('association_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType'])),
+            ('association_type_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType'])),
             ('association', self.gf('django.db.models.fields.IntegerField')()),
         ))
         db.send_create_signal('administration', ['Certificate'])

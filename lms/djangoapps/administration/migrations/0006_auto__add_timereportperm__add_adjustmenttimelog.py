@@ -8,41 +8,49 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'TimeReportTask'
-        db.create_table('admin_time_report_task', (
+        # Adding model 'TimeReportPerm'
+        db.create_table('time_report_perm', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('total_num', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('process_num', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('success_num', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('update_time', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('task_read', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['auth.User'])),
         ))
-        db.send_create_signal('administration', ['TimeReportTask'])
+        db.send_create_signal('administration', ['TimeReportPerm'])
 
-
-        # Renaming column for 'Certificate.association_type' to match new field type.
-        db.rename_column('certificate', 'association_type_id_id', 'association_type_id')
-        # Changing field 'Certificate.association_type'
-        # db.alter_column('certificate', 'association_type_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['administration.CertificateAssociationType']))
-        # Adding index on 'Certificate', fields ['association_type']
-        db.create_index('certificate', ['association_type_id'])
+        # Adding model 'AdjustmentTimeLog'
+        db.create_table('adjustment_time_log', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user_id', self.gf('django.db.models.fields.IntegerField')(max_length=11)),
+            ('user_email', self.gf('django.db.models.fields.CharField')(max_length=75, db_index=True)),
+            ('admin_email', self.gf('django.db.models.fields.CharField')(max_length=75, db_index=True)),
+            ('type', self.gf('django.db.models.fields.CharField')(max_length=30, db_index=True)),
+            ('adjustment_time', self.gf('django.db.models.fields.IntegerField')(default=0)),
+            ('create_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('course_number', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, db_index=True)),
+            ('comments', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True, db_index=True)),
+        ))
+        db.send_create_signal('administration', ['AdjustmentTimeLog'])
 
 
     def backwards(self, orm):
-        # Removing index on 'Certificate', fields ['association_type']
-        db.delete_index('certificate', ['association_type_id'])
+        # Deleting model 'TimeReportPerm'
+        db.delete_table('time_report_perm')
 
-        # Deleting model 'TimeReportTask'
-        db.delete_table('admin_time_report_task')
+        # Deleting model 'AdjustmentTimeLog'
+        db.delete_table('adjustment_time_log')
 
-
-        # Renaming column for 'Certificate.association_type' to match new field type.
-        db.rename_column('certificate', 'association_type_id', 'association_type')
-        # Changing field 'Certificate.association_type'
-        db.alter_column('certificate', 'association_type', self.gf('django.db.models.fields.IntegerField')())
 
     models = {
+        'administration.adjustmenttimelog': {
+            'Meta': {'object_name': 'AdjustmentTimeLog', 'db_table': "'adjustment_time_log'"},
+            'adjustment_time': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'admin_email': ('django.db.models.fields.CharField', [], {'max_length': '75', 'db_index': 'True'}),
+            'comments': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'db_index': 'True'}),
+            'course_number': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'db_index': 'True'}),
+            'create_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'type': ('django.db.models.fields.CharField', [], {'max_length': '30', 'db_index': 'True'}),
+            'user_email': ('django.db.models.fields.CharField', [], {'max_length': '75', 'db_index': 'True'}),
+            'user_id': ('django.db.models.fields.IntegerField', [], {'max_length': '11'})
+        },
         'administration.author': {
             'Meta': {'object_name': 'Author', 'db_table': "'author'"},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -109,13 +117,17 @@ class Migration(SchemaMigration):
         'administration.importtasklog': {
             'Meta': {'object_name': 'ImportTaskLog', 'db_table': "'admin_import_task_log'"},
             'create_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'district_name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
-            'email': ('django.db.models.fields.CharField', [], {'max_length': '75', 'db_index': 'True'}),
             'error': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'import_data': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '255'}),
             'line': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'task': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['administration.ImportTask']", 'on_delete': 'models.PROTECT'}),
             'username': ('django.db.models.fields.CharField', [], {'max_length': '30', 'db_index': 'True'})
+        },
+        'administration.timereportperm': {
+            'Meta': {'object_name': 'TimeReportPerm', 'db_table': "'time_report_perm'"},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': '0', 'to': "orm['auth.User']"})
         },
         'administration.timereporttask': {
             'Meta': {'object_name': 'TimeReportTask', 'db_table': "'admin_time_report_task'"},
