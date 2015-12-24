@@ -186,22 +186,14 @@
           </div>
 
           %if request.user.is_authenticated():
-          %if request.user.profile.district.state.name=='Connecticut':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
+
+          <!--------State Content Collection-------->
+
+           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_K-5.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=CT Core Standards&op=find" class="card-link image-bottom-style"><span>CT Core Standards</span></a>
+            <a href="/courses/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Content Collection</span></a>
           </div>
-          %elif request.user.profile.district.name=='Manteca Unified School District':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
-          </div>
-          %elif request.user.profile.district.name=='Principal':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Principal&op=find" class="card-link image-bottom-style"><span>Principal's Playbook</span></a>
-          </div>
-          %endif
+    
           %endif
           
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
@@ -212,6 +204,16 @@
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
           </div>
+          %if request.user.is_authenticated():
+
+          <!--------District Content Collection-------->
+
+           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Grades_9-12.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/courses/states?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Content Collection</span></a>
+          </div>
+
+          %endif
         </div>
        %else:
          %if len(courses)>0:

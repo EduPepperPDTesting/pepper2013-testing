@@ -409,6 +409,8 @@ if settings.COURSEWARE_ENABLED:
 		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
         url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
+        url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
+        url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
         url(r'^demo2$', 'branding.views.demo2', name="demo2"),

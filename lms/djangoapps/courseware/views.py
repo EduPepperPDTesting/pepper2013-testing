@@ -29,7 +29,7 @@ from course_modes.models import CourseMode
 
 from django_comment_client.utils import get_discussion_title
 
-from student.models import UserTestGroup, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
 from util.cache import cache, cache_if_anonymous
 from xmodule.modulestore import Location
 from xmodule.modulestore.django import modulestore
@@ -129,9 +129,9 @@ def course_list(request):
     """
     Render "find courses" page.  The course selection work is done in courseware.courses.
     """
-    subject_id = request.GET.get('subject_id', '')
-    grade_id = request.GET.get('grade_id', '')
-    author_id = request.GET.get('author_id', '')
+    subject_id = request.GET.get('subject_id', 'all')
+    grade_id = request.GET.get('grade_id', 'all')
+    author_id = request.GET.get('author_id', 'all')
     district = request.GET.get('district', '')
     state = request.GET.get('state', '')
     credit = request.GET.get('credit', '')
@@ -228,6 +228,79 @@ def dpicourse_list(request):
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
     return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def states(request):
+    """
+    Render "find states" page.
+    """
+    log = logging.getLogger("tracking")
+    state = request.GET.get('state', '')
+    district = request.GET.get('district', 'N')
+    filterDic = {'_id.category': 'course'}
+    state_list = []
+    if request.user.is_superuser is False:
+        if district == 'N':
+            filterDic['metadata.display_state'] = state
+        else:
+            filterDic['metadata.display_district'] = district
+
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+
+    state_temp = []
+    for course in courses:
+        if district == 'N':
+            if course.display_state != '':
+                state_temp.append(course.display_state)
+        else:
+            if course.display_district != '':
+                if course.display_state != '':
+                    state_temp.append(course.display_state)
+                else:
+                    try:
+                        state_temp.append(District.objects.filter(code=course.display_district)[0].state.name)
+                    except:
+                        log.debug('District does not exist')
+    state_list = sorted(set(state_temp), key=state_temp.index)
+    return render_to_response("courseware/states.html", {'states': state_list})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def districts(request):
+    """
+    Render "find districts" page.
+    """
+    log = logging.getLogger("tracking")
+    state = request.GET.get('state', '')
+    filterDic = {'_id.category': 'course'}
+
+    district_name = {}
+    district_temp = []
+    district_list = []
+
+    if request.user.is_superuser is False:
+        filterDic['metadata.display_district'] = request.user.profile.district.code
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    for course in courses:
+        if course.display_district != '':
+            district = District.objects.filter(code=course.display_district)[0]
+            if course.display_state == state or (course.display_state == '' and district.state.name == state):
+                district_temp.append(course.display_district)
+            elif state == '':
+                district_temp.append(course.display_district)
+            district_name[course.display_district] = district.name
+
+    district_temp = sorted(set(district_temp), key=district_temp.index)
+    for dl in district_temp:
+        district_list.append({'id': dl, 'name': district_name[dl]})
+
+    return render_to_response("courseware/districts.html", {'districts': district_list})
+
 
 def render_accordion(request, course, chapter, section, field_data_cache):
     """
