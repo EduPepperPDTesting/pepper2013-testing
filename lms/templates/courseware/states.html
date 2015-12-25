@@ -141,12 +141,12 @@
         <div style="padding-left:25px;">
           %for state in states:
             %if request.GET.get('state') != None:
-              <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+              <div class="image-link-style" key="${state}" style="width:240px;height:150px;background-size:100% 100%;">
                 <div style="height:100px;"></div>
                 <a href="/courses-list?state=${state}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${state}</span></a>
               </div>
             %else:
-              <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+              <div class="image-link-style" key="${state}" style="width:240px;height:150px;background-size:100% 100%;">
                 <div style="height:100px;"></div>
                 <a href="/courses/districts?state=${state}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${state}</span></a>
               </div>
@@ -167,3 +167,23 @@
   </div>
   </div>
 </section>
+
+<script>
+  function getStateOrDistrictIcon(self, type , key){
+    var path = "/static/images/" + type + "/";
+    key = key.replace(new RegExp(" ", "gm"), "_");
+    var img = new Image();
+    img.src = path + key + ".jpg";
+    $(self).css("background-image","url("+img.src+")"); 
+    img.onerror = function () {
+      img.src = path + type + "_default.jpg";
+      self.style.backgroundImage = img.src; 
+      $(self).css("background-image","url("+img.src+")"); 
+      this.onerror = null;
+    };
+  }
+
+  $(".image-link-style").each(function(){
+    getStateOrDistrictIcon(this,'state',$(this).attr("key"));
+  });
+</script>
