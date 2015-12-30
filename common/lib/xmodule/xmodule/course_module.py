@@ -416,6 +416,8 @@ class CourseFields(object):
 
     maximum_units_time = String(help="Maximum Units Time", default="3600000", scope=Scope.settings)
 
+    state_district_only = Boolean(help="Other states or districts are visible", default=False, scope=Scope.settings)
+
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
