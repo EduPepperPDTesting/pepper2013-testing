@@ -104,11 +104,7 @@
   </div>
 
   <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
-    %if request.GET.get('state') != None:
-      <form method="" id="course_list_form" action="${reverse('course_list')}">
-    %else:
-      <form method="" id="course_list_form" action="${reverse('courses_districts')}">
-    %endif
+    <form method="" id="course_list_form" action="${reverse('course_list')}">
     <div style="padding:20px;color:#666;display:inline-block;">&nbsp;</div>
     <div style="display:inline-block;padding:0 1em 0 0;">
       <select name="state" class="form-select">
@@ -120,8 +116,7 @@
         %endfor
       </select>
     </div>
-    %if request.GET.get('state') != None:
-      <div style="display:inline-block;padding:0 1em 0 0;">
+    <div style="display:inline-block;padding:0 1em 0 0;">
         <select name="grade_id" class="form-select">
           <option value="all">All Grades</option>
           <option value="K-5">K-5</option>
@@ -129,8 +124,7 @@
           <option value="9-12">9-12</option>
           <option value="K-12">K-12</option>
         </select>
-      </div>
-    %endif
+    </div>
     <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
     </form>
   </section>
@@ -140,17 +134,10 @@
       <div class="courses-listing">
         <div style="padding-left:25px;">
           %for state in states:
-            %if request.GET.get('state') != None:
-              <div class="image-link-style" key="${state}" style="width:240px;height:150px;background-size:100% 100%;">
-                <div style="height:100px;"></div>
-                <a href="/courses-list?state=${state}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${state}</span></a>
-              </div>
-            %else:
-              <div class="image-link-style" key="${state}" style="width:240px;height:150px;background-size:100% 100%;">
-                <div style="height:100px;"></div>
-                <a href="/courses/districts?state=${state}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${state}</span></a>
-              </div>
-            %endif
+            <div class="image-link-style" key="${state}" style="width:240px;height:150px;background-size:100% 100%;">
+              <div style="height:100px;"></div>
+              <a href="/courses-list?state=${state}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${state}</span></a>
+            </div>
           %endfor
         </div>
       </div>

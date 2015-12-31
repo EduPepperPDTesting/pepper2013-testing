@@ -114,13 +114,16 @@ def get_state_and_district_list(request, courses):
 
 def is_state_district_show(request, course):
     if request.user.is_authenticated():
-        if course.state_district_only:
-            state = request.user.profile.district.state.name
-            district = request.user.profile.district.code
-            if course.display_state == state or course.display_district == district:
-                return True
-        else:
+        if request.user.is_superuser:
             return True
+        else:
+            if course.state_district_only:
+                state = request.user.profile.district.state.name
+                district = request.user.profile.district.code
+                if course.display_state == state or course.display_district == district:
+                    return True
+            else:
+                return True
     else:
         if course.display_state == '' and course.display_district == '':
             return True
