@@ -151,6 +151,7 @@
     <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
     %if request.user.is_authenticated():
     <div>
+     %if len(states) > 0:
       <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
         <select name="state" class="form-select">
           <option value="">Select State</option>
@@ -159,6 +160,8 @@
           %endfor
         </select>
       </div>
+    %endif
+    %if len(districts) > 0:
       <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
         <select name="district" class="form-select">
           <option value="">Select District</option>
@@ -167,7 +170,12 @@
           %endfor
         </select>
       </div>
+    %endif
+    %if len(states) > 0 and len(districts) > 0:
       <div style="display:inline-block;width:83px;"></div>
+    %else:
+      <div style="display:inline-block;width:283px;"></div>
+    %endif
     </div>
     %endif
      <script type="text/javascript">
@@ -208,7 +216,7 @@
             <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
           </div>
 
-          %if request.user.is_authenticated():
+          %if request.user.is_authenticated() and len(states) > 0:
 
           <!--------State Content Collection-------->
 
@@ -227,7 +235,7 @@
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
           </div>
-          %if request.user.is_authenticated():
+          %if request.user.is_authenticated() and len(districts) > 0:
 
           <!--------District Content Collection-------->
 
