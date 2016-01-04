@@ -72,10 +72,10 @@ f.close()
 
                     <div style="padding: 1em 7px 7px 7px;">
                         <label class="label required">District ID:<br/>
-                            <input name="id" value="" chkmsg="District ID cant't be empty." chktype="Require" type="">
+                            <input name="id" value="" chkmsg="District ID can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label">State:<br/>
-                            <select id="state" name="state_id" autocomplete="off">
+                            <select id="state" name="state_id" autocomplete="off" chkmsg="You must select a state." chktype="Require">
                           <option value=""></option>
                           %for item in State.objects.all().order_by('name'):
                           <option value="${item.id}">${item.name}</option>
@@ -83,7 +83,7 @@ f.close()
                         </select>
                         </label><br/>
                         <label class="label required">District Name:<br/>
-                                <input name="name" value="" chkmsg="." chktype="Require" type="">
+                                <input name="name" value="" chkmsg="District Name can't be empty." chktype="Require" type="">
                         </label><br/>
                     </div>
                     <div style="padding:10px 5px">
@@ -117,10 +117,10 @@ f.close()
 
                     <div style="padding: 1em 7px 7px 7px;">
                         <label class="label required">School Code:<br/>
-                            <input name="id" value="" chkmsg="School Code cant't be empty." chktype="Require" type="">
+                            <input name="id" value="" chkmsg="School Code can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label required">School Name:<br/>
-                            <input name="name" value="" chkmsg="School Name cant't be empty." chktype="Require" type="">
+                            <input name="name" value="" chkmsg="School Name can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label">State:<br/>
                             <select id="state_single" name="state_id" autocomplete="off">
@@ -131,7 +131,7 @@ f.close()
                         </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
-                            <select id="district_id_single" name="district_id" autocomplete="off">
+                            <select id="district_id_single" name="district_id" autocomplete="off" chkmsg="You must select a district." chktype="Require">
                               <option class="null_case" value="null_case"></option>
                                   %for item in District.objects.all().order_by('name'):
                                       <option class="${item.state.id}" value="${item.id}">${item.name}</option>
@@ -220,7 +220,7 @@ f.close()
 
                 <div style="padding: 1em 7px 7px 7px;">
                     <label class="label">State:<br/>
-                        <select id="user_state_single" name="state" autocomplete="off">
+                        <select id="user_state_single" name="state" autocomplete="off" chkmsg="You must select a state." chktype="Require">
                       <option class="null_case" value=""></option>
                       %for item in State.objects.all().order_by('name'):
                       <option class="${item.id}" value="${item.id}">${item.name}</option>
@@ -228,7 +228,7 @@ f.close()
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
-                        <select id="user_district_id" name="district" autocomplete="off">
+                        <select id="user_district_id" name="district" autocomplete="off" chkmsg="You must select a district." chktype="Require">
                           <option class="null_case" value=""></option>
                           %for item in District.objects.all().order_by('name'):
                           <option class="${item.state.id}" value="${item.id}">${item.name}</option>
@@ -236,7 +236,7 @@ f.close()
                         </select>
                     </label><br/>
                     <label class="label required">E-Mail:<br/>
-                        <input name="email" value="" chkmsg="E-Mail cant't be empty." chktype="Require" type="">
+                        <input name="email" value="" chkmsg="E-Mail can't be empty." chktype="Require" type="">
                     </label><br/>
                 </div>
                 <div style="padding:10px 5px">
@@ -251,7 +251,7 @@ f.close()
             <input type="hidden" name="id" value="" />
             <div style="padding: 1em 7px 7px 7px;">
                 <label class="label required">Cohort ID:<br/>
-                    <input name="code" value="" chkmsg="Cohort ID cant't be empty." chktype="Require" type="">
+                    <input name="code" value="" chkmsg="Cohort ID can't be empty." chktype="Require" type="">
                 </label><br/>
                 <label class="label">State:<br/>
                     <select id="cohort_state_single" name="state_id" autocomplete="off">
@@ -262,7 +262,7 @@ f.close()
                 </select>
                 </label><br/>
                 <label class="label required">District:<br/>
-                    <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
+                    <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District can't be empty." chkType="Require">
                       <option class="null_case" value=""></option>
                       %for item in District.objects.all():
                       <option class="${item.state.id}" value="${item.id}">${item.name}</option>
@@ -643,14 +643,16 @@ f.close()
 $("#singleDistrictImportForm").submit(function () {
     var flds = ["id", "name", "state", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_district_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The district was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_district_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The district was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -658,14 +660,16 @@ $("#singleDistrictImportForm").submit(function () {
 $("#singleSchoolImportForm").submit(function () {
     var flds = ["name", "id", "state_id", "district_id", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_school_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The school was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_school_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The school was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -674,14 +678,16 @@ $("#singleUserImportForm").submit(function () {
     syncCKEditorData();
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_003", "custom_email_subject"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_user_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The user was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_user_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The user was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -1094,8 +1100,18 @@ function getFormData(form, flds) {
     var data = {};
     $.each(flds, function (i, n) {
         var field = $(form[n]);
+        var field_value = field.val();
+        if (field.attr('chktype')) {
+            var chktype = field.attr('chktype');
+            var chkmsg = field.attr('chkmsg');
+            if (field_value == '') {
+                new Dialog($('#dialog')).show("Error", "The following error occurred: " + chkmsg);
+                data = false;
+                return false;
+            }
+        }
         if (field.attr('type') != 'checkbox' || field.prop('checked')) {
-            data[n] = field.val();
+            data[n] = field_value;
         }
     });
     return data;
@@ -1104,14 +1120,16 @@ function getFormData(form, flds) {
 $("#cohortImportForm").submit(function () {
     var flds = ["id", "code", "licences", "term_months", "start_date", "district_id", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_cohort_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The cohort was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_cohort_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The cohort was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 

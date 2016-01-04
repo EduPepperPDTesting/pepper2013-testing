@@ -138,9 +138,9 @@ class State(models.Model):
 class District(models.Model):
     class Meta:
         db_table = 'district'
-    state = models.ForeignKey(State,on_delete=models.PROTECT)
-    code = models.CharField(blank=True, max_length=50, db_index=True)         
-    name= models.CharField(blank=True, max_length=255, db_index=False)
+    state = models.ForeignKey(State, on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True, unique=True)
+    name = models.CharField(blank=True, max_length=255, db_index=False)
 
 class Cohort(models.Model):
     class Meta:
