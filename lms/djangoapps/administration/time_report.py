@@ -491,7 +491,7 @@ def load_adjustment_log(request):
 
 
 def validate_adjustment_time_cvs_line(line, tasklog):
-    adjustment_type_list = ['total', 'courseware', 'discussion', 'portfolio', 'external']
+    adjustment_type_list = ['courseware', 'discussion', 'portfolio', 'external']
     '''
     n = 0
     for item in line:

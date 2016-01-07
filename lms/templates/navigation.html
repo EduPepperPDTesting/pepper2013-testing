@@ -583,7 +583,8 @@ except:
                }, function(data) {
                  $('#all_course_time').html(data.all_course_time);
                  $('#collaboration_time').html(data.collaboration_time);
-                 $('#totle_adjustment_time').html(data.totle_adjustment_time);
+                 //hide totle adjustment time
+                 //$('#totle_adjustment_time').html(data.totle_adjustment_time);
                  $('#total_time_in_pepper').html(data.total_time_in_pepper);
                  $(".course-time,.course-time-completed").each(function() {
                    var course_id = $(this).attr('course_id');
