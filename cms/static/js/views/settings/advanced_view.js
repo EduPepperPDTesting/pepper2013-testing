@@ -139,10 +139,12 @@ CMS.Views.Settings.Advanced = CMS.Views.ValidatingView.extend({
         });
     },
     renderTemplate: function (key, value) {
+        var key_value_note= []
+        key_value_note['display_district'] = "(district id)";
         var newKeyId = _.uniqueId('policy_key_'),
         newEle = this.template({ key : key, value : JSON.stringify(value, null, 4),
-            keyUniqueId: newKeyId, valueUniqueId: _.uniqueId('policy_value_')});
-
+            keyUniqueId: newKeyId, valueUniqueId: _.uniqueId('policy_value_'),
+            keyValueNote: key_value_note[key]});
         this.fieldToSelectorMap[key] = newKeyId;
         this.selectorToField[newKeyId] = key;
         return newEle;
