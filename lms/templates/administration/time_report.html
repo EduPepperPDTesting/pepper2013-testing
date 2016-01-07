@@ -134,7 +134,7 @@ from administration.time_report import is_time_report_permission
           </p>
           <p>
             <label style="font-style:normal;color:#555;cursor:default;">
-            * 5 adjustment types are: total/courseware/discussion/portfolio/external
+            * 4 adjustment types are: courseware/discussion/portfolio/external
             </label>
           </p>
           <p>
@@ -180,12 +180,14 @@ from administration.time_report import is_time_report_permission
     </div>
     <div id="tabs">
       <ul>
-        <li><a href="#total_tab">Total Time</a></li>
+        <!-- hide total tab -->
+        <!--<li><a href="#total_tab">Total Time</a></li>-->
         <li><a href="#courseware_tab">Course Units Time</a></li>
         <li><a href="#discussion_tab">Discussion Time</a></li>
         <li><a href="#portfolio_tab">Portfolio Time</a></li>
         <li><a href="#external_tab">External Time</a></li> 
       </ul>
+      <!--
       <div id="total_tab" class="tab_item">
         <table>
           <tr> 
@@ -204,6 +206,7 @@ from administration.time_report import is_time_report_permission
         <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
         <div>(1,000 characters maximum)</div>
       </div>
+      -->
       <div id="courseware_tab" class="tab_item">
         <select class="drop_course" style="width:300px;"></select>
         <hr/>
@@ -506,7 +509,7 @@ from administration.time_report import is_time_report_permission
         self.user_id = $(this).parent().parent().parent().attr('user_id');
         self.email = $(this).parent().parent().parent().children('td').get(2).innerHTML;
         $("#tabs").tabs({active: 0});
-        userTimeReport.load_adjustment_time(userTimeReport.user_id, 'total_tab');
+        userTimeReport.load_adjustment_time(userTimeReport.user_id, 'courseware_tab');
         var title = "Time Adjustment for <span style='color:#0000E3;font-size:16px;'>"+ self.email+"</span>";
 
        //----------- Dialog show----------//
