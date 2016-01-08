@@ -13,21 +13,20 @@
     # app that handles site status messages
     from status.status import get_site_status_msg
     from administration.time_report import is_time_report_permission
+    from permissions.utils import has_any_perm, has_admin_perm
 %>
 
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
 <%block cached="False">
     <%
-
         # print index
-
         try:
-    course_id = course.id
-except:
-    # can't figure out a better way to get at a possibly-defined course var
-    course_id = None
-        site_status_msg = get_site_status_msg(course_id)
+            course_id = course.id
+        except:
+            # can't figure out a better way to get at a possibly-defined course var
+            course_id = None
+            site_status_msg = get_site_status_msg(course_id)
     %>
     % if site_status_msg:
         <div class="site-status">
@@ -373,40 +372,31 @@ except:
         %if curr_user==request.user:
 
         <ol class="user admin" >
-
-        %if is_time_report_permission(curr_user):
-          <!-- Time REPORT PERMISSION -->
-          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
-            <ul class="admin-dropdown-menu">
-              <li><a href="${reverse('time_report')}">Time Report</a></li>
-              <script type="text/javascript">
-                $(document).on('click', function(event) {
-                  if(!$(event.target).closest('.admin-menu-holder').length){
-                    $(".admin-dropdown-menu").hide();
-                  }else if($(event.target).closest(".outside_menu").length){
-                    $(".admin-dropdown-menu").hide();
-                  }
-                });
-              </script>
-            </ul>
-          </li>
-        %else:
-            %if show_extended and curr_user.is_superuser:
+            %if show_extended and (curr_user.is_superuser or has_any_perm(curr_user)):
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
                     <ul class="admin-dropdown-menu">
-                        <li><a href="${reverse('configuration')}">Configuration</a></li>
-                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                        <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                        %if curr_user.is_superuser or has_admin_perm(curr_user, 'certificate'):
+                            <li><a href="${reverse('configuration')}">Configuration</a></li>
+                        %endif
+                        %if curr_user.is_superuser or has_admin_perm(curr_user, 'pepconn'):
+                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                        %endif
+                        %if curr_user.is_superuser or has_admin_perm(curr_user, 'time_report'):
+                            <li><a href="${reverse('time_report')}">Time Report</a></li>
+                        %endif
+                        %if curr_user.is_superuser or has_admin_perm(curr_user, 'sso'):
+                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        %endif
+                        %if curr_user.is_superuser or has_admin_perm(curr_user, 'tnl'):
+                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
-                                if(!$(event.target).closest('.admin-menu-holder').length){
+                                if (!$(event.target).closest('.admin-menu-holder').length) {
                                     $(".admin-dropdown-menu").hide();
-                                }else if($(event.target).closest(".outside_menu").length){
+                                } else if ($(event.target).closest(".outside_menu").length) {
                                     $(".admin-dropdown-menu").hide();
                                 }
                             });
@@ -414,7 +404,6 @@ except:
                     </ul>
                 </li>
             %endif
-        %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
