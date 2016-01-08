@@ -370,7 +370,6 @@
             <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-
         <ol class="user admin" >
             %if show_extended and (curr_user.is_superuser or has_any_perm(curr_user)):
                 <!-- Administration -->
@@ -444,9 +443,8 @@
                         <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
                     </ul>
                 </li>
-            </ol>
             %endif
-
+        </ol>
         %endif
         %if not show_extended:
             <ol class="right nav-courseware" id="btn-dashboard">
