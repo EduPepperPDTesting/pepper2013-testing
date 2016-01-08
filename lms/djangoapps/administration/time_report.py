@@ -38,6 +38,7 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 from courseware.module_render import get_module
 from courseware.model_data import FieldDataCache
 from courseware.courses import get_courses
+from courseware.course_grades_helper import grade
 from mail import send_html_mail
 log = logging.getLogger("tracking")
 
@@ -167,9 +168,11 @@ def load_enrollment_courses(request):
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             course = course_from_id(enrollment.course_id)
-            field_data_cache = FieldDataCache([course], course.id, user)
+            #field_data_cache = FieldDataCache([course], course.id, user)
+            field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, user, course, depth=None)
             course_instance = get_module(user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
-            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name, 'pass': course.grade_cutoffs['Pass']}
+            progress = grade(user, request, course, field_data_cache)['percent']
+            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name, 'progress': progress}
             if course_instance.complete_course:
                 complete_course.append(item)
             else:
