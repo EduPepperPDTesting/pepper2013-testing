@@ -169,12 +169,12 @@ def load_enrollment_courses(request):
             course = course_from_id(enrollment.course_id)
             field_data_cache = FieldDataCache([course], course.id, user)
             course_instance = get_module(user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
-            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name}
+            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name, 'pass': course.grade_cutoffs['Pass']}
             if course_instance.complete_course:
                 complete_course.append(item)
             else:
                 current_course.append(item)
-        except ItemNotFoundError:
+        except:
             log.error("User {0} enrolled in non-existent course {1}".format(user.username, enrollment.course_id))
     if enrollment_type == 'complete':
         r = complete_course

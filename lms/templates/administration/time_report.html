@@ -428,6 +428,7 @@ from administration.time_report import is_time_report_permission
 
     $("#tabs").tabs({
       activate: function(event, ui) {
+        $("#"+ui.newPanel.attr('id')).find(".drop_course").get(0).selectedIndex = 0;  
         userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
       }
     });
@@ -725,7 +726,9 @@ from administration.time_report import is_time_report_permission
         var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
         course_list.empty();
         for(var d in data){
-          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');  
+          var pass_value = (Number(data[d].pass) * 100) + '% completed';
+          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>\
+                              <div class="pass">(' + pass_value + ')</div>'); 
         }
         new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
           this.hide();

@@ -117,9 +117,15 @@
         #enrollment_courses_dialog .course_list_item{
             font-size: 15px;
             font-weight: bold;
-            margin: 20px;
+            margin: 10px 0px 0px 20px;
         }
 
+        #enrollment_courses_dialog .pass{
+            font-size: 12px;
+            margin: 0px 0px 20px 20px;
+            color: #666;
+        }
+        
         .complete_courses_color{
             color: #2bbaec !important;
         }
