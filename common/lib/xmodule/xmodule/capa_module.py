@@ -159,10 +159,14 @@ class CapaFields(object):
         default=False
         )
     #@end
-    #@begin:correct_counter
+    #@begin:question_correct
     #@data:2016-01-11
-    correct_counter = Integer(help="Number of correct attempts taken by the student on this problem",
-                       default=0, scope=Scope.user_state)
+    question_correct = Boolean(
+        display_name="Complete question",
+        help="Whether complete question",
+        scope=Scope.user_state,
+        default=False
+        )
     #@end
 
 class CapaModule(CapaFields, XModule):
@@ -355,10 +359,8 @@ class CapaModule(CapaFields, XModule):
         final attempt, change the name to "Final Check"
         """
         if self.max_attempts is not None:
-            if self.attempts >= self.max_attempts - 1 or self.correct_counter == 1:
-                final_check = True
-            else:
-                final_check = False
+            final_check = False
+            #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
 
@@ -628,7 +630,7 @@ class CapaModule(CapaFields, XModule):
         """
         Is the student still allowed to submit answers?
         """
-        if self.max_attempts is not None and (self.attempts >= self.max_attempts or self.correct_counter >= 2):
+        if self.max_attempts is not None and (self.attempts >= self.max_attempts or self.question_correct):
             return True
         if self.is_past_due():
             return True
@@ -956,7 +958,7 @@ class CapaModule(CapaFields, XModule):
 
         #20160105add
         if success == 'correct':
-            self.correct_counter = self.correct_counter + 1
+            self.question_correct = True
 
         # NOTE: We are logging both full grading and queued-grading submissions. In the latter,
         #       'success' will always be incorrect
