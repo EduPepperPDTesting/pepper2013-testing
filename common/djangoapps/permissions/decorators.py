@@ -4,7 +4,7 @@ from functools import wraps
 from django.http import HttpResponseForbidden
 
 
-def user_has_perms(item, action='read'):
+def user_has_perms(item, action='any'):
     """
     Decorator for checking permissions before allowing access to a view.
     :param item: The item the user is trying to access.
