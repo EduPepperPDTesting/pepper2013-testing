@@ -8,6 +8,7 @@
     from xmodule.modulestore import MONGO_MODULESTORE_TYPE
     from xmodule.modulestore.django import modulestore
     from student.models import State, District, School
+    from permissions.utils import has_admin_perm
 %>
 
 <%inherit file="../main.html"/>
@@ -61,12 +62,16 @@
                     </div>
                     <!-- ADD/DELETE button-->
                     <div>
+                        % if has_admin_perm(request.user, 'certificate', 'add'):
                         <div class="certificate_filter_btn">
                             <a href="#" onclick="addNewCertificate()"><div class="imgBtn imgBtn_add_new"></div><div>Add New</div></a>
                         </div>
+                        % endif
+                        % if has_admin_perm(request.user, 'certificate', 'delete'):
                         <div class="certificate_filter_btn">
                             <a href="#" onclick="deleteSelectCertificate()"><div class="imgBtn imgBtn_del"></div><div>Delete</div></a>
                         </div>
+                        % endif
                     </div>
                     <div class="control table" id="tblCertificate">
                         <span class="body"></span>
@@ -106,6 +111,7 @@
             <!-- Certificate Editor-->
             <div class="certificate_editor_div">
                 <!-- Editor tools button-->
+                % if has_admin_perm(request.user, 'certificate', 'edit'):
                 <div class="certificate_editor_tools_bar">
                     <div class="certificate_filter_btn">
                         <a href="javascript:void(0);" onclick="certificate_editor_save()"><div class="imgBtn imgBtn_save"></div><div>Save</div></a>
@@ -131,6 +137,7 @@
                         <a href="javascript:void(0);" onclick="certificate_editor_cancel()"><div class="imgBtn imgBtn_cancel"></div><div>Cancel</div></a>
                     </div>
                 </div>
+                % endif
                 <div class="certificate_editor_frame">
                     <div class="certificate_tabs_div">
                         <ol class="certificate_tabs">
