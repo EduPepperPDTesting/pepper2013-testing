@@ -35,9 +35,7 @@ urlpatterns = (
 
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
 
-
-
-     url(r'^sso/idp/go/$', 'sso.idp.go'),
+    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
 ####### Ancestor

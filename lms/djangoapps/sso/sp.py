@@ -37,7 +37,7 @@ import requests
 import base64
 
 log = logging.getLogger("tracking")
-BASEDIR = path.dirname("lms/")
+BASEDIR = settings.PROJECT_HOME + "/sso/idp"
 
 
 @csrf_exempt
@@ -157,7 +157,7 @@ def saml_acs(request, idp_name, ms):
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, 'sso/attribute-maps'),
+        'attribute_map_dir': path.join(BASEDIR, '/attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -202,7 +202,7 @@ def saml_acs(request, idp_name, ms):
         # where the remote metadata is stored
         'metadata': {
             'local': [
-                path.join(BASEDIR, 'sso/' + idp_name + '/FederationMetadata.xml')
+                path.join(BASEDIR, idp_name, 'FederationMetadata.xml')
                 ],
             },
         # set to 1 to output debugging information
@@ -337,26 +337,27 @@ def create_unknown_user(request, ms, data):
         for k, v in parsed_data.items():
             if k == 'first_name':
                 user.first_name = parsed_data['first_name']
-            if k == 'last_name':
+            elif k == 'last_name':
                 user.last_name = parsed_data['last_name']
-            if k == 'sso_user_id':
+            elif k == 'sso_user_id':
                 profile.sso_user_id = parsed_data['sso_user_id']
-            if k == 'district':
+            elif k == 'district':
                 profile.district = District.object.get(name=parsed_data['district'])
-            if k == 'school':
+            elif k == 'school':
                 profile.school = School.object.get(name=parsed_data['school'])
-            if k == 'grade_level':
-                profile.district = GradeLevel.object.get(name=parsed_data['grade_level'])
-            if k == 'major_subject_area':
+            elif k == 'grade_level':
+                ids = GradeLevel.object.filter(name__in=parsed_data['grade_level'].split(',')).values_list('id', flat=True)
+                profile.grade_level = ','.join(ids)
+            elif k == 'major_subject_area':
                 ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list('id', flat=True)
                 profile.major_subject_area = ','.join(ids)
-            if k == 'years_in_education':
+            elif k == 'years_in_education':
                 profile.years_in_education = YearsInEducation.object.get(name=parsed_data['years_in_education'])
-            if k == 'percent_lunch':
+            elif k == 'percent_lunch':
                 profile.percent_lunch = Enum.object.get(name='percent_lunch', content=parsed_data['percent_lunch'])
-            if k == 'percent_iep':
+            elif k == 'percent_iep':
                 profile.percent_iep = Enum.object.get(name='percent_iep', content=parsed_data['percent_iep'])
-            if k == 'percent_eng_learner':
+            elif k == 'percent_eng_learner':
                 profile.percent_eng_learner = Enum.object.get(name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
 
         user.save()
