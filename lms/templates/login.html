@@ -102,7 +102,6 @@
           var u=decodeURI(window.location.search);
           next=u.split("next=")[1];
 
-          alert(next)
           if (next && !isExternal(next) && next.match(/^course.+courseware/)) {
             location.href=next;
           }else if(next && !isExternal(next) && next.match(/^\/sso\/idp\/go/)){

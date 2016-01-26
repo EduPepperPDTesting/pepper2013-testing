@@ -55,8 +55,21 @@ from django.core.urlresolvers import reverse
     
     <section class="typed_sec SAML">
       <div class="row">
+        <span class="">Acs URL</span>
+        <input type="" name="sso_acs_url" value="" style="width:500px;"/>
+      </div>
+
+      <div class="row">
+        <span class="">test</span>
+       <input type="button" value="Auth" class="small"
+               onclick="window.open('/sso/idp/auth?sp=' + $('#form1').find('input[name=sso_name]').val())"/>
+      </div>
+      
+      
+      <div class="row">
         <span class="">Federation Metadata</span>
-        <textarea name="saml_metadata" value="" style="width:500px;"></textarea>
+        <input type="button" value="Download" class="small"
+               onclick="window.open('${reverse('sso_download_saml_federation_metadata')}?name='+$('#form1').find('input[name=sso_name]').val())"/>
       </div>
     </section>
 

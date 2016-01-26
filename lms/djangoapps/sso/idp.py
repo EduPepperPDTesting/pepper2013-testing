@@ -100,10 +100,10 @@ def get_saml_setting(sp_name):
             },
         },
         "debug": 1,
-        "key_file": DIR + "/mykey.pem",
-        "cert_file": DIR + "/mycert.pem",
+        # "key_file": DIR + "/mykey.pem",  # for encrypt?
+        # "cert_file": DIR + "/mycert.pem",  # for encrypt?
         "metadata": {
-            "local": [DIR + "/FederationMetadata.xml"],
+            "local": [DIR + "/FederationMetadata.xml"],  # the sp metadata
         },
         "organization": {
             "display_name": "Rolands Identiteter",
@@ -179,10 +179,10 @@ def saml_redirect(request, sp_name, ms):
     for attr in attribute_setting:
         if not attr['name']:
             continue
-        
+
         mapped_name = attr['map'] if 'map' in attr else attr['name']
         value = ""
-        
+
         if attr['name'] == "first_name":
             value = request.user.first_name
         elif attr['name'] == "last_name":
@@ -197,23 +197,46 @@ def saml_redirect(request, sp_name, ms):
             value = request.user.district.name
         elif attr['name'] == "school":
             value = request.user.school.name
-            
+
         parsed_data[mapped_name] = value
 
     identity = parsed_data
 
-    resp = IDP.create_authn_response(identity=identity,
-                                     userid="victor",
-                                     in_response_to=None,
-                                     destination=destination,
-                                     sp_entity_id=entity_id,
-                                     name_id_policy=None,
-                                     authn=authn)
+    print "(((((((((((((("
+    print IDP.metadata.certs(entity_id, "any", "signing")
+    print "(((((((((((((("
 
-    http_args = IDP.apply_binding(binding=binding,
-                                  msg_str=resp.to_string(),
-                                  destination=destination,
-                                  relay_state="",
-                                  response=True)
+    # /home/fcl/.virtualenvs/edx-platform/lib/python2.7/site-packages/saml2/server.py:427
+    # create_authn_response(self, identity, in_response_to, destination,
+    #                               sp_entity_id, name_id_policy=None, userid=None,
+    #                               name_id=None, authn=None, issuer=None,
+    #                               sign_response=None, sign_assertion=None,
+    #                       encrypt_cert=None,
+    #                       encrypt_assertion=None,
+    #                               **kwargs):
+
+    resp = IDP.create_authn_response(
+        issuer=setting.entityid,
+        identity=identity,
+        # userid="%s" % request.user.id,
+        sign_response=IDP.metadata.certs(entity_id, "any", "signing"),
+        sign_assertion=IDP.metadata.certs(entity_id, "any", "signing"),
+        in_response_to=None,
+        destination=destination,
+        sp_entity_id=entity_id,
+        name_id_policy=None,
+        authn=authn)
+
+    # print "========="
+    # print resp
+    # print "========="
+
+    http_args = IDP.apply_binding(
+        binding=binding,
+        msg_str=resp,
+        destination=destination,
+        relay_state="",
+        response=True)
 
     return HttpResponse(http_args["data"])
+

@@ -33,6 +33,9 @@ urlpatterns = (
     url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
     url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
 
+    url(r'^sso/sp_metadata/download/saml_federation_metadata$',
+        'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
+
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
 
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
