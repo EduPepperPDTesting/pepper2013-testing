@@ -36,8 +36,21 @@ from django import db
 import requests
 import base64
 
+# *Guess the xmlsec_path
+try:
+    from saml2.sigver import get_xmlsec_binary
+except ImportError:
+    get_xmlsec_binary = None
+
+if get_xmlsec_binary:
+    xmlsec_path = get_xmlsec_binary(["/opt/local/bin","/usr/local/bin"])
+else:
+    xmlsec_path = '/usr/local/bin/xmlsec1'
+
+SSO_DIR = settings.PROJECT_HOME + "/sso"
+BASEDIR = SSO_DIR + "/idp"
+
 log = logging.getLogger("tracking")
-BASEDIR = settings.PROJECT_HOME + "/sso/idp"
 
 
 @csrf_exempt
@@ -153,11 +166,11 @@ def saml_acs(request, idp_name, ms):
     setting = {
         "allow_unknown_attributes": True,
         # full path to the xmlsec1 binary programm
-        'xmlsec_binary': '/usr/bin/xmlsec1',
+        'xmlsec_binary': xmlsec_path,
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, '/attribute-maps'),
+        'attribute_map_dir': path.join(SSO_DIR, '/attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP

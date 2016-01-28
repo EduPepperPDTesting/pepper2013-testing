@@ -5,16 +5,13 @@ import logging
 import os
 import re
 import time
-
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-
 from Cookie import SimpleCookie
 from hashlib import sha1
 from urlparse import parse_qs
 from cherrypy import wsgiserver
 from cherrypy.wsgiserver import ssl_pyopenssl
-
 from saml2 import BINDING_HTTP_ARTIFACT
 from saml2 import BINDING_URI
 from saml2 import BINDING_PAOS
@@ -22,28 +19,32 @@ from saml2 import BINDING_SOAP
 from saml2 import BINDING_HTTP_REDIRECT
 from saml2 import BINDING_HTTP_POST
 from saml2 import server  # A class that does things that IdPs or AAs do
-# from saml2.authn import is_equal
-
 from cache import IdentityCache, OutstandingQueriesCache
-
 from saml2.saml import NAME_FORMAT_URI
 from saml2.saml import NAMEID_FORMAT_TRANSIENT
 from saml2.saml import NAMEID_FORMAT_PERSISTENT
-
 from saml2.config import IdPConfig
 import copy
 from django.http import HttpResponse
 from django.conf import settings
-
 import sp_metadata as metadata
+from os import path
 
+# *Guess the xmlsec_path
 try:
     from saml2.sigver import get_xmlsec_binary
 except ImportError:
     get_xmlsec_binary = None
 
-logger = logging.getLogger("saml2.idp")
-logger.setLevel(logging.WARNING)
+if get_xmlsec_binary:
+    xmlsec_path = get_xmlsec_binary(["/opt/local/bin", "/usr/local/bin"])
+else:
+    xmlsec_path = '/usr/local/bin/xmlsec1'
+
+PEPPER_ENTITY_ID = "www.pepperpd.com"
+SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
+
+log = logging.getLogger("tracking")
 
 
 class Cache(object):
@@ -53,17 +54,10 @@ class Cache(object):
 
 
 def get_saml_setting(sp_name):
-    if get_xmlsec_binary:
-        xmlsec_path = get_xmlsec_binary(["/opt/local/bin"])
-    else:
-        xmlsec_path = '/usr/bin/xmlsec1'
-
     BASE = "http://"
-
-    DIR = settings.PROJECT_HOME + "/sso/sp/" + sp_name
-
+    DIR = path.join(SSO_DIR, "sp", sp_name)
     setting = {
-        "entityid": "PepperPD",
+        "entityid": PEPPER_ENTITY_ID,
         "description": "PepperPD",
         "valid_for": 168,
         "service": {
@@ -100,10 +94,10 @@ def get_saml_setting(sp_name):
             },
         },
         "debug": 1,
-        # "key_file": DIR + "/mykey.pem",  # for encrypt?
-        # "cert_file": DIR + "/mycert.pem",  # for encrypt?
+        "key_file": DIR + "/key.pem",  # for encrypt?
+        "cert_file": DIR + "/cert.pem",  # for encrypt?
         "metadata": {
-            "local": [DIR + "/FederationMetadata.xml"],  # the sp metadata
+            "local": [DIR + "/sp.xml"],  # the sp metadata
         },
         "organization": {
             "display_name": "Rolands Identiteter",
@@ -125,7 +119,7 @@ def get_saml_setting(sp_name):
         # This database holds the map between a subject's local identifier and
         # the identifier returned to a SP
         "xmlsec_binary": xmlsec_path,
-        # "attribute_map_dir": "../attributemaps",
+        'attribute_map_dir': SSO_DIR + "/attribute-maps",
         "logger": {
             "rotating": {
                 "filename": "idp.log",
@@ -139,25 +133,35 @@ def get_saml_setting(sp_name):
 
 
 def auth(request):
-    # User haven't loged in, use @login_required cause a problem
-    if(not request.user.is_authenticated()):
-        relative = re.sub(r'^http(s?)://.*?/', '/', request.build_absolute_uri())
-        return redirect(reverse("signin_user")+"?next=" + relative)  # urllib.quote(, safe='')
-
+    '''
+    Request a redirect to a certain sp
+    '''
+    # ** Get sp name from uri args
     sp_name = request.GET.get("sp", "")
     if sp_name == "":
         raise Exception("error: No SP name passed")
 
+    # ** Get config of the sp
     metadata_setting = metadata.sp_by_name(sp_name)
     if metadata_setting is None:
         raise Exception("error: Unkonwn SP")
+    
+    # ** User haven't loged in, redirect to login page
+    # BTW, use @login_required cause a problem
+    if not request.user.is_authenticated():
+        relative = re.sub(r'^http(s?)://.*?/', '/', request.build_absolute_uri())
+        return redirect(reverse("signin_user")+"?next=" + relative)  # urllib.quote(, safe='')
 
+    # ** Now call a relative direction function
     if metadata_setting.get('sso_type') == 'SAML':
-        # log.debug("message: it's SAML")
         return saml_redirect(request, sp_name, metadata_setting)
 
 
 def saml_redirect(request, sp_name, ms):
+    '''
+    Redirect to a saml sp acs
+    '''
+    # ** Init SAML IDP
     setting = get_saml_setting(sp_name)
 
     conf = IdPConfig()
@@ -166,14 +170,16 @@ def saml_redirect(request, sp_name, ms):
     IDP = server.Server(config=conf, cache=Cache())
     IDP.ticket = {}
 
-    # Get sp entity id from FederationMetadata.xml
+    # ** Get sp entity id from sp.xml
     entity_id = IDP.metadata.keys()[0]
 
+    # ** Get binding and acs destination
     # pass bindings=None, correct?
     binding, destination = IDP.pick_binding("assertion_consumer_service", entity_id=entity_id)
 
     authn = {'class_ref': 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'}
 
+    # ** Prepare attributes
     attribute_setting = ms.get('attributes')
     parsed_data = {}
     for attr in attribute_setting:
@@ -181,56 +187,46 @@ def saml_redirect(request, sp_name, ms):
             continue
 
         mapped_name = attr['map'] if 'map' in attr else attr['name']
-        value = ""
+        value = None
 
+        if attr['name'] == "email":
+            value = request.user.email
         if attr['name'] == "first_name":
             value = request.user.first_name
         elif attr['name'] == "last_name":
             value = request.user.last_name
-        elif attr['name'] == "email":
-            value = request.user.email
         elif attr['name'] == "username":
             value = request.user.username
         elif attr['name'] == "state":
-            value = request.user.district.state.name
+            value = request.user.profile.district.state.name
         elif attr['name'] == "district":
-            value = request.user.district.name
+            value = request.user.profile.district.name
         elif attr['name'] == "school":
-            value = request.user.school.name
+            value = request.user.profile.school.name
+        if value is not None:
+            parsed_data[mapped_name] = [value]
 
-        parsed_data[mapped_name] = value
+    # ** Get the X509Certificate string from sp.xml
+    sign = IDP.metadata.certs(entity_id, "any", "signing")
 
+    # ** Create authn response
     identity = parsed_data
-
-    print "(((((((((((((("
-    print IDP.metadata.certs(entity_id, "any", "signing")
-    print "(((((((((((((("
-
-    # /home/fcl/.virtualenvs/edx-platform/lib/python2.7/site-packages/saml2/server.py:427
-    # create_authn_response(self, identity, in_response_to, destination,
-    #                               sp_entity_id, name_id_policy=None, userid=None,
-    #                               name_id=None, authn=None, issuer=None,
-    #                               sign_response=None, sign_assertion=None,
-    #                       encrypt_cert=None,
-    #                       encrypt_assertion=None,
-    #                               **kwargs):
-
     resp = IDP.create_authn_response(
-        issuer=setting.entityid,
+        issuer=setting.get('entityid'),  # "https://localhost:8088/idp.xml",
         identity=identity,
-        # userid="%s" % request.user.id,
-        sign_response=IDP.metadata.certs(entity_id, "any", "signing"),
-        sign_assertion=IDP.metadata.certs(entity_id, "any", "signing"),
+        sign_response=sign,
+        sign_assertion=sign,
         in_response_to=None,
         destination=destination,
         sp_entity_id=entity_id,
-        name_id_policy=None,
-        authn=authn)
+        name_id_policy=None,             # "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+        authn=authn,
+        encrypt_cert="",
+        encrypt_assertion="",
+        # userid="%s" % request.user.id,
+        )
 
-    # print "========="
-    # print resp
-    # print "========="
-
+    # ** Translate to http response
     http_args = IDP.apply_binding(
         binding=binding,
         msg_str=resp,

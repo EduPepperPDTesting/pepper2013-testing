@@ -104,7 +104,7 @@
 
           if (next && !isExternal(next) && next.match(/^course.+courseware/)) {
             location.href=next;
-          }else if(next && !isExternal(next) && next.match(/^\/sso\/idp\/go/)){
+          }else if(next && !isExternal(next) && next.match(/^\/sso\/idp\/auth/)){
             location.href=next;
           }  else {
             location.href="${reverse('dashboard')}";
@@ -120,7 +120,6 @@
 
     function toggleSubmitButton(enable) {
       var $submitButton = $('form .form-actions #submit');
-
 
       if(enable) {
         $submitButton.
