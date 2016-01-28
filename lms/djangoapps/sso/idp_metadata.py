@@ -10,10 +10,11 @@ import os
 
 log = logging.getLogger("tracking")
 
+BASEDIR = settings.PROJECT_HOME + "/sso/idp"
 
 @login_required
 def edit(request):
-    return render_to_response('sso/manage/metadata.html')
+    return render_to_response('sso/manage/idp_metadata.html')
 
 
 def save(request):
@@ -22,7 +23,7 @@ def save(request):
     entities = []
     for d in data:
         name = d.get('sso_name', '')
-        path = settings.PROJECT_ROOT + "/sso/" + name
+        path = BASEDIR + "/" + name
         if not os.path.isdir(path):
             os.makedirs(path)
 
@@ -54,14 +55,14 @@ def save(request):
 <entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">%s
 </entities>''' % ''.join(entities)
 
-    xmlfile = open(settings.PROJECT_ROOT + "/sso/metadata.xml", "w")
+    xmlfile = open(BASEDIR + "/metadata.xml", "w")
     xmlfile.write(content)
 
     return HttpResponse("{}", content_type="application/json")
 
 
 def idp_by_name(name):
-    xmlfile = open(settings.PROJECT_ROOT + "/sso/metadata.xml", "r")
+    xmlfile = open(BASEDIR + "/metadata.xml", "r")
     parsed_data = xmltodict.parse(xmlfile.read(),
                                   dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
 
@@ -87,7 +88,7 @@ def parse_one_idp(entity):
         for attribute in entity['setting']:
             typed_setting[attribute['@name']] = attribute['#text']
 
-    path = settings.PROJECT_ROOT + "/sso/" + entity['@name'] + "/FederationMetadata.xml"
+    path = BASEDIR + "/" + entity['@name'] + "/FederationMetadata.xml"
 
     if os.path.isfile(path):
         mdfile = open(path, "r")
@@ -102,7 +103,7 @@ def parse_one_idp(entity):
 
 
 def all_json(request):
-    xmlfile = open(settings.PROJECT_ROOT + "/sso/metadata.xml", "r")
+    xmlfile = open(BASEDIR + "/metadata.xml", "r")
     parsed_data = xmltodict.parse(xmlfile.read(),
                                   dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
     entity_list = []

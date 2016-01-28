@@ -21,9 +21,15 @@ from django.core.urlresolvers import reverse
  .listbox div{line-height:25px;cursor:default;width:auto;padding:2px 5px;}
  .listbox div.hover{background:#999;}
  .listbox div.selected {background:#03c;color:#ccc;min-width:100%;}
+ .typed_sec{display:none}
+ #form1{display:none}
 </style>
 <section class="container clearfix" style="padding-bottom:50px;">
-  <div style="font-size:30px;padding-top:20px;"> Metadata </div>
+  <div style="text-align:right;padding:20px;">
+    <a href="${reverse('sso_sp_metadata_edit')}">SP Metadata</a>
+  </div>
+  <div style="font-size:30px;padding-top:20px;">IDP Metadata
+  </div>
   <div style="float:left;">
     <div style="margin:20px 0 5px 0;">IDPs</div>
     <div id="entityList" class="listbox"></div>
@@ -102,7 +108,6 @@ from django.core.urlresolvers import reverse
 <script type="text/javascript">
   function Metadata(){
     var self = this;
-    $("#form1").show();
     this.data = [];
     this.list=new ListBox($("#entityList"));
     $("#entityList").bind("beforeChange",function(e,index){
@@ -186,6 +191,9 @@ from django.core.urlresolvers import reverse
     return s;
   }
   Metadata.prototype.showData = function(d){
+    $("#form1").show();
+    $("#form1").show();
+
     $("#divIdpAttributeMapping").html('');
     $("#form1").find("input,textarea,select").each(function(){
       if(this.name){
@@ -205,7 +213,7 @@ from django.core.urlresolvers import reverse
   }
   Metadata.prototype.load = function(){
     var self=this;
-    $.get("${reverse('sso_metadata_all_json')}",function(r){
+    $.get("${reverse('sso_idp_metadata_all_json')}",function(r){
       self.data = r;
       $.each(r,function(i,e){
         self.list.addItem(self.name4List(e.sso_name));
@@ -222,6 +230,7 @@ from django.core.urlresolvers import reverse
     var index = this.list.getSelectedIndex();
     this.data.splice(index, 1);
     this.list.removeItem(index);
+    $("#form1").hide();
     this.list.setSelectedIndex(this.list.getNearestNext(index));
   }
   Metadata.prototype.saveAll = function(){
@@ -239,7 +248,7 @@ from django.core.urlresolvers import reverse
       }
     });
     if(ok){
-      $.post("${reverse('sso_metadata_save')}", {data:JSON.stringify(this.data)}, function(r){
+      $.post("${reverse('sso_idp_metadata_save')}", {data:JSON.stringify(this.data)}, function(r){
         alert("Save success.")
       });
     }
