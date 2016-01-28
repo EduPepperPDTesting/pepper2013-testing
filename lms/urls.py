@@ -210,6 +210,8 @@ urlpatterns = (
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^communities/$', 'communities.views.index', name="communities"),
+    url(r'^communities/ppd$', 'communities.views.community', name="community"),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     
@@ -409,6 +411,8 @@ if settings.COURSEWARE_ENABLED:
 		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
         url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
+        url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
+        url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
         url(r'^demo2$', 'branding.views.demo2', name="demo2"),

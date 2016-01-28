@@ -384,11 +384,11 @@ class CourseFields(object):
     # Explicit comparison to True because we always want to return a bool.
     hide_progress_tab = Boolean(help="DO NOT USE THIS", scope=Scope.settings)
 
-    display_state = String(default="", help="An optional display string for the course state that will get rendered in the LMS",
-                           scope=Scope.settings)
+    display_state = List(help="An optional display string for the course state that will get rendered in the LMS",
+                         scope=Scope.settings)
 
-    display_district = String(default="", help="An optional display string for the course district that will get rendered in the LMS",
-                              scope=Scope.settings)
+    display_district = List(help="An optional display string for the course district that will get rendered in the LMS",
+                            scope=Scope.settings)
 
     display_organization = String(help="An optional display string for the course organization that will get rendered in the LMS",
                                   scope=Scope.settings)
@@ -415,6 +415,8 @@ class CourseFields(object):
     show_external_timer = Boolean(help="Display External Timer", default=False, scope=Scope.settings)
 
     maximum_units_time = String(help="Maximum Units Time", default="3600000", scope=Scope.settings)
+
+    state_district_only = Boolean(help="Other states or districts are visible", default=False, scope=Scope.settings)
 
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):

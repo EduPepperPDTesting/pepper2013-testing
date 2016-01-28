@@ -1,0 +1,178 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+  from django.core.urlresolvers import reverse
+  from courseware.courses import course_image_url, get_course_about_section
+  from courseware.access import has_access
+  from certificates.models import CertificateStatuses
+  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+  from xmodule.modulestore.django import modulestore
+  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+  from baseinfo.models import Enum
+%>
+<%! navbar_show_extended=False %>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%block name="title"><title>${_("Districts")}</title></%block>
+
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+
+<style type="text/css" media="screen">
+    #page-nav,#page-footer{width:960px;}
+    #btn-logged-user{display:none;}
+    .form-select{font-size:14px !important;width:180px;}
+    .image-link-style{
+      border-radius: 6px 6px 6px 6px;
+      -moz-border-radius: 6px 6px 6px 6px;
+      -webkit-border-radius: 6px 6px 6px 6px;
+      display: block;
+      float: left;
+      margin: 30px;
+    }
+    .image-bottom-style{
+      border-radius: 0px 0px 6px 6px;
+      -moz-border-radius: 0px 0px 6px 6px;
+      -webkit-border-radius: 0px 0px 6px 6px;
+      display: block;
+    }
+    .card-link{
+      display: table-cell;
+      width: 240px;
+      height: 60px;
+      vertical-align: middle;
+      padding: 0 17px;
+      font-size: 22px;
+      background: rgba(240,130,0,0.95);
+      text-decoration: none!important;
+    }
+    .card-link span{
+     color: #FFFFFF;
+    }
+    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    a.btnx:hover {
+    background:#638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+    }
+    a.btnx {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 2px!important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px!important;
+    text-decoration: none!important;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    a.btnx:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+</style>
+<script>
+ function fsubmit(){
+    $("#course_list_form").submit();
+  }
+</script>
+<section class="find-courses" style="text-align:center;background:#F5F5F5;">
+  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+  <!--@date:2013-11-02-->
+  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
+  <!--@end-->
+  
+    <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+    <!--@date:2013-11-02-->
+    <div class="_banner_whatis_title_font">
+      PROFESSIONAL
+      <br/>
+      LEARNING CENTER
+      <div class="_banner_whatis_title_content_font">
+        build and enhance your community of practice
+      </div>
+    </div>
+    <!--@end-->
+  </div>
+
+  <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
+    <form method="" id="course_list_form" action="${reverse('course_list')}">
+    <div style="padding:20px;color:#666;display:inline-block;">&nbsp;</div>
+    <div style="display:inline-block;padding:0 1em 0 0;">
+      <select name="district" class="form-select">
+        %if request.user.is_superuser:
+          <option value="">Select District</option>
+        %endif
+        %for district in districts:
+          <option value="${district['id']}">${district['name']}</option>
+        %endfor
+      </select>
+    </div>
+
+      <div style="display:inline-block;padding:0 1em 0 0;">
+        <select name="grade_id" class="form-select">
+          <option value="all">All Grades</option>
+          <option value="K-5">K-5</option>
+          <option value="6-8">6-8</option>
+          <option value="9-12">9-12</option>
+          <option value="K-12">K-12</option>
+        </select>
+      </div>
+
+    <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
+    </form>
+  </section>
+
+  <section style="margin:auto;width:960px;background:#E4E4E4;">
+    <section class="courses" style="padding-top:5px!important;">
+      <div class="courses-listing">
+        <div style="padding-left:25px;">
+          %for district in districts:
+            <div class="image-link-style" key="${district['id']}" style="width:240px;height:150px;background-size:100% 100%;">
+                <div style="height:100px;"></div>
+                <a href="/courses-list?district=${district['id']}&subject_id=all&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>${district['name']}</span></a>
+              </div>
+          %endfor
+        </div>
+      </div>
+    </section>
+  </section>
+</section>
+
+ <section id="show_course_prompt" class="modal" style="width:640px;">
+  <div class="inner-wrapper" style="width:629x;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
+  <div class="close-modal" id="course_prompt_close">
+    <div class="inner">
+      <p>&#10005;</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<script>
+  function getStateOrDistrictIcon(self, type , key){
+    var path = "/static/images/" + type + "/";
+    key = key.replace(new RegExp(" ", "gm"), "_");
+    var img = new Image();
+    img.src = path + key + ".jpg";
+    $(self).css("background-image","url("+img.src+")"); 
+    img.onerror = function () {
+      img.src = path + type + "_default.jpg";
+      self.style.backgroundImage = img.src; 
+      $(self).css("background-image","url("+img.src+")"); 
+      this.onerror = null;
+    };
+  }
+
+  $(".image-link-style").each(function(){
+    getStateOrDistrictIcon(this,'district',$(this).attr("key"));
+  });
+</script>

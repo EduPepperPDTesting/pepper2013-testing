@@ -134,7 +134,7 @@ from administration.time_report import is_time_report_permission
           </p>
           <p>
             <label style="font-style:normal;color:#555;cursor:default;">
-            * 5 adjustment types are: total/courseware/discussion/portfolio/external
+            * 4 adjustment types are: courseware/discussion/portfolio/external
             </label>
           </p>
           <p>
@@ -167,6 +167,7 @@ from administration.time_report import is_time_report_permission
       <h3 class="dialog-title"></h3>
       <div class="close-modal" id="dialog_close">✕</div>
     </div>
+    <div class="load_info">Loading...</div>
     <div class="course_list"></div>
     <div class="content"></div>
   </div>
@@ -180,12 +181,14 @@ from administration.time_report import is_time_report_permission
     </div>
     <div id="tabs">
       <ul>
-        <li><a href="#total_tab">Total Time</a></li>
+        <!-- hide total tab -->
+        <!--<li><a href="#total_tab">Total Time</a></li>-->
         <li><a href="#courseware_tab">Course Units Time</a></li>
         <li><a href="#discussion_tab">Discussion Time</a></li>
         <li><a href="#portfolio_tab">Portfolio Time</a></li>
         <li><a href="#external_tab">External Time</a></li> 
       </ul>
+      <!--
       <div id="total_tab" class="tab_item">
         <table>
           <tr> 
@@ -204,6 +207,7 @@ from administration.time_report import is_time_report_permission
         <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
         <div>(1,000 characters maximum)</div>
       </div>
+      -->
       <div id="courseware_tab" class="tab_item">
         <select class="drop_course" style="width:300px;"></select>
         <hr/>
@@ -425,6 +429,7 @@ from administration.time_report import is_time_report_permission
 
     $("#tabs").tabs({
       activate: function(event, ui) {
+        $("#"+ui.newPanel.attr('id')).find(".drop_course").get(0).selectedIndex = 0;  
         userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
       }
     });
@@ -506,7 +511,7 @@ from administration.time_report import is_time_report_permission
         self.user_id = $(this).parent().parent().parent().attr('user_id');
         self.email = $(this).parent().parent().parent().children('td').get(2).innerHTML;
         $("#tabs").tabs({active: 0});
-        userTimeReport.load_adjustment_time(userTimeReport.user_id, 'total_tab');
+        userTimeReport.load_adjustment_time(userTimeReport.user_id, 'courseware_tab');
         var title = "Time Adjustment for <span style='color:#0000E3;font-size:16px;'>"+ self.email+"</span>";
 
        //----------- Dialog show----------//
@@ -714,19 +719,31 @@ from administration.time_report import is_time_report_permission
       var self = this;
       var dialog = $('#enrollment_courses_dialog');
       var course_list = dialog.find('.course_list');
-      $.post("${reverse('time_report_enrollment_courses_load')}", {
+      var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
+      var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
+      course_list.empty();
+      $('.load_info').show();
+      var xhr = $.post("${reverse('time_report_enrollment_courses_load')}", {
         'user_id':user_id,
         'type':type
         }, function(data) {
-        var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
-        var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
-        course_list.empty();
+        $('.load_info').hide();
         for(var d in data){
-          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');  
+          var progress = (Number(data[d].progress) * 100) + '% completed';
+          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>\
+                              <div class="pass">(' + progress + ')</div>'); 
         }
-        new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
-          this.hide();
-        })
+      });
+
+      new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
+        this.hide();
+        xhr.abort();
+      })
+      
+      dialog.find('.close-modal').off("click").click(function(){
+        $(dialog).css('display','none');
+        $('.lean-overlay').hide();
+        xhr.abort();
       });
     },
     load_adjustment_log:function(user_id){

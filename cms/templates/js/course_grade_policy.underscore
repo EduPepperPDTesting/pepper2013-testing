@@ -21,7 +21,7 @@
     <label for="course-grading-assignment-totalassignments">Total
 			Number</label>
     <input type="text" class="short" id="course-grading-assignment-totalassignments" value = "<%= model.get('min_count') %>" /> 
-    <span class="tip tip-inline">total exercises assigned</span>
+    <span class="tip tip-inline">total number of subsections</span>
   </div>
   
   <div class="field text" id="field-course-grading-assignment-droppable">

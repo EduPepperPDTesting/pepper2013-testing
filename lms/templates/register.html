@@ -95,7 +95,24 @@ from baseinfo.models import Enum
       });
       $('#register-form').on('ajax:success', function(event, json, xhr) {
        if(json.success) {
-          location.href="${reverse('dashboard')}";
+           var urlParams = {};
+           var searchString = window.location.search.substring(1);
+           if (searchString !== undefined) {
+               var pairs = searchString.split('&');
+               for (var i = 0; i < pairs.length; i++) {
+                   var values = pairs[i].split('=');
+                   urlParams[values[0]] = values[1] === undefined ? false : decodeURIComponent(values[1]);
+               }
+           }
+           if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
+               var next = urlParams['next'];
+               if (next.substring(0,1) != '/') {
+                   next = '/' + next;
+               }
+               location.href = next;
+           }  else {
+               location.href = "${reverse('dashboard')}";
+           }
        } else {
          toggleSubmitButton(true);
          $('.status.message.submission-error').addClass('is-shown').focus();
