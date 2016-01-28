@@ -115,7 +115,11 @@
                     if (next.substring(0,1) != '/') {
                         next = '/' + next;
                     }
-                    location.href = next;
+                  location.href = next;
+                } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^\/sso\/idp\/auth/)) {
+
+                  alert(urlParams)
+                   location.href = urlParams['next'];
                 }  else {
                     location.href = "${reverse('dashboard')}";
                 }
