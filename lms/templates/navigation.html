@@ -342,13 +342,15 @@ except:
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
+                <li><a href="/communities" class="main-link">Communities</a></li>
                 <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li><a href="/resource_library_global" class="main-link">Resource Library</a></li>
+                <li><a href="/resource_library_global" class="main-link">Resources</a></li>
                 <li><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resource Library</a></li>
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
                 <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
             %endif
@@ -396,7 +398,7 @@ except:
                         <li><a href="${reverse('configuration')}">Configuration</a></li>
                         <li><a href="${reverse('pepconn')}">PepConn</a></li>
                         <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        <li><a href="${reverse('sso_metadata_edit')}">SSO Metadata</a></li>
+                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
