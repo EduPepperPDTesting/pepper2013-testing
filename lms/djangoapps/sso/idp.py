@@ -37,7 +37,7 @@ except ImportError:
     get_xmlsec_binary = None
 
 if get_xmlsec_binary:
-    xmlsec_path = get_xmlsec_binary(["/opt/local/bin", "/usr/local/bin"])
+    xmlsec_path = get_xmlsec_binary()
 else:
     xmlsec_path = '/usr/local/bin/xmlsec1'
 

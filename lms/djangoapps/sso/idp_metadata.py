@@ -7,10 +7,12 @@ from collections import defaultdict
 from django.contrib.auth.decorators import login_required
 import logging
 import os
+from os import path
 
 log = logging.getLogger("tracking")
 
-BASEDIR = settings.PROJECT_HOME + "/sso/idp"
+SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
+BASEDIR = SSO_DIR + "/idp"
 
 @login_required
 def edit(request):
