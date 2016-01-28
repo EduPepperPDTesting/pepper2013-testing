@@ -84,10 +84,13 @@ def courses(request):
 
 
 def is_all(course, type):
-    if type == 'state':
+    if type == 'collection':
+        if 'All' in course.content_collections:
+            return True
+    elif type == 'state':
         if 'All' in course.display_state:
             return True
-    else:
+    elif type == 'district':
         if 'All' in course.display_district:
             return True
     return False
@@ -361,8 +364,12 @@ def states(request):
                 state_temp.append(state)
             else:
                 state_temp.extend(course.display_state)
-    state_list = sorted(set(state_temp), key=lambda x: x[0])
-    return render_to_response("courseware/states.html", {'states': state_list})
+    state_temp = sorted(set(state_temp), key=lambda x: x[0])
+    for sl in state_temp:
+        state_list.append({'id': sl, 'name': sl})
+    return render_to_response("courseware/collections.html", {'page_title': 'State',
+                                                              'collection_type': 'state',
+                                                              'items': state_list})
 
 
 @ensure_csrf_cookie
@@ -397,7 +404,42 @@ def districts(request):
     district_temp = sorted(set(district_temp), key=lambda x: x[0])
     for dl in district_temp:
         district_list.append({'id': dl, 'name': district_name[dl]})
-    return render_to_response("courseware/districts.html", {'districts': district_list})
+    return render_to_response("courseware/districts.html", {'page_title': 'District',
+                                                            'collection_type': 'district',
+                                                            'items': district_list})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def collections(request):
+    """
+    Render "find collections" page.
+    """
+    filterDic = {'_id.category': 'course'}
+
+    collection_temp = []
+    collection_list = []
+
+    if request.user.is_superuser is False:
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    if request.user.is_superuser is True or is_all(course, 'collection') is True:
+        invisible = False
+    else:
+        invisible = True
+        for course in courses:
+            if len(course.content_collections) > 0:
+                collection_temp
+                if course.custom_collection_only is False:
+                    invisible = False
+
+    collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
+    for cl in collection_temp:
+        collection_list.append({'id': cl, 'name': cl})
+    return render_to_response("courseware/collections.html", {'page_title': 'District',
+                                                            'collection_type': 'district',
+                                                            'items': collection_list})
 
 
 def render_accordion(request, course, chapter, section, field_data_cache):

@@ -418,6 +418,9 @@ class CourseFields(object):
 
     state_district_only = Boolean(help="Other states or districts are visible", default=False, scope=Scope.settings)
 
+    content_collections = List(help="Content collection(s) to which this course belongs", scope=Scope.settings)
+    custom_collection_only = Boolean(help="Whether this course should only show up to community members to which this collection is accessible", scope=Scope.settings)
+
 
 class CourseDescriptor(CourseFields, SequenceDescriptor):
     module_class = SequenceModule
