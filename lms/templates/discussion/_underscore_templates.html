@@ -1,6 +1,13 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django_comment_client.permissions import has_permission %>
-
+<style>
+.timeago_l{
+  font-size: 14px;
+}
+.pin-label_l{
+  font-size: 14px;
+}
+</style>
 <script type="text/template" id="thread-template">
     <article class="discussion-article" data-id="${'<%- id %>'}">
         <div class="thread-content-wrapper"></div>
@@ -34,40 +41,52 @@
       <div class="group-visibility-label">${"<%- obj.group_string%>"}</div>
               ${"<% }  %>"}      
       
-          <a href="#" class="vote-btn discussion-vote discussion-vote-up" data-role="discussion-vote" data-tooltip="vote">
+          <a href="#" class="vote-btn discussion-vote discussion-vote-up" data-role="discussion-vote" data-tooltip="vote" style="border:1px solid;">
           <span class="plus-icon">+</span> <span class='votes-count-number'>${'<%- votes["up_count"] %>'}</span></a>
-          <h1>${'<%- title %>'}</h1>
-          <p class="posted-details">
-              ${"<% if (obj.username) { %>"}
-              <a href="${'<%- user_url %>'}" class="username">${'<%- username %>'}</a>
-              ${"<% } else {print('anonymous');} %>"}
-              <span class="timeago" title="${'<%- created_at %>'}">${'<%- created_at %>'}</span>
 
-              <span class="post-status-closed top-post-status" style="display: none">
-                ${_("&bull; This thread is closed.")}
-              </span>
-          </p>
+          <table border="0">
+            <tr>
+              <td width="125" valign="top" align="left">
+                <a href="/dashboard/${'<%- obj.user_id %>'}" target="_blank">
+                  <img src="/user_photo/${'<%- obj.user_id %>'}" width="110" height="110" style="" alt="photo" />
+                </a>
+              </td>
+              <td>
+                <h1>${'<%- title %>'}</h1>
+                <p class="posted-details">
+                    ${"<% if (obj.username) { %>"}
+                    <a href="${'<%- user_url %>'}" class="username">${'<%- username %>'}</a>
+                    ${"<% } else {print('anonymous');} %>"}
+                    <span class="timeago timeago_l" title="${'<%- created_at %>'}">${'<%- created_at %>'}</span>
+
+                    <span class="post-status-closed top-post-status" style="display: none">
+                      ${_("&bull; This thread is closed.")}
+                    </span>
+                </p>
+              </td>
+            </tr>
+          </table>
       </header>
 
       <div class="post-body">${'<%- body %>'}</div>
       <div class="discussion-flag-abuse notflagged" data-role="thread-flag" data-tooltip="Report Misuse">
-      <i class="icon icon-flag"></i><span class="flag-label">${_("Report Misuse")}</span></div>
+      <i class="icon icon-flag pin-label_l"></i><span class="flag-label pin-label_l">${_("Report Misuse")}</span></div>
         
         
       % if course and has_permission(user, 'openclose_thread', course.id):
       <div class="admin-pin discussion-pin notpinned" data-role="thread-pin" data-tooltip="pin this thread">
-      <i class="icon icon-pushpin"></i><span class="pin-label">${_("Pin Thread")}</span></div>
+      <i class="icon icon-pushpin pin-label_l"></i><span class="pin-label pin-label_l">${_("Pin Thread")}</span></div>
 
       %else:
       ${"<% if (pinned) { %>"}
       <div class="discussion-pin notpinned" data-role="thread-pin" data-tooltip="pin this thread">
-      <i class="icon icon-pushpin"></i><span class="pin-label">${_("Pin Thread")}</span></div>
+      <i class="icon icon-pushpin pin-label_l"></i><span class="pin-label pin-label_l">${_("Pin Thread")}</span></div>
       ${"<% }  %>"}  
       % endif
       
       
       ${'<% if (obj.courseware_url) { %>'}
-      <div class="post-context">
+      <div class="post-context" style="font-size:14px;padding-top:5px;">
           (this topic is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'} Welcome to Pepper</a>)
       </div>
       ${'<% } %>'}
@@ -124,11 +143,11 @@
         ${"<% if (obj.username) { %>"}
         <a href="${'<%- user_url %>'}" class="posted-by" posted_by_id="${'<%- user_id %>'}">${'<%- username %>'}</a>
         ${"<% } else {print('<span class=\"anonymous\"><em>anonymous</em></span>');} %>"}
-        <p class="posted-details" title="${'<%- created_at %>'}">${'<%- created_at %>'}</p>
+        <p class="posted-details" title="${'<%- created_at %>'}" style="font-size:14px;">${'<%- created_at %>'}</p>
     </header>
     <div class="response-local"><div class="response-body">${"<%- body %>"}</div>
     <div class="discussion-flag-abuse notflagged" data-role="thread-flag" data-tooltip="report misuse">                
-      <i class="icon icon-flag"></i><span class="flag-label">Report Misuse</span></div>
+      <i class="icon icon-flag pin-label_l"></i><span class="flag-label pin-label_l">Report Misuse</span></div>
     </div>
     <ul class="moderator-actions response-local">
         <li style="display: none"><a class="action-edit" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Edit")}</a></li>
@@ -152,18 +171,27 @@
 <script type="text/template" id="response-comment-show-template">
   <a id="a${'<%- id %>'}"></a>
   <div id="comment_${'<%- id %>'}">
-    <div class="response-body">${'<%- body %>'}</div>
+    <table border="0">
+      <tr>
+        <td width="40" style="padding-top:15px;">
+          <img src="/user_photo/${'<%- obj.user_id %>'}" width="40" height="40" style="" alt="photo" />
+        <td/>
+        <td>
+          <div class="response-body" style="font-size:14px;">${'<%- body %>'}</div>
+        <td/>
+      </tr>
+    </table> 
     <div class="discussion-flag-abuse notflagged" data-role="thread-flag" data-tooltip="Report Misuse">                
-      <i class="icon icon-flag"></i><span class="flag-label"></span></div> 
-    <p class="posted-details">&ndash;posted <span class="timeago" title="${'<%- created_at %>'}">${'<%- created_at %>'}</span> by
+      <i class="icon icon-flag pin-label_l"></i><span class="flag-label"></span></div> 
+    <p class="posted-details" style="font-size:14px;">&ndash;posted <span class="timeago timeago_l" title="${'<%- created_at %>'}">${'<%- created_at %>'}</span> by
         ${"<% if (obj.username) { %>"}
-        <a href="${'<%- user_url %>'}" class="profile-link">${'<%- username %>'}</a>
+        <a href="${'<%- user_url %>'}" class="profile-link" style="font-size:15px;">${'<%- username %>'}</a>
         ${"<% } else {print('anonymous');} %>"}
     </p>
     <div class="discussion-response${'<%- id %>'}"></div>
     <div style="padding-left:20px;">
      <ul class="moderator-actions response-local">
-          <li style="display: none"><a class="action-edit" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Edit")}</a></li>
+          <li style="display: none"><a class="action-edit" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Edit3")}</a></li>
           <li style="display: none"><a class="action-delete" href="javascript:void(0)"><span class="delete-icon"></span> ${_("Delete")}</a></li>
           <!--<li style="display: none"><a class="action-openclose" href="javascript:void(0)"><span class="edit-icon"></span> ${_("Close")}</a></li>
           -->
