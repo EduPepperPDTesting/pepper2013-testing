@@ -646,10 +646,10 @@ def modx_dispatch(request, dispatch, location, course_id):
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
                             # True North Logic integration
-                            if tnl_course(student, course_instance):
+                            if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)
                                 tnl_instance = TNLInstance(domain)
-                                tnl_instance.register_completion(student, course_instance, percent)
+                                tnl_instance.register_completion(student, course_id, percent)
                         else:
                             course_instance.complete_course = False
                             course_instance.complete_date = datetime.fromtimestamp(0, UTC())

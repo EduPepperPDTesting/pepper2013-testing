@@ -59,13 +59,13 @@ class TNLInstance:
 
         return grade_out
 
-    def register_completion(self, user, course_instance, percent):
+    def register_completion(self, user, course_id, percent):
         """
         This registers a competed course for a particular user with TNL
         """
 
         # Registered course.
-        course = tnl_get_course(course_instance.id)
+        course = tnl_get_course(course_id)
         # markComplete endpoint.
         endpoint = 'ia/app/webservices/section/markComplete'
         # Get the TNL user id.
@@ -164,14 +164,17 @@ def tnl_get_domain(id='all'):
     return domain
 
 
-def tnl_get_course(id='all'):
+def tnl_get_course(id='all', domain=False):
     """
     Gets the course(s) from the registered course table.
     """
     try:
         if not id == 'all':
+            filters = {'course': id}
+            if domain:
+                filters.update({'domain': domain})
             # Just select the specified course.
-            course = TNLCourses.objects.get(course=id)
+            course = TNLCourses.objects.get(**filters)
         else:
             # Select all the courses.
             course = TNLCourses.objects.all()
@@ -259,25 +262,34 @@ def tnl_delete_course(ids):
         raise Exception('Problem deleting course(s): {0}'.format(e))
 
 
-def tnl_course(user, course_instance):
+def tnl_course(user, course_id):
     """
     Checks to see if this is in fact a course and user registered with TNL.
     """
-    # Get the course, if registered.
-    course = tnl_get_course(course_instance.id)
-    # Get the specified user.
+    # Get the specified user and then their domain, if they have one.
     user = User.objects.get(id=user.id)
+    try:
+        domain = tnl_domain_from_user(user)
+    except Exception as e:
+        AUDIT_LOG.warning(u"There was no domain for this user: {0}.".format(e))
+        return False
+
+    # Get the course, if registered.
+    course = tnl_get_course(course_id, domain)
     if course:
         try:
             # Make sure that the user belongs to a district that is registered with TNL.
-            district = District.objects.get(id=user.profile.district_id)
+            district = District.objects.get(id=user.profile.district_id, domain=domain)
             if tnl_check_district(district.id):
                 return True
             else:
+                AUDIT_LOG.warning(u"This user's district is not TNL-enabled.")
                 return False
-        except:
+        except Exception as e:
+            AUDIT_LOG.warning(u"There was an error while determining whether TNL-enablement: {0}.".format(e))
             return False
     else:
+        AUDIT_LOG.warning(u"This course is not TNL-enabled for this user/domain.")
         return False
 
 
@@ -286,10 +298,12 @@ def tnl_domain_from_user(user):
     Gets the domain associated with the district of the current user.
     """
     user = User.objects.get(id=user.id)
-    district = District.objects.get(id=user.profile.district_id)
-    tnl_district = TNLDistricts.objects.get(district=district)
-    domain = tnl_district.domain.id
-
+    try:
+        district = District.objects.get(id=user.profile.district_id)
+        tnl_district = TNLDistricts.objects.get(district=district)
+        domain = tnl_district.domain.id
+    except Exception as e:
+        raise Exception(u"Unable to find a domain for this user: {0}".format(e))
     return domain
 
 
