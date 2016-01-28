@@ -29,6 +29,7 @@ from django.http import HttpResponse
 from django.conf import settings
 import sp_metadata as metadata
 from os import path
+import urllib
 
 # *Guess the xmlsec_path
 try:
@@ -150,7 +151,7 @@ def auth(request):
     # BTW, use @login_required cause a problem
     if not request.user.is_authenticated():
         relative = re.sub(r'^http(s?)://.*?/', '/', request.build_absolute_uri())
-        return redirect(reverse("signin_user")+"?next=" + relative)  # urllib.quote(, safe='')
+        return redirect(reverse("signin_user")+"?next=" + urllib.quote(relative, safe=''))  # 
 
     # ** Now call a relative direction function
     if metadata_setting.get('sso_type') == 'SAML':
