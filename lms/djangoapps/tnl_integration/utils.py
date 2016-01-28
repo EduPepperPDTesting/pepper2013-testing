@@ -279,14 +279,14 @@ def tnl_course(user, course_id):
     if course:
         try:
             # Make sure that the user belongs to a district that is registered with TNL.
-            district = District.objects.get(id=user.profile.district_id, domain=domain)
+            district = District.objects.get(id=user.profile.district_id)
             if tnl_check_district(district.id):
                 return True
             else:
                 AUDIT_LOG.warning(u"This user's district is not TNL-enabled.")
                 return False
         except Exception as e:
-            AUDIT_LOG.warning(u"There was an error while determining whether TNL-enablement: {0}.".format(e))
+            AUDIT_LOG.warning(u"There was an error while determining whether TNL-enabled: {0}.".format(e))
             return False
     else:
         AUDIT_LOG.warning(u"This course is not TNL-enabled for this user/domain.")
