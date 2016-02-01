@@ -282,6 +282,9 @@ def course_list(request):
         else:
             filterDic['metadata.display_state'] = state
 
+    if collection != '':
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
+
     if credit != '':
         filterDic['metadata.display_credit'] = True
 
@@ -445,7 +448,6 @@ def collections(request):
         if len(course.content_collections) > 0:
             if course.custom_collection_only is False or is_all(course, 'collection') is True or superuser is True:
                 collection_temp = list(set(collection_temp) | set(course.content_collections))
-                
 
     collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
     for cl in collection_temp:
