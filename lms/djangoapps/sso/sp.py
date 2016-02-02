@@ -28,7 +28,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 import time
 import calendar
 from student.views import upload_user_photo
-import idp_metadata as metatdata
+import idp_metadata as metadata
 import logging
 from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
@@ -55,6 +55,8 @@ log = logging.getLogger("tracking")
 
 @csrf_exempt
 def genericsso(request):
+    return HttpResponse(path.join(SSO_DIR, 'attribute-maps'))
+    
     '''Assertion consume service (acs) of pepper'''
 
     log.debug("===== genericsso: receiving a token =====")
@@ -170,7 +172,7 @@ def saml_acs(request, idp_name, ms):
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(SSO_DIR, '/attribute-maps'),
+        'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
