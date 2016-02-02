@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata"
+                      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                      xmlns:ns1="urn:oasis:names:tc:SAML:metadata:attribute"
+                      xmlns:ns2="urn:oasis:names:tc:SAML:2.0:assertion"
+                      xmlns:ns4="urn:oasis:names:tc:SAML:metadata:algsupport"
+                      xmlns:ns5="http://www.w3.org/2000/09/xmldsig#"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      entityID="{entityID}">
+  <ns0:Extensions>
+    <ns1:EntityAttributes>
+      <ns2:Attribute Name="http://macedir.org/entity-category" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+        <ns2:AttributeValue xsi:type="xs:string">http://www.geant.net/uri/dataprotection-code-of-conduct/v1
+        </ns2:AttributeValue>
+      </ns2:Attribute>
+    </ns1:EntityAttributes>
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#md5" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#ripemd160" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#sha224" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#sha384" />
+    <ns4:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512" />
+    <ns4:SigningMethod Algorithm="http,//www.w3.org/2000/09/xmldsig#dsa-sha1" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2009/xmldsig11#dsa-sha256" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-md5" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-ripemd160" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha224" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha384" />
+    <ns4:SigningMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512" />
+  </ns0:Extensions>
+  <ns0:SPSSODescriptor AuthnRequestsSigned="true"
+                       WantAssertionsSigned="true"
+                       protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <ns0:KeyDescriptor use="signing">
+      <ns5:KeyInfo>
+        <ns5:X509Data>
+          <ns5:X509Certificate>{cert}</ns5:X509Certificate>
+        </ns5:X509Data>
+      </ns5:KeyInfo>
+    </ns0:KeyDescriptor>
+    <ns0:AttributeConsumingService index="1">
+      <ns0:ServiceName>PepperPD</ns0:ServiceName>
+      <ns0:ServiceDescription></ns0:ServiceDescription>{attr_tags}
+    </ns0:AttributeConsumingService>
+    <ns0:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="{slo_redirect_url}" />
+    <ns0:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{slo_post_url}" />
+    <ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="{acs_url}" index="1" />
+  </ns0:SPSSODescriptor>
+</ns0:EntityDescriptor>

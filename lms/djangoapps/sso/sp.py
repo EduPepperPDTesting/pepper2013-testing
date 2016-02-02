@@ -28,7 +28,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 import time
 import calendar
 from student.views import upload_user_photo
-import metadata
+import idp_metadata as metadata
 import logging
 from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
@@ -36,8 +36,21 @@ from django import db
 import requests
 import base64
 
+# *Guess the xmlsec_path
+try:
+    from saml2.sigver import get_xmlsec_binary
+except ImportError:
+    get_xmlsec_binary = None
+
+if get_xmlsec_binary:
+    xmlsec_path = get_xmlsec_binary()
+else:
+    xmlsec_path = '/usr/local/bin/xmlsec1'
+
+SSO_DIR = settings.PROJECT_HOME + "/sso"
+BASEDIR = SSO_DIR + "/idp"
+
 log = logging.getLogger("tracking")
-BASEDIR = path.dirname("lms/")
 
 
 @csrf_exempt
@@ -153,11 +166,11 @@ def saml_acs(request, idp_name, ms):
     setting = {
         "allow_unknown_attributes": True,
         # full path to the xmlsec1 binary programm
-        'xmlsec_binary': '/usr/bin/xmlsec1',
+        'xmlsec_binary': xmlsec_path,
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(BASEDIR, 'sso/attribute-maps'),
+        'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -202,7 +215,7 @@ def saml_acs(request, idp_name, ms):
         # where the remote metadata is stored
         'metadata': {
             'local': [
-                path.join(BASEDIR, 'sso/' + idp_name + '/FederationMetadata.xml')
+                path.join(BASEDIR, idp_name, 'FederationMetadata.xml')
                 ],
             },
         # set to 1 to output debugging information
@@ -210,10 +223,10 @@ def saml_acs(request, idp_name, ms):
         # ===  CERTIFICATE ===
         # cert_file must be a PEM formatted certificate chain file.
         # example:
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.pem'),  # public part
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/customappsso.base64.cer'),  # public part        
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part        
         # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
@@ -275,7 +288,7 @@ def post_acs(request, ms, data):
         user = users.all()[0]
         if not user.is_active:
             registration = Registration.objects.get(user_id=user.id)
-            return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
         else:
             user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
             auth.login(request, user)
@@ -337,26 +350,27 @@ def create_unknown_user(request, ms, data):
         for k, v in parsed_data.items():
             if k == 'first_name':
                 user.first_name = parsed_data['first_name']
-            if k == 'last_name':
+            elif k == 'last_name':
                 user.last_name = parsed_data['last_name']
-            if k == 'sso_user_id':
+            elif k == 'sso_user_id':
                 profile.sso_user_id = parsed_data['sso_user_id']
-            if k == 'district':
+            elif k == 'district':
                 profile.district = District.object.get(name=parsed_data['district'])
-            if k == 'school':
+            elif k == 'school':
                 profile.school = School.object.get(name=parsed_data['school'])
-            if k == 'grade_level':
-                profile.district = GradeLevel.object.get(name=parsed_data['grade_level'])
-            if k == 'major_subject_area':
+            elif k == 'grade_level':
+                ids = GradeLevel.object.filter(name__in=parsed_data['grade_level'].split(',')).values_list('id', flat=True)
+                profile.grade_level = ','.join(ids)
+            elif k == 'major_subject_area':
                 ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list('id', flat=True)
                 profile.major_subject_area = ','.join(ids)
-            if k == 'years_in_education':
+            elif k == 'years_in_education':
                 profile.years_in_education = YearsInEducation.object.get(name=parsed_data['years_in_education'])
-            if k == 'percent_lunch':
+            elif k == 'percent_lunch':
                 profile.percent_lunch = Enum.object.get(name='percent_lunch', content=parsed_data['percent_lunch'])
-            if k == 'percent_iep':
+            elif k == 'percent_iep':
                 profile.percent_iep = Enum.object.get(name='percent_iep', content=parsed_data['percent_iep'])
-            if k == 'percent_eng_learner':
+            elif k == 'percent_eng_learner':
                 profile.percent_eng_learner = Enum.object.get(name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
 
         user.save()
@@ -366,7 +380,7 @@ def create_unknown_user(request, ms, data):
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
-        return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+        return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
     except Exception as e:
         raise e

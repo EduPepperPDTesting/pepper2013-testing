@@ -27,6 +27,45 @@ urlpatterns = (
     url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
 
 ####### Ancestor
+=======
+
+    # === sso begin ===
+    url(r'^genericsso/$', 'sso.sp.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
+
+    # edit idp
+    url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
+    url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
+    url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
+
+    # edit sp
+    url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
+    url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
+    url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
+
+    url(r'^sso/sp_metadata/download/saml_federation_metadata$',
+        'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
+
+    url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
+
+    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+    # === sso end ===
+
+####### Ancestor
+    # url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
+    # url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
+    url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
+    url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
+    url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
+    url(r'^tnl/district/delete$', 'tnl_integration.views.tnl_district_delete', name="tnl_district_delete"),
+    url(r'^tnl/course/add$', 'tnl_integration.views.tnl_course_add', name="tnl_course_add"),
+    url(r'^tnl/course/delete$', 'tnl_integration.views.tnl_course_delete', name="tnl_course_delete"),
+    url(r'^tnl/drop-courses$', 'tnl_integration.views.tnl_drop_courses', name="tnl_drop_courses"),
+    url(r'^tnl/drop-districts$', 'tnl_integration.views.tnl_drop_districts', name="tnl_drop_districts"),
+    url(r'^tnl/drop-domains$', 'tnl_integration.views.tnl_drop_domains', name="tnl_drop_domains"),
+    url(r'^tnl/domain/data$', 'tnl_integration.views.tnl_domain_data', name='tnl_domain_data'),
+    url(r'^tnl/tables$', 'tnl_integration.views.tnl_tables', name='tnl_tables'),
+>>>>>>> www0
 
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
@@ -50,8 +89,17 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
+<<<<<<< HEAD
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+=======
+    url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
+
+    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
+
+    url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+    url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
+>>>>>>> www0
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
