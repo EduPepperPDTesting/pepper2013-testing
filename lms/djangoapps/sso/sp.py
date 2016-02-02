@@ -55,8 +55,6 @@ log = logging.getLogger("tracking")
 
 @csrf_exempt
 def genericsso(request):
-    return HttpResponse(path.join(SSO_DIR, 'attribute-maps'))
-    
     '''Assertion consume service (acs) of pepper'''
 
     log.debug("===== genericsso: receiving a token =====")
@@ -225,10 +223,10 @@ def saml_acs(request, idp_name, ms):
         # ===  CERTIFICATE ===
         # cert_file must be a PEM formatted certificate chain file.
         # example:
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.pem'),  # public part
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/customappsso.base64.cer'),  # public part        
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part        
         # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
