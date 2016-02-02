@@ -158,9 +158,10 @@
 </section>
 
 <script>
-  function getStateOrDistrictIcon(self, type , key){
+  function getCollectionIcon(self, type , key){
     var path = "/static/images/" + type + "/";
     key = key.replace(new RegExp(" ", "gm"), "_");
+    key = key.replace(new RegExp("'", "gm"), "");
     var img = new Image();
     img.src = path + key + ".jpg";
     $(self).css("background-image","url("+img.src+")"); 
@@ -173,6 +174,6 @@
   }
 
   $(".image-link-style").each(function(){
-    getStateOrDistrictIcon(this, '${collection_type}', $(this).attr("key"));
+    getCollectionIcon(this, '${collection_type}', $(this).attr("key"));
   });
 </script>
