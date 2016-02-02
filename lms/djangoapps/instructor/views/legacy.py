@@ -1204,7 +1204,7 @@ def _do_enroll_students(course, course_id, students, overload=False, auto_enroll
              'registration_url': registration_url,
              'course_id': course_id,
              'auto_enroll': auto_enroll,
-             'course_url': 'https://' + stripped_site_name + '/courses/' + course_id,
+             'course_url': 'https://' + stripped_site_name + '/courses/' + course_id + '/courseware/',
              }
 
     for student in new_students:

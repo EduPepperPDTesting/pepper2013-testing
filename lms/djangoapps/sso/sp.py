@@ -28,7 +28,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 import time
 import calendar
 from student.views import upload_user_photo
-import idp_metadata as metatdata
+import idp_metadata as metadata
 import logging
 from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
@@ -170,7 +170,7 @@ def saml_acs(request, idp_name, ms):
         # your entity id, usually your subdomain plus the url to the metadata view
         'entityid': 'PCG:PepperPD:Entity:ID',
         # directory with attribute mapping
-        'attribute_map_dir': path.join(SSO_DIR, '/attribute-maps'),
+        'attribute_map_dir': path.join(SSO_DIR, 'attribute-maps'),
         # this block states what services we provide
         'service': {
             # we are just a lonely SP
@@ -223,10 +223,10 @@ def saml_acs(request, idp_name, ms):
         # ===  CERTIFICATE ===
         # cert_file must be a PEM formatted certificate chain file.
         # example:
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.pem'),  # public part
-        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + '/mycert.key'),  # private part
-        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + '/customappsso.base64.cer'),  # public part        
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.pem'),  # public part
+        # 'key_file': path.join(BASEDIR, 'sso/' + idp_name + 'mycert.key'),  # private part
+        # 'cert_file': path.join(BASEDIR, 'sso/' + idp_name + 'customappsso.base64.cer'),  # public part        
         # === OWN METADATA SETTINGS ===
         # 'contact_person': [
         #     {'given_name': 'Lorenzo',
@@ -288,7 +288,7 @@ def post_acs(request, ms, data):
         user = users.all()[0]
         if not user.is_active:
             registration = Registration.objects.get(user_id=user.id)
-            return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
         else:
             user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
             auth.login(request, user)
@@ -380,7 +380,7 @@ def create_unknown_user(request, ms, data):
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
-        return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+        return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
     except Exception as e:
         raise e
