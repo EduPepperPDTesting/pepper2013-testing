@@ -28,7 +28,7 @@ from mitxmako.shortcuts import render_to_response, render_to_string
 import time
 import calendar
 from student.views import upload_user_photo
-import idp_metadata as metatdata
+import idp_metadata as metadata
 import logging
 from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
