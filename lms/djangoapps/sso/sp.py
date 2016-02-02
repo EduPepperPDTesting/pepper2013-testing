@@ -288,7 +288,7 @@ def post_acs(request, ms, data):
         user = users.all()[0]
         if not user.is_active:
             registration = Registration.objects.get(user_id=user.id)
-            return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
         else:
             user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
             auth.login(request, user)
@@ -380,7 +380,7 @@ def create_unknown_user(request, ms, data):
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
-        return https_redirect(request, reverse('register_sso', args=[registration.activation_key]))
+        return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
     except Exception as e:
         raise e
