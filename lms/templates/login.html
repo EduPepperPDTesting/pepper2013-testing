@@ -79,42 +79,57 @@
     });
 
     (function() {
-      if (localStorage.pepperpd_login_email)
-      {
-        $("#email").val(localStorage.pepperpd_login_email);
-      }
-      toggleSubmitButton(true);
-
-      $('#login-form').on('submit', function() {
-        toggleSubmitButton(false);
-      });
-
-      $('#login-form').on('ajax:error', function() {
-        toggleSubmitButton(true);
-      });
-
-      $('#login-form').on('ajax:success', function(event, json, xhr) {
-        if (json.success) {
-          if ($('#remember-yes').attr("checked"))
-          {
-            localStorage.pepperpd_login_email=$("#email").val();
-          }
-          var u=decodeURI(window.location.search);
-          next=u.split("next=")[1];
-
-          var next_to_dashboard_only=true
-          if (!next_to_dashboard_only && next && !isExternal(next)) {
-            location.href=next;
-          }  else {
-            location.href="${reverse('dashboard')}";
-          }
-
-        } else {
-          toggleSubmitButton(true);
-          $('.message.submission-error').addClass('is-shown').focus();
-          $('.message.submission-error .message-copy').html(json.value);
+        var urlParams = {};
+        var searchString = window.location.search.substring(1);
+        if (searchString !== undefined) {
+            var pairs = searchString.split('&');
+            for (var i = 0; i < pairs.length; i++) {
+                var values = pairs[i].split('=');
+                urlParams[values[0]] = values[1] === undefined ? false : decodeURIComponent(values[1]);
+            }
         }
-      });
+
+        if (localStorage.pepperpd_login_email)
+        {
+            $("#email").val(localStorage.pepperpd_login_email);
+        }
+        toggleSubmitButton(true);
+
+        $('#login-form').on('submit', function() {
+            toggleSubmitButton(false);
+        });
+
+        $('#login-form').on('ajax:error', function() {
+            toggleSubmitButton(true);
+        });
+
+        $('#login-form').on('ajax:success', function(event, json, xhr) {
+            if (json.success) {
+                if ($('#remember-yes').attr("checked"))
+                {
+                    localStorage.pepperpd_login_email=$("#email").val();
+                }
+
+                if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
+                    var next = urlParams['next'];
+                    if (next.substring(0,1) != '/') {
+                        next = '/' + next;
+                    }
+                  location.href = next;
+                } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^\/sso\/idp\/auth/)) {
+
+                  alert(urlParams)
+                   location.href = urlParams['next'];
+                }  else {
+                    location.href = "${reverse('dashboard')}";
+                }
+
+            } else {
+                toggleSubmitButton(true);
+                $('.message.submission-error').addClass('is-shown').focus();
+                $('.message.submission-error .message-copy').html(json.value);
+            }
+        });
     })(this);
 
     function toggleSubmitButton(enable) {
