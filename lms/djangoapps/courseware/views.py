@@ -452,7 +452,7 @@ def collections(request):
     collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
     for cl in collection_temp:
         collection_list.append({'id': cl, 'name': cl})
-    return render_to_response("courseware/collections.html", {'page_title': 'Collection',
+    return render_to_response("courseware/collections.html", {'page_title': 'Leadership',
                                                               'collection_type': 'collection',
                                                               'items': collection_list})
 
