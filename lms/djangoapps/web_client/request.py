@@ -61,6 +61,8 @@ class WebRequest:
             # Make sure the request was successful first by checking the HTTP status, then check any specified JSON
             # attributes, if there are any.
             if response.status_code == 200:
+                # Log the returned data for troubleshooting
+                AUDIT_LOG.debug(u"WebRequest Response: {0}".format(response.text))
                 # Parse the JSON returned.
                 parsed = json.loads(response.text)
                 # If a JSON success attribute was specified, check to see if it matches the supplied value.

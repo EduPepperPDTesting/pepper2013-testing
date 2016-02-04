@@ -51,9 +51,9 @@ class TNLInstance:
         """
         # Get the percent value from the decimal grade.
         grade = round(percent * 100)
-        grade_out = False
+        grade_out = 1
         # Compare our percent grade to the list of values for this TNL setup and return the matched value.
-        for gradeid, grades in self.domain.grades:  # TODO: need to fix this for the new storage
+        for gradeid, grades in self.domain.grades:
             if grade in grades:
                 grade_out = gradeid
 
