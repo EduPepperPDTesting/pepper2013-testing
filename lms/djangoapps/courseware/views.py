@@ -255,7 +255,7 @@ def course_list(request):
     all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, all_courses)
 
-    is_member = {'state': False, 'district': False}
+
 
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
@@ -434,6 +434,23 @@ def get_collection_num():
     return len(list(items))
 
 
+def get_collection_course_num(user, collection):
+    is_member = {'state': False, 'district': False}
+    filterDic = {'_id.category': 'course'}
+    if collection != '':
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+
+    course_count = 0
+    for course in courses:
+        if is_state_district_show(user, course, is_member) and \
+                custom_collection_visibility(user, course, collection):
+            course_count += 1
+
+    return course_count
+
+
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def collections(request):
@@ -460,7 +477,8 @@ def collections(request):
 
     collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
     for cl in collection_temp:
-        collection_list.append({'id': cl, 'name': cl})
+        if get_collection_course_num(request.user, cl) > 0:
+            collection_list.append({'id': cl, 'name': cl})
     return render_to_response("courseware/collections.html", {'page_title': 'Leadership',
                                                               'collection_type': 'collection',
                                                               'items': collection_list})
