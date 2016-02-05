@@ -431,7 +431,7 @@ def districts(request):
 def get_collection_num():
     filterDic = {'_id.category': 'course', 'metadata.content_collections': {'$exists': True}}
     items = modulestore().collection.find(filterDic)
-    return list(items).count()
+    return len(list(items))
 
 
 @ensure_csrf_cookie
