@@ -435,7 +435,6 @@ def get_collection_num():
 
 
 def get_collection_course_num(user, collection):
-    is_member = {'state': False, 'district': False}
     filterDic = {'_id.category': 'course'}
     if collection != '':
         filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
@@ -476,8 +475,7 @@ def collections(request):
 
     collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
     for cl in collection_temp:
-        if get_collection_course_num(request.user, cl) > 0:
-            collection_list.append({'id': cl, 'name': cl})
+        collection_list.append({'id': cl, 'name': cl})
     return render_to_response("courseware/collections.html", {'page_title': 'Leadership',
                                                               'collection_type': 'collection',
                                                               'items': collection_list})
