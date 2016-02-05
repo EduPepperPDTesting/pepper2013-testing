@@ -224,6 +224,7 @@ urlpatterns = (
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
     url(r'^communities/$', 'communities.views.index', name="communities"),
     url(r'^communities/ppd$', 'communities.views.community', name="community"),
+    url(r'^communities/ngss$', 'communities.views.community_ngss', name="community_ngss"),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     
