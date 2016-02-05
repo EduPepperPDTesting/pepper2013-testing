@@ -76,10 +76,12 @@ def courses(request):
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
+    collections = get_collection_num()
     return render_to_response("courseware/courses.html", {
                               "courses": courses,
                               "states": state_list,
                               "districts": district_list,
+                              "collections": collections,
                               "link": True})
 
 
@@ -426,6 +428,12 @@ def districts(request):
                                                               'items': district_list})
 
 
+def get_collection_num():
+    filterDic = {'_id.category': 'course', 'metadata.content_collections': {'$exists': True}}
+    items = modulestore().collection.find(filterDic)
+    return list(items).count()
+
+
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def collections(request):
@@ -438,7 +446,8 @@ def collections(request):
     collection_temp = []
     collection_list = []
 
-    if request.user.is_superuser is False:
+    filterDic['metadata.content_collections'] = {'$exists': True}
+    if collection != '':
         filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
     items = modulestore().collection.find(filterDic)
     courses = modulestore()._load_items(list(items), 0)
