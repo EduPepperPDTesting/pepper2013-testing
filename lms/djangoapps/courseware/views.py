@@ -255,7 +255,7 @@ def course_list(request):
     all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, all_courses)
 
-
+    is_member = {'state': False, 'district': False}
 
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
