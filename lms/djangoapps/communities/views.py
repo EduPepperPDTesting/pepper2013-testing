@@ -47,5 +47,7 @@ def index(request):
     
 def community(request):
     return render_to_response('communities/community.html', {})
-
+    
+def community_ngss(request):
+    return render_to_response('communities/community_ngss.html', {})
 
