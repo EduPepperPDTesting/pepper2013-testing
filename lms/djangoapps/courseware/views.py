@@ -470,8 +470,7 @@ def collections(request):
     superuser = request.user.is_superuser
     for course in courses:
         if len(course.content_collections) > 0:
-            if course.custom_collection_only is False or is_all(course, 'collection') is True or superuser is True:
-                collection_temp = list(set(collection_temp) | set(course.content_collections))
+            collection_temp = list(set(collection_temp) | set(course.content_collections))
 
     collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
     for cl in collection_temp:
