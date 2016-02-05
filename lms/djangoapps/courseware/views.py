@@ -444,8 +444,7 @@ def get_collection_course_num(user, collection):
 
     course_count = 0
     for course in courses:
-        if is_state_district_show(user, course, is_member) and \
-                custom_collection_visibility(user, course, collection):
+        if is_state_district_show(user, course, is_member) and custom_collection_visibility(user, course, collection):
             course_count += 1
 
     return course_count
