@@ -222,9 +222,11 @@ urlpatterns = (
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
-    url(r'^communities/$', 'communities.views.index', name="communities"),
-    url(r'^communities/ppd$', 'communities.views.community', name="community"),
-    url(r'^communities/ngss$', 'communities.views.community_ngss', name="community_ngss"),
+
+    url(r'^communities/$', 'communities.views.communities', name="communities"),
+    url(r'^community/(?P<community>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
+    url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     

@@ -837,7 +837,10 @@ INSTALLED_APPS = (
 
     # TNL Integration
     'tnl_integration',
-    'web_client'
+    'web_client',
+
+    # Communities
+    'communities',
 )
 
 ######################### MARKETING SITE ###############################

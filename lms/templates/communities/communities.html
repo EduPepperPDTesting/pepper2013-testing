@@ -1,13 +1,13 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%!
-  from django.core.urlresolvers import reverse
-  from courseware.courses import course_image_url, get_course_about_section
-  from courseware.access import has_access
-  from certificates.models import CertificateStatuses
-  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-  from xmodule.modulestore.django import modulestore
-  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
-  from baseinfo.models import Enum
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -16,165 +16,142 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
 <style type="text/css" media="screen">
-    #page-nav,#page-footer{width:1180px;}
-    #btn-logged-user{display:none;}
-    .form-select{font-size:14px !important;width:180px;}
-    .image-link-style{
-      border-radius: 6px 6px 6px 6px;
-      -moz-border-radius: 6px 6px 6px 6px;
-      -webkit-border-radius: 6px 6px 6px 6px;
-      display: block;
-      float: left;
-      margin: 30px;
+    #page-nav,#page-footer {
+        width: 1180px;
     }
-    .image-bottom-style{
-      border-radius: 0px 0px 6px 6px;
-      -moz-border-radius: 0px 0px 6px 6px;
-      -webkit-border-radius: 0px 0px 6px 6px;
-      display: block;
+    #btn-logged-user{
+        display: none;
     }
-    .card-link{
-      display: table-cell;
-      width: 240px;
-      height: 60px;
-      vertical-align: middle;
-      padding: 0 17px;
-      font-size: 22px;
-      background: rgba(18,111,154,0.95);
-      text-decoration: none!important;
+    .form-select {
+        font-size: 14px !important;
+        width: 180px;}
+    .image-link-style {
+        border-radius: 6px;
+        -moz-border-radius: 6px;
+        -webkit-border-radius: 6px;
+        display: block;
+        float: left;
+        margin: 30px;
     }
-    .card-link span{
-     color: #FFFFFF;
+    .image-bottom-style {
+        border-radius: 0 0 6px 6px;
+        -moz-border-radius: 0 0 6px 6px;
+        -webkit-border-radius: 0 0 6px 6px;
+        display: block;
     }
-    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    .card-link {
+        display: table-cell;
+        width: 240px;
+        height: 60px;
+        vertical-align: middle;
+        padding: 0 17px;
+        font-size: 22px;
+        background: rgba(18,111,154,0.95);
+        text-decoration: none !important;
+    }
+    .card-link span {
+        color: #FFFFFF;
+    }
+    .grade_title {
+        float: left;
+        width: 920px;
+        height: 20px;
+        background-color: #fff;
+        text-align: left;
+        padding-left: 40px;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: "Open Sans",Verdana,Geneva,sans-serif;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
     a.btnx:hover {
-    background:#638194;
-    transition-delay: 0s, 0s, 0s;
-    transition-duration: 0.25s, 0.25s, 0.25s;
-    transition-property:color, background,​ box-shadow;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    transition-duration:0.25s,​ 0.25s,​ 0.25s;
-    color:#fff;
+        background: #638194;
+        transition-delay: 0s, 0s, 0s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-property:color, background,​box-shadow;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        color: #fff;
     }
     a.btnx {
-    background-color:#556370;
-    text-decoration: none;
-    padding-bottom: 2px!important;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 2px!important;
-    text-decoration: none!important;
-    cursor: pointer;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        background-color: #556370;
+        padding-bottom: 2px !important;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 2px !important;
+        text-decoration: none !important;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color: #fff;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
     }
     a.btnx:normal {
-    background-color:#126F9A;
-    text-decoration: none;
-    cursor: pointer;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        background-color: #126F9A;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color: #fff;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
     }
 </style>
 <script>
- function fsubmit(){
-    $("#course_list_form").submit();
-  }
+    function fsubmit(){
+        var community = $("#community_list_form .form-select").val();
+        window.location.href = ${reverse('communities')} + community;
+        return false;
+    }
 </script>
 <section class="find-courses" style="text-align:center;background:#F5F5F5;">
-  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
-  <!--@date:2013-11-02-->
-  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
-  <!--@end-->
-  
-    <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+    <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
     <!--@date:2013-11-02-->
-    <div class="_banner_whatis_title_font">
-      PROFESSIONAL
-      <br/>
-      LEARNING COMMUNITIES
-      <div class="_banner_whatis_title_content_font">
-        build and enhance your community of practice
-      </div>
-    </div>
-    <!--@end-->
-  </div>
+    <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
+        <!--@end-->
 
-  <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
-     <form method="" id="course_list_form" action="${reverse('course_list')}">
-    <div style="padding:20px;color:#666;display:inline-block;">
-      <span style="color:#666">Find a Community</span>
-    </div>
-    <div style="display:inline-block;padding:0 1em 0 0;">
-      <select name="subject_id" class="form-select">
-        <option value="all">All Communities</option>
-        <option value="AR">Common Core</option>
-        <option value="ELA">Digital Learning</option>
-        <option value="ELL">English Language </option>
-        <option value="MA">Next Gen Science</option>
-        <option value="SC">Principal’s Playbook</option>
-      </select>
-    </div>
-      <div style="padding:20px;color:#666;display:inline-block;">
-      <span style="color:#666"><a href="https://www0.pepperpd.com/communities/" >Create a New Community</a></span>
-    </div>
-    <a href="https://www0.pepperpd.com/communities/" class="btnx" onClick="fsubmit();">Find</a>
-     <script type="text/javascript">
-        var form=$("#course_list_form");
-        form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
-        form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
-        form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
-        form.find("select[name=state]").val("${request.GET.get('state','')}");
-        form.find("select[name=district]").val("${request.GET.get('district','')}");
-      </script>
-    </form>
-  </section>
-
-  <section style="margin:auto;width:960px;background:#E4E4E4;">
-    <section class="courses" style="padding-top:5px!important;">
-      <div class="courses-listing">
-        <div style="padding-left:25px;">
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Common_Core.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="https://www0.pepperpd.com/communities/" class="card-link image-bottom-style"><span>Common Core</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Digital_Learning.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="https://www0.pepperpd.com/communities/" class="card-link image-bottom-style"><span>Digital Learning</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/ELL.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <!--<a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>English Language Learning</span></a>-->
-            <a href="https://www0.pepperpd.com/communities/" class="card-link image-bottom-style"><span>English Language Learning</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/NextGenScienceo.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="ngss" class="card-link image-bottom-style"><span>Next Gen Science</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="ppd" class="card-link image-bottom-style"><span>Principal’s Playbook</span></a>
-          </div>
-          <!--
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/white.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="https://www0.pepperpd.com/communities/" class="card-link image-bottom-style"><span>Create a New Community</span></a>
-          </div>
-          -->
+        <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+        <!--@date:2013-11-02-->
+        <div class="_banner_whatis_title_font">
+            PROFESSIONAL
+            <br/>
+            LEARNING COMMUNITIES
+            <div class="_banner_whatis_title_content_font">
+                build and enhance your community of practice
+            </div>
         </div>
-      </div>
-    </section>
-  </section>
-</section>
-
- <section id="show_course_prompt" class="modal" style="width:640px;">
-  <div class="inner-wrapper" style="width:629x;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
-  <div class="close-modal" id="course_prompt_close">
-    <div class="inner">
-      <p>&#10005;</p>
+        <!--@end-->
     </div>
-  </div>
-  </div>
+
+    <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
+        <form method="" id="community_list_form" action="">
+            <div style="padding:20px;color:#666;display:inline-block;">
+                <span style="color:#666">Find a Community</span>
+            </div>
+            <div style="display:inline-block;padding:0 1em 0 0;">
+                <select name="subject_id" class="form-select">
+                    %for community in communities:
+                        <option value="${community['id']}">${community['name']}</option>
+                    %endfor
+                </select>
+            </div>
+            <a href="#" class="btnx" onClick="fsubmit();">Find</a>
+            <div style="padding:20px;color:#666;display:inline-block;">
+                <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
+            </div>
+        </form>
+    </section>
+
+    <section style="margin:auto;width:960px;background:#E4E4E4;">
+        <section class="courses" style="padding-top:5px!important;">
+            <div class="courses-listing">
+                <div style="padding-left:25px;">
+                    %for community in communities:
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(${community['logo']});background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="${reverse('community_view', kwargs={'community': community['id']})}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                        </div>
+                    %endfor
+                </div>
+            </div>
+        </section>
+    </section>
 </section>
