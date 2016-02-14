@@ -13,9 +13,6 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/contact.css"/>
 <!--@end-->
 <style type="text/css" media="screen">
-  #page-nav,#page-footer{
-  width:1180px;
-  }
   ul.left {
   list-style:none;
   }
@@ -28,6 +25,19 @@
 
   span.red{float:right;padding-right:10px;}
 </style>
+%if request.user.is_authenticated():
+  <style>
+    #page-nav,#page-footer{
+      width:1180px;
+    }
+    </style>         
+%else:
+  <style>
+    #page-nav,#page-footer{
+      width:960px;
+    }
+  </style>          
+%endif
 <div style="text-align:center;background:#f5f5f5">
   <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
   <!--@date:2013-11-02-->
