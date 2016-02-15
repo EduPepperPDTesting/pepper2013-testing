@@ -5,7 +5,7 @@ import json
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions
+from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies
 from administration.pepconn import get_post_array
 from operator import itemgetter
 
@@ -35,11 +35,17 @@ def community(request, community):
     
     community = CommunityCommunities.objects.get(community=community)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True)
+    users = CommunityUsers.objects.select_related().filter(facilitator=False)
     discussions = CommunityDiscussions.objects.filter(community=community)
-    
+
+    for d in discussions:
+        d.repiles = CommunityDiscussionReplies.objects.filter(discussion=d).count()
+        d.views = 0  # todo: how to get view count?
+        
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
-            "discussions": discussions}
+            "discussions": discussions,
+            "users": users}
     
     return render_to_response('communities/community.html', data)
 

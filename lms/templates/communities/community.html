@@ -6,20 +6,21 @@ from django.core.urlresolvers import reverse
 
 <%block name="title">
   <title></title>
-  </%block>
+</%block>
+  
+<style type="text/css" media="screen">
+ #table-discuss th{color:#006EBF;padding:20px 3px; font-size:20px; }
+ #table-discuss td{color:#000;padding:20px 3px; font-size:20px;line-height:20px; }
+ #table-discuss td label{font-style:normal;display:inline-block;width:3.5em;text-align:left;font-weight:bold;}
+ #table-discuss td span{font-size:12px;}
+ #table-members th{color:#006EBF;padding:20px 3px; font-size:20px; }
+</style>
 
-
-  <style type="text/css" media="screen">
-  #table-discuss th{color:#006EBF;padding:20px 3px; font-size:20px; }
-  #table-discuss td{color:#000;padding:20px 3px; font-size:20px;line-height:20px; }
-    #table-discuss td label{font-style:normal;display:inline-block;width:3.5em;text-align:left;font-weight:bold;}
-    #table-discuss td span{font-size:12px;}
-  </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
-<body style="text-align:center">
+
+<body style="text-align:center">  
   <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;">
-    
-    <section style="width:880px;">
+    <section style="width:880px;float:left;">
       <div style="border:2px solid #ddd;width:100%;height:280px;">
         <div style="padding:15px;">
           <img src="${community.logo}" style="float:right;width:390px;" alt="photo"/>
@@ -43,23 +44,43 @@ from django.core.urlresolvers import reverse
         <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
           <th>Community Discussion</th><th>Activity</th><th>Content Collections</th>
         </tr>
+        %for i,d in enumerate(discussions):
         <tr>
-          <td>Hiring & Retaining<br><span style="color:#006EBF;">Gerry, </span><span>Today at 9:12 PM</span></td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td><td rowlabel="4"></td>
+          <td>${d.subject}<br>
+            <span style="color:#006EBF;">${d.user.first_name}, </span>
+            <span>${d.date_create}</span>
+          </td>
+          <td><label>Replies:</label> ${d.repiles}<br/><label>Views:</label> ${d.views}</td>
+          %if i==0:
+          <td rowlabel="4"></td>
+          %endif
         </tr>
-        <tr>
-          <td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
-        </tr>
-        <tr>
-<td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
+        %endfor
+      </table>
 
-        </tr>
-        <tr>
- <td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
+      <table id="table-members" width="100%" cellspacing="" cellpadding="" border="0">
+        <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
+          <th>Members</th>
+        </tr>        
+        <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
+          %for u in users:
+          <td><img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" /></td>
+          %endfor
         </tr>
       </table>
     </section>
+
+    <section>
+      <div style="width:266px;float:right;top:0px;">
+        <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
+          Evan_Nisonson
+        </div>
+      </div>
+    </section>
   </div>
+  <!-- 
   <div style="text-align:center">
-    <img src="/static/images/community_ppd.png"/>
+  <img src="/static/images/community_ppd.png"/>
   </div>
+  -->
 </body>
