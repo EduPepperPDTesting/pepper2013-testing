@@ -1,0 +1,65 @@
+<%inherit file="../main.html" />
+<%!
+from django.core.urlresolvers import reverse
+%>
+<%namespace name='static' file='../static_content.html'/>
+
+<%block name="title">
+  <title></title>
+  </%block>
+
+
+  <style type="text/css" media="screen">
+  #table-discuss th{color:#006EBF;padding:20px 3px; font-size:20px; }
+  #table-discuss td{color:#000;padding:20px 3px; font-size:20px;line-height:20px; }
+    #table-discuss td label{font-style:normal;display:inline-block;width:3.5em;text-align:left;font-weight:bold;}
+    #table-discuss td span{font-size:12px;}
+  </style>
+<link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
+<body style="text-align:center">
+  <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;">
+    
+    <section style="width:880px;">
+      <div style="border:2px solid #ddd;width:100%;height:280px;">
+        <div style="padding:15px;">
+          <img src="${community.logo}" style="float:right;width:390px;" alt="photo"/>
+          <p style="margin:5px 0;color:#006EBF;font-size:28px;margin:0px">${community.name}</p>
+          <p style="margin:5px 0;padding-left:1em;color:#006EBF;font-size:24px;margin:0px;color:#777;line-height:28px;">${community.motto}</p>
+          %if facilitator:
+          <div style="margin-left:1em;margin-top:20px;">
+            <img src="${reverse('user_photo',args=[facilitator.user.id])}" style="vertical-align:middle;" alt="photo" />
+            <div style="display:inline-block;line-height:95px;vertical-align:middle;">
+              <div style="vertical-align:middle;margin:auto;line-height:20px;">
+                <p style="margin:0;color:#006EBF;font-size:22px;">${facilitator.user.first_name} ${facilitator.user.last_name}</p>
+                <p style="margin:0;font-size:18px;">Community Facilitator</p>
+              </div>
+            </div>
+          </div>
+          %endif
+        </div>
+      </div>
+      
+      <table id="table-discuss" width="100%" cellspacing="" cellpadding="" border="0">
+        <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
+          <th>Community Discussion</th><th>Activity</th><th>Content Collections</th>
+        </tr>
+        <tr>
+          <td>Hiring & Retaining<br><span style="color:#006EBF;">Gerry, </span><span>Today at 9:12 PM</span></td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td><td rowlabel="4"></td>
+        </tr>
+        <tr>
+          <td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
+        </tr>
+        <tr>
+<td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
+
+        </tr>
+        <tr>
+ <td>Hiring & Retaining</td><td><label>Replies:</label> 87<br/><label>Views:</label> 210</td>
+        </tr>
+      </table>
+    </section>
+  </div>
+  <div style="text-align:center">
+    <img src="/static/images/community_ppd.png"/>
+  </div>
+</body>

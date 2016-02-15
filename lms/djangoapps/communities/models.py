@@ -34,3 +34,14 @@ class CommunityResources(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     link = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.CharField(blank=False, max_length=255, db_index=True)
+
+
+class CommunityDiscussions(models.Model):
+    class Meta:
+        db_table = 'community_discussions'
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
+    subject = models.CharField(blank=False, max_length=255, db_index=True)
+    post = models.TextField(blank=False, max_length=255, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    date_create = models.DateTimeField(auto_now_add=False, db_index=False)
+    link = models.CharField(blank=False, max_length=255, db_index=True)

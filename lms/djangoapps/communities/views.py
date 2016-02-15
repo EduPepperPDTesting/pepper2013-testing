@@ -5,7 +5,7 @@ import json
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers
+from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions
 from administration.pepconn import get_post_array
 from operator import itemgetter
 
@@ -14,11 +14,11 @@ log = logging.getLogger("tracking")
 
 def index(request):
     return render_to_response('communities/communities.html', {})
-    
+
 
 def community_ppd(request):
     return render_to_response('communities/community_ppd.html', {})
-    
+
 
 def community_ngss(request):
     return render_to_response('communities/community_ngss.html', {})
@@ -32,7 +32,16 @@ def community(request, community):
     :param community: The machine name of the community.
     :return: The Community page.
     """
-    pass
+    
+    community = CommunityCommunities.objects.get(community=community)
+    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True)
+    discussions = CommunityDiscussions.objects.filter(community=community)
+    
+    data = {"community": community,
+            "facilitator": facilitator[0] if len(facilitator) else None,
+            "discussions": discussions}
+    
+    return render_to_response('communities/community.html', data)
 
 
 @login_required
