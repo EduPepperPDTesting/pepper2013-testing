@@ -32,11 +32,12 @@ def community(request, community):
     :param community: The machine name of the community.
     :return: The Community page.
     """
-    
+
     community = CommunityCommunities.objects.get(community=community)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True)
     users = CommunityUsers.objects.select_related().filter(facilitator=False)
     discussions = CommunityDiscussions.objects.filter(community=community)
+    me = CommunityUsers.objects.select_related().get(user=request.user)
 
     for d in discussions:
         d.repiles = CommunityDiscussionReplies.objects.filter(discussion=d).count()
@@ -45,7 +46,8 @@ def community(request, community):
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
             "discussions": discussions,
-            "users": users}
+            "users": users,
+            "me": me}
     
     return render_to_response('communities/community.html', data)
 
