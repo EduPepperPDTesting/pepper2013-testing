@@ -80,9 +80,9 @@ from django.core.urlresolvers import reverse
           <div style="text-align:center;">
             <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
             <br />
-            %if me.user.is_superuser:
+            %if request.user.is_superuser:
             ADMIN
-            %elif me.facilitator:
+            %elif mem and mem.facilitator:
             FACILITATOR
             %else:
             MEMBER
@@ -99,11 +99,9 @@ from django.core.urlresolvers import reverse
             <div class=""> Members: ${users.count()}</div>
             </div>
 
-
             <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
               Trending
             </div>
-
 
             <div style="margin:20px;">
               %for i,d in enumerate(discussions):
