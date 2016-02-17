@@ -8,7 +8,8 @@ from django.conf import settings
 import logging
 log = logging.getLogger("tracking")
 
-es=Elasticsearch({"host": settings.PEOPLE_ES_HOST, "port": settings.PEOPLE_ES_PORT})
+hosts = ({"host": "localhost", "port": 9200},)
+es=Elasticsearch(hosts=hosts)
 
 INDEX_NAME = settings.PEOPLE_INDEX
 DOC_TYPE   = settings.PEOPLE_DOC_TYPE
