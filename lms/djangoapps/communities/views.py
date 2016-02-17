@@ -8,6 +8,7 @@ from .utils import is_facilitator
 from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies
 from administration.pepconn import get_post_array
 from operator import itemgetter
+from student.models import User
 
 log = logging.getLogger("tracking")
 
@@ -105,7 +106,8 @@ def community_edit(request, community='new'):
 
     # If we are adding a new community, and the user making the request is a superuser, return a blank form.
     if community == 'new' and request.user.is_superuser:
-        data.update({'community': '',
+        data.update({'community_id': 'new',
+                     'community': '',
                      'name': '',
                      'motto': '',
                      'logo': '',
@@ -138,7 +140,8 @@ def community_edit(request, community='new'):
             resource_list.append({'name': '', 'link': '', 'logo': ''})
 
         # Put together the data to send to the template.
-        data.update({'community': community_object['community'],
+        data.update({'community_id': community_object['id'],
+                     'community': community_object['community'],
                      'name': community_object['name'],
                      'motto': community_object['motto'],
                      'logo': community_object['logo'],
@@ -160,9 +163,59 @@ def community_edit_process(request):
     :param request: Request object.
     :return: JSON response.
     """
+    community_id = request.POST.get('community_id', '')
+    community = request.POST.get('community', '')
+    name = request.POST.get('name', '')
+    motto = request.POST.get('motto', '')
+    if request.POST.get('logo', 'nothing') == 'nothing':
+        try:
+            logo = request.FILES.get('logo')
+            logo_path = 'some/file/area/' + logo.name
+            destination = open(logo_path, 'wb+')
+            for chunk in logo.chunks():
+                destination.write(chunk)
+            destination.close()
+        except Exception as e:
+            logo_path = ''
+            log.warning('Error uploading logo: {0}'.format(e))
+    else:
+        logo_path = request.POST.get('logo', '')
+    facilitator = request.POST.get('facilitator', '')
+    private = request.POST.get('private', 0)
     courses = get_post_array(request.POST, 'course')
     resource_names = get_post_array(request.POST, 'resource_name')
     resource_links = get_post_array(request.POST, 'resource_link')
     resource_logos_existing = get_post_array(request.POST, 'resource_logo')
     resource_logos_new = get_post_array(request.FILES, 'resource_logo')
+
+    if community_id == 'new':
+        community_object = CommunityCommunities()
+    else:
+        community_object = CommunityCommunities.objects.get(id=community_id)
+
+    community_object.community = community
+    community_object.name = name
+    community_object.motto = motto
+    community_object.logo = logo_path
+    community_object.private = int(private)
+    community_object.save()
+
+
+    user_object = False
+    try:
+        user_object = User.objects.get(email=facilitator)
+    except Exception as e:
+        log.warning('Invalid email for facilitator: {0}'.format(e))
+
+    if user_object:
+        try:
+            community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+        except:
+            community_user = CommunityUsers()
+            community_user.community = community_object
+            community_user.user = user_object
+        community_user.facilitator = True
+
+    # TODO: drop all the courses before adding them?
+    # for course in courses:
 

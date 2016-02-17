@@ -9,7 +9,7 @@ import logging
 log = logging.getLogger("tracking")
 
 hosts = ({"host": "localhost", "port": 9200},)
-es=Elasticsearch(hosts=hosts)
+es=Elasticsearch()
 
 INDEX_NAME = settings.PEOPLE_INDEX
 DOC_TYPE   = settings.PEOPLE_DOC_TYPE
