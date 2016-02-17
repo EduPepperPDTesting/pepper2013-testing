@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse
 
 <body style="text-align:center">  
   <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
+
     <section style="width:880px;float:left;">
       <div style="border:2px solid #ddd;width:100%;height:280px;">
         <div style="padding:15px;">
@@ -64,7 +65,7 @@ from django.core.urlresolvers import reverse
         </tr>        
         <tr style="">
           %for u in users:
-          <td><img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" /></td>
+          <td><a href="${reverse('dashboard',args=[u.id])}" target="_blank"><img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" /></td>
           %endfor
         </tr>
       </table>
@@ -80,37 +81,45 @@ from django.core.urlresolvers import reverse
           <div style="text-align:center;">
             <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
             <br />
-            %if request.user.is_superuser:
-            ADMIN
-            %elif mem and mem.facilitator:
+            %if mem and mem.facilitator:
             FACILITATOR
-            %else:
+            %elif mem and not mem.facilitator:
             MEMBER
+            %else:
+            <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Add Me</a>
             %endif
           </div>
-
+          
           <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
             Community Status
           </div>
+          
+          <div style="margin:20px;">
+            <div class="">Discussions: ${discussions.count()}</div>
+            <div class="">Messages: </div>
+            <div class="">Members: ${users.count()}</div>
+          </div>
+
+          <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+            Trending
+          </div>
 
           <div style="margin:20px;">
-            <div class=""> Discussions: ${discussions.count()}</div>
-            <div class=""> Messages: </div>
-            <div class=""> Members: ${users.count()}</div>
-            </div>
-
-            <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-              Trending
-            </div>
-
-            <div style="margin:20px;">
-              %for i,d in enumerate(discussions):
-              <span style="color:#006EBF;">${d.user.first_name}, </span>
-              <span>${d.date_create}</span>
-              %endfor
-            </div>
+            %for i,d in enumerate(discussions):
+            <span style="color:#006EBF;">${d.user.first_name}, </span>
+            <span>${d.date_create}</span>
+            %endfor
           </div>
-          
+
+          <div style="margin:20px;">
+            <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center" value="" >My Communities</a>
+            <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Invites Friends</a>
+            <a href="#" style="display:block;text-align:center;">
+              <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+            </a>
+          </div>
+        </div>
+        
         </div>
     </section>
       </div>
