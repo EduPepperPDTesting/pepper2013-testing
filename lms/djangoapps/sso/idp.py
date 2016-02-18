@@ -235,5 +235,6 @@ def saml_redirect(request, sp_name, ms):
         relay_state="",
         response=True)
 
-    return HttpResponse(http_args["data"])
+    resp = http_args["data"].replace("<body>", "<body style='display:none'>")
+    return HttpResponse(resp)
 
