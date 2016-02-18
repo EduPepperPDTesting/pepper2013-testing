@@ -1501,7 +1501,7 @@ def registration_download_excel(request):
 
 def get_post_array(post, name, max=None):
     """
-    Gets array values from a jQuery POST.
+    Gets array values from a POST.
     """
     output = dict()
     for key in post.keys():

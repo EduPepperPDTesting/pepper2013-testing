@@ -46,30 +46,90 @@
     .card-link span{
         color: #FFFFFF;
     }
+    .community-form {
+        margin: 0 auto;
+        width: 900px;
+        padding: 20px;
+    }
+    #community, #community-logo, #community-facilitator {
+        display: block;
+        float: left;
+        margin: 0 40px 20px 0;
+        text-align: left;
+    }
+    #community input, #community-facilitator input {
+        display: block;
+        width: 500px;
+    }
+    #community-logo input {
+        display: block;
+    }
+    #community-name, #community-motto, #community-courses, #community-resources {
+        clear: both;
+        display: block;
+        text-align: left;
+        margin-bottom: 20px;
+    }
+    #community-name input, #community-motto input {
+        display: block;
+        width: 860px;
+    }
+    #community-private {
+        display: block;
+        float: left;
+        text-align: left;
+        padding-top: 1.75em;
+    }
+    #community-private input {
+        margin-left: 10px;
+    }
+    #community-courses span, #community-resources span {
+        display: block;
+    }
+    #community-courses input, #community-courses select, #community-resources input {
+        display: block;
+        float: left;
+        margin: 0 20px 20px 0;
+    }
+    .resource-link, .resource-name {
+        width: 240px;
+    }
+    #community-submit {
+        display: block;
+        clear: both;
+        margin: 0 auto;
+    }
+    #community-resources .add, #community-courses .add {
+        padding: 0 6px;
+    }
 </style>
+<script type="text/javascript">
+
+</script>
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
-    <form action="">
-        <label>Community ID:<input type="text" name="community" value="${community}"></label>
+    <form action="${reverse('community_edit_process')}" method="post">
+        %if user_type == 'super':
+            <label id="community"><span>Community ID:</span><input type="text" name="community" value="${community}"></label>
+        %elif user_type == 'facilitator':
+            <label id="community"><span>Community ID:</span><input type="text" name="community" value="${community}" disabled="disabled"></label>
+        %endif
         %if logo != '':
-            <label>Logo:<img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"></label>
+            <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"></label>
         %else:
-            <label>Logo:<input type="file" name="logo"></label>
+            <label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>
         %endif
-        <label>Community Name:<input type="text" name="name" value="${name}"></label>
-        <label>Description (Motto):<input type="text" name="motto" value="${motto}"></label>
-        <label>Facilitator:<input type="text" name="facilitator" value="${facilitator}"></label>
+        <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}"></label>
+        <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}"></label>
+        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}"></label>
         %if private:
-            <label>Private Group:<input type="checkbox" name="private" checked="checked"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" checked="checked"></label>
         %else:
-            <label>Private Group:<input type="checkbox" name="private"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private"></label>
         %endif
-        <%!
-            course_i = 0
-            resource_i = 0
-        %>
-        <label>Courses:
-        %for course in courses:
-            <select name="course[${course_i}]">
+        <label id="community-courses"><span>Courses:</span>
+        %for idx, course in enumerate(courses):
+            <select name="course[${idx}]">
+                <option value="">Select a Course</option>
                 %for course_option in courses_drop:
                     %if course == course_option['id']:
                         <option value="${course_option['id']}" selected="selected">${course_option['number']} | ${course_option['name']}</option>
@@ -79,22 +139,22 @@
                 %endfor
             </select>
             <input type="button" class="add" value="+">
-            <%! course_i += 1 %>
         %endfor
         </label>
-        <label>Resources:
-        %for resource in resources:
-            <input type="text" name="resource_name[${resource_i}]" value="${resource['name']}">
-            <input type="text" name="resource_link[${resource_i}]" value="${resource['link']}">
+        <label id="community-resources"><span>Resources:</span>
+        %for idx, resource in enumerate(resources):
+            <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}">
+            <input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}">
             %if resource['logo'] == '':
-                <input type="file" name="resource_logo[${resource_i}]">
+                <input type="file" name="resource_logo[${idx}]">
             %else:
-                <img src="${resource['logo']}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${resource_i}]", value="${resource['logo']}">
+                <img src="${resource['logo']}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]", value="${resource['logo']}">
             %endif
             <input type="button" class="add" value="+">
-            <%! resource_i += 1 %>
         %endfor
         </label>
         <input type="hidden" value="${community_id}" name="community_id">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+        <input id="community-submit" type="submit" value="Submit" name="submit">
     </form>
 </section>
