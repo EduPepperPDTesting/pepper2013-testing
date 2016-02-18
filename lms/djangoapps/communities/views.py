@@ -163,14 +163,17 @@ def community_edit_process(request):
     :param request: Request object.
     :return: JSON response.
     """
+    # Get all of the form data.
     community_id = request.POST.get('community_id', '')
     community = request.POST.get('community', '')
     name = request.POST.get('name', '')
     motto = request.POST.get('motto', '')
+    # The logo needs special handling. If the path isn't passed in in the post, we'll look to see if it's a new file.
     if request.POST.get('logo', 'nothing') == 'nothing':
+        # Try to grab the new file, and if it isn't there, just make it blank.
         try:
             logo = request.FILES.get('logo')
-            logo_path = 'some/file/area/' + logo.name
+            logo_path = 'some/file/area/' + logo.name  # TODO: Need to get the right path in here.
             destination = open(logo_path, 'wb+')
             for chunk in logo.chunks():
                 destination.write(chunk)
@@ -179,20 +182,24 @@ def community_edit_process(request):
             logo_path = ''
             log.warning('Error uploading logo: {0}'.format(e))
     else:
+        # If the path was passed in, just use that.
         logo_path = request.POST.get('logo', '')
     facilitator = request.POST.get('facilitator', '')
     private = request.POST.get('private', 0)
+    # These all have multiple values, so we'll use the get_post_array function to grab all the values.
     courses = get_post_array(request.POST, 'course')
     resource_names = get_post_array(request.POST, 'resource_name')
     resource_links = get_post_array(request.POST, 'resource_link')
     resource_logos_existing = get_post_array(request.POST, 'resource_logo')
     resource_logos_new = get_post_array(request.FILES, 'resource_logo')
 
+    # If this is a new community, create a new entry, otherwise, load from the DB.
     if community_id == 'new':
         community_object = CommunityCommunities()
     else:
         community_object = CommunityCommunities.objects.get(id=community_id)
 
+    # Set all the community values and save to the DB.
     community_object.community = community
     community_object.name = name
     community_object.motto = motto
@@ -200,22 +207,67 @@ def community_edit_process(request):
     community_object.private = int(private)
     community_object.save()
 
-
+    # Load the main user object for the facilitator user.
     user_object = False
     try:
         user_object = User.objects.get(email=facilitator)
     except Exception as e:
         log.warning('Invalid email for facilitator: {0}'.format(e))
 
+    # As long as the object loaded correctly, make sure this user is set as the facilitator.
     if user_object:
+        # First we need to make sure if there is already a facilitator set, we unset them.
+        try:
+            old_facilitator = CommunityUsers.objects.get(facilitator=True)
+            old_facilitator.facilitator = True
+            old_facilitator.save()
+        except:
+            pass
+        # Now we try to load the new user in case they are already a member.
         try:
             community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+        # If they aren't a member already, create a new entry.
         except:
             community_user = CommunityUsers()
             community_user.community = community_object
             community_user.user = user_object
+        # Set the facilitator flag to true.
         community_user.facilitator = True
 
-    # TODO: drop all the courses before adding them?
-    # for course in courses:
+    # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
+    CommunityCourses.objects.filter(community=community_object).delete()
+    # Go through the courses and add them to the DB.
+    for course in courses:
+        course_object = CommunityCourses()
+        course_object.community = community_object
+        course_object.course = course
+        course_object.save()
+
+    # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
+    CommunityResources.objects.filter(community=community_object).delete()
+    # Go through the resource links, with the index so we can directly access the names and logos.
+    for idx, resource_link in enumerate(resource_links):
+        resource_object = CommunityResources()
+        resource_object.community = community_object
+        resource_object.link = resource_link
+        resource_object.name = resource_names[idx]
+        # The logo needs special handling since we might need to upload the file. First we try the entry in the FILES
+        # and try to upload it.
+        try:
+            resource_logo = resource_logos_new[idx]
+            logo_path = 'some/file/area/' + resource_logo.name
+            destination = open(logo_path, 'wb+')
+            for chunk in resource_logo.chunks():
+                destination.write(chunk)
+            destination.close()
+            resource_object.logo = logo_path
+        except:
+            # If that didn't work, we look to see if the path was passed in.
+            try:
+                resource_object.logo = resource_logos_existing[idx]
+            except:
+                # If it wasn't, we set it to nothing.
+                resource_object.logo = ''
+        resource_object.save()
+
 
