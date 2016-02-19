@@ -117,7 +117,7 @@
         });
         var entry = '<div class="community-course"><select name="course[' + course_num + ']"><option value="">Select a Course</option>';
         %for course_option in courses_drop:
-            entry += '<option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>';
+            entry += '<option value="${course_option['id']}">${course_option['number']} | ${course_option['name'].replace("'", r"\'")}</option>';
         %endfor
         entry += '</select><input type="button" class="add operation" value="+" onclick="newCourse()"></div>';
         $('#community-courses').append(entry);
