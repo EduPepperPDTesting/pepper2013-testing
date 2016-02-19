@@ -99,9 +99,11 @@
         clear: both;
         margin: 0 auto;
     }
-    #community-resources .add, #community-courses .add,
-    #community-resources .minus, #community-courses .minus {
+    #community-resources .add, #community-courses .add {
         padding: 0 6px;
+    }
+    #community-resources .minus, #community-courses .minus {
+        padding: 0 8px;
     }
     .community-course, .community-resource {
         clear: both;
@@ -110,30 +112,67 @@
 <script type="text/javascript">
     function newCourse() {
         var course_num = $('.community-course').length;
-        $('#community-courses .add').each(function(index) {
-            $(this).replaceWith('<input type="button" class="minus" value="-" onclick="removeEntry(\'.community-course\', ' + index + ')">');
+        $('.community-course').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
         });
         var entry = '<div class="community-course"><select name="course[' + course_num + ']"><option value="">Select a Course</option>';
         %for course_option in courses_drop:
             entry += '<option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>';
         %endfor
-        entry += '</select><input type="button" class="add" value="+" onclick="newCourse()"></div>';
+        entry += '</select><input type="button" class="add operation" value="+" onclick="newCourse()"></div>';
         $('#community-courses').append(entry);
     }
     function newResource() {
         var resource_num = $('.community-resource').length;
-        $('#community-resources .add').each(function(index) {
-            $(this).replaceWith('<input type="button" class="minus" value="-" onclick="removeEntry(\'.community-resource\', ' + index + ')">');
+        $('.community-resource').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
         });
         var entry = '<div class="community-resource">';
         entry += '<input class="resource-name" type="text" name="resource_name[' + resource_num + ']" value="">';
         entry += '<input class="resource-link" type="text" name="resource_link[' + resource_num + ']" value="">';
-        entry += '<input type="file" name="resource_logo[' + resource_num + ']">';
-        entry += '<input type="button" class="add" value="+" onclick="newResource()">';
+        entry += '<input  class="resource-logo" type="file" name="resource_logo[' + resource_num + ']">';
+        entry += '<input type="button" class="add operation" value="+" onclick="newResource()">';
         $('#community-resources').append(entry);
     }
-    function removeEntry(selector, index) {
-        $(selector).eq(index).remove();
+    function removeCourse(index) {
+        $('.community-course').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('select').attr('name', 'course[' + num + ']');
+            }
+        });
+        $('.community-course .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeCourse(' + index + ')">');
+        });
+    }
+    function removeResource(index) {
+        $('.community-resource').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('.resource-link').attr('name', 'resource_link[' + num + ']');
+                $(this).children('.resource-name').attr('name', 'resource_name[' + num + ']');
+                $(this).children('.resource-logo').attr('name', 'resource_logo[' + num + ']');
+            }
+        });
+        $('.community-resource .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
+        });
     }
 </script>
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
@@ -169,7 +208,7 @@
                         %endif
                     %endfor
                 </select>
-                <input type="button" class="add" value="+" onclick="newCourse()">
+                <input type="button" class="add operation" value="+" onclick="newCourse()">
             </div>
         %endfor
         </label>
@@ -179,11 +218,11 @@
                 <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}">
                 <input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}">
                 %if resource['logo'] == '':
-                    <input type="file" name="resource_logo[${idx}]">
+                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
                 %else:
-                    <img src="${resource['logo']}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]", value="${resource['logo']}">
+                    <img src="${resource['logo']}" class="community-logo-thumb"><input class="resource-logo" type="hidden" name="resource_logo[${idx}]", value="${resource['logo']}">
                 %endif
-                <input type="button" class="add" value="+" onclick="newResource()">
+                <input type="button" class="add operation" value="+" onclick="newResource()">
             </div>
         %endfor
         </label>
