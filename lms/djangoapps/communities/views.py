@@ -90,6 +90,11 @@ def communities(request):
 
 
 @login_required
+def community_delete(request, community):
+    pass
+
+
+@login_required
 def community_edit(request, community='new'):
     """
     Sets up the community add/edit form.

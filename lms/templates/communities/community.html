@@ -112,7 +112,9 @@ from django.core.urlresolvers import reverse
           </div>
 
           <div style="margin:20px;">
-            <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center" value="" >My Communities</a>
+            <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
+            <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
+            <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
             <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Invites Friends</a>
             <a href="#" style="display:block;text-align:center;">
               <img src="/static/images/community_google_hangouts.png" class="" alt="" />
