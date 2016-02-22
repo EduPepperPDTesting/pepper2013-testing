@@ -124,6 +124,7 @@
         <option value="SE">Special Education</option>
         <option value="TECH">Technology</option>
         <option value="PEP">Pepper</option>
+                    <option value="POW">Pepper Online Workshops!</option>
         <option value="WR">Writing and Poetry</option>
       </select>
     </div>
@@ -149,11 +150,42 @@
       <!--<input type="submit" id="edit-submit" name="op" value="find">-->
     </div>
     <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
+            %if request.user.is_authenticated():
+                <div>
+                    %if len(states) > 0:
+                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
+                            <select name="state" class="form-select">
+                                <option value="">Select State</option>
+                                %for state in states:
+                                    <option value="${state}">${state}</option>
+                                %endfor
+                            </select>
+                        </div>
+                    %endif
+                    %if len(districts) > 0:
+                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
+                            <select name="district" class="form-select">
+                                <option value="">Select District</option>
+                                %for district in districts:
+                                    <option value="${district['id']}">${district['name']}</option>
+                                %endfor
+                            </select>
+                        </div>
+                    %endif
+                    %if len(states) > 0 and len(districts) > 0:
+                        <div style="display:inline-block;width:83px;"></div>
+                    %else:
+                        <div style="display:inline-block;width:283px;"></div>
+                    %endif
+                </div>
+            %endif
      <script type="text/javascript">
         var form=$("#course_list_form");
         form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
         form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
         form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
+                form.find("select[name=state]").val("${request.GET.get('state','')}");
+                form.find("select[name=district]").val("${request.GET.get('district','')}");
       </script>
     </form>
   </section>
@@ -185,27 +217,51 @@
             <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
           </div>
 
-          %if request.user.is_authenticated():
-          %if request.user.profile.district.state.name=='Connecticut':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
+                        %if collections > 0:
+
+                            <!--------Custom Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/collection/custom_content_collection.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=CT Core Standards&op=find" class="card-link image-bottom-style"><span>CT Core Standards</span></a>
+                                <a href="${reverse('courses_collections')}" class="card-link image-bottom-style"><span>Leadership</span></a>
           </div>
-          %elif request.user.profile.district.name=='Manteca Unified School District':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
-          </div>
-          %endif
+
           %endif
           
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
           </div>
+
+                        %if request.user.is_authenticated() and len(states) > 0:
+
+                            <!--------State Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/state/state_content_collection.jpg);background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="/courses/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Content Collections</span></a>
+                            </div>
+
+                        %endif
+                        %if request.user.is_authenticated() and len(districts) > 0:
+
+                            <!--------District Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/district/district_content_collection.jpg);background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="/courses/districts?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Content Collections</span></a>
+                            </div>
+
+                        %endif
+
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
+                        </div>
+                        <!--------20160218 add-------->
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Pepper_Online_Workshop.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper Online Workshops!</span></a>
           </div>
         </div>
        %else:
