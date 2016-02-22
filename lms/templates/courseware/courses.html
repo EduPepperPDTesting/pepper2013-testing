@@ -150,35 +150,6 @@
       <!--<input type="submit" id="edit-submit" name="op" value="find">-->
     </div>
     <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
-            %if request.user.is_authenticated():
-                <div>
-                    %if len(states) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="state" class="form-select">
-                                <option value="">Select State</option>
-                                %for state in states:
-                                    <option value="${state}">${state}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(districts) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="district" class="form-select">
-                                <option value="">Select District</option>
-                                %for district in districts:
-                                    <option value="${district['id']}">${district['name']}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(states) > 0 and len(districts) > 0:
-                        <div style="display:inline-block;width:83px;"></div>
-                    %else:
-                        <div style="display:inline-block;width:283px;"></div>
-                    %endif
-                </div>
-            %endif
      <script type="text/javascript">
         var form=$("#course_list_form");
         form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
