@@ -193,19 +193,21 @@ def custom_collection_visibility(user, course, collection):
 
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
-    if course.display_grades == 'K-5' or course.display_grades == 'K-12' and currGrades != 'K-12':
+    #20151130 modify the courses shown in different course grade after press ALl button
+    #begin
+    if course.display_grades == 'K-5':
         if course.display_subject != currSubject[0]:
             currSubject[0] = course.display_subject
             subject_index[0] += 1
             g_courses[0].append([])
         g_courses[0][subject_index[0]].append(course)
-    if (course.display_grades == '6-8' or course.display_grades == 'K-12' or course.display_grades == '6-12') and currGrades != 'K-12' and currGrades != '9-12':
+    if (course.display_grades == '6-8' or course.display_grades == '6-12') and currGrades != '9-12':
         if course.display_subject != currSubject[1]:
             currSubject[1] = course.display_subject
             subject_index[1] += 1
             g_courses[1].append([])
         g_courses[1][subject_index[1]].append(course)
-    if (course.display_grades == '9-12' or course.display_grades == 'K-12' or course.display_grades == '6-12') and currGrades != 'K-12' and currGrades != '6-8':
+    if (course.display_grades == '9-12' or course.display_grades == '6-12') and currGrades != '6-8':
         if course.display_subject != currSubject[2]:
             currSubject[2] = course.display_subject
             subject_index[2] += 1
@@ -217,6 +219,7 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
             subject_index[3] += 1
             g_courses[3].append([])
         g_courses[3][subject_index[3]].append(course)
+    #end
 
 
 @ensure_csrf_cookie
