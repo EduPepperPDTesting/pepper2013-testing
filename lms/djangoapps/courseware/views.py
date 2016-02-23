@@ -44,6 +44,7 @@ log = logging.getLogger("mitx.courseware")
 
 template_imports = {'urllib': urllib}
 
+
 def user_groups(user):
     """
     TODO (vshnayder): This is not used. When we have a new plan for groups, adjust appropriately.
@@ -193,8 +194,8 @@ def custom_collection_visibility(user, course, collection):
     return False
 
 
-#20151203 add for dipcourses
-#begin
+# 20151203 add for dpicourses
+# begin
 @ensure_csrf_cookie
 @cache_if_anonymous
 def newgroup_courses(request):
@@ -206,11 +207,12 @@ def newgroup_courses(request):
     courses = sort_by_custom(courses)
 
     return render_to_response("courseware/dpicourses.html", {'courses': courses, 'link': True})
-#end
+# end
+
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
-    #20151130 modify the courses shown in different course grade after press ALl button
-    #begin
+    # 20151130 modify the courses shown in different course grade after press All button
+    # begin
     if course.display_grades == 'K-5':
         if course.display_subject != currSubject[0]:
             currSubject[0] = course.display_subject
@@ -235,7 +237,8 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
             subject_index[3] += 1
             g_courses[3].append([])
         g_courses[3][subject_index[3]].append(course)
-    #end
+    # end
+
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
