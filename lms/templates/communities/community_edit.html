@@ -191,9 +191,9 @@
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
         %if private:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" checked="checked"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
         %endif
         <label id="community-courses"><span>Courses:</span>
         %for idx, course in enumerate(courses):
