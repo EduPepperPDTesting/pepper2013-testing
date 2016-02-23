@@ -135,7 +135,7 @@ def community_edit(request, community='new'):
         community_object = CommunityCommunities.objects.get(community=community)
         courses = CommunityCourses.objects.filter(community=community_object)
         resources = CommunityResources.objects.filter(community=community_object)
-        facilitator = CommunityUsers.objects.get(community=community_object, facilitator=True)
+        facilitator = CommunityUsers.objects.filter(community=community_object, facilitator=True)
 
         # Build the lists of courses and resources.
         course_list = list()
@@ -152,13 +152,13 @@ def community_edit(request, community='new'):
             resource_list.append({'name': '', 'link': '', 'logo': ''})
 
         # Put together the data to send to the template.
-        data.update({'community_id': community_object['id'],
-                     'community': community_object['community'],
-                     'name': community_object['name'],
-                     'motto': community_object['motto'],
-                     'logo': community_object['logo'],
-                     'facilitator': facilitator.user.email,
-                     'private': community_object['private'],
+        data.update({'community_id': community_object.id,
+                     'community': community_object.community,
+                     'name': community_object.name,
+                     'motto': community_object.motto,
+                     'logo': community_object.logo,
+                     'facilitator': facilitator[0].user.email if len(facilitator) else None,
+                     'private': community_object.private,
                      'courses': course_list,
                      'resources': resource_list,
                      'user_type': user_type})
