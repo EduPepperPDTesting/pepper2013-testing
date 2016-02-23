@@ -1,6 +1,8 @@
 <%inherit file="../main.html" />
 <%!
 from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
 %>
 <%namespace name='static' file='../static_content.html'/>
 
@@ -45,6 +47,17 @@ from django.core.urlresolvers import reverse
         <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
           <th>Community Discussion</th><th>Activity</th><th>Content Collections</th>
         </tr>
+        <tr>
+          <td></td><td></td>
+          <td rowspan="20">
+            %for i,c in enumerate(courses):
+            <a href="" style="display:block;">
+              <img src="${course_image_url(course_from_id(c.course))}" style="width:150px;" alt="${c.course}" />
+            </a>
+            %endfor
+          </td>
+        </tr>
+        <!--
         %for i,d in enumerate(discussions):
         <tr>
           <td>${d.subject}<br>
@@ -52,11 +65,9 @@ from django.core.urlresolvers import reverse
             <span>${d.date_create}</span>
           </td>
           <td><label>Replies:</label> ${d.repiles}<br/><label>Views:</label> ${d.views}</td>
-          %if i==0:
-          <td rowlabel="4"></td>
-          %endif
         </tr>
         %endfor
+        -->
       </table>
 
       <table id="table-members" width="100%" cellspacing="" cellpadding="" border="0">

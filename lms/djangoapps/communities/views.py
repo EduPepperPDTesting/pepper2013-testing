@@ -40,7 +40,9 @@ def community(request, community):
     users = CommunityUsers.objects.filter(facilitator=False, community=community)
     discussions = CommunityDiscussions.objects.filter(community=community)
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
-
+    resources = CommunityResources.objects.filter(community=community)
+    courses = CommunityCourses.objects.filter(community=community)
+    
     for d in discussions:
         d.repiles = CommunityDiscussionReplies.objects.filter(discussion=d).count()
         d.views = 0  # todo: how to get view count?
@@ -49,6 +51,8 @@ def community(request, community):
             "facilitator": facilitator[0] if len(facilitator) else None,
             "discussions": discussions,
             "users": users,
+            "resources": resources,
+            "courses": courses,
             "mem": mems[0] if mems.count() else None}
     
     return render_to_response('communities/community.html', data)
