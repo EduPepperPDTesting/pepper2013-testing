@@ -145,13 +145,13 @@ def community_edit(request, community='new'):
         course_list = list()
         resource_list = list()
         for course in courses:
-            course_list.append(course['course'])
+            course_list.append(course.course)
         if not len(course_list):
             course_list.append('')
         for resource in resources:
-            resource_list.append({'name': resource['name'],
-                                  'link': resource['link'],
-                                  'logo': resource['logo']})
+            resource_list.append({'name': resource.name,
+                                  'link': resource.link,
+                                  'logo': resource.logo})
         if not len(resource_list):
             resource_list.append({'name': '', 'link': '', 'logo': ''})
 
