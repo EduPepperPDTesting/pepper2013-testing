@@ -36,10 +36,10 @@ def community(request, community):
     :return: The Community page.
     """
     community = CommunityCommunities.objects.get(community=community)
-    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True)
-    users = CommunityUsers.objects.select_related().filter(facilitator=False)
+    facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
+    users = CommunityUsers.objects.filter(facilitator=False, community=community)
     discussions = CommunityDiscussions.objects.filter(community=community)
-    mems = CommunityUsers.objects.select_related().filter(user=request.user)
+    mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
 
     for d in discussions:
         d.repiles = CommunityDiscussionReplies.objects.filter(discussion=d).count()

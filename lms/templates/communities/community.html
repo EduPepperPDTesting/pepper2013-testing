@@ -65,7 +65,9 @@ from django.core.urlresolvers import reverse
         </tr>        
         <tr style="">
           %for u in users:
-          <td><a href="${reverse('dashboard',args=[u.id])}" target="_blank"><img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" /></td>
+          <td><a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
+            <img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" />
+          </td>
           %endfor
         </tr>
       </table>
