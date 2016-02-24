@@ -49,12 +49,21 @@ from student.views import course_from_id
         </tr>
         <tr>
           <td></td><td></td>
-          <td rowspan="20">
+          <td rowspan="20" style="width:200px;text-align:center;">
+            
             %for i,c in enumerate(courses):
-            <a href="" style="display:block;">
-              <img src="${course_image_url(course_from_id(c.course))}" style="width:150px;" alt="${c.course}" />
+            <a href="${reverse('courseware', args=[c.course])}" style="display:block;margin-bottom:15px;">
+              <img src="/static/images/about_1.jpg" style="width:150px;" alt="${c.course}" />
+            </a>
+            <!-- ${course_image_url(course_from_id(c.course))} -->
+            %endfor
+
+            %for i,r in enumerate(resources):
+            <a href="${r.link}" style="display:block;margin-bottom:15px;">
+              <img src="${r.logo}" style="width:150px;" alt="${r.name}" />
             </a>
             %endfor
+            
           </td>
         </tr>
         <!--
