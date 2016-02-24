@@ -332,7 +332,7 @@ except:
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li><a href="/courses" class="main-link">Courses</a></li>
+                <li><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
             %else:
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
             %endif
