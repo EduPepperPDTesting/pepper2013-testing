@@ -8,6 +8,7 @@
     from xmodule.modulestore.django import modulestore
     from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
+    from communities.views import LOGO_URL, RESOURCE_LOGO_URL
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -183,7 +184,7 @@
             <label id="community"><span>Community ID:</span><input type="text" name="community" value="${community}" disabled="disabled"></label>
         %endif
         %if logo != '':
-            <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"></label>
+            <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${LOGO_URL + logo}"><input type="hidden" name="logo" value="${logo}"></label>
         %else:
             <label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>
         %endif
@@ -191,9 +192,9 @@
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
         %if private:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" checked="checked"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private"></label>
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
         %endif
         <label id="community-courses"><span>Courses:</span>
         %for idx, course in enumerate(courses):
@@ -221,7 +222,7 @@
                 %if resource['logo'] == '':
                     <input class="resource-logo" type="file" name="resource_logo[${idx}]">
                 %else:
-                    <img src="${resource['logo']}" class="community-logo-thumb"><input class="resource-logo" type="hidden" name="resource_logo[${idx}]", value="${resource['logo']}">
+                    <img src="${RESOURCE_LOGO_URL + resource['logo']}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]" value="${resource['logo']}">
                 %endif
                 </label>
                 <input type="button" class="add operation" value="+" onclick="newResource()">

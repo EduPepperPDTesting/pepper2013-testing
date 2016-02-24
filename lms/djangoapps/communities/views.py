@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
+from django.conf import settings
 import json
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
@@ -13,6 +14,11 @@ from operator import itemgetter
 from student.models import User
 
 log = logging.getLogger("tracking")
+
+LOGO_PATH = settings.STATIC_ROOT + '/uploads/community_logos/'
+RESOURCE_LOGO_PATH = settings.STATIC_ROOT + '/uploads/community_resource_logos/'
+LOGO_URL = settings.STATIC_URL + '/uploads/community_logos/'
+RESOURCE_LOGO_URL = settings.STATIC_URL + '/uploads/community_resource_logos/'
 
 
 def index(request):
@@ -145,13 +151,13 @@ def community_edit(request, community='new'):
         course_list = list()
         resource_list = list()
         for course in courses:
-            course_list.append(course['course'])
+            course_list.append(course.course)
         if not len(course_list):
             course_list.append('')
         for resource in resources:
-            resource_list.append({'name': resource['name'],
-                                  'link': resource['link'],
-                                  'logo': resource['logo']})
+            resource_list.append({'name': resource.name,
+                                  'link': resource.link,
+                                  'logo': resource.logo})
         if not len(resource_list):
             resource_list.append({'name': '', 'link': '', 'logo': ''})
 
@@ -192,7 +198,7 @@ def community_edit_process(request):
             # Try to grab the new file, and if it isn't there, just make it blank.
             try:
                 logo = request.FILES.get('logo')
-                logo_path = 'some/file/area/' + logo.name  # TODO: Need to get the right path in here.
+                logo_path = LOGO_PATH + logo.name
                 destination = open(logo_path, 'wb+')
                 for chunk in logo.chunks():
                     destination.write(chunk)
@@ -281,7 +287,7 @@ def community_edit_process(request):
                 # FILES and try to upload it.
                 try:
                     resource_logo = resource_logos_new[key]
-                    logo_path = 'some/file/area/' + resource_logo.name
+                    logo_path = RESOURCE_LOGO_PATH + resource_logo.name
                     destination = open(logo_path, 'wb+')
                     for chunk in resource_logo.chunks():
                         destination.write(chunk)
