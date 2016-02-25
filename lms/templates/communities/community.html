@@ -55,14 +55,16 @@ from student.views import course_from_id
             <% c=course_from_id(cc.course) %>
             <%include file="../course.html" args="course=c" />
             %endfor
-            <div style="clear:both">
+            <div style="clear:both;">
               %for i,r in enumerate(resources):
-              <a href="${r.link}" style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:150px;">
+              <div style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:150px;">
                 <img src="${r.logo}" style="width:242px;height:150px;" alt="${r.name}" />
-                <div style="width:222px;height:40px;background:#f0870c;color:#fff;font-size:14px;line-height:20px;padding:10px;margin-top:-60px;position:absolute;z-index:999">
-                  ${r.name}
-                </div>
-              </a>
+                <a href="${r.link}" style="display:block;width:242px;height:60px;background:#f0870c;color:#fff;font-size:14px;margin-top:-60px;z-index:999;position:absolute;">
+                  <div style="display:table-cell;height:60px;vertical-align:middle;width:242px;text-align:center;">
+                    ${r.name}
+                  </div>
+                </a>
+              </div>
               %endfor
             </div>
           </td>
