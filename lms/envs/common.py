@@ -841,6 +841,9 @@ INSTALLED_APPS = (
 
     # Communities
     'communities',
+
+    # File Uploader
+    'file_uploader',
 )
 
 ######################### MARKETING SITE ###############################
