@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from file_uploader.models import FileUploads
 
 
 class CommunityCommunities(models.Model):
@@ -8,7 +9,7 @@ class CommunityCommunities(models.Model):
     community = models.CharField(blank=False, max_length=255, db_index=True, unique=True)
     name = models.CharField(blank=False, max_length=255, db_index=True)
     motto = models.CharField(blank=False, max_length=255, db_index=True)
-    logo = models.CharField(blank=False, max_length=255, db_index=True)
+    logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
     private = models.BooleanField(blank=False, default=0)
 
 
@@ -33,7 +34,7 @@ class CommunityResources(models.Model):
     community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
     name = models.CharField(blank=False, max_length=255, db_index=True)
     link = models.CharField(blank=False, max_length=255, db_index=True)
-    logo = models.CharField(blank=False, max_length=255, db_index=True)
+    logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
 
 
 class CommunityDiscussions(models.Model):
