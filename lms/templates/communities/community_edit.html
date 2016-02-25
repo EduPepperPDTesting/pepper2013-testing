@@ -218,10 +218,11 @@
                 <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name">
                 <input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link">
                 <label><div class="resource-logo-label">Logo:</div>
-                %if resource['logo'] == '':
-                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
+                %if resource['logo']:
+                    <img src="${resource['logo'].upload.url}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
+
                 %else:
-                    <img src="${resource['logo']}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]" value="${resource['logo']}">
+                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
                 %endif
                 </label>
                 <input type="button" class="add operation" value="+" onclick="newResource()">

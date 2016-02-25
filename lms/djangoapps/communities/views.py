@@ -152,7 +152,7 @@ def community_edit(request, community='new'):
         for resource in resources:
             resource_list.append({'name': resource.name,
                                   'link': resource.link,
-                                  'logo': resource.logo.upload.url if resource.logo else ''})
+                                  'logo': resource.logo})
         if not len(resource_list):
             resource_list.append({'name': '', 'link': '', 'logo': ''})
 
@@ -220,7 +220,8 @@ def community_edit_process(request):
     community_object.community = community
     community_object.name = name
     community_object.motto = motto
-    community_object.logo = logo
+    if logo:
+        community_object.logo = logo
     community_object.private = int(private)
     community_object.save()
 
@@ -277,17 +278,22 @@ def community_edit_process(request):
             resource_object.name = resource_names[key]
             # The logo needs special handling since we might need to upload the file. First we try the entry in the
             # FILES and try to upload it.
-            try:
-                logo = FileUploads()
-                logo.type = 'community_resource_logos'
-                logo.sub_type = community
-                logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                logo.save()
-            except Exception as e:
-                logo = None
-                log.warning('Error uploading logo: {0}'.format(e))
+            if request.POST.get('resource_logo[{0}]'.format(key)):
+                file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                logo = FileUploads.objects.get(id=file_id)
+            else:
+                try:
+                    logo = FileUploads()
+                    logo.type = 'community_resource_logos'
+                    logo.sub_type = community
+                    logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                    logo.save()
+                except Exception as e:
+                    logo = None
+                    log.warning('Error uploading logo: {0}'.format(e))
 
-            resource_object.logo = logo
+            if logo:
+                resource_object.logo = logo
             resource_object.save()
 
     return redirect(reverse('community_view', kwargs={'community': community_object.community}))
