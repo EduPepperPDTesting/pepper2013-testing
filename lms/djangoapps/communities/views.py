@@ -79,14 +79,14 @@ def communities(request):
         for item in items:
             community_list.append({'id': item.community.community,
                                    'name': item.community.name,
-                                   'logo': item.community.logo,
+                                   'logo': item.community.logo.upload.url if item.community.logo else '',
                                    'private': item.community.private})
     # Query for the communities this user is allowed to see.
     items = CommunityCommunities.objects.filter(**filter_dict)
     for item in items:
         community_list.append({'id': item.community,
                                'name': item.name,
-                               'logo': item.logo,
+                               'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
 
     # Set up the data to send to the communities template, with the communities sorted by name.
