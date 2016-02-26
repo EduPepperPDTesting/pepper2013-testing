@@ -17,7 +17,9 @@
     #table-discuss td span{font-size:12px;}
     #table-members th{color:#006EBF;padding:20px 3px; font-size:20px; }
     .card-link span{color: #FFFFFF;}
-    .course-card{margin:0 0 10px 0  !important}
+ .course-card{margin:0 0 10px 0  !important}
+
+ div.card-bottom table tr:nth-child(2){display:none;} 
 </style>
 
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
@@ -59,18 +61,22 @@
                     %endfor
                     <div style="clear:both;">
                         %for i,r in enumerate(resources):
-                            <div style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:150px;">
+                            <div style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:160px;
+                                        box-shadow:rgba(0, 0, 0, 0.1) 3px 7px 7px 0px;border-radius:6px;">
+                              <div style="">
                                 %if r.logo:
-                                    <img src="${r.logo.upload.url}" style="width:242px;height:150px;" alt="${r.name}" />
+                                    <img src="${r.logo.upload.url}" style="display:block;width:242px;height:100px;border-radius:6px 6px 0px 0px;" alt="${r.name}" />
                                 %else:
-                                    <img src="TODO: WE NEED A DEFAULT HERE" style="width:242px;height:150px;" alt="${r.name}" />
-                                %endif
-                                <a href="${r.link}" style="display:block;width:242px;height:60px;background:#f0870c;color:#fff;font-size:14px;margin-top:-60px;z-index:999;position:absolute;">
+                                    <img src="TODO: WE NEED A DEFAULT HERE" style="display:block;width:242px;height:100px;border-radius:0 0 0px 0px;" alt="${r.name}" />
+                                    %endif
+                                <a href="${r.link}" style="display:block;height:60px;background:#f0870c;color:#fff;font-size:14px;border-radius:0 0 6px 6px;">
                                     <div style="display:table-cell;height:60px;vertical-align:middle;width:242px;text-align:center;">
                                         ${r.name}
                                     </div>
                                 </a>
-                            </div>
+                               </div>
+                           </div>
+                              
                         %endfor
                     </div>
                 </td>
@@ -145,7 +151,7 @@
                     <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
                     <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
                     <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
-                    <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Invites Friends</a>
+                    <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Manage Members</a>
                     <a href="#" style="display:block;text-align:center;">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
                     </a>
