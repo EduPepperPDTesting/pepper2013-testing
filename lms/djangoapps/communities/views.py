@@ -29,6 +29,27 @@ def community_ngss(request):
 
 
 @login_required
+def community_manage_member(request, community):
+    pass
+
+    
+@login_required
+def community_join(request, community):
+    user_id = int(request.POST.get("user_id", "0"))
+
+    user = User.objects.get(id=user_id)
+    community = CommunityCommunities.objects.get(community=community)
+    mems = CommunityUsers.objects.filter(user=user, community=community)
+    if not mems.exists():
+        cu = CommunityUsers()
+        cu.user = user
+        cu.community = community
+        cu.save()
+
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+
+@login_required
 def community(request, community):
     """
     Returns a single community page.

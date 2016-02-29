@@ -7,163 +7,225 @@
 <%namespace name='static' file='../static_content.html'/>
 
 <%block name="title">
-    <title></title>
+<title></title>
 </%block>
 
 <style type="text/css" media="screen">
-    #table-discuss th{color:#006EBF;padding:20px 3px; font-size:20px; }
-    #table-discuss td{color:#000;padding:20px 3px; font-size:20px;line-height:20px; }
-    #table-discuss td label{font-style:normal;display:inline-block;width:3.5em;text-align:left;font-weight:bold;}
-    #table-discuss td span{font-size:12px;}
-    #table-members th{color:#006EBF;padding:20px 3px; font-size:20px; }
-    .card-link span{color: #FFFFFF;}
+ #table-discuss th{color:#006EBF;padding:20px 3px; font-size:20px; }
+ #table-discuss td{color:#000;padding:20px 3px; font-size:20px;line-height:20px; }
+ #table-discuss td label{font-style:normal;display:inline-block;width:3.5em;text-align:left;font-weight:bold;}
+ #table-discuss td span{font-size:12px;}
+ #table-members th{color:#006EBF;padding:20px 3px; font-size:20px; }
+ .card-link span{color: #FFFFFF;}
  .course-card{margin:0 0 10px 0  !important}
+ div.card-bottom table tr:nth-child(2){display:none;}
 
- div.card-bottom table tr:nth-child(2){display:none;} 
+ #members a{margin-right:5px;display:inline-block;}
 </style>
-
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
-
+<script type="text/javascript">
+function joinMe(){
+  var user_id = "${request.user.id}";
+  $.post("${reverse('community_join',args=[community.community])}",{user_id:user_id}, function(r){
+    if(r.success)
+      window.location.reload();
+  });
+}
+</script>
 <body style="text-align:center">
-<div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
-
+  <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
     <section style="width:880px;float:left;">
-        <div style="border:2px solid #ddd;width:100%;height:280px;">
-            <div style="padding:15px;">
-                %if community.logo:
-                    <img src="${community.logo.upload.url}" style="float:right;width:390px;" alt="photo"/>
-                %endif
-                <p style="margin:5px 0;color:#006EBF;font-size:28px;margin:0px">${community.name}</p>
-                <p style="margin:5px 0;padding-left:1em;color:#006EBF;font-size:24px;margin:0px;color:#777;line-height:28px;">${community.motto}</p>
-                %if facilitator:
-                    <div style="margin-left:1em;margin-top:20px;">
-                        <img src="${reverse('user_photo',args=[facilitator.user.id])}" style="vertical-align:middle;" alt="photo" />
-                        <div style="display:inline-block;line-height:95px;vertical-align:middle;">
-                            <div style="vertical-align:middle;margin:auto;line-height:20px;">
-                                <p style="margin:0;color:#006EBF;font-size:22px;">${facilitator.user.first_name} ${facilitator.user.last_name}</p>
-                                <p style="margin:0;font-size:18px;">Community Facilitator</p>
-                            </div>
-                        </div>
-                    </div>
-                %endif
+      <div style="border:2px solid #ddd;width:100%;height:280px;">
+        <div style="padding:15px;">
+          %if community.logo:
+          <img src="${community.logo.upload.url}" style="float:right;width:390px;" alt="photo"/>
+          %endif
+          <p style="margin:5px 0;color:#006EBF;font-size:28px;margin:0px">${community.name}</p>
+          <p style="margin:5px 0;padding-left:1em;color:#006EBF;font-size:24px;margin:0px;color:#777;line-height:40px;">${community.motto}</p>
+          %if facilitator:
+          <div style="margin-left:1em;margin-top:20px;">
+            <img src="${reverse('user_photo',args=[facilitator.user.id])}" style="vertical-align:middle;" alt="photo" />
+            <div style="display:inline-block;line-height:95px;vertical-align:middle;">
+              <div style="vertical-align:middle;margin:auto;line-height:20px;">
+                <p style="margin:2px;color:#006EBF;font-size:22px;">${facilitator.user.first_name} ${facilitator.user.last_name}</p>
+                <p style="margin:2px;font-size:18px;">Community Facilitator</p>
+              </div>
             </div>
+          </div>
+          %endif
         </div>
-        <table id="table-discuss" width="100%" cellspacing="" cellpadding="" border="0">
-            <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
-                <th>Community Discussion</th><th>Activity</th><th>Content Collections</th>
-            </tr>
-            <tr>
-                <td></td><td></td>
-                <td rowspan="20" style="width:200px;text-align:center;">
-                    %for i,cc in enumerate(courses):
-                        <% c=course_from_id(cc.course) %>
-                        <%include file="../course.html" args="course=c" />
-                    %endfor
-                    <div style="clear:both;">
-                        %for i,r in enumerate(resources):
-                            <div style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:160px;
-                                        box-shadow:rgba(0, 0, 0, 0.1) 3px 7px 7px 0px;border-radius:6px;">
-                              <div style="">
-                                %if r.logo:
-                                    <img src="${r.logo.upload.url}" style="display:block;width:242px;height:100px;border-radius:6px 6px 0px 0px;" alt="${r.name}" />
-                                %else:
-                                    <img src="TODO: WE NEED A DEFAULT HERE" style="display:block;width:242px;height:100px;border-radius:0 0 0px 0px;" alt="${r.name}" />
-                                    %endif
-                                <a href="${r.link}" style="display:block;height:60px;background:#f0870c;color:#fff;font-size:14px;border-radius:0 0 6px 6px;">
-                                    <div style="display:table-cell;height:60px;vertical-align:middle;width:242px;text-align:center;">
-                                        ${r.name}
-                                    </div>
-                                </a>
-                               </div>
-                           </div>
-                              
-                        %endfor
-                    </div>
-                </td>
-            </tr>
-            <!--
-        %for i,d in enumerate(discussions):
-                            <tr>
-                                      <td>${d.subject}<br>
-            <span style="color:#006EBF;">${d.user.first_name}, </span>
-            <span>${d.date_create}</span>
+      </div>
+      <table id="table-discuss" width="100%" cellspacing="" cellpadding="" border="0" style="table-layout:fixed;">
+        <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
+          <th>Community Discussion</th><th>Activity</th><th style="width:270px;">Content Collections</th>
+        </tr>
+        <tr>
+          <td></td><td></td>
+          <td rowspan="20">
+            <div style="height:700px;overflow-y:scroll;">
+              <div class="clearfix">
+                %for i,cc in enumerate(courses):
+                <% c=course_from_id(cc.course) %>
+                <%include file="../course.html" args="course=c" />
+                %endfor
+              </div>
+              <div style="">
+                %for i,r in enumerate(resources):
+                <div style="display:block;margin-bottom:10px;border:0px solid #f0870c;height:160px;width:242px;
+                            box-shadow:rgba(0, 0, 0, 0.1) 3px 7px 7px 0px;border-radius:6px;">
+                  <div style="">
+                    %if r.logo:
+                    <img src="${r.logo.upload.url}" style="display:block;width:242px;height:100px;border-radius:6px 6px 0px 0px;" alt="${r.name}" />
+                    %else:
+                    <img src="TODO: WE NEED A DEFAULT HERE" style="display:block;width:242px;height:100px;border-radius:0 0 0px 0px;" alt="${r.name}" />
+                    %endif
+                    <a href="${r.link}" style="display:block;height:60px;background:#f0870c;color:#fff;font-size:14px;border-radius:0 0 6px 6px;">
+                      <div style="display:table-cell;height:60px;vertical-align:middle;width:242px;text-align:center;">
+                        ${r.name}
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                %endfor
+              </div>
+            </div>
           </td>
-          <td><label>Replies:</label> ${d.repiles}<br/><label>Views:</label> ${d.views}</td>
+        </tr>
+        <!--
+        %for i,d in enumerate(discussions):
+        <tr>
+        <td>${d.subject}<br>
+        <span style="color:#006EBF;">${d.user.first_name}, </span>
+        <span>${d.date_create}</span>
+        </td>
+        <td><label>Replies:</label> ${d.repiles}<br/><label>Views:</label> ${d.views}</td>
         </tr>
         %endfor
         -->
-        </table>
-        <table id="table-members" width="100%" cellspacing="" cellpadding="" border="0">
-            <tr style="border-bottom:2px solid #90BF70;color:#006EBF;">
-                <th>Members</th>
-            </tr>
-            <tr style="">
-                %for u in users:
-                    <td><a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
-                        <img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" />
-                    </td>
-                %endfor
-            </tr>
-        </table>
+      </table>
+      <div style="border-bottom:2px solid #90BF70;color:#006EBF; font-size:20px;padding:20px 3px;font-weight:bold">Members</div>
+      <table id="table-members" style="width:100%;table-layout:fixed;margin-bottom:20px;" cellspacing="" cellpadding="" border="0">
+        <tr style="border-bottom:2px solid #90BF70;">
+          <td style="width:20px;vertical-align:middle;background:#fff">
+            <div style="cursor:pointer;background:url(/static/tmp-resource/image/up_page.png); width:17px;height:20px;" onclick="left()"> </div>
+          </td>
+          <td style="white-space:nowrap;">
+            <div style="display:inline-block;overflow-x:hidden;padding:10px 0;width:100%;position:relative;" id="members">
+              %for u in users:
+              <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
+                <img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" />
+              </a>
+              %endfor
+            </div>
+          </td>
+          <td style="width:20px;vertical-align:middle;background:#fff">
+            <div style="cursor:pointer;background:url(/static/tmp-resource/image/next_page.png);width:17px;height:20px;" onclick="right()"></div>
+          </td>          
+        </tr>
+      </table>
+      <script type="text/javascript">
+        function isScrolledIntoView(elem, view) {
+          var $elem = $(elem);
+          var $view = $(view);
+          var docViewLeft = $view.offset().left;
+          var docViewRight = docViewLeft + $view.width();
+          var elLeft = $elem.offset().left;
+          var elRight = elLeft + $elem.width();
+          // return ((elemRight <= docViewRight) && (elemLeft >= docViewLeft)); // partly visible
+          return ((docViewLeft < elLeft) && (docViewRight > elRight)); 
+        }
+        $("#members").scrollLeft(0);
+        function left(){
+          var lastHideLeft = null;
+          var n=-1;
+          $("#members").find("a").each(function(i){
+            if(!isScrolledIntoView(this, $("#members"))){
+              lastHideLeft=this;
+              n=i;
+            }else{
+              return false;
+            }
+          });
+          if(lastHideLeft) {
+            //$(lastHideLeft).css('border',"1px solid #f00");
+            $("#members").scrollLeft($("#members").scrollLeft()  + $(lastHideLeft).position().left-1);
+          }
+        }
+        function right(){
+          var firstHideRight=null;
+          var foundVisible=false;
+          var n=-1;
+          $("#members").find("a").each(function(i){
+            if(!isScrolledIntoView(this, $("#members"))){
+              if(foundVisible){
+                firstHideRight=this;
+                n=i;
+                return false;
+              }
+            }else{
+              foundVisible=true;
+            }
+          });
+          if(firstHideRight) {
+            $("#members").scrollLeft($("#members").scrollLeft()
+                + $(firstHideRight).position().left
+              - $("#members").width() + $(firstHideRight).width() + 1);
+          }
+        }
+      </script>
     </section>
-
     <section>
-        <div style="width:266px;float:right;top:0px;text-align:center;">
-            <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
-                ${request.user.first_name}
-            </div>
-
-            <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
-                <div style="text-align:center;">
-                    <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                    <br />
-                    %if mem and mem.facilitator:
-                        FACILITATOR
-                    %elif mem and not mem.facilitator:
-                        MEMBER
-                    %else:
-                        <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Add Me</a>
-                    %endif
-                </div>
-
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Community Status
-                </div>
-
-                <div style="margin:20px;">
-                    <div class="">Discussions: ${discussions.count()}</div>
-                    <div class="">Messages: </div>
-                    <div class="">Members: ${users.count()}</div>
-                </div>
-
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Trending
-                </div>
-
-                <div style="margin:20px;">
-                    %for i,d in enumerate(discussions):
-                        <span style="color:#006EBF;">${d.user.first_name}, </span>
-                        <span>${d.date_create}</span>
-                    %endfor
-                </div>
-
-                <div style="margin:20px;">
-                    <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
-                    <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
-                    <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
-                    <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Manage Members</a>
-                    <a href="#" style="display:block;text-align:center;">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
-                    </a>
-                </div>
-            </div>
-
+      <div style="width:266px;float:right;top:0px;text-align:center;">
+        <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
+          ${request.user.first_name}
         </div>
+        <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
+          <div style="text-align:center;">
+            <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
+            <br />
+            %if mem and mem.facilitator:
+            FACILITATOR
+            %elif mem and not mem.facilitator:
+            MEMBER
+            %else:
+            <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" onclick="joinMe()">Add Me</a>
+            %endif
+          </div>
+          <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+            Community Status
+          </div>
+          <div style="margin:20px;">
+            <div class="">Discussions: ${discussions.count()}</div>
+            <div class="">Messages: </div>
+            <div class="">Members: ${users.count()}</div>
+          </div>
+          <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+            Trending
+          </div>
+          <div style="margin:20px;">
+            %for i,d in enumerate(discussions):
+            <span style="color:#006EBF;">${d.user.first_name}, </span>
+            <span>${d.date_create}</span>
+            %endfor
+          </div>
+          <div style="margin:20px;">
+            <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
+            %if mem and mem.facilitator or request.user.is_superuser:
+            <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
+            <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
+            <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Manage Members</a>
+            %endif
+            <a href="#" style="display:block;text-align:center;">
+              <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
-</div>
-<!--
-<div style="text-align:center">
-<img src="/static/images/community_ppd.png"/>
-</div>
--->
+  </div>
+  <!--
+  <div style="text-align:center">
+  <img src="/static/images/community_ppd.png"/>
+  </div>
+  -->
 </body>
