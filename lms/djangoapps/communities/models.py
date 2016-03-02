@@ -44,8 +44,8 @@ class CommunityDiscussions(models.Model):
     subject = models.CharField(blank=False, max_length=255, db_index=True)
     post = models.TextField(blank=False, max_length=255, db_index=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    date_create = models.DateTimeField(auto_now_add=False, db_index=False)
-    link = models.CharField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+    attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
 
 
 class CommunityDiscussionReplies(models.Model):
@@ -55,5 +55,5 @@ class CommunityDiscussionReplies(models.Model):
     subject = models.CharField(blank=False, max_length=255, db_index=True)
     post = models.TextField(blank=False, max_length=255, db_index=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    date_create = models.DateTimeField(auto_now_add=False, db_index=False)
-    link = models.CharField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+    attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)

@@ -1,0 +1,211 @@
+<%inherit file="../main.html" />
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from student.views import course_from_id
+    import re
+%>
+<%namespace name='static' file='../static_content.html'/>
+
+<%block name="title">
+    <title></title>
+</%block>
+
+<style type="text/css" media="screen">
+    #table-discuss th {
+        color: #006EBF;
+        padding: 20px 3px;
+        font-size: 20px;
+    }
+    #table-discuss td {
+        color: #000;
+        padding: 20px 3px;
+        font-size: 20px;
+        line-height: 20px;
+    }
+    #table-discuss td label {
+        font-style: normal;
+        display: inline-block;
+        width: 3.5em;
+        text-align: left;
+        font-weight: bold;
+    }
+    #table-discuss td span {
+        font-size: 12px;
+    }
+    #table-members th {
+        color: #006EBF;
+        padding: 20px 3px;
+        font-size: 20px;
+    }
+    .card-link span {
+        color: #FFFFFF;
+    }
+    .course-card {
+        margin: 0 0 10px 0 !important
+    }
+    div.card-bottom table tr:nth-child(2) {
+        display: none;
+    }
+    #members a {
+        margin-right: 5px;
+        display: inline-block;
+    }
+    .discussion, .discussion-reply, .discussion-reply-form {
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        background-color: #fff;
+    }
+    .discussion-reply {
+        margin: 20px 0 0 40px;
+    }
+    .discussion-reply-form {
+        margin: 20px 0 20px 40px;
+    }
+    .discussion-avatar {
+        float: left;
+        width: 64px;
+        height: 64px;
+        display: block;
+        margin: 0 10px 5px 0;
+    }
+    .discussion-byline, .discussion-date {
+        display: inline;
+        font-size: 80%;
+    }
+    .discussion-download {
+        float: right;
+        font-size: 80%;
+    }
+    .discussion-download span, .discussion-byline span, .discussion-date span {
+        font-weight: bold;
+    }
+    .discussion-body {
+        clear: both;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+    }
+    .discussion-reply-form label {
+        display: block;
+    }
+    .discussion-reply-post {
+        display: block;
+        width: 100%
+    }
+    .permalink {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+</style>
+<link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
+<script type="text/javascript">
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.community])}",{user_id:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+</script>
+<body style="text-align:center">
+<div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
+    <section style="width:880px;float:left;">
+        <div class="discussion">
+            <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
+                <img src="/static/images/link-icon.png">
+            </a>
+            <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
+            <h2>${discussion.subject}</h2>
+            %if discussion.attachment:
+                <div class="discussion-download"><span>Attachment: </span>
+                    <a href="${discussion.attachment.upload.url}">
+                        <img src="/static/images/document-download.png"> ${discussion.attachment.upload.name.split('/')[2]}
+                    </a>
+                </div>
+            %endif
+            <div class="discussion-byline"><span>Posted By: </span>${discussion.user.first_name} ${discussion.user.last_name}</div>
+            <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create)}</div>
+            <div class="discussion-body">${discussion.post}</div>
+            <div class="discussion-actions"></div>
+        </div>
+        %for reply in replies:
+            <div class="discussion-reply">
+                <a name="${reply.id}"></a>
+                <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}#${reply.id}">
+                    <img src="/static/images/link-icon.png">
+                </a>
+                <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
+                <h2>${reply.subject}</h2>
+                %if reply.attachment:
+                    <div class="discussion-download"><span>Attachment: </span>
+                        <a href="${reply.attachment.upload.url}">
+                            <img src="/static/images/document-download.png"> ${reply.attachment.upload.name.split('/')[2]}
+                        </a>
+                    </div>
+                %endif
+                <div class="discussion-byline"><span>Posted By: </span>${reply.user.first_name} ${reply.user.last_name}</div>
+                <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=reply.date_create)}</div>
+                <div class="discussion-body">${reply.post}</div>
+                <div class="discussion-actions"></div>
+            </div>
+        %endfor
+        <div class="discussion-reply-form">
+            <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data">
+                <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
+                <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
+                <label>Attachment:<input type="file" name="attachment"></label>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                <input type="submit" name="submit" value="Reply">
+            </form>
+        </div>
+    </section>
+    <section>
+        <div style="width:266px;float:right;top:0px;text-align:center;">
+            <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
+                ${request.user.first_name}
+            </div>
+            <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
+                <div style="text-align:center;">
+                    <img src="${reverse('user_photo', args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
+                    <br />
+                    %if mem and mem.facilitator:
+                        FACILITATOR
+                    %elif mem and not mem.facilitator:
+                        MEMBER
+                    %else:
+                        <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" onclick="joinMe()">Add Me</a>
+                    %endif
+                </div>
+                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                    Community Status
+                </div>
+                <div style="margin:20px;">
+                    <div class="">Discussions: </div>
+                    <div class="">Messages: </div>
+                    <div class="">Members: </div>
+                </div>
+                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                    Trending
+                </div>
+                <div style="margin:20px;">
+
+                </div>
+                <div style="margin:20px;">
+                    <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
+                    %if mem and mem.facilitator or request.user.is_superuser:
+                        <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
+                        <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
+                        <a href="#" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Manage Members</a>
+                    %endif
+                    <a href="#" style="display:block;text-align:center;">
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
