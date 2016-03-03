@@ -350,7 +350,7 @@ def community(request, community):
     courses = CommunityCourses.objects.filter(community=community)
     
     for d in discussions:
-        d.repiles = CommunityDiscussionReplies.objects.filter(discussion=d).count()
+        d.replies = CommunityDiscussionReplies.objects.filter(discussion=d).count()
         d.views = 0  # todo: how to get view count?
         
     data = {"community": community,
@@ -362,6 +362,77 @@ def community(request, community):
             "mem": mems[0] if mems.count() else None}
     
     return render_to_response('communities/community.html', data)
+
+
+@login_required
+def discussion(request, discussion_id):
+    discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
+    replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
+
+    data = {'discussion': discussion,
+            'replies': replies,
+            'community': discussion.community}
+
+    return render_to_response('communities/discussion.html', data)
+
+
+@login_required
+@ensure_csrf_cookie
+def discussion_add(request):
+    error = ''
+    try:
+        community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+        discussion = CommunityDiscussions()
+        discussion.community = community
+        discussion.user = request.user
+        discussion.post = request.POST.get('post')
+        discussion.subject = request.POST.get('subject')
+        discussion.save()
+        if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+            try:
+                attachment = FileUploads()
+                attachment.type = 'discussion_attachment'
+                attachment.sub_type = discussion.id
+                attachment.upload = request.FILES.get('attachment')
+                attachment.save()
+            except:
+                attachment = None
+        else:
+            attachment = None
+        if attachment:
+            discussion.attachment = attachment
+            discussion.save()
+        success = True
+    except Exception as e:
+        error = e
+        success = False
+    return HttpResponse(json.dumps({'Success': success, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+
+
+@login_required
+@ensure_csrf_cookie
+def discussion_reply(request, discussion_id):
+    discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    reply = CommunityDiscussionReplies()
+    reply.discussion = discussion
+    reply.user = request.user
+    reply.post = request.POST.get('post')
+    reply.subject = request.POST.get('subject')
+    if request.FILES.get('attachment') is not None and request.FILES.get('attachment').size:
+        try:
+            attachment = FileUploads()
+            attachment.type = 'discussion_attachment'
+            attachment.sub_type = discussion_id
+            attachment.upload = request.FILES.get('attachment')
+            attachment.save()
+        except:
+            attachment = None
+    else:
+        attachment = None
+    if attachment:
+        reply.attachment = attachment
+    reply.save()
+    return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
 
 
 @login_required

@@ -27,7 +27,7 @@ from student.models import State,District,School,Cohort,User,UserProfile
 <body style="text-align:center">
   <div class="data_import_bottom" style="text-align:left;">
     <div class="main, data_import_content">
-      <div class="expand_title expand_title_collapse"> Management Member Of ${community.community} <div class="icon"></div> </div>
+      <div class="expand_title expand_title_collapse"> Manage Member Of ${community.community} <div class="icon"></div> </div>
       <div class="expand_div">
         <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Add Members</div></a>
         <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Remove Members</div></a>
@@ -362,8 +362,8 @@ from student.models import State,District,School,Cohort,User,UserProfile
         p.initialized=false;
         t.hasInitialized=false;
         p.last={};
-        p.page=2;
-        p.size=3;
+        /* p.page=2;
+           p.size=3; */
         p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
 
         //window.localStorage.removeItem("tablesorter-pager");
@@ -384,7 +384,6 @@ from student.models import State,District,School,Cohort,User,UserProfile
            .trigger("sorton", [t.config.sortList])
            .trigger("appendCache")
            .trigger("applyWidgets"); */
-        
       }
       Tab.prototype.getSelectedIds=function(){
         var ids = [];
