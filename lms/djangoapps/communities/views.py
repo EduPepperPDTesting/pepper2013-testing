@@ -12,6 +12,8 @@ from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User
 from file_uploader.models import FileUploads
+from student.models import UserProfile, Registration, CourseEnrollmentAllowed
+from django.db.models import Q
 
 log = logging.getLogger("tracking")
 
@@ -30,22 +32,304 @@ def community_ngss(request):
 
 @login_required
 def community_manage_member(request, community):
-    pass
+    community = CommunityCommunities.objects.get(community=community)
+    return render_to_response('communities/manage_members.html', {"community": community})
 
+
+def build_sorts(columns, sorts):
+    """
+    Builds the sorts for the PepConn report data
+    :param columns: the columns in this table
+    :param sorts: the sorts requested
+    :return: the arguments to pass to order_by()
+    """
+    order = list()
+    # Iterate through the passed sorts.
+    for column, sort in sorts.iteritems():
+        # Default to an ASC search, but if the sort is 1, change it to DESC by adding a -.
+        pre = ''
+        if bool(int(sort)):
+            pre = '-'
+        # We just need the column selector out of the columns, not the type.
+        order.append(pre + columns[int(column)][0])
+    return order
+
+
+def build_filters(columns, filters):
+    """
+    Builds the filters for the PepConn report data
+    :param columns: the columns in this table
+    :param filters: the filters requested
+    :return: the arguments to pass to filter()
+    """
+    kwargs = dict()
+    args = None
+    # Iterate through the filters.
+    for column, value in filters.iteritems():
+        # For the numerical columns, just filter that column by the passed value.
+        if not column == 'all':
+            c = int(column)
+            # If the column is an integer value, convert the search term.
+            out_value = value
+            if  columns[c][2] == 'int' and value.isdigit():
+                out_value = int(value)
+            # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
+            # type of selection to make ([1] - '__iexact').
+            kwargs[columns[c][0] + columns[c][1]] = out_value
+        # If this is a search for all, we need to do an OR search, so we build one with Q objects.
+        else:
+            args_list = list()
+            for key, data in columns.iteritems():
+                # [2] holds the column type (int, str, or False to ignore).
+                if data[2]:
+                    # If the column is an integer value, convert the search term (as long as the string is only digits).
+                    out_value = value
+                    if data[2] == 'int':
+                        if value.isdigit():
+                            out_value = int(value)
+                        else:
+                            out_value = None
+                    if out_value is not None:
+                        # Create the Q object and add it to the list.
+                        args_list.append(Q(**{data[0] + data[1]: out_value}))
+            # Start the list with the first object, then add the rest with ORs.
+            args = args_list.pop()
+            for item in args_list:
+                args |= item
+
+    return args, kwargs
+
+
+@login_required
+def get_add_user_rows(request, community):
+    """
+    Builds the rows for display in the PepConn Users report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['user__id', '', 'int'],
+               1: ['user__last_name', '__icontains', 'str'],
+               2: ['user__first_name', '__icontains', 'str'],
+               3: ['user__profile__school__name', '__iexact', 'str'],
+               4: ['user__profile__district__name', '__iexact', 'str'],
+               5: ['user__profile__district__state__name', '__iexact', 'str'],
+               6: ['user__profile__cohort__code', '__icontains', 'str'],
+               7: ['user__email', '__icontains', 'str'],
+               8: ['user__profile__subscription_status', '__iexact', 'str'],
+               10: ['user__date_joined', '__icontains', False]}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 11)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    if filters.get('11'):
+        filters['all'] = filters['11']
+        del filters['11']
     
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        # If there was a search for all, add the Q arguments.
+        if args:
+            users = UserProfile.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            users = UserProfile.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        users = UserProfile.objects.prefetch_related().all().order_by(*order)
+
+    members = CommunityUsers.objects.filter(community__community=community).values_list('user_id')
+    users = users.exclude(user__in=members)
+    
+    # The number of results is the first value in the return JSON
+    count = users.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in users[start:end]:
+        row = list()
+        row.append(int(item.user.id))
+        row.append(str(item.user.last_name))
+        row.append(str(item.user.first_name))
+
+        try:
+            user_school = item.user.profile.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.user.profile.district.name)
+            user_district_state = str(item.user.profile.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+        try:
+            user_cohort = str(item.user.profile.cohort.code)
+        except:
+            user_cohort = ""
+        row.append(str(user_school))
+        row.append(str(user_district))
+        row.append(str(user_cohort))
+        row.append(str(user_district_state))
+        row.append(str(item.user.email))
+        row.append(str(item.user.profile.subscription_status))
+        try:
+            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        except:
+            activation_key = ''
+        row.append(str(item.user.date_joined))
+        row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+@login_required
+def get_remove_user_rows(request, community):
+    """
+    Builds the rows for display in the PepConn Users report.
+    :param request: User request
+    :return: Table rows for the user table
+    """
+    # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
+    # selection, and the type of data in the column (or False to ignore this column in filters).
+    columns = {0: ['user__id', '', 'int'],
+               1: ['user__last_name', '__icontains', 'str'],
+               2: ['user__first_name', '__icontains', 'str'],
+               3: ['user__profile__school__name', '__iexact', 'str'],
+               4: ['user__profile__district__name', '__iexact', 'str'],
+               5: ['user__profile__district__state__name', '__iexact', 'str'],
+               6: ['user__profile__cohort__code', '__icontains', 'str'],
+               7: ['user__email', '__icontains', 'str'],
+               8: ['user__profile__subscription_status', '__iexact', 'str'],
+               10: ['user__date_joined', '__icontains', False]}
+    # Parse the sort data passed in.
+    sorts = get_post_array(request.GET, 'col')
+    # Parse the filter data passed in.
+    filters = get_post_array(request.GET, 'fcol', 11)
+    # Get the page number and number of rows per page, and calculate the start and end of the query.
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    start = page * size
+    end = start + size - 1
+
+    if filters.get('11'):
+        filters['all'] = filters['11']
+        del filters['11']
+
+    print "++++++++++++++++++++++++++"
+    
+    # Get the sort arguments if any.
+    order = build_sorts(columns, sorts)
+
+    # If the were filers passed in, get the arguments to filter by and add them to the query.
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        # If there was a search for all, add the Q arguments.
+        if args:
+            users = CommunityUsers.objects.prefetch_related().filter(args, **kwargs).order_by(*order)
+        else:
+            users = CommunityUsers.objects.prefetch_related().filter(**kwargs).order_by(*order)
+    # If there are no filters, just select all.
+    else:
+        users = CommunityUsers.objects.prefetch_related().all().order_by(*order)
+
+    users = users.filter(community__community=community)
+    
+    # The number of results is the first value in the return JSON
+    count = users.count()
+    json_out = [count]
+
+    # Add the row data to the list of rows.
+    rows = list()
+    for item in users[start:end]:
+        row = list()
+        row.append(int(item.user.id))
+        row.append(str(item.user.last_name))
+        row.append(str(item.user.first_name))
+
+        try:
+            user_school = item.user.profile.school.name
+        except:
+            user_school = ""
+        try:
+            user_district = str(item.user.profile.district.name)
+            user_district_state = str(item.user.profile.district.state.name)
+        except:
+            user_district = ""
+            user_district_state = ""
+        try:
+            user_cohort = str(item.user.profile.cohort.code)
+        except:
+            user_cohort = ""
+        row.append(str(user_school))
+        row.append(str(user_district))
+        row.append(str(user_cohort))
+        row.append(str(user_district_state))
+        row.append(str(item.user.email))
+        row.append(str(item.user.profile.subscription_status))
+        try:
+            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        except:
+            activation_key = ''
+        row.append(str(item.user.date_joined))
+        row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
+        rows.append(row)
+
+    # The list of rows is the second value in the return JSON.
+    json_out.append(rows)
+
+    print "=========================="
+
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
 @login_required
 def community_join(request, community):
-    user_id = int(request.POST.get("user_id", "0"))
-
-    user = User.objects.get(id=user_id)
     community = CommunityCommunities.objects.get(community=community)
-    mems = CommunityUsers.objects.filter(user=user, community=community)
-    if not mems.exists():
-        cu = CommunityUsers()
-        cu.user = user
-        cu.community = community
-        cu.save()
 
+    for user_id in request.POST.get("user_ids", "").split(","):
+        if not user_id.isdigit():
+            continue
+        try:
+            user = User.objects.get(id=int(user_id))
+            mems = CommunityUsers.objects.filter(user=user, community=community)
+            if not mems.exists():
+                cu = CommunityUsers()
+                cu.user = user
+                cu.community = community
+                cu.save()
+        except Exception as e:
+            return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+        
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+
+@login_required
+def community_leave(request, community):
+    community = CommunityCommunities.objects.get(community=community)
+    
+    for user_id in request.POST.get("user_ids", "").split(","):
+        if not user_id.isdigit():
+            continue
+        try:
+            user = User.objects.get(id=int(user_id))
+            mems = CommunityUsers.objects.filter(user=user, community=community)
+            mems.delete()
+        except Exception as e:
+            return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 

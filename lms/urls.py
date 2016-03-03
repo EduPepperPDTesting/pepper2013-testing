@@ -224,17 +224,20 @@ urlpatterns = (
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
-    url(r'^community/(?P<community>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
     url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
     url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/delete$', 'communities.views.community_delete', name='community_delete'),
-    url(r'^community/(?P<community>[a-zA-Z0-9_]+)/join/$', 'communities.views.community_join', name='community_join'),
-    url(r'^community/(?P<community>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/join/$', 'communities.views.community_join', name='community_join'),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/leave/$', 'communities.views.community_leave', name='community_leave'),    
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'communities.views.get_add_user_rows', name="community_get_add_user_rows"),
+    url(r'^communities/(?P<community>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'communities.views.get_remove_user_rows', name="community_get_remove_user_rows"),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
-    
+
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
