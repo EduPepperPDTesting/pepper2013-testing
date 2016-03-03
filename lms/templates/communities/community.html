@@ -24,8 +24,6 @@
     #community-content, #community-discussions {
         color: #000;
         padding: 20px 3px;
-        font-size: 20px;
-        line-height: 20px;
     }
     #community-content-area label {
         font-style: normal;
@@ -35,34 +33,102 @@
         font-weight: bold;
     }
     #community-content-area span {
-        font-size: 12px;
+        /*font-size: 12px;*/
     }
     #community-content {
         width: 270px;
         height: 700px;
         overflow-y: scroll;
+        overflow-x: hidden;
         float: left;
     }
     #community-discussions {
-        width: 510px;
+        width: 490px;
+        margin-right: 20px;
         float: left;
     }
     .discussion {
         clear: both;
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        background-color: #fff;
+        margin-bottom: 15px;
     }
-    .discussion-post-info {
+    .discussion h2 {
+        margin-bottom: 5px;
+    }
+    .discussion-post-info-header {
         float: left;
-        width: 380px;
+        width: 375px;
+    }
+    .discussion-post-info div {
+        display: inline-block;
     }
     .discussion-post-info span {
-        display: block;
+        font-weight: bold;
     }
-    .discussion-stats {
+    .discussion-stats-header {
         float: left;
         width: 100px;
     }
+    .discussion-stats {
+        float: right;
+        width: 80px;
+    }
     .discussion-stats span {
         display: block;
+    }
+    .discussion-clear {
+        clear: both;
+        height: 1px;
+        margin-top: -1px;
+    }
+    #discussion-pager {
+        text-align: center;
+        line-height: 24px;
+        clear: both;
+        margin: 20px 0;
+    }
+    #discussion-pager a {
+        width: auto;
+        line-height: 24px;
+        padding: 2px 5px;
+        color: #333;
+        border: 1px solid #ccc;
+        margin-left: 3px;
+    }
+    #discussion-pager a:hover {
+        color: #ff6600;
+    }
+    #discussion-pager .up_page {
+        display: inline-block;
+        width: 17px !important;
+        line-height: 24px;
+        height: 20px;
+        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+        border: none;
+        vertical-align: middle;
+    }
+    #discussion-pager .next_page {
+        display: inline-block;
+        width: 17px !important;
+        height: 20px;
+        background: url(/static/tmp-resource/image/next_page.png) no-repeat;
+        border: none;
+        margin-left: 13px;
+        vertical-align: middle;
+    }
+    #discussion-pager .page_active {
+        color: #ff6600 !important;
+    }
+    #discussion-pager .page_active:hover {
+        color: #ff9933 !important;
+    }
+    #discussion-pager .page_num {
+        display: inline-block;
+        padding: 2px 5px;
     }
     .community-resource {
         display: block;
@@ -117,13 +183,13 @@
         opacity: 1;
         z-index: 11000;
         left: 50%;
-        margin-left: -249px;
+        margin-left: -349px;
         top: 120px;
         background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
         border-radius: 5px;
         box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
         padding: 0 0 8px 0;
-        width: 480px;
+        width: 680px;
         display: none;
     }
     .modal .close-modal {
@@ -149,7 +215,7 @@
     }
     .modal .content {
         color: #333;
-        text-align: center;
+        text-align: left;
         font-size: 16px;
         padding: 20px 10px;
         line-height: 20px;
@@ -165,6 +231,36 @@
         background: #2a5;
         border-radius: 5px;
         width: 0;
+    }
+    .modal .discussion-error {
+        color: #f00;
+        font-weight: bold;
+        font-size: 120%;
+        line-height: 120%;
+    }
+    .modal .inner-wrapper form textarea {
+        height: 100px;
+    }
+    .side-button {
+        color: white !important;
+        display: block;
+        padding: 10px;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+    }
+    .green-button {
+        border-color: #595;
+        background: #8cbe41;
+    }
+    .red-button {
+        border-color: #df0000;
+        background: #ED2828;
     }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
@@ -203,23 +299,41 @@
 
         <div id="community-content-area">
             <div id="community-discussions">
-                <h1 class="discussion-post-info">Community Discussion</h1>
-                <h1 class="discussion-stats">Activity</h1>
+                <a name="discussions"></a>
+                <h1 class="discussion-post-info-header">Community Discussion</h1>
+                <h1 class="discussion-stats-header">Activity</h1>
+                <div class="discussions">
                 %for i,d in enumerate(discussions):
                     <div class="discussion">
-                        <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
-                        <div class="discussion-post-info">
-                            <span class="discussion-byline">${d.user.first_name} ${d.user.last_name}</span>
-                            <span class="discussion-date">${d.date_create}</span>
-                        </div>
                         <div class="discussion-stats">
                             <span>Replies: ${d.replies}</span>
                             <span>Views: ${d.views}</span>
                         </div>
+                        <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
+                        <div class="discussion-post-info">
+                            <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
+                            <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
+                        </div>
+                        <div class="discussion-clear"></div>
                     </div>
                 %endfor
-                <div id="community-discussion-pager"></div>
-                <input type="button" name="new_discussion" value="Start a New Discussion" onclick="newDiscussion()">
+                </div>
+                <div id="discussion-pager">
+                    <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
+                    %if pager['page'] > 1:
+                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']-1})" class="up_page"></a>
+                    %endif
+                    %for p in pager['jumps']:
+                        %if p=='c':
+                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']})" class="page_active">${pager['page']}</a>
+                        %else:
+                            <a href="#discussions" onclick="replaceDiscussions(${p})">${p}</a>
+                        %endif
+                    %endfor
+                    %if pager['pages'] > pager['page']:
+                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
+                    %endif
+                </div>
             </div>
             <div id="community-content">
                 <h1>Content Collections</h1>
@@ -303,11 +417,12 @@
                     %endfor
                 </div>
                 <div style="margin:20px;">
-                    <a href="${reverse('communities')}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >My Communities</a>
+                    <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+                    <a href="#discussions" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
                     %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" >Edit</a>
-                        <a href="${reverse('community_delete',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #df0000;background:#ED2828;text-align:center;margin-top:5px;" value="" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.community])}" style="color:white !important;display:block;padding:10px;border:1px solid #45719E;background:#5A9BD5;text-align:center;margin-top:5px;" value="" >Manage Members</a>
+                        <a href="${reverse('community_edit',args=[community.community])}" class="green-button side-button">Edit</a>
+                        <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                        <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
                     %endif
                     <a href="#" style="display:block;text-align:center;">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
@@ -330,23 +445,64 @@
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label>Subject:<input type="text" name="subject"></label>';
-        content += '<label>Reply:<textarea name="post"></textarea></label>';
+        content += '<label>Discussion:<textarea name="post"></textarea></label>';
         content += '<label>Attachment:<input type="file" name="attachment"></label>';
         content += '<input type="hidden" value="${community.id}" name="community_id">';
         content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
         content += '<input type="submit" name="submit" value="Add">';
         content += '</form><div class="discussion-error"></div>';
-        var discussion_dialog = new Dialog($('#dialog')).show('New Discussion', content);
+        var discussion_dialog = new Dialog($('#dialog'));
+        discussion_dialog.show('New Discussion', content);
         $('#new-discussion-submit').submit(function(event) {
             $.post('${reverse('community_discussion_add')}', $(this).serialize(), function(data) {
                 if (data.Success) {
-                    discussion_dialog.hide()
-                    new Dialog($('#dialog')).show('Success', 'Your discussion was submitted.')
+                    discussion_dialog.hide();
+                    replaceDiscussions(1);
+                    // new Dialog($('#dialog')).show('Success', 'Your discussion was submitted.');
                 } else {
                     $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                 }
             });
             event.preventDefault()
+        });
+    }
+    function replaceDiscussions(page) {
+        $.get('${reverse('community_discussion_list', args=[community.community])}', {'page': page}, function(data) {
+            var content = '<div class="discussions">';
+            for (var x = 0; x < data.discussions.length; x++) {
+                content += '<div class="discussion">';
+                content += '<div class="discussion-stats">';
+                content += '<span>Replies: ' + data.discussions[x].replies + '</span>';
+                content += '<span>Views: ' + data.discussions[x].views + '</span>';
+                content += '</div>';
+                content += '<h2><a href="' + data.discussions[x].url + '">' + data.discussions[x].subject + '</a></h2>';
+                content += '<div class="discussion-post-info">';
+                content += '<div class="discussion-byline"><span>Posted By: </span>' + data.discussions[x].first_name + ' ' + data.discussions[x].last_name + '</div>';
+                content += '<div class="discussion-date"><span>&nbsp;On: </span>' + data.discussions[x].date_create + '</div>';
+                content += '</div><div class="discussion-clear"></div></div>';
+            }
+            content += '</div>';
+            $('#community-discussions .discussions').replaceWith(content);
+
+            content = '<div id="discussion-pager">';
+            content += '<span>Total Discussions: ' + data.pager.total + '</span>&nbsp;&nbsp;&nbsp;';
+            if (data.pager.page > 1) {
+                content += '<a href="#discussions" onclick="replaceDiscussions(' + (data.pager.page - 1) + ')" class="up_page"></a>';
+            }
+            for (var p = 0; p < data.pager.jumps.length; p++) {
+                if (data.pager.jumps[p] == 'c') {
+                    content += '<a href="#discussions" onclick="replaceDiscussions(' + data.pager.page + ')" class="page_active">' + data.pager.page + '</a>';
+                } else {
+                    content += '<a href="#discussions" onclick="replaceDiscussions(' + data.pager.jumps[p] + ')">' + data.pager.jumps[p] + '</a>';
+                }
+            }
+            if (data.pager.pages > data.pager.page) {
+                content += '<a href="#discussions" onclick="replaceDiscussions(' + (data.pager.page + 1) + ')" class="next_page"></a>';
+            }
+            content += '</div>';
+            $('#discussion-pager').replaceWith(content);
+
+            window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.community])}?page=" + page);
         });
     }
     function isScrolledIntoView(elem, view) {

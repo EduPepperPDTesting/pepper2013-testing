@@ -14,6 +14,7 @@ from student.models import User
 from file_uploader.models import FileUploads
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from django.db.models import Q
+from people.views import get_pager
 
 log = logging.getLogger("tracking")
 
@@ -31,8 +32,8 @@ def community_ngss(request):
 
 
 @login_required
-def community_manage_member(request, community):
-    community = CommunityCommunities.objects.get(community=community)
+def community_manage_member(request, community_id):
+    community = CommunityCommunities.objects.get(community=community_id)
     return render_to_response('communities/manage_members.html', {"community": community})
 
 
@@ -71,7 +72,7 @@ def build_filters(columns, filters):
             c = int(column)
             # If the column is an integer value, convert the search term.
             out_value = value
-            if  columns[c][2] == 'int' and value.isdigit():
+            if columns[c][2] == 'int' and value.isdigit():
                 out_value = int(value)
             # Build the actual kwargs to pass to filer(). in this case, we need the column selector ([0]) as well as the
             # type of selection to make ([1] - '__iexact').
@@ -101,7 +102,7 @@ def build_filters(columns, filters):
 
 
 @login_required
-def get_add_user_rows(request, community):
+def get_add_user_rows(request, community_id):
     """
     Builds the rows for display in the PepConn Users report.
     :param request: User request
@@ -148,7 +149,7 @@ def get_add_user_rows(request, community):
     else:
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
 
-    members = CommunityUsers.objects.filter(community__community=community).values_list('user_id')
+    members = CommunityUsers.objects.filter(community__community=community_id).values_list('user_id')
     users = users.exclude(user__in=members)
     
     # The number of results is the first value in the return JSON
@@ -197,7 +198,7 @@ def get_add_user_rows(request, community):
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 @login_required
-def get_remove_user_rows(request, community):
+def get_remove_user_rows(request, community_id):
     """
     Builds the rows for display in the PepConn Users report.
     :param request: User request
@@ -246,7 +247,7 @@ def get_remove_user_rows(request, community):
     else:
         users = CommunityUsers.objects.prefetch_related().all().order_by(*order)
 
-    users = users.filter(community__community=community)
+    users = users.filter(community__community=community_id)
     
     # The number of results is the first value in the return JSON
     count = users.count()
@@ -297,8 +298,8 @@ def get_remove_user_rows(request, community):
 
 
 @login_required
-def community_join(request, community):
-    community = CommunityCommunities.objects.get(community=community)
+def community_join(request, community_id):
+    community = CommunityCommunities.objects.get(community=community_id)
 
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -318,8 +319,8 @@ def community_join(request, community):
 
 
 @login_required
-def community_leave(request, community):
-    community = CommunityCommunities.objects.get(community=community)
+def community_leave(request, community_id):
+    community = CommunityCommunities.objects.get(community=community_id)
     
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -334,17 +335,24 @@ def community_leave(request, community):
 
 
 @login_required
-def community(request, community):
+def community(request, community_id):
     """
     Returns a single community page.
     :param request: Request object.
-    :param community: The machine name of the community.
+    :param community_id: The machine name of the community.
     :return: The Community page.
     """
-    community = CommunityCommunities.objects.get(community=community)
+    page = request.GET.get('page', '')
+    if page.isdigit() and int(page) > 0:
+        page = int(page)
+    else:
+        page = 1
+
+    community = CommunityCommunities.objects.get(community=community_id)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
     users = CommunityUsers.objects.filter(facilitator=False, community=community)
-    discussions = CommunityDiscussions.objects.filter(community=community)
+    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[page - 1:page + 4]
+    total = CommunityDiscussions.objects.filter(community=community).count()
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
     resources = CommunityResources.objects.filter(community=community)
     courses = CommunityCourses.objects.filter(community=community)
@@ -359,9 +367,34 @@ def community(request, community):
             "users": users,
             "resources": resources,
             "courses": courses,
-            "mem": mems[0] if mems.count() else None}
+            "mem": mems[0] if mems.count() else None,
+            "pager": get_pager(total, 5, page, 5)}
     
     return render_to_response('communities/community.html', data)
+
+
+@login_required
+def discussion_list(request, community_id):
+    try:
+        page = int(request.GET.get('page'))
+        community = CommunityCommunities.objects.get(community=community_id)
+        discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[page - 1:page + 4]
+        total = CommunityDiscussions.objects.filter(community=community).count()
+
+        data = {'pager': get_pager(total, 5, page, 5), 'discussions': list()}
+        for discussion in discussions:
+            data['discussions'].append({'url': reverse('community_discussion_view', args=[discussion.id]),
+                                        'subject': discussion.subject,
+                                        'replies': CommunityDiscussionReplies.objects.filter(discussion=discussion).count(),
+                                        'views': 0,
+                                        'date_create': '{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create),
+                                        'first_name': discussion.user.first_name,
+                                        'last_name': discussion.user.last_name
+                                        })
+    except Exception as e:
+        data = {'Error': e}
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @login_required

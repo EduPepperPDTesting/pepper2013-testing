@@ -147,7 +147,7 @@
                     %for community in communities:
                         <div class="image-link-style" style="width:240px;height:150px;background-image: url(${community['logo']});background-size:100% 100%;">
                             <div style="height:100px;"></div>
-                            <a href="${reverse('community_view', kwargs={'community': community['id']})}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                         </div>
                     %endfor
                 </div>
