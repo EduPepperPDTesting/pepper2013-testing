@@ -1,14 +1,14 @@
 <%inherit file="../main.html" />
 <%!
-from django.core.urlresolvers import reverse
-from courseware.courses import course_image_url, get_course_about_section
-from student.views import course_from_id
-from student.models import State,District,School,Cohort,User,UserProfile
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from student.views import course_from_id
+    from student.models import State,District,School,Cohort,User,UserProfile
 %>
 <%namespace name='static' file='../static_content.html'/>
 
 <%block name="title">
-<title></title>
+    <title></title>
 </%block>
 
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
@@ -23,108 +23,108 @@ from student.models import State,District,School,Cohort,User,UserProfile
 <link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
-     
-<body style="text-align:center">
-  <div class="data_import_bottom" style="text-align:left;">
-    <div class="main, data_import_content">
-      <div class="expand_title expand_title_collapse"> Manage Member Of ${community.community} <div class="icon"></div> </div>
-      <div class="expand_div">
-        <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Add Members</div></a>
-        <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Remove Members</div></a>
-        
-        <!-- begin add -->
-        <div class="add_table-section table-section">
-          <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
-          <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div class="clearfix">
-              %if request.user.is_superuser:
-              <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
-                <option value="" class="null_case">Select State</option>
-                %for item in State.objects.all().order_by('name'):
-                <option class="${item.id}" value="${item.name}">${item.name}</option>
-                %endfor
-              </select>
-              <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
-                <option value="" class="-1" name="null_case">Select District</option>
-                %for item in District.objects.all().order_by('name'):
-                <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                %endfor
-              </select>
-              %endif
-              <select type="search" class="search-users" data-column="3" id="User_school_select" autocomplete="off">
-                <option value="" class="null_case">Select School</option>
-                %for item in School.objects.all().order_by('name'):
-                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
-                %endfor
-              </select>
-              %if request.user.is_superuser:
-              <select type="search" class="search-users" data-column="8" id="User_registration_select" autocomplete="off">
-                <option value="" class="null_case">Select Registration Status</option>
-                <option value="Registered">Registered</option>
-                <option value="Unregistered">Unregistered</option>
-                <option value="Imported">Imported</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              %endif
-              <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
-              <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
-              %if request.user.is_superuser:
-              <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
-              %endif
-              <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
-              <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
-              <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
-              <div class="select-columns" id="user-select"><br>
-                <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
-              </div>
-            </div>
-          </div>
-          <div>
-            <input class="small" type="button" name="" value="test refresh table" onclick="tabAdd.reloadTable()"/>
 
-            <table class="tablesorter-blue user_table_init" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
-              <thead>
-                <tr>
-                  <th class="user_id_select">ID</th>
-                  <th class="user_lname">Last Name</th>
-                  <th class="user_fname">First Name</th>
-                  <th class="user_removeuser">School</th>
-                  <th class="user_adduser">District</th>
-                  <th class="user_cohort">Cohort</th>
-                  <th class="user_state">State</th>
-                  <th class="user_email">E-Mail</th>
-                  <th class="user_registration">Registration Status</th>
-                  <th class="user_enrollment_status">Enrollment Start</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="user_data_tbody">
-              </tbody>
-            </table>
-          </div>
-          <span id="user-pager" class="pager">
+<body style="text-align:center">
+<div class="data_import_bottom" style="text-align:left;">
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse"> Manage Member Of ${community.community} <div class="icon"></div> </div>
+        <div class="expand_div">
+            <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Add Members</div></a>
+            <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Remove Members</div></a>
+
+            <!-- begin add -->
+            <div class="add_table-section table-section">
+                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+                    <div class="clearfix">
+                        %if request.user.is_superuser:
+                            <select type="search" class="search-users-add" data-column="5" id="User_state_select" autocomplete="off">
+                                <option value="" class="null_case">Select State</option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option class="${item.id}" value="${item.name}">${item.name}</option>
+                                %endfor
+                            </select>
+                            <select type="search" class="search-users-add" data-column="4" id="User_district_select" autocomplete="off">
+                                <option value="" class="-1" name="null_case">Select District</option>
+                                %for item in District.objects.all().order_by('name'):
+                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                                %endfor
+                            </select>
+                        %endif
+                        <select type="search" class="search-users-add" data-column="3" id="User_school_select" autocomplete="off">
+                            <option value="" class="null_case">Select School</option>
+                            %for item in School.objects.all().order_by('name'):
+                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                            %endfor
+                        </select>
+                        %if request.user.is_superuser:
+                            <select type="search" class="search-users-add" data-column="8" id="User_registration_select" autocomplete="off">
+                                <option value="" class="null_case">Select Registration Status</option>
+                                <option value="Registered">Registered</option>
+                                <option value="Unregistered">Unregistered</option>
+                                <option value="Imported">Imported</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        %endif
+                        <input placeholder="Search by Last Name" class="search-users-add" type="search" data-column="1" id="User_search_last">
+                        <input placeholder="Search by First Name" class="search-users-add" type="search" data-column="2" id="User_search_first">
+                        %if request.user.is_superuser:
+                            <input placeholder="Search by Cohort" class="search-users-add" type="search" data-column="6" id="User_search_cohort">
+                        %endif
+                        <input placeholder="Search by Email" class="search-users-add" type="search" data-column="7" id="User_search_email">
+                        <input placeholder="Search All" class="search-users-add" type="search" data-column="all" id="User_search">
+                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
+                        <div class="select-columns" id="user-select"><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <input class="small" type="button" name="" value="test refresh table" onclick="tabAdd.reloadTable()"/>
+
+                    <table class="tablesorter-blue user_table_init" id="add-user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                        <thead>
+                        <tr>
+                            <th class="user_id_select">ID</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_removeuser">School</th>
+                            <th class="user_adduser">District</th>
+                            <th class="user_cohort">Cohort</th>
+                            <th class="user_state">State</th>
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_registration">Registration Status</th>
+                            <th class="user_enrollment_status">Enrollment Start</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="user_data_tbody">
+                        </tbody>
+                    </table>
+                </div>
+          <span id="add-user-pager" class="pager">
             <form style="float:left;">
-              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-              <select class="pagesize">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-              </select>
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
             </form>
             <span style="float:right;">
               <input type="button" value="Add Selected Users" class ="small" onclick="add_selected_users()"/>
@@ -132,315 +132,320 @@ from student.models import State,District,School,Cohort,User,UserProfile
                        style="text-transform:Uppercase;color:#000;font-weight:bold;">return to community</a>
             </span>
           </span>
-              </span>
-              <br><br>
-        </div>
-        <!-- end add -->
-
-        <!-- begin remove  -->
-        <div class="remove_table-section table-section">
-          <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
-          <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
-            <div class="clearfix">
-              %if request.user.is_superuser:
-              <select type="search" class="search-users" data-column="5" id="User_state_select"  autocomplete="off">
-                <option value="" class="null_case">Select State</option>
-                %for item in State.objects.all().order_by('name'):
-                <option class="${item.id}" value="${item.name}">${item.name}</option>
-                %endfor
-              </select>
-              <select type="search" class="search-users" data-column="4" id="User_district_select"  autocomplete="off">
-                <option value="" class="-1" name="null_case">Select District</option>
-                %for item in District.objects.all().order_by('name'):
-                <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                %endfor
-              </select>
-              %endif
-              <select type="search" class="search-users" data-column="3" id="User_school_select" autocomplete="off">
-                <option value="" class="null_case">Select School</option>
-                %for item in School.objects.all().order_by('name'):
-                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
-                %endfor
-              </select>
-              %if request.user.is_superuser:
-              <select type="search" class="search-users" data-column="8" id="User_registration_select" autocomplete="off">
-                <option value="" class="null_case">Select Registration Status</option>
-                <option value="Registered">Registered</option>
-                <option value="Unregistered">Unregistered</option>
-                <option value="Imported">Imported</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-              %endif
-              <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
-              <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
-              %if request.user.is_superuser:
-              <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
-              %endif
-              <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
-              <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
-              <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
-              <div class="select-columns" id="user-select"><br>
-                <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
-              </div>
+                </span>
+                <br><br>
             </div>
-          </div>
-          <div>
-            <table class="tablesorter-blue user_table_init" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
-              <thead>
-                <tr>
-                  <th class="user_id_select">ID</th>
-                  <th class="user_lname">Last Name</th>
-                  <th class="user_fname">First Name</th>
-                  <th class="user_removeuser">School</th>
-                  <th class="user_adduser">District</th>
-                  <th class="user_cohort">Cohort</th>
-                  <th class="user_state">State</th>
-                  <th class="user_email">E-Mail</th>
-                  <th class="user_registration">Registration Status</th>
-                  <th class="user_enrollment_status">Enrollment Start</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="user_data_tbody">
-              </tbody>
-            </table>
-          </div>
-          <span id="user-pager" class="pager">
+            <!-- end add -->
+
+            <!-- begin remove  -->
+            <div class="remove_table-section table-section">
+                <div class="add-area" onclick="$(this).next().slideToggle()">FILTER</div>
+                <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
+                    <div class="clearfix">
+                        %if request.user.is_superuser:
+                            <select type="search" class="search-users-remove" data-column="5" id="User_state_select"  autocomplete="off">
+                                <option value="" class="null_case">Select State</option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option class="${item.id}" value="${item.name}">${item.name}</option>
+                                %endfor
+                            </select>
+                            <select type="search" class="search-users-remove" data-column="4" id="User_district_select"  autocomplete="off">
+                                <option value="" class="-1" name="null_case">Select District</option>
+                                %for item in District.objects.all().order_by('name'):
+                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                                %endfor
+                            </select>
+                        %endif
+                        <select type="search" class="search-users-remove" data-column="3" id="User_school_select" autocomplete="off">
+                            <option value="" class="null_case">Select School</option>
+                            %for item in School.objects.all().order_by('name'):
+                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                            %endfor
+                        </select>
+                        %if request.user.is_superuser:
+                            <select type="search" class="search-users-remove" data-column="8" id="User_registration_select" autocomplete="off">
+                                <option value="" class="null_case">Select Registration Status</option>
+                                <option value="Registered">Registered</option>
+                                <option value="Unregistered">Unregistered</option>
+                                <option value="Imported">Imported</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        %endif
+                        <input placeholder="Search by Last Name" class="search-users-remove" type="search" data-column="1" id="User_search_last">
+                        <input placeholder="Search by First Name" class="search-users-remove" type="search" data-column="2" id="User_search_first">
+                        %if request.user.is_superuser:
+                            <input placeholder="Search by Cohort" class="search-users-remove" type="search" data-column="6" id="User_search_cohort">
+                        %endif
+                        <input placeholder="Search by Email" class="search-users-remove" type="search" data-column="7" id="User_search_email">
+                        <input placeholder="Search All" class="search-users-remove" type="search" data-column="all" id="User_search">
+                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
+                        <div class="select-columns" id="user-select"><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <table class="tablesorter-blue user_table_init" id="remove-user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                        <thead>
+                        <tr>
+                            <th class="user_id_select">ID</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_removeuser">School</th>
+                            <th class="user_adduser">District</th>
+                            <th class="user_cohort">Cohort</th>
+                            <th class="user_state">State</th>
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_registration">Registration Status</th>
+                            <th class="user_enrollment_status">Enrollment Start</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody id="user_data_tbody">
+                        </tbody>
+                    </table>
+                </div>
+          <span id="remove-user-pager" class="pager">
             <form style="float:left;">
-              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-              <select class="pagesize">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="200">200</option>
-              </select>
+                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                <select class="pagesize">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                </select>
             </form>
             <span style="float:right;">
               <input type="button" value="Remove Selected Users" class ="small" onclick="remove_selected_users()"/>
               &nbsp;<a href="${reverse('community_view',args=[community.community])}" style="text-transform:Uppercase;color:#000;font-weight:bold;">return to community</a>
             </span>
           </span>
-              </span>
-              <br><br>
+                </span>
+                <br><br>
+            </div>
+            <!-- end remove -->
+
         </div>
-        <!-- end remove -->        
-        
-      </div>
     </div>
 
     <!-- dialog -->
     <div style="" id="dialog" class="modal">
-      <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-        <div class="titlebar">
-          <h3 class="dialog-title"></h3>
-          <div class="close-modal" id="dialog_close">✕</div>
+        <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+            <div class="titlebar">
+                <h3 class="dialog-title"></h3>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"></div>
         </div>
-        <div class="content"></div>
-      </div>
     </div>
 
     <script type="text/javascript">
-      //* ----------- define Tab class
-      function Tab($tab,$content){
-        var self=this;
-        this.$tab=$tab;
-        this.$content=$content;
-        this.initContent();
-        this.$tab.click(function(){
-          self.show();
-          return false;
-        });
-      }
-      Tab.prototype.show=function(){
-        $(".table-tab").css("padding-top", "4px");
-        $(".table-section").hide();
-        this.$content.show();
-        this.$tab.find(".table-tab").css("padding-top", "10px");
-      }
-      Tab.prototype.initContent=function(){
-        this.initFilter();
-        this.initTable();
-      }
-      Tab.prototype.initTable=function(){
-        var pagerOptions = {
-          container: '',
-          output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-          fixedHeight: false,
-          removeRows: false,
-          cssGoto: '.gotoPage',
-          ajaxUrl: '',
-          ajaxProcessing: function(data){
-            return data;
-          },
-          processAjaxOnInit: true,
-          page: 0,
-          size: 10
+        //* ----------- define Tab class
+        function Tab($tab,$content){
+            var self=this;
+            this.$tab=$tab;
+            this.$content=$content;
+            this.initContent();
+            this.$tab.click(function(){
+                self.show();
+                return false;
+            });
+        }
+        Tab.prototype.show=function(){
+            $(".table-tab").css("padding-top", "4px");
+            $(".table-section").hide();
+            this.$content.show();
+            this.$tab.find(".table-tab").css("padding-top", "10px");
         };
-        var tablesorterOptions = {
-          debug: false,
-          theme: 'blue',
-          widthFixed: true,
-          widgets: ["zebra", "filter", "output"],
-          widgetOptions: {
-            filter_external: '',
-            filter_columnFilters: false,
-            filter_placeholder: {search: 'Search...'},
-            filter_saveFilters: true,
-            filter_reset: '.reset',
-            filter_serversideFiltering: true,
-            output_saveFileName: 'data.csv'
-          }
+        Tab.prototype.initContent=function(){
+            this.initFilter();
+            this.initTable();
         };
-        tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users';
-        pagerOptions.container = this.$content.find("#user-pager");
-        pagerOptions.ajaxUrl = this.$content.find('.user_table_init').attr("ajaxUrl");
-        this.$content.find('.user_table_init').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-      }
+        Tab.prototype.initTable=function(){
+            var pagerOptions = {
+                container: '',
+                output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+                fixedHeight: false,
+                removeRows: false,
+                cssGoto: '.gotoPage',
+                ajaxUrl: '',
+                ajaxProcessing: function(data){
+                    return data;
+                },
+                processAjaxOnInit: true,
+                page: 0,
+                size: 10
+            };
+            var tablesorterOptions = {
+                debug: false,
+                theme: 'blue',
+                widthFixed: true,
+                widgets: ["zebra", "filter", "output"],
+                widgetOptions: {
+                    filter_external: '',
+                    filter_columnFilters: false,
+                    filter_placeholder: {search: 'Search...'},
+                    filter_saveFilters: true,
+                    filter_reset: '.reset',
+                    filter_serversideFiltering: true,
+                    output_saveFileName: 'data.csv'
+                }
+            };
+            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users-add';
+            pagerOptions.container = this.$content.find("#add-user-pager");
+            pagerOptions.ajaxUrl = this.$content.find("#add-user-table").attr("ajaxUrl");
+            this.$content.find("#add-user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 
-      Tab.prototype.initFilter=function(){
-        var self=this;
-        function filterOptions(item, id) {
-          if ($(item).attr("class") != id) {
-            $(item).css("display", "none");
-          } else {
-            $(item).css("display", "");
-          }
-          if (id == "null_case" || $(item).attr("class") == "null_case") {
-            $(this).css("display", "");
-          }
-        }        
-        this.$content.find("#selectalluser").click(function () {
-          if (this.checked) {
-            this.$content.find(".user_table_init input[type=checkbox]").each(function () {
-              this.checked = true;
-            });
-          } else {
-            this.$content.find(".user_table_init input[type=checkbox]").each(function () {
-              this.checked = false;
-            });
-          }
-        });
-        this.$content.find("#User_state_select").change(function () {
-          var id = $(this).children(":selected").attr("class");
-          self.$content.find("#User_district_select > option").each(function() {
-            filterOptions(this, id)
-          });
-        });
-        this.$content.find("#User_district_select").change(function () {
-          var id = $(this).children(":selected").attr("class");
-          var name = $(this).children(":selected").attr("name");
-          self.$content.find("#User_school_select > option").each(function () {
-            $(this).css("display", "");
-            if (name != "null_case" || $(this).attr("class") == "null_case") {
-              if ($(this).attr("class") != id) {
-                $(this).css("display", "none");
-              }
+            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users-remove';
+            pagerOptions.container = this.$content.find("#remove-user-pager");
+            pagerOptions.ajaxUrl = this.$content.find("#remove-user-table").attr("ajaxUrl");
+            this.$content.find("#remove-user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        };
+
+        Tab.prototype.initFilter=function(){
+            var self=this;
+            function filterOptions(item, id) {
+                if ($(item).attr("class") != id) {
+                    $(item).css("display", "none");
+                } else {
+                    $(item).css("display", "");
+                }
+                if (id == "null_case" || $(item).attr("class") == "null_case") {
+                    $(this).css("display", "");
+                }
             }
-          });
-        });
-      }
-
-      Tab.prototype.reloadTable=function(){
-        var t=this.$content.find('.user_table_init')[0];
-        var c=t.config
-        var p=c.pager;
-        p=$.extend(p, p.last);
-        p.initialized=false;
-        t.hasInitialized=false;
-        p.last={};
-        /* p.page=2;
-           p.size=3; */
-        p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
-
-        //window.localStorage.removeItem("tablesorter-pager");
-        /* window.localStorage.setItem("tablesorter-pager", JSON.stringify({
-           "/communities/pepper_test/manage_member/": {
-           "0":{"page":p.page,"size":p.size},
-           "1":{}
-           }})); */
-        
-        // t.config.pager.last.
-        $(t).tablesorter(c).tablesorterPager(p);
-
-        /* $(t).trigger("destroyPager");
-           $(t).trigger("enablePager"); */
-        //$(t).trigger("disablePager")
-
-        /* $(t).trigger("update")
-           .trigger("sorton", [t.config.sortList])
-           .trigger("appendCache")
-           .trigger("applyWidgets"); */
-      }
-      Tab.prototype.getSelectedIds=function(){
-        var ids = [];
-        this.$content.find("table .select_box:checked").each(function () {
-          ids.push($(this).val());
-        });
-        return ids;
-      }
-      //* -----------  init tabs
-      var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
-      tabAdd.show();
-      var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
-      
-      //* ----------- init expand title
-      $(".expand_title").click(function () {
-        var $div = $(this).next("div.expand_div");
-        if ($div.is(':visible')) {
-          $div.slideUp();
-          $(this).removeClass("expand_title_expanded");
-        } else {
-          $div.slideDown();
-          $(this).addClass("expand_title_expanded");
-        }
-      });
-
-      //* ----------- expend first title
-      $(document).ready(function () {
-        $(".expand_title").eq(0).click();
-      });
-      
-      //* ----------- do add/remove member
-      function add_selected_users(){
-        var ids=tabAdd.getSelectedIds();
-        if(ids.length){
-          $.post("${reverse('community_join',args=[community.community])}",{user_ids:ids.join(",")},function(){
-            tabAdd.reloadTable();
-            tabRemove.reloadTable();
-          });
-        }else{
-          new Dialog($('#dialog')).show("Error", "Please select at least one user to add.");
-        }
-      }
-      function remove_selected_users(){
-        var ids=tabRemove.getSelectedIds();
-        if(ids.length){
-          new Dialog($('#dialog')).showYesNo("Delete members", "Are you sure you want to remove the users?", function(ans){
-            this.hide(); 
-            if(!ans) return;
-            $.post("${reverse('community_leave',args=[community.community])}",{user_ids:ids.join(",")},function(){
-              tabAdd.reloadTable();
-              tabRemove.reloadTable();
+            this.$content.find("#selectalluser").click(function () {
+                if (this.checked) {
+                    this.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                        this.checked = true;
+                    });
+                } else {
+                    this.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                        this.checked = false;
+                    });
+                }
             });
-          });
-        }else{
-          new Dialog($('#dialog')).show("Error", "Please select at least one user to remove.");
+            this.$content.find("#User_state_select").change(function () {
+                var id = $(this).children(":selected").attr("class");
+                self.$content.find("#User_district_select > option").each(function() {
+                    filterOptions(this, id)
+                });
+            });
+            this.$content.find("#User_district_select").change(function () {
+                var id = $(this).children(":selected").attr("class");
+                var name = $(this).children(":selected").attr("name");
+                self.$content.find("#User_school_select > option").each(function () {
+                    $(this).css("display", "");
+                    if (name != "null_case" || $(this).attr("class") == "null_case") {
+                        if ($(this).attr("class") != id) {
+                            $(this).css("display", "none");
+                        }
+                    }
+                });
+            });
+        };
+
+        Tab.prototype.reloadTable=function(){
+            var t=this.$content.find('#add-user-table');
+            var c=t.config;
+            var p=c.pager;
+            p=$.extend(p, p.last);
+            p.initialized=false;
+            t.hasInitialized=false;
+            p.last={};
+            /* p.page=2;
+               p.size=3; */
+            p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            $(t).trigger();
+            //window.localStorage.removeItem("tablesorter-pager");
+            /* window.localStorage.setItem("tablesorter-pager", JSON.stringify({
+               "/communities/pepper_test/manage_member/": {
+               "0":{"page":p.page,"size":p.size},
+               "1":{}
+               }})); */
+
+            // t.config.pager.last.
+            // $(t).tablesorter(c).tablesorterPager(p);
+
+            /* $(t).trigger("destroyPager");
+               $(t).trigger("enablePager"); */
+            //$(t).trigger("disablePager")
+
+            /* $(t).trigger("update")
+               .trigger("sorton", [t.config.sortList])
+               .trigger("appendCache")
+               .trigger("applyWidgets"); */
+        };
+        Tab.prototype.getSelectedIds=function(){
+            var ids = [];
+            this.$content.find("table .select_box:checked").each(function () {
+                ids.push($(this).val());
+            });
+            return ids;
+        };
+        //* -----------  init tabs
+        var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
+        tabAdd.show();
+        var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
+
+        //* ----------- init expand title
+        $(".expand_title").click(function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
+                $div.slideUp();
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $div.slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+
+        //* ----------- expend first title
+        $(document).ready(function () {
+            $(".expand_title").eq(0).click();
+        });
+
+        //* ----------- do add/remove member
+        function add_selected_users(){
+            var ids=tabAdd.getSelectedIds();
+            if(ids.length){
+                $.post("${reverse('community_join',args=[community.community])}",{user_ids:ids.join(",")},function(){
+                    tabAdd.reloadTable();
+                    tabRemove.reloadTable();
+                });
+            }else{
+                new Dialog($('#dialog')).show("Error", "Please select at least one user to add.");
+            }
         }
-      }
+        function remove_selected_users(){
+            var ids=tabRemove.getSelectedIds();
+            if(ids.length){
+                new Dialog($('#dialog')).showYesNo("Delete members", "Are you sure you want to remove the users?", function(ans){
+                    this.hide();
+                    if(!ans) return;
+                    $.post("${reverse('community_leave',args=[community.community])}",{user_ids:ids.join(",")},function(){
+                        tabAdd.reloadTable();
+                        tabRemove.reloadTable();
+                    });
+                });
+            }else{
+                new Dialog($('#dialog')).show("Error", "Please select at least one user to remove.");
+            }
+        }
     </script>
 
 </body>
