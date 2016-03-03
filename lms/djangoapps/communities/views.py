@@ -15,6 +15,7 @@ from file_uploader.models import FileUploads
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from django.db.models import Q
 from people.views import get_pager
+from view_counter.models import view_counter_store
 
 log = logging.getLogger("tracking")
 
@@ -342,6 +343,7 @@ def community(request, community_id):
     :param community_id: The machine name of the community.
     :return: The Community page.
     """
+    views_connect = view_counter_store()
     page = request.GET.get('page', '')
     if page.isdigit() and int(page) > 0:
         page = int(page)
@@ -359,7 +361,11 @@ def community(request, community_id):
     
     for d in discussions:
         d.replies = CommunityDiscussionReplies.objects.filter(discussion=d).count()
-        d.views = 0  # todo: how to get view count?
+        views = views_connect.get_item('discussion', str(d.id))
+        if views is None:
+            d.views = 0
+        else:
+            d.views = views['views']
         
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
@@ -380,13 +386,19 @@ def discussion_list(request, community_id):
         community = CommunityCommunities.objects.get(community=community_id)
         discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[page - 1:page + 4]
         total = CommunityDiscussions.objects.filter(community=community).count()
+        views_connect = view_counter_store()
 
         data = {'pager': get_pager(total, 5, page, 5), 'discussions': list()}
         for discussion in discussions:
+            views_object = views_connect.get_item('discussion', str(discussion.id))
+            if views_object is None:
+                views = 0
+            else:
+                views = views_object['views']
             data['discussions'].append({'url': reverse('community_discussion_view', args=[discussion.id]),
                                         'subject': discussion.subject,
                                         'replies': CommunityDiscussionReplies.objects.filter(discussion=discussion).count(),
-                                        'views': 0,
+                                        'views': views,
                                         'date_create': '{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create),
                                         'first_name': discussion.user.first_name,
                                         'last_name': discussion.user.last_name
@@ -401,6 +413,9 @@ def discussion_list(request, community_id):
 def discussion(request, discussion_id):
     discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
+
+    views_connect = view_counter_store()
+    views_connect.set_item('discussion', discussion_id, 1)
 
     data = {'discussion': discussion,
             'replies': replies,

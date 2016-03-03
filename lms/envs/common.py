@@ -844,6 +844,9 @@ INSTALLED_APPS = (
 
     # File Uploader
     'file_uploader',
+
+    # View Counter
+    'view_counter',
 )
 
 ######################### MARKETING SITE ###############################

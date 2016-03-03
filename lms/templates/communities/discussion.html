@@ -99,6 +99,21 @@
         top: 20px;
         right: 20px;
     }
+    .italic {
+        font-style: italic;
+    }
+    #back {
+        margin-bottom: 10px;
+    }
+    .up_page {
+        display: inline-block;
+        width: 17px !important;
+        line-height: 24px;
+        height: 20px;
+        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+        border: none;
+        vertical-align: middle;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <script type="text/javascript">
@@ -113,6 +128,12 @@
 <body style="text-align:center">
 <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
     <section style="width:880px;float:left;">
+        <div id="back">
+            <a href="${reverse('community_view', args=[discussion.community.community])}" class="up_page"></a>&nbsp;
+            <a href="${reverse('community_view', args=[discussion.community.community])}">
+                Back to the <span class="italic">${discussion.community.name}</span> community
+            </a>
+        </div>
         <div class="discussion">
             <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
                 <img src="/static/images/link-icon.png">
