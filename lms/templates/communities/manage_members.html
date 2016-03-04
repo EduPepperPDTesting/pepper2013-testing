@@ -330,11 +330,11 @@
             }
             this.$content.find("#selectalluser").click(function () {
                 if (this.checked) {
-                    this.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                    self.$content.find(".user_table_init input[type=checkbox]").each(function () {
                         this.checked = true;
                     });
                 } else {
-                    this.$content.find(".user_table_init input[type=checkbox]").each(function () {
+                    self.$content.find(".user_table_init input[type=checkbox]").each(function () {
                         this.checked = false;
                     });
                 }
