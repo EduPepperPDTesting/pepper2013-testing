@@ -161,9 +161,12 @@ def get_add_user_rows(request, community_id):
     rows = list()
     for item in users[start:end]:
         row = list()
-        row.append(int(item.user.id))
-        row.append(str(item.user.last_name))
+
+        row.append(str(item.user.email))
+
+        row.append(str(item.user.username))
         row.append(str(item.user.first_name))
+        row.append(str(item.user.last_name))
 
         try:
             user_school = item.user.profile.school.name
@@ -179,17 +182,19 @@ def get_add_user_rows(request, community_id):
             user_cohort = str(item.user.profile.cohort.code)
         except:
             user_cohort = ""
-        row.append(str(user_school))
-        row.append(str(user_district))
-        row.append(str(user_cohort))
+
         row.append(str(user_district_state))
-        row.append(str(item.user.email))
-        row.append(str(item.user.profile.subscription_status))
-        try:
-            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
-        except:
-            activation_key = ''
-        row.append(str(item.user.date_joined))
+        row.append(str(user_district))
+        # row.append(str(user_cohort))
+        row.append(str(user_school))
+
+        # row.append(str(item.user.profile.subscription_status))
+        # try:
+        #     activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        # except:
+        #     activation_key = ''
+            
+        # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
         rows.append(row)
 
@@ -230,8 +235,6 @@ def get_remove_user_rows(request, community_id):
     if filters.get('11'):
         filters['all'] = filters['11']
         del filters['11']
-
-    print "++++++++++++++++++++++++++"
     
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -258,9 +261,12 @@ def get_remove_user_rows(request, community_id):
     rows = list()
     for item in users[start:end]:
         row = list()
-        row.append(int(item.user.id))
-        row.append(str(item.user.last_name))
+
+        row.append(str(item.user.email))
+
+        row.append(str(item.user.username))
         row.append(str(item.user.first_name))
+        row.append(str(item.user.last_name))
 
         try:
             user_school = item.user.profile.school.name
@@ -276,24 +282,24 @@ def get_remove_user_rows(request, community_id):
             user_cohort = str(item.user.profile.cohort.code)
         except:
             user_cohort = ""
-        row.append(str(user_school))
-        row.append(str(user_district))
-        row.append(str(user_cohort))
+
         row.append(str(user_district_state))
-        row.append(str(item.user.email))
-        row.append(str(item.user.profile.subscription_status))
-        try:
-            activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
-        except:
-            activation_key = ''
-        row.append(str(item.user.date_joined))
+        row.append(str(user_district))
+        # row.append(str(user_cohort))
+        row.append(str(user_school))
+
+        # row.append(str(item.user.profile.subscription_status))
+        # try:
+        #     activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
+        # except:
+        #     activation_key = ''
+            
+        # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
         rows.append(row)
 
     # The list of rows is the second value in the return JSON.
     json_out.append(rows)
-
-    print "=========================="
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
