@@ -38,27 +38,27 @@
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
-                            <select type="search" class="search-users-add" data-column="5" id="User_state_select" autocomplete="off">
+                            <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
                                 <option value="" class="null_case">Select State</option>
                                 %for item in State.objects.all().order_by('name'):
                                     <option class="${item.id}" value="${item.name}">${item.name}</option>
                                 %endfor
                             </select>
-                            <select type="search" class="search-users-add" data-column="4" id="User_district_select" autocomplete="off">
+                            <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
                                 <option value="" class="-1" name="null_case">Select District</option>
                                 %for item in District.objects.all().order_by('name'):
                                     <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                                 %endfor
                             </select>
                         %endif
-                        <select type="search" class="search-users-add" data-column="3" id="User_school_select" autocomplete="off">
+                        <select type="search" class="search-users" data-column="3" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
                                 <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                             %endfor
                         </select>
                         %if request.user.is_superuser:
-                            <select type="search" class="search-users-add" data-column="8" id="User_registration_select" autocomplete="off">
+                            <select type="search" class="search-users" data-column="8" id="User_registration_select" autocomplete="off">
                                 <option value="" class="null_case">Select Registration Status</option>
                                 <option value="Registered">Registered</option>
                                 <option value="Unregistered">Unregistered</option>
@@ -66,13 +66,13 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         %endif
-                        <input placeholder="Search by Last Name" class="search-users-add" type="search" data-column="1" id="User_search_last">
-                        <input placeholder="Search by First Name" class="search-users-add" type="search" data-column="2" id="User_search_first">
+                        <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
+                        <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
                         %if request.user.is_superuser:
-                            <input placeholder="Search by Cohort" class="search-users-add" type="search" data-column="6" id="User_search_cohort">
+                            <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
                         %endif
-                        <input placeholder="Search by Email" class="search-users-add" type="search" data-column="7" id="User_search_email">
-                        <input placeholder="Search All" class="search-users-add" type="search" data-column="all" id="User_search">
+                        <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
+                        <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
                         <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
@@ -91,7 +91,7 @@
                 <div>
                     <input class="small" type="button" name="" value="test refresh table" onclick="tabAdd.reloadTable()"/>
 
-                    <table class="tablesorter-blue user_table_init" id="add-user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
                             <th class="user_id_select">ID</th>
@@ -111,7 +111,7 @@
                         </tbody>
                     </table>
                 </div>
-          <span id="add-user-pager" class="pager">
+          <span id="user-pager" class="pager">
             <form style="float:left;">
                 <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
                 <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -143,27 +143,27 @@
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
-                            <select type="search" class="search-users-remove" data-column="5" id="User_state_select"  autocomplete="off">
+                            <select type="search" class=" search-users" data-column="5" id="User_state_select"  autocomplete="off">
                                 <option value="" class="null_case">Select State</option>
                                 %for item in State.objects.all().order_by('name'):
                                     <option class="${item.id}" value="${item.name}">${item.name}</option>
                                 %endfor
                             </select>
-                            <select type="search" class="search-users-remove" data-column="4" id="User_district_select"  autocomplete="off">
+                            <select type="search" class=" search-users" data-column="4" id="User_district_select"  autocomplete="off">
                                 <option value="" class="-1" name="null_case">Select District</option>
                                 %for item in District.objects.all().order_by('name'):
                                     <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                                 %endfor
                             </select>
                         %endif
-                        <select type="search" class="search-users-remove" data-column="3" id="User_school_select" autocomplete="off">
+                        <select type="search" class=" search-users" data-column="3" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
                                 <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                             %endfor
                         </select>
                         %if request.user.is_superuser:
-                            <select type="search" class="search-users-remove" data-column="8" id="User_registration_select" autocomplete="off">
+                            <select type="search" class=" search-users" data-column="8" id="User_registration_select" autocomplete="off">
                                 <option value="" class="null_case">Select Registration Status</option>
                                 <option value="Registered">Registered</option>
                                 <option value="Unregistered">Unregistered</option>
@@ -171,13 +171,13 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         %endif
-                        <input placeholder="Search by Last Name" class="search-users-remove" type="search" data-column="1" id="User_search_last">
-                        <input placeholder="Search by First Name" class="search-users-remove" type="search" data-column="2" id="User_search_first">
+                        <input placeholder="Search by Last Name" class=" search-users" type="search" data-column="1" id="User_search_last">
+                        <input placeholder="Search by First Name" class=" search-users" type="search" data-column="2" id="User_search_first">
                         %if request.user.is_superuser:
-                            <input placeholder="Search by Cohort" class="search-users-remove" type="search" data-column="6" id="User_search_cohort">
+                            <input placeholder="Search by Cohort" class=" search-users" type="search" data-column="6" id="User_search_cohort">
                         %endif
-                        <input placeholder="Search by Email" class="search-users-remove" type="search" data-column="7" id="User_search_email">
-                        <input placeholder="Search All" class="search-users-remove" type="search" data-column="all" id="User_search">
+                        <input placeholder="Search by Email" class=" search-users" type="search" data-column="7" id="User_search_email">
+                        <input placeholder="Search All" class=" search-users" type="search" data-column="all" id="User_search">
                         <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
@@ -194,7 +194,7 @@
                     </div>
                 </div>
                 <div>
-                    <table class="tablesorter-blue user_table_init" id="remove-user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
                             <th class="user_id_select">ID</th>
@@ -214,7 +214,7 @@
                         </tbody>
                     </table>
                 </div>
-          <span id="remove-user-pager" class="pager">
+          <span id="user-pager" class="pager">
             <form style="float:left;">
                 <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
                 <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -305,15 +305,11 @@
                     output_saveFileName: 'data.csv'
                 }
             };
-            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users-add';
-            pagerOptions.container = this.$content.find("#add-user-pager");
-            pagerOptions.ajaxUrl = this.$content.find("#add-user-table").attr("ajaxUrl");
-            this.$content.find("#add-user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-
-            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users-remove';
-            pagerOptions.container = this.$content.find("#remove-user-pager");
-            pagerOptions.ajaxUrl = this.$content.find("#remove-user-table").attr("ajaxUrl");
-            this.$content.find("#remove-user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+          
+            tablesorterOptions.widgetOptions.filter_external = "." + this.$content[0].className.replace(" ", ".") + ' .search-users';
+            pagerOptions.container = this.$content.find("#user-pager");
+            pagerOptions.ajaxUrl = this.$content.find("#user-table").attr("ajaxUrl");
+            this.$content.find("#user-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         };
 
         Tab.prototype.initFilter=function(){
@@ -359,53 +355,30 @@
             });
         };
 
-        Tab.prototype.reloadTable=function(){
-            var t=this.$content.find('#add-user-table');
-            var c=t.config;
-            var p=c.pager;
-            p=$.extend(p, p.last);
-            p.initialized=false;
-            t.hasInitialized=false;
-            p.last={};
-            /* p.page=2;
-               p.size=3; */
-            p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
-            $(t).trigger();
-            //window.localStorage.removeItem("tablesorter-pager");
-            /* window.localStorage.setItem("tablesorter-pager", JSON.stringify({
-               "/communities/pepper_test/manage_member/": {
-               "0":{"page":p.page,"size":p.size},
-               "1":{}
-               }})); */
+      Tab.prototype.reloadTable=function(){
+        var t=this.$content.find('#user-table')[0];
+        var c=t.config;
+        var p=c.pager;
+        p=$.extend(p, p.last);
+        p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+        p.reload();
+      };
+      Tab.prototype.getSelectedIds=function(){
+        var ids = [];
+        this.$content.find("table .select_box:checked").each(function () {
+          ids.push($(this).val());
+        });
+        return ids;
+      };
+      //* -----------  init tabs
+      var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
+      tabAdd.show();
+      var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
 
-            // t.config.pager.last.
-            // $(t).tablesorter(c).tablesorterPager(p);
-
-            /* $(t).trigger("destroyPager");
-               $(t).trigger("enablePager"); */
-            //$(t).trigger("disablePager")
-
-            /* $(t).trigger("update")
-               .trigger("sorton", [t.config.sortList])
-               .trigger("appendCache")
-               .trigger("applyWidgets"); */
-        };
-        Tab.prototype.getSelectedIds=function(){
-            var ids = [];
-            this.$content.find("table .select_box:checked").each(function () {
-                ids.push($(this).val());
-            });
-            return ids;
-        };
-        //* -----------  init tabs
-        var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
-        tabAdd.show();
-        var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
-
-        //* ----------- init expand title
-        $(".expand_title").click(function () {
-            var $div = $(this).next("div.expand_div");
-            if ($div.is(':visible')) {
+      //* ----------- init expand title
+      $(".expand_title").click(function () {
+        var $div = $(this).next("div.expand_div");
+        if ($div.is(':visible')) {
                 $div.slideUp();
                 $(this).removeClass("expand_title_expanded");
             } else {
