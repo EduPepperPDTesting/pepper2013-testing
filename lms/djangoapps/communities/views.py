@@ -349,11 +349,12 @@ def community(request, community_id):
         page = int(page)
     else:
         page = 1
+    start = (page - 1) * 5
 
     community = CommunityCommunities.objects.get(community=community_id)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
     users = CommunityUsers.objects.filter(facilitator=False, community=community)
-    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[page - 1:page + 4]
+    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
     resources = CommunityResources.objects.filter(community=community)
@@ -383,8 +384,9 @@ def community(request, community_id):
 def discussion_list(request, community_id):
     try:
         page = int(request.GET.get('page'))
+        start = (page - 1) * 5
         community = CommunityCommunities.objects.get(community=community_id)
-        discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[page - 1:page + 4]
+        discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
         total = CommunityDiscussions.objects.filter(community=community).count()
         views_connect = view_counter_store()
 
