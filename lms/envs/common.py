@@ -847,6 +847,9 @@ INSTALLED_APPS = (
 
     # View Counter
     'view_counter',
+
+    # Polling
+    'polls',
 )
 
 ######################### MARKETING SITE ###############################

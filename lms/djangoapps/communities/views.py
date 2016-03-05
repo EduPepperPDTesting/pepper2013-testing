@@ -16,6 +16,8 @@ from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from django.db.models import Q
 from people.views import get_pager
 from view_counter.models import view_counter_store
+from polls.models import poll_store
+from polls.views import poll_data
 
 log = logging.getLogger("tracking")
 
@@ -425,9 +427,16 @@ def discussion(request, discussion_id):
     views_connect = view_counter_store()
     views_connect.set_item('discussion', discussion_id, 1)
 
+    poll_connect = poll_store()
+    has_poll = poll_connect.poll_exists('discussion', discussion_id)
+
     data = {'discussion': discussion,
             'replies': replies,
-            'community': discussion.community}
+            'community': discussion.community,
+            'has_poll': has_poll}
+
+    if has_poll:
+        data.update({'poll': poll_data('discussion', discussion_id, request.user.id)})
 
     return render_to_response('communities/discussion.html', data)
 
@@ -436,6 +445,7 @@ def discussion(request, discussion_id):
 @ensure_csrf_cookie
 def discussion_add(request):
     error = ''
+
     try:
         community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
         discussion = CommunityDiscussions()
@@ -459,10 +469,12 @@ def discussion_add(request):
             discussion.attachment = attachment
             discussion.save()
         success = True
+        discussion_id = discussion.id
     except Exception as e:
         error = e
         success = False
-    return HttpResponse(json.dumps({'Success': success, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
+        discussion_id = None
+    return HttpResponse(json.dumps({'Success': success, 'DiscussionID': discussion_id, 'Error': 'Error: {0}'.format(error)}), content_type='application/json')
 
 
 @login_required

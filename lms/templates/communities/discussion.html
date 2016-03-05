@@ -114,6 +114,26 @@
         border: none;
         vertical-align: middle;
     }
+    .discussion-poll {
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        background-color: #ddd;
+        margin: 20px 0 5px 0;
+    }
+    .discussion-poll-question {
+        font-weight: bold;
+        font-size: 120%;
+    }
+    .discussion-poll-votes {
+        display: none;
+    }
+    .discussion-poll-vote-bar {
+        height: 1em;
+        background-color: #0A246A;
+        display: inline-block;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <script type="text/javascript">
@@ -150,6 +170,61 @@
             <div class="discussion-byline"><span>Posted By: </span>${discussion.user.first_name} ${discussion.user.last_name}</div>
             <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create)}</div>
             <div class="discussion-body">${discussion.post}</div>
+            %if has_poll:
+                <div class="discussion-poll">
+                    <div class="discussion-poll-question">${poll['question']}</div>
+                    <ol class="discussion-poll-answers">
+                        <% iterator = range(0, len(poll['answers'])) %>
+                        %for i in iterator:
+                            <li class="discussion-poll-answer"><label><input type="radio" value="${str(i)}" name="answers"> ${poll['answers'][str(i)]}</label></li>
+                            <li class="discussion-poll-votes">
+                                ${poll['answers'][str(i)]}:<br>
+                                <div class="discussion-poll-vote-bar" style="width: ${poll['votes'][str(i)]['percent'] * 2}px"></div> ${poll['votes'][str(i)]['percent']}%
+                            </li>
+                        %endfor
+                    </ol>
+                    <a href="#" class="discussion-poll-toggle hide">Show Results</a>
+                </div>
+                <script type="text/javascript">
+                    $('.discussion-poll-toggle').click(function() {
+                        $('.discussion-poll-answer').toggle();
+                        $('.discussion-poll-votes').toggle();
+                        $(this).empty();
+                        if ($(this).hasClass('hide')) {
+                            $(this).append('Vote');
+                            $(this).removeClass('hide');
+                            $(this).addClass('show');
+                        } else {
+                            $(this).append('Show Results');
+                            $(this).removeClass('show');
+                            $(this).addClass('hide');
+                        }
+                    });
+                    %if poll['user_answered']:
+                        $('.discussion-poll-answer').hide();
+                        $('.discussion-poll-votes').show();
+                        $('.discussion-poll-toggle').hide();
+                    %endif
+                    $('.discussion-poll-answer input[type=radio]').change(function() {
+                        var answer = $(this).val();
+                        $.post('${reverse('poll_vote')}', {'poll_type': '${poll['poll_type']}', 'poll_id': '${poll['poll_id']}', 'vote': answer}, function(data) {
+                            if (data.Success) {
+                                var content = '<ol class="discussion-poll-answers">';
+                                for (var x = 0; x < Object.keys(data.Votes).length; x++){
+                                    content += '<li class="discussion-poll-votes">';
+                                    content += data.Answers[x] + ':<br>';
+                                    content += '<div class="discussion-poll-vote-bar" style="width: ' + (data.Votes[x]['percent'] * 2) + 'px"></div> ' + data.Votes[x]['percent'] + '%';
+                                    content += '</li>';
+                                }
+                                content += '</ol>';
+                                $('.discussion-poll-answers').replaceWith(content);
+                                $('.discussion-poll-toggle').remove();
+                                $('.discussion-poll-votes').toggle();
+                            }
+                        });
+                    });
+                </script>
+            %endif
             <div class="discussion-actions"></div>
         </div>
         %for reply in replies:

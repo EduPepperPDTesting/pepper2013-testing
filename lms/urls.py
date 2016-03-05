@@ -227,9 +227,9 @@ urlpatterns = (
 
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
-    url(r'^community/discussion/(?P<discussion_id>[a-zA-Z0-9_]+)$', 'communities.views.discussion', name='community_discussion_view'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),
     url(r'^community/discussion/new/add$', 'communities.views.discussion_add', name='community_discussion_add'),
-    url(r'^community/discussion/(?P<discussion_id>[a-zA-Z0-9_]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
@@ -240,6 +240,11 @@ urlpatterns = (
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'communities.views.get_add_user_rows', name="community_get_add_user_rows"),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'communities.views.get_remove_user_rows', name="community_get_remove_user_rows"),
+
+    url(r'^polls/(?P<poll_type>[a-zA-Z0-9_]+)/(?P<poll_id>[0-9]+)$', 'polls.views.poll_view', name='poll_view'),
+    url(r'^polls/form/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_view', name='poll_form_view'),
+    url(r'^polls/save/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_submit', name='poll_form_submit'),
+    url(r'^polls/vote$', 'polls.views.poll_vote', name='poll_vote'),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
 

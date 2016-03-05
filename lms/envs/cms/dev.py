@@ -130,3 +130,14 @@ VIEWCOUNTERSTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+POLLSTORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_ASSIST,
+        'collection_poll': 'polls',
+        'collection_answers': 'poll_answers',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}

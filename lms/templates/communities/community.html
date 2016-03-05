@@ -179,12 +179,12 @@
         display: inline-block;
     }
     .modal {
-        position: fixed;
+        position: absolute;
         opacity: 1;
         z-index: 11000;
         left: 50%;
         margin-left: -349px;
-        top: 120px;
+        top: 40px;
         background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
         border-radius: 5px;
         box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
@@ -261,6 +261,14 @@
     .red-button {
         border-color: #df0000;
         background: #ED2828;
+    }
+    #poll-form {
+        display: none;
+        margin-top: 15px;
+    }
+    .poll-answer-input {
+        width: 80% !important;
+        display: inline !important;
     }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
@@ -418,7 +426,7 @@
                 </div>
                 <div style="margin:20px;">
                     <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                    <a href="#discussions" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
+                    <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
                     %if mem and mem.facilitator or request.user.is_superuser:
                         <a href="${reverse('community_edit',args=[community.community])}" class="green-button side-button">Edit</a>
                         <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
@@ -447,8 +455,22 @@
         content += '<label>Subject:<input type="text" name="subject"></label>';
         content += '<label>Discussion:<textarea name="post"></textarea></label>';
         content += '<label>Attachment:<input type="file" name="attachment"></label>';
+        content += '<label><input type="checkbox" class="poll-add"> Add Poll</label>';
+        content += '<div id="poll-form">';
+        content += '<label>Question: <input class="poll-question" type="text" name="question"></label>';
+        content += '<label>Answers: <ol id="poll-answers">';
+        content += '<li class="poll-answer">';
+        content += '<input class="poll-answer-input" type="text" name="answers[0]">';
+        content += '</li>';
+        content += '<li class="poll-answer">';
+        content += '<input class="poll-answer-input" type="text" name="answers[1]"> <input type="button" class="add operation" value="+">';
+        content += '</li>';
+        content += '</ol></label>';
+        content += '<label>Expiration Date: <input class="poll-expiration" type="text" name="expiration" placeholder="mm/dd/yyyy"></label>';
+        content += '</div>';
         content += '<input type="hidden" value="${community.id}" name="community_id">';
         content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+        content += '<div class="discussion-clear"></div><br/>';
         content += '<input type="submit" name="submit" value="Add">';
         content += '</form><div class="discussion-error"></div>';
         var discussion_dialog = new Dialog($('#dialog'));
@@ -456,14 +478,27 @@
         $('#new-discussion-submit').submit(function(event) {
             $.post('${reverse('community_discussion_add')}', $(this).serialize(), function(data) {
                 if (data.Success) {
-                    discussion_dialog.hide();
-                    replaceDiscussions(1);
-                    // new Dialog($('#dialog')).show('Success', 'Your discussion was submitted.');
+                    var pollData = $('#new-discussion-submit').serializeArray();
+                    pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                    $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function(data) {
+                        if (data.Success) {
+                            discussion_dialog.hide();
+                            replaceDiscussions(1);
+                        } else {
+                            $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                        }
+                    });
                 } else {
                     $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                 }
             });
             event.preventDefault()
+        });
+        $('.poll-add').click(function() {
+            $('#poll-form').toggle();
+        });
+        $('.poll-answer .add').click(function() {
+            newAnswer();
         });
     }
     function replaceDiscussions(page) {
@@ -503,6 +538,38 @@
             $('#discussion-pager').replaceWith(content);
 
             window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.community])}?page=" + page);
+        });
+    }
+    function newAnswer() {
+        var answer_num = $('.poll-answer').length;
+        $('.poll-answer').each(function(index) {
+            $(this).find('.operation').replaceWith('<input type="button" class="minus operation" value="-" onclick="removeAnswer(' + index + ')">');
+        });
+        var entry = '<li class="poll-answer">';
+        entry += '<input class="poll-answer-input" type="text" name="answers[' + answer_num + ']"> <input type="button" class="add operation" value="+">';
+        entry += '</li>';
+        $('#poll-answers').append(entry);
+        $('.poll-answer .add').click(function() {
+            newAnswer();
+        });
+    }
+    function removeAnswer(index) {
+        $('.poll-answer').each(function(i) {
+            if (i == index) {
+                $(this).remove();
+            } else {
+                var num = 0;
+                if (i < index) {
+                    num = i;
+                }
+                if (i > index) {
+                    num = i - 1;
+                }
+                $(this).children('.poll-answer-input').attr('name', 'answers[' + num + ']');
+            }
+        });
+        $('.poll-answer .minus').each(function(index) {
+            $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeAnswer(' + index + ')">');
         });
     }
     function isScrolledIntoView(elem, view) {
