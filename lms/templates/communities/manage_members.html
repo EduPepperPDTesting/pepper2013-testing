@@ -9,21 +9,33 @@
 
 <%block name="title">
     <title></title>
-    </%block>
+</%block>
 
 <style type="text/css" media="screen">
-  .blue-button {
-  border-color: #45719E;
-  background: #5A9BD5;
-  color: white !important;
-  display: inline-block;
-  padding: 3px 10px;;
-  border-width: 1px;
-  border-style: solid;
-  text-align: center;
-  margin-right:5px;
-  text-transform: uppercase;
-  }
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+        color: white !important;
+        display: inline-block;
+        padding: 3px 10px;;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-right:5px;
+        text-transform: uppercase;
+    }
+    #back {
+        margin: 10px;
+    }
+    .up_page {
+        display: inline-block;
+        width: 17px !important;
+        line-height: 24px;
+        height: 20px;
+        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+        border: none;
+        vertical-align: middle;
+    }
 </style>
 
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
@@ -41,7 +53,13 @@
 
 <body style="text-align:center">
 <div class="data_import_bottom" style="text-align:left;">
-    <div class="main, data_import_content">
+    <div class="main data_import_content">
+        <div id="back">
+            <a href="${reverse('community_view', args=[community.community])}" class="up_page"></a>&nbsp;
+            <a href="${reverse('community_view', args=[community.community])}">
+                Back to the <span class="italic">${community.name}</span> community
+            </a>
+        </div>
         <div class="expand_title expand_title_collapse"> Manage Member Of ${community.community} <div class="icon"></div> </div>
         <div class="expand_div">
             <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Add Members</div></a>
@@ -107,18 +125,18 @@
                     <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
-                          <!-- <th class="user_id_select">ID</th> -->
-                          <th class="user_email">E-Mail</th>
-                          <th class="user_fname">User Name</th>
-                          <th class="user_fname">First Name</th>
-                          <th class="user_lname">Last Name</th>
-                          <th class="user_state">State</th>
-                          <th class="user_adduser">District</th>
-                          <!-- <th class="user_cohort">Cohort</th> -->
-                          <th class="user_removeuser">School</th>
-                          <!-- <th class="user_registration">Registration Status</th>
-                          <th class="user_enrollment_status">Enrollment Start</th> -->
-                          <th></th>
+                            <!-- <th class="user_id_select">ID</th> -->
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_fname">User Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_state">State</th>
+                            <th class="user_adduser">District</th>
+                            <!-- <th class="user_cohort">Cohort</th> -->
+                            <th class="user_removeuser">School</th>
+                            <!-- <th class="user_registration">Registration Status</th>
+                            <th class="user_enrollment_status">Enrollment Start</th> -->
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody id="user_data_tbody">
@@ -142,8 +160,8 @@
             </form>
             <span style="float:right;">
               <input type="button" value="Add Selected Users" class ="small" onclick="add_selected_users()"/>
-              &nbsp;<a href="${reverse('community_view',args=[community.community])}"
-                       class="blue-button side-button">return to community</a>
+                <!--&nbsp;<a href="${reverse('community_view',args=[community.community])}"
+                       class="blue-button side-button">return to community</a>-->
             </span>
           </span>
                 </span>
@@ -209,23 +227,23 @@
                 </div>
                 <div>
                     <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
-                      <thead>
+                        <thead>
                         <tr>
-                          <!-- <th class="user_id_select">ID</th> -->
-                          <th class="user_email">E-Mail</th>
-                          <th class="user_fname">User Name</th>
-                          <th class="user_fname">First Name</th>
-                          <th class="user_lname">Last Name</th>
-                          <th class="user_state">State</th>
-                          <th class="user_adduser">District</th>
-                          <!-- <th class="user_cohort">Cohort</th> -->
-                          <th class="user_removeuser">School</th>
-                          <!-- <th class="user_registration">Registration Status</th>
-                          <th class="user_enrollment_status">Enrollment Start</th> -->
-                          <th></th>
+                            <!-- <th class="user_id_select">ID</th> -->
+                            <th class="user_email">E-Mail</th>
+                            <th class="user_fname">User Name</th>
+                            <th class="user_fname">First Name</th>
+                            <th class="user_lname">Last Name</th>
+                            <th class="user_state">State</th>
+                            <th class="user_adduser">District</th>
+                            <!-- <th class="user_cohort">Cohort</th> -->
+                            <th class="user_removeuser">School</th>
+                            <!-- <th class="user_registration">Registration Status</th>
+                            <th class="user_enrollment_status">Enrollment Start</th> -->
+                            <th></th>
                         </tr>
-                      </thead>
-                      <tbody id="user_data_tbody">
+                        </thead>
+                        <tbody id="user_data_tbody">
                         </tbody>
                     </table>
                 </div>
@@ -364,29 +382,29 @@
                 });
             });
         };
-      Tab.prototype.reloadTable=function(){
-        var t=this.$content.find('#user-table')[0];
-        var c=t.config;
-        var p=c.pager;
-        p=$.extend(p, p.last);
-        p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
-        p.reload();
-      };
-      Tab.prototype.getSelectedIds=function(){
-        var ids = [];
-        this.$content.find("table .select_box:checked").each(function () {
-          ids.push($(this).val());
-        });
-        return ids;
-      };
-      //* -----------  init tabs
-      var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
-      tabAdd.show();
-      var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
-      //* ----------- init expand title
-      $(".expand_title").click(function () {
-        var $div = $(this).next("div.expand_div");
-        if ($div.is(':visible')) {
+        Tab.prototype.reloadTable=function(){
+            var t=this.$content.find('#user-table')[0];
+            var c=t.config;
+            var p=c.pager;
+            p=$.extend(p, p.last);
+            p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        };
+        Tab.prototype.getSelectedIds=function(){
+            var ids = [];
+            this.$content.find("table .select_box:checked").each(function () {
+                ids.push($(this).val());
+            });
+            return ids;
+        };
+        //* -----------  init tabs
+        var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
+        tabAdd.show();
+        var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
+        //* ----------- init expand title
+        $(".expand_title").click(function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
                 $div.slideUp();
                 $(this).removeClass("expand_title_expanded");
             } else {

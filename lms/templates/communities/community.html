@@ -43,7 +43,7 @@
         float: left;
     }
     #community-discussions {
-        width: 490px;
+        width: 578px;
         margin-right: 20px;
         float: left;
     }
@@ -61,7 +61,7 @@
     }
     .discussion-post-info-header {
         float: left;
-        width: 375px;
+        width: 463px;
     }
     .discussion-post-info div {
         display: inline-block;
@@ -412,10 +412,10 @@
                 </div>
                 <div style="margin:20px;">
                     <div class="">Discussions: ${discussions.count()}</div>
-                    <div class="">Messages: </div>
+                    <!--<div class="">Messages: </div>-->
                     <div class="">Members: ${users.count()}</div>
                 </div>
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                <!--<div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
                     Trending
                 </div>
                 <div style="margin:20px;">
@@ -423,7 +423,7 @@
                         <span style="color:#006EBF;">${d.user.first_name}, </span>
                         <span>${d.date_create}</span>
                     %endfor
-                </div>
+                </div>-->
                 <div style="margin:20px;">
                     <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
