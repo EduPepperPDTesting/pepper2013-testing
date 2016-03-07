@@ -248,6 +248,10 @@
     .modal .inner-wrapper form textarea {
         height: 100px;
     }
+    .hangout_container{
+        text-align:center;
+        padding-top:10px;
+    }
     .side-button {
         color: white !important;
         display: block;
@@ -440,9 +444,14 @@
                         <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
                         <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
                     %endif
-                    <a href="#" style="display:block;text-align:center;">
+                    <script src="https://apis.google.com/js/platform.js" async defer></script>
+                    <div class = "hangout_container" id = "hangout_div">
+                        <g:hangout render="createhangout"></g:hangout>
+                    </div>
+
+                    <!--<a href="#" style="display:block;text-align:center;">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
-                    </a>
+                    </a>-->
                 </div>
             </div>
         </div>
