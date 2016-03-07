@@ -241,6 +241,10 @@
     .modal .inner-wrapper form textarea {
         height: 100px;
     }
+    .hangout_container{
+        text-align:center;
+        padding-top:10px;
+    }
     .side-button {
         color: white !important;
         display: block;
@@ -433,12 +437,13 @@
                         <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
                     %endif
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
-                    <div id = "hangout_div" style = "display:none">
-                        <g:hangout render="createhangout" style = "background-image:'/static/images/community_google_hangouts.png'"></g:hangout>
+                    <div class = "hangout_container" id = "hangout_div">
+                        <g:hangout render="createhangout"></g:hangout>
                     </div>
-                    <a href="#" onclick = "$('#hangout_div').click();" style="display:block;text-align:center;">
+
+                    <!--<a href="#" style="display:block;text-align:center;">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
-                    </a>
+                    </a>-->
                 </div>
             </div>
         </div>
