@@ -599,7 +599,7 @@ def community_edit(request, community_id='new'):
     """
     Sets up the community add/edit form.
     :param request: Request object.
-    :param community: Which community to edit, or 'new' if adding one.
+    :param community_id: Which community to edit, or 'new' if adding one.
     :return: Form page.
     """
     # Get a list of courses for the course drop-down in the form.
@@ -612,7 +612,7 @@ def community_edit(request, community_id='new'):
                                      'logo': course_image_url(course)})
 
     # If we are adding a new community, and the user making the request is a superuser, return a blank form.
-    if community == 'new' and request.user.is_superuser:
+    if community_id == 'new' and request.user.is_superuser:
         data.update({'community_id': 'new',
                      'community': '',
                      'name': '',
@@ -626,13 +626,13 @@ def community_edit(request, community_id='new'):
         return render_to_response('communities/community_edit.html', data)
     # If we are editing a community, make sure the user is either a superuser or facilitator for this community, and if
     # so, return a populated form for editing.
-    elif community != 'new' and (request.user.is_superuser or is_facilitator(request.user, community)):
+    elif community_id != 'new' and (request.user.is_superuser or is_facilitator(request.user, community_id)):
         if request.user.is_superuser:
             user_type = 'super'
-        elif is_facilitator(request.user, community):
+        elif is_facilitator(request.user, community_id):
             user_type = 'facilitator'
         # Grab the data from the DB.
-        community_object = CommunityCommunities.objects.get(community=community)
+        community_object = CommunityCommunities.objects.get(community=community_id)
         courses = CommunityCourses.objects.filter(community=community_object)
         resources = CommunityResources.objects.filter(community=community_object)
         facilitator = CommunityUsers.objects.filter(community=community_object, facilitator=True)
