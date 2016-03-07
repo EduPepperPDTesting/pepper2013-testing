@@ -376,7 +376,7 @@ def create_unknown_user(request, ms, data):
         user.save()
         profile.save()
 
-        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
