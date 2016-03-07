@@ -411,7 +411,8 @@ def discussion_list(request, community_id):
                                         'views': views,
                                         'date_create': '{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create),
                                         'first_name': discussion.user.first_name,
-                                        'last_name': discussion.user.last_name
+                                        'last_name': discussion.user.last_name,
+                                        'avatar': reverse('user_photo', args=[discussion.user.id])
                                         })
     except Exception as e:
         data = {'Error': e}

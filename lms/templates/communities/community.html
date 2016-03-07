@@ -80,6 +80,13 @@
     .discussion-stats span {
         display: block;
     }
+    .discussion-avatar {
+        float: left;
+        width: 48px;
+        height: 48px;
+        display: block;
+        margin: 0 10px 5px 0;
+    }
     .discussion-clear {
         clear: both;
         height: 1px;
@@ -313,6 +320,7 @@
                 <div class="discussions">
                 %for i,d in enumerate(discussions):
                     <div class="discussion">
+                        <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
                         <div class="discussion-stats">
                             <span>Replies: ${d.replies}</span>
                             <span>Views: ${d.views}</span>
@@ -506,6 +514,7 @@
             var content = '<div class="discussions">';
             for (var x = 0; x < data.discussions.length; x++) {
                 content += '<div class="discussion">';
+                content += '<img class="discussion-avatar" src="' + data.discussions[x].avatar + '">';
                 content += '<div class="discussion-stats">';
                 content += '<span>Replies: ' + data.discussions[x].replies + '</span>';
                 content += '<span>Views: ' + data.discussions[x].views + '</span>';
