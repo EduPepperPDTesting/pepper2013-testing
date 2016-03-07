@@ -432,9 +432,12 @@
                         <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
                         <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
                     %endif
-                    <a href="#" style="display:block;text-align:center;">
+                    <script src="https://apis.google.com/js/platform.js" async defer></script>
+                    <g:hangout render="createhangout" style = "background-image:'/static/images/community_google_hangouts.png'"></g:hangout>
+
+                    <!--<a href="#" style="display:block;text-align:center;">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
-                    </a>
+                    </a>-->
                 </div>
             </div>
         </div>
