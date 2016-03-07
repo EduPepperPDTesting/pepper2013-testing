@@ -791,7 +791,7 @@ def community_edit_process(request):
                 resource_object.logo = logo
             resource_object.save()
 
-    return redirect(reverse('community_view', kwargs={'community': community_object.community}))
+    return redirect(reverse('community_view', kwargs={'community_id': community_object.community}))
     # except Exception as e:
     #     data = {'error_title': 'Problem Saving Community',
     #             'error_message': 'Error: {0}'.format(e),
