@@ -2100,7 +2100,7 @@ Email: {email}
 Course: {course_number} {course_name}
 Request Date: {date_time}""".format(first_name=request.user.first_name,
     last_name=request.user.last_name,
-    cohort_code=request.user.profile.cohort.code,
+    cohort_code=request.user.profile.cohort.code if request.user.profile.cohort_id else '',
     district_name=request.user.profile.district.name,
     school_name=request.user.profile.school.name,
     email=request.user.email,
