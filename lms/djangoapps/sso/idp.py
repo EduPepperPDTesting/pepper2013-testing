@@ -204,6 +204,14 @@ def saml_redirect(request, sp_name, ms):
             value = request.user.profile.district.name
         elif attr['name'] == "school":
             value = request.user.profile.school.name
+        elif attr['name'] == "grades":
+            value = request.user.profile.grade_level_id
+        elif attr['name'] == "bio":
+            value = request.user.profile.bio
+        elif attr['name'] == "id":
+            value = request.user.id
+        elif attr['name'] == "avatar":
+            value = reverse('user_photo', args=[request.user.id])
         if value is not None:
             parsed_data[mapped_name] = [value]
 
