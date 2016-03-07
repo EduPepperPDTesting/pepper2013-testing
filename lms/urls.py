@@ -230,6 +230,8 @@ urlpatterns = (
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),
     url(r'^community/discussion/new/add$', 'communities.views.discussion_add', name='community_discussion_add'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
+    url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),

@@ -16,7 +16,7 @@ class CommunityCommunities(models.Model):
 class CommunityUsers(models.Model):
     class Meta:
         db_table = 'community_users'
-    community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     facilitator = models.BooleanField(blank=False, default=0)
 
@@ -24,14 +24,14 @@ class CommunityUsers(models.Model):
 class CommunityCourses(models.Model):
     class Meta:
         db_table = 'community_courses'
-    community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     course = models.CharField(blank=False, max_length=255)
 
 
 class CommunityResources(models.Model):
     class Meta:
         db_table = 'community_resources'
-    community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     name = models.CharField(blank=False, max_length=255, db_index=True)
     link = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
@@ -40,7 +40,7 @@ class CommunityResources(models.Model):
 class CommunityDiscussions(models.Model):
     class Meta:
         db_table = 'community_discussions'
-    community = models.ForeignKey(CommunityCommunities, on_delete=models.PROTECT)
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
     subject = models.CharField(blank=False, max_length=255, db_index=True)
     post = models.TextField(blank=False, max_length=255, db_index=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -51,7 +51,7 @@ class CommunityDiscussions(models.Model):
 class CommunityDiscussionReplies(models.Model):
     class Meta:
         db_table = 'community_discussion_replies'
-    discussion = models.ForeignKey(CommunityDiscussions, on_delete=models.PROTECT)
+    discussion = models.ForeignKey(CommunityDiscussions, on_delete=models.CASCADE)
     subject = models.CharField(blank=False, max_length=255, db_index=True)
     post = models.TextField(blank=False, max_length=255, db_index=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)

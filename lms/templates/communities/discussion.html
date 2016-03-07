@@ -4,12 +4,15 @@
     from courseware.courses import course_image_url, get_course_about_section
     from student.views import course_from_id
     import re
+    from communities.utils import is_facilitator, is_member
 %>
 <%namespace name='static' file='../static_content.html'/>
 
 <%block name="title">
     <title></title>
 </%block>
+
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
 <style type="text/css" media="screen">
     #table-discuss th {
@@ -99,6 +102,11 @@
         top: 20px;
         right: 20px;
     }
+    .delete-icon {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+    }
     .italic {
         font-style: italic;
     }
@@ -170,17 +178,50 @@
         display: block;
         margin-bottom: 5px;
     }
+    .modal {
+        position: fixed;
+        opacity: 1;
+        z-index: 11000;
+        left: 50%;
+        margin-left: -249px;
+        top: 40px;
+        background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+        border-radius: 5px;
+        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        padding: 0 0 8px 0;
+        width: 480px;
+        display: none;
+    }
+    .modal .close-modal {
+        border-radius: 2px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: baseline;
+        padding: 10px;
+        position: absolute;
+        right: 2px;
+        top: 0;
+        z-index: 3;
+        color: #333;
+    }
+    .modal .titlebar {
+        height: 70px;
+        background: #ccc;
+    }
+    .modal .dialog-title {
+        margin: 0;
+        padding: 20px 0 0 30px;
+        color: #666;
+    }
+    .modal .content {
+        color: #333;
+        text-align: center;
+        font-size: 16px;
+        padding: 20px;
+        line-height: 20px;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
-<script type="text/javascript">
-    function joinMe(){
-        var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.community])}",{user_id:user_id}, function(r){
-            if(r.success)
-                window.location.reload();
-        });
-    }
-</script>
 <body style="text-align:center">
 <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
     <section style="width:880px;float:left;">
@@ -192,8 +233,13 @@
         </div>
         <div class="discussion">
             <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
-                <img src="/static/images/link-icon.png">
+                <img src="/static/images/link-icon.png" alt="Permalink">
             </a>
+            %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
+                <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
+                    <img src="/static/images/trash-small.png" alt="Delete Discussion">
+            </a>
+            %endif
             <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
             <h2>${discussion.subject}</h2>
             %if discussion.attachment:
@@ -269,6 +315,13 @@
                 <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}#${reply.id}">
                     <img src="/static/images/link-icon.png">
                 </a>
+                %if request.user.is_superuser or \
+                    is_facilitator(request.user, discussion.community) or \
+                    request.user.id == reply.user.id:
+                    <a class="delete-icon delete-reply" href="${reverse('community_discussion_reply_delete', args=[reply.id])}">
+                        <img src="/static/images/trash-small.png" alt="Delete Discussion">
+                    </a>
+                %endif
                 <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
                 <h2>${reply.subject}</h2>
                 %if reply.attachment:
@@ -342,4 +395,37 @@
         </div>
     </section>
 </div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.community])}",{user_id:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+    $('.delete-icon').click(function(event) {
+        event.preventDefault();
+        var title = 'Really Delete This Reply?';
+        var content = 'This operation cannot be undone.';
+        if ($(this).hasClass('delete-discussion')) {
+            title = 'Really Delete This Discussion?';
+            content = 'If you delete this discussion, all replies, polls and attachments will be removed as well. This operation cannot be undone';
+        }
+        var continue_url = $(this).attr('href');
+        new Dialog($('#dialog')).showYesNo(title, content, function(ans) {
+            this.hide();
+            if (!ans) return;
+            window.location.href = continue_url;
+        });
+    });
+</script>
 </body>

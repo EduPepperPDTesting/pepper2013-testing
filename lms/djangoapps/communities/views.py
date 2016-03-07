@@ -523,6 +523,37 @@ def discussion_reply(request, discussion_id):
     return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
 
 
+@login_required()
+def discussion_delete(request, discussion_id):
+    discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    redirect_url = reverse('community_view', args=[discussion.community.community])
+    # try:
+    view_connect = view_counter_store()
+    view_connect.delete_item('discussion', discussion_id)
+
+    poll_connect = poll_store()
+    if poll_connect.poll_exists('discussion', discussion_id):
+        poll_connect.delete_poll('discussion', discussion_id)
+
+    discussion.delete()
+    # except Exception as e:
+    #     log.warning('There was an error deleting a discussion: {0}'.format(e))
+
+    return redirect(redirect_url)
+
+
+@login_required()
+def discussion_reply_delete(request, reply_id):
+    reply = CommunityDiscussionReplies.objects.get(id=reply_id)
+    redirect_url = reverse('community_discussion_view', args=[reply.discussion.id])
+    try:
+        reply.delete()
+    except Exception as e:
+        log.warning('There was an error deleting a reply: {0}'.format(e))
+
+    return redirect(redirect_url)
+
+
 @login_required
 def communities(request):
     """

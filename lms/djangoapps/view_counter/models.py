@@ -54,6 +54,14 @@ class MongoViewCounterStore(object):
                 True
         )
 
+    def delete_item(self, type, identifier):
+        return self.collection.remove(
+                {
+                    'type': type,
+                    'identifier': identifier,
+                }
+        )
+
 
 def view_counter_store():
     options = {}

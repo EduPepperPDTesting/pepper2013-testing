@@ -60,6 +60,20 @@ class MongoPollStore(object):
                 True
         )
 
+    def delete_poll(self, type, identifier):
+        self.collection_answers.remove(
+                {
+                    'type': type,
+                    'identifier': str(identifier),
+                }
+        )
+        return self.collection_poll.remove(
+                {
+                    'type': type,
+                    'identifier': str(identifier),
+                }
+        )
+
     def get_answers(self, type, identifier, answer, user=None):
         data = {
             'type': type,
