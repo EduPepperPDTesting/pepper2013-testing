@@ -3,6 +3,7 @@
     from django.core.urlresolvers import reverse
     from courseware.courses import course_image_url, get_course_about_section
     from student.views import course_from_id
+    from administration.configuration import has_hangout_perms
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -462,11 +463,11 @@
                         <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
                     %endif
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
-                    <div class = "hangout_container" id = "hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
-                    </div>
-
-
+                    %if has_hangout_perms(request.user):
+                        <div class = "hangout_container" id = "hangout_div">
+                            <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                        </div>
+                    %endif
                 </div>
             </div>
         </div>
