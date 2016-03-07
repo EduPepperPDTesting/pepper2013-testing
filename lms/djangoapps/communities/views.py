@@ -431,6 +431,9 @@ def discussion_list(request, community_id):
 def discussion(request, discussion_id):
     discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
+    total = CommunityDiscussions.objects.filter(community=discussion.community).count()
+    users = CommunityUsers.objects.filter(community=discussion.community).count()
+    mems = CommunityUsers.objects.select_related().filter(user=request.user, community=discussion.community)
 
     views_connect = view_counter_store()
     views_connect.set_item('discussion', discussion_id, 1)
@@ -438,10 +441,19 @@ def discussion(request, discussion_id):
     poll_connect = poll_store()
     has_poll = poll_connect.poll_exists('discussion', discussion_id)
 
+    trending_views = views_connect.get_most_viewed('discussion', 3)
+    trending = list()
+    for tv in trending_views:
+        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+
     data = {'discussion': discussion,
             'replies': replies,
             'community': discussion.community,
-            'has_poll': has_poll}
+            'has_poll': has_poll,
+            'total_discussions': total,
+            'total_users': users,
+            'trending': trending,
+            'mem': mems[0] if mems.count() else None}
 
     if has_poll:
         data.update({'poll': poll_data('discussion', discussion_id, request.user.id)})
