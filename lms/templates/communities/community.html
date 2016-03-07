@@ -486,16 +486,22 @@
         $('#new-discussion-submit').submit(function(event) {
             $.post('${reverse('community_discussion_add')}', $(this).serialize(), function(data) {
                 if (data.Success) {
-                    var pollData = $('#new-discussion-submit').serializeArray();
-                    pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
-                    $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function(data) {
-                        if (data.Success) {
-                            discussion_dialog.hide();
-                            replaceDiscussions(1);
-                        } else {
-                            $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
-                        }
-                    });
+                    if ($('#new-discussion-submit .poll-add').is(':checked')) {
+                        var pollData = $('#new-discussion-submit').serializeArray();
+                        pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                        $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function(data) {
+                            if (data.Success) {
+                                discussion_dialog.hide();
+                                replaceDiscussions(1);
+                            } else {
+                                $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                            }
+                        });
+                    } else {
+                        discussion_dialog.hide();
+                        replaceDiscussions(1);
+                    }
+
                 } else {
                     $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                 }
