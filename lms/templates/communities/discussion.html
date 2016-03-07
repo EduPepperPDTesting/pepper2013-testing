@@ -143,8 +143,14 @@
         display: inline-block;
     }
     .hangout_container{
-        text-align:center;
-        padding-top:10px;
+        text-align: center;
+        padding-top: 10px;
+    }
+    .hangout_container img {
+        width: 60px;
+        vertical-align: top;
+        display: inline-block;
+        padding-right: 5px;
     }
     .side-button {
         color: white !important;
@@ -238,7 +244,7 @@
             %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
                 <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
                     <img src="/static/images/trash-small.png" alt="Delete Discussion">
-            </a>
+                </a>
             %endif
             <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
             <h2>${discussion.subject}</h2>
@@ -388,7 +394,7 @@
                     %endif
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
                     <div class = "hangout_container" id = "hangout_div">
-                        <g:hangout render="createhangout"></g:hangout>
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
                     </div>
                 </div>
             </div>
