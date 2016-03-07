@@ -361,7 +361,7 @@ def community(request, community_id):
 
     community = CommunityCommunities.objects.get(community=community_id)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
-    users = CommunityUsers.objects.filter(facilitator=False, community=community)
+    users = CommunityUsers.objects.filter(community=community)
     discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
@@ -375,15 +375,22 @@ def community(request, community_id):
             d.views = 0
         else:
             d.views = views['views']
-        
+
+    trending_views = views_connect.get_most_viewed('discussion', 3)
+    trending = list()
+    for tv in trending_views:
+        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
             "discussions": discussions,
+            "trending": trending,
             "users": users,
             "resources": resources,
             "courses": courses,
             "mem": mems[0] if mems.count() else None,
-            "pager": get_pager(total, 5, page, 5)}
+            "pager": get_pager(total, 5, page, 5),
+            "total_discussions": total}
     
     return render_to_response('communities/community.html', data)
 

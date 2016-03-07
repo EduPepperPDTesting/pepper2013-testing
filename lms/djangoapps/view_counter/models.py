@@ -35,6 +35,13 @@ class MongoViewCounterStore(object):
                 }
         )
 
+    def get_most_viewed(self, type, number):
+        return self.collection.find(
+                {
+                    'type': type,
+                }
+        ).sort([('views', -1)]).limit(number)
+
     def set_item(self, type, identifier, views):
         return self.collection.update(
                 {

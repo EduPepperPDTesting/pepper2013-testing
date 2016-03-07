@@ -281,6 +281,17 @@
         width: 80% !important;
         display: inline !important;
     }
+    #trending {
+        margin: 20px;
+    }
+    .trending-title {
+        display: block;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <script type="text/javascript">
@@ -423,19 +434,19 @@
                     Community Status
                 </div>
                 <div style="margin:20px;">
-                    <div class="">Discussions: ${discussions.count()}</div>
+                    <div class="">Discussions: ${total_discussions}</div>
                     <!--<div class="">Messages: </div>-->
                     <div class="">Members: ${users.count()}</div>
                 </div>
-                <!--<div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
                     Trending
                 </div>
-                <div style="margin:20px;">
-                    %for i,d in enumerate(discussions):
-                        <span style="color:#006EBF;">${d.user.first_name}, </span>
-                        <span>${d.date_create}</span>
+                <div id="trending">
+                    %for i, d in enumerate(trending):
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
                     %endfor
-                </div>-->
+                </div>
                 <div style="margin:20px;">
                     <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
