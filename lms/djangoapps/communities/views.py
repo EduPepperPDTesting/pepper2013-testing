@@ -595,7 +595,7 @@ def community_delete(request, community):
 
 
 @login_required
-def community_edit(request, community='new'):
+def community_edit(request, community_id='new'):
     """
     Sets up the community add/edit form.
     :param request: Request object.
