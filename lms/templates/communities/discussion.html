@@ -5,6 +5,7 @@
     from student.views import course_from_id
     import re
     from communities.utils import is_facilitator, is_member
+    from administration.configuration import has_hangout_perms
 %>
 <%namespace name='static' file='../static_content.html'/>
 
@@ -226,6 +227,56 @@
         padding: 20px;
         line-height: 20px;
     }
+    #community-main-sidebar {
+        width: 266px;
+        float: right;
+        top: 0;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    #community-sidebar-header {
+        border: 2px solid #ddd;
+        height: 53px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 53px;
+    }
+    #community-sidebar {
+        width: 208px;
+        padding: 20px 20px 0 20px;
+        border: 2px solid #ddd;
+        margin: auto;
+        border-top: 0;
+        text-align: left;
+    }
+    .sidebar-section {
+        margin: 20px 0;
+    }
+    .sidebar-section h2 {
+        border-bottom: 2px solid #90BF70;
+        padding-bottom: 5px;
+        margin: 0 0 10px 0;
+        color: #006EBF;
+        font-weight: bold;
+        text-transform: none;
+        font-size: 1em;
+        line-height: 1em;
+    }
+    .sidebar-sub-section {
+        margin: 0 10px;
+    }
+    .trending-title {
+        display: block;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .status-name {
+        display: block;
+        margin-bottom: 5px;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -355,50 +406,59 @@
             </div>
         %endif
     </section>
-    <section>
-        <div style="width:266px;float:right;top:0px;text-align:center;">
-            <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
-                ${request.user.first_name}
+    <section id="community-main-sidebar">
+        <div id="community-sidebar-header">
+            ${request.user.first_name}
+        </div>
+        <div id="community-sidebar">
+            <div class="sidebar-section" style="text-align: center;">
+                <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
+                <br />
+                %if is_facilitator(request.user, community):
+                    FACILITATOR
+                %elif request.user.is_superuser:
+                    ADMIN
+                %elif is_member(request.user, community):
+                    MEMBER
+                %else:
+                    <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
+                %endif
             </div>
-            <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
-                <div style="text-align:center;">
-                    <img src="${reverse('user_photo', args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                    <br />
-                    %if mem and mem.facilitator:
-                        FACILITATOR
-                    %elif mem and not mem.facilitator:
-                        MEMBER
-                    %else:
-                        <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" onclick="joinMe()">Add Me</a>
-                    %endif
+            <div class="sidebar-section">
+                <h2>Community Status</h2>
+                <div class="sidebar-sub-section">
+                    <span class="status-name">Discussions: ${total_discussions}</span>
+                    <!--<span class="trending-name">Messages: </span>-->
+                    <span class="status-name">Members: ${total_users}</span>
                 </div>
-                <div style="margin:20px;">
-                    <div class="">Discussions: ${total_discussions}</div>
-                    <!--<div class="">Messages: </div>-->
-                    <div class="">Members: ${total_users}</div>
-                </div>
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Trending
-                </div>
-                <div id="trending">
+            </div>
+            <div class="sidebar-section">
+                <h2>Trending</h2>
+                <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                        <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[discussion.id])}">${discussion.subject}</a></span>
+                        <span class="trending-name">${discussion.user.first_name} ${discussion.user.last_name}</span>
                     %endfor
                 </div>
-                <div style="margin:20px;">
-                    <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+            </div>
+            <div class="sidebar-section">
+                <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+                <!--
+                %if is_member(request.user, community) or request.user.is_superuser:
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
-                    %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
-                        <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
-                    %endif
-                    <script src="https://apis.google.com/js/platform.js" async defer></script>
+                %endif
+                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                    <a href="${reverse('community_edit',args=[discussion.community.id])}" class="green-button side-button">Edit</a>
+                    <a href="${reverse('community_delete',args=[discussion.community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                    <a href="${reverse('community_mange_member',args=[discussion.community.id])}" class="blue-button side-button">Manage Members</a>
+                %endif
+                -->
+                <script src="https://apis.google.com/js/platform.js" async defer></script>
+                %if has_hangout_perms(request.user):
                     <div class = "hangout_container" id = "hangout_div">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
                     </div>
-                </div>
+                %endif
             </div>
         </div>
     </section>
@@ -415,7 +475,7 @@
 <script type="text/javascript">
     function joinMe(){
         var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.id])}",{user_id:user_id}, function(r){
+        $.post("${reverse('community_join', args=[discussion.community.id])}",{user_id:user_id}, function(r){
             if(r.success)
                 window.location.reload();
         });
