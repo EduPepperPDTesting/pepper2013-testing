@@ -6,7 +6,6 @@ from file_uploader.models import FileUploads
 class CommunityCommunities(models.Model):
     class Meta:
         db_table = 'community_communities'
-    community = models.CharField(blank=False, max_length=255, db_index=True, unique=True)
     name = models.CharField(blank=False, max_length=255, db_index=True)
     motto = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
@@ -45,6 +44,7 @@ class CommunityDiscussions(models.Model):
     post = models.TextField(blank=False, max_length=255, db_index=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+    date_reply = models.DateTimeField(auto_now_add=True, db_index=False)
     attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
 
 

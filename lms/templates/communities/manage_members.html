@@ -434,7 +434,7 @@
                 new Dialog($('#dialog')).showYesNo("Delete members", "Are you sure you want to remove the users?", function(ans){
                     this.hide();
                     if(!ans) return;
-                    $.post("${reverse('community_leave',args=[community.community])}",{user_ids:ids.join(",")},function(){
+                    $.post("${reverse('community_leave',args=[community.id])}",{user_ids:ids.join(",")},function(){
                         tabAdd.reloadTable();
                         tabRemove.reloadTable();
                     });

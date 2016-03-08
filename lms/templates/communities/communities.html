@@ -134,9 +134,11 @@
                 </select>
             </div>
             <a href="#" class="btnx" onClick="fsubmit();">Find</a>
-            <div style="padding:20px;color:#666;display:inline-block;">
-                <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
-            </div>
+            %if request.user.is_superuser:
+                <div style="padding:20px;color:#666;display:inline-block;">
+                    <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
+                </div>
+            %endif
         </form>
     </section>
 

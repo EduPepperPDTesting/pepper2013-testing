@@ -232,8 +232,8 @@
 <div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
     <section style="width:880px;float:left;">
         <div id="back">
-            <a href="${reverse('community_view', args=[discussion.community.community])}" class="up_page"></a>&nbsp;
-            <a href="${reverse('community_view', args=[discussion.community.community])}">
+            <a href="${reverse('community_view', args=[discussion.community.id])}" class="up_page"></a>&nbsp;
+            <a href="${reverse('community_view', args=[discussion.community.id])}">
                 Back to the <span class="italic">${discussion.community.name}</span> community
             </a>
         </div>
@@ -388,9 +388,9 @@
                     <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
                     %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.community])}" class="green-button side-button">Edit</a>
-                        <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
+                        <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
+                        <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                        <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                     %endif
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
                     <div class = "hangout_container" id = "hangout_div">
@@ -413,7 +413,7 @@
 <script type="text/javascript">
     function joinMe(){
         var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.community])}",{user_id:user_id}, function(r){
+        $.post("${reverse('community_join', args=[community.id])}",{user_id:user_id}, function(r){
             if(r.success)
                 window.location.reload();
         });

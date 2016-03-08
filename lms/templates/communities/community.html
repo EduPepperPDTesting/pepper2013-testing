@@ -304,7 +304,7 @@
 <script type="text/javascript">
     function joinMe(){
         var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.community])}",{user_ids:user_id}, function(r){
+        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
             if(r.success)
                 window.location.reload();
         });
@@ -458,9 +458,9 @@
                     <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
                     %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.community])}" class="green-button side-button">Edit</a>
-                        <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
+                        <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
+                        <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                        <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                     %endif
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
                     %if has_hangout_perms(request.user):
@@ -552,7 +552,7 @@
         });
     }
     function replaceDiscussions(page) {
-        $.get('${reverse('community_discussion_list', args=[community.community])}', {'page': page}, function(data) {
+        $.get('${reverse('community_discussion_list', args=[community.id])}', {'page': page}, function(data) {
             var content = '<div class="discussions">';
             for (var x = 0; x < data.discussions.length; x++) {
                 content += '<div class="discussion">';
@@ -588,7 +588,7 @@
             content += '</div>';
             $('#discussion-pager').replaceWith(content);
 
-            window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.community])}?page=" + page);
+            window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.id])}?page=" + page);
         });
     }
     function newAnswer() {
