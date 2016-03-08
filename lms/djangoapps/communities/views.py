@@ -364,7 +364,7 @@ def community(request, community_id):
     users = CommunityUsers.objects.filter(community=community)
     discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
-    mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
+    # mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
     resources = CommunityResources.objects.filter(community=community)
     courses = CommunityCourses.objects.filter(community=community)
     
@@ -388,7 +388,7 @@ def community(request, community_id):
             "users": users,
             "resources": resources,
             "courses": courses,
-            "mem": mems[0] if mems.count() else None,
+            # "mem": mems[0] if mems.count() else None,
             "pager": get_pager(total, 5, page, 5),
             "total_discussions": total}
     
