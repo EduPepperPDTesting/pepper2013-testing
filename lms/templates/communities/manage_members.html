@@ -55,12 +55,12 @@
 <div class="data_import_bottom" style="text-align:left;">
     <div class="main data_import_content">
         <div id="back">
-            <a href="${reverse('community_view', args=[community.community])}" class="up_page"></a>&nbsp;
-            <a href="${reverse('community_view', args=[community.community])}">
+            <a href="${reverse('community_view', args=[community.id])}" class="up_page"></a>&nbsp;
+            <a href="${reverse('community_view', args=[community.id])}">
                 Back to the <span class="italic">${community.name}</span> community
             </a>
         </div>
-        <div class="expand_title expand_title_collapse"> Manage Member Of ${community.community} <div class="icon"></div> </div>
+        <div class="expand_title expand_title_collapse"> Manage Members Of ${community.name} <div class="icon"></div> </div>
         <div class="expand_div">
             <a href="#" class="add-tab"><div class="table-tab add_table school school_table">Add Members</div></a>
             <a href="#" class="remove-tab"><div class="table-tab remove_table user user_table">Remove Members</div></a>
@@ -122,7 +122,7 @@
                     </div>
                 </div>
                 <div>
-                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_add_user_rows',args=[community.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
                             <!-- <th class="user_id_select">ID</th> -->
@@ -160,7 +160,7 @@
             </form>
             <span style="float:right;">
               <input type="button" value="Add Selected Users" class ="small" onclick="add_selected_users()"/>
-                <!--&nbsp;<a href="${reverse('community_view',args=[community.community])}"
+                <!--&nbsp;<a href="${reverse('community_view',args=[community.id])}"
                        class="blue-button side-button">return to community</a>-->
             </span>
           </span>
@@ -226,7 +226,7 @@
                     </div>
                 </div>
                 <div>
-                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.community])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <table class="tablesorter-blue user_table_init" id="user-table" ajaxUrl="${reverse('community_get_remove_user_rows',args=[community.id])}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
                         <thead>
                         <tr>
                             <!-- <th class="user_id_select">ID</th> -->
@@ -264,7 +264,7 @@
             </form>
             <span style="float:right;">
               <input type="button" value="Remove Selected Users" class ="small" onclick="remove_selected_users()"/>
-              &nbsp;<a href="${reverse('community_view',args=[community.community])}" class="blue-button side-button">return to community</a>
+              &nbsp;<a href="${reverse('community_view',args=[community.id])}" class="blue-button side-button">return to community</a>
             </span>
           </span>
                 </span>
@@ -420,7 +420,7 @@
         function add_selected_users(){
             var ids=tabAdd.getSelectedIds();
             if(ids.length){
-                $.post("${reverse('community_join',args=[community.community])}",{user_ids:ids.join(",")},function(){
+                $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(",")},function(){
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
                 });
