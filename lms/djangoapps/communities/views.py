@@ -362,7 +362,7 @@ def community(request, community_id):
     community = CommunityCommunities.objects.get(id=community_id)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
     users = CommunityUsers.objects.filter(community=community)
-    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
+    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
     resources = CommunityResources.objects.filter(community=community)
