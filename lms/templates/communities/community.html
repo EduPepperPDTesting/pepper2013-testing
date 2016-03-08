@@ -508,7 +508,7 @@
             </div>
             <div style="margin:20px;">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                %if is_member(request.user, community):
+                %if is_member(request.user, community) or request.user.is_superuser:
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
                 %endif
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
