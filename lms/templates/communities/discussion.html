@@ -343,15 +343,17 @@
                 <div class="discussion-actions"></div>
             </div>
         %endfor
-        <div class="discussion-reply-form">
-            <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data">
-                <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
-                <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
-                <label>Attachment:<input type="file" name="attachment"></label>
-                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                <input type="submit" name="submit" value="Reply">
-            </form>
-        </div>
+        %if is_member(request.user, discussion.community):
+            <div class="discussion-reply-form">
+                <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data">
+                    <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
+                    <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
+                    <label>Attachment:<input type="file" name="attachment"></label>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                    <input type="submit" name="submit" value="Reply">
+                </form>
+            </div>
+        %endif
     </section>
     <section>
         <div style="width:266px;float:right;top:0px;text-align:center;">

@@ -690,7 +690,7 @@ def community_edit_process(request):
             try:
                 logo = FileUploads()
                 logo.type = 'community_logos'
-                logo.sub_type = community
+                logo.sub_type = community_id
                 logo.upload = request.FILES.get('logo')
                 logo.save()
             except Exception as e:
@@ -780,7 +780,7 @@ def community_edit_process(request):
                     try:
                         logo = FileUploads()
                         logo.type = 'community_resource_logos'
-                        logo.sub_type = community
+                        logo.sub_type = community_id
                         logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
                         logo.save()
                     except Exception as e:

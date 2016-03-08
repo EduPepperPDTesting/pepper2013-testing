@@ -4,6 +4,7 @@
     from courseware.courses import course_image_url, get_course_about_section
     from student.views import course_from_id
     from administration.configuration import has_hangout_perms
+    from communities.utils import is_facilitator, is_member
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -11,10 +12,65 @@
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <style type="text/css" media="screen">
+    #community-main {
+        width: 1185px;
+        margin: 30px auto;
+        text-align: left;
+    }
+    #community-main-content {
+        width: 880px;
+        float: left;
+    }
+    #community-main-sidebar {
+        width: 266px;
+        float: right;
+        top: 0;
+        text-align: center;
+    }
+    #community-header {
+        border: 2px solid #ddd;
+        width: 100%;
+        height: 280px;
+    }
+    #community-header h1 {
+        text-align: left;
+        color: #006EBF;
+        margin: 15px 0 0 20px;
+        font-weight: bold;
+    }
+    #community-header h2 {
+        margin: 15px 0 0 20px;
+        text-transform: none;
+        font-weight: bold;
+    }
+    #community-header h3 {
+        color: #006EBF;
+        margin: 40px 0 10px;
+    }
+    #community-header h4 {
+        font-weight: bold;
+
+    }
+    #community-avatar {
+        width: 100px;
+        float: left;
+        margin: 30px 15px 15px 20px;
+    }
+    #community-logo {
+        float: right;
+        width: 380px;
+        height: 250px;
+        overflow: hidden;
+        margin: 15px;
+    }
+    #community-logo img {
+        width: 380px;
+    }
     #community-content-area h1 {
         color: #006EBF;
         padding: 20px 3px;
         font-size: 20px;
+        font-weight: bold;
         text-align: left;
         border-bottom: 2px solid #90BF70;
         display: inline-block;
@@ -39,9 +95,13 @@
     #community-content {
         width: 270px;
         height: 700px;
+        float: left;
+    }
+    #community-content-scroller {
+        width: 270px;
+        height: 640px;
         overflow-y: scroll;
         overflow-x: hidden;
-        float: left;
     }
     #community-discussions {
         width: 578px;
@@ -311,27 +371,19 @@
     }
 </script>
 <body style="text-align:center">
-<div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
-    <section style="width:880px;float:left;">
-        <div style="border:2px solid #ddd;width:100%;height:280px;">
-            <div style="padding:15px;">
-                %if community.logo:
-                    <img src="${community.logo.upload.url}" style="float:right;width:390px;" alt="photo"/>
-                %endif
-                <p style="margin:5px 0;color:#006EBF;font-size:28px;margin:0px">${community.name}</p>
-                <p style="margin:5px 0;padding-left:1em;color:#006EBF;font-size:24px;margin:0px;color:#777;line-height:40px;">${community.motto}</p>
-                %if facilitator:
-                    <div style="margin-left:1em;margin-top:20px;">
-                        <img src="${reverse('user_photo', args=[facilitator.user.id])}" style="vertical-align:middle;" alt="photo" />
-                        <div style="display:inline-block;line-height:95px;vertical-align:middle;">
-                            <div style="vertical-align:middle;margin:auto;line-height:20px;">
-                                <p style="margin:2px;color:#006EBF;font-size:22px;">${facilitator.user.first_name} ${facilitator.user.last_name}</p>
-                                <p style="margin:2px;font-size:18px;">Community Facilitator</p>
-                            </div>
-                        </div>
-                    </div>
-                %endif
-            </div>
+<div id="community-main" class="clearfix">
+    <section id="community-main-content">
+        <div id="community-header">
+            %if community.logo:
+                <div id="community-logo"><img src="${community.logo.upload.url}" alt="Community Logo"/></div>
+            %endif
+            <h1>${community.name}</h1>
+            <h2>${community.motto}</h2>
+            %if facilitator:
+                <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                <h4>Community Facilitator</h4>
+            %endif
         </div>
 
         <div id="community-content-area">
@@ -418,57 +470,57 @@
             </tr>
         </table>
     </section>
-    <section>
-        <div style="width:266px;float:right;top:0px;text-align:center;">
-            <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
-                ${request.user.first_name}
+    <section id="community-main-sidebar">
+        <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
+            ${request.user.first_name}
+        </div>
+        <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
+            <div style="text-align:center;">
+                <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
+                <br />
+                %if is_facilitator(request.user, community):
+                FACILITATOR
+                %elif request.user.is_superuser:
+                ADMIN
+                %elif is_member(request.user, community):
+                MEMBER
+                %else:
+                    <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
+                %endif
             </div>
-            <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
-                <div style="text-align:center;">
-                    <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                    <br />
-                    %if mem and mem.facilitator:
-                    FACILITATOR
-                    %elif request.user.is_superuser:
-                    ADMIN
-                    %elif mem and not mem.facilitator:
-                    MEMBER
-                    %else:
-                        <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" onclick="joinMe()">Add Me</a>
-                    %endif
-                </div>
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Community Status
-                </div>
-                <div style="margin:20px;">
-                    <div class="">Discussions: ${total_discussions}</div>
-                    <!--<div class="">Messages: </div>-->
-                    <div class="">Members: ${users.count()}</div>
-                </div>
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Trending
-                </div>
-                <div id="trending">
-                    %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                        <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
-                    %endfor
-                </div>
-                <div style="margin:20px;">
-                    <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+            <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                Community Status
+            </div>
+            <div style="margin:20px;">
+                <div class="">Discussions: ${total_discussions}</div>
+                <!--<div class="">Messages: </div>-->
+                <div class="">Members: ${users.count()}</div>
+            </div>
+            <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
+                Trending
+            </div>
+            <div id="trending">
+                %for i, d in enumerate(trending):
+                    <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                    <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
+                %endfor
+            </div>
+            <div style="margin:20px;">
+                <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+                %if is_member(request.user, community):
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
-                    %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
-                        <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
-                    %endif
-                    <script src="https://apis.google.com/js/platform.js" async defer></script>
-                    %if has_hangout_perms(request.user):
-                        <div class = "hangout_container" id = "hangout_div">
-                            <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
-                        </div>
-                    %endif
-                </div>
+                %endif
+                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                    <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
+                    <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                    <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
+                %endif
+                <script src="https://apis.google.com/js/platform.js" async defer></script>
+                %if has_hangout_perms(request.user):
+                    <div class = "hangout_container" id = "hangout_div">
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                    </div>
+                %endif
             </div>
         </div>
     </section>
