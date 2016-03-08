@@ -18,8 +18,10 @@ def poll_form_submit(request, poll_type):
         poll_id = request.POST.get('poll_id')
         question = request.POST.get('question')
         answers = get_post_array(request.POST, 'answers')
-        expiration = request.POST.get('expiration')
-        expiration_object = datetime.strptime(expiration, '%m/%d/%Y')
+        expiration = request.POST.get('expiration', '')
+        expiration_object = None
+        if expiration:
+            expiration_object = datetime.strptime(expiration, '%m/%d/%Y')
         poll_connect = poll_store()
         poll_connect.set_poll(poll_type, poll_id, question, answers, expiration_object)
         response = {'Success': True}
