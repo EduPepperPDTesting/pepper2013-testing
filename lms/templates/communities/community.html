@@ -27,6 +27,49 @@
         top: 0;
         text-align: center;
     }
+    #community-sidebar-header {
+        border: 2px solid #ddd;
+        height: 53px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 53px;
+    }
+    #community-sidebar {
+        width: 208px;
+        padding: 20px 20px 0 20px;
+        border: 2px solid #ddd;
+        margin: auto;
+        border-top: 0;
+        text-align: left;
+    }
+    .sidebar-section {
+        margin: 20px 0;
+    }
+    .sidebar-section h2 {
+        border-bottom: 2px solid #90BF70;
+        padding-bottom: 5px;
+        margin: 0 0 10px 0;
+        color: #006EBF;
+        font-weight: bold;
+        text-transform: none;
+        font-size: 1em;
+        line-height: 1em;
+    }
+    .sidebar-sub-section {
+        margin: 0 10px;
+    }
+    .trending-title {
+        display: block;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .status-name {
+        display: block;
+        margin-bottom: 5px;
+    }
     #community-header {
         border: 2px solid #ddd;
         width: 100%;
@@ -200,6 +243,7 @@
     }
     .community-resource {
         display: block;
+        clear: both;
         margin-bottom: 10px;
         border: 0 solid #f0870c;
         height: 160px;
@@ -209,7 +253,6 @@
     }
     .community-resource img {
         display: block;
-        clear: both;
         width: 242px;
         height: 100px;
         border-radius: 6px 6px 0 0;
@@ -243,9 +286,19 @@
     div.card-bottom table tr:nth-child(2) {
         display: none;
     }
+    #members {
+        display: inline-block;
+        overflow-x: hidden;
+        padding: 10px 0;
+        width: 100%;
+        position: relative;
+    }
     #members a {
         margin-right: 5px;
         display: inline-block;
+    }
+    #members a img {
+        vertical-align: middle;
     }
     .modal {
         position: absolute;
@@ -349,16 +402,38 @@
         width: 80% !important;
         display: inline !important;
     }
-    #trending {
-        margin: 20px;
+    #members-title {
+        border-bottom: 2px solid #90BF70;
+        color: #006EBF;
+        font-size: 20px;
+        padding: 20px 3px;
+        font-weight: bold;
     }
-    .trending-title {
-        display: block;
+    #table-members {
+        width: 100%;
+        table-layout: fixed;
+        margin-bottom: 20px;
     }
-    .trending-name {
-        font-size: 80%;
-        display: block;
-        margin-bottom: 5px;
+    #table-members tr {
+        border-bottom: 2px solid #90BF70;
+    }
+    .member-arrows {
+        width: 20px;
+        vertical-align: middle;
+    }
+    .member-arrows div {
+        cursor: pointer;
+        width: 17px;
+        height: 20px;
+    }
+    .member-arrow-left {
+        background: url(/static/tmp-resource/image/up_page.png);
+    }
+    .member-arrow-right {
+        background: url(/static/tmp-resource/image/next_page.png);
+    }
+    .member-column {
+        white-space: nowrap;
     }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
@@ -450,33 +525,33 @@
                 </div>
             </div>
         </div>
-        <div style="border-bottom:2px solid #90BF70;color:#006EBF; font-size:20px;padding:20px 3px;font-weight:bold">Members</div>
-        <table id="table-members" style="width:100%;table-layout:fixed;margin-bottom:20px;" cellspacing="" cellpadding="" border="0">
-            <tr style="border-bottom:2px solid #90BF70;">
-                <td style="width:20px;vertical-align:middle;background:#fff">
-                    <div style="cursor:pointer;background:url(/static/tmp-resource/image/up_page.png); width:17px;height:20px;" onclick="left()"> </div>
+        <div id="members-title">Members</div>
+        <table id="table-members" cellspacing="" cellpadding="" border="0">
+            <tr>
+                <td class="member-arrows">
+                    <div class="member-arrow-left" onclick="left()"> </div>
                 </td>
-                <td style="white-space:nowrap;">
-                    <div style="display:inline-block;overflow-x:hidden;padding:10px 0;width:100%;position:relative;" id="members">
+                <td class="member-column">
+                    <div id="members">
                         %for u in users:
                             <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
-                                <img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" />
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
                             </a>
                         %endfor
                     </div>
                 </td>
-                <td style="width:20px;vertical-align:middle;background:#fff">
-                    <div style="cursor:pointer;background:url(/static/tmp-resource/image/next_page.png);width:17px;height:20px;" onclick="right()"></div>
+                <td class="member-arrows">
+                    <div class="member-arrow-right" onclick="right()"></div>
                 </td>
             </tr>
         </table>
     </section>
     <section id="community-main-sidebar">
-        <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
+        <div id="community-sidebar-header">
             ${request.user.first_name}
         </div>
-        <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
-            <div style="text-align:center;">
+        <div id="community-sidebar">
+            <div class="sidebar-section" style="text-align: center;">
                 <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
                 <br />
                 %if is_facilitator(request.user, community):
@@ -489,24 +564,24 @@
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
             </div>
-            <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                Community Status
+            <div class="sidebar-section">
+                <h2>Community Status</h2>
+                <div class="sidebar-sub-section">
+                    <span class="status-name">Discussions: ${total_discussions}</span>
+                    <!--<span class="trending-name">Messages: </span>-->
+                    <span class="status-name">Members: ${users.count()}</span>
+                </div>
             </div>
-            <div style="margin:20px;">
-                <div class="">Discussions: ${total_discussions}</div>
-                <!--<div class="">Messages: </div>-->
-                <div class="">Members: ${users.count()}</div>
+            <div class="sidebar-section">
+                <h2>Trending</h2>
+                <div class="sidebar-sub-section">
+                    %for i, d in enumerate(trending):
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
+                    %endfor
+                </div>
             </div>
-            <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                Trending
-            </div>
-            <div id="trending">
-                %for i, d in enumerate(trending):
-                    <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                    <span class="trending-name">${d.user.first_name} ${d.user.last_name}</span>
-                %endfor
-            </div>
-            <div style="margin:20px;">
+            <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                 %if is_member(request.user, community) or request.user.is_superuser:
                     <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
