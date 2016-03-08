@@ -376,7 +376,7 @@ def community(request, community_id):
         else:
             d.views = views['views']
 
-    trending_views = views_connect.get_most_viewed('discussion', 3)
+    trending_views = views_connect.get_most_viewed('discussion', 3, {'community': community_id})
     trending = list()
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
@@ -436,7 +436,7 @@ def discussion(request, discussion_id):
     mems = CommunityUsers.objects.select_related().filter(user=request.user, community=discussion.community)
 
     views_connect = view_counter_store()
-    views_connect.set_item('discussion', discussion_id, 1)
+    views_connect.set_item('discussion', discussion_id, 1, {'community': str(discussion.community.id)})
 
     poll_connect = poll_store()
     has_poll = poll_connect.poll_exists('discussion', discussion_id)
