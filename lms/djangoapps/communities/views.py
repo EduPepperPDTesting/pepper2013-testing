@@ -441,7 +441,7 @@ def discussion(request, discussion_id):
     poll_connect = poll_store()
     has_poll = poll_connect.poll_exists('discussion', discussion_id)
 
-    trending_views = views_connect.get_most_viewed('discussion', 3)
+    trending_views = views_connect.get_most_viewed('discussion', 3, {'community': discussion.community.id})
     trending = list()
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))

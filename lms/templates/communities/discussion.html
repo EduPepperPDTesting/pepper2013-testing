@@ -394,7 +394,7 @@
                 <div class="discussion-actions"></div>
             </div>
         %endfor
-        %if is_member(request.user, discussion.community):
+        %if is_member(request.user, discussion.community) or request.user.is_superuser:
             <div class="discussion-reply-form">
                 <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data">
                     <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
