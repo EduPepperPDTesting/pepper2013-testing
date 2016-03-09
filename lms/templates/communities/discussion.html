@@ -6,6 +6,7 @@
     import re
     from communities.utils import is_facilitator, is_member
     from administration.configuration import has_hangout_perms
+    from file_uploader.utils import get_file_url, get_file_name
 %>
 <%namespace name='static' file='../static_content.html'/>
 
@@ -301,8 +302,8 @@
             <h2>${discussion.subject}</h2>
             %if discussion.attachment:
                 <div class="discussion-download"><span>Attachment: </span>
-                    <a href="${discussion.attachment.upload.url}">
-                        <img src="/static/images/document-download.png"> ${discussion.attachment.upload.name.split('/')[2]}
+                    <a href="${get_file_url(discussion.attachment)}" target="_blank">
+                        <img src="/static/images/document-download.png"> ${get_file_name(discussion.attachment)}
                     </a>
                 </div>
             %endif
@@ -383,8 +384,8 @@
                 <h2>${reply.subject}</h2>
                 %if reply.attachment:
                     <div class="discussion-download"><span>Attachment: </span>
-                        <a href="${reply.attachment.upload.url}">
-                            <img src="/static/images/document-download.png"> ${reply.attachment.upload.name.split('/')[2]}
+                        <a href="${get_file_url(reply.attachment)}" target="_blank">
+                            <img src="/static/images/document-download.png"> ${get_file_name(reply.attachment)}
                         </a>
                     </div>
                 %endif
