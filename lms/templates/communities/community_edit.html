@@ -57,7 +57,7 @@
     }
     #community-logo .remove {
         display: block;
-        background: center url(/static/images/moderator-delete-icon.png) no-repeat;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
         width: 12px;
         height: 11px;
         border: solid 1px #ddd;
@@ -130,7 +130,7 @@
     }
     .community-resource-logo-wrap .remove {
         display: block;
-        background: center url(/static/images/moderator-delete-icon.png) no-repeat;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
         width: 12px;
         height: 11px;
         border: solid 1px #ddd;
@@ -267,8 +267,8 @@
         $('#community-logo').replaceWith(content);
     });
     $('.community-resource .remove').click(function() {
-        var name = $('.community-resource-logo').attr('name');
+        var name = $(this).sibling('.community-resource-logo').attr('name');
         var content = '<input class="resource-logo" type="file" name="' + name + '">';
-        $('.community-resource-logo-wrap').replaceWith(content);
+        $(this).parent('.community-resource-logo-wrap').replaceWith(content);
     });
 </script>
