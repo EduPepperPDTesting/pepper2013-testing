@@ -343,6 +343,15 @@ def community_leave(request, community_id):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
+def get_trending(community_id):
+    views_connect = view_counter_store()
+    trending_views = views_connect.get_most_viewed('discussion', 5, {'community': str(community_id)})
+    trending = list()
+    for tv in trending_views:
+        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+    return trending
+
+
 @login_required
 def community(request, community_id):
     """
@@ -376,10 +385,7 @@ def community(request, community_id):
         else:
             d.views = views['views']
 
-    trending_views = views_connect.get_most_viewed('discussion', 3, {'community': community_id})
-    trending = list()
-    for tv in trending_views:
-        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+    trending = get_trending(community_id)
 
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
@@ -441,10 +447,7 @@ def discussion(request, discussion_id):
     poll_connect = poll_store()
     has_poll = poll_connect.poll_exists('discussion', discussion_id)
 
-    trending_views = views_connect.get_most_viewed('discussion', 3, {'community': str(discussion.community.id)})
-    trending = list()
-    for tv in trending_views:
-        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+    trending = get_trending(discussion.community.id)
 
     data = {'discussion': discussion,
             'replies': replies,

@@ -285,6 +285,9 @@
         display: block;
         margin-bottom: 5px;
     }
+    .trending-name span {
+        font-weight: bold;
+    }
     .status-name {
         display: block;
         margin-bottom: 5px;
@@ -449,8 +452,8 @@
                 <h2>Trending</h2>
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[discussion.id])}">${discussion.subject}</a></span>
-                        <span class="trending-name">${discussion.user.first_name} ${discussion.user.last_name}</span>
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        <span class="trending-name"><span>By: </span>${d.user.first_name} ${d.user.last_name}</span>
                     %endfor
                 </div>
             </div>
