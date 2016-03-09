@@ -128,9 +128,20 @@
         position: relative;
         border: 2px solid #ddd;
         border-radius: 10px;
-        padding: 15px 20px;
+        padding: 15px 20px 15px 57px;
         background-color: #ddd;
         margin: 20px 0 5px 0;
+    }
+    .discussion-poll img {
+        display: block;
+        position: absolute;
+        top: 10px;
+        left: 15px;
+    }
+    .discussion-poll a {
+        display: block;
+        text-align: right;
+        outline: none;
     }
     .discussion-poll-question {
         font-weight: bold;
@@ -312,6 +323,7 @@
             <div class="discussion-body">${discussion.post}</div>
             %if has_poll:
                 <div class="discussion-poll">
+                    <img src="/static/images/poll-icon.png" alt="Poll">
                     <div class="discussion-poll-question">${poll['question']}</div>
                     <ol class="discussion-poll-answers">
                         <% iterator = range(0, len(poll['answers'])) %>

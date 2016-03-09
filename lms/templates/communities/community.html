@@ -413,6 +413,8 @@
     }
     .discussion-poll {
         float: right;
+        display: block;
+        vertical-align: middle;
     }
     #members-title {
         border-bottom: 2px solid #90BF70;
@@ -623,7 +625,7 @@
         content += '<label>Subject:<input type="text" name="subject"></label>';
         content += '<label>Discussion:<textarea name="post"></textarea></label>';
         content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
-        content += '<label class="discussion-poll"><input type="checkbox" class="poll-add"> Add Poll</label>';
+        content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
         content += '<label>Question: <input class="poll-question" type="text" name="question"></label>';
         content += '<label>Answers: <ol id="poll-answers">';
