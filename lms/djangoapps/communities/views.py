@@ -731,9 +731,10 @@ def community_edit_process(request):
         if user_object:
             # First we need to make sure if there is already a facilitator set, we unset them.
             try:
-                old_facilitator = CommunityUsers.objects.get(facilitator=True)
-                old_facilitator.facilitator = True
-                old_facilitator.save()
+                old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+                for f in old_facilitator:
+                    f.facilitator = False
+                    f.save()
             except:
                 pass
             # Now we try to load the new user in case they are already a member.
