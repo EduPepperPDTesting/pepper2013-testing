@@ -402,10 +402,17 @@
     #poll-form {
         display: none;
         margin-top: 15px;
+        clear: both;
     }
     .poll-answer-input {
         width: 80% !important;
         display: inline !important;
+    }
+    .discussion-attachment {
+        float: left;
+    }
+    .discussion-poll {
+        float: right;
     }
     #members-title {
         border-bottom: 2px solid #90BF70;
@@ -614,8 +621,8 @@
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label>Subject:<input type="text" name="subject"></label>';
         content += '<label>Discussion:<textarea name="post"></textarea></label>';
-        content += '<label>Attachment:<input type="file" name="attachment"></label>';
-        content += '<label><input type="checkbox" class="poll-add"> Add Poll</label>';
+        content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
+        content += '<label class="discussion-poll"><input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
         content += '<label>Question: <input class="poll-question" type="text" name="question"></label>';
         content += '<label>Answers: <ol id="poll-answers">';
