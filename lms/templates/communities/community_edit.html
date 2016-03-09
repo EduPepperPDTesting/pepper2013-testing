@@ -105,7 +105,8 @@
     }
     #community-form-buttons {
         clear: both;
-        margin: 20px auto;
+        margin: 0 auto;
+        padding-top: 20px;
         text-align: right;
     }
     #community-cancel {
@@ -268,20 +269,22 @@
             $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
         });
     }
-    $('#community-logo .remove').click(function() {
-        var content = '<label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>';
-        $('#community-logo').replaceWith(content);
-    });
-    $('.community-resource .remove').click(function() {
-        var name = $(this).siblings('.community-resource-logo').attr('name');
-        var content = '<input class="resource-logo" type="file" name="' + name + '">';
-        $(this).parent('.community-resource-logo-wrap').replaceWith(content);
-    });
-    $('#community-cancel').click(function() {
-        %if community_id = 'new':
-            window.location.href = ${reverse('communities')};
-        %else:
-            window.location.href = ${reverse('community_view', args=[community_id])}
-        %endif
+    $(document).ready(function() {
+        $('#community-logo .remove').click(function() {
+            var content = '<label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>';
+            $('#community-logo').replaceWith(content);
+        });
+        $('.community-resource .remove').click(function() {
+            var name = $(this).siblings('.community-resource-logo').attr('name');
+            var content = '<input class="resource-logo" type="file" name="' + name + '">';
+            $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+        });
+        $('#community-cancel').click(function() {
+            %if community_id == 'new':
+                window.location.href = "${reverse('communities')}";
+            %else:
+                window.location.href = "${reverse('community_view', args=[community_id])}";
+            %endif
+        });
     });
 </script>

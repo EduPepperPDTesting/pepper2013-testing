@@ -442,15 +442,6 @@
     }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
-<script type="text/javascript">
-    function joinMe(){
-        var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
-            if(r.success)
-                window.location.reload();
-        });
-    }
-</script>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
     <section id="community-main-content">
@@ -612,6 +603,13 @@
     </div>
 </div>
 <script type="text/javascript">
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label>Subject:<input type="text" name="subject"></label>';
@@ -762,7 +760,6 @@
         // return ((elemRight <= docViewRight) && (elemLeft >= docViewLeft)); // partly visible
         return ((docViewLeft < elLeft) && (docViewRight > elRight));
     }
-    $("#members").scrollLeft(0);
     function left(){
         var lastHideLeft = null;
         var n=-1;
@@ -800,6 +797,9 @@
                     - $("#members").width() + $(firstHideRight).width() + 1);
         }
     }
-    $('.card-link').attr('target', '_blank');
+    $(document).ready(function() {
+        $("#members").scrollLeft(0);
+        $('.card-link').attr('target', '_blank');
+    });
 </script>
 </body>
