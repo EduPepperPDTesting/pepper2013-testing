@@ -1,13 +1,7 @@
-<%! from django.utils.translation import ugettext as _ %>
 <%!
+    from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
-    from courseware.courses import course_image_url, get_course_about_section
-    from courseware.access import has_access
-    from certificates.models import CertificateStatuses
-    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-    from xmodule.modulestore.django import modulestore
-    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
-    from baseinfo.models import Enum
+    from file_uploader.utils import get_file_url
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -186,7 +180,7 @@
                 <label><div class="resource-logo-label">Logo:</div>
                 %if resource['logo']:
                     <div class="community-resource-logo-wrap">
-                        <img src="${resource['logo'].upload.url}" class="community-logo-thumb">
+                        <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
                         <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
                         <a href="#" class="remove"></a>
                     </div>

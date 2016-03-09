@@ -5,6 +5,7 @@
     from student.views import course_from_id
     from administration.configuration import has_hangout_perms
     from communities.utils import is_facilitator, is_member
+    from file_uploader.utils import get_file_url
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -455,7 +456,7 @@
     <section id="community-main-content">
         <div id="community-header">
             %if community.logo:
-                <div id="community-logo"><img src="${community.logo.upload.url}" alt="Community Logo"/></div>
+                <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
             %endif
             <h1>${community.name}</h1>
             <h2>${community.motto}</h2>
@@ -514,11 +515,7 @@
                     %endfor
                     %for i,r in enumerate(resources):
                         <div class="community-resource">
-                            %if r.logo:
-                                <img src="${r.logo.upload.url}" alt="${r.name}" />
-                            %else:
-                                <img src="TODO: WE NEED A DEFAULT HERE" alt="${r.name}" />
-                            %endif
+                            <img src="${get_file_url(r.logo)}" alt="${r.name}" />
                             <a href="${r.link}">
                                 <div>
                                     ${r.name}
