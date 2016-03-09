@@ -103,10 +103,13 @@
     .resource-link, .resource-name {
         width: 220px;
     }
-    #community-submit {
-        display: block;
+    #community-form-buttons {
         clear: both;
-        margin: 0 auto;
+        margin: 20px auto;
+        text-align: right;
+    }
+    #community-cancel {
+        float: left;
     }
     #community-resources .add, #community-courses .add {
         padding: 0 6px;
@@ -194,7 +197,10 @@
         </label>
         <input type="hidden" value="${community_id}" name="community_id">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-        <input id="community-submit" type="submit" value="Submit" name="submit">
+        <div id="community-form-buttons">
+            <input id="community-cancel" type="button" value="Cancel">
+            <input id="community-submit" type="submit" value="Submit" name="submit">
+        </div>
     </form>
 </section>
 <script type="text/javascript">
@@ -270,5 +276,12 @@
         var name = $(this).siblings('.community-resource-logo').attr('name');
         var content = '<input class="resource-logo" type="file" name="' + name + '">';
         $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+    });
+    $('#community-cancel').click(function() {
+        %if community_id = 'new':
+            window.location.href = ${reverse('communities')};
+        %else:
+            window.location.href = ${reverse('community_view', args=[community_id])}
+        %endif
     });
 </script>

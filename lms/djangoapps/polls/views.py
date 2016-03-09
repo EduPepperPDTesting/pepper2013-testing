@@ -52,10 +52,10 @@ def poll_data(poll_type, poll_id, user_id):
 
     votes = vote_calc(poll_dict, poll_type, poll_id)
 
-    if poll_dict['expiration'] > timezone.now():
-        expired = False
-    else:
-        expired = True
+    expired = False
+    if poll_dict['expiration'] is not None:
+        if poll_dict['expiration'] <= timezone.now():
+            expired = True
 
     data = {'question': poll_dict['question'],
             'answers': poll_dict['answers'],
