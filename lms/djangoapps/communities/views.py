@@ -595,8 +595,16 @@ def communities(request):
 
 
 @login_required
-def community_delete(request, community):
-    pass
+def community_delete(request, community_id):
+    try:
+        CommunityCommunities.objects.get(id=community_id).delete()
+        return redirect(reverse('communities'))
+    except Exception as e:
+        data = {'error_title': 'Problem Deleting Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Deleting Community'}
+        return render_to_response('error.html', data)
+
 
 
 @login_required

@@ -322,6 +322,9 @@
         width: 680px;
         display: none;
     }
+    #fixed-dialog {
+        position: fixed;
+    }
     .modal .close-modal {
         border-radius: 2px;
         cursor: pointer;
@@ -593,7 +596,7 @@
                 %endif
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
-                    <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                    <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
                 <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -607,6 +610,15 @@
     </section>
 </div>
 <div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="fixed-dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -813,6 +825,17 @@
     $(document).ready(function() {
         $("#members").scrollLeft(0);
         $('.card-link').attr('target', '_blank');
+        $('.delete-icon').click(function(event) {
+            event.preventDefault();
+            var title = 'Really Delete This Community?';
+            var content = 'If you delete this community, all discussions, memberships and resources will be removed as well. This operation cannot be undone';
+            var continue_url = $(this).attr('href');
+            new Dialog($('#fixed-dialog')).showYesNo(title, content, function(ans) {
+                this.hide();
+                if (!ans) return;
+                window.location.href = continue_url;
+            });
+        });
     });
 </script>
 </body>
