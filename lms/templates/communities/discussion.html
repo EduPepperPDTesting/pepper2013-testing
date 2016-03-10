@@ -412,7 +412,7 @@
         %endfor
         %if is_member(request.user, discussion.community) or request.user.is_superuser:
             <div class="discussion-reply-form">
-                <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data">
+                <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data" id="reply-form">
                     <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
                     <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
                     <label>Attachment:<input type="file" name="attachment"></label>
@@ -497,6 +497,17 @@
         });
     }
     $(document).ready(function() {
+        $('#reply-form').submit(function() {
+            var valid = true;
+            $('.discussion-reply-post').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    alert('Subject and Reply must be filled out.');
+                    return false;
+                }
+            });
+            return valid;
+        });
         $('.delete-icon').click(function(event) {
             event.preventDefault();
             var title = 'Really Delete This Reply?';

@@ -809,3 +809,13 @@ def community_edit_process(request):
                 'error_message': 'Error: {0}'.format(e),
                 'window_title': 'Problem Saving Community'}
         return render_to_response('error.html', data)
+
+
+@login_required
+def community_check_user(request):
+    try:
+        User.objects.get(email=request.GET.get('email'))
+        valid = True
+    except:
+        valid = False
+    return HttpResponse(json.dumps({'Valid': valid}), content_type='application/json')

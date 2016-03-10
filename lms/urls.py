@@ -235,6 +235,7 @@ urlpatterns = (
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
+    url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/delete$', 'communities.views.community_delete', name='community_delete'),
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/join/$', 'communities.views.community_join', name='community_join'),

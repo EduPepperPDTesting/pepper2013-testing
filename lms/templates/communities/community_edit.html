@@ -143,9 +143,12 @@
         top: -2px;
         right: -2px;
     }
+    .community-error-box {
+        border-color: red !important;
+    }
 </style>
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
-    <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data">
+    <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data" id="community-edit-form">
         <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}" placeholder="The name of the community"></label>
         %if logo != '':
             <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
@@ -269,6 +272,19 @@
             $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
         });
     }
+    function checkUser(email) {
+        var valid = true;
+        $.ajax({
+            url: "${reverse('community_check_user')}",
+            type: 'GET',
+            async: false,
+            data: {email: email},
+            success: function(data) {
+                valid = data.Valid;
+            }
+        });
+        return valid;
+    }
     $(document).ready(function() {
         $('#community-logo .remove').click(function() {
             var content = '<label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>';
@@ -285,6 +301,30 @@
             %else:
                 window.location.href = "${reverse('community_view', args=[community_id])}";
             %endif
+        });
+        $('#community-edit-form').submit(function() {
+            $('.community-error-box').removeClass('community-error-box');
+            var valid = true;
+            var errors = ['The following errors occurred:\n'];
+            if (!/[A-Za-z]/.test($('#community-name input').val())) {
+                valid = false;
+                errors.push('Name is required.');
+                $('#community-name input').addClass('community-error-box');
+            }
+            if (!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test($('#community-facilitator input').val())) {
+                valid = false;
+                errors.push('Valid facilitator email is required.');
+                $('#community-facilitator input').addClass('community-error-box');
+            } else if (!checkUser($('#community-facilitator input').val())) {
+                valid = false;
+                errors.push('This email is not currently in our system.');
+                $('#community-facilitator input').addClass('community-error-box');
+            }
+            if (!valid) {
+                var error = errors.join('\n');
+                alert(error);
+            }
+            return valid;
         });
     });
 </script>

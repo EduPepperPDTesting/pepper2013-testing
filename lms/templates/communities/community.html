@@ -455,6 +455,9 @@
     .member-column {
         white-space: nowrap;
     }
+    .discussion-error-box {
+        border-color: red !important;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -599,8 +602,8 @@
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
-                <script src="https://apis.google.com/js/platform.js" async defer></script>
                 %if has_hangout_perms(request.user):
+                    <script src="https://apis.google.com/js/platform.js" async defer></script>
                     <div class = "hangout_container" id = "hangout_div">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
                     </div>
@@ -635,10 +638,54 @@
                 window.location.reload();
         });
     }
+    function validateDiscussionForm() {
+        $('.discussion-error-box').removeClass('discussion-error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        if (!/[A-Za-z]/.test($('.discussion-subject input').val())) {
+            valid = false;
+            errors.push('Subject is required.');
+            $('.discussion-subject input').addClass('discussion-error-box');
+        }
+        if (!/[A-Za-z]/.test($('.discussion-post textarea').val())) {
+            valid = false;
+            errors.push('Discussion is required.');
+            $('.discussion-post textarea').addClass('discussion-error-box');
+        }
+        if ($('#new-discussion-submit .poll-add').is(':checked')) {
+            if (!/[A-Za-z]/.test($('.poll-question').val())) {
+                valid = false;
+                errors.push('Question is required.');
+                $('.poll-question').addClass('discussion-error-box');
+            }
+            if ($('.poll-answer-input').length < 2) {
+                valid = false;
+                errors.push('You need at least two answers to choose from.');
+            }
+            $('.poll-answer-input').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    errors.push('Answers must be filled out.');
+                    $(this).addClass('discussion-error-box');
+                    return false;
+                }
+            });
+            if ($('.poll-expiration').val() != '' && !/^\d?\d\/\d?\d\/\d\d\d\d$/.test($('.poll-expiration').val())) {
+                valid = false;
+                errors.push('Expiration date must be in the format mm/dd/yyyy.');
+                $('.poll-expiration').addClass('discussion-error-box');
+            }
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
+    }
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
-        content += '<label>Subject:<input type="text" name="subject"></label>';
-        content += '<label>Discussion:<textarea name="post"></textarea></label>';
+        content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
+        content += '<label class="discussion-post">Discussion:<textarea name="post"></textarea></label>';
         content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
         content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
@@ -660,42 +707,46 @@
         content += '</form><div class="discussion-error"></div>';
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
+
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
-            var formData = new FormData($(this)[0]);
-            var formSelector = $(this);
-            $.ajax({
-                url: '${reverse('community_discussion_add')}',
-                type: 'POST',
-                data: formData,
-                async: false,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function(data) {
-                    if (data.Success) {
-                        if ($('#new-discussion-submit .poll-add').is(':checked')) {
-                            var pollData = formSelector.serializeArray();
-                            pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
-                            $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
-                                if (data.Success) {
-                                    discussion_dialog.hide();
-                                    replaceDiscussions(1);
-                                } else {
-                                    $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
-                                }
-                            });
-                        } else {
-                            discussion_dialog.hide();
-                            replaceDiscussions(1);
-                        }
+            if (validateDiscussionForm()) {
+                var formData = new FormData($(this)[0]);
+                var formSelector = $(this);
+                $.ajax({
+                    url: '${reverse('community_discussion_add')}',
+                    type: 'POST',
+                    data: formData,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.Success) {
+                            if ($('#new-discussion-submit .poll-add').is(':checked')) {
+                                var pollData = formSelector.serializeArray();
+                                pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                                $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
+                                    if (data.Success) {
+                                        discussion_dialog.hide();
+                                        replaceDiscussions(1);
+                                    } else {
+                                        $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                                    }
+                                });
+                            } else {
+                                discussion_dialog.hide();
+                                replaceDiscussions(1);
+                            }
 
-                    } else {
-                        $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                        } else {
+                            $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                        }
                     }
-                }
-            });
+                });
+            }
         });
+
         $('.poll-add').click(function() {
             $('#poll-form').toggle();
         });
