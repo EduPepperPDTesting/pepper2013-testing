@@ -566,11 +566,9 @@
                 <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
                 <br />
                 %if is_facilitator(request.user, community):
-                FACILITATOR
-                %elif request.user.is_superuser:
-                ADMIN
+                    FACILITATOR
                 %elif is_member(request.user, community):
-                MEMBER
+                    MEMBER
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif

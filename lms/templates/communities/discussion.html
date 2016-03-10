@@ -432,8 +432,6 @@
                 <br />
                 %if is_facilitator(request.user, community):
                     FACILITATOR
-                %elif request.user.is_superuser:
-                    ADMIN
                 %elif is_member(request.user, community):
                     MEMBER
                 %else:
