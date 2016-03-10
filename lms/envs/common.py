@@ -832,7 +832,20 @@ INSTALLED_APPS = (
     # Different Course Modes
     'course_modes',
 
-    'administration'
+    # Admin pages
+    'administration',
+
+    # Communities
+    'communities',
+
+    # File Uploader
+    'file_uploader',
+
+    # View Counter
+    'view_counter',
+
+    # Polling
+    'polls',
 )
 
 ######################### MARKETING SITE ###############################

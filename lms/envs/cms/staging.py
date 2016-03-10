@@ -114,6 +114,27 @@ RECORDTIMESTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+VIEWCOUNTERSTORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_ASSIST,
+        'collection': 'view_counter',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
+POLLSTORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_ASSIST,
+        'collection_poll': 'polls',
+        'collection_answers': 'poll_answers',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',
