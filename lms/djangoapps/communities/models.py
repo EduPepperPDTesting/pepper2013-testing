@@ -9,6 +9,7 @@ class CommunityCommunities(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     motto = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    hangout = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     private = models.BooleanField(blank=False, default=0)
 
 
