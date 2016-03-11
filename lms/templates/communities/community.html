@@ -164,12 +164,16 @@
         position: relative;
         border: 2px solid #ddd;
         border-radius: 10px;
-        padding: 15px 20px;
+        padding: 15px 20px 15px 94px;
         background-color: #fff;
         margin-bottom: 15px;
     }
     .discussion h2 {
         margin-bottom: 5px;
+        width: 370px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .discussion-post-info-header {
         float: left;
@@ -184,8 +188,9 @@
     .discussion-byline {
         overflow: hidden;
         height: 1.5em;
-        width: 380px;
-        word-break: break-all;
+        width: 370px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .discussion-stats-header {
         float: left;
@@ -199,11 +204,11 @@
         display: block;
     }
     .discussion-avatar {
-        float: left;
-        width: 48px;
-        height: 48px;
+        position: absolute;
+        width: 64px;
         display: block;
-        margin: 0 10px 5px 0;
+        top: 15px;
+        left: 20px;
     }
     .community-clear {
         clear: both;
