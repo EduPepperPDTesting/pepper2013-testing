@@ -64,6 +64,9 @@
     }
     .trending-title {
         display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .trending-name {
         font-size: 80%;
@@ -597,7 +600,7 @@
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
                         <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                        <span class="trending-name"><span>By: </span>${d.user.first_name} ${d.user.last_name}</span>
+                        <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
                 </div>
             </div>
