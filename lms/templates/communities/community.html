@@ -359,18 +359,6 @@
         padding: 20px 10px;
         line-height: 20px;
     }
-    .modal .progressbar {
-        height: 30px;
-        background: #ddd;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
-    .modal .progressbar_flow {
-        height: 30px;
-        background: #2a5;
-        border-radius: 5px;
-        width: 0;
-    }
     .modal .discussion-error {
         color: #f00;
         font-weight: bold;
@@ -380,13 +368,32 @@
     .modal .inner-wrapper form textarea {
         height: 100px;
     }
-    .hangout_container{
+    #hangout-container {
+        position: fixed;
+        opacity: 1;
+        z-index: 11000;
+        left: 50%;
+        top: 10px;
+        margin-left: -600px;
+        width: 1200px;
+        height: 900px;
+        display: none;
+    }
+    #hangout-container iframe {
+        width: 100%;
+        height: 800px;
+    }
+    .hangout_container {
         text-align: center;
         padding-top: 20px;
     }
     .hangout_container img {
         width: 120px;
         vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
     }
     .side-button {
         color: white !important;
@@ -607,8 +614,9 @@
                 %endif
                 %if has_hangout_perms(request.user):
                     <script src="https://apis.google.com/js/platform.js" async defer></script>
-                    <div class = "hangout_container" id = "hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                    <div class="hangout_container" id="hangout_div">
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${community.hangout}" target="_blank">Start Hangout</a>
                     </div>
                 %endif
             </div>
@@ -625,6 +633,15 @@
     </div>
 </div>
 <div style="" id="fixed-dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="hangout-container" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -890,6 +907,12 @@
                 window.location.href = continue_url;
             });
         });
+        //$('.hangout_container a').click(function(event) {
+        //    event.preventDefault();
+        //    var url = $(this).attr('href');
+        //    var content = '<iframe src="' + url + '"></iframe>';
+        //    new Dialog('#hangout-container').show('Google Hangout', content);
+        //})
     });
 </script>
 </body>

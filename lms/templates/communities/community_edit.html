@@ -2,6 +2,7 @@
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
     from file_uploader.utils import get_file_url
+    from administration.configuration import has_hangout_perms
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -45,7 +46,7 @@
         width: 900px;
         padding: 20px;
     }
-    #community-name, #community-logo, #community-facilitator {
+    #community-name, #community-hangouts, #community-logo, #community-facilitator {
         display: block;
         float: left;
         margin: 0 40px 20px 0;
@@ -91,6 +92,12 @@
     }
     #community-private input {
         margin-left: 10px;
+    }
+    #community-hangouts div {
+        line-height: 2.5em;
+    }
+    #community-hangouts input {
+        width: 500px;
     }
     #community-courses span, #community-resources span, #community-logo span {
         display: block;
@@ -161,6 +168,14 @@
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
+        %endif
+        %if has_hangout_perms(request.user):
+            <label id="community-hangouts"><span>Hangouts Setup:</span>
+                <div>
+                    <span>1. </span><a href="http://hangouts.google.com/start" target="_blank">Start Hangout</a>&nbsp;&nbsp;&nbsp;
+                    <span>2. </span><input type="text" name="hangout" placeholder="Copy/Paste Hangout URL Here">
+                </div>
+            </label>
         %endif
         <label id="community-courses"><span>Courses:</span>
         %for idx, course in enumerate(courses):
