@@ -44,7 +44,10 @@
         text-align: left;
     }
     .sidebar-section {
-        margin: 20px 0;
+        margin: 0 0 20px 0;
+    }
+    #community-member {
+        margin-top: 10px;
     }
     .sidebar-section h2 {
         border-bottom: 2px solid #90BF70;
@@ -84,6 +87,7 @@
         color: #006EBF;
         margin: 15px 0 0 20px;
         font-weight: bold;
+        font-size: 160%;
     }
     #community-header h2 {
         margin: 15px 0 0 20px;
@@ -568,12 +572,9 @@
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                <br />
-                %if is_facilitator(request.user, community):
-                    FACILITATOR
-                %elif is_member(request.user, community):
-                    MEMBER
+                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                %if is_member(request.user, community):
+                    <div id="community-member">MEMBER</div>
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
