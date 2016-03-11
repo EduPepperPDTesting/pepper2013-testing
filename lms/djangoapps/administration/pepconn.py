@@ -1392,9 +1392,9 @@ def registration_download_excel(request):
     return response
 
 
-def get_post_array(post, name):
+def get_post_array(post, name, max=None):
     """
-    Gets array values from a jQuery POST.
+    Gets array values from a POST.
     """
     output = dict()
     for key in post.keys():
@@ -1402,5 +1402,7 @@ def get_post_array(post, name):
         if key.startswith(name + '[') and not value == 'undefined':
             start = key.find('[')
             i = key[start + 1:-1]
+            if max and int(i) > max:
+                i = 'all'
             output.update({i: value})
     return output
