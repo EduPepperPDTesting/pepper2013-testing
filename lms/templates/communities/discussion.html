@@ -155,13 +155,17 @@
         background-color: #0A246A;
         display: inline-block;
     }
-    .hangout_container{
+    .hangout_container {
         text-align: center;
         padding-top: 20px;
     }
     .hangout_container img {
         width: 120px;
         vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
     }
     .side-button {
         color: white !important;
@@ -468,10 +472,10 @@
                     <a href="${reverse('community_mange_member',args=[discussion.community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
                 -->
-                <script src="https://apis.google.com/js/platform.js" async defer></script>
-                %if has_hangout_perms(request.user):
+                %if has_hangout_perms(request.user) and discussion.community.hangout:
                     <div class = "hangout_container" id = "hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${discussion.community.hangout}" target="_blank">Start Hangout</a>
                     </div>
                 %endif
             </div>
