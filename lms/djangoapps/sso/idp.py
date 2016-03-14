@@ -208,7 +208,7 @@ def saml_redirect(request, sp_name, ms):
             value = request.user.profile.grade_level_id
         elif attr['name'] == "bio":
             value = request.user.profile.bio
-        elif attr['name'] == "id":
+        elif attr['name'] == "internal_id":
             value = request.user.id
         elif attr['name'] == "avatar":
             value = request.build_absolute_uri(reverse('user_photo', args=[request.user.id]))
