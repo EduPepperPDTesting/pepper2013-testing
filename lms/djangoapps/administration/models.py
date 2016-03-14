@@ -1,6 +1,10 @@
 from django.db import models
 from student.models import District
 from django.contrib.auth.models import User
+from django.conf import settings
+import pymongo
+import logging
+log = logging.getLogger("tracking")
 
 
 class ImportTask(models.Model):
@@ -113,3 +117,58 @@ class HangoutPermissions(models.Model):
         db_table = 'hangout_permissions'
     district = models.ForeignKey(District, blank=False)
     permission = models.BooleanField(default=1)
+
+
+class MongoSiteSettingsStore(object):
+
+    def __init__(self, host, db, collection, port=27017, default_class=None, user=None, password=None,
+                 mongo_options=None, **kwargs):
+
+        super(MongoSiteSettingsStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+                host=host,
+                port=port,
+                tz_aware=True,
+                **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        # Force mongo to report errors, at the expense of performance
+        self.collection.safe = True
+
+    def get_item(self, identifier):
+        return self.collection.find_one(
+                {
+                    'identifier': identifier,
+                }
+        )
+
+    def set_item(self, identifier, value, metadata={}):
+        return self.collection.update(
+                {
+                    'identifier': identifier,
+                },
+                {
+                    '$set': {'value': value, 'metadata': metadata},
+                },
+                True
+        )
+
+    def delete_item(self, identifier):
+        return self.collection.remove(
+                {
+                    'identifier': identifier,
+                }
+        )
+
+
+def site_setting_store():
+    options = {}
+    options.update(settings.SITESETTINGSSTORE['OPTIONS'])
+    return MongoSiteSettingsStore(**options)
