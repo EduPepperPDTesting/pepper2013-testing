@@ -211,7 +211,7 @@ def saml_redirect(request, sp_name, ms):
         elif attr['name'] == "id":
             value = request.user.id
         elif attr['name'] == "avatar":
-            value = reverse('user_photo', args=[request.user.id])
+            value = request.build_absolute_uri(reverse('user_photo', args=[request.user.id]))
         if value is not None:
             parsed_data[mapped_name] = [value]
 
