@@ -435,7 +435,13 @@ class XmlDescriptor(XModuleDescriptor):
 
         for key, value in self.xml_attributes.items():
             if key not in self.metadata_to_strip:
-                xml_object.set(key, value)
+                if key == 'hide_from_toc':
+                    if value:
+                        xml_object.set(key, 'True') 
+                    else:
+                        xml_object.set(key, 'False') 
+                else:
+                    xml_object.set(key, value)
 
         if self.export_to_file():
             # Write the definition to a file
