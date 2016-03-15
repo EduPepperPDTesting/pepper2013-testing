@@ -157,13 +157,15 @@
     }
     .hangout_container{
         text-align: center;
-        padding-top: 10px;
+        padding-top: 20px;
     }
     .hangout_container img {
-        width: 60px;
+        width: 120px;
         vertical-align: top;
-        display: inline-block;
-        padding-right: 5px;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
     }
     .side-button {
         color: white !important;
@@ -262,7 +264,10 @@
         text-align: left;
     }
     .sidebar-section {
-        margin: 20px 0;
+        margin: 0 0 20px 0;
+    }
+    #community-member {
+        margin-top: 10px;
     }
     .sidebar-section h2 {
         border-bottom: 2px solid #90BF70;
@@ -279,6 +284,9 @@
     }
     .trending-title {
         display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .trending-name {
         font-size: 80%;
@@ -428,12 +436,9 @@
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                <br />
-                %if is_facilitator(request.user, community):
-                    FACILITATOR
-                %elif is_member(request.user, community):
-                    MEMBER
+                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                %if is_member(request.user, community):
+                    <div id="community-member">MEMBER</div>
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
@@ -451,7 +456,7 @@
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
                         <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                        <span class="trending-name"><span>By: </span>${d.user.first_name} ${d.user.last_name}</span>
+                        <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
                 </div>
             </div>
@@ -467,10 +472,10 @@
                     <a href="${reverse('community_mange_member',args=[discussion.community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
                 -->
-                <script src="https://apis.google.com/js/platform.js" async defer></script>
-                %if has_hangout_perms(request.user):
+                %if has_hangout_perms(request.user) and discussion.community.hangout:
                     <div class = "hangout_container" id = "hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${discussion.community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
             </div>

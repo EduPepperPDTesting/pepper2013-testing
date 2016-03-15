@@ -695,6 +695,7 @@ def community_edit_process(request):
         community_id = request.POST.get('community_id', '')
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
+        hangout = request.POST.get('hangout', '')
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
         if request.POST.get('logo', 'nothing') == 'nothing':
             # Try to grab the new file, and if it isn't there, just make it blank.
@@ -728,6 +729,7 @@ def community_edit_process(request):
         community_object.motto = motto
         if logo:
             community_object.logo = logo
+        community_object.hangout = hangout
         community_object.private = int(private)
         community_object.save()
 

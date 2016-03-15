@@ -44,7 +44,10 @@
         text-align: left;
     }
     .sidebar-section {
-        margin: 20px 0;
+        margin: 0 0 20px 0;
+    }
+    #community-member {
+        margin-top: 10px;
     }
     .sidebar-section h2 {
         border-bottom: 2px solid #90BF70;
@@ -61,6 +64,9 @@
     }
     .trending-title {
         display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .trending-name {
         font-size: 80%;
@@ -84,6 +90,7 @@
         color: #006EBF;
         margin: 15px 0 0 20px;
         font-weight: bold;
+        font-size: 160%;
     }
     #community-header h2 {
         margin: 15px 0 0 20px;
@@ -160,12 +167,16 @@
         position: relative;
         border: 2px solid #ddd;
         border-radius: 10px;
-        padding: 15px 20px;
+        padding: 15px 20px 15px 94px;
         background-color: #fff;
         margin-bottom: 15px;
     }
     .discussion h2 {
         margin-bottom: 5px;
+        width: 370px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .discussion-post-info-header {
         float: left;
@@ -180,8 +191,9 @@
     .discussion-byline {
         overflow: hidden;
         height: 1.5em;
-        width: 380px;
-        word-break: break-all;
+        width: 370px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .discussion-stats-header {
         float: left;
@@ -195,11 +207,11 @@
         display: block;
     }
     .discussion-avatar {
-        float: left;
-        width: 48px;
-        height: 48px;
+        position: absolute;
+        width: 64px;
         display: block;
-        margin: 0 10px 5px 0;
+        top: 15px;
+        left: 20px;
     }
     .community-clear {
         clear: both;
@@ -359,18 +371,6 @@
         padding: 20px 10px;
         line-height: 20px;
     }
-    .modal .progressbar {
-        height: 30px;
-        background: #ddd;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
-    .modal .progressbar_flow {
-        height: 30px;
-        background: #2a5;
-        border-radius: 5px;
-        width: 0;
-    }
     .modal .discussion-error {
         color: #f00;
         font-weight: bold;
@@ -387,6 +387,10 @@
     .hangout_container img {
         width: 120px;
         vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
     }
     .side-button {
         color: white !important;
@@ -568,12 +572,9 @@
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                <br />
-                %if is_facilitator(request.user, community):
-                    FACILITATOR
-                %elif is_member(request.user, community):
-                    MEMBER
+                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                %if is_member(request.user, community):
+                    <div id="community-member">MEMBER</div>
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
@@ -591,7 +592,7 @@
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
                         <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
-                        <span class="trending-name"><span>By: </span>${d.user.first_name} ${d.user.last_name}</span>
+                        <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
                 </div>
             </div>
@@ -605,10 +606,10 @@
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
-                %if has_hangout_perms(request.user):
-                    <script src="https://apis.google.com/js/platform.js" async defer></script>
+                %if has_hangout_perms(request.user) and community.hangout:
                     <div class = "hangout_container" id = "hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><g:hangout render="createhangout"></g:hangout>
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
             </div>
