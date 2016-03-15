@@ -850,6 +850,9 @@ INSTALLED_APPS = (
 
     # Polling
     'polls',
+
+    # Permissions
+    'permissions',
 )
 
 ######################### MARKETING SITE ###############################
