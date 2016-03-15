@@ -672,7 +672,7 @@ def community_edit(request, community_id='new'):
                      'motto': community_object.motto,
                      'logo': community_object.logo.upload.url if community_object.logo else '',
                      'facilitator': facilitator[0].user.email if len(facilitator) else None,
-                     'hangout': community_object.hangout,
+                     'hangout': community_object.hangout if community_object.hangout else '',
                      'private': community_object.private,
                      'courses': course_list,
                      'resources': resource_list,
