@@ -80,7 +80,6 @@ def index_bak(request):
                 result[category_key]['items'][subclass_key] = tmp_sub_items
             else:
                 result[category_key]['items'][subclass_key]['items'].append(tmp_item)
-    resources = result
 
     return render_to_response('access_resource_library.html', {'resources': result})
 
@@ -111,7 +110,7 @@ def states(request):
     courses = modulestore()._load_items(list(items), 0)
     state_temp = []
     for course in courses:
-        if len(course.display_state) > 0:
+        if len(course.display_state) > 0 and is_all(course, 'state') is False:
             if request.user.is_superuser is False:
                 state_temp.append(state)
             else:
@@ -120,8 +119,9 @@ def states(request):
     for sl in state_temp:
         state_list.append({'id': sl, 'name': sl})
     return render_to_response("resource_library/collections.html", {'page_title': 'State',
-                                                              'collection_type': 'state',
-                                                              'items': state_list})
+                                                                    'collection_type': 'state',
+                                                                    'items': state_list})
+
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -141,7 +141,7 @@ def districts(request):
     items = modulestore().collection.find(filterDic)
     courses = modulestore()._load_items(list(items), 0)
     for course in courses:
-        if len(course.display_district) > 0:
+        if len(course.display_district) > 0 and is_all(course, 'district') is False:
             if request.user.is_superuser is False:
                 district = filterDic['metadata.display_district']
                 districts = District.objects.filter(code=district)
@@ -158,6 +158,19 @@ def districts(request):
     return render_to_response("resource_library/collections.html", {'page_title': 'District',
                                                                     'collection_type': 'district',
                                                                     'items': district_list})
+
+
+def is_all(course, type):
+    if type == 'collection':
+        if 'All' in course.content_collections:
+            return True
+    elif type == 'state':
+        if 'All' in course.display_state:
+            return True
+    elif type == 'district':
+        if 'All' in course.display_district:
+            return True
+    return False
 
 
 @login_required
