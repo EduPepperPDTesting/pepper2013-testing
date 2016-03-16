@@ -6,6 +6,10 @@ from mitxmako.shortcuts import render_to_response
 from student.models import ResourceLibrary, StaticContent
 from collections import deque
 from django.contrib.auth.decorators import login_required
+from xmodule.modulestore.django import modulestore
+from django.views.decorators.cache import cache_control
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
+from .models import Resource, GenericResource
 
 
 def index_bak(request):
@@ -92,6 +96,94 @@ def index(request):
     return render_to_response('access_resource_library_.html', {'static_content': static_html_content})
 
 
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def states(request):
+    """
+    Render "find states" page.
+    """
+    state = request.GET.get('state', '')
+    filterDic = {'_id.category': 'course'}
+    state_list = []
+    if request.user.is_superuser is False:
+        filterDic['metadata.display_state'] = state
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    state_temp = []
+    for course in courses:
+        if len(course.display_state) > 0:
+            if request.user.is_superuser is False:
+                state_temp.append(state)
+            else:
+                state_temp.extend(course.display_state)
+    state_temp = sorted(set(state_temp), key=lambda x: x[0])
+    for sl in state_temp:
+        state_list.append({'id': sl, 'name': sl})
+    return render_to_response("resource_library/collections.html", {'page_title': 'State',
+                                                              'collection_type': 'state',
+                                                              'items': state_list})
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def districts(request):
+    """
+    Render "find districts" page.
+    """
+    district = request.GET.get('district', '')
+    filterDic = {'_id.category': 'course'}
+
+    district_name = {}
+    district_temp = []
+    district_list = []
+
+    if request.user.is_superuser is False:
+        filterDic['metadata.display_district'] = district
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    for course in courses:
+        if len(course.display_district) > 0:
+            if request.user.is_superuser is False:
+                district = filterDic['metadata.display_district']
+                districts = District.objects.filter(code=district)
+                district_temp.append(district)
+            else:
+                districts = District.objects.filter(code__in=course.display_district)
+                district_temp.extend(course.display_district)
+
+            for district in districts:
+                district_name[district.code] = district.name
+    district_temp = sorted(set(district_temp), key=lambda x: x[0])
+    for dl in district_temp:
+        district_list.append({'id': dl, 'name': district_name[dl]})
+    return render_to_response("resource_library/collections.html", {'page_title': 'District',
+                                                                    'collection_type': 'district',
+                                                                    'items': district_list})
+
+
 @login_required
 def index_list(request):
     return render_to_response('access_resource_library_list.html')
+
+
+@login_required
+def resources(request):
+    collection_type = request.GET.get("collection_type")
+    collection = request.GET.get("collection")
+    items = Resource.objects.filter(collection_type=collection_type, collection=collection)
+    return render_to_response('resource_library/resources.html', {
+        'page_title': collection,
+        'collection_type': collection_type,
+        'items': items})
+
+
+@login_required
+def generic_resources(request):
+    resource_id = request.GET.get("resource")
+    resource = Resource.objects.get(id=resource_id)
+    items = GenericResource.objects.filter(resource=resource)
+    return render_to_response('resource_library/generic_resources.html', {
+        'page_title': resource.title,
+        'collection_type': generic_resources,
+        'items': items})
+
+    

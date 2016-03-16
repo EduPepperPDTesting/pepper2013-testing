@@ -221,7 +221,11 @@ urlpatterns = (
     url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^resource_library_global/states/$', 'access_resource_library.views.states', name="^resource_library_global_states"),
+    url(r'^resource_library_global/districts/$', 'access_resource_library.views.districts', name="^resource_library_global_districts"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^resource_library_global/resources/$', 'access_resource_library.views.resources', name="resource_library_global_resources"),
+    url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
 
