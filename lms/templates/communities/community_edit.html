@@ -1,13 +1,8 @@
-<%! from django.utils.translation import ugettext as _ %>
 <%!
+    from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
-    from courseware.courses import course_image_url, get_course_about_section
-    from courseware.access import has_access
-    from certificates.models import CertificateStatuses
-    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-    from xmodule.modulestore.django import modulestore
-    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
-    from baseinfo.models import Enum
+    from file_uploader.utils import get_file_url
+    from administration.configuration import has_hangout_perms
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -51,13 +46,28 @@
         width: 900px;
         padding: 20px;
     }
-    #community, #community-logo, #community-facilitator {
+    #community-name, #community-hangouts, #community-logo, #community-facilitator {
         display: block;
         float: left;
         margin: 0 40px 20px 0;
         text-align: left;
+        position: relative;
     }
-    #community input, #community-facilitator input {
+    .community-form label {
+        cursor: default !important;
+    }
+    #community-logo .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: 1.25em;
+        right: 2px;
+    }
+    #community-name input, #community-facilitator input {
         display: block;
         width: 500px;
     }
@@ -70,7 +80,7 @@
         text-align: left;
         margin-bottom: 20px;
     }
-    #community-name input, #community-motto input {
+    #community-motto input {
         display: block;
         width: 860px;
     }
@@ -83,7 +93,13 @@
     #community-private input {
         margin-left: 10px;
     }
-    #community-courses span, #community-resources span {
+    #community-hangouts div {
+        line-height: 2.5em;
+    }
+    #community-hangouts input {
+        width: 500px;
+    }
+    #community-courses span, #community-resources span, #community-logo span {
         display: block;
     }
     #community-courses input, #community-courses select, #community-resources input, .resource-logo-label {
@@ -94,10 +110,14 @@
     .resource-link, .resource-name {
         width: 220px;
     }
-    #community-submit {
-        display: block;
+    #community-form-buttons {
         clear: both;
         margin: 0 auto;
+        padding-top: 20px;
+        text-align: right;
+    }
+    #community-cancel {
+        float: left;
     }
     #community-resources .add, #community-courses .add {
         padding: 0 6px;
@@ -108,7 +128,100 @@
     .community-course, .community-resource {
         clear: both;
     }
+    .community-logo-thumb {
+        float: left;
+        width: 150px;
+        margin-right: 10px;
+    }
+    .community-resource-logo-wrap {
+        float: left;
+        width: 150px;
+        margin-right: 10px;
+        position: relative;
+    }
+    .community-resource-logo-wrap .remove {
+        display: block;
+        background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat;
+        width: 12px;
+        height: 11px;
+        border: solid 1px #ddd;
+        border-radius: 1px;
+        position: absolute;
+        top: -2px;
+        right: -2px;
+    }
+    .community-error-box {
+        border-color: red !important;
+    }
 </style>
+<section class="community-form" style="text-align:center;background:#F5F5F5;">
+    <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data" id="community-edit-form">
+        <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}" placeholder="The name of the community"></label>
+        %if logo != '':
+            <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
+        %else:
+            <label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>
+        %endif
+        <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
+        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
+        %if private:
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
+        %else:
+            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
+        %endif
+        %if has_hangout_perms(request.user):
+            <label id="community-hangouts"><span>Hangouts Setup:</span>
+                <div>
+                    <span>1. </span><a href="http://hangouts.google.com/start" target="_blank">Start Hangout</a>&nbsp;&nbsp;&nbsp;
+                    <span>2. </span><input type="text" name="hangout" value="${hangout}" placeholder="Copy/Paste Hangout URL Here">
+                </div>
+            </label>
+        %endif
+        <label id="community-courses"><span>Courses:</span>
+        %for idx, course in enumerate(courses):
+            <div class="community-course">
+                <select name="course[${idx}]">
+                    <option value="">Select a Course</option>
+                    %for course_option in courses_drop:
+                        %if course == course_option['id']:
+                            <option value="${course_option['id']}" selected="selected">${course_option['number']} | ${course_option['name']}</option>
+                        %else:
+                            <option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>
+                        %endif
+                    %endfor
+                </select>
+                <input type="button" class="add operation" value="+" onclick="newCourse()">
+            </div>
+        %endfor
+        </label>
+        <label id="community-resources"><span>Resources:</span>
+        %for idx, resource in enumerate(resources):
+            <div class="community-resource">
+                <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name">
+                <input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link">
+                <label><div class="resource-logo-label">Logo:</div>
+                %if resource['logo']:
+                    <div class="community-resource-logo-wrap">
+                        <img src="${get_file_url(resource['logo'])}" class="community-logo-thumb">
+                        <input class="community-resource-logo" type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
+                        <a href="#" class="remove"></a>
+                    </div>
+                %else:
+                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
+                %endif
+                </label>
+                <input type="button" class="add operation" value="+" onclick="newResource()">
+            </div>
+        %endfor
+        </label>
+        <input type="hidden" value="${community_id}" name="community_id">
+        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+        <div id="community-form-buttons">
+            <input id="community-cancel" type="button" value="Cancel">
+            <input id="community-submit" type="submit" value="Submit" name="submit">
+        </div>
+    </form>
+</section>
 <script type="text/javascript">
     function newCourse() {
         var course_num = $('.community-course').length;
@@ -174,63 +287,59 @@
             $(this).replaceWith('<input type="button" class="minus operation" value="-" onclick="removeResource(' + index + ')">');
         });
     }
+    function checkUser(email) {
+        var valid = true;
+        $.ajax({
+            url: "${reverse('community_check_user')}",
+            type: 'GET',
+            async: false,
+            data: {email: email},
+            success: function(data) {
+                valid = data.Valid;
+            }
+        });
+        return valid;
+    }
+    $(document).ready(function() {
+        $('#community-logo .remove').click(function() {
+            var content = '<label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>';
+            $('#community-logo').replaceWith(content);
+        });
+        $('.community-resource .remove').click(function() {
+            var name = $(this).siblings('.community-resource-logo').attr('name');
+            var content = '<input class="resource-logo" type="file" name="' + name + '">';
+            $(this).parent('.community-resource-logo-wrap').replaceWith(content);
+        });
+        $('#community-cancel').click(function() {
+            %if community_id == 'new':
+                window.location.href = "${reverse('communities')}";
+            %else:
+                window.location.href = "${reverse('community_view', args=[community_id])}";
+            %endif
+        });
+        $('#community-edit-form').submit(function() {
+            $('.community-error-box').removeClass('community-error-box');
+            var valid = true;
+            var errors = ['The following errors occurred:\n'];
+            if (!/[A-Za-z]/.test($('#community-name input').val())) {
+                valid = false;
+                errors.push('Name is required.');
+                $('#community-name input').addClass('community-error-box');
+            }
+            if (!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test($('#community-facilitator input').val())) {
+                valid = false;
+                errors.push('Valid facilitator email is required.');
+                $('#community-facilitator input').addClass('community-error-box');
+            } else if (!checkUser($('#community-facilitator input').val())) {
+                valid = false;
+                errors.push('This email is not currently in our system.');
+                $('#community-facilitator input').addClass('community-error-box');
+            }
+            if (!valid) {
+                var error = errors.join('\n');
+                alert(error);
+            }
+            return valid;
+        });
+    });
 </script>
-<section class="community-form" style="text-align:center;background:#F5F5F5;">
-    <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data">
-        %if user_type == 'super':
-            <label id="community"><span>Community ID:</span><input type="text" name="community" value="${community}" placeholder="Machine name (lowercase letters, numbers and underscores)"></label>
-        %elif user_type == 'facilitator':
-            <label id="community"><span>Community ID:</span><input type="text" name="community" value="${community}" disabled="disabled"></label>
-        %endif
-        %if logo != '':
-            <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"></label>
-        %else:
-            <label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>
-        %endif
-        <label id="community-name"><span>Community Name:</span><input type="text" name="name" value="${name}" placeholder="The name of the community"></label>
-        <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
-        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
-        %if private:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
-        %else:
-            <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
-        %endif
-        <label id="community-courses"><span>Courses:</span>
-        %for idx, course in enumerate(courses):
-            <div class="community-course">
-                <select name="course[${idx}]">
-                    <option value="">Select a Course</option>
-                    %for course_option in courses_drop:
-                        %if course == course_option['id']:
-                            <option value="${course_option['id']}" selected="selected">${course_option['number']} | ${course_option['name']}</option>
-                        %else:
-                            <option value="${course_option['id']}">${course_option['number']} | ${course_option['name']}</option>
-                        %endif
-                    %endfor
-                </select>
-                <input type="button" class="add operation" value="+" onclick="newCourse()">
-            </div>
-        %endfor
-        </label>
-        <label id="community-resources"><span>Resources:</span>
-        %for idx, resource in enumerate(resources):
-            <div class="community-resource">
-                <input class="resource-name" type="text" name="resource_name[${idx}]" value="${resource['name']}" placeholder="Resource name">
-                <input class="resource-link" type="text" name="resource_link[${idx}]" value="${resource['link']}" placeholder="Resource link">
-                <label><div class="resource-logo-label">Logo:</div>
-                %if resource['logo']:
-                    <img src="${resource['logo'].upload.url}" class="community-logo-thumb"><input type="hidden" name="resource_logo[${idx}]" value="${resource['logo'].id}">
-
-                %else:
-                    <input class="resource-logo" type="file" name="resource_logo[${idx}]">
-                %endif
-                </label>
-                <input type="button" class="add operation" value="+" onclick="newResource()">
-            </div>
-        %endfor
-        </label>
-        <input type="hidden" value="${community_id}" name="community_id">
-        <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-        <input id="community-submit" type="submit" value="Submit" name="submit">
-    </form>
-</section>

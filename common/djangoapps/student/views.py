@@ -763,13 +763,13 @@ def sso(request, error=""):
             update_sso_usr(user, parsed)
 
             # allow courses
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=sso_email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=sso_email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
 
             # add courses above (cause user will not finish registration himself to trigger auto course enroll)
-            CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
+            CourseEnrollment.enroll(user, 'PCG_Education/PEP101.1/S2016')
 
         except Exception as e:
             db.transaction.rollback()
@@ -1863,7 +1863,7 @@ def activate_imported_account(post_vars, photo):
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
 
-        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
+        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}
 

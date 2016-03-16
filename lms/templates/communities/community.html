@@ -3,6 +3,9 @@
     from django.core.urlresolvers import reverse
     from courseware.courses import course_image_url, get_course_about_section
     from student.views import course_from_id
+    from administration.configuration import has_hangout_perms
+    from communities.utils import is_facilitator, is_member
+    from file_uploader.utils import get_file_url
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -10,10 +13,118 @@
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <style type="text/css" media="screen">
+    #community-main {
+        width: 1185px;
+        margin: 30px auto;
+        text-align: left;
+    }
+    #community-main-content {
+        width: 880px;
+        float: left;
+    }
+    #community-main-sidebar {
+        width: 266px;
+        float: right;
+        top: 0;
+        text-align: center;
+    }
+    #community-sidebar-header {
+        border: 2px solid #ddd;
+        height: 53px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 53px;
+    }
+    #community-sidebar {
+        width: 208px;
+        padding: 20px 20px 0 20px;
+        border: 2px solid #ddd;
+        margin: auto;
+        border-top: 0;
+        text-align: left;
+    }
+    .sidebar-section {
+        margin: 0 0 20px 0;
+    }
+    #community-member {
+        margin-top: 10px;
+    }
+    .sidebar-section h2 {
+        border-bottom: 2px solid #90BF70;
+        padding-bottom: 5px;
+        margin: 0 0 10px 0;
+        color: #006EBF;
+        font-weight: bold;
+        text-transform: none;
+        font-size: 1em;
+        line-height: 1em;
+    }
+    .sidebar-sub-section {
+        margin: 0 10px;
+    }
+    .trending-title {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .trending-name span {
+        font-weight: bold;
+    }
+    .status-name {
+        display: block;
+        margin-bottom: 5px;
+    }
+    #community-header {
+        border: 2px solid #ddd;
+        width: 100%;
+        min-height: 280px;
+    }
+    #community-header h1 {
+        text-align: left;
+        color: #006EBF;
+        margin: 15px 0 0 20px;
+        font-weight: bold;
+        font-size: 160%;
+    }
+    #community-header h2 {
+        margin: 15px 0 0 20px;
+        text-transform: none;
+        font-weight: bold;
+    }
+    #community-header h3 {
+        color: #006EBF;
+        margin: 40px 0 10px;
+    }
+    #community-header h4 {
+        font-weight: bold;
+
+    }
+    #community-avatar {
+        width: 100px;
+        float: left;
+        margin: 30px 15px 15px 20px;
+    }
+    #community-logo {
+        float: right;
+        width: 380px;
+        max-height: 300px;
+        overflow: hidden;
+        margin: 15px;
+    }
+    #community-logo img {
+        width: 380px;
+    }
     #community-content-area h1 {
         color: #006EBF;
         padding: 20px 3px;
         font-size: 20px;
+        font-weight: bold;
         text-align: left;
         border-bottom: 2px solid #90BF70;
         display: inline-block;
@@ -38,9 +149,13 @@
     #community-content {
         width: 270px;
         height: 700px;
+        float: left;
+    }
+    #community-content-scroller {
+        width: 270px;
+        height: 640px;
         overflow-y: scroll;
         overflow-x: hidden;
-        float: left;
     }
     #community-discussions {
         width: 578px;
@@ -52,12 +167,16 @@
         position: relative;
         border: 2px solid #ddd;
         border-radius: 10px;
-        padding: 15px 20px;
+        padding: 15px 20px 15px 94px;
         background-color: #fff;
         margin-bottom: 15px;
     }
     .discussion h2 {
         margin-bottom: 5px;
+        width: 370px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .discussion-post-info-header {
         float: left;
@@ -68,6 +187,13 @@
     }
     .discussion-post-info span {
         font-weight: bold;
+    }
+    .discussion-byline {
+        overflow: hidden;
+        height: 1.5em;
+        width: 370px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .discussion-stats-header {
         float: left;
@@ -80,7 +206,14 @@
     .discussion-stats span {
         display: block;
     }
-    .discussion-clear {
+    .discussion-avatar {
+        position: absolute;
+        width: 64px;
+        display: block;
+        top: 15px;
+        left: 20px;
+    }
+    .community-clear {
         clear: both;
         height: 1px;
         margin-top: -1px;
@@ -132,21 +265,26 @@
     }
     .community-resource {
         display: block;
-        margin-bottom: 10px;
+        clear: both;
+        margin-bottom: 20px;
         border: 0 solid #f0870c;
         height: 160px;
         width: 242px;
         box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
         border-radius: 6px;
+        overflow: hidden;
+        position: relative;
     }
     .community-resource img {
         display: block;
         width: 242px;
-        height: 100px;
-        border-radius: 6px 6px 0 0;
+        border-radius: 6px;
     }
     .community-resource a {
         display: block;
+        position: absolute;
+        bottom: 0;
+        left: 0;
         height: 60px;
         background: #f0870c;
         color: #fff;
@@ -169,14 +307,24 @@
         color: #FFFFFF;
     }
     .course-card {
-        margin: 0 0 10px 0 !important
+        margin: 0 0 20px 0 !important
     }
     div.card-bottom table tr:nth-child(2) {
         display: none;
     }
+    #members {
+        display: inline-block;
+        overflow-x: hidden;
+        padding: 10px 0;
+        width: 100%;
+        position: relative;
+    }
     #members a {
         margin-right: 5px;
         display: inline-block;
+    }
+    #members a img {
+        vertical-align: middle;
     }
     .modal {
         position: absolute;
@@ -191,6 +339,9 @@
         padding: 0 0 8px 0;
         width: 680px;
         display: none;
+    }
+    #fixed-dialog {
+        position: fixed;
     }
     .modal .close-modal {
         border-radius: 2px;
@@ -220,18 +371,6 @@
         padding: 20px 10px;
         line-height: 20px;
     }
-    .modal .progressbar {
-        height: 30px;
-        background: #ddd;
-        border-radius: 5px;
-        margin-top: 10px;
-    }
-    .modal .progressbar_flow {
-        height: 30px;
-        background: #2a5;
-        border-radius: 5px;
-        width: 0;
-    }
     .modal .discussion-error {
         color: #f00;
         font-weight: bold;
@@ -240,6 +379,18 @@
     }
     .modal .inner-wrapper form textarea {
         height: 100px;
+    }
+    .hangout_container {
+        text-align: center;
+        padding-top: 20px;
+    }
+    .hangout_container img {
+        width: 120px;
+        vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
     }
     .side-button {
         color: white !important;
@@ -265,44 +416,74 @@
     #poll-form {
         display: none;
         margin-top: 15px;
+        clear: both;
     }
     .poll-answer-input {
         width: 80% !important;
         display: inline !important;
     }
+    .discussion-attachment {
+        float: left;
+    }
+    .discussion-poll {
+        float: right;
+        display: block;
+        vertical-align: middle;
+    }
+    #members-title {
+        border-bottom: 2px solid #90BF70;
+        color: #006EBF;
+        font-size: 20px;
+        padding: 20px 3px;
+        font-weight: bold;
+        clear: both;
+    }
+    #table-members {
+        width: 100%;
+        table-layout: fixed;
+        margin-bottom: 20px;
+    }
+    #table-members tr {
+        border-bottom: 2px solid #90BF70;
+    }
+    .member-arrows {
+        width: 20px;
+        vertical-align: middle;
+    }
+    .member-arrows div {
+        cursor: pointer;
+        width: 17px;
+        height: 20px;
+    }
+    .member-arrow-left {
+        background: url(/static/tmp-resource/image/up_page.png);
+    }
+    .member-arrow-right {
+        background: url(/static/tmp-resource/image/next_page.png);
+    }
+    .member-column {
+        white-space: nowrap;
+    }
+    .discussion-error-box {
+        border-color: red !important;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
-<script type="text/javascript">
-    function joinMe(){
-        var user_id = "${request.user.id}";
-        $.post("${reverse('community_join', args=[community.community])}",{user_ids:user_id}, function(r){
-            if(r.success)
-                window.location.reload();
-        });
-    }
-</script>
 <body style="text-align:center">
-<div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
-    <section style="width:880px;float:left;">
-        <div style="border:2px solid #ddd;width:100%;height:280px;">
-            <div style="padding:15px;">
-                %if community.logo:
-                    <img src="${community.logo.upload.url}" style="float:right;width:390px;" alt="photo"/>
-                %endif
-                <p style="margin:5px 0;color:#006EBF;font-size:28px;margin:0px">${community.name}</p>
-                <p style="margin:5px 0;padding-left:1em;color:#006EBF;font-size:24px;margin:0px;color:#777;line-height:40px;">${community.motto}</p>
-                %if facilitator:
-                    <div style="margin-left:1em;margin-top:20px;">
-                        <img src="${reverse('user_photo', args=[facilitator.user.id])}" style="vertical-align:middle;" alt="photo" />
-                        <div style="display:inline-block;line-height:95px;vertical-align:middle;">
-                            <div style="vertical-align:middle;margin:auto;line-height:20px;">
-                                <p style="margin:2px;color:#006EBF;font-size:22px;">${facilitator.user.first_name} ${facilitator.user.last_name}</p>
-                                <p style="margin:2px;font-size:18px;">Community Facilitator</p>
-                            </div>
-                        </div>
-                    </div>
-                %endif
-            </div>
+<div id="community-main" class="clearfix">
+    <section id="community-main-content">
+        <div id="community-header">
+            %if community.logo:
+                <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
+            %endif
+            <h1>${community.name}</h1>
+            <h2>${community.motto}</h2>
+            %if facilitator:
+                <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                <h4>Community Facilitator</h4>
+            %endif
+            <div class="community-clear"></div>
         </div>
 
         <div id="community-content-area">
@@ -313,6 +494,7 @@
                 <div class="discussions">
                 %for i,d in enumerate(discussions):
                     <div class="discussion">
+                        <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
                         <div class="discussion-stats">
                             <span>Replies: ${d.replies}</span>
                             <span>Views: ${d.views}</span>
@@ -322,7 +504,7 @@
                             <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
                             <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
                         </div>
-                        <div class="discussion-clear"></div>
+                        <div class="community-clear"></div>
                     </div>
                 %endfor
                 </div>
@@ -352,12 +534,8 @@
                     %endfor
                     %for i,r in enumerate(resources):
                         <div class="community-resource">
-                            %if r.logo:
-                                <img src="${r.logo.upload.url}" alt="${r.name}" />
-                            %else:
-                                <img src="TODO: WE NEED A DEFAULT HERE" alt="${r.name}" />
-                            %endif
-                            <a href="${r.link}">
+                            <img src="${get_file_url(r.logo)}" alt="${r.name}" />
+                            <a href="${r.link}" target="_blank">
                                 <div>
                                     ${r.name}
                                 </div>
@@ -367,75 +545,73 @@
                 </div>
             </div>
         </div>
-        <div style="border-bottom:2px solid #90BF70;color:#006EBF; font-size:20px;padding:20px 3px;font-weight:bold">Members</div>
-        <table id="table-members" style="width:100%;table-layout:fixed;margin-bottom:20px;" cellspacing="" cellpadding="" border="0">
-            <tr style="border-bottom:2px solid #90BF70;">
-                <td style="width:20px;vertical-align:middle;background:#fff">
-                    <div style="cursor:pointer;background:url(/static/tmp-resource/image/up_page.png); width:17px;height:20px;" onclick="left()"> </div>
+        <div id="members-title">Members</div>
+        <table id="table-members" cellspacing="" cellpadding="" border="0">
+            <tr>
+                <td class="member-arrows">
+                    <div class="member-arrow-left" onclick="left()"> </div>
                 </td>
-                <td style="white-space:nowrap;">
-                    <div style="display:inline-block;overflow-x:hidden;padding:10px 0;width:100%;position:relative;" id="members">
+                <td class="member-column">
+                    <div id="members">
                         %for u in users:
                             <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
-                                <img src="${reverse('user_photo',args=[u.user.id])}" style="vertical-align:middle;" alt="${u.user.first_name}" />
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
                             </a>
                         %endfor
                     </div>
                 </td>
-                <td style="width:20px;vertical-align:middle;background:#fff">
-                    <div style="cursor:pointer;background:url(/static/tmp-resource/image/next_page.png);width:17px;height:20px;" onclick="right()"></div>
+                <td class="member-arrows">
+                    <div class="member-arrow-right" onclick="right()"></div>
                 </td>
             </tr>
         </table>
     </section>
-    <section>
-        <div style="width:266px;float:right;top:0px;text-align:center;">
-            <div style="border:2px solid #ddd;height:53px;text-align:center;vertical-align:middle;line-height:53px;">
-                ${request.user.first_name}
+    <section id="community-main-sidebar">
+        <div id="community-sidebar-header">
+            ${request.user.username}
+        </div>
+        <div id="community-sidebar">
+            <div class="sidebar-section" style="text-align: center;">
+                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                %if is_member(request.user, community):
+                    <div id="community-member">MEMBER</div>
+                %else:
+                    <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
+                %endif
             </div>
-            <div style="width:248px;border:2px solid #ddd;margin:auto;border-top:0px;text-align:left;">
-                <div style="text-align:center;">
-                    <img src="${reverse('user_photo',args=[request.user.id])}" style="vertical-align:middle;width:180px;" alt="${request.user.first_name}" />
-                    <br />
-                    %if mem and mem.facilitator:
-                    FACILITATOR
-                    %elif request.user.is_superuser:
-                    ADMIN
-                    %elif mem and not mem.facilitator:
-                    MEMBER
-                    %else:
-                        <a href="#" style="margin:20px;color:white !important;display:block;padding:10px;border:1px solid #595;background:#8cbe41;text-align:center;margin-top:5px;" value="" onclick="joinMe()">Add Me</a>
-                    %endif
+            <div class="sidebar-section">
+                <h2>Community Status</h2>
+                <div class="sidebar-sub-section">
+                    <span class="status-name">Discussions: ${total_discussions}</span>
+                    <!--<span class="trending-name">Messages: </span>-->
+                    <span class="status-name">Members: ${users.count()}</span>
                 </div>
-                <div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Community Status
-                </div>
-                <div style="margin:20px;">
-                    <div class="">Discussions: ${discussions.count()}</div>
-                    <!--<div class="">Messages: </div>-->
-                    <div class="">Members: ${users.count()}</div>
-                </div>
-                <!--<div style="border-bottom:2px solid #90BF70;margin:20px;padding-bottom:5px;color:#006EBF;">
-                    Trending
-                </div>
-                <div style="margin:20px;">
-                    %for i,d in enumerate(discussions):
-                        <span style="color:#006EBF;">${d.user.first_name}, </span>
-                        <span>${d.date_create}</span>
+            </div>
+            <div class="sidebar-section">
+                <h2>Trending</h2>
+                <div class="sidebar-sub-section">
+                    %for i, d in enumerate(trending):
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
-                </div>-->
-                <div style="margin:20px;">
-                    <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                    <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
-                    %if mem and mem.facilitator or request.user.is_superuser:
-                        <a href="${reverse('community_edit',args=[community.community])}" class="green-button side-button">Edit</a>
-                        <a href="${reverse('community_delete',args=[community.community])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
-                        <a href="${reverse('community_mange_member',args=[community.community])}" class="blue-button side-button">Manage Members</a>
-                    %endif
-                    <a href="#" style="display:block;text-align:center;">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
-                    </a>
                 </div>
+            </div>
+            <div class="sidebar-section">
+                <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+                %if is_member(request.user, community) or request.user.is_superuser:
+                    <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
+                %endif
+                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                    <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
+                    <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
+                    <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
+                %endif
+                %if has_hangout_perms(request.user) and community.hangout:
+                    <div class="hangout_container" id="hangout_div">
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
+                    </div>
+                %endif
             </div>
         </div>
     </section>
@@ -449,13 +625,73 @@
         <div class="content"></div>
     </div>
 </div>
+<div style="" id="fixed-dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
 <script type="text/javascript">
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+    function validateDiscussionForm() {
+        $('.discussion-error-box').removeClass('discussion-error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        if (!/[A-Za-z]/.test($('.discussion-subject input').val())) {
+            valid = false;
+            errors.push('Subject is required.');
+            $('.discussion-subject input').addClass('discussion-error-box');
+        }
+        if (!/[A-Za-z]/.test($('.discussion-post textarea').val())) {
+            valid = false;
+            errors.push('Discussion is required.');
+            $('.discussion-post textarea').addClass('discussion-error-box');
+        }
+        if ($('#new-discussion-submit .poll-add').is(':checked')) {
+            if (!/[A-Za-z]/.test($('.poll-question').val())) {
+                valid = false;
+                errors.push('Question is required.');
+                $('.poll-question').addClass('discussion-error-box');
+            }
+            if ($('.poll-answer-input').length < 2) {
+                valid = false;
+                errors.push('You need at least two answers to choose from.');
+            }
+            $('.poll-answer-input').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    errors.push('Answers must be filled out.');
+                    $(this).addClass('discussion-error-box');
+                    return false;
+                }
+            });
+            if ($('.poll-expiration').val() != '' && !/^\d?\d\/\d?\d\/\d\d\d\d$/.test($('.poll-expiration').val())) {
+                valid = false;
+                errors.push('Expiration date must be in the format mm/dd/yyyy.');
+                $('.poll-expiration').addClass('discussion-error-box');
+            }
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
+    }
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
-        content += '<label>Subject:<input type="text" name="subject"></label>';
-        content += '<label>Discussion:<textarea name="post"></textarea></label>';
-        content += '<label>Attachment:<input type="file" name="attachment"></label>';
-        content += '<label><input type="checkbox" class="poll-add"> Add Poll</label>';
+        content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
+        content += '<label class="discussion-post">Discussion:<textarea name="post"></textarea></label>';
+        content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
+        content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
         content += '<label>Question: <input class="poll-question" type="text" name="question"></label>';
         content += '<label>Answers: <ol id="poll-answers">';
@@ -470,30 +706,51 @@
         content += '</div>';
         content += '<input type="hidden" value="${community.id}" name="community_id">';
         content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
-        content += '<div class="discussion-clear"></div><br/>';
+        content += '<div class="community-clear"></div><br/>';
         content += '<input type="submit" name="submit" value="Add">';
         content += '</form><div class="discussion-error"></div>';
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
+
         $('#new-discussion-submit').submit(function(event) {
-            $.post('${reverse('community_discussion_add')}', $(this).serialize(), function(data) {
-                if (data.Success) {
-                    var pollData = $('#new-discussion-submit').serializeArray();
-                    pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
-                    $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function(data) {
+            event.preventDefault();
+            if (validateDiscussionForm()) {
+                var formData = new FormData($(this)[0]);
+                var formSelector = $(this);
+                $.ajax({
+                    url: '${reverse('community_discussion_add')}',
+                    type: 'POST',
+                    data: formData,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
                         if (data.Success) {
-                            discussion_dialog.hide();
-                            replaceDiscussions(1);
+                            if ($('#new-discussion-submit .poll-add').is(':checked')) {
+                                var pollData = formSelector.serializeArray();
+                                pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                                $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
+                                    if (data.Success) {
+                                        discussion_dialog.hide();
+                                        replaceDiscussions(1);
+                                    } else {
+                                        $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
+                                    }
+                                });
+                            } else {
+                                discussion_dialog.hide();
+                                replaceDiscussions(1);
+                            }
+
                         } else {
                             $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                         }
-                    });
-                } else {
-                    $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
-                }
-            });
-            event.preventDefault()
+                    }
+                });
+            }
         });
+
         $('.poll-add').click(function() {
             $('#poll-form').toggle();
         });
@@ -502,10 +759,11 @@
         });
     }
     function replaceDiscussions(page) {
-        $.get('${reverse('community_discussion_list', args=[community.community])}', {'page': page}, function(data) {
+        $.get('${reverse('community_discussion_list', args=[community.id])}', {'page': page}, function(data) {
             var content = '<div class="discussions">';
             for (var x = 0; x < data.discussions.length; x++) {
                 content += '<div class="discussion">';
+                content += '<img class="discussion-avatar" src="' + data.discussions[x].avatar + '">';
                 content += '<div class="discussion-stats">';
                 content += '<span>Replies: ' + data.discussions[x].replies + '</span>';
                 content += '<span>Views: ' + data.discussions[x].views + '</span>';
@@ -514,7 +772,7 @@
                 content += '<div class="discussion-post-info">';
                 content += '<div class="discussion-byline"><span>Posted By: </span>' + data.discussions[x].first_name + ' ' + data.discussions[x].last_name + '</div>';
                 content += '<div class="discussion-date"><span>&nbsp;On: </span>' + data.discussions[x].date_create + '</div>';
-                content += '</div><div class="discussion-clear"></div></div>';
+                content += '</div><div class="community-clear"></div></div>';
             }
             content += '</div>';
             $('#community-discussions .discussions').replaceWith(content);
@@ -537,7 +795,7 @@
             content += '</div>';
             $('#discussion-pager').replaceWith(content);
 
-            window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.community])}?page=" + page);
+            window.history.pushState(page, "${community.name}", "${reverse('community_view', args=[community.id])}?page=" + page);
         });
     }
     function newAnswer() {
@@ -582,7 +840,6 @@
         // return ((elemRight <= docViewRight) && (elemLeft >= docViewLeft)); // partly visible
         return ((docViewLeft < elLeft) && (docViewRight > elRight));
     }
-    $("#members").scrollLeft(0);
     function left(){
         var lastHideLeft = null;
         var n=-1;
@@ -619,7 +876,21 @@
                     + $(firstHideRight).position().left
                     - $("#members").width() + $(firstHideRight).width() + 1);
         }
-
     }
+    $(document).ready(function() {
+        $("#members").scrollLeft(0);
+        $('.card-link').attr('target', '_blank');
+        $('.delete-icon').click(function(event) {
+            event.preventDefault();
+            var title = 'Really Delete This Community?';
+            var content = 'If you delete this community, all discussions, memberships and resources will be removed as well. This operation cannot be undone';
+            var continue_url = $(this).attr('href');
+            new Dialog($('#fixed-dialog')).showYesNo(title, content, function(ans) {
+                this.hide();
+                if (!ans) return;
+                window.location.href = continue_url;
+            });
+        });
+    });
 </script>
 </body>

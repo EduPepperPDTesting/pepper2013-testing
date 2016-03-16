@@ -36,7 +36,7 @@ def community_ngss(request):
 
 @login_required
 def community_manage_member(request, community_id):
-    community = CommunityCommunities.objects.get(community=community_id)
+    community = CommunityCommunities.objects.get(id=community_id)
     return render_to_response('communities/manage_members.html', {"community": community})
 
 
@@ -152,7 +152,7 @@ def get_add_user_rows(request, community_id):
     else:
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
 
-    members = CommunityUsers.objects.filter(community__community=community_id).values_list('user_id')
+    members = CommunityUsers.objects.filter(community=community_id).values_list('user_id')
     users = users.exclude(user__in=members)
     
     # The number of results is the first value in the return JSON
@@ -253,7 +253,7 @@ def get_remove_user_rows(request, community_id):
     else:
         users = CommunityUsers.objects.prefetch_related().all().order_by(*order)
 
-    users = users.filter(community__community=community_id)
+    users = users.filter(community=community_id)
     
     # The number of results is the first value in the return JSON
     count = users.count()
@@ -308,7 +308,7 @@ def get_remove_user_rows(request, community_id):
 
 @login_required
 def community_join(request, community_id):
-    community = CommunityCommunities.objects.get(community=community_id)
+    community = CommunityCommunities.objects.get(id=community_id)
 
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -329,7 +329,7 @@ def community_join(request, community_id):
 
 @login_required
 def community_leave(request, community_id):
-    community = CommunityCommunities.objects.get(community=community_id)
+    community = CommunityCommunities.objects.get(id=community_id)
     
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -341,6 +341,15 @@ def community_leave(request, community_id):
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+
+def get_trending(community_id):
+    views_connect = view_counter_store()
+    trending_views = views_connect.get_most_viewed('discussion', 5, {'community': str(community_id)})
+    trending = list()
+    for tv in trending_views:
+        trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+    return trending
 
 
 @login_required
@@ -359,12 +368,12 @@ def community(request, community_id):
         page = 1
     start = (page - 1) * 5
 
-    community = CommunityCommunities.objects.get(community=community_id)
+    community = CommunityCommunities.objects.get(id=community_id)
     facilitator = CommunityUsers.objects.select_related().filter(facilitator=True, community=community)
-    users = CommunityUsers.objects.filter(facilitator=False, community=community)
-    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
+    users = CommunityUsers.objects.filter(community=community)
+    discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
     total = CommunityDiscussions.objects.filter(community=community).count()
-    mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
+    # mems = CommunityUsers.objects.select_related().filter(user=request.user, community=community)
     resources = CommunityResources.objects.filter(community=community)
     courses = CommunityCourses.objects.filter(community=community)
     
@@ -375,15 +384,19 @@ def community(request, community_id):
             d.views = 0
         else:
             d.views = views['views']
-        
+
+    trending = get_trending(community_id)
+
     data = {"community": community,
             "facilitator": facilitator[0] if len(facilitator) else None,
             "discussions": discussions,
+            "trending": trending,
             "users": users,
             "resources": resources,
             "courses": courses,
-            "mem": mems[0] if mems.count() else None,
-            "pager": get_pager(total, 5, page, 5)}
+            # "mem": mems[0] if mems.count() else None,
+            "pager": get_pager(total, 5, page, 5),
+            "total_discussions": total}
     
     return render_to_response('communities/community.html', data)
 
@@ -393,8 +406,8 @@ def discussion_list(request, community_id):
     try:
         page = int(request.GET.get('page'))
         start = (page - 1) * 5
-        community = CommunityCommunities.objects.get(community=community_id)
-        discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_create')[start:start + 5]
+        community = CommunityCommunities.objects.get(id=community_id)
+        discussions = CommunityDiscussions.objects.filter(community=community).order_by('-date_reply')[start:start + 5]
         total = CommunityDiscussions.objects.filter(community=community).count()
         views_connect = view_counter_store()
 
@@ -411,7 +424,8 @@ def discussion_list(request, community_id):
                                         'views': views,
                                         'date_create': '{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create),
                                         'first_name': discussion.user.first_name,
-                                        'last_name': discussion.user.last_name
+                                        'last_name': discussion.user.last_name,
+                                        'avatar': reverse('user_photo', args=[discussion.user.id])
                                         })
     except Exception as e:
         data = {'Error': e}
@@ -423,17 +437,26 @@ def discussion_list(request, community_id):
 def discussion(request, discussion_id):
     discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
+    total = CommunityDiscussions.objects.filter(community=discussion.community).count()
+    users = CommunityUsers.objects.filter(community=discussion.community).count()
+    mems = CommunityUsers.objects.select_related().filter(user=request.user, community=discussion.community)
 
     views_connect = view_counter_store()
-    views_connect.set_item('discussion', discussion_id, 1)
+    views_connect.set_item('discussion', discussion_id, 1, {'community': str(discussion.community.id)})
 
     poll_connect = poll_store()
     has_poll = poll_connect.poll_exists('discussion', discussion_id)
 
+    trending = get_trending(discussion.community.id)
+
     data = {'discussion': discussion,
             'replies': replies,
             'community': discussion.community,
-            'has_poll': has_poll}
+            'has_poll': has_poll,
+            'total_discussions': total,
+            'total_users': users,
+            'trending': trending,
+            'mem': mems[0] if mems.count() else None}
 
     if has_poll:
         data.update({'poll': poll_data('discussion', discussion_id, request.user.id)})
@@ -500,7 +523,40 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
+    discussion.date_reply = reply.date_create
+    discussion.save()
     return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
+
+
+@login_required()
+def discussion_delete(request, discussion_id):
+    discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    redirect_url = reverse('community_view', args=[discussion.community.id])
+    # try:
+    view_connect = view_counter_store()
+    view_connect.delete_item('discussion', discussion_id)
+
+    poll_connect = poll_store()
+    if poll_connect.poll_exists('discussion', discussion_id):
+        poll_connect.delete_poll('discussion', discussion_id)
+
+    discussion.delete()
+    # except Exception as e:
+    #     log.warning('There was an error deleting a discussion: {0}'.format(e))
+
+    return redirect(redirect_url)
+
+
+@login_required()
+def discussion_reply_delete(request, reply_id):
+    reply = CommunityDiscussionReplies.objects.get(id=reply_id)
+    redirect_url = reverse('community_discussion_view', args=[reply.discussion.id])
+    try:
+        reply.delete()
+    except Exception as e:
+        log.warning('There was an error deleting a reply: {0}'.format(e))
+
+    return redirect(redirect_url)
 
 
 @login_required
@@ -521,14 +577,14 @@ def communities(request):
         # Do a separate filter to grab private communities this user belongs to.
         items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
         for item in items:
-            community_list.append({'id': item.community.community,
+            community_list.append({'id': item.community.id,
                                    'name': item.community.name,
                                    'logo': item.community.logo.upload.url if item.community.logo else '',
                                    'private': item.community.private})
     # Query for the communities this user is allowed to see.
     items = CommunityCommunities.objects.filter(**filter_dict)
     for item in items:
-        community_list.append({'id': item.community,
+        community_list.append({'id': item.id,
                                'name': item.name,
                                'logo': item.logo.upload.url if item.logo else '',
                                'private': item.private})
@@ -539,16 +595,24 @@ def communities(request):
 
 
 @login_required
-def community_delete(request, community):
-    pass
+def community_delete(request, community_id):
+    try:
+        CommunityCommunities.objects.get(id=community_id).delete()
+        return redirect(reverse('communities'))
+    except Exception as e:
+        data = {'error_title': 'Problem Deleting Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Deleting Community'}
+        return render_to_response('error.html', data)
+
 
 
 @login_required
-def community_edit(request, community='new'):
+def community_edit(request, community_id='new'):
     """
     Sets up the community add/edit form.
     :param request: Request object.
-    :param community: Which community to edit, or 'new' if adding one.
+    :param community_id: Which community to edit, or 'new' if adding one.
     :return: Form page.
     """
     # Get a list of courses for the course drop-down in the form.
@@ -561,13 +625,14 @@ def community_edit(request, community='new'):
                                      'logo': course_image_url(course)})
 
     # If we are adding a new community, and the user making the request is a superuser, return a blank form.
-    if community == 'new' and request.user.is_superuser:
+    if community_id == 'new' and request.user.is_superuser:
         data.update({'community_id': 'new',
                      'community': '',
                      'name': '',
                      'motto': '',
                      'logo': '',
                      'facilitator': '',
+                     'hangout': '',
                      'private': '',
                      'courses': [''],
                      'resources': [{'name': '', 'link': '', 'logo': ''}],
@@ -575,13 +640,13 @@ def community_edit(request, community='new'):
         return render_to_response('communities/community_edit.html', data)
     # If we are editing a community, make sure the user is either a superuser or facilitator for this community, and if
     # so, return a populated form for editing.
-    elif community != 'new' and (request.user.is_superuser or is_facilitator(request.user, community)):
+    elif community_id != 'new' and (request.user.is_superuser or is_facilitator(request.user, community_id)):
         if request.user.is_superuser:
             user_type = 'super'
-        elif is_facilitator(request.user, community):
+        elif is_facilitator(request.user, community_id):
             user_type = 'facilitator'
         # Grab the data from the DB.
-        community_object = CommunityCommunities.objects.get(community=community)
+        community_object = CommunityCommunities.objects.get(id=community_id)
         courses = CommunityCourses.objects.filter(community=community_object)
         resources = CommunityResources.objects.filter(community=community_object)
         facilitator = CommunityUsers.objects.filter(community=community_object, facilitator=True)
@@ -602,11 +667,12 @@ def community_edit(request, community='new'):
 
         # Put together the data to send to the template.
         data.update({'community_id': community_object.id,
-                     'community': community_object.community,
+                     'community': community_object.id,
                      'name': community_object.name,
                      'motto': community_object.motto,
                      'logo': community_object.logo.upload.url if community_object.logo else '',
                      'facilitator': facilitator[0].user.email if len(facilitator) else None,
+                     'hangout': community_object.hangout if community_object.hangout else '',
                      'private': community_object.private,
                      'courses': course_list,
                      'resources': resource_list,
@@ -626,123 +692,134 @@ def community_edit_process(request):
     :param request: Request object.
     :return: JSON response.
     """
-    # try:
-    # Get all of the form data.
-    community_id = request.POST.get('community_id', '')
-    community = request.POST.get('community', '')
-    name = request.POST.get('name', '')
-    motto = request.POST.get('motto', '')
-    # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
-    if request.POST.get('logo', 'nothing') == 'nothing':
-        # Try to grab the new file, and if it isn't there, just make it blank.
-        try:
-            logo = FileUploads()
-            logo.type = 'community_logos'
-            logo.sub_type = community
-            logo.upload = request.FILES.get('logo')
-            logo.save()
-        except Exception as e:
-            logo = None
-            log.warning('Error uploading logo: {0}'.format(e))
-    else:
-        # If the path was passed in, just use that.
-        logo = None
-    facilitator = request.POST.get('facilitator', '')
-    private = request.POST.get('private', 0)
-    # These all have multiple values, so we'll use the get_post_array function to grab all the values.
-    courses = get_post_array(request.POST, 'course')
-    resource_names = get_post_array(request.POST, 'resource_name')
-    resource_links = get_post_array(request.POST, 'resource_link')
-
-    # If this is a new community, create a new entry, otherwise, load from the DB.
-    if community_id == 'new':
-        community_object = CommunityCommunities()
-    else:
-        community_object = CommunityCommunities.objects.get(id=community_id)
-
-    # Set all the community values and save to the DB.
-    community_object.community = community
-    community_object.name = name
-    community_object.motto = motto
-    if logo:
-        community_object.logo = logo
-    community_object.private = int(private)
-    community_object.save()
-
-    # Load the main user object for the facilitator user.
-    user_object = False
     try:
-        user_object = User.objects.get(email=facilitator)
+        # Get all of the form data.
+        community_id = request.POST.get('community_id', '')
+        name = request.POST.get('name', '')
+        motto = request.POST.get('motto', '')
+        hangout = request.POST.get('hangout', '')
+        # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
+        if request.POST.get('logo', 'nothing') == 'nothing':
+            # Try to grab the new file, and if it isn't there, just make it blank.
+            try:
+                logo = FileUploads()
+                logo.type = 'community_logos'
+                logo.sub_type = community_id
+                logo.upload = request.FILES.get('logo')
+                logo.save()
+            except Exception as e:
+                logo = None
+                log.warning('Error uploading logo: {0}'.format(e))
+        else:
+            # If the path was passed in, just use that.
+            logo = None
+        facilitator = request.POST.get('facilitator', '')
+        private = request.POST.get('private', 0)
+        # These all have multiple values, so we'll use the get_post_array function to grab all the values.
+        courses = get_post_array(request.POST, 'course')
+        resource_names = get_post_array(request.POST, 'resource_name')
+        resource_links = get_post_array(request.POST, 'resource_link')
+
+        # If this is a new community, create a new entry, otherwise, load from the DB.
+        if community_id == 'new':
+            community_object = CommunityCommunities()
+        else:
+            community_object = CommunityCommunities.objects.get(id=community_id)
+
+        # Set all the community values and save to the DB.
+        community_object.name = name
+        community_object.motto = motto
+        if logo:
+            community_object.logo = logo
+        community_object.hangout = hangout
+        community_object.private = int(private)
+        community_object.save()
+
+        # Load the main user object for the facilitator user.
+        user_object = False
+        try:
+            user_object = User.objects.get(email=facilitator)
+        except Exception as e:
+            log.warning('Invalid email for facilitator: {0}'.format(e))
+
+        # As long as the object loaded correctly, make sure this user is set as the facilitator.
+        if user_object:
+            # First we need to make sure if there is already a facilitator set, we unset them.
+            try:
+                old_facilitator = CommunityUsers.objects.filter(facilitator=True, community=community_object)
+                for f in old_facilitator:
+                    f.facilitator = False
+                    f.save()
+            except:
+                pass
+            # Now we try to load the new user in case they are already a member.
+            try:
+                community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
+            # If they aren't a member already, create a new entry.
+            except:
+                community_user = CommunityUsers()
+                community_user.community = community_object
+                community_user.user = user_object
+            # Set the facilitator flag to true.
+            community_user.facilitator = True
+            community_user.save()
+        else:
+            raise Exception('A valid facilitator is required to create a community.')
+
+        # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
+        CommunityCourses.objects.filter(community=community_object).delete()
+        # Go through the courses and add them to the DB.
+        for key, course in courses.iteritems():
+            # We only want to save an entry if there's something in it.
+            if course:
+                course_object = CommunityCourses()
+                course_object.community = community_object
+                course_object.course = course
+                course_object.save()
+
+        # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
+        CommunityResources.objects.filter(community=community_object).delete()
+        # Go through the resource links, with the index so we can directly access the names and logos.
+        for key, resource_link in resource_links.iteritems():
+            # We only want to save an entry if there's something in it.
+            if resource_link:
+                resource_object = CommunityResources()
+                resource_object.community = community_object
+                resource_object.link = resource_link
+                resource_object.name = resource_names[key]
+                # The logo needs special handling since we might need to upload the file. First we try the entry in the
+                # FILES and try to upload it.
+                if request.POST.get('resource_logo[{0}]'.format(key)):
+                    file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
+                    logo = FileUploads.objects.get(id=file_id)
+                else:
+                    try:
+                        logo = FileUploads()
+                        logo.type = 'community_resource_logos'
+                        logo.sub_type = community_id
+                        logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
+                        logo.save()
+                    except Exception as e:
+                        logo = None
+                        log.warning('Error uploading logo: {0}'.format(e))
+
+                if logo:
+                    resource_object.logo = logo
+                resource_object.save()
+
+        return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
-        log.warning('Invalid email for facilitator: {0}'.format(e))
+        data = {'error_title': 'Problem Saving Community',
+                'error_message': 'Error: {0}'.format(e),
+                'window_title': 'Problem Saving Community'}
+        return render_to_response('error.html', data)
 
-    # As long as the object loaded correctly, make sure this user is set as the facilitator.
-    if user_object:
-        # First we need to make sure if there is already a facilitator set, we unset them.
-        try:
-            old_facilitator = CommunityUsers.objects.get(facilitator=True)
-            old_facilitator.facilitator = True
-            old_facilitator.save()
-        except:
-            pass
-        # Now we try to load the new user in case they are already a member.
-        try:
-            community_user = CommunityUsers.objects.get(user=user_object, community=community_object)
-        # If they aren't a member already, create a new entry.
-        except:
-            community_user = CommunityUsers()
-            community_user.community = community_object
-            community_user.user = user_object
-        # Set the facilitator flag to true.
-        community_user.facilitator = True
-        community_user.save()
-    else:
-        raise Exception('A valid facilitator is required to create a community.')
 
-    # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
-    CommunityCourses.objects.filter(community=community_object).delete()
-    # Go through the courses and add them to the DB.
-    for key, course in courses.iteritems():
-        # We only want to save an entry if there's something in it.
-        if course:
-            course_object = CommunityCourses()
-            course_object.community = community_object
-            course_object.course = course
-            course_object.save()
-
-    # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
-    CommunityResources.objects.filter(community=community_object).delete()
-    # Go through the resource links, with the index so we can directly access the names and logos.
-    for key, resource_link in resource_links.iteritems():
-        # We only want to save an entry if there's something in it.
-        if resource_link:
-            resource_object = CommunityResources()
-            resource_object.community = community_object
-            resource_object.link = resource_link
-            resource_object.name = resource_names[key]
-            # The logo needs special handling since we might need to upload the file. First we try the entry in the
-            # FILES and try to upload it.
-            if request.POST.get('resource_logo[{0}]'.format(key)):
-                file_id = int(request.POST.get('resource_logo[{0}]'.format(key)))
-                logo = FileUploads.objects.get(id=file_id)
-            else:
-                try:
-                    logo = FileUploads()
-                    logo.type = 'community_resource_logos'
-                    logo.sub_type = community
-                    logo.upload = request.FILES.get('resource_logo[{0}]'.format(key))
-                    logo.save()
-                except Exception as e:
-                    logo = None
-                    log.warning('Error uploading logo: {0}'.format(e))
-
-            if logo:
-                resource_object.logo = logo
-            resource_object.save()
-
-    return redirect(reverse('community_view', kwargs={'community': community_object.community}))
-    # except Exception as e:
-    #     data = {'error_title': 'Problem Saving Community',
-    #             'error_message': 'Error: {0}'.format(e),
-    #             'window_title': 'Problem Saving Community'}
-    #     return render_to_response('error.html', data)
+@login_required
+def community_check_user(request):
+    try:
+        User.objects.get(email=request.GET.get('email'))
+        valid = True
+    except:
+        valid = False
+    return HttpResponse(json.dumps({'Valid': valid}), content_type='application/json')

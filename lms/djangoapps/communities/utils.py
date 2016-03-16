@@ -7,3 +7,11 @@ def is_facilitator(user, community):
     except:
         return False
     return True
+
+
+def is_member(user, community):
+    try:
+        CommunityUsers.objects.get(community=community, user=user)
+    except:
+        return False
+    return True

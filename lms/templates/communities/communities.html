@@ -97,8 +97,12 @@
 </style>
 <script>
     function fsubmit(){
+        var communities = [];
+        %for community in communities:
+            communities[${community['id']}] = "${reverse('community_view', args=[community['id']])}";
+        %endfor
         var community = $("#community_list_form .form-select").val();
-        window.location.href = ${reverse('communities')} + community;
+        window.location.href =  communities[community];
         return false;
     }
 </script>
@@ -134,9 +138,11 @@
                 </select>
             </div>
             <a href="#" class="btnx" onClick="fsubmit();">Find</a>
-            <div style="padding:20px;color:#666;display:inline-block;">
-                <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
-            </div>
+            %if request.user.is_superuser:
+                <div style="padding:20px;color:#666;display:inline-block;">
+                    <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
+                </div>
+            %endif
         </form>
     </section>
 

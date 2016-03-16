@@ -35,16 +35,32 @@ class MongoViewCounterStore(object):
                 }
         )
 
-    def set_item(self, type, identifier, views):
+    def get_most_viewed(self, type, number, metadata=None):
+        find = {'type': type}
+        if metadata:
+            for key, value in metadata.iteritems():
+                find.update({'metadata.' + key: value})
+        return self.collection.find(find).sort([('views', -1)]).limit(number)
+
+    def set_item(self, type, identifier, views, metadata={}):
         return self.collection.update(
                 {
                     'type': type,
                     'identifier': identifier,
                 },
                 {
-                    '$inc': {'views': views}
+                    '$inc': {'views': views},
+                    '$set': {'metadata': metadata},
                 },
                 True
+        )
+
+    def delete_item(self, type, identifier):
+        return self.collection.remove(
+                {
+                    'type': type,
+                    'identifier': identifier,
+                }
         )
 
 

@@ -18,8 +18,10 @@ def poll_form_submit(request, poll_type):
         poll_id = request.POST.get('poll_id')
         question = request.POST.get('question')
         answers = get_post_array(request.POST, 'answers')
-        expiration = request.POST.get('expiration')
-        expiration_object = datetime.strptime(expiration, '%m/%d/%Y')
+        expiration = request.POST.get('expiration', '')
+        expiration_object = None
+        if expiration:
+            expiration_object = datetime.strptime(expiration, '%m/%d/%Y')
         poll_connect = poll_store()
         poll_connect.set_poll(poll_type, poll_id, question, answers, expiration_object)
         response = {'Success': True}
@@ -50,10 +52,10 @@ def poll_data(poll_type, poll_id, user_id):
 
     votes = vote_calc(poll_dict, poll_type, poll_id)
 
-    if poll_dict['expiration'] > timezone.now():
-        expired = False
-    else:
-        expired = True
+    expired = False
+    if poll_dict['expiration'] is not None:
+        if poll_dict['expiration'] <= timezone.now():
+            expired = True
 
     data = {'question': poll_dict['question'],
             'answers': poll_dict['answers'],
