@@ -104,7 +104,7 @@
                     %for item in items:
                         <div class="image-link-style" key="${item['id']}" style="width:240px;height:150px;background-size:100% 100%;">
                             <div style="height:100px;"></div>
-                            <a href="${reverse('resource_library_global_resources')}?collection_type=${collection_type}&collection=${item['name']}" class="card-link image-bottom-style"><span>${item['name']}</span></a>
+                            <a href="${reverse('resource_library_global_resources')}?collection_type=${collection_type}&collection=${item['id']}" class="card-link image-bottom-style"><span>${item['name']}</span></a>
                         </div>
                     %endfor
                 </div>
