@@ -835,6 +835,10 @@ INSTALLED_APPS = (
     # Admin pages
     'administration',
 
+    # TNL Integration
+    'tnl_integration',
+    'web_client',
+
     # Communities
     'communities',
 
