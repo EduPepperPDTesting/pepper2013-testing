@@ -102,7 +102,7 @@
         <div style="padding-left:25px;">
           %for item in items:
           <div class="image-link-style" key="${item.id}" style="">
-            <div style="height:100px;background:url(/static/images/resource_lirary_icons/${item.logo});background-size:100% 100px;"></div>
+            <div style="height:100px;background:url(/static/images/resource_lirary_icons/${item.logo});background-size:100% 100px;border-radius: 6px 6px 0 0;"></div>
             <a href="${item.link}" class="card-link image-bottom-style" style="background:#${item.color}" target="_blank"><span>${item.title}</span></a>
           </div>
           %endfor
