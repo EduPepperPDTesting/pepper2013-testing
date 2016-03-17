@@ -17,10 +17,13 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
 <style type="text/css" media="screen">
-    #page-nav,#page-footer{width:1180px;}
-    #btn-logged-user{display:none;}
-    .form-select{font-size:14px !important;width:180px;}
-    .image-link-style{
+    #btn-logged-user {
+        display:none;
+    }
+    .form-select {
+        font-size:14px !important;
+        width:180px;}
+    .image-link-style {
         border-radius: 6px 6px 6px 6px;
         -moz-border-radius: 6px 6px 6px 6px;
         -webkit-border-radius: 6px 6px 6px 6px;
@@ -28,13 +31,13 @@
         float: left;
         margin: 30px;
     }
-    .image-bottom-style{
-        border-radius: 0px 0px 6px 6px;
-        -moz-border-radius: 0px 0px 6px 6px;
-        -webkit-border-radius: 0px 0px 6px 6px;
+    .image-bottom-style {
+        border-radius: 0 0 6px 6px;
+        -moz-border-radius: 0 0 6px 6px;
+        -webkit-border-radius: 0 0 6px 6px;
         display: block;
     }
-    .card-link{
+    .card-link {
         display: table-cell;
         width: 240px;
         height: 60px;
@@ -44,27 +47,38 @@
         background: rgba(18,111,154,0.95);
         text-decoration: none!important;
     }
-    .card-link span{
+    .card-link span {
         color: #FFFFFF;
     }
-    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    .grade_title {
+        float: left;
+        width: 920px;
+        height: 20px;
+        background-color: #fff;
+        text-align: left;
+        padding-left: 40px;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: "Open Sans",Verdana,Geneva,sans-serif;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
     a.btnx:hover {
-        background:#638194;
+        background: #638194;
         transition-delay: 0s, 0s, 0s;
         transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-property:color, background,​ box-shadow;
+        transition-property:color, background,​box-shadow;
         transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-        transition-duration:0.25s,​ 0.25s,​ 0.25s;
         color:#fff;
     }
     a.btnx {
-        background-color:#556370;
-        text-decoration: none;
-        padding-bottom: 2px!important;
+        background-color: #556370;
+        padding-bottom: 2px !important;
         padding-left: 10px;
         padding-right: 10px;
-        padding-top: 2px!important;
-        text-decoration: none!important;
+        padding-top: 2px !important;
+        text-decoration: none !important;
         cursor: pointer;
         font-family: 'Open Sans',Verdana,Geneva,sans-serif;
         color:#fff;
@@ -148,35 +162,6 @@
                 <!--<input type="submit" id="edit-submit" name="op" value="find">-->
             </div>
             <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
-            %if request.user.is_authenticated():
-                <div>
-                    %if len(states) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="state" class="form-select">
-                                <option value="">Select State</option>
-                                %for state in states:
-                                    <option value="${state}">${state}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(districts) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="district" class="form-select">
-                                <option value="">Select District</option>
-                                %for district in districts:
-                                    <option value="${district['id']}">${district['name']}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(states) > 0 and len(districts) > 0:
-                        <div style="display:inline-block;width:83px;"></div>
-                    %else:
-                        <div style="display:inline-block;width:283px;"></div>
-                    %endif
-                </div>
-            %endif
             <script type="text/javascript">
                 var form=$("#course_list_form");
                 form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
@@ -313,7 +298,7 @@
 </section>
 
 <section id="show_course_prompt" class="modal" style="width:640px;">
-    <div class="inner-wrapper" style="width:629x;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
+    <div class="inner-wrapper" style="width:629px;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
         <div class="close-modal" id="course_prompt_close">
             <div class="inner">
                 <p>&#10005;</p>
