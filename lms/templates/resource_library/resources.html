@@ -12,7 +12,7 @@
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
-<%block name="title"><title>${page_title}</title></%block>
+<%block name="title"><title>${page_title} Resources</title></%block>
 
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
@@ -82,20 +82,20 @@
 </style>
 
 <section class="find-courses" style="text-align:center;background:#F5F5F5;">
-  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
-    <div class="_banner_whatis_title_font">
-      PROFESSIONAL
-      <br/>
-      LEARNING CENTER
-      <div class="_banner_whatis_title_content_font">
-        build and enhance your community of practice
+  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-resourcelibrary-banner.jpg);border-bottom:1px solid #000;">
+    <div class="_banner_whatis_title_font" style="padding-top:20px;">
+      RESOURCE LIBRARY
+      <div class="_banner_whatis_title_content_font" style="color:#000;">
+        Professional learning tools, curriculum,
+        <br/>
+        and open education resources
       </div>
     </div>
-  </div>
-
+  </div>  
+  
   <section style="margin:auto;width:960px;background:#E4E4E4;">
     <div style="background:#E6F5FC;padding:10px;">
-      ${page_title}
+      ${page_title} Resources
     </div>
     <section class="courses" style="padding-top:5px!important;">
       <div class="courses-listing">
