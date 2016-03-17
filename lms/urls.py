@@ -41,9 +41,6 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
-####### Ancestor
-    # url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
-    # url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
