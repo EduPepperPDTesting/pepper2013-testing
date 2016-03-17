@@ -186,9 +186,15 @@ def resources(request):
     collection_type = request.GET.get("collection_type")
     collection = request.GET.get("collection")
     items = Resource.objects.filter(collection_type=collection_type, collection=collection)
+    
+    collection_name = collection
+    if collection_type == "district":
+        names = District.objects.filter(code=collection).values_list('name', flat=True)
+        if len(names):
+            collection_name = names[0] 
         
     return render_to_response('resource_library/resources.html', {
-        'page_title': collection,
+        'page_title': collection_name,
         'collection_type': collection_type,
         'items': items})
 
