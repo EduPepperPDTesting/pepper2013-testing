@@ -192,8 +192,24 @@ def custom_collection_visibility(user, course, collection):
     return False
 
 
+# 20151203 add for dpicourses
+# begin
+@ensure_csrf_cookie
+@cache_if_anonymous
+def newgroup_courses(request):
+    """
+    Render "find courses" page.  The course selection work is done in courseware.courses.
+    """
+    courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    # courses = sort_by_announcement(courses)
+    courses = sort_by_custom(courses)
+
+    return render_to_response("courseware/dpicourses.html", {'courses': courses, 'link': True})
+# end
+
+
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
-    #20151130 modify the courses shown in different course grade after press ALl button
+    # 20151130 modify the courses shown in different course grade after press All button
     #begin
     if course.display_grades == 'K-5':
         if course.display_subject != currSubject[0]:
@@ -292,6 +308,60 @@ def course_list(request):
         "courses": g_courses,
         "states": state_list,
         "districts": district_list})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def dpicourse_list(request):
+    """
+    Render "find courses" page.  The course selection work is done in courseware.courses.
+    """
+    subject_id = request.GET.get('subject_id', '')
+    grade_id = request.GET.get('grade_id', '')
+    author_id = request.GET.get('author_id', '')
+    district = request.GET.get('district', '')
+    state = request.GET.get('state', '')
+    credit = request.GET.get('credit', '')
+    is_new = request.GET.get('is_new', '')
+
+    filterDic = {'_id.category': 'course'}
+    if subject_id != 'all':
+        filterDic['metadata.display_subject'] = subject_id
+
+    if grade_id != 'all':
+        if grade_id == '6-8' or grade_id == '9-12':
+            filterDic['metadata.display_grades'] = {'$in': [grade_id, '6-12']}
+        else:
+            filterDic['metadata.display_grades'] = grade_id
+
+    if author_id != 'all':
+        filterDic['metadata.display_organization'] = author_id
+
+    if district != '':
+        filterDic['metadata.display_district'] = district
+
+    if state != '':
+        filterDic['metadata.display_state'] = state
+
+    if credit != '':
+        filterDic['metadata.display_credit'] = True
+
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+    subject_index = [-1, -1, -1, -1]
+    currSubject = ["", "", "", ""]
+    g_courses = [[], [], [], []]
+    if is_new != '':
+        for course in courses:
+            if course.is_newish:
+                course_filter(course, subject_index, currSubject, g_courses, grade_id)
+    else:
+        for course in courses:
+            course_filter(course, subject_index, currSubject, g_courses, grade_id)
+    for gc in g_courses:
+        for sc in gc:
+            sc.sort(key=lambda x: x.display_coursenumber)
+    return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
 
 
 @ensure_csrf_cookie

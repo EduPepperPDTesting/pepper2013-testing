@@ -57,6 +57,28 @@ def courses(request):
     #  marketing and edge are enabled
     return courseware.views.courses(request)
 
+#20151203 add for dipcourses
+#begin
+@ensure_csrf_cookie
+@cache_if_anonymous
+def newgroup_courses(request):
+    """
+    Render the "find courses" page. If the marketing site is enabled, redirect
+    to that. Otherwise, if subdomain branding is on, this is the university
+    profile page. Otherwise, it's the edX courseware.views.courses page
+    """
+    if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE', False):
+        return redirect(marketing_link('COURSES'), permanent=True)
+
+    university = branding.get_university(request.META.get('HTTP_HOST'))
+    if university == 'edge':
+        return render_to_response('university_profile/edge.html', {})
+
+    #  we do not expect this case to be reached in cases where
+    #  marketing and edge are enabled
+    return courseware.views.newgroup_courses(request)
+#end
+
 #@begin:View of the new added page
 #@date:2013-11-02        
 @ensure_csrf_cookie
