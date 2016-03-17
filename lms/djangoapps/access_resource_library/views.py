@@ -152,9 +152,12 @@ def districts(request):
 
             for district in districts:
                 district_name[district.code] = district.name
+                
     district_temp = sorted(set(district_temp), key=lambda x: x[0])
+    
     for dl in district_temp:
         district_list.append({'id': dl, 'name': district_name[dl]})
+        
     return render_to_response("resource_library/collections.html", {'page_title': 'District',
                                                                     'collection_type': 'district',
                                                                     'items': district_list})
@@ -183,6 +186,7 @@ def resources(request):
     collection_type = request.GET.get("collection_type")
     collection = request.GET.get("collection")
     items = Resource.objects.filter(collection_type=collection_type, collection=collection)
+        
     return render_to_response('resource_library/resources.html', {
         'page_title': collection,
         'collection_type': collection_type,
