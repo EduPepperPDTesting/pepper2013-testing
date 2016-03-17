@@ -38,29 +38,31 @@
             Permissions <div class="icon"></div>
         </div>
         <div class="expand_div">
-            <form 
-            <table id="permissions-table">
-                <tr>
-                    <th>Name</th>
-                    <th>Target</th>
-                    <th>Action</th>
-                    <th><input type="checkbox" value="1" class="permission-select-all"></th>
-                </tr>
-                %for permission in permissions:
+            <form action="/permissions/permission/delete" method="post">
+                <table id="permissions-table">
                     <tr>
-                        <td>${permission.name}</td>
-                        <td>${permission.item}</td>
-                        <td>${permission.action}</td>
-                        <td>
-                            <input type="checkbox" value="${permission.id}" class="permission-select">&nbsp;
-                            <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
-                        </td>
+                        <th>Name</th>
+                        <th>Target</th>
+                        <th>Action</th>
+                        <th><input type="checkbox" value="1" class="permission-select-all"></th>
                     </tr>
-                %endfor
-            </table>
-            <div id="permission-actions">
-                <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
-            </div>
+                    %for permission in permissions:
+                        <tr>
+                            <td>${permission.name}</td>
+                            <td>${permission.item}</td>
+                            <td>${permission.action}</td>
+                            <td>
+                                <input type="checkbox" value="${permission.id}" class="permission-select">&nbsp;
+                                <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                            </td>
+                        </tr>
+                    %endfor
+                </table>
+                <div id="permission-actions">
+                    <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            </form>
         </div>
     </div>
 </div>
@@ -70,6 +72,75 @@
             Users &amp; Groups <div class="icon"></div>
         </div>
         <div class="expand_div">
+            <form action="/permissions/group/delete-group" method="post">
+                <table id="groups-table">
+                    <tr>
+                        <th>Name</th>
+                        <th><input type="checkbox" value="1" class="group-select-all"></th>
+                    </tr>
+                    %for group in groups:
+                        <tr>
+                            <td>${group.name}</td>
+                            <td>
+                                <input type="checkbox" value="${group.id}" class="group-select">&nbsp;
+                                <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                            </td>
+                        </tr>
+                    %endfor
+                </table>
+                <div id="group-actions">
+                    <input type="button" value="New Group"> <input type="submit" value="Delete Selected">
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            </form>
+            <form action="/permissions/group/remove-user" method="post">
+                <table id="users-table">
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>School</th>
+                        <th><input type="checkbox" value="1" class="user-select-all"></th>
+                    </tr>
+                    <!--<tr>
+                            <td>first_name</td>
+                            <td>last_name</td>
+                            <td>email</td>
+                            <td>state</td>
+                            <td>district</td>
+                            <td>school</td>
+                            <td>
+                                <input type="checkbox" value="id" class="user-select">&nbsp;
+                            </td>
+                        </tr>-->
+                </table>
+                <div id="user-actions">
+                    <input type="button" value="Add User"> <input type="submit" value="Remove Selected">
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            </form>
+            <form action="/permissions/group/remove-permission" method="post">
+                <table id="group-permissions-table">
+                    <tr>
+                        <th>Name</th>
+                        <th><input type="checkbox" value="1" class="group-permission-select-all"></th>
+                    </tr>
+                    %for group in groups:
+                        <tr>
+                            <td>${group.name}</td>
+                            <td>
+                                <input type="checkbox" value="id" class="group-permission-select">&nbsp;
+                            </td>
+                        </tr>
+                    %endfor
+                </table>
+                <div id="permission-actions">
+                    <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            </form>
         </div>
     </div>
 </div>

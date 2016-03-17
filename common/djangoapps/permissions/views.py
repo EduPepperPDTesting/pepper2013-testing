@@ -5,19 +5,30 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .decorators import user_has_perms
 
 
-@user_has_perms('permissions', )
+@user_has_perms('permissions', 'administer')
 def permissions_view(request):
-    return render_to_response('permissions/permissions.html')
+    permissions = permissions_data()
+    groups = group_data()
+    data = {'permissions': permissions,
+            'groups': groups}
+    return render_to_response('permissions/permissions.html', data)
 
 
-def group_list(request):
-    if request.GET.get('group_id', False):
-        groups = [PermGroup.objects.get(id=request.GET.get('group_id'))]
+def group_data(group_id=False):
+    if group_id:
+        groups = [PermGroup.objects.get(id=group_id)]
     else:
         groups = list(PermGroup.objects.all())
+    return groups
+
+
+@user_has_perms('permissions', 'administer')
+def group_list(request):
+    groups = group_data(request.GET.get('group_id', False))
     return HttpResponse(json.dumps(groups), content_type='application/json')
 
 
+@user_has_perms('permissions', 'administer')
 def group_member_list(request):
     group = PermGroup.objects.get(id=request.GET.get('group_id'))
     group_members = PermGroupMember.objects.prefetch_related().filter(group=group)
@@ -33,6 +44,7 @@ def group_member_list(request):
     return HttpResponse(json.dumps(member_list), content_type='application/json')
 
 
+@user_has_perms('permissions', 'administer')
 def group_permissions_list(request):
     group = PermGroup.objects.get(id=request.GET.get('group_id'))
     permissions = PermGroupPermission.objects.filter(group=group)
@@ -43,9 +55,15 @@ def group_permissions_list(request):
     return HttpResponse(json.dumps(permission_list), content_type='application/json')
 
 
-def permissions_list(request):
-    if request.GET.get('permission_id', False):
-        permissions = [PermPermission.objects.get(id=request.GET.get('permission_id'))]
+def permissions_data(permission_id=False):
+    if permission_id:
+        permissions = [PermPermission.objects.get(id=permission_id)]
     else:
         permissions = list(PermPermission.objects.all())
+    return permissions
+
+
+@user_has_perms('permissions', 'administer')
+def permissions_list(request):
+    permissions = permissions_data(request.GET.get('permission_id'))
     return HttpResponse(json.dumps(permissions), content_type='application/json')
