@@ -1,0 +1,75 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+<link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        //** init expand title
+        $(".expand_title").click(function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
+                $div.slideUp();
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $div.slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+    });
+</script>
+
+<!-- User Data Import -->
+<div id="permissions">
+    <div class="main permissions-content">
+        <div class="expand_title expand_title_collapse">
+            Permissions <div class="icon"></div>
+        </div>
+        <div class="expand_div">
+            <form 
+            <table id="permissions-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Target</th>
+                    <th>Action</th>
+                    <th><input type="checkbox" value="1" class="permission-select-all"></th>
+                </tr>
+                %for permission in permissions:
+                    <tr>
+                        <td>${permission.name}</td>
+                        <td>${permission.item}</td>
+                        <td>${permission.action}</td>
+                        <td>
+                            <input type="checkbox" value="${permission.id}" class="permission-select">&nbsp;
+                            <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                        </td>
+                    </tr>
+                %endfor
+            </table>
+            <div id="permission-actions">
+                <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="groups">
+    <div class="main groups-content">
+        <div class="expand_title expand_title_collapse">
+            Users &amp; Groups <div class="icon"></div>
+        </div>
+        <div class="expand_div">
+        </div>
+    </div>
+</div>
