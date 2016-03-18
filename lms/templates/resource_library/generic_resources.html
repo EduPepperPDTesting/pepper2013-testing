@@ -92,7 +92,7 @@
         and open education resources
       </div>
     </div>
-  </div>  
+  </div>
   <section style="margin:auto;width:960px;background:#E4E4E4;">
     <div style="background:#E6F5FC;padding:10px;font-size:18px;">
       ${page_title} Resources
@@ -100,9 +100,9 @@
     <section class="courses" style="padding-top:5px!important;">
       <div class="courses-listing">
         <div style="padding-left:25px;">
-          %for item in items:
+          %for i, item in enumerate(items):
           <div class="image-link-style" key="${item.id}" style="">
-            <div style="height:100px;background:url(/static/images/resource_lirary_icons/${item.logo});background-size:100% 100px;border-radius: 6px 6px 0 0;"></div>
+            <div style="height:100px;background:url(/static/images/resource_lirary_icons/Level4/CD_LeveL4-${(i%23)+1}.jpg);background-size:100% 100px;border-radius: 6px 6px 0 0;"></div>
             <a href="${item.link}" class="card-link image-bottom-style" style="background:#${item.color}" target="_blank"><span>${item.title}</span></a>
           </div>
           %endfor
