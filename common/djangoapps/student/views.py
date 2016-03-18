@@ -218,14 +218,13 @@ def signin_user(request):
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
 
-    email = request.GET.get('regcheck')
-    reg = registration_check(email)
-    if reg['status'] == 'unregistered':
-        try:
-            next_page = request.GET.get('next')
-        except:
-            next_page = ''
-        return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
+    email = request.GET.get('regcheck', False)
+    if email:
+        reg = registration_check(email)
+        if reg['status'] == 'unregistered':
+            next_page = request.GET.get('next', '')
+            return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
+
     context = {
         'course_id': request.GET.get('course_id'),
         'enrollment_action': request.GET.get('enrollment_action')
@@ -289,7 +288,7 @@ def registration_check(email):
             return_value = {'status': 'unregistered', 'key': reg.activation_key}
         else:
             raise Exception('User is already active.')
-    except Exception, e:
+    except Exception as e:
         return_value = {'status': 'registered', 'error': '{e}'.format(e=e)}
     return return_value
 
