@@ -41,9 +41,13 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
-####### Ancestor
-    # url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
-    # url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
+    url(r'^permissions/groups/permissions/list$', 'permissions.views.group_premissions_list', name='permissions_group_permissions_list'),
+    url(r'^permissions/groups/members/list$', 'permissions.views.group_member_list', name='permissions_group_members_list'),
+    url(r'^permissions/groups/check', 'permissions.views.group_check', name='permissions_group_check'),
+    url(r'^permissions/groups/add', 'permissions.views.group_add', name='permissions_group_add'),
+    url(r'^permissions/permissions/check$', 'permissions.views.permission_check', name='permissions_permission_check'),
+    url(r'^permissions/permissions/add', 'permissions.views.permission_add', name='permissions_permission_add'),
+
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),

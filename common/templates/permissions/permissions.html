@@ -15,7 +15,169 @@
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
 
+<style>
+    /*.modal {
+        position: absolute;
+        opacity: 1;
+        z-index: 11000;
+        left: 50%;
+        margin-left: -349px;
+        top: 40px;
+        background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+        border-radius: 5px;
+        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        padding: 0 0 8px 0;
+        width: 680px;
+        display: none;
+    }
+    .modal .close-modal {
+        border-radius: 2px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: baseline;
+        padding: 10px;
+        position: absolute;
+        right: 2px;
+        top: 0;
+        z-index: 3;
+        color: #333;
+    }
+    .modal .titlebar {
+        height: 70px;
+        background: #ccc;
+    }
+    .modal .dialog-title {
+        margin: 0;
+        padding: 20px 0 0 30px;
+        color: #666;
+    }
+    .modal .content {
+        color: #333;
+        text-align: left;
+        font-size: 16px;
+        padding: 20px 10px;
+        line-height: 20px;
+    }
+    .modal .discussion-error {
+        color: #f00;
+        font-weight: bold;
+        font-size: 120%;
+        line-height: 120%;
+    }
+    .modal .inner-wrapper form textarea {
+        height: 100px;
+    }*/
+    .discussion-error-box {
+        border-color: red !important;
+    }
+</style>
 <script type="text/javascript">
+    function checkPermission(name, target, action) {
+        var valid = true;
+        var error = '';
+        $.ajax({
+            url: "${reverse('permissions_permission_check')}",
+            type: 'GET',
+            async: false,
+            data: {name: name, target: target, action: action},
+            success: function(data) {
+                valid = data.Valid;
+                error = data.Error;
+            }
+        });
+        if (valid) {
+            return true;
+        } else {
+            return error;
+        }
+    }
+    function checkGroup(name) {
+        var valid = true;
+        var error = '';
+        $.ajax({
+            url: "${reverse('permissions_group_check')}",
+            type: 'GET',
+            async: false,
+            data: {name: name},
+            success: function(data) {
+                valid = data.Valid;
+                error = data.Error;
+            }
+        });
+        if (valid) {
+            return true;
+        } else {
+            return error;
+        }
+    }
+    function validatePermissionForm() {
+        $('.error-box').removeClass('error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        var name = $('#new-permission-submit input[name="name"]');
+        if (!/[A-Za-z0-9]+/.test(name.val())) {
+            valid = false;
+            errors.push('Name is required.');
+            name.addClass('error-box');
+        }
+        var target = $('#new-permission-submit input[name="target"]');
+        if (!/[A-Za-z0-9]+/.test(name.val())) {
+            valid = false;
+            errors.push('Target is required.');
+            target.addClass('error-box');
+        }
+        var action = $('#new-permission-submit input[name="action"]');
+        if (!/[A-Za-z0-9]+/.test(name.val())) {
+            valid = false;
+            errors.push('Action is required.');
+            action.addClass('error-box');
+        }
+        var check_permission = checkPermission(name.val(), target.val(), action.val());
+        if (check_permission !== true) {
+            valid = false;
+            errors.push(check_permission);
+            name.addClass('error-box');
+            target.addClass('error-box');
+            action.addClass('error-box');
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
+    }
+    function validateGroupForm() {
+        $('.error-box').removeClass('error-box');
+        var valid = true;
+        var errors = ['The following errors occurred:\n'];
+        var name = $('#new-group-submit input[name="name"]');
+        if (!/[A-Za-z0-9]+/.test(name.val())) {
+            valid = false;
+            errors.push('Name is required.');
+            name.addClass('error-box');
+        }
+        var check_permission = checkGroup(name.val());
+        if (check_permission !== true) {
+            valid = false;
+            errors.push(check_permission);
+            name.addClass('error-box');
+        }
+        if (!valid) {
+            var error = errors.join('\n');
+            alert(error);
+        }
+        return valid;
+    }
+    function postForm(form, dialog) {
+        var params = $(form).serialize();
+        $.post($(form).attr('action'), params, function (data) {
+            if (data.Success) {
+                dialog.hide();
+            } else {
+                alert('There was an error saving this item. Please concat the site admins for help.');
+            }
+        });
+    }
     $(document).ready(function() {
         //** init expand title
         $(".expand_title").click(function () {
@@ -27,6 +189,71 @@
                 $div.slideDown();
                 $(this).addClass("expand_title_expanded");
             }
+        });
+        $(".group-edit").change(function() {
+            var checked = $(".group-edit:checked");
+            if (checked.length == 1) {
+                var group_id = checked.val();
+                $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function(data) {
+                    $.each(data, function (index, object) {
+                        var row = '<tr>';
+                        row += '<td>' + object.first_name + '</td>';
+                        row += '<td>' + object.last_name + '</td>';
+                        row += '<td>' + object.email + '</td>';
+                        row += '<td>' + object.state + '</td>';
+                        row += '<td>' + object.district + '</td>';
+                        row += '<td>' + object.school + '</td>';
+                        row += '<td>';
+                        row += '<input type="checkbox" value="' + object.user_id + '" class="user-select">';
+                        row += '</td>';
+                        row += '</tr>';
+                        $('#users-table').append(row);
+                    });
+                });
+                $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function(data) {
+                    $.each(data, function (index, object) {
+                        var row = '<tr>';
+                        row += '<td>' + object.name + '</td>';
+                        row += '<td>' + object.item + '</td>';
+                        row += '<td>' + object.action + '</td>';
+                        row += '<td>';
+                        row += '<input type="checkbox" value="' + object.permission_id + '" class="group-permission-select">';
+                        row += '</td>';
+                        row += '</tr> ';
+                        $('#group-permissions-table').append(row);
+                    });
+                });
+            }
+        });
+        $('#new-permission').click(function () {
+            var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit"';
+            content += '<label>Permission Name:<input type="text" name="name"></label>';
+            content += '<label>Permission Target:<input type="text" name="target"></label>';
+            content += '<label>Permission Action:<input type="text" name="action"></label>';
+            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+            content += '<input type="submit" name="submit" value="Add"></label>';
+            var dialog = new Dialog('#dialog');
+            dialog.show('New Permission', content);
+            $('#new-permission-submit').submit(function(event) {
+                event.preventDefault();
+                if (validatePermissionForm()) {
+                    postForm(this, dialog);
+                }
+            });
+        });
+        $('#new-group').click(function () {
+            var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit"';
+            content += '<label>Group Name:<input type="text" name="name"></label>';
+            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+            content += '<input type="submit" name="submit" value="Add"></label>';
+            var dialog = new Dialog('#dialog');
+            dialog.show('New Permission', content);
+            $('#new-group-submit').submit(function(event) {
+                event.preventDefault();
+                if (validateGroupForm()) {
+                    postForm(this, dialog);
+                }
+            });
         });
     });
 </script>
@@ -59,7 +286,7 @@
                     %endfor
                 </table>
                 <div id="permission-actions">
-                    <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
+                    <input type="button" value="New Permission" id="new-permission"> <input type="submit" value="Delete Selected">
                 </div>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>
@@ -89,7 +316,7 @@
                     %endfor
                 </table>
                 <div id="group-actions">
-                    <input type="button" value="New Group"> <input type="submit" value="Delete Selected">
+                    <input type="button" value="New Group" id="new-group"> <input type="submit" value="Delete Selected">
                 </div>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>
@@ -105,16 +332,16 @@
                         <th><input type="checkbox" value="1" class="user-select-all"></th>
                     </tr>
                     <!--<tr>
-                            <td>first_name</td>
-                            <td>last_name</td>
-                            <td>email</td>
-                            <td>state</td>
-                            <td>district</td>
-                            <td>school</td>
-                            <td>
-                                <input type="checkbox" value="id" class="user-select">&nbsp;
-                            </td>
-                        </tr>-->
+                        <td>first_name</td>
+                        <td>last_name</td>
+                        <td>email</td>
+                        <td>state</td>
+                        <td>district</td>
+                        <td>school</td>
+                        <td>
+                            <input type="checkbox" value="id" class="user-select">&nbsp;
+                        </td>
+                    </tr>-->
                 </table>
                 <div id="user-actions">
                     <input type="button" value="Add User"> <input type="submit" value="Remove Selected">
@@ -125,16 +352,18 @@
                 <table id="group-permissions-table">
                     <tr>
                         <th>Name</th>
+                        <th>Target</th>
+                        <th>Action</th>
                         <th><input type="checkbox" value="1" class="group-permission-select-all"></th>
                     </tr>
-                    %for group in groups:
-                        <tr>
-                            <td>${group.name}</td>
-                            <td>
-                                <input type="checkbox" value="id" class="group-permission-select">&nbsp;
-                            </td>
-                        </tr>
-                    %endfor
+                    <!--<tr>
+                        <td>name</td>
+                        <td>item</td>
+                        <td>action</td>
+                        <td>
+                            <input type="checkbox" value="id" class="group-permission-select">&nbsp;
+                        </td>
+                    </tr>-->
                 </table>
                 <div id="permission-actions">
                     <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
@@ -142,5 +371,14 @@
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>
         </div>
+    </div>
+</div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
     </div>
 </div>
