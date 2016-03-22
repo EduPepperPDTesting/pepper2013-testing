@@ -41,6 +41,7 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
+    url(r'^permissions$', 'permissions.views.permissions_view', name='permissions_view'),
     url(r'^permissions/groups/permissions/list$', 'permissions.views.group_premissions_list', name='permissions_group_permissions_list'),
     url(r'^permissions/groups/members/list$', 'permissions.views.group_member_list', name='permissions_group_members_list'),
     url(r'^permissions/groups/check', 'permissions.views.group_check', name='permissions_group_check'),
