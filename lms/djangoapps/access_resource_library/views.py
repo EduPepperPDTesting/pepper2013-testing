@@ -119,8 +119,7 @@ def states(request):
                 state_temp.extend(course.display_state)
     state_temp = sorted(set(state_temp), key=lambda x: x[0])
     for sl in state_temp:
-        if Resource.objects.filter(collection_type='state', collection=sl).exists():
-            state_list.append({'id': sl, 'name': sl})
+        state_list.append({'id': sl, 'name': sl})
     return render_to_response("resource_library/collections.html", {'page_title': 'State',
                                                                     'collection_type': 'state',
                                                                     'items': state_list})
@@ -159,8 +158,7 @@ def districts(request):
     district_temp = sorted(set(district_temp), key=lambda x: x[0])
     
     for dl in district_temp:
-        if Resource.objects.filter(collection_type='district', collection=dl).exists():
-            district_list.append({'id': dl, 'name': district_name[dl]})
+        district_list.append({'id': dl, 'name': district_name[dl]})
         
     return render_to_response("resource_library/collections.html", {'page_title': 'District',
                                                                     'collection_type': 'district',
