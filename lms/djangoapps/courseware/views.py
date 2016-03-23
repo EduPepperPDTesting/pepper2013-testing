@@ -41,7 +41,6 @@ import comment_client
 import json
 import pymongo
 log = logging.getLogger("mitx.courseware")
-
 template_imports = {'urllib': urllib}
 
 
@@ -239,6 +238,16 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
         g_courses[3][subject_index[3]].append(course)
     # end
 
+    # 20160322 add "Add new grade 'PreK-3'"
+    # begin
+    if course.display_grades == 'PreK-3':
+        if course.display_subject != currSubject[4]:
+            currSubject[4] = course.display_subject
+            subject_index[4] += 1
+            g_courses[4].append([])
+        g_courses[4][subject_index[4]].append(course)
+    # end
+
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -295,9 +304,13 @@ def course_list(request):
 
     items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
-    subject_index = [-1, -1, -1, -1]
-    currSubject = ["", "", "", ""]
-    g_courses = [[], [], [], []]
+    # 20160322 modify "Add new grade 'PreK-3'"
+    # begin
+    subject_index = [-1, -1, -1, -1, -1]
+    currSubject = ["", "", "", "", ""]
+    g_courses = [[], [], [], [], []]
+    # end 
+
     for course in courses:
         if (is_new == '' or course.is_newish) and is_state_district_show(request.user, course, is_member) and \
                 custom_collection_visibility(request.user, course, collection):
