@@ -10,6 +10,7 @@ from xmodule.modulestore.django import modulestore
 from django.views.decorators.cache import cache_control
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
 from .models import Resource, GenericResource
+from courseware.courses import get_courses, sort_by_custom
 
 
 def index_bak(request):
@@ -92,6 +93,7 @@ def index(request):
         static_html_content = static_content.content
     except Exception:
         static_html_content = 'sorry for maintain...'
+
     return render_to_response('access_resource_library_.html', {'static_content': static_html_content})
 
 
@@ -117,7 +119,8 @@ def states(request):
                 state_temp.extend(course.display_state)
     state_temp = sorted(set(state_temp), key=lambda x: x[0])
     for sl in state_temp:
-        state_list.append({'id': sl, 'name': sl})
+        if Resource.objects.filter(collection_type='state', collection=sl).exists():
+            state_list.append({'id': sl, 'name': sl})
     return render_to_response("resource_library/collections.html", {'page_title': 'State',
                                                                     'collection_type': 'state',
                                                                     'items': state_list})
@@ -156,7 +159,8 @@ def districts(request):
     district_temp = sorted(set(district_temp), key=lambda x: x[0])
     
     for dl in district_temp:
-        district_list.append({'id': dl, 'name': district_name[dl]})
+        if Resource.objects.filter(collection_type='district', collection=dl).exists():
+            district_list.append({'id': dl, 'name': district_name[dl]})
         
     return render_to_response("resource_library/collections.html", {'page_title': 'District',
                                                                     'collection_type': 'district',
@@ -178,7 +182,41 @@ def is_all(course, type):
 
 @login_required
 def index_list(request):
-    return render_to_response('access_resource_library_list.html')
+    state_temp = []
+    district_temp = []
+    district_name = {}
+    district_list = []
+    
+    courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    courses = sort_by_custom(courses)
+    
+    for course in courses:
+        if request.user.is_superuser is False:
+            if request.user.profile.district.state.name in course.display_state:
+                state_temp.append(request.user.profile.district.state.name)
+
+            if request.user.profile.district.code in course.display_district:
+                district = District.objects.filter(code=request.user.profile.district.code)[0]
+                district_temp.append(request.user.profile.district.code)
+                district_name[request.user.profile.district.code] = district.name
+        else:
+            if len(course.display_state) > 0 and is_all(course, 'state') is False:
+                state_temp.extend(course.display_state)
+
+            if len(course.display_district) > 0 and is_all(course, 'district') is False:
+                districts = District.objects.filter(code__in=course.display_district)
+                district_temp.extend(course.display_district)
+                for district in districts:
+                    district_name[district.code] = district.name
+
+        state_list = sorted(set(state_temp), key=lambda x: x[0])
+        district_temp = sorted(set(district_temp), key=lambda x: x[0])
+        for dl in district_temp:
+            district_list.append({'id': dl, 'name': district_name[dl]})
+    
+    return render_to_response('access_resource_library_list.html', {
+                                                          "states": state_list,
+                                                          "districts": district_list})
 
 
 @login_required
