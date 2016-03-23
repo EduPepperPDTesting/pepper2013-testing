@@ -55,9 +55,9 @@ def drop_cohorts(request):
 
 def user_email_completion(request):
     r = list()
-    lookup = request.GET.get('lookup', False)
+    lookup = request.GET.get('q', False)
     if lookup:
         data = User.objects.filter(email_icontains=lookup)
         for item in data:
-            r.append({'id': item.id, 'email': item.email})
+            r.append(item.email)
     return HttpResponse(json.dumps(r), content_type='application/json')

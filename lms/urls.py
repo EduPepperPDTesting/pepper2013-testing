@@ -41,6 +41,12 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
+    url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
+    url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
+    url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
+    url(r'^pepper-utilities/drop/cohorts', 'pepper_utilities.views.drop_cohorts', name='pepper_utilities_drop_cohorts'),
+    url(r'^pepper-utilities/user/email-completion', 'pepper_utilities.views.user_email_completion', name='pepper_utilities_user_email_completion'),
+
     url(r'^permissions$', 'permissions.views.permissions_view', name='permissions_view'),
     url(r'^permissions/groups/permissions/list$', 'permissions.views.group_permissions_list', name='permissions_group_permissions_list'),
     url(r'^permissions/groups/members/list$', 'permissions.views.group_member_list', name='permissions_group_members_list'),

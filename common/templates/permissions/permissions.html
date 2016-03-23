@@ -5,6 +5,7 @@
 
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
@@ -286,7 +287,54 @@
             });
         });
         $('#add-user').click(function () {
-            
+            var content = '<form action="${reverse('permissions_user_add')}" method="post" id="add-user-submit">';
+            content += '<label>Choose a user by email:<input type="text" id="add-user-email">';
+            content += '<label>Or add a group of users: <span id="user-selection">Select State to Start</span></label>';
+            content += '<label id="state-label">By State:<select name="state" id="state-select"><option value=""></option></select></label>';
+            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+            content += '<input type="submit" name="submit" value="Add">';
+            var dialog = new Dialog('#dialog');
+            dialog.show('Add User', content);
+            $('#add-user-submit').submit(function () {
+
+            });
+            $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
+                var options = '';
+                $.each(data, function (index, object) {
+                    options += '<option value="' + object.id + '">' + object.name + '</option>';
+                });
+                $('#state-select').html(options);
+            });
+            $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}', {remoteDataType: 'json'});
+            $('#state-select').change(function () {
+                if ($(this).val()) {
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
+                        var content = '<label id="district-label">By District<select name="district", id="district-select"><option value=""></option>';
+                        $.each(data, function (index, object) {
+                            content += '<option value="' + object.id + '">' + object.name + '</option>';
+                        });
+                        content += '</select></label>';
+                        $('#state-label').after(content);
+                        $('#user-selection').html('All users in ' + $(this).children('option').is('selected').text());
+                        $('#district-select').change(function () {
+                            if ($(this).val()) {
+                                $.get('${reverse('pepper_utilities_drop_schools')}', {district: $(this).val()}, function (data) {
+                                    var content = '<label id="school-label">By School<select name="school", id="school-select"><option value=""></option>';
+                                    $.each(data, function (index, object) {
+                                        content += '<option value="' + object.id + '">' + object.name + '</option>';
+                                    });
+                                    content += '</select></label>';
+                                    $('#district-label').after(content);
+                                    $('#user-selection').html('All users in district ' + $(this).children('option').is('selected').text());
+                                    $('#school-select').change(function () {
+                                        $('#user-selection').html('All users in school ' + $(this).children('option').is('selected').text());
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            });
         });
     });
 </script>
