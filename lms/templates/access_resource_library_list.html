@@ -140,12 +140,12 @@
 
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/state/state_content_collection.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/resource_library_global/states" class="card-link image-bottom-style"><span>State Resources</span></a>
+            <a href="/resource_library_global/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Resources</span></a>
           </div>
 
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/district/district_content_collection.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/resource_library_global/districts" class="card-link image-bottom-style"><span>District Resources</span></a>
+            <a href="/resource_library_global/districts?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Resources</span></a>
           </div>
 
         </div>
