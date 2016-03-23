@@ -11,7 +11,7 @@ def check_user_perms(user, items='any', actions='any'):
     :return: Boolean if this is a general check, list of available permissions or False, otherwise.
     """
     if user.is_authenticated():
-        if user.is_superuser():
+        if user.is_superuser:
             return True
 
         try:

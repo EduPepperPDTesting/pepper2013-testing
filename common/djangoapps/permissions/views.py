@@ -120,5 +120,5 @@ def permissions_data(permission_id=False):
 
 @user_has_perms('permissions', 'administer')
 def permissions_list(request):
-    permissions = permissions_data(request.GET.get('permission_id'))
+    permissions = permissions_data(request.GET.get('permission_id', False))
     return HttpResponse(json.dumps(permissions), content_type='application/json')

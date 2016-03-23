@@ -70,6 +70,10 @@
     .discussion-error-box {
         border-color: red !important;
     }
+    .group-edit img, .permission-edit img {
+        height: 16px;
+        width: 16px;
+    }
 </style>
 <script type="text/javascript">
     function checkPermission(name, target, action) {
@@ -194,7 +198,7 @@
             var checked = $(".group-edit:checked");
             if (checked.length == 1) {
                 var group_id = checked.val();
-                $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function(data) {
+                $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
                     $.each(data, function (index, object) {
                         var row = '<tr>';
                         row += '<td>' + object.first_name + '</td>';
@@ -210,7 +214,7 @@
                         $('#users-table').append(row);
                     });
                 });
-                $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function(data) {
+                $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
                     $.each(data, function (index, object) {
                         var row = '<tr>';
                         row += '<td>' + object.name + '</td>';
@@ -226,15 +230,16 @@
             }
         });
         $('#new-permission').click(function () {
-            var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit"';
+            var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit">';
             content += '<label>Permission Name:<input type="text" name="name"></label>';
             content += '<label>Permission Target:<input type="text" name="target"></label>';
             content += '<label>Permission Action:<input type="text" name="action"></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
             content += '<input type="submit" name="submit" value="Add"></label>';
+            content += '</form>';
             var dialog = new Dialog('#dialog');
             dialog.show('New Permission', content);
-            $('#new-permission-submit').submit(function(event) {
+            $('#new-permission-submit').submit(function (event) {
                 event.preventDefault();
                 if (validatePermissionForm()) {
                     postForm(this, dialog);
@@ -242,18 +247,46 @@
             });
         });
         $('#new-group').click(function () {
-            var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit"';
+            var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
             content += '<label>Group Name:<input type="text" name="name"></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
             content += '<input type="submit" name="submit" value="Add"></label>';
+            content += '</form>';
             var dialog = new Dialog('#dialog');
             dialog.show('New Permission', content);
-            $('#new-group-submit').submit(function(event) {
+            $('#new-group-submit').submit(function (event) {
                 event.preventDefault();
                 if (validateGroupForm()) {
                     postForm(this, dialog);
                 }
             });
+        });
+        $('#add-permission').click(function () {
+            var content = '<form action="${reverse('permissions_group_permission_add')}" method="get" id="add-permission-submit">';
+            content += '<select name="permission">';
+
+            $.ajax({
+                url: "${reverse('permissions_permission_list')}",
+                type: 'GET',
+                async: false,
+                success: function(data) {
+                    $.each(data, function (index, object) {
+                        content += '<option value="' + object.id + '">' + object.name + '</option>';
+                    });
+                }
+            });
+
+            content += '</select>';
+            content += '</form>';
+            var dialog = new Dialog('#dialog');
+            dialog.show('Add Permission', content);
+            $('#add-permission-submit').submit(function (event) {
+                event.preventDefault();
+                postForm(this, dialog);
+            });
+        });
+        $('#add-user').click(function () {
+            
         });
     });
 </script>
@@ -339,12 +372,12 @@
                         <td>district</td>
                         <td>school</td>
                         <td>
-                            <input type="checkbox" value="id" class="user-select">&nbsp;
+                            <input type="checkbox" value="id" class="user-select">
                         </td>
                     </tr>-->
                 </table>
                 <div id="user-actions">
-                    <input type="button" value="Add User"> <input type="submit" value="Remove Selected">
+                    <input type="button" value="Add User" id="add-user"> <input type="submit" value="Remove Selected">
                 </div>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>
@@ -361,12 +394,12 @@
                         <td>item</td>
                         <td>action</td>
                         <td>
-                            <input type="checkbox" value="id" class="group-permission-select">&nbsp;
+                            <input type="checkbox" value="id" class="group-permission-select">
                         </td>
                     </tr>-->
                 </table>
                 <div id="permission-actions">
-                    <input type="button" value="New Permission"> <input type="submit" value="Delete Selected">
+                    <input type="button" value="Add Permission" id="add-permission"> <input type="submit" value="Delete Selected">
                 </div>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>

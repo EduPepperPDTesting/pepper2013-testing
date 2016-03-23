@@ -240,22 +240,22 @@ def certificate_save(request):
     return HttpResponse(json.dumps(info), content_type="application/json")
 
 
-# @login_required
-# @user_passes_test(lambda u: u.is_superuser)
-# def certificate_loadData(request):
-#     c = Certificate.objects.filter(id=request.POST.get('id'))[0]
-#     try:
-#         content = urllib.unquote(c.certificate_blob.decode('utf8').encode('utf8'))
-#     except:
-#         content = ""
-#     data = {'certificate_name': c.certificate_name,
-#             'association_type': c.association_type_id,
-#             'association': c.association,
-#             'content': content,
-#             'readonly': c.readonly,
-#             'id': c.id
-#             }
-#     return HttpResponse(json.dumps(data), content_type="application/json")
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def certificate_loadData(request):
+    c = Certificate.objects.filter(id=request.POST.get('id'))[0]
+    try:
+        content = urllib.unquote(c.certificate_blob.decode('utf8').encode('utf8'))
+    except:
+        content = ""
+    data = {'certificate_name': c.certificate_name,
+            'association_type': c.association_type_id,
+            'association': c.association,
+            'content': content,
+            'readonly': c.readonly,
+            'id': c.id
+            }
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 # TODO: This should be removed, and replaced with the new permissions system.
@@ -270,11 +270,11 @@ def has_hangout_perms(user):
     return permission
 
 
-# @login_required
-# def get_user_info(request):
-#     json_return = {'first_name': request.user.first_name,
-#                    'last_name': request.user.last_name,
-#                    'email': request.user.email,
-#                    'secret': 'La2aiphaab2gaeB'
-#                    }
-#     return HttpResponse(json.dumps(json_return), content_type="application/json")
+@login_required
+def get_user_info(request):
+    json_return = {'first_name': request.user.first_name,
+                   'last_name': request.user.last_name,
+                   'email': request.user.email,
+                   'secret': 'La2aiphaab2gaeB'
+                   }
+    return HttpResponse(json.dumps(json_return), content_type="application/json")
