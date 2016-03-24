@@ -1,0 +1,531 @@
+<%inherit file="../main.html" />
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from student.views import course_from_id
+    import re
+    from communities.utils import is_facilitator, is_member
+    from administration.configuration import has_hangout_perms
+    from file_uploader.utils import get_file_url, get_file_name
+%>
+<%namespace name='static' file='../static_content.html'/>
+
+<%block name="title">
+    <title></title>
+</%block>
+
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+
+<style type="text/css" media="screen">
+    #table-discuss th {
+        color: #006EBF;
+        padding: 20px 3px;
+        font-size: 20px;
+    }
+    #table-discuss td {
+        color: #000;
+        padding: 20px 3px;
+        font-size: 20px;
+        line-height: 20px;
+    }
+    #table-discuss td label {
+        font-style: normal;
+        display: inline-block;
+        width: 3.5em;
+        text-align: left;
+        font-weight: bold;
+    }
+    #table-discuss td span {
+        font-size: 12px;
+    }
+    #table-members th {
+        color: #006EBF;
+        padding: 20px 3px;
+        font-size: 20px;
+    }
+    .card-link span {
+        color: #FFFFFF;
+    }
+    .course-card {
+        margin: 0 0 10px 0 !important
+    }
+    div.card-bottom table tr:nth-child(2) {
+        display: none;
+    }
+    #members a {
+        margin-right: 5px;
+        display: inline-block;
+    }
+    .discussion, .discussion-reply, .discussion-reply-form {
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        background-color: #fff;
+    }
+    .discussion-reply {
+        margin: 20px 0 0 40px;
+    }
+    .discussion-reply-form {
+        margin: 20px 0 20px 40px;
+    }
+    .discussion-avatar {
+        float: left;
+        width: 64px;
+        height: 64px;
+        display: block;
+        margin: 0 10px 5px 0;
+    }
+    .discussion-byline, .discussion-date {
+        display: inline;
+        font-size: 80%;
+    }
+    .discussion-download {
+        float: right;
+        font-size: 80%;
+    }
+    .discussion-download span, .discussion-byline span, .discussion-date span {
+        font-weight: bold;
+    }
+    .discussion-body {
+        clear: both;
+        padding-top: 10px;
+        border-top: 1px solid #ddd;
+    }
+    .discussion-reply-form label {
+        display: block;
+    }
+    .discussion-reply-post {
+        display: block;
+        width: 100%
+    }
+    .permalink {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    .delete-icon {
+        position: absolute;
+        top: 20px;
+        right: 40px;
+    }
+    .italic {
+        font-style: italic;
+    }
+    #back {
+        margin-bottom: 10px;
+    }
+    .up_page {
+        display: inline-block;
+        width: 17px !important;
+        line-height: 24px;
+        height: 20px;
+        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+        border: none;
+        vertical-align: middle;
+    }
+    .discussion-poll {
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 15px 20px 15px 57px;
+        background-color: #ddd;
+        margin: 20px 0 5px 0;
+    }
+    .discussion-poll img {
+        display: block;
+        position: absolute;
+        top: 10px;
+        left: 15px;
+    }
+    .discussion-poll a {
+        display: block;
+        text-align: right;
+        outline: none;
+    }
+    .discussion-poll-question {
+        font-weight: bold;
+        font-size: 120%;
+    }
+    .discussion-poll-votes {
+        display: none;
+    }
+    .discussion-poll-vote-bar {
+        height: 1em;
+        background-color: #0A246A;
+        display: inline-block;
+    }
+    .hangout_container {
+        text-align: center;
+        padding-top: 20px;
+    }
+    .hangout_container img {
+        width: 120px;
+        vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
+    }
+    .side-button {
+        color: white !important;
+        display: block;
+        padding: 10px;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+    }
+    .green-button {
+        border-color: #595;
+        background: #8cbe41;
+    }
+    .red-button {
+        border-color: #df0000;
+        background: #ED2828;
+    }
+    #trending {
+        margin: 20px;
+    }
+    .trending-title {
+        display: block;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .modal {
+        position: fixed;
+        opacity: 1;
+        z-index: 11000;
+        left: 50%;
+        margin-left: -249px;
+        top: 40px;
+        background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+        border-radius: 5px;
+        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        padding: 0 0 8px 0;
+        width: 480px;
+        display: none;
+    }
+    .modal .close-modal {
+        border-radius: 2px;
+        cursor: pointer;
+        display: inline-block;
+        vertical-align: baseline;
+        padding: 10px;
+        position: absolute;
+        right: 2px;
+        top: 0;
+        z-index: 3;
+        color: #333;
+    }
+    .modal .titlebar {
+        height: 70px;
+        background: #ccc;
+    }
+    .modal .dialog-title {
+        margin: 0;
+        padding: 20px 0 0 30px;
+        color: #666;
+    }
+    .modal .content {
+        color: #333;
+        text-align: center;
+        font-size: 16px;
+        padding: 20px;
+        line-height: 20px;
+    }
+    #community-main-sidebar {
+        width: 266px;
+        float: right;
+        top: 0;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    #community-sidebar-header {
+        border: 2px solid #ddd;
+        height: 53px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 53px;
+    }
+    #community-sidebar {
+        width: 208px;
+        padding: 20px 20px 0 20px;
+        border: 2px solid #ddd;
+        margin: auto;
+        border-top: 0;
+        text-align: left;
+    }
+    .sidebar-section {
+        margin: 0 0 20px 0;
+    }
+    #community-member {
+        margin-top: 10px;
+    }
+    .sidebar-section h2 {
+        border-bottom: 2px solid #90BF70;
+        padding-bottom: 5px;
+        margin: 0 0 10px 0;
+        color: #006EBF;
+        font-weight: bold;
+        text-transform: none;
+        font-size: 1em;
+        line-height: 1em;
+    }
+    .sidebar-sub-section {
+        margin: 0 10px;
+    }
+    .trending-title {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .trending-name {
+        font-size: 80%;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .trending-name span {
+        font-weight: bold;
+    }
+    .status-name {
+        display: block;
+        margin-bottom: 5px;
+    }
+</style>
+<link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
+<body style="text-align:center">
+<div style="width:1185px;margin:auto;text-align:left;margin-top:30px;" class="clearfix">
+    <section style="width:880px;float:left;">
+        <div id="back">
+            <a href="${reverse('community_view', args=[discussion.community.id])}" class="up_page"></a>&nbsp;
+            <a href="${reverse('community_view', args=[discussion.community.id])}">
+                Back to the <span class="italic">${discussion.community.name}</span> community
+            </a>
+        </div>
+        <div class="discussion">
+            <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
+                <img src="/static/images/link-icon.png" alt="Permalink">
+            </a>
+            %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
+                <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
+                    <img src="/static/images/trash-small.png" alt="Delete Discussion">
+                </a>
+            %endif
+            <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
+            <h2>${discussion.subject}</h2>
+            %if discussion.attachment:
+                <div class="discussion-download"><span>Attachment: </span>
+                    <a href="${get_file_url(discussion.attachment)}" target="_blank">
+                        <img src="/static/images/document-download.png"> ${get_file_name(discussion.attachment)}
+                    </a>
+                </div>
+            %endif
+            <div class="discussion-byline"><span>Posted By: </span>${discussion.user.first_name} ${discussion.user.last_name}</div>
+            <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create)}</div>
+            <div class="discussion-body">${discussion.post}</div>
+            %if has_poll:
+                <div class="discussion-poll">
+                    <img src="/static/images/poll-icon.png" alt="Poll">
+                    <div class="discussion-poll-question">${poll['question']}</div>
+                    <ol class="discussion-poll-answers">
+                        <% iterator = range(0, len(poll['answers'])) %>
+                        %for i in iterator:
+                            <li class="discussion-poll-answer"><label><input type="radio" value="${str(i)}" name="answers"> ${poll['answers'][str(i)]}</label></li>
+                            <li class="discussion-poll-votes">
+                                ${poll['answers'][str(i)]}:<br>
+                                <div class="discussion-poll-vote-bar" style="width: ${poll['votes'][str(i)]['percent'] * 2}px"></div> ${poll['votes'][str(i)]['percent']}%
+                            </li>
+                        %endfor
+                    </ol>
+                    <a href="#" class="discussion-poll-toggle hide">Show Results</a>
+                </div>
+                <script type="text/javascript">
+                    $('.discussion-poll-toggle').click(function() {
+                        $('.discussion-poll-answer').toggle();
+                        $('.discussion-poll-votes').toggle();
+                        $(this).empty();
+                        if ($(this).hasClass('hide')) {
+                            $(this).append('Vote');
+                            $(this).removeClass('hide');
+                            $(this).addClass('show');
+                        } else {
+                            $(this).append('Show Results');
+                            $(this).removeClass('show');
+                            $(this).addClass('hide');
+                        }
+                    });
+                    %if poll['user_answered']:
+                        $('.discussion-poll-answer').hide();
+                        $('.discussion-poll-votes').show();
+                        $('.discussion-poll-toggle').hide();
+                    %endif
+                    $('.discussion-poll-answer input[type=radio]').change(function() {
+                        var answer = $(this).val();
+                        $.post('${reverse('poll_vote')}', {'poll_type': '${poll['poll_type']}', 'poll_id': '${poll['poll_id']}', 'vote': answer}, function(data) {
+                            if (data.Success) {
+                                var content = '<ol class="discussion-poll-answers">';
+                                for (var x = 0; x < Object.keys(data.Votes).length; x++){
+                                    content += '<li class="discussion-poll-votes">';
+                                    content += data.Answers[x] + ':<br>';
+                                    content += '<div class="discussion-poll-vote-bar" style="width: ' + (data.Votes[x]['percent'] * 2) + 'px"></div> ' + data.Votes[x]['percent'] + '%';
+                                    content += '</li>';
+                                }
+                                content += '</ol>';
+                                $('.discussion-poll-answers').replaceWith(content);
+                                $('.discussion-poll-toggle').remove();
+                                $('.discussion-poll-votes').toggle();
+                            }
+                        });
+                    });
+                </script>
+            %endif
+            <div class="discussion-actions"></div>
+        </div>
+        %for reply in replies:
+            <div class="discussion-reply">
+                <a name="${reply.id}"></a>
+                <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}#${reply.id}">
+                    <img src="/static/images/link-icon.png">
+                </a>
+                %if request.user.is_superuser or \
+                    is_facilitator(request.user, discussion.community) or \
+                    request.user.id == reply.user.id:
+                    <a class="delete-icon delete-reply" href="${reverse('community_discussion_reply_delete', args=[reply.id])}">
+                        <img src="/static/images/trash-small.png" alt="Delete Discussion">
+                    </a>
+                %endif
+                <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
+                <h2>${reply.subject}</h2>
+                %if reply.attachment:
+                    <div class="discussion-download"><span>Attachment: </span>
+                        <a href="${get_file_url(reply.attachment)}" target="_blank">
+                            <img src="/static/images/document-download.png"> ${get_file_name(reply.attachment)}
+                        </a>
+                    </div>
+                %endif
+                <div class="discussion-byline"><span>Posted By: </span>${reply.user.first_name} ${reply.user.last_name}</div>
+                <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=reply.date_create)}</div>
+                <div class="discussion-body">${reply.post}</div>
+                <div class="discussion-actions"></div>
+            </div>
+        %endfor
+        %if is_member(request.user, discussion.community) or request.user.is_superuser:
+            <div class="discussion-reply-form">
+                <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data" id="reply-form">
+                    <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
+                    <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
+                    <label>Attachment:<input type="file" name="attachment"></label>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                    <input type="submit" name="submit" value="Reply">
+                </form>
+            </div>
+        %endif
+    </section>
+    <section id="community-main-sidebar">
+        <div id="community-sidebar-header">
+            ${request.user.username}
+        </div>
+        <div id="community-sidebar">
+            <div class="sidebar-section" style="text-align: center;">
+                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                %if is_member(request.user, community):
+                    <div id="community-member">MEMBER</div>
+                %else:
+                    <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
+                %endif
+            </div>
+            <div class="sidebar-section">
+                <h2>Community Status</h2>
+                <div class="sidebar-sub-section">
+                    <span class="status-name">Discussions: ${total_discussions}</span>
+                    <!--<span class="trending-name">Messages: </span>-->
+                    <span class="status-name">Members: ${total_users}</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h2>Trending</h2>
+                <div class="sidebar-sub-section">
+                    %for i, d in enumerate(trending):
+                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
+                    %endfor
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
+                <!--
+                %if is_member(request.user, community) or request.user.is_superuser:
+                    <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
+                %endif
+                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                    <a href="${reverse('community_edit',args=[discussion.community.id])}" class="green-button side-button">Edit</a>
+                    <a href="${reverse('community_delete',args=[discussion.community.id])}" class="red-button side-button" onclick="return confirm('Really delete?')">Delete</a>
+                    <a href="${reverse('community_mange_member',args=[discussion.community.id])}" class="blue-button side-button">Manage Members</a>
+                %endif
+                -->
+                %if has_hangout_perms(request.user) and discussion.community.hangout:
+                    <div class = "hangout_container" id = "hangout_div">
+                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
+                        <a class="side-button green-button" href="${discussion.community.hangout}" target="_blank">Join Hangout</a>
+                    </div>
+                %endif
+            </div>
+        </div>
+    </section>
+</div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    function joinMe(){
+        var user_id = "${request.user.id}";
+        $.post("${reverse('community_join', args=[discussion.community.id])}",{user_id:user_id}, function(r){
+            if(r.success)
+                window.location.reload();
+        });
+    }
+    $(document).ready(function() {
+        $('#reply-form').submit(function() {
+            var valid = true;
+            $('.discussion-reply-post').each(function() {
+                if (!/[A-Za-z]/.test($(this).val())) {
+                    valid = false;
+                    alert('Subject and Reply must be filled out.');
+                    return false;
+                }
+            });
+            return valid;
+        });
+        $('.delete-icon').click(function(event) {
+            event.preventDefault();
+            var title = 'Really Delete This Reply?';
+            var content = 'This operation cannot be undone.';
+            if ($(this).hasClass('delete-discussion')) {
+                title = 'Really Delete This Discussion?';
+                content = 'If you delete this discussion, all replies, polls and attachments will be removed as well. This operation cannot be undone';
+            }
+            var continue_url = $(this).attr('href');
+            new Dialog($('#dialog')).showYesNo(title, content, function(ans) {
+                this.hide();
+                if (!ans) return;
+                window.location.href = continue_url;
+            });
+        });
+    });
+</script>
+</body>

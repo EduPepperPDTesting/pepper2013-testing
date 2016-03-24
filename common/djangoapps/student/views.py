@@ -218,6 +218,13 @@ def signin_user(request):
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
 
+    email = request.GET.get('regcheck', False)
+    if email:
+        reg = registration_check(email)
+        if reg['status'] == 'unregistered':
+            next_page = request.GET.get('next', '')
+            return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
+
     context = {
         'course_id': request.GET.get('course_id'),
         'enrollment_action': request.GET.get('enrollment_action')
@@ -271,6 +278,20 @@ def register_user(request, activation_key=None):
     #     context.update(extra_context)
 
     return render_to_response('register.html', context)
+
+
+def registration_check(email):
+    try:
+        user = User.objects.get(email=email)
+        if user.is_active == 0:
+            reg = Registration.objects.get(user_id=user.id)
+            return_value = {'status': 'unregistered', 'key': reg.activation_key}
+        else:
+            raise Exception('User is already active.')
+    except Exception as e:
+        return_value = {'status': 'registered', 'error': '{e}'.format(e=e)}
+    return return_value
+
 
 # copy from lms/djangoapps/courseware/module_render.py
 def get_module_for_descriptor(user, request, descriptor, field_data_cache, course_id,
@@ -741,13 +762,13 @@ def sso(request, error=""):
             update_sso_usr(user, parsed)
 
             # allow courses
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=sso_email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=sso_email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
 
             # add courses above (cause user will not finish registration himself to trigger auto course enroll)
-            CourseEnrollment.enroll(user, 'PCG/PEP101x/2014_Spring')
+            CourseEnrollment.enroll(user, 'PCG_Education/PEP101.1/S2016')
 
         except Exception as e:
             db.transaction.rollback()
@@ -1841,7 +1862,7 @@ def activate_imported_account(post_vars, photo):
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
 
-        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG/PEP101x/2014_Spring')
+        # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}
 
@@ -1958,7 +1979,7 @@ def activate_easyiep_account(request):
         profile.subscription_status = 'Registered'
         profile.major_subject_area_id = vars.get('major_subject_area_id', '')
         profile.years_in_education_id = vars.get('years_in_education_id', '')
-        # profile.grade_level_id=vars.get('grade_level_id','')
+        profile.grade_level_id = vars.get('grade_level_id', '')
         profile.percent_lunch = vars.get('percent_lunch', '')
         profile.percent_iep = vars.get('percent_iep', '')
         profile.percent_eng_learner = vars.get('percent_eng_learner', '')
@@ -2078,7 +2099,7 @@ Email: {email}
 Course: {course_number} {course_name}
 Request Date: {date_time}""".format(first_name=request.user.first_name,
     last_name=request.user.last_name,
-    cohort_code=request.user.profile.cohort.code,
+    cohort_code=request.user.profile.cohort.code if request.user.profile.cohort_id else '',
     district_name=request.user.profile.district.name,
     school_name=request.user.profile.school.name,
     email=request.user.email,

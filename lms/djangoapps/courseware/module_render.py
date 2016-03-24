@@ -48,6 +48,9 @@ from xmodule.fields import Date
 from django.utils.timezone import UTC
 #@end
 
+# True North Logic integration
+from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
+
 log = logging.getLogger(__name__)
 
 
@@ -615,13 +618,21 @@ def modx_dispatch(request, dispatch, location, course_id):
         #@begin:complete_course_survey
         #@data:2013-12-13
         try:
-            if hasattr(instance,'complete_survey') and dispatch == 'problem_check':
+            if hasattr(instance, 'complete_survey') and dispatch == 'problem_check':
                 if instance.complete_survey and dispatch == 'problem_check':
                     student = request.user
                     course_descriptor = get_course_by_id(course_id)
-                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course_descriptor, depth=None)
-                    course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
-                    percent = grade(student,request,course_descriptor,field_data_cache)['percent']
+                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id,
+                                                                                       student,
+                                                                                       course_descriptor,
+                                                                                       depth=None)
+                    course_instance = get_module(student,
+                                                 request,
+                                                 course_descriptor.location,
+                                                 field_data_cache,
+                                                 course_id,
+                                                 grade_bucket_type='ajax')
+                    percent = grade(student, request, course_descriptor, field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
                     if ajax_return_json['success'] == u'correct':
                         completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
@@ -634,6 +645,11 @@ def modx_dispatch(request, dispatch, location, course_id):
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
+                            # True North Logic integration
+                            if tnl_course(student, course_id):
+                                domain = tnl_domain_from_user(student)
+                                tnl_instance = TNLInstance(domain)
+                                tnl_instance.register_completion(student, course_id, percent)
                         else:
                             course_instance.complete_course = False
                             course_instance.complete_date = datetime.fromtimestamp(0, UTC())
@@ -648,7 +664,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                     # Save any fields that have changed to the underlying KeyValueStore
                     instance.save()
             else:
-                    instance.save()
+                instance.save()
         except ItemNotFoundError:
             instance.save()
         #@end

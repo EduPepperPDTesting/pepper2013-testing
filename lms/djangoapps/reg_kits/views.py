@@ -139,12 +139,12 @@ def cohort(request):
     if request.GET.get('district_id'):
         data=data.filter(district_id=request.GET.get('district_id'))
     if request.GET.get('state_id'):
-        data=data.filter(Q(district__state_id=request.GET.get('state_id')))    
+        data=data.filter(Q(district__state_id=request.GET.get('state_id')))
     data=valid_pager(data,20,request.GET.get('page'))
 
     for item in data:
         item.licences_exist=UserProfile.objects.filter(~Q(subscription_status = "Inactive"),cohort_id=item.id).count()
-        
+
     return render_to_response('reg_kits/cohort.html', {"cohorts":data,"ui":"list","pager_params":pager_params(request)})
 
 @login_required
@@ -167,7 +167,7 @@ def cohort_submit(request):
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
-    
+
     return HttpResponse(json.dumps({'success': True}))
 
 @login_required
@@ -258,7 +258,7 @@ def filter_user(request):
     data=UserProfile.objects.all() #.select_related('owner_object')
 
     filtered=[False]
-    
+
     def q(k,none_as_empty=False):
         v=request.GET.get(k)
         if none_as_empty:
@@ -269,15 +269,15 @@ def filter_user(request):
             filtered[0]=True
         if v=='__NONE__':
             v=None
-        return v 
-        
+        return v
+
     if q('first_name'):
         data=data.filter(Q(user__first_name=q('first_name')))
     if q('last_name'):
         data=data.filter(Q(user__last_name=q('last_name')))
     if q('email'):
         data=data.filter(user__email=q('email'))
-        
+
     if q('school_id',True):
         data=data.filter(school_id=q('school_id'))
     if q('district_id',True):
@@ -286,24 +286,24 @@ def filter_user(request):
         data=data.filter(Q(district__state_id=q('state_id')))
     if q('cohort_id',True):
         data=data.filter(cohort_id=q('cohort_id'))
-        
+
     if q('subscription_status'):
         data=data.filter(subscription_status=q('subscription_status'))
     if q('invite_days_min'):
         data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_min'))))
     if q('invite_days_max'):
         data=data.filter(invite_date__gte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_max'))+1))
-        
+
     # if request.GET.get('course_id'):
     #     data=data.filter(user__courseenrollment__course_id = request.GET.get('course_id'), user__courseenrollment__is_active = True)
-    
+
     desc=""
     if request.GET.get("desc")=="yes":
         desc="-"
     if request.GET.get("sortby")=="user_id":
         data=data.order_by(desc+"user__id")
     if request.GET.get("sortby")=="active_link":
-        data=data.order_by(desc+"user__registration__activation_key")           
+        data=data.order_by(desc+"user__registration__activation_key")
 
     if request.GET.get("sortby")=="first_name":
         data=data.order_by(desc+"user__first_name")
@@ -313,7 +313,7 @@ def filter_user(request):
 
     if request.GET.get("sortby")=="username":
         data=data.order_by(desc+"user__username")
-        
+
     if request.GET.get("sortby")=="email":
         data=data.order_by(desc+"user__email")
 
@@ -327,13 +327,13 @@ def filter_user(request):
         data=data.order_by(desc+"school__name")
 
     if request.GET.get("sortby")=="invite_date":
-        data=data.order_by(desc+"invite_date")        
-                    
+        data=data.order_by(desc+"invite_date")
+
     if request.GET.get("sortby")=="activate_date":
         data=data.order_by(desc+"activate_date")
 
     if request.GET.get("sortby")=="subscription_status":
-        data=data.order_by(desc+"subscription_status")        
+        data=data.order_by(desc+"subscription_status")
 
     return data,filtered[0]
 
@@ -350,14 +350,14 @@ def user(request):
         size=int(size)
     else:
         size=20
-    
+
     data=valid_pager(data,size,request.GET.get('page'))
 
     for item in data:
         item.days_after_invite=''
         if(item.invite_date):
             item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
-            
+
     return render_to_response('reg_kits/user.html', {"invite_count":invite_count,
                                                      "users":data,
                                                      "ui":"list",
@@ -381,26 +381,26 @@ def download_course_permission_csv(request):
 
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=FIELDS)
-    
+
     writer.writerow(dict(zip(FIELDS, TITLES)))
     data,filtered=filter_user(request)
 
     if filtered:
-      for d in data:
-          row={
-              "district":attstr(d,"district.name"),
-              "last_name":attstr(d,"user.last_name"),
-              "first_name":attstr(d,"user.first_name"),
-              "email":attstr(d,"user.email"),       
-              }
-          for c in courses:
-              if not c.display_coursenumber:
-                  continue
-              
-              allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
-              row[c.display_coursenumber]=allow
-              
-          writer.writerow(row)
+        for d in data:
+            row={
+                "district":attstr(d,"district.name"),
+                "last_name":attstr(d,"user.last_name"),
+                "first_name":attstr(d,"user.first_name"),
+                "email":attstr(d,"user.email"),
+                }
+            for c in courses:
+                if not c.display_coursenumber:
+                    continue
+
+                allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+                row[c.display_coursenumber]=allow
+
+            writer.writerow(row)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=couse-permission-%Y-%m-%d-%H-%M-%S.csv')
@@ -416,11 +416,11 @@ def download_course_permission_excel(request):
     import xlsxwriter
 
     courses=filter_courses(request.GET.get('subject_id','all'),request.GET.get('author_id',''))
-    
+
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
-    
+
     FIELDS = ["district", "last_name", "first_name", "email"]
     TITLES = ["District", "Last Name", "First Name", "Email"]
 
@@ -434,28 +434,29 @@ def download_course_permission_excel(request):
         worksheet.write(0,i,k)
     row=1
     data,filtered=filter_user(request)
-    
+
     if filtered:
-      for d in data:
-          for c in courses:
-              if not c.display_coursenumber:
-                  continue            
-              allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
-              setattr(d,c.display_coursenumber,allow)
-              
-          d.first_name=attstr(d,"user.first_name")
-          d.last_name=attstr(d,"user.last_name")
-          d.district=attstr(d,"district.name")
-          d.email=attstr(d,"user.email")
-          
-          for i,k in enumerate(FIELDS):
-              worksheet.write(row,i,getattr(d,k))
-      
-          row=row+1
+        for d in data:
+            data_row = {'first_name': attstr(d, "user.first_name"),
+                        'last_name': attstr(d, "user.last_name"),
+                        'district': attstr(d, "district.name"),
+                        'email': attstr(d, "user.email")
+                        }
+
+            for c in courses:
+                if not c.display_coursenumber:
+                    continue
+                allow='Y' if CourseEnrollmentAllowed.objects.filter(email=d.user.email,course_id=c.id,is_active=True).exists() else 'N'
+                data_row.update({c.display_coursenumber: allow})
+
+            for i,k in enumerate(FIELDS):
+                worksheet.write(row,i,data_row[k])
+
+            row=row+1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
-    response.write(output.getvalue())    
+    response.write(output.getvalue())
     return response
 
 
@@ -467,22 +468,22 @@ def course_permission_save(request):
             for course_id,allowed in one.items():
                 cea,created=CourseEnrollmentAllowed.objects.get_or_create(email=email,course_id=course_id)
                 cea.is_active=allowed
-                cea.save()                
+                cea.save()
                 #CourseEnrollmentAllowed.objects.filter(email=email,course_id=course_id).update(is_active=allowed)
 
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
-    return HttpResponse(json.dumps({'success': True}))     
+    return HttpResponse(json.dumps({'success': True}))
 
 def filter_courses(subject_id='all',author_id='all'):
     filterDic = {'_id.category':'course'}
-    
+
     if subject_id!='all':
         filterDic['metadata.display_subject'] = subject_id
 
     if author_id!='all':
-        filterDic['metadata.display_organization'] = author_id   
+        filterDic['metadata.display_organization'] = author_id
 
     items = modulestore().collection.find(filterDic).sort("metadata.display_coursenumber",pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
@@ -504,14 +505,14 @@ def course_permission(request):
         size=int(size)
     else:
         size=20
-    
+
     data=valid_pager(data,size,request.GET.get('page'))
 
     for item in data:
         item.days_after_invite=''
         if(item.invite_date):
             item.days_after_invite=(datetime.datetime.now(UTC)-item.invite_date).days
-            
+
     return render_to_response('reg_kits/course_permission.html', {
         "courses":courses,
         "users":data,
@@ -534,8 +535,8 @@ def user_submit(request):
         if request.POST['subscription_status']=='Registered':
             user.is_active=True
         else:
-            user.is_active=False 
-            
+            user.is_active=False
+
         user.email=request.POST['email']
         user.save()
 
@@ -554,7 +555,7 @@ def user_submit(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_modify_status(request):
-    for id in request.POST.get("ids").split(","): 
+    for id in request.POST.get("ids").split(","):
         user=User.objects.get(id=id)
         profile=UserProfile.objects.get(user_id=id)
         try:
@@ -607,7 +608,7 @@ def validate_user_cvs_line(line):
     if n != USER_CSV_COUNT_COL:
         raise Exception("Wrong fields count")
     validate_email(email)
-    
+
     if len(User.objects.filter(email=email)) > 0:
         raise Exception("An account with the Email '{email}' already exists".format(email=email))
         exist=True
@@ -658,10 +659,10 @@ def download_school_excel(request):
     worksheet = workbook.add_worksheet()
 
     FIELDS = ['id',"name","_district"]
-    TITLES = ["School ID","School Name", "District"]    
-    
+    TITLES = ["School ID","School Name", "District"]
+
     for i,k in enumerate(TITLES): worksheet.write(0,i,k)
-    
+
     row=1
     data=filter_school(request)
     for d in data:
@@ -673,7 +674,7 @@ def download_school_excel(request):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=schools-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
-    response.write(output.getvalue())    
+    response.write(output.getvalue())
     return response
 
 @login_required
@@ -682,13 +683,13 @@ def download_user_csv(request):
     from StringIO import StringIO
     FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
               "district","cohort","school","invite_date","activate_date","subscription_status"]
-    
+
     TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
               "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
 
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=FIELDS)
-    
+
     writer.writerow(dict(zip(FIELDS, TITLES)))
     data,filtered=filter_user(request)
 
@@ -707,7 +708,7 @@ def download_user_csv(request):
             "first_name":attstr(d,"user.first_name"),
             "last_name":attstr(d,"user.last_name"),
             "username":attstr(d,"user.username"),
-            "email":attstr(d,"user.email"),       
+            "email":attstr(d,"user.email"),
             "district":attstr(d,"district.name"),
             "cohort":attstr(d,"cohort.code"),
             "school":attstr(d,"school.name"),
@@ -731,18 +732,18 @@ def download_user_excel(request):
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
-    
+
     FIELDS = ['user_id',"activate_link","first_name","last_name","username","email",
               "_district","_cohort","_school","_invite_date","_activate_date","subscription_status"]
-    
+
     TITLES = ["User ID" ,"Activate Link" ,"First Name" ,"Last Name" ,
               "Username" ,"Email" ,"District" ,"Cohort" ,"School" ,"Invite Date" ,"Activate Date" ,"Status"]
-    
+
     for i,k in enumerate(TITLES):
         worksheet.write(0,i,k)
     row=1
     data,filtered=filter_user(request)
-    domain="http://"+request.META['HTTP_HOST'] 
+    domain="http://"+request.META['HTTP_HOST']
     for d in data:
         if Registration.objects.filter(user_id=d.user_id).count():
             key=Registration.objects.get(user_id=d.user_id).activation_key
@@ -758,7 +759,7 @@ def download_user_excel(request):
         d.email=attstr(d,"user.email")
         d._invite_date="%s" % attstr(d,"invite_date")
         d._activate_date="%s" % attstr(d,"activate_date")
-        
+
         for i,k in enumerate(FIELDS):
             if k=="activate_link" and key:
                 d.activate_link=domain+reverse('register_user',args=[key])
@@ -770,7 +771,7 @@ def download_user_excel(request):
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=users-%Y-%m-%d-%H-%M-%S.xlsx')
     workbook.close()
-    response.write(output.getvalue())    
+    response.write(output.getvalue())
     return response
 
 def random_mark(length):
@@ -780,8 +781,8 @@ def random_mark(length):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 @ensure_csrf_cookie
-@cache_if_anonymous  
-def import_user_submit(request):  
+@cache_if_anonymous
+def import_user_submit(request):
     message={}
     if request.method == 'POST':
         f=request.FILES['file']
@@ -818,7 +819,7 @@ def import_user_submit(request):
                 profile.subscription_status="Imported"
                 profile.save()
 
-                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+                cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
                 cea.is_active = True
                 cea.auto_enroll = True
                 cea.save()
@@ -834,7 +835,7 @@ def import_user_submit(request):
             message={"success": True,
                 "message":"Success! %s users imported." % (count_success),
                 "count_success":count_success,
-            }            
+            }
         except Exception as e:
             db.transaction.rollback()
             message={'success': False,'error':'Import error: %s. At cvs line: %s, Nobody imported.' % (e,count_success+1)}
@@ -943,21 +944,21 @@ def transaction_delete(request):
 ##############################################
 def drop_states(request):
     data=State.objects.all()
-  
-    data=data.order_by("name")        
+
+    data=data.order_by("name")
     r=list()
     for item in data:
-        r.append({"id":item.id,"name":item.name})        
+        r.append({"id":item.id,"name":item.name})
     return HttpResponse(json.dumps(r))
 
 def drop_districts(request):
     data=District.objects.all()
     if request.GET.get('state_id'):
         data=data.filter(state_id=request.GET.get('state_id'))
-    data=data.order_by("name")        
+    data=data.order_by("name")
     r=list()
     for item in data:
-        r.append({"id":item.id,"name":item.name,"code":item.code})        
+        r.append({"id":item.id,"name":item.name,"code":item.code})
     return HttpResponse(json.dumps(r))
 
 def drop_schools(request):
@@ -969,7 +970,7 @@ def drop_schools(request):
     r=list()
     data=data.order_by("name")
     for item in data:
-        r.append({"id":item.id,"name":item.name})        
+        r.append({"id":item.id,"name":item.name})
     return HttpResponse(json.dumps(r))
 
 def drop_cohorts(request):
@@ -984,7 +985,7 @@ def drop_cohorts(request):
     return HttpResponse(json.dumps(r))
 
 ##############################################
-# Import Cohort 
+# Import Cohort
 ##############################################
 COHORT_CSV_COLS=5
 
@@ -1006,7 +1007,7 @@ def validate_cohort_cvs_line(line):
         raise Exception("Wrong column count %s" % n)
 
     code=line[COHORT_CSV_COL_CODE]
-    
+
     if len(Cohort.objects.filter(code=code)) > 0:
         raise Exception("A cohort '{code}' already exists".format(code=code))
 
@@ -1033,21 +1034,21 @@ def import_cohort_submit(request):
                 cohort.start_date=line[COHORT_CSV_COL_START_DATE]
                 cohort.save()
                 count_success=count_success+1
-                
+
             db.transaction.commit()
             message={"success": True,
                 "message":"Success! %s cohort(s) imported." % (count_success),
                 "count_success":count_success
-                }     
+                }
         except Exception as e:
-            
+
             db.transaction.rollback()
             message={'success': False,'error':'Import error: %s. At cvs line: %s, Nothing impored.' % (e,count_success+1)}
-    
+
     return HttpResponse(json.dumps(message))
 
 ##############################################
-# Import District 
+# Import District
 ##############################################
 DISTRICT_CSV_COLS=3
 
@@ -1067,7 +1068,7 @@ def validate_district_cvs_line(line):
 
     name=line[DISTRICT_CSV_COL_NAME]
     code=line[DISTRICT_CSV_COL_CODE]
-    
+
     if len(District.objects.filter(name=name,code=code)) > 0:
         raise Exception("A district named '{name}' already exists".format(name=name))
 
@@ -1085,7 +1086,7 @@ def import_district_submit(request):
                 state_name = line[DISTRICT_CSV_COL_STATE_NAME]
                 state_id = State.objects.get(name=state_name).id
                 safe_state = re.sub(' ', '', state_name)
-                
+
                 validate_district_cvs_line(line)
                 d = District()
                 d.code = line[DISTRICT_CSV_COL_CODE]
@@ -1100,22 +1101,22 @@ def import_district_submit(request):
                 s.save()
 
                 count_success += 1
-                
+
             db.transaction.commit()
             message = {"success": True,
                        "message": "Success! %s district(s) imported." % count_success,
                        "count_success": count_success
                        }
         except Exception as e:
-            
+
             db.transaction.rollback()
             message = {'success': False,
                        'error': 'Import error: %s. At cvs line: %s, Nothing imported.' % (e, count_success + 1)
                        }
-    
+
     return HttpResponse(json.dumps(message))
 ##############################################
-# Import School 
+# Import School
 ##############################################
 SCHOOL_CSV_COLS=2
 
@@ -1164,7 +1165,7 @@ def import_school_submit(request):
             message={"success": True,
                 "message":"Success! %s school(s) imported." % (count_success),
                 "count_success":count_success
-                }    
+                }
         except Exception as e:
             db.transaction.rollback()
             # failure information

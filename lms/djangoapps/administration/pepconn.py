@@ -133,12 +133,11 @@ def cohort_submit(request):
             d = Cohort(request.POST['id'])
         else:
             d = Cohort()
-        d.id = request.POST['id']
         d.code = request.POST['code']
-        d.licences = request.POST['licences']
-        d.term_months = request.POST['term_months']
+        d.licences = int(request.POST['licences'])
+        d.term_months = int(request.POST['term_months'])
         d.start_date = request.POST['start_date']
-        d.district_id = request.POST['district_id']
+        d.district_id = int(request.POST['district_id'])
         d.save()
     except Exception as e:
         db.transaction.rollback()
@@ -321,7 +320,7 @@ def get_school_rows(request):
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 6)
+    filters = get_post_array(request.GET, 'fcol', 5)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -392,7 +391,7 @@ def get_district_rows(request):
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 4)
+    filters = get_post_array(request.GET, 'fcol', 3)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -449,11 +448,11 @@ def get_cohort_rows(request):
                3: ['start_date', '__icontains', False],
                4: ['district__name', '__iexact', 'str'],
                5: ['district__code', '__iexact', 'str'],
-               6: ['district__state', '__iexact', 'str']}
+               6: ['district__state__name', '__iexact', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 8)
+    filters = get_post_array(request.GET, 'fcol', 7)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
@@ -889,7 +888,7 @@ def do_import_user(task, csv_lines, request):
             profile.subscription_status = "Imported"
 
             #** course enroll
-            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+            cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
             cea.is_active = True
             cea.auto_enroll = True
             cea.save()
@@ -1026,7 +1025,7 @@ def single_user_submit(request):
         profile.subscription_status = "Imported"
 
         #** course enroll
-        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG/PEP101x/2014_Spring', email=email)
+        cea, _ = CourseEnrollmentAllowed.objects.get_or_create(course_id='PCG_Education/PEP101.1/S2016', email=email)
         cea.is_active = True
         cea.auto_enroll = True
         cea.save()
@@ -1097,6 +1096,21 @@ def add_to_cohort(request):
 
     j = json.dumps({"message": message})
     return HttpResponse(j, content_type="application/json")
+
+
+def remove_from_cohort(request):
+    message = {'success': True}
+    id = request.POST.get("id")
+    try:
+        user = UserProfile.objects.get(user_id=id)
+        user.cohort_id = 0
+        user.save()
+    except Exception as e:
+        db.transaction.rollback()
+        message = e
+    j = json.dumps({"message": message})
+    return HttpResponse(j, content_type="application/json")
+
 
 #* -------------- Dropdown List -------------
 
@@ -1487,7 +1501,7 @@ def registration_download_excel(request):
 
 def get_post_array(post, name, max=None):
     """
-    Gets array values from a jQuery POST.
+    Gets array values from a POST.
     """
     output = dict()
     for key in post.keys():

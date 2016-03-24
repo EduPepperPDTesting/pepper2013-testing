@@ -97,6 +97,10 @@
     <section class="courses" style="padding-top:5px!important;">
       <div class="courses-listing">
         <div style="padding-left:25px;">
+          <div class="image-link-style" style="width:240px;height:150px;;background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="https://cms-test.pepperpd.com/bookshelf/paths-to-college-and-career" target="_blank" class="card-link image-bottom-style"><span>CMS</span></a>
+          </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb1_engageny.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="https://www.engageny.org/ccss-library" target="_blank" class="card-link image-bottom-style"><span>Common Core Library</span></a>
@@ -113,6 +117,10 @@
             <div style="height:100px;"></div>
             <a href="http://www.k12builder.com/reference/grade/ref-6-gid-37-mima-012f96911-yh-PepperPD-lj-1-DictionaryDemo-1" target="_blank" class="card-link image-bottom-style"><span>STEM Curriculum Resources</span></a>
           </div>
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/westedimage.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="http://raisingthebar.wested.org/resources" target="_blank" class="card-link image-bottom-style"><span>Raising the Bar on Instruction</span></a>
+          </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb5_smarterbalanced.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="http://sbac.portal.airast.org/practice-test/" target="_blank" class="card-link image-bottom-style"><span>Practice Assessments</span></a>
@@ -127,13 +135,26 @@
             <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Course Libraries</span></a>
           </div>
 
-          %if request.user.profile.district.name=='Manteca Unified School District':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
+          %if request.user.profile.district.name=='Principal':
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/course_libraries?name=MUSD Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
+            <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
           </div>
           %endif
 
+          %if request.user.is_authenticated() and len(states) > 0:
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/state/state_content_collection.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/resource_library_global/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Resources</span></a>
+          </div>
+
+          %endif
+          %if request.user.is_authenticated() and len(districts) > 0:
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/district/district_content_collection.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/resource_library_global/districts?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Resources</span></a>
+          </div>
+          %endif
         </div>
       </div>
     </section>

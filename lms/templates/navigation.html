@@ -12,6 +12,7 @@
     import branding
     # app that handles site status messages
     from status.status import get_site_status_msg
+    from administration.time_report import is_time_report_permission
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -329,10 +330,12 @@ except:
             <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
         % endif
 
-        %if curr_user==request.user:
-            <li><a href="/courses" class="main-link">Courses</a></li>
-        %else:
-            <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
+        %if request.user.is_authenticated():
+            %if curr_user==request.user:
+                <li><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
+            %else:
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
+            %endif
         %endif
 
         % if curr_user==request.user and not curr_user.is_authenticated():
@@ -341,13 +344,15 @@ except:
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
+                <li><a href="/communities" class="main-link">Communities</a></li>
                 <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li><a href="/resource_library_global" class="main-link">Resource Library</a></li>
+                <li><a href="/resource_library_global" class="main-link">Resources</a></li>
                 <li><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resource Library</a></li>
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
                 <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
             %endif
@@ -367,7 +372,26 @@ except:
 
         %if curr_user==request.user:
 
-            <ol class="user admin" >
+        <ol class="user admin" >
+
+        %if is_time_report_permission(curr_user):
+          <!-- Time REPORT PERMISSION -->
+          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
+            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+            <ul class="admin-dropdown-menu">
+              <li><a href="${reverse('time_report')}">Time Report</a></li>
+              <script type="text/javascript">
+                $(document).on('click', function(event) {
+                  if(!$(event.target).closest('.admin-menu-holder').length){
+                    $(".admin-dropdown-menu").hide();
+                  }else if($(event.target).closest(".outside_menu").length){
+                    $(".admin-dropdown-menu").hide();
+                  }
+                });
+              </script>
+            </ul>
+          </li>
+        %else:
             %if show_extended and curr_user.is_superuser:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
@@ -376,7 +400,8 @@ except:
                         <li><a href="${reverse('configuration')}">Configuration</a></li>
                         <li><a href="${reverse('pepconn')}">PepConn</a></li>
                         <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        <li><a href="${reverse('sso_metadata_edit')}">SSO Metadata</a></li>
+                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if(!$(event.target).closest('.admin-menu-holder').length){
@@ -389,7 +414,7 @@ except:
                     </ul>
                 </li>
             %endif
-
+        %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
@@ -562,7 +587,8 @@ except:
                }, function(data) {
                  $('#all_course_time').html(data.all_course_time);
                  $('#collaboration_time').html(data.collaboration_time);
-                 $('#totle_adjustment_time').html(data.totle_adjustment_time);
+                 //hide totle adjustment time
+                 //$('#totle_adjustment_time').html(data.totle_adjustment_time);
                  $('#total_time_in_pepper').html(data.total_time_in_pepper);
                  $(".course-time,.course-time-completed").each(function() {
                    var course_id = $(this).attr('course_id');
@@ -1301,7 +1327,7 @@ except:
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser:
+%if curr_user.is_superuser or is_time_report_permission(curr_user):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>

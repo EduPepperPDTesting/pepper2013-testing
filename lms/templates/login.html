@@ -10,272 +10,287 @@
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <style>
-  #submit:hover {
-  background:#6e8194;
-  transition-delay: 0s, 0s, 0s;
-  transition-duration: 0.25s, 0.25s, 0.25s;
-  transition-property:color, background,​ box-shadow;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  transition-duration:0.25s,​ 0.25s,​ 0.25s;
-  color:#fff;
-  }
-  #submit {
-  background-color:#556370;
-  text-decoration: none;
-  padding-bottom: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 7px;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: #949494 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  #submit:normal {
-  background-color:#126F9A;
-  text-decoration: none;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
-  cursor: pointer;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
+    #submit:hover {
+        background:#6e8194;
+        transition-delay: 0s, 0s, 0s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-property:color, background,​ box-shadow;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        transition-duration:0.25s,​ 0.25s,​ 0.25s;
+        color:#fff;
+    }
+    #submit {
+        background-color:#556370;
+        text-decoration: none;
+        padding-bottom: 7px;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 7px;
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        cursor: pointer;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        box-shadow: #949494 0px 2px 1px 0px;
+        color:#fff;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    #submit:normal {
+        background-color:#126F9A;
+        text-decoration: none;
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        cursor: pointer;
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        box-shadow: rgb(10, 74, 103) 0px 2px 1px 0px;
+        color:#fff;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
 </style>
 <!--@end-->
 
 <%block name="title"><title>${_("Log into your {platform_name} Account").format(platform_name=settings.PLATFORM_NAME)}</title></%block>
 
 <%block name="js_extra">
-  <script type="text/javascript">
-    $(function() {
+    <script type="text/javascript">
+        $(function() {
 
-      var view_name = 'view-login';
+            var view_name = 'view-login';
 
-      // adding js class for styling with accessibility in mind
-      $('body').addClass('js').addClass(view_name);
+            // adding js class for styling with accessibility in mind
+            $('body').addClass('js').addClass(view_name);
 
-      // new window/tab opening
-      $('a[rel="external"], a[class="new-vp"]')
-      .click( function() {
-      window.open( $(this).attr('href') );
-      return false;
-      });
+            // new window/tab opening
+            $('a[rel="external"], a[class="new-vp"]')
+                    .click( function() {
+                        window.open( $(this).attr('href') );
+                        return false;
+                    });
 
-      // form field label styling on focus
-      $("form :input").focus(function() {
-        $("label[for='" + this.id + "']").parent().addClass("is-focused");
-      }).blur(function() {
-        $("label").parent().removeClass("is-focused");
-      });
-    });
+            // form field label styling on focus
+            $("form :input").focus(function() {
+                $("label[for='" + this.id + "']").parent().addClass("is-focused");
+            }).blur(function() {
+                $("label").parent().removeClass("is-focused");
+            });
+        });
 
-    (function() {
-      if (localStorage.pepperpd_login_email)
-      {
-        $("#email").val(localStorage.pepperpd_login_email);
-      }
-      toggleSubmitButton(true);
+        (function() {
+            var urlParams = {};
+            var searchString = window.location.search.substring(1);
+            if (searchString !== undefined) {
+                var pairs = searchString.split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var values = pairs[i].split('=');
+                    urlParams[values[0]] = values[1] === undefined ? false : decodeURIComponent(values[1]);
+                }
+            }
 
-      $('#login-form').on('submit', function() {
-        toggleSubmitButton(false);
-      });
+            if (localStorage.pepperpd_login_email)
+            {
+                $("#email").val(localStorage.pepperpd_login_email);
+            }
+            toggleSubmitButton(true);
 
-      $('#login-form').on('ajax:error', function() {
-        toggleSubmitButton(true);
-      });
+            $('#login-form').on('submit', function() {
+                toggleSubmitButton(false);
+            });
 
-      $('#login-form').on('ajax:success', function(event, json, xhr) {
-        if (json.success) {
-          if ($('#remember-yes').attr("checked"))
-          {
-            localStorage.pepperpd_login_email=$("#email").val();
-          }
-          var u=decodeURI(window.location.search);
-          next=u.split("next=")[1];
+            $('#login-form').on('ajax:error', function() {
+                toggleSubmitButton(true);
+            });
 
-          var next_to_dashboard_only=true
-          if (!next_to_dashboard_only && next && !isExternal(next)) {
-            location.href=next;
-          }  else {
-            location.href="${reverse('dashboard')}";
-          }
+            $('#login-form').on('ajax:success', function(event, json, xhr) {
+                if (json.success) {
+                    if ($('#remember-yes').attr("checked"))
+                    {
+                        localStorage.pepperpd_login_email=$("#email").val();
+                    }
 
-        } else {
-          toggleSubmitButton(true);
-          $('.message.submission-error').addClass('is-shown').focus();
-          $('.message.submission-error .message-copy').html(json.value);
+                    if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^course.+courseware/)) {
+                        var next = urlParams['next'];
+                        if (next.substring(0,1) != '/') {
+                            next = '/' + next;
+                        }
+                        location.href = next;
+                    } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^\/sso\/idp\/auth/)) {
+
+                        //alert(urlParams)
+                        location.href = urlParams['next'];
+                    }  else {
+                        location.href = "${reverse('dashboard')}";
+                    }
+
+                } else {
+                    toggleSubmitButton(true);
+                    $('.message.submission-error').addClass('is-shown').focus();
+                    $('.message.submission-error .message-copy').html(json.value);
+                }
+            });
+        })(this);
+
+        function toggleSubmitButton(enable) {
+            var $submitButton = $('form .form-actions #submit');
+
+
+            if(enable) {
+                $submitButton.
+                removeClass('is-disabled').
+                removeProp('disabled').
+
+                <!--@begin:modify LogIn -> Log In-->
+                <!--@date:2013-11-02-->
+                html("${_('Log In').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Courses')}");
+                <!--@end-->
+            } else {
+                $submitButton.
+                addClass('is-disabled').
+                prop('disabled', true).
+                html(gettext('Processing your account information &hellip;'));
+            }
+
         }
-      });
-    })(this);
 
-    function toggleSubmitButton(enable) {
-      var $submitButton = $('form .form-actions #submit');
+        //------------- Clear time storage-------------------//
 
+        function clearTimeSessionStorage(){
+            var user_id = sessionStorage.getItem('user_id');
+            if(user_id != null){
+                sessionStorage.removeItem(user_id + '_course_id');
+                sessionStorage.removeItem(user_id + '_vertical_id');
+                sessionStorage.removeItem(user_id + '_type');
+                sessionStorage.removeItem(user_id + '_time');
+                sessionStorage.removeItem('user_id');
+            }
+        }
 
-      if(enable) {
-        $submitButton.
-          removeClass('is-disabled').
-          removeProp('disabled').
+        clearTimeSessionStorage();
 
-          <!--@begin:modify LogIn -> Log In-->
-          <!--@date:2013-11-02-->
-          html("${_('Log In').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Courses')}");
-          <!--@end-->
-      } else {
-        $submitButton.
-          addClass('is-disabled').
-          prop('disabled', true).
-          html(gettext('Processing your account information &hellip;'));
-      }
-
-    }
-
-//------------- Clear time storage-------------------//
-
-    function clearTimeSessionStorage(){
-      var user_id = sessionStorage.getItem('user_id');
-      if(user_id != null){
-        sessionStorage.removeItem(user_id + '_course_id');
-        sessionStorage.removeItem(user_id + '_vertical_id');
-        sessionStorage.removeItem(user_id + '_type');
-        sessionStorage.removeItem(user_id + '_time');
-        sessionStorage.removeItem('user_id');
-      }
-    }
-
-    clearTimeSessionStorage();
-
-  </script>
+    </script>
 </%block>
 <div style="width:960px;margin:0 auto;">
-<section class="introduction">
-	<!--@begin:use new image name(ppd-...); modify the style-->
-	<!--@date:2013-11-02-->
-	<div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.jpg);border-bottom:1px solid #000;">
-	<!--@end-->
+    <section class="introduction">
+        <!--@begin:use new image name(ppd-...); modify the style-->
+        <!--@date:2013-11-02-->
+        <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-register-banner.jpg);border-bottom:1px solid #000;">
+            <!--@end-->
 
-		<!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
-		<!--@date:2013-11-02-->
-		<div style="width:580px;float:left">
-			<div class="_banner_whatis_title_font">
-				PLEASE LOG IN
-				<div class="_banner_whatis_title_content_font">
-					to access your account and courses
-				</div>
-			</div>
-		</div>
-		<!--@end-->
-	</div>
-</section>
+            <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+            <!--@date:2013-11-02-->
+            <div style="width:580px;float:left">
+                <div class="_banner_whatis_title_font">
+                    PLEASE LOG IN
+                    <div class="_banner_whatis_title_content_font">
+                        to access your account and courses
+                    </div>
+                </div>
+            </div>
+            <!--@end-->
+        </div>
+    </section>
 
-<section class="login container">
-  <section role="main" class="content">
-    <form role="form" id="login-form" method="post" data-remote="true" action="/login_ajax" novalidate>
+    <section class="login container">
+        <section role="main" class="content">
+            <form role="form" id="login-form" method="post" data-remote="true" action="/login_ajax" novalidate>
 
-      <!-- status messages -->
-      <div role="alert" class="status message">
-        <h3 class="message-title">${_("We're Sorry, {platform_name} accounts are unavailable currently").format(platform_name=settings.PLATFORM_NAME)}</h3>
-        <p class="message-copy">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
-      </div>
+                <!-- status messages -->
+                <div role="alert" class="status message">
+                    <h3 class="message-title">${_("We're Sorry, {platform_name} accounts are unavailable currently").format(platform_name=settings.PLATFORM_NAME)}</h3>
+                    <p class="message-copy">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p>
+                </div>
 
-      <div role="alert" class="status message submission-error" tabindex="-1">
-        <h3 class="message-title">${_("The following errors occured while logging you in:")} </h3>
-        <ul class="message-copy">
-          <li>${_("Your email or password is incorrect")}</li>
-        </ul>
-      </div>
+                <div role="alert" class="status message submission-error" tabindex="-1">
+                    <h3 class="message-title">${_("The following errors occured while logging you in:")} </h3>
+                    <ul class="message-copy">
+                        <li>${_("Your email or password is incorrect")}</li>
+                    </ul>
+                </div>
 
-      <p class="instructions sr">
-        ${_('Please provide the following information to log into your {platform_name} account. Required fields are noted by <strong class="indicator">bold text and an asterisk (*)</strong>.').format(platform_name=settings.PLATFORM_NAME)}
-      </p>
+                <p class="instructions sr">
+                    ${_('Please provide the following information to log into your {platform_name} account. Required fields are noted by <strong class="indicator">bold text and an asterisk (*)</strong>.').format(platform_name=settings.PLATFORM_NAME)}
+                </p>
 
-      <fieldset class="group group-form group-form-requiredinformation">
-        <legend class="sr">${_('Required Information')}</legend>
+                <fieldset class="group group-form group-form-requiredinformation">
+                    <legend class="sr">${_('Required Information')}</legend>
 
-        <ol class="list-input">
-<!--@begin:Change the form-->
-<!--@date:2013-11-02-->
-          <li class="field text" id="field-email">
-            <label for="email" style="font-weight:bold;">${_('E-mail')}</label>
-            <input class="" id="email" type="email" name="email" value="" placeholder="example: username@domain.com" required aria-required="true" />
-          </li>
-          <li class="field password" id="field-password">
-            <label for="password" style="font-weight:bold;">${_('Password')}</label>
-            <input id="password" type="password" name="password" value="" required aria-required="true" />
+                    <ol class="list-input">
+                        <!--@begin:Change the form-->
+                        <!--@date:2013-11-02-->
+                        <li class="field text" id="field-email">
+                            <label for="email" style="font-weight:bold;">${_('E-mail')}</label>
+                            <input class="" id="email" type="email" name="email" value="" placeholder="example: username@domain.com" required aria-required="true" />
+                        </li>
+                        <li class="field password" id="field-password">
+                            <label for="password" style="font-weight:bold;">${_('Password')}</label>
+                            <input id="password" type="password" name="password" value="" required aria-required="true" />
             <span class="tip tip-input">
               <a href="#forgot-password-modal" rel="leanModal" class="blue pwd-reset action action-forgotpw">${_('Forgot password?')}</a>
-<!--@end-->
+                <!--@end-->
             </span>
-          </li>
-        </ol>
-      </fieldset>
+                        </li>
+                    </ol>
+                </fieldset>
 
-      <fieldset class="group group-form group-form-secondary group-form-accountpreferences">
-        <legend class="sr">${_('Account Preferences')}</legend>
+                <fieldset class="group group-form group-form-secondary group-form-accountpreferences">
+                    <legend class="sr">${_('Account Preferences')}</legend>
 
-        <ol class="list-input">
-<!--@begin:Change the font of Remember me
-<!--@date:2013-11-02-->
-          <li class="field checkbox" id="field-remember">
-            <input id="remember-yes" type="checkbox" name="remember" value="true" />
-            <label for="remember-yes" style="font-weight:bold;">${_('Remember me')}</label>
-<!--@end-->
-          </li>
-        </ol>
-      </fieldset>
+                    <ol class="list-input">
+                        <!--@begin:Change the font of Remember me
+                        <!--@date:2013-11-02-->
+                        <li class="field checkbox" id="field-remember">
+                            <input id="remember-yes" type="checkbox" name="remember" value="true" />
+                            <label for="remember-yes" style="font-weight:bold;">${_('Remember me')}</label>
+                            <!--@end-->
+                        </li>
+                    </ol>
+                </fieldset>
 
-% if course_id and enrollment_action:
-      <input type="hidden" name="enrollment_action" value="${enrollment_action | h}" />
-      <input type="hidden" name="course_id" value="${course_id | h}" />
-% endif
+                % if course_id and enrollment_action:
+                    <input type="hidden" name="enrollment_action" value="${enrollment_action | h}" />
+                    <input type="hidden" name="course_id" value="${course_id | h}" />
+                % endif
 
-      <div class="form-actions">
-        <button name="submit" type="submit" id="submit" class="action action-primary action-update"></button>
-      </div>
+                <div class="form-actions">
+                    <button name="submit" type="submit" id="submit" class="action action-primary action-update"></button>
+                </div>
 
-    </form>
-  </section>
+            </form>
+        </section>
 
-  <aside role="complementary">
-    <header>
-      <h2 class="sr">${_("Helpful Information")}</h2>
-    </header>
+        <aside role="complementary">
+            <header>
+                <h2 class="sr">${_("Helpful Information")}</h2>
+            </header>
 
-    % if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
-    <!-- <div class="cta cta-login-options-openid">
+            % if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
+                <!-- <div class="cta cta-login-options-openid">
       <h3>${_("Login via OpenID")}</h3>
       <p>${_('You can now start learning with {platform_name} by logging in with your <a rel="external" href="http://openid.net/">OpenID account</a>.').format(platform_name=settings.PLATFORM_NAME)}</p>
       <a class="action action-login-openid" href="#">${_("Login via OpenID")}</a>
     </div> -->
-    % endif
+            % endif
 
-    <div class="cta cta-help" style="line-height:25px;color:#666;">
-<!--@begin:delete the text-->
-<!--@date:2013-11-15-->
-	<!--
-      <h3 style="font-size:16px;color:#3461ad;">Not yet a member of pepper?<br>There are two ways to join.</h3><br>
-	 -->
-<!--@end-->
+            <div class="cta cta-help" style="line-height:25px;color:#666;">
+                <!--@begin:delete the text-->
+                <!--@date:2013-11-15-->
+                <!--
+                  <h3 style="font-size:16px;color:#3461ad;">Not yet a member of pepper?<br>There are two ways to join.</h3><br>
+                 -->
+                <!--@end-->
 
-      <!--@begin:Removed for now and will implement when e-transaction works-->
-      <!--@date:2013-11-02-->
-      <!--
-      To sign up your teachers please<br> contact
-      <a href="mailto:info@pepperpd.com" class="blue-underline" style="text-decoration:underline !important;">info@pepperpd.com</a><br><br>
-      To sign up as an individual,<br> please
-      <a href="" class="blue-underline" style="text-decoration:underline !important;">Click Here</a>
-      -->
-      <!--@end-->
-    </div>
-  </aside>
-  </section>
-  </div>
+                <!--@begin:Removed for now and will implement when e-transaction works-->
+                <!--@date:2013-11-02-->
+                <!--
+                To sign up your teachers please<br> contact
+                <a href="mailto:info@pepperpd.com" class="blue-underline" style="text-decoration:underline !important;">info@pepperpd.com</a><br><br>
+                To sign up as an individual,<br> please
+                <a href="" class="blue-underline" style="text-decoration:underline !important;">Click Here</a>
+                -->
+                <!--@end-->
+            </div>
+        </aside>
+    </section>
+</div>

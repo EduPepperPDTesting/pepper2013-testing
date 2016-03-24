@@ -1,0 +1,163 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+%>
+<%! navbar_show_extended=False %>
+<%inherit file="../main.html" />
+<%namespace name='static' file='../static_content.html'/>
+<%block name="title"><title>Communities</title></%block>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+
+<style type="text/css" media="screen">
+    #page-nav,#page-footer {
+        width: 1180px;
+    }
+    #btn-logged-user{
+        display: none;
+    }
+    .form-select {
+        font-size: 14px !important;
+        width: 180px;}
+    .image-link-style {
+        border-radius: 6px;
+        -moz-border-radius: 6px;
+        -webkit-border-radius: 6px;
+        display: block;
+        float: left;
+        margin: 30px;
+    }
+    .image-bottom-style {
+        border-radius: 0 0 6px 6px;
+        -moz-border-radius: 0 0 6px 6px;
+        -webkit-border-radius: 0 0 6px 6px;
+        display: block;
+    }
+    .card-link {
+        display: table-cell;
+        width: 240px;
+        height: 60px;
+        vertical-align: middle;
+        padding: 0 17px;
+        font-size: 22px;
+        background: rgba(18,111,154,0.95);
+        text-decoration: none !important;
+    }
+    .card-link span {
+        color: #FFFFFF;
+    }
+    .grade_title {
+        float: left;
+        width: 920px;
+        height: 20px;
+        background-color: #fff;
+        text-align: left;
+        padding-left: 40px;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: "Open Sans",Verdana,Geneva,sans-serif;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
+    a.btnx:hover {
+        background: #638194;
+        transition-delay: 0s, 0s, 0s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-property:color, background,​box-shadow;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        color: #fff;
+    }
+    a.btnx {
+        background-color: #556370;
+        padding-bottom: 2px !important;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 2px !important;
+        text-decoration: none !important;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color: #fff;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    a.btnx:normal {
+        background-color: #126F9A;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color: #fff;
+        transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+</style>
+<script>
+    function fsubmit(){
+        var communities = [];
+        %for community in communities:
+            communities[${community['id']}] = "${reverse('community_view', args=[community['id']])}";
+        %endfor
+        var community = $("#community_list_form .form-select").val();
+        window.location.href =  communities[community];
+        return false;
+    }
+</script>
+<section class="find-courses" style="text-align:center;background:#F5F5F5;">
+    <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
+    <!--@date:2013-11-02-->
+    <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
+        <!--@end-->
+
+        <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+        <!--@date:2013-11-02-->
+        <div class="_banner_whatis_title_font">
+            PROFESSIONAL
+            <br/>
+            LEARNING COMMUNITIES
+            <div class="_banner_whatis_title_content_font">
+                build and enhance your community of practice
+            </div>
+        </div>
+        <!--@end-->
+    </div>
+
+    <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
+        <form method="" id="community_list_form" action="">
+            <div style="padding:20px;color:#666;display:inline-block;">
+                <span style="color:#666">Find a Community</span>
+            </div>
+            <div style="display:inline-block;padding:0 1em 0 0;">
+                <select name="subject_id" class="form-select">
+                    %for community in communities:
+                        <option value="${community['id']}">${community['name']}</option>
+                    %endfor
+                </select>
+            </div>
+            <a href="#" class="btnx" onClick="fsubmit();">Find</a>
+            %if request.user.is_superuser:
+                <div style="padding:20px;color:#666;display:inline-block;">
+                    <span style="color:#666"><a href="${reverse('community_add')}">Create a New Community</a></span>
+                </div>
+            %endif
+        </form>
+    </section>
+
+    <section style="margin:auto;width:960px;background:#E4E4E4;">
+        <section class="courses" style="padding-top:5px!important;">
+            <div class="courses-listing">
+                <div style="padding-left:25px;">
+                    %for community in communities:
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(${community['logo']});background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                        </div>
+                    %endfor
+                </div>
+            </div>
+        </section>
+    </section>
+</section>

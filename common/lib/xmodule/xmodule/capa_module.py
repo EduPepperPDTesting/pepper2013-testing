@@ -24,7 +24,6 @@ from django.utils.timezone import UTC
 
 log = logging.getLogger("mitx.courseware")
 
-
 # Generate this many different variants of problems with rerandomize=per_student
 NUM_RANDOMIZATION_BINS = 20
 # Never produce more than this many different seeds, no matter what.
@@ -160,6 +159,15 @@ class CapaFields(object):
         default=False
         )
     #@end
+    #@begin:question_correct
+    #@data:2016-01-11
+    question_correct = Boolean(
+        display_name="Complete question",
+        help="Whether complete question",
+        scope=Scope.user_state,
+        default=False
+        )
+    #@end
 
 class CapaModule(CapaFields, XModule):
     """
@@ -241,7 +249,6 @@ class CapaModule(CapaFields, XModule):
                 raise Exception(msg), None, sys.exc_info()[2]
 
             self.set_state_from_lcp()
-
         assert self.seed is not None
 
     def choose_new_seed(self):
@@ -352,7 +359,8 @@ class CapaModule(CapaFields, XModule):
         final attempt, change the name to "Final Check"
         """
         if self.max_attempts is not None:
-            final_check = (self.attempts >= self.max_attempts - 1)
+            final_check = False
+            #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
 
@@ -622,7 +630,7 @@ class CapaModule(CapaFields, XModule):
         """
         Is the student still allowed to submit answers?
         """
-        if self.max_attempts is not None and self.attempts >= self.max_attempts:
+        if self.max_attempts is not None and (self.attempts >= self.max_attempts or self.question_correct):
             return True
         if self.is_past_due():
             return True
@@ -948,6 +956,10 @@ class CapaModule(CapaFields, XModule):
             if not correct_map.is_correct(answer_id):
                 success = 'incorrect'
 
+        #20160105add
+        if success == 'correct':
+            self.question_correct = True
+
         # NOTE: We are logging both full grading and queued-grading submissions. In the latter,
         #       'success' will always be incorrect
         event_info['correct_map'] = correct_map.get_dict()
@@ -1080,7 +1092,7 @@ class CapaModule(CapaFields, XModule):
         self.system.track_function('save_problem_success', event_info)
         msg = "Your answers have been saved"
         if not self.max_attempts == 0:
-            msg += " but not graded. Hit 'Check' to grade them."
+            msg += " but not graded. Hit 'Submit' to grade them."
         return {'success': True,
                 'msg': msg}
 

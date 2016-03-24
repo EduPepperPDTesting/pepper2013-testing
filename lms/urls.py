@@ -12,24 +12,47 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
 
+    # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
+
 ####### Ancestor
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
-    
-    url(r'^genericsso/$', 'sso.views.genericsso'),
-    url(r'^sso/activate_account/$', 'sso.views.activate_account', name="sso_activate_account"),
-    
-    url(r'^sso/metadata/edit/$', 'sso.metadata.edit', name="sso_metadata_edit"),
-    url(r'^sso/metadata/all_json/$', 'sso.metadata.all_json', name="sso_metadata_all_json"),
-    url(r'^sso/metadata/save/$', 'sso.metadata.save', name="sso_metadata_save"),
 
-    url(r'^register_sso/(?P<activation_key>[^/]*)/$', 'sso.views.register_sso', name="register_sso"),
+    # === sso begin ===
+    url(r'^genericsso/$', 'sso.sp.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
 
-    (r'^saml2/', include('djangosaml2.urls')),
-    (r'^test/', 'djangosaml2.views.echo_attributes'),
-    
-####### Ancestor
+    # edit idp
+    url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
+    url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
+    url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
+
+    # edit sp
+    url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
+    url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
+    url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
+
+    url(r'^sso/sp_metadata/download/saml_federation_metadata$',
+        'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
+
+    url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
+
+    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+    # === sso end ===
+
+    url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
+    url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
+    url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
+    url(r'^tnl/district/delete$', 'tnl_integration.views.tnl_district_delete', name="tnl_district_delete"),
+    url(r'^tnl/course/add$', 'tnl_integration.views.tnl_course_add', name="tnl_course_add"),
+    url(r'^tnl/course/delete$', 'tnl_integration.views.tnl_course_delete', name="tnl_course_delete"),
+    url(r'^tnl/drop-courses$', 'tnl_integration.views.tnl_drop_courses', name="tnl_drop_courses"),
+    url(r'^tnl/drop-districts$', 'tnl_integration.views.tnl_drop_districts', name="tnl_drop_districts"),
+    url(r'^tnl/drop-domains$', 'tnl_integration.views.tnl_drop_domains', name="tnl_drop_domains"),
+    url(r'^tnl/domain/data$', 'tnl_integration.views.tnl_domain_data', name='tnl_domain_data'),
+    url(r'^tnl/tables$', 'tnl_integration.views.tnl_tables', name='tnl_tables'),
+
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
@@ -52,10 +75,12 @@ urlpatterns = (
     url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
+    url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
 
     url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+    url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
@@ -112,7 +137,9 @@ urlpatterns = (
     url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
     url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
     url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
-    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_load_enrollment_courses"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
+    url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
+    url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
     
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
@@ -191,11 +218,41 @@ urlpatterns = (
     url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^resource_library_global/states/$', 'access_resource_library.views.states', name="^resource_library_global_states"),
+    url(r'^resource_library_global/districts/$', 'access_resource_library.views.districts', name="^resource_library_global_districts"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^resource_library_global/resources/$', 'access_resource_library.views.resources', name="resource_library_global_resources"),
+    url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
+
+    url(r'^communities/$', 'communities.views.communities', name="communities"),
+
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),
+    url(r'^community/discussion/new/add$', 'communities.views.discussion_add', name='community_discussion_add'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
+    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
+    url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
+
+    url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
+    url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
+    url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/delete$', 'communities.views.community_delete', name='community_delete'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/join/$', 'communities.views.community_join', name='community_join'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/leave/$', 'communities.views.community_leave', name='community_leave'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'communities.views.get_add_user_rows', name="community_get_add_user_rows"),
+    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'communities.views.get_remove_user_rows', name="community_get_remove_user_rows"),
+
+    url(r'^polls/(?P<poll_type>[a-zA-Z0-9_]+)/(?P<poll_id>[0-9]+)$', 'polls.views.poll_view', name='poll_view'),
+    url(r'^polls/form/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_view', name='poll_form_view'),
+    url(r'^polls/save/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_submit', name='poll_form_submit'),
+    url(r'^polls/vote$', 'polls.views.poll_vote', name='poll_vote'),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
-    
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
+
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -388,9 +445,12 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
-		url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
         url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
+        url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
+        url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),
+        url(r'^courses/leadership$', 'courseware.views.collections', name="courses_collections"),
         url(r'^what_is$', 'branding.views.what_is', name="what_is"),
         url(r'^demo1$', 'branding.views.demo1', name="demo1"),
         url(r'^demo2$', 'branding.views.demo2', name="demo2"),

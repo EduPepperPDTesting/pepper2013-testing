@@ -1,13 +1,13 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%!
-  from django.core.urlresolvers import reverse
-  from courseware.courses import course_image_url, get_course_about_section
-  from courseware.access import has_access
-  from certificates.models import CertificateStatuses
-  from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-  from xmodule.modulestore.django import modulestore
-  from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
-  from baseinfo.models import Enum
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -17,254 +17,309 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
 <style type="text/css" media="screen">
-    #page-nav,#page-footer{width:960px;}
-    #btn-logged-user{display:none;}
-    .form-select{font-size:14px !important;width:180px;}
-    .image-link-style{
-      border-radius: 6px 6px 6px 6px;
-      -moz-border-radius: 6px 6px 6px 6px;
-      -webkit-border-radius: 6px 6px 6px 6px;
-      display: block;
-      float: left;
-      margin: 30px;
+    #btn-logged-user {
+        display:none;
     }
-    .image-bottom-style{
-      border-radius: 0px 0px 6px 6px;
-      -moz-border-radius: 0px 0px 6px 6px;
-      -webkit-border-radius: 0px 0px 6px 6px;
-      display: block;
+    .form-select {
+        font-size:14px !important;
+        width:180px;}
+    .image-link-style {
+        border-radius: 6px 6px 6px 6px;
+        -moz-border-radius: 6px 6px 6px 6px;
+        -webkit-border-radius: 6px 6px 6px 6px;
+        display: block;
+        float: left;
+        margin: 30px;
     }
-    .card-link{
-      display: table-cell;
-      width: 240px;
-      height: 60px;
-      vertical-align: middle;
-      padding: 0 17px;
-      font-size: 22px;
-      background: rgba(18,111,154,0.95);
-      text-decoration: none!important;
+    .image-bottom-style {
+        border-radius: 0 0 6px 6px;
+        -moz-border-radius: 0 0 6px 6px;
+        -webkit-border-radius: 0 0 6px 6px;
+        display: block;
     }
-    .card-link span{
-     color: #FFFFFF;
+    .card-link {
+        display: table-cell;
+        width: 240px;
+        height: 60px;
+        vertical-align: middle;
+        padding: 0 17px;
+        font-size: 22px;
+        background: rgba(18,111,154,0.95);
+        text-decoration: none!important;
     }
-    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    .card-link span {
+        color: #FFFFFF;
+    }
+    .grade_title {
+        float: left;
+        width: 920px;
+        height: 20px;
+        background-color: #fff;
+        text-align: left;
+        padding-left: 40px;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: "Open Sans",Verdana,Geneva,sans-serif;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
     a.btnx:hover {
-    background:#638194;
-    transition-delay: 0s, 0s, 0s;
-    transition-duration: 0.25s, 0.25s, 0.25s;
-    transition-property:color, background,​ box-shadow;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-    transition-duration:0.25s,​ 0.25s,​ 0.25s;
-    color:#fff;
+        background: #638194;
+        transition-delay: 0s, 0s, 0s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-property:color, background,​box-shadow;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        color:#fff;
     }
     a.btnx {
-    background-color:#556370;
-    text-decoration: none;
-    padding-bottom: 2px!important;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 2px!important;
-    text-decoration: none!important;
-    cursor: pointer;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        background-color: #556370;
+        padding-bottom: 2px !important;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 2px !important;
+        text-decoration: none !important;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color:#fff;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
     }
     a.btnx:normal {
-    background-color:#126F9A;
-    text-decoration: none;
-    cursor: pointer;
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    color:#fff;
-    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+        background-color:#126F9A;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+        color:#fff;
+        transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
     }
 </style>
 <script>
- function fsubmit(){
-    $("#course_list_form").submit();
-  }
+    function fsubmit(){
+        $("#course_list_form").submit();
+    }
 </script>
 <section class="find-courses" style="text-align:center;background:#F5F5F5;">
-  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
-  <!--@date:2013-11-02-->
-  <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
-  <!--@end-->
-  
-    <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+    <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
     <!--@date:2013-11-02-->
-    <div class="_banner_whatis_title_font">
-      PROFESSIONAL
-      <br/>
-      LEARNING CENTER
-      <div class="_banner_whatis_title_content_font">
-        build and enhance your community of practice
-      </div>
-    </div>
-    <!--@end-->
-  </div>
+    <div style="margin:0 auto;width:960px;height:195px;background:url(/static/images/ppd-courses-banner.jpg);border-bottom:1px solid #000;">
+        <!--@end-->
 
-  <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
-     <form method="" id="course_list_form" action="${reverse('course_list')}">
-    <div style="padding:20px;color:#666;display:inline-block;">
-    <!--
+        <!--@begin:use html text to replace the text on the picture; add code(class="_...") to modify font style-->
+        <!--@date:2013-11-02-->
+        <div class="_banner_whatis_title_font">
+            PROFESSIONAL
+            <br/>
+            LEARNING CENTER
+            <div class="_banner_whatis_title_content_font">
+                build and enhance your community of practice
+            </div>
+        </div>
+        <!--@end-->
+    </div>
+
+    <section style="margin:auto;text-align:center;width:960px;background:#E6F5FC;">
+        <form method="" id="course_list_form" action="${reverse('course_list')}">
+            <div style="padding:20px;color:#666;display:inline-block;">
+                <!--
       <span style="color:#3468A1;font-family: 'Open Sans';">COURSE (${len(courses)})</span> &nbsp;&nbsp;&nbsp;&nbsp;
     -->
-      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&op=find" style="color:#666">all</a> |
-      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&credit=1&op=find" style="color:#666">credit</a> |
-      <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" style="color:#666">new</a>
-    </div>
-    <div style="display:inline-block;padding:0 1em 0 0;">
-      <select name="subject_id" class="form-select">
-        <option value="all">All Subjects</option>
-        <option value="AR">Assessments and Reporting</option>
-        <option value="ELA">English Language Arts</option>
-        <option value="ELL">English Language Learners</option>
-        <option value="MA">Mathematics</option>
-        <option value="SC">Science</option>
-        <option value="SE">Special Education</option>
-        <option value="TECH">Technology</option>
-        <option value="PEP">Pepper</option>
-        <option value="WR">Writing and Poetry</option>
-      </select>
-    </div>
-    <div style="display:inline-block;padding:0 1em 0 0;">
-      <select name="grade_id" class="form-select">
-        <option value="all">All Grades</option>
-        <option value="K-5">K-5</option>
-        <option value="6-8">6-8</option>
-        <option value="9-12">9-12</option>
-        <option value="K-12">K-12</option>
-      </select>
-    </div>
-    <div style="display:inline-block;padding:0 1em 0 0;">
-      <select name="author_id" class="form-select">
-        <option value="all">All Authors</option>
-        <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
-        <option value="CT Core Standards">CT Core Standards</option>
-        <option value="Manteca Unified School District">Manteca Unified School District</option>
-        <option value="PCG Education">PCG Education</option>
-        <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
-        <option value="WestEd">WestEd</option>
-      </select>
-      <!--<input type="submit" id="edit-submit" name="op" value="find">-->
-    </div>
-    <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
-     <script type="text/javascript">
-        var form=$("#course_list_form");
-        form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
-        form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
-        form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
-      </script>
-    </form>
-  </section>
-
-  <section style="margin:auto;width:960px;background:#E4E4E4;">
-    <section class="courses" style="padding-top:5px!important;">
-      <div class="courses-listing">
-       %if link:
-        <div style="padding-left:25px;">
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Mathematics</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Arts</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Science.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <!--<a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>Science</span></a>-->
-            <a href="/courses-list?subject_id=SC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Science</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Special_Education.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=SE&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Special Education</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Writing_and_Poetry.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
-          </div>
-
-          %if request.user.is_authenticated():
-          %if request.user.profile.district.state.name=='Connecticut':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CT_Image_Courses.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=CT Core Standards&op=find" class="card-link image-bottom-style"><span>CT Core Standards</span></a>
-          </div>
-          %elif request.user.profile.district.name=='Manteca Unified School District':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&district=Manteca Unified School District&op=find" class="card-link image-bottom-style"><span>Content Collection</span></a>
-          </div>
-          %endif
-          %endif
-          
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
-          </div>
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
-          </div>
-        </div>
-       %else:
-         %if len(courses)>0:
-            %if len(courses[0])>0:
-              <div class="grade_title">K-5 Courses</div>
-            %endif
-            %for course in courses[0]:
-               %for c in course:
-                <%include file="../course.html" args="course=c" />
-              %endfor
-              <div style="float:left;width:900px;"></div>
-            %endfor
-         %endif
-          %if len(courses)>1:
-            %if len(courses[1])>0:
-              <div class="grade_title">6-8 Courses</div>
-            %endif
-            %for course in courses[1]:
-              %for c in course:
-                <%include file="../course.html" args="course=c" />
-              %endfor
-              <div style="float:left;width:900px;"></div>
-            %endfor
-         %endif
-          %if len(courses)>2:
-            %if len(courses[2])>0:
-              <div class="grade_title">9-12 Courses</div>
-            %endif
-            %for course in courses[2]:
-               %for c in course:
-                <%include file="../course.html" args="course=c" />
-              %endfor
-              <div style="float:left;width:900px;"></div>
-            %endfor
-         %endif
-         %if len(courses)>3:
-            %if len(courses[3])>0:
-              <div class="grade_title">K-12 Courses</div>
-            %endif
-            %for course in courses[3]:
-               %for c in course:
-                <%include file="../course.html" args="course=c" />
-              %endfor
-              <div style="float:left;width:900px;"></div>
-            %endfor
-         %endif
-       %endif
-      </div>
+                <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&op=find" style="color:#666">all</a> |
+                <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&credit=1&op=find" style="color:#666">credit</a> |
+                <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" style="color:#666">new</a>
+            </div>
+            <div style="display:inline-block;padding:0 1em 0 0;">
+                <select name="subject_id" class="form-select">
+                    <option value="all">All Subjects</option>
+                    <option value="AR">Assessments and Reporting</option>
+                    <option value="DC">Digital Citizenship</option>
+                    <option value="ELA">English Language Arts</option>
+                    <option value="ELL">English Language Learners</option>
+                    <option value="MA">Mathematics</option>
+                    <option value="PEP">Pepper</option>
+                    <option value="POW">Pepper's Online Workshops!</option>
+                    <option value="SC">Science</option>
+                    <option value="SE">Special Education</option>
+                    <option value="TECH">Technology</option>
+                    <option value="WR">Writing and Poetry</option>
+                </select>
+            </div>
+            <div style="display:inline-block;padding:0 1em 0 0;">
+                <select name="grade_id" class="form-select">
+                    <option value="all">All Grades</option>
+                    <option value="PreK-3">PreK-3</option>
+                    <option value="K-5">K-5</option>
+                    <option value="6-8">6-8</option>
+                    <option value="9-12">9-12</option>
+                    <option value="K-12">K-12</option>
+                </select>
+            </div>
+            <div style="display:inline-block;padding:0 1em 0 0;">
+                <select name="author_id" class="form-select">
+                    <option value="all">All Authors</option>
+                    <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
+                    <option value="PCG Education">PCG Education</option>
+                    <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
+                    <option value="WestEd">WestEd</option>
+                </select>
+                <!--<input type="submit" id="edit-submit" name="op" value="find">-->
+            </div>
+            <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
+            <script type="text/javascript">
+                var form=$("#course_list_form");
+                form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
+                form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
+                form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
+                form.find("select[name=state]").val("${request.GET.get('state','')}");
+                form.find("select[name=district]").val("${request.GET.get('district','')}");
+            </script>
+        </form>
     </section>
-  </section>
+
+    <section style="margin:auto;width:960px;background:#E4E4E4;">
+        <section class="courses" style="padding-top:5px!important;">
+            <div class="courses-listing">
+                %if link:
+                    <div style="padding-left:25px;">
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Mathematics.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=MA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Mathematics</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Arts.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=ELA&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Arts</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Science.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <!--<a href="#show_course_prompt" rel="leanModal" class="card-link image-bottom-style"><span>Science</span></a>-->
+                            <a href="/courses-list?subject_id=SC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Science</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Special_Education.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=SE&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Special Education</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Writing_and_Poetry.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=WR&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Writing and Poetry</span></a>
+                        </div>
+
+                        %if collections > 0:
+
+                            <!--------Custom Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/collection/custom_content_collection.jpg);background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="${reverse('courses_collections')}" class="card-link image-bottom-style"><span>Leadership</span></a>
+                            </div>
+
+                        %endif
+
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/English_Language_Learners.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
+                        </div>
+
+                        %if request.user.is_authenticated() and len(states) > 0:
+
+                            <!--------State Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/state/state_content_collection.jpg);background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="/courses/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Content Collections</span></a>
+                            </div>
+
+                        %endif
+                        %if request.user.is_authenticated() and len(districts) > 0:
+
+                            <!--------District Content Collection-------->
+
+                            <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/district/district_content_collection.jpg);background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="/courses/districts?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Content Collections</span></a>
+                            </div>
+
+                        %endif
+                        <!--------20160218 add-------->
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Pepper_Online_Workshop.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper's Online Workshops</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/DC-digital_citiznship_tile.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=DC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Digital Citizenship</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
+                        </div>
+                    </div>
+                %else:
+                    %if len(courses)>4:
+                        %if len(courses[4])>0:
+                            <div class="grade_title">PreK-3 Courses</div>
+                        %endif
+                        %for course in courses[4]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
+                    %if len(courses)>0:
+                        %if len(courses[0])>0:
+                            <div class="grade_title">K-5 Courses</div>
+                        %endif
+                        %for course in courses[0]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
+                    %if len(courses)>1:
+                        %if len(courses[1])>0:
+                            <div class="grade_title">6-8 Courses</div>
+                        %endif
+                        %for course in courses[1]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
+                    %if len(courses)>2:
+                        %if len(courses[2])>0:
+                            <div class="grade_title">9-12 Courses</div>
+                        %endif
+                        %for course in courses[2]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
+                    %if len(courses)>3:
+                        %if len(courses[3])>0:
+                            <div class="grade_title">K-12 Courses</div>
+                        %endif
+                        %for course in courses[3]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
+                %endif
+            </div>
+        </section>
+    </section>
 </section>
 
- <section id="show_course_prompt" class="modal" style="width:640px;">
-  <div class="inner-wrapper" style="width:629x;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
-  <div class="close-modal" id="course_prompt_close">
-    <div class="inner">
-      <p>&#10005;</p>
+<section id="show_course_prompt" class="modal" style="width:640px;">
+    <div class="inner-wrapper" style="width:629px;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
+        <div class="close-modal" id="course_prompt_close">
+            <div class="inner">
+                <p>&#10005;</p>
+            </div>
+        </div>
     </div>
-  </div>
-  </div>
 </section>

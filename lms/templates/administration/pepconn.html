@@ -72,10 +72,10 @@ f.close()
 
                     <div style="padding: 1em 7px 7px 7px;">
                         <label class="label required">District ID:<br/>
-                            <input name="id" value="" chkmsg="District ID cant't be empty." chktype="Require" type="">
+                            <input name="id" value="" chkmsg="District ID can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label">State:<br/>
-                            <select id="state" name="state_id" autocomplete="off">
+                            <select id="state" name="state_id" autocomplete="off" chkmsg="You must select a state." chktype="Require">
                           <option value=""></option>
                           %for item in State.objects.all().order_by('name'):
                           <option value="${item.id}">${item.name}</option>
@@ -83,7 +83,7 @@ f.close()
                         </select>
                         </label><br/>
                         <label class="label required">District Name:<br/>
-                                <input name="name" value="" chkmsg="." chktype="Require" type="">
+                                <input name="name" value="" chkmsg="District Name can't be empty." chktype="Require" type="">
                         </label><br/>
                     </div>
                     <div style="padding:10px 5px">
@@ -117,24 +117,24 @@ f.close()
 
                     <div style="padding: 1em 7px 7px 7px;">
                         <label class="label required">School Code:<br/>
-                            <input name="id" value="" chkmsg="School Code cant't be empty." chktype="Require" type="">
+                            <input name="id" value="" chkmsg="School Code can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label required">School Name:<br/>
-                            <input name="name" value="" chkmsg="School Name cant't be empty." chktype="Require" type="">
+                            <input name="name" value="" chkmsg="School Name can't be empty." chktype="Require" type="">
                         </label><br/>
                         <label class="label">State:<br/>
                             <select id="state_single" name="state_id" autocomplete="off">
-                          <option value="" id="null_case"></option>
+                          <option value="" class="null_case"></option>
                           %for item in State.objects.all().order_by('name'):
-                            <option id="${item.id}" value="${item.id}">${item.name}</option>
+                            <option class="${item.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
-                            <select id="district_id_single" name="district_id" autocomplete="off">
-                              <option id="null_case" value="null_case"></option>
+                            <select id="district_id_single" name="district_id" autocomplete="off" chkmsg="You must select a district." chktype="Require">
+                              <option class="null_case" value="null_case"></option>
                                   %for item in District.objects.all().order_by('name'):
-                                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                                   %endfor
                             </select>
                         </label><br/>
@@ -220,23 +220,23 @@ f.close()
 
                 <div style="padding: 1em 7px 7px 7px;">
                     <label class="label">State:<br/>
-                        <select id="user_state_single" name="state" autocomplete="off">
-                      <option id="null_case" value=""></option>
+                        <select id="user_state_single" name="state" autocomplete="off" chkmsg="You must select a state." chktype="Require">
+                      <option class="null_case" value=""></option>
                       %for item in State.objects.all().order_by('name'):
-                      <option id="${item.id}" value="${item.id}">${item.name}</option>
+                      <option class="${item.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
-                        <select id="user_district_id" name="district" autocomplete="off">
-                          <option id="null_case" value=""></option>
+                        <select id="user_district_id" name="district" autocomplete="off" chkmsg="You must select a district." chktype="Require">
+                          <option class="null_case" value=""></option>
                           %for item in District.objects.all().order_by('name'):
-                          <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                          <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                           %endfor
                         </select>
                     </label><br/>
                     <label class="label required">E-Mail:<br/>
-                        <input name="email" value="" chkmsg="E-Mail cant't be empty." chktype="Require" type="">
+                        <input name="email" value="" chkmsg="E-Mail can't be empty." chktype="Require" type="">
                     </label><br/>
                 </div>
                 <div style="padding:10px 5px">
@@ -251,21 +251,21 @@ f.close()
             <input type="hidden" name="id" value="" />
             <div style="padding: 1em 7px 7px 7px;">
                 <label class="label required">Cohort ID:<br/>
-                    <input name="code" value="" chkmsg="Cohort ID cant't be empty." chktype="Require" type="">
+                    <input name="code" value="" chkmsg="Cohort ID can't be empty." chktype="Require" type="">
                 </label><br/>
                 <label class="label">State:<br/>
                     <select id="cohort_state_single" name="state_id" autocomplete="off">
-                  <option id="null_case" value=""></option>
+                  <option class="null_case" value=""></option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id="${item.id}" value="${item.id}">${item.name}</option>
+                  <option class="${item.id}" value="${item.id}">${item.name}</option>
                   %endfor
                 </select>
                 </label><br/>
                 <label class="label required">District:<br/>
-                    <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District cant't be empty." chkType="Require">
-                      <option id="null_case" value=""></option>
+                    <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District can't be empty." chkType="Require">
+                      <option class="null_case" value=""></option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
                       %endfor
                     </select>
                 </label><br/>
@@ -307,9 +307,9 @@ f.close()
             <div id="filterArea">
 
                 <select type="search" data-column="2" class="search-districts" id="District_state_select">
-                  <option value="" selected class="select-option" id="null_case">Select State</option>
+                  <option value="" selected class="select-option" class="null_case">Select State</option>
                   %for item in State.objects.all().order_by('name'):
-                  <option id="${item.id}" value="${item.name}">${item.name}</option>
+                  <option class="${item.id}" value="${item.name}">${item.name}</option>
                   %endfor
                 </select>
 
@@ -347,10 +347,11 @@ f.close()
             <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
             <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
             <select class="pagesize">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
             </select>
           </form>
         </span><hr>
@@ -369,16 +370,16 @@ f.close()
             <div id="filterArea2">
                 <select type="search" class="search-schools" data-column="4" id="School_state_select">
 
-                      <option value="" id="null_case">Select State</option>
+                      <option value="" class="null_case">Select State</option>
                       %for item in State.objects.all().order_by("name"):
-                      <option id="${item.id}" value="${item.name}">${item.name}</option>
+                      <option class="${item.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
 
-                      <option value="">Select District</option>
+                      <option class="null_case" value="">Select District</option>
                       %for item in District.objects.all():
-                      <option id="${item.state.id}" value="${item.name}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}">${item.name}</option>
                       %endfor
                 </select>
 
@@ -421,10 +422,11 @@ f.close()
             <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
             <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
             <select class="pagesize">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
             </select>
           </form>
         </span><hr>
@@ -442,25 +444,25 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
                 <select type="search" class="search-users" data-column="5" id="User_state_select">
-                    <option value="" id="null_case">Select State</option>
+                    <option value="" class="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.name}">${item.name}</option>
+                        <option class="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-                      <option value="" id="-1" name="null_case">Select District</option>
+                      <option value="" class="-1" name="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                      <option value="" id="null_case">Select School</option>
+                      <option value="" class="null_case">Select School</option>
                       %for item in School.objects.all().order_by('name'):
-                      <option id="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                      <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                       %endfor
                 </select>
                 <select type="search" class="search-users" data-column="8" id="User_registration_select">
-                      <option value="" id="null_case">Select Registration Status</option>
+                      <option value="" class="null_case">Select Registration Status</option>
                     <option value="Registered">Registered</option>
                     <option value="Unregistered">Unregistered</option>
                     <option value="Imported">Imported</option>
@@ -519,10 +521,11 @@ f.close()
             <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
             <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
             <select class="pagesize">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
             </select>
           </form>
         </span><hr>
@@ -536,6 +539,7 @@ f.close()
             <input type="button" value="Delete Selected Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
             <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
             <input type="button" name="" onclick="addToCohort()" style="padding-left:10px;" value="Add To Cohort" class="small" id="userAddToCohort"/>
+            <input type="button" name="" onclick="removeFromCohort()" style="padding-left:10px;" value="Remove From Cohort" class="small" id="userRemoveFromCohort"/>
         </span>
         <ul class="list" id="user_table_custom_email_form">
           <li>
@@ -560,15 +564,15 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea3">
                 <select type="search" class="search-cohorts" data-column="6" id="Cohort_state_select">
-                    <option value="" id="null_case">Select State</option>
+                    <option value="" class="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
-                        <option id="${item.id}" value="${item.id}">${item.name}</option>
+                        <option class="${item.id}" value="${item.name}">${item.name}</option>
                     %endfor
                 </select>
                 <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
-                      <option value="" id="null_case">Select District</option>
+                      <option value="" class="null_case">Select District</option>
                       %for item in District.objects.all().order_by('name'):
-                      <option id="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                       %endfor
                 </select>
                 <input placeholder="Search" class="search-cohorts" type="search" data-column="all" id="Cohort_search">
@@ -609,10 +613,11 @@ f.close()
             <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
             <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
             <select class="pagesize">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
             </select>
           </form>
         </span><hr>
@@ -642,14 +647,16 @@ f.close()
 $("#singleDistrictImportForm").submit(function () {
     var flds = ["id", "name", "state", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_district_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The district was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_district_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The district was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -657,14 +664,16 @@ $("#singleDistrictImportForm").submit(function () {
 $("#singleSchoolImportForm").submit(function () {
     var flds = ["name", "id", "state_id", "district_id", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_school_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The school was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_school_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The school was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -673,14 +682,16 @@ $("#singleUserImportForm").submit(function () {
     syncCKEditorData();
     var flds = ["district", "email", "csrfmiddlewaretoken", "send_registration_email", "customize_email", "custom_email_003", "custom_email_subject"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_single_user_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The user was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_single_user_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The user was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 
@@ -825,69 +836,45 @@ $(document).ready(function () {
         } else new Dialog($('#dialog')).show("Error", "Please select at least one user.");
 
     });
+
+    function filterOptions(item, id) {
+        if ($(item).attr("class") != id) {
+            $(item).css("display", "none");
+        } else {
+            $(item).css("display", "");
+        }
+        if (id == "null_case" || $(item).attr("class") == "null_case") {
+            $(this).css("display", "");
+        }
+    }
     $("#User_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#User_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#User_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#user_state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#user_district_id > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#user_district_id > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#cohort_state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#cohort_district_id > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#cohort_district_id > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#School_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#School_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#School_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#Cohort_state_select").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#Cohort_district_select > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#Cohort_district_select > option").each(function() {
+            filterOptions(this, id)
         });
     });
     $("#User_district_select").change(function () {
@@ -895,24 +882,17 @@ $(document).ready(function () {
         var name = $(this).children(":selected").attr("name");
         $("#User_school_select > option").each(function () {
             $(this).css("display", "");
-            if (name != "null_case" || $(this).attr("id") == "null_case") {
-                if ($(this).attr("id") != id) {
+            if (name != "null_case" || $(this).attr("class") == "null_case") {
+                if ($(this).attr("class") != id) {
                     $(this).css("display", "none");
                 }
             }
         });
     });
     $("#state_single").change(function () {
-        var id = $(this).children(":selected").attr("id");
-        $("#district_id_single > option").each(function () {
-            if ($(this).attr("id") != id) {
-                $(this).css("display", "none");
-            } else {
-                $(this).css("display", "");
-            }
-            if (id == "null_case" || $(this).attr("id") == "null_case") {
-                $(this).css("display", "");
-            }
+        var id = $(this).children(":selected").attr("class");
+        $("#district_id_single > option").each(function() {
+            filterOptions(this, id)
         });
     });
 });
@@ -920,8 +900,9 @@ $(document).ready(function () {
 function addToCohort() {
     var code = "<p id = 'innercohort'>Select Cohort: " + $("#cohort_select").html() + "</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);
-
-
+}
+function removeFromCohort(){
+    new Dialog($("#dialog")).show("Remove From Cohort", "<span id = 'cohort_remove_span'><p>Really remove selected users from cohort?</p><button onClick='submitRemoveFromCohort()'>Submit</button></span>");
 }
 function submitAddToCohort() {
     //console.log("processing");
@@ -946,7 +927,29 @@ function submitAddToCohort() {
     });
 
 }
+function submitRemoveFromCohort() {
+    $("#user_table_init tr").each(function (i, val) {
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        var finished_good = true;
+        $checkedBoxes.each(function (i, box) {
+            var $checkbox = $(box);
+            $.post('${reverse("pepconn_cohort_remove_submit")}', {
+                id: $checkbox.val()
+            }, function (r) {
+                if (r.message = "success") {
 
+                } else {
+                    finished_good = false;
+                }
+            });
+        });
+        if (finished_good){
+            $("#cohort_remove_span").html("<p>The selected users have been removed from their cohorts.</p>");
+        }else $("#cohort_remove_span").html("<p>The following error has occurred: " + r.message + "</p>");
+
+    });
+}
 function openBookmark(table) {
     var code = "<p>Select Filter: <select id = 'bookmark_select_" + table + "'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_" + table + "'></input><br><br><button onClick = 'saveBookmark(\"" + table + "\");'>Save Bookmark</button></p>";
@@ -1100,7 +1103,20 @@ $(function () {
 function getFormData(form, flds) {
     var data = {};
     $.each(flds, function (i, n) {
-        data[n] = $(form[n]).val();
+        var field = $(form[n]);
+        var field_value = field.val();
+        if (field.attr('chktype')) {
+            var chktype = field.attr('chktype');
+            var chkmsg = field.attr('chkmsg');
+            if (field_value == '') {
+                new Dialog($('#dialog')).show("Error", "The following error occurred: " + chkmsg);
+                data = false;
+                return false;
+            }
+        }
+        if (field.attr('type') != 'checkbox' || field.prop('checked')) {
+            data[n] = field_value;
+        }
     });
     return data;
 }
@@ -1108,14 +1124,16 @@ function getFormData(form, flds) {
 $("#cohortImportForm").submit(function () {
     var flds = ["id", "code", "licences", "term_months", "start_date", "district_id", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
-    $.post('${reverse("pepconn_cohort_submit")}', data, function (r) {
-                if (r.success) {
-                    new Dialog($('#dialog')).show('Success', 'The cohort was successfully created!');
-                } else {
-                    new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+    if (data) {
+        $.post('${reverse("pepconn_cohort_submit")}', data, function (r) {
+                    if (r.success) {
+                        new Dialog($('#dialog')).show('Success', 'The cohort was successfully created!');
+                    } else {
+                        new Dialog($('#dialog')).show("Error", "The following error occurred: " + r.error);
+                    }
                 }
-            }
-    );
+        );
+    }
     return false;
 });
 

@@ -29,7 +29,7 @@ from course_modes.models import CourseMode
 
 from django_comment_client.utils import get_discussion_title
 
-from student.models import UserTestGroup, CourseEnrollment
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
 from util.cache import cache, cache_if_anonymous
 from xmodule.modulestore import Location
 from xmodule.modulestore.django import modulestore
@@ -41,8 +41,8 @@ import comment_client
 import json
 import pymongo
 log = logging.getLogger("mitx.courseware")
-
 template_imports = {'urllib': urllib}
+
 
 def user_groups(user):
     """
@@ -74,13 +74,127 @@ def courses(request):
     Render "find courses" page.  The course selection work is done in courseware.courses.
     """
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
-    # courses = sort_by_announcement(courses)
     courses = sort_by_custom(courses)
+    state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
+    collections = get_collection_num()
+    return render_to_response("courseware/courses.html", {
+                              "courses": courses,
+                              "states": state_list,
+                              "districts": district_list,
+                              "collections": collections,
+                              "link": True})
 
-    return render_to_response("courseware/courses.html", {'courses': courses, 'link': True})
 
-#20151203 add for dipcourses	
-#begin	
+def is_all(course, type):
+    if type == 'collection':
+        if 'All' in course.content_collections:
+            return True
+    elif type == 'state':
+        if 'All' in course.display_state:
+            return True
+    elif type == 'district':
+        if 'All' in course.display_district:
+            return True
+    return False
+
+
+def get_all_state_and_district(courses):
+    state = []
+    district = []
+    for course in courses:
+        if is_all(course, 'state') is False:
+            state.extend(course.display_state)
+
+        if is_all(course, 'district') is False:
+            district.extend(course.display_district)
+    return state, district
+
+
+def get_state_and_district_list(request, courses):
+    state_temp = []
+    state_list = []
+    district_name = {}
+    district_temp = []
+    district_list = []
+    all_state = []
+    all_district = []
+    if request.user.is_authenticated():
+        for course in courses:
+
+            if is_all(course, 'state') is False:
+                all_state.extend(course.display_state)
+
+            if is_all(course, 'district') is False:
+                all_district.extend(course.display_district)
+
+            if request.user.is_superuser is False:
+
+                if request.user.profile.district.state.name in course.display_state:
+                    state_temp.append(request.user.profile.district.state.name)
+
+                if request.user.profile.district.code in course.display_district:
+                    district = District.objects.filter(code=request.user.profile.district.code)[0]
+                    district_temp.append(request.user.profile.district.code)
+                    district_name[request.user.profile.district.code] = district.name
+            else:
+                if len(course.display_state) > 0 and is_all(course, 'state') is False:
+                    state_temp.extend(course.display_state)
+
+                if len(course.display_district) > 0 and is_all(course, 'district') is False:
+                    districts = District.objects.filter(code__in=course.display_district)
+                    district_temp.extend(course.display_district)
+                    for district in districts:
+                        district_name[district.code] = district.name
+
+        all_state = list(set(all_state))
+        all_district = list(set(all_district))
+        state_list = sorted(set(state_temp), key=lambda x: x[0])
+        district_temp = sorted(set(district_temp), key=lambda x: x[0])
+        for dl in district_temp:
+            district_list.append({'id': dl, 'name': district_name[dl]})
+
+    return state_list, district_list, all_state, all_district
+
+
+def is_state_district_show(user, course, is_member):
+    if user.is_authenticated():
+        if user.is_superuser:
+            return True
+        else:
+            if course.state_district_only:
+                state = user.profile.district.state.name
+                district = user.profile.district.code
+                if state in course.display_state or district in course.display_district:
+                    return True
+
+                if (is_all(course, 'state') and is_member['state']) or (is_all(course, 'district') and is_member['district']):
+                    return True
+            else:
+                return True
+    else:
+        if len(course.display_state) == 0 and len(course.display_district) == 0:
+            return True
+    return False
+
+
+def custom_collection_visibility(user, course, collection):
+    if user.is_authenticated():
+        if user.is_superuser:
+            return True
+        else:
+            if course.custom_collection_only:
+                # TODO: test whether the user is allowed to see this collection here. If they are allowed, return True.
+                pass
+            else:
+                return True
+    else:
+        if len(course.content_collections) == 0:
+            return True
+    return False
+
+
+# 20151203 add for dpicourses
+# begin
 @ensure_csrf_cookie
 @cache_if_anonymous
 def newgroup_courses(request):
@@ -92,11 +206,12 @@ def newgroup_courses(request):
     courses = sort_by_custom(courses)
 
     return render_to_response("courseware/dpicourses.html", {'courses': courses, 'link': True})
-#end
+# end
+
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
-    #20151130 modify the courses shown in different course grade after press ALl button
-    #begin
+    # 20151130 modify the courses shown in different course grade after press All button
+    # begin
     if course.display_grades == 'K-5':
         if course.display_subject != currSubject[0]:
             currSubject[0] = course.display_subject
@@ -121,7 +236,18 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
             subject_index[3] += 1
             g_courses[3].append([])
         g_courses[3][subject_index[3]].append(course)
-    #end
+    # end
+
+    # 20160322 add "Add new grade 'PreK-3'"
+    # begin
+    if course.display_grades == 'PreK-3':
+        if course.display_subject != currSubject[4]:
+            currSubject[4] = course.display_subject
+            subject_index[4] += 1
+            g_courses[4].append([])
+        g_courses[4][subject_index[4]].append(course)
+    # end
+
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -129,14 +255,20 @@ def course_list(request):
     """
     Render "find courses" page.  The course selection work is done in courseware.courses.
     """
-    subject_id = request.GET.get('subject_id', '')
-    grade_id = request.GET.get('grade_id', '')
-    author_id = request.GET.get('author_id', '')
+    subject_id = request.GET.get('subject_id', 'all')
+    grade_id = request.GET.get('grade_id', 'all')
+    author_id = request.GET.get('author_id', 'all')
     district = request.GET.get('district', '')
     state = request.GET.get('state', '')
+    collection = request.GET.get('collection', '')
     credit = request.GET.get('credit', '')
     is_new = request.GET.get('is_new', '')
-	
+
+    all_courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    state_list, district_list, all_state, all_district = get_state_and_district_list(request, all_courses)
+
+    is_member = {'state': False, 'district': False}
+
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
         filterDic['metadata.display_subject'] = subject_id
@@ -151,31 +283,48 @@ def course_list(request):
         filterDic['metadata.display_organization'] = author_id
 
     if district != '':
-        filterDic['metadata.display_district'] = district
+        if district in all_district:
+            is_member['district'] = True
+            filterDic['metadata.display_district'] = {'$in': [district, 'All']}
+        else:
+            filterDic['metadata.display_district'] = district
 
     if state != '':
-        filterDic['metadata.display_state'] = state
+        if state in all_state:
+            is_member['state'] = True
+            filterDic['metadata.display_state'] = {'$in': [state, 'All']}
+        else:
+            filterDic['metadata.display_state'] = state
+
+    if collection != '':
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
 
     if credit != '':
         filterDic['metadata.display_credit'] = True
 
     items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
-    subject_index = [-1, -1, -1, -1]
-    currSubject = ["", "", "", ""]
-    g_courses = [[], [], [], []]
-    if is_new != '':
-        for course in courses:
-            if course.is_newish:
-                course_filter(course, subject_index, currSubject, g_courses, grade_id)
-    else:
-        for course in courses:
+    # 20160322 modify "Add new grade 'PreK-3'"
+    # begin
+    subject_index = [-1, -1, -1, -1, -1]
+    currSubject = ["", "", "", "", ""]
+    g_courses = [[], [], [], [], []]
+    # end 
+
+    for course in courses:
+        if (is_new == '' or course.is_newish) and is_state_district_show(request.user, course, is_member) and \
+                custom_collection_visibility(request.user, course, collection):
             course_filter(course, subject_index, currSubject, g_courses, grade_id)
+
     for gc in g_courses:
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
-    return render_to_response("courseware/courses.html", {'courses': g_courses})
-	
+    return render_to_response("courseware/courses.html", {
+                              "courses": g_courses,
+                              "states": state_list,
+                              "districts": district_list})
+
+
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def dpicourse_list(request):
@@ -228,6 +377,124 @@ def dpicourse_list(request):
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
     return render_to_response("courseware/dpicourses.html", {'courses': g_courses})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def states(request):
+    """
+    Render "find states" page.
+    """
+    state = request.GET.get('state', '')
+    filterDic = {'_id.category': 'course'}
+    state_list = []
+    if request.user.is_superuser is False:
+        filterDic['metadata.display_state'] = state
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    state_temp = []
+    for course in courses:
+        if len(course.display_state) > 0 and is_all(course, 'state') is False:
+            if request.user.is_superuser is False:
+                state_temp.append(state)
+            else:
+                state_temp.extend(course.display_state)
+    state_temp = sorted(set(state_temp), key=lambda x: x[0])
+    for sl in state_temp:
+        state_list.append({'id': sl, 'name': sl})
+    return render_to_response("courseware/collections.html", {'page_title': 'State',
+                                                              'collection_type': 'state',
+                                                              'items': state_list})
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def districts(request):
+    """
+    Render "find districts" page.
+    """
+    district = request.GET.get('district', '')
+    filterDic = {'_id.category': 'course'}
+
+    district_name = {}
+    district_temp = []
+    district_list = []
+
+    if request.user.is_superuser is False:
+        filterDic['metadata.display_district'] = district
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+    for course in courses:
+        if len(course.display_district) > 0 and is_all(course, 'district') is False:
+            if request.user.is_superuser is False:
+                district = filterDic['metadata.display_district']
+                districts = District.objects.filter(code=district)
+                district_temp.append(district)
+            else:
+                districts = District.objects.filter(code__in=course.display_district)
+                district_temp.extend(course.display_district)
+
+            for district in districts:
+                district_name[district.code] = district.name
+    district_temp = sorted(set(district_temp), key=lambda x: x[0])
+    for dl in district_temp:
+        district_list.append({'id': dl, 'name': district_name[dl]})
+    return render_to_response("courseware/collections.html", {'page_title': 'District',
+                                                              'collection_type': 'district',
+                                                              'items': district_list})
+
+
+def get_collection_num():
+    filterDic = {'_id.category': 'course', 'metadata.content_collections': {'$exists': True}}
+    items = modulestore().collection.find(filterDic)
+    return len(list(items))
+
+
+def get_collection_course_num(user, collection):
+    filterDic = {'_id.category': 'course'}
+    if collection != '':
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(items), 0)
+
+    course_count = 0
+    for course in courses:
+        if custom_collection_visibility(user, course, collection):
+            course_count += 1
+
+    return course_count
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def collections(request):
+    """
+    Render "find collections" page.
+    """
+    collection = request.GET.get('collection', '')
+    filterDic = {'_id.category': 'course'}
+
+    collection_temp = []
+    collection_list = []
+
+    filterDic['metadata.content_collections'] = {'$exists': True}
+    if collection != '':
+        filterDic['metadata.content_collections'] = {'$in': [collection, 'All']}
+    items = modulestore().collection.find(filterDic)
+    courses = modulestore()._load_items(list(items), 0)
+
+    superuser = request.user.is_superuser
+    for course in courses:
+        if len(course.content_collections) > 0:
+            collection_temp = list(set(collection_temp) | set(course.content_collections))
+
+    collection_temp = sorted(set(collection_temp), key=lambda x: x[0])
+    for cl in collection_temp:
+        collection_list.append({'id': cl, 'name': cl})
+    return render_to_response("courseware/collections.html", {'page_title': 'Leadership',
+                                                              'collection_type': 'collection',
+                                                              'items': collection_list})
+
 
 def render_accordion(request, course, chapter, section, field_data_cache):
     """
