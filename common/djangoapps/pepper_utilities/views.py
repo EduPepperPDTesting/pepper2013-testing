@@ -57,7 +57,7 @@ def user_email_completion(request):
     r = list()
     lookup = request.GET.get('q', False)
     if lookup:
-        data = User.objects.filter(email_icontains=lookup)
+        data = User.objects.filter(email__istartswith=lookup)
         for item in data:
             r.append(item.email)
     return HttpResponse(json.dumps(r), content_type='application/json')
