@@ -17,7 +17,7 @@
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
 
 <style>
-    /*.modal {
+    .modal {
         position: absolute;
         opacity: 1;
         z-index: 11000;
@@ -59,21 +59,131 @@
         padding: 20px 10px;
         line-height: 20px;
     }
-    .modal .discussion-error {
-        color: #f00;
-        font-weight: bold;
-        font-size: 120%;
-        line-height: 120%;
-    }
     .modal .inner-wrapper form textarea {
         height: 100px;
-    }*/
-    .discussion-error-box {
+    }
+    .modal label, .modal input, .modal select {
+        display: block;
+    }
+    .modal label span {
+        color: red;
+    }
+    .modal label span::before {
+        content: "<";
+    }
+    .modal label span::after {
+        content: ">";
+    }
+    .error-box {
         border-color: red !important;
     }
     .group-edit img, .permission-edit img {
         height: 16px;
         width: 16px;
+    }
+    .selected-group {
+        background-color: #00A000;
+    }
+    .content-wrapper {
+        padding: 20px auto;
+    }
+    #permissions {
+        margin-top: 20px;
+    }
+    #groups {
+        margin-bottom: 20px;
+    }
+    .expand_div {
+        padding: 10px 10px 0 10px;
+    }
+    #groups-column {
+        width: 33%;
+        float: left;
+    }
+    .permissions-table {
+        width: 100%;
+        border: 1px solid #555;
+    }
+    .permissions-table th {
+        border-bottom: 1px solid #555;
+        background-color: #ddd;
+        border-right: 1px solid #555;
+        text-align: left;
+        padding: 4px;
+    }
+    .permissions-table tr {
+        border-bottom: 1px solid #555;
+    }
+    .permissions-table td {
+        border-right: 1px solid #555;
+        padding: 4px;
+        text-align: left;
+    }
+    #groups-info-column {
+        width: 66%;
+        float: right;
+    }
+    #permission-actions, #group-actions, #group-permission-actions, #member-actions {
+        padding: 10px 0;
+        text-align: right;
+    }
+    .clear {
+        clear: both;
+        height: 1px;
+        margin-top: -1px;
+    }
+    .acResults {
+        z-index: 11001;
+        background-color: #ddd;
+        border-radius: 5px;
+        border: 1px solid #555;
+        padding: 0;
+    }
+    .acResults ul {
+        padding: 0;
+        margin: 0;
+    }
+    .acResults li {
+        list-style: none;
+        padding: 10px;
+        margin: 0;
+    }
+    .acSelect {
+        background-color: #0000d4;
+        color: white;
+    }
+    #delete-permissions, #delete-groups, #delete-group-permission, #delete-group-members,
+    #new-permission, #new-group, #add-group-permission, #add-group-member {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        color: black;
+        display: inline-block;
+        background-color: transparent;
+        background-image: none;
+        text-align: center;
+        text-decoration: none;
+        text-shadow: none;
+        font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
+        letter-spacing: normal;
+        padding: 32px 5px 5px 5px;
+        text-transform: none;
+        height: 52px;
+    }
+    #delete-permissions, #delete-groups, #delete-group-permission, #delete-group-members {
+        background: transparent url(/static/images/certificate/ui/delete.png) center top no-repeat;
+    }
+    #delete-permissions:hover, #delete-groups:hover, #delete-group-permission:hover, #delete-group-members:hover {
+        background: transparent url(/static/images/certificate/ui/delete_mo.png) center top no-repeat;
+    }
+    #new-permission, #new-group, #add-group-permission, #add-group-member {
+        background: transparent url(/static/images/certificate/ui/add_new.png) center top no-repeat;
+    }
+    #new-permission:hover, #new-group:hover, #add-group-permission:hover, #add-group-member:hover {
+        background: transparent url(/static/images/certificate/ui/add_new_mo.png) center top no-repeat;
+    }
+    .check-column {
+        width: 40px;
     }
 </style>
 <script type="text/javascript">
@@ -173,14 +283,88 @@
         }
         return valid;
     }
-    function postForm(form, dialog) {
+    function postForm(form, dialog, callback, passthrough) {
         var params = $(form).serialize();
         $.post($(form).attr('action'), params, function (data) {
             if (data.Success) {
                 dialog.hide();
+                if ($.isFunction(callback)) {
+                    if (typeof passthrough !== 'undefined') {
+                        callback(passthrough);
+                    } else {
+                        callback();
+                    }
+                }
             } else {
                 alert('There was an error saving this item. Please concat the site admins for help.');
             }
+        });
+    }
+    function updatePermissions() {
+        $('#permissions-table .data').remove();
+        $.get("${reverse('permissions_permissions_list')}", function (data) {
+            $.each(data, function (index, object) {
+                var row = '<tr class="data">';
+                row += '<td>' + object.name + '</td>';
+                row += '<td>' + object.item + '</td>';
+                row += '<td>' + object.action + '</td>';
+                row += '<td class="check-column">';
+                row += '<input type="checkbox" value="' + object.id + '" class="permission-select">&nbsp;';
+                row += '<a href="#' + object.id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+                row += '</td>';
+                row += '</tr> ';
+                $('#permissions-table').append(row);
+            });
+        });
+    }
+    function updateGroups() {
+        $('#groups-table .data').remove();
+        $.get("${reverse('permissions_group_list')}", function (data) {
+            $.each(data, function (index, object) {
+                var row = '<tr class="data">';
+                row += '<td>' + object.name + '</td>';
+                row += '<td class="check-column">';
+                row += '<input type="checkbox" value="' + object.id + '" class="group-select">&nbsp;';
+                row += '<a href="#' + object.id + '" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
+                row += '</td>';
+                row += '</tr> ';
+                $('#groups-table').append(row);
+            });
+        });
+    }
+    function updateGroupMembers(group_id) {
+        $('#group-members-table .data').remove();
+        $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
+            $.each(data, function (index, object) {
+                var row = '<tr class="data">';
+                row += '<td>' + object.first_name + '</td>';
+                row += '<td>' + object.last_name + '</td>';
+                row += '<td>' + object.email + '</td>';
+                row += '<td>' + object.state + '</td>';
+                row += '<td>' + object.district + '</td>';
+                row += '<td>' + object.school + '</td>';
+                row += '<td class="check-column">';
+                row += '<input type="checkbox" value="' + object.user_id + '" class="user-select">';
+                row += '</td>';
+                row += '</tr>';
+                $('#group-members-table').append(row);
+            });
+        });
+    }
+    function updateGroupPermissions(group_id) {
+        $('#group-permissions-table .data').remove();
+        $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
+            $.each(data, function (index, object) {
+                var row = '<tr class="data">';
+                row += '<td>' + object.name + '</td>';
+                row += '<td>' + object.item + '</td>';
+                row += '<td>' + object.action + '</td>';
+                row += '<td class="check-column">';
+                row += '<input type="checkbox" value="' + object.id + '" class="group-permission-select">';
+                row += '</td>';
+                row += '</tr> ';
+                $('#group-permissions-table').append(row);
+            });
         });
     }
     $(document).ready(function() {
@@ -195,40 +379,14 @@
                 $(this).addClass("expand_title_expanded");
             }
         });
-        $(".group-edit").change(function() {
-            var checked = $(".group-edit:checked");
-            if (checked.length == 1) {
-                var group_id = checked.val();
-                $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
-                    $.each(data, function (index, object) {
-                        var row = '<tr>';
-                        row += '<td>' + object.first_name + '</td>';
-                        row += '<td>' + object.last_name + '</td>';
-                        row += '<td>' + object.email + '</td>';
-                        row += '<td>' + object.state + '</td>';
-                        row += '<td>' + object.district + '</td>';
-                        row += '<td>' + object.school + '</td>';
-                        row += '<td>';
-                        row += '<input type="checkbox" value="' + object.user_id + '" class="user-select">';
-                        row += '</td>';
-                        row += '</tr>';
-                        $('#users-table').append(row);
-                    });
-                });
-                $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
-                    $.each(data, function (index, object) {
-                        var row = '<tr>';
-                        row += '<td>' + object.name + '</td>';
-                        row += '<td>' + object.item + '</td>';
-                        row += '<td>' + object.action + '</td>';
-                        row += '<td>';
-                        row += '<input type="checkbox" value="' + object.permission_id + '" class="group-permission-select">';
-                        row += '</td>';
-                        row += '</tr> ';
-                        $('#group-permissions-table').append(row);
-                    });
-                });
-            }
+        $(".group-edit").click(function() {
+            $('#groups-table tr').removeClass('selected-group');
+            $(this).parents('tr').addClass('selected-group');
+            $('#add-group-permission').removeAttr('disabled');
+            $('#add-group-member').removeAttr('disabled');
+            var group_id = $(this).siblings('input').attr('value');
+            updateGroupMembers(group_id);
+            updateGroupPermissions(group_id);
         });
         $('#new-permission').click(function () {
             var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit">';
@@ -243,7 +401,7 @@
             $('#new-permission-submit').submit(function (event) {
                 event.preventDefault();
                 if (validatePermissionForm()) {
-                    postForm(this, dialog);
+                    postForm(this, dialog, updatePermissions);
                 }
             });
         });
@@ -251,23 +409,25 @@
             var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
             content += '<label>Group Name:<input type="text" name="name"></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
-            content += '<input type="submit" name="submit" value="Add"></label>';
+            content += '<input type="submit" name="submit" value="Add">';
             content += '</form>';
             var dialog = new Dialog('#dialog');
             dialog.show('New Permission', content);
             $('#new-group-submit').submit(function (event) {
                 event.preventDefault();
                 if (validateGroupForm()) {
-                    postForm(this, dialog);
+                    postForm(this, dialog, updateGroups);
                 }
             });
         });
-        $('#add-permission').click(function () {
-            var content = '<form action="${reverse('permissions_group_permission_add')}" method="get" id="add-permission-submit">';
+        $('#add-group-permission').click(function () {
+            var group = $(".selected-group input").val();
+
+            var content = '<form action="${reverse('permissions_group_permission_add')}" method="post" id="add-permission-submit">';
             content += '<select name="permission">';
 
             $.ajax({
-                url: "${reverse('permissions_permission_list')}",
+                url: "${reverse('permissions_permissions_list')}",
                 type: 'GET',
                 async: false,
                 success: function(data) {
@@ -278,36 +438,45 @@
             });
 
             content += '</select>';
+            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+            content += '<input type=hidden name="group" value="' + group + '">';
+            content += '<input type="submit" name="submit" value="Add">';
             content += '</form>';
             var dialog = new Dialog('#dialog');
             dialog.show('Add Permission', content);
             $('#add-permission-submit').submit(function (event) {
                 event.preventDefault();
-                postForm(this, dialog);
+                postForm(this, dialog, updateGroupPermissions, group);
             });
         });
-        $('#add-user').click(function () {
-            var content = '<form action="${reverse('permissions_user_add')}" method="post" id="add-user-submit">';
-            content += '<label>Choose a user by email:<input type="text" id="add-user-email">';
-            content += '<label>Or add a group of users: <span id="user-selection">Select State to Start</span></label>';
+        $('#add-group-member').click(function () {
+            var group = $(".selected-group input").val();
+
+            var content = '<form action="${reverse('permissions_group_member_add')}" method="post" id="add-member-submit">';
+            content += '<label>Choose a user by email:<input type="text" name="member" id="add-user-email">';
+            content += '<label><strong>Or</strong> add a group of users: <span id="user-selection">Select State to Start</span></label>';
             content += '<label id="state-label">By State:<select name="state" id="state-select"><option value=""></option></select></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+            content += '<input type=hidden name="group" value="' + group + '">';
             content += '<input type="submit" name="submit" value="Add">';
             var dialog = new Dialog('#dialog');
             dialog.show('Add User', content);
-            $('#add-user-submit').submit(function () {
-
+            $('#add-member-submit').submit(function (event) {
+                event.preventDefault();
+                postForm(this, dialog, updateGroupMembers, group);
             });
             $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
                 var options = '';
                 $.each(data, function (index, object) {
                     options += '<option value="' + object.id + '">' + object.name + '</option>';
                 });
-                $('#state-select').html(options);
+                $('#state-select').append(options);
             });
             $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}', {remoteDataType: 'json'});
             $('#state-select').change(function () {
                 if ($(this).val()) {
+                    $('#district-label').remove();
+                    $('#school-label').remove();
                     $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
                         var content = '<label id="district-label">By District<select name="district", id="district-select"><option value=""></option>';
                         $.each(data, function (index, object) {
@@ -315,9 +484,10 @@
                         });
                         content += '</select></label>';
                         $('#state-label').after(content);
-                        $('#user-selection').html('All users in ' + $(this).children('option').is('selected').text());
+                        $('#user-selection').html('All users in ' + $('#state-select').children(':selected').text());
                         $('#district-select').change(function () {
                             if ($(this).val()) {
+                                $('#school-label').remove();
                                 $.get('${reverse('pepper_utilities_drop_schools')}', {district: $(this).val()}, function (data) {
                                     var content = '<label id="school-label">By School<select name="school", id="school-select"><option value=""></option>';
                                     $.each(data, function (index, object) {
@@ -325,14 +495,22 @@
                                     });
                                     content += '</select></label>';
                                     $('#district-label').after(content);
-                                    $('#user-selection').html('All users in district ' + $(this).children('option').is('selected').text());
+                                    $('#user-selection').html('All users in district ' + $('#district-select').children(':selected').text());
                                     $('#school-select').change(function () {
-                                        $('#user-selection').html('All users in school ' + $(this).children('option').is('selected').text());
+                                        if ($(this).val()) {
+                                            $('#user-selection').html('All users in school ' + $('#school-select').children(':selected').text());
+                                        } else {
+                                            $('#user-selection').html('All users in district ' + $('#district-select').children(':selected').text());
+                                        }
                                     });
                                 });
+                            } else {
+                                $('#user-selection').html('All users in ' + $('#state-select').children(':selected').text());
                             }
                         });
                     });
+                } else {
+                    $('#user-selection').html('Select State to Start');
                 }
             });
         });
@@ -347,19 +525,19 @@
         </div>
         <div class="expand_div">
             <form action="/permissions/permission/delete" method="post">
-                <table id="permissions-table">
+                <table id="permissions-table" class="permissions-table">
                     <tr>
                         <th>Name</th>
                         <th>Target</th>
                         <th>Action</th>
-                        <th><input type="checkbox" value="1" class="permission-select-all"></th>
+                        <th class="check-column"><input type="checkbox" value="1" class="permission-select-all"></th>
                     </tr>
                     %for permission in permissions:
-                        <tr>
+                        <tr class="data">
                             <td>${permission.name}</td>
                             <td>${permission.item}</td>
                             <td>${permission.action}</td>
-                            <td>
+                            <td class="check-column">
                                 <input type="checkbox" value="${permission.id}" class="permission-select">&nbsp;
                                 <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
                             </td>
@@ -367,7 +545,8 @@
                     %endfor
                 </table>
                 <div id="permission-actions">
-                    <input type="button" value="New Permission" id="new-permission"> <input type="submit" value="Delete Selected">
+                    <input type="button" value="New Permission" id="new-permission">
+                    <input type="submit" value="Delete Selected" id="delete-permissions">
                 </div>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             </form>
@@ -380,77 +559,85 @@
             Users &amp; Groups <div class="icon"></div>
         </div>
         <div class="expand_div">
-            <form action="/permissions/group/delete-group" method="post">
-                <table id="groups-table">
-                    <tr>
-                        <th>Name</th>
-                        <th><input type="checkbox" value="1" class="group-select-all"></th>
-                    </tr>
-                    %for group in groups:
+            <div id="groups-column">
+                <form action="/permissions/group/delete-group" method="post">
+                    <table id="groups-table" class="permissions-table">
                         <tr>
-                            <td>${group.name}</td>
-                            <td>
-                                <input type="checkbox" value="${group.id}" class="group-select">&nbsp;
-                                <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
-                            </td>
+                            <th>Name</th>
+                            <th><input type="checkbox" value="1" class="group-select-all"></th>
                         </tr>
-                    %endfor
-                </table>
-                <div id="group-actions">
-                    <input type="button" value="New Group" id="new-group"> <input type="submit" value="Delete Selected">
-                </div>
-                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-            </form>
-            <form action="/permissions/group/remove-user" method="post">
-                <table id="users-table">
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>State</th>
-                        <th>District</th>
-                        <th>School</th>
-                        <th><input type="checkbox" value="1" class="user-select-all"></th>
-                    </tr>
-                    <!--<tr>
-                        <td>first_name</td>
-                        <td>last_name</td>
-                        <td>email</td>
-                        <td>state</td>
-                        <td>district</td>
-                        <td>school</td>
-                        <td>
-                            <input type="checkbox" value="id" class="user-select">
-                        </td>
-                    </tr>-->
-                </table>
-                <div id="user-actions">
-                    <input type="button" value="Add User" id="add-user"> <input type="submit" value="Remove Selected">
-                </div>
-                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-            </form>
-            <form action="/permissions/group/remove-permission" method="post">
-                <table id="group-permissions-table">
-                    <tr>
-                        <th>Name</th>
-                        <th>Target</th>
-                        <th>Action</th>
-                        <th><input type="checkbox" value="1" class="group-permission-select-all"></th>
-                    </tr>
-                    <!--<tr>
-                        <td>name</td>
-                        <td>item</td>
-                        <td>action</td>
-                        <td>
-                            <input type="checkbox" value="id" class="group-permission-select">
-                        </td>
-                    </tr>-->
-                </table>
-                <div id="permission-actions">
-                    <input type="button" value="Add Permission" id="add-permission"> <input type="submit" value="Delete Selected">
-                </div>
-                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-            </form>
+                        %for group in groups:
+                            <tr class="data">
+                                <td>${group.name}</td>
+                                <td class="check-column">
+                                    <input type="checkbox" value="${group.id}" class="group-select">&nbsp;
+                                    <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                </td>
+                            </tr>
+                        %endfor
+                    </table>
+                    <div id="group-actions">
+                        <input type="button" value="New Group" id="new-group">
+                        <input type="submit" value="Delete Selected" id="delete-groups">
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+            </div>
+            <div id="groups-info-column">
+                <form action="/permissions/group/remove-user" method="post">
+                    <table id="group-members-table" class="permissions-table">
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>State</th>
+                            <th>District</th>
+                            <th>School</th>
+                            <th class="check-column"><input type="checkbox" value="1" class="user-select-all"></th>
+                        </tr>
+                        <!--<tr>
+                            <td>first_name</td>
+                            <td>last_name</td>
+                            <td>email</td>
+                            <td>state</td>
+                            <td>district</td>
+                            <td>school</td>
+                            <td>
+                                <input type="checkbox" value="id" class="user-select">
+                            </td>
+                        </tr>-->
+                    </table>
+                    <div id="member-actions">
+                        <input type="button" value="Add Member" id="add-group-member" disabled="disabled">
+                        <input type="submit" value="Remove Selected" id="delete-group-members" disabled="disabled">
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+                <form action="/permissions/group/remove-permission" method="post">
+                    <table id="group-permissions-table" class="permissions-table">
+                        <tr>
+                            <th>Name</th>
+                            <th>Target</th>
+                            <th>Action</th>
+                            <th class="check-column"><input type="checkbox" value="1" class="group-permission-select-all"></th>
+                        </tr>
+                        <!--<tr>
+                            <td>name</td>
+                            <td>item</td>
+                            <td>action</td>
+                            <td>
+                                <input type="checkbox" value="id" class="group-permission-select">
+                            </td>
+                        </tr>-->
+                    </table>
+                    <div id="group-permission-actions">
+                        <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
+                        <input type="submit" value="Delete Selected" id="delete-group-permission" disabled="disabled">
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+            </div>
+            <div class="clear"></div>
         </div>
     </div>
 </div>

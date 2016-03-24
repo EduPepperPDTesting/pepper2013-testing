@@ -1,8 +1,10 @@
-from mitxmako.shortcuts import render_to_response, render_to_string, reverse
+from mitxmako.shortcuts import render_to_response
 from .models import PermGroup, PermGroupMember, PermPermission, PermGroupPermission
 import json
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
+from django_future.csrf import ensure_csrf_cookie
 from .decorators import user_has_perms
+from student.models import User
 
 
 @user_has_perms('permissions', 'administer')
@@ -24,6 +26,7 @@ def group_check(request):
     return HttpResponse(json.dumps({'Valid': valid, 'Error': error}), content_type='application/json')
 
 
+@ensure_csrf_cookie
 @user_has_perms('permissions', 'administer')
 def group_add(request):
     name = request.POST.get('name', False)
@@ -32,6 +35,65 @@ def group_add(request):
         group.name = name
         group.save()
         data = {'Success': True}
+    else:
+        data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def group_permission_add(request):
+    group_id = int(request.POST.get('group', False))
+    group = PermGroup.objects.get(id=group_id)
+    permission_id = int(request.POST.get('permission', False))
+    permission = PermPermission.objects.get(id=permission_id)
+    if permission and group:
+        group_permission = PermGroupPermission()
+        group_permission.group = group
+        group_permission.permission = permission
+        group_permission.save()
+        data = {'Success': True}
+    else:
+        data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def group_member_add(request):
+    group_id = request.POST.get('group', False)
+    try:
+        group = PermGroup.objects.get(id=group_id)
+    except:
+        group = False
+    member = request.POST.get('member', False)
+    state = request.POST.get('state', False)
+    district = request.POST.get('district', False)
+    school = request.POST.get('school', False)
+
+    if group:
+        if member:
+            user = User.objects.get(email=member)
+            group_member = PermGroupMember()
+            group_member.group = group
+            group_member.user = user
+            group_member.save()
+            data = {'Success': True}
+        elif state:
+            if school:
+                users = User.objects.filter(profile__school=school)
+            elif district:
+                users = User.objects.filter(profile__district=district)
+            else:
+                users = User.objects.filter(profile__district__state=state)
+            for user in users:
+                group_member = PermGroupMember()
+                group_member.group = group
+                group_member.user = user
+                group_member.save()
+            data = {'Success': True}
+        else:
+            data = {'Success': False}
     else:
         data = {'Success': False}
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -48,7 +110,10 @@ def group_data(group_id=False):
 @user_has_perms('permissions', 'administer')
 def group_list(request):
     groups = group_data(request.GET.get('group_id', False))
-    return HttpResponse(json.dumps(groups), content_type='application/json')
+    data = list()
+    for group in groups:
+        data.append({'id': group.id, 'name': group.name})
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @user_has_perms('permissions', 'administer')
@@ -61,9 +126,9 @@ def group_member_list(request):
                             'first_name': member.user.first_name,
                             'last_name': member.user.last_name,
                             'email': member.user.email,
-                            'district': member.user.userprofile.district.name,
-                            'state': member.user.userprofile.district.state.name,
-                            'school': member.user.userprofile.school.name})
+                            'district': member.user.profile.district.name,
+                            'state': member.user.profile.district.state.name,
+                            'school': member.user.profile.school.name})
     return HttpResponse(json.dumps(member_list), content_type='application/json')
 
 
@@ -73,7 +138,7 @@ def group_permissions_list(request):
     permissions = PermGroupPermission.objects.filter(group=group)
     permission_list = list()
     for permission in permissions:
-        permission_list.append({'permission_id': permission.permission.id,
+        permission_list.append({'id': permission.permission.id,
                                 'name': permission.permission.name,
                                 'item': permission.permission.item,
                                 'action': permission.permission.action})
@@ -93,6 +158,7 @@ def permission_check(request):
     return HttpResponse(json.dumps({'Valid': valid, 'Error': error}), content_type='application/json')
 
 
+@ensure_csrf_cookie
 @user_has_perms('permissions', 'administer')
 def permission_add(request):
     name = request.POST.get('name', False)
@@ -121,4 +187,10 @@ def permissions_data(permission_id=False):
 @user_has_perms('permissions', 'administer')
 def permissions_list(request):
     permissions = permissions_data(request.GET.get('permission_id', False))
-    return HttpResponse(json.dumps(permissions), content_type='application/json')
+    data = list()
+    for permission in permissions:
+        data.append({'id': permission.id,
+                     'name': permission.name,
+                     'item': permission.item,
+                     'action': permission.action})
+    return HttpResponse(json.dumps(data), content_type='application/json')
