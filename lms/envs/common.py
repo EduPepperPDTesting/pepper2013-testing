@@ -850,6 +850,8 @@ INSTALLED_APPS = (
 
     # Polling
     'polls',
+    # Resource library
+    'access_resource_library',
 )
 
 ######################### MARKETING SITE ###############################
