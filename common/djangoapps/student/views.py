@@ -446,9 +446,12 @@ def dashboard(request, user_id=None):
             #     courses_complated.append(c)
             # else:
             #     courses_incomplated.append(c)
-            external_times[c.id] = rts.get_external_time(str(user.id), c.id)
-            external_time += external_times[c.id]
-            external_times[c.id] = study_time_format(external_times[c.id])
+            if user.is_superuser:
+                external_times[c.id] = 0
+            else:
+                external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+                external_time += external_times[c.id]
+                external_times[c.id] = study_time_format(external_times[c.id])
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
@@ -483,7 +486,10 @@ def dashboard(request, user_id=None):
 
     cert_statuses = {course.id: cert_info(user, course) for course in courses}
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
-    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+    if user.is_superuser:
+        course_times = {course.id: 0 for course in courses}
+    else:
+        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
     # get info w.r.t ExternalAuthMap
     external_auth_map = None
@@ -492,11 +498,21 @@ def dashboard(request, user_id=None):
     except ExternalAuthMap.DoesNotExist:
         pass
 
-    course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
-    all_course_time = course_time + external_time
-    collaboration_time = discussion_time + portfolio_time
-    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+    if user.is_superuser:
+
+        course_time = 0
+        discussion_time = 0
+        portfolio_time = 0
+        all_course_time = 0
+        collaboration_time = 0
+        adjustment_time_totle = 0
+        total_time_in_pepper = 0
+    else:
+        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+        all_course_time = course_time + external_time
+        collaboration_time = discussion_time + portfolio_time
+        adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
@@ -2195,22 +2211,38 @@ def get_pepper_stats(request):
             c.student_enrollment_date = enrollment.created
 
             courses.append(c)
-
-            orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
-            external_time += orig_external_times[c.id]
-            external_times[c.id] = study_time_format(orig_external_times[c.id])
+            if user.is_superuser:
+                orig_external_times[c.id] = 0
+                external_time = 0
+                external_times[c.id] = 0
+            else:
+                orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+                external_time += orig_external_times[c.id]
+                external_times[c.id] = study_time_format(orig_external_times[c.id])
 
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
+    if user.is_superuser:
+        course_times = {course.id: 0 for course in courses}
 
-    course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+        course_time = 0
+        discussion_time = 0
+        portfolio_time = 0
+        all_course_time = 0
+        collaboration_time = 0
+        adjustment_time_totle = 0
+        total_time_in_pepper = 0
+        
+    else:
+        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
 
-    course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
-    all_course_time = course_time + external_time
-    collaboration_time = discussion_time + portfolio_time
-    adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-    total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+        all_course_time = course_time + external_time
+        collaboration_time = discussion_time + portfolio_time
+        adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+
     context = {
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
@@ -2221,4 +2253,3 @@ def get_pepper_stats(request):
 
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
-
