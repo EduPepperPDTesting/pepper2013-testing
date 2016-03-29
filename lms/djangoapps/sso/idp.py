@@ -190,6 +190,7 @@ def saml_redirect(request, sp_name, ms):
         mapped_name = attr['map'] if 'map' in attr else attr['name']
         value = None
 
+<<<<<<< HEAD
         if attr['name'] == "email":
             value = request.user.email
         if attr['name'] == "first_name":
