@@ -190,6 +190,7 @@ def saml_redirect(request, sp_name, ms):
         mapped_name = attr['map'] if 'map' in attr else attr['name']
         value = None
 
+<<<<<<< HEAD
         if attr['name'] == "email":
             value = request.user.email
         if attr['name'] == "first_name":
@@ -206,6 +207,37 @@ def saml_redirect(request, sp_name, ms):
             value = request.user.profile.school.name
         if value is not None:
             parsed_data[mapped_name] = [value]
+=======
+        try:
+            if attr['name'] == "email":
+                value = request.user.email
+            if attr['name'] == "first_name":
+                value = request.user.first_name
+            elif attr['name'] == "last_name":
+                value = request.user.last_name
+            elif attr['name'] == "username":
+                value = request.user.username
+            elif attr['name'] == "state":
+                value = request.user.profile.district.state.name
+            elif attr['name'] == "district":
+                value = request.user.profile.district.name
+            elif attr['name'] == "school":
+                value = request.user.profile.school.name
+            elif attr['name'] == "grades":
+                value = request.user.profile.grade_level_id
+            elif attr['name'] == "bio":
+                value = request.user.profile.bio
+            elif attr['name'] == "internal_id":
+                value = str(request.user.id)
+            elif attr['name'] == "avatar":
+                value = request.build_absolute_uri(reverse('user_photo', args=[request.user.id]))
+        except:
+            value = None
+        if value is not None:
+            parsed_data[mapped_name] = [value]
+        else:
+            parsed_data[mapped_name] = ['']
+>>>>>>> dev
 
     # ** Get the X509Certificate string from sp.xml
     sign = IDP.metadata.certs(entity_id, "any", "signing")
@@ -235,5 +267,11 @@ def saml_redirect(request, sp_name, ms):
         relay_state="",
         response=True)
 
+<<<<<<< HEAD
     return HttpResponse(http_args["data"])
+=======
+    resp = "\n".join(http_args["data"])
+    resp = resp.replace("<body>", "<body style='display:none'>")
+    return HttpResponse(resp)
+>>>>>>> dev
 
