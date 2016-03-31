@@ -97,6 +97,53 @@
     <section class="courses" style="padding-top:5px!important;">
       <div class="courses-listing">
         <div style="padding-left:25px;">
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Digital_learning_content_-_original_image.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="#" class="card-link image-bottom-style studio-url"><span>Digital Learning Content</span></a>
+            <script type="text/javascript">
+              $(function(){
+                url_jump = ["https://cms-test.pepperpd.com/bookshelf/paths-to-college-and-career",
+                            "https://cms-stg.pepperpd.com",
+                            "https://cms-training.pepperpd.com",
+                            "https://cms.pepperpd.com",
+                            "https://cms-dev.pepperpd.com",
+                            "https://cms-int.pepperpd.com",
+                            "https://cms-test.pepperpd.com"];
+                url_split_array = window.location.href.split('/');
+                split_array_1 = "";
+                split_keyword = "";
+                url_using= "#";
+
+                if (url_split_array.length>2){
+                  split_array_1 = url_split_array[2].split('.');
+                  split_keyword = split_array_1[0];
+                 }
+                              
+                if (split_keyword == "www0"){
+                  url_using = url_jump[0];
+                }
+                else if(split_keyword == "staging"){
+                  url_using = url_jump[1];
+                }
+                else if(split_keyword == "demo"){
+                  url_using = url_jump[2];
+                }
+                else if(split_keyword == "www"){
+                  url_using = url_jump[3];
+                }
+                else if(split_keyword == "major" || split_keyword == "patch"){
+                  url_using = url_jump[4];
+                }
+                else if(split_keyword == "dev"){
+                  url_using = url_jump[5];
+                }
+                else if(split_keyword == "test"){
+                  url_using = url_jump[6];
+                }
+                $(".studio-url").attr("href",url_using);
+              });
+          </script>
+          </div>
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/glb1_engageny.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
             <a href="https://www.engageny.org/ccss-library" target="_blank" class="card-link image-bottom-style"><span>Common Core Library</span></a>
@@ -131,20 +178,26 @@
             <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Course Libraries</span></a>
           </div>
 
-          %if request.user.profile.district.name=='Manteca Unified School District':
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/MUSD_Logo_240160.jpg);background-size:100% 100%;">
-            <div style="height:100px;"></div>
-            <a href="/course_libraries?name=MUSD Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
-          </div>
-          %endif
-
           %if request.user.profile.district.name=='Principal':
           <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Principal_s_Playbook.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="/course_libraries?name=Principal Resources" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
+            <a href="/course_libraries" target="_blank" class="card-link image-bottom-style"><span>Resources</span></a>
           </div>
           %endif
 
+          %if request.user.is_authenticated() and len(states) > 0:
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/state/state_content_collection.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/resource_library_global/states?state=${request.user.profile.district.state.name}" class="card-link image-bottom-style"><span>State Resources</span></a>
+          </div>
+
+          %endif
+          %if request.user.is_authenticated() and len(districts) > 0:
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/district/district_content_collection.jpg);background-size:100% 100%;">
+            <div style="height:100px;"></div>
+            <a href="/resource_library_global/districts?district=${request.user.profile.district.code}" class="card-link image-bottom-style"><span>District Resources</span></a>
+          </div>
+          %endif
         </div>
       </div>
     </section>

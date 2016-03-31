@@ -41,9 +41,6 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
-####### Ancestor
-    # url(r'^tnl/test$', 'tnl_integration.views.tnl_connection_test', name="tnl_connection_test"),
-    # url(r'^tnl/test-register$', 'tnl_integration.views.tnl_test_register', name="tnl_test_register"),
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
@@ -234,7 +231,11 @@ urlpatterns = (
     url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^resource_library_global/states/$', 'access_resource_library.views.states', name="^resource_library_global_states"),
+    url(r'^resource_library_global/districts/$', 'access_resource_library.views.districts', name="^resource_library_global_districts"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^resource_library_global/resources/$', 'access_resource_library.views.resources', name="resource_library_global_resources"),
+    url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
 
