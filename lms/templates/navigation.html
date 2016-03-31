@@ -12,7 +12,6 @@
     import branding
     # app that handles site status messages
     from status.status import get_site_status_msg
-    from administration.time_report import is_time_report_permission
     from permissions.utils import check_user_perms
 %>
 
@@ -1317,7 +1316,7 @@
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser or is_time_report_permission(curr_user):
+%if curr_user.is_superuser or check_user_perms(request.user, 'time_report'):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
