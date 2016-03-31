@@ -444,13 +444,13 @@ def district_get_info(request):
 def school_get_info(request):
     school_id = request.POST.get('id')
     school = School.objects.prefetch_related().get(id=school_id)
-    code = "<p>Edit School Form</p>Code:<input type = 'text' id = 'schoolCodeValue' value = '"+str(school.code)+"'></input><br>"
-    code += "Name:<input type = 'text' id = 'schoolNameValue' value = '"+str(school.name)+"'></input><br>"
+    code = "<h2>Edit School Form</h2>Code:<input type = 'text' id = 'schoolCodeValue' value = '"+str(school.code)+"'></input><br><br>"
+    code += "Name:<input type = 'text' id = 'schoolNameValue' value = '"+str(school.name)+"'></input><br><br>"
     state = school.district.state
     code += "District:<select type = 'search' id = 'schoolDistrictValue'>"
     for item in District.objects.filter(state_id=state):
         code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-    code += "</select><br>"
+    code += "</select><br><br>"
     code += "<button data-id = '"+str(school.id)+"' onclick = 'submitSchoolEdit()' type = 'submit' id = 'submitSchoolEditButton'>Submit</button>"
     code += "<p id = 'schoolEditMessage'></p>"
     j = json.dumps({'code':code})
@@ -460,14 +460,19 @@ def school_get_info(request):
 def cohort_get_info(request):
     cohort_id = request.POST.get('id')
     cohort = Cohort.objects.prefetch_related().get(id=cohort_id)
-    code = "<p>Edit Cohort Form</p>Code:<input type = 'text' id = 'cohortCodeValue' value = '"+str(cohort.code)+"'></input><br>"
-    code += "Licences:<input type = 'text' id = 'cohortLicenceValue' value = '"+str(cohort.licences)+"'></input><br>"
-    code += "Term Months:<input type = 'text' id = 'cohortTermValue' value = '"+str(cohort.term_months)+"'></input><br>"
+    code = "<h2>Edit Cohort Form</h2>Code:<input type = 'text' id = 'cohortCodeValue' value = '"+str(cohort.code)+"'></input><br><br>"
+    code += "Licences:<input type = 'text' id = 'cohortLicenceValue' value = '"+str(cohort.licences)+"'></input><br><br>"
+    code += "Term Months:<input type = 'text' id = 'cohortTermValue' value = '"+str(cohort.term_months)+"'></input><br><br>"
     code += "District:<select type = 'search' id = 'cohortDistrictValue'>"
-    state=cohort.district.state
-    for item in District.objects.filter(state_id=state):
-        code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-    code += "</select><br>"
+    try:
+        state=cohort.district.state
+        for item in District.objects.filter(state_id=state):
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+    except:
+        for item in District.objects.all():
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
     code += "<button data-id = '"+str(cohort.id)+"' onclick = 'submitCohortEdit()' type = 'submit' id = 'submitCohortEditButton'>Submit</button>"
     code += "<p id = 'cohortEditMessage'></p>"
     j = json.dumps({'code':code})
@@ -477,34 +482,34 @@ def cohort_get_info(request):
 def user_get_info(request):
     user_id = request.POST.get('id')
     profile = UserProfile.objects.prefetch_related().get(id=user_id)
-    code = "<p>Edit User Form</p>First Name:<input type = 'text' id = 'userFirstValue' value = '"+str(profile.user.first_name)+"'></input><br>"
-    code += "Last Name:<input type = 'text' id = 'userLastValue' value = '"+str(profile.user.last_name)+"'></input><br>"
+    code = "<h2>Edit User Form</h2>First Name:<input type = 'text' id = 'userFirstValue' value = '"+str(profile.user.first_name)+"'></input><br><br>"
+    code += "Last Name:<input type = 'text' id = 'userLastValue' value = '"+str(profile.user.last_name)+"'></input><br><br>"
     code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
 
     for item in Cohort.objects.all():
         code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
-    code += "</select><br>"
+    code += "</select><br><br>"
     try:
         state = profile.district.state
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
         for item in District.objects.filter(state_id=state):
             code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-        code += "</select><br>"
+        code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
             code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-        code += "</select><br>"
+        code += "</select><br><br>"
     except:
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
         for item in District.objects.all():
             code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-        code += "</select><br>"
+        code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.all():
             code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
-        code += "</select><br>"
+        code += "</select><br><br>"
     code += "<button data-id = '"+str(profile.id)+"' onclick = 'submitUserEdit()' type = 'submit' id = 'submitUserEditButton'>Submit</button>"
-    code += "<p id = 'cohortEditMessage'></p>"
+    code += "<p id = 'userEditMessage'></p>"
     j = json.dumps({'code':code})
     return HttpResponse(j, content_type="application/json")
 

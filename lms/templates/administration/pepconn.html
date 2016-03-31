@@ -654,7 +654,7 @@ function editDistrictsInfo(id){
     $.post('${reverse("pepconn_district_get_info")}', {
         id: id
     }, function (r) {
-        var code = " <p>Edit District Form</p><br>Code:<input type = 'text' id = 'districtCodeValue' value = '"+ r.code+"'></input><br><br>Name:<input type = 'text' id = 'districtNameValue' value = '"+ r.name +"'></input><br><br><button data-id = '"+id+"' onclick = 'submitDistrictEdit()' type = 'submit' id = 'submitDistrictEditButton'>Submit</button><p id = 'districtEditMessage'</p>"
+        var code = " <h2>Edit District Form</h2>Code:<input type = 'text' id = 'districtCodeValue' value = '"+ r.code+"'></input><br><br>Name:<input type = 'text' id = 'districtNameValue' value = '"+ r.name +"'></input><br><br><button data-id = '"+id+"' onclick = 'submitDistrictEdit()' type = 'submit' id = 'submitDistrictEditButton'>Submit</button><p id = 'districtEditMessage'</p>"
         new Dialog($('#dialog')).show("Edit District",code);
     });
 }
@@ -733,7 +733,6 @@ function submitUserEdit(){
         district:$("#userDistrictValue").val(),
         school:$("#userSchoolValue").val()
     }, function(r){
-        alert(r.data);
         if(r.success == 'true'){
             $("#userEditMessage").text("Updated Successfully.").css("color", "green");
         }else{
