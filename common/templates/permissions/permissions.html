@@ -81,6 +81,9 @@
         height: 16px;
         width: 16px;
     }
+    .group-select {
+        cursor: pointer;
+    }
     .selected-group {
         background-color: #00A000;
     }
@@ -321,7 +324,7 @@
         $('#groups-table .data').remove();
         $.get("${reverse('permissions_group_list')}", function (data) {
             $.each(data, function (index, object) {
-                var row = '<tr class="data">';
+                var row = '<tr class="data group-select">';
                 row += '<td>' + object.name + '</td>';
                 row += '<td class="check-column">';
                 row += '<input type="checkbox" value="' + object.id + '" class="group-select">&nbsp;';
@@ -331,6 +334,7 @@
                 $('#groups-table').append(row);
             });
         });
+        groupSelect();
     }
     function updateGroupMembers(group_id) {
         $('#group-members-table .data').remove();
@@ -367,6 +371,17 @@
             });
         });
     }
+    function groupSelect() {
+        $(".group-select").click(function() {
+            $('#groups-table tr').removeClass('selected-group');
+            $(this).addClass('selected-group');
+            $('#add-group-permission').removeAttr('disabled');
+            $('#add-group-member').removeAttr('disabled');
+            var group_id = $(this).find('input').attr('value');
+            updateGroupMembers(group_id);
+            updateGroupPermissions(group_id);
+        });
+    }
     $(document).ready(function() {
         //** init expand title
         $(".expand_title").click(function () {
@@ -379,15 +394,7 @@
                 $(this).addClass("expand_title_expanded");
             }
         });
-        $(".group-edit").click(function() {
-            $('#groups-table tr').removeClass('selected-group');
-            $(this).parents('tr').addClass('selected-group');
-            $('#add-group-permission').removeAttr('disabled');
-            $('#add-group-member').removeAttr('disabled');
-            var group_id = $(this).siblings('input').attr('value');
-            updateGroupMembers(group_id);
-            updateGroupPermissions(group_id);
-        });
+        groupSelect();
         $('#new-permission').click(function () {
             var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit">';
             content += '<label>Permission Name:<input type="text" name="name"></label>';
@@ -567,7 +574,7 @@
                             <th><input type="checkbox" value="1" class="group-select-all"></th>
                         </tr>
                         %for group in groups:
-                            <tr class="data">
+                            <tr class="data group-select">
                                 <td>${group.name}</td>
                                 <td class="check-column">
                                     <input type="checkbox" value="${group.id}" class="group-select">&nbsp;
