@@ -412,7 +412,14 @@ except:
                                 }
                             });
 
-                            url_studio = ["https://studio0.pepperpd.com","https://studio-staging.pepperpd.com","https://studio-demo.pepperpd.com","https://studio.pepperpd.com"];
+                            url_studio = ["https://studio0.pepperpd.com",
+                                          "https://studio-staging.pepperpd.com",
+                                          "https://studio-demo.pepperpd.com",
+                                          "https://studio.pepperpd.com",
+                                          "https://studio-dev.pepperpd.com",
+                                          "https://studio-major.pepperpd.com",
+                                          "https://studio-patch.pepperpd.com",
+                                          "https://studio-test.pepperpd.com"];
                             url_split_array = window.location.href.split('/');
                             split_array_1 = "";
                             split_keyword = "";
@@ -434,6 +441,18 @@ except:
                             }
                             else if(split_keyword == "www"){
                                 url_using = url_studio[3];
+                            }
+                            else if(split_keyword == "dev"){
+                                url_using = url_studio[4];
+                            }
+                            else if(split_keyword == "major"){
+                                url_using = url_studio[5];
+                            }
+                            else if(split_keyword == "patch"){
+                                url_using = url_studio[6];
+                            }
+                            else if(split_keyword == "test"){
+                                url_using = url_studio[7];
                             }
                             $("#studio_url").attr("href",url_using);
                         </script>
