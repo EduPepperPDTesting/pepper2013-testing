@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django_future.csrf import ensure_csrf_cookie
 from .decorators import user_has_perms
 from student.models import User
+from pepper_utilities.utils import get_request_array
 
 
 @user_has_perms('permissions', 'administer')
@@ -30,13 +31,31 @@ def group_check(request):
 @user_has_perms('permissions', 'administer')
 def group_add(request):
     name = request.POST.get('name', False)
+    group_id = request.POST.get('group_id', False)
     if name:
-        group = PermGroup()
+        if group_id:
+            group = PermGroup.objects.get(id=group_id)
+        else:
+            group = PermGroup()
         group.name = name
         group.save()
         data = {'Success': True}
     else:
         data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def group_delete(request):
+    try:
+        group_ids = get_request_array(request.POST, 'group_id')
+        for group_id in group_ids:
+            group = PermGroup.objects.get(id=group_id)
+            group.delete()
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': ''.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -55,6 +74,20 @@ def group_permission_add(request):
         data = {'Success': True}
     else:
         data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def group_permission_delete(request):
+    try:
+        group_permission_ids = get_request_array(request.POST, 'group_permission_id')
+        for group_permission_id in group_permission_ids:
+            group_permission = PermGroupPermission.objects.get(id=group_permission_id)
+            group_permission.delete()
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': ''.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -96,6 +129,20 @@ def group_member_add(request):
             data = {'Success': False}
     else:
         data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def group_member_delete(request):
+    try:
+        group_member_ids = get_request_array(request.POST, 'group_member_id')
+        for group_member_id in group_member_ids:
+            group_member = PermGroupMember.objects.get(id=group_member_id)
+            group_member.delete()
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': ''.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -164,8 +211,12 @@ def permission_add(request):
     name = request.POST.get('name', False)
     item = request.POST.get('target', False)
     action = request.POST.get('action', False)
+    permission_id = request.POST.get('permission_id', False)
     if name and item and action:
-        permission = PermPermission()
+        if permission_id:
+            permission = PermPermission.objects.get(id=permission_id)
+        else:
+            permission = PermPermission()
         permission.name = name
         permission.item = item
         permission.action = action
@@ -173,6 +224,20 @@ def permission_add(request):
         data = {'Success': True}
     else:
         data = {'Success': False}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@ensure_csrf_cookie
+@user_has_perms('permissions', 'administer')
+def permission_delete(request):
+    try:
+        permission_ids = get_request_array(request.POST, 'permission_id')
+        for permission_id in permission_ids:
+            permission = PermPermission.objects.get(id=permission_id)
+            permission.delete()
+        data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': ''.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 

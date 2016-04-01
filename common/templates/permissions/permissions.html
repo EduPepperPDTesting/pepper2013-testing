@@ -155,7 +155,7 @@
         background-color: #0000d4;
         color: white;
     }
-    #delete-permissions, #delete-groups, #delete-group-permission, #delete-group-members,
+    #delete-permissions, #delete-groups, #delete-group-permissions, #delete-group-members,
     #new-permission, #new-group, #add-group-permission, #add-group-member {
         border: none;
         border-radius: 0;
@@ -173,10 +173,10 @@
         text-transform: none;
         height: 52px;
     }
-    #delete-permissions, #delete-groups, #delete-group-permission, #delete-group-members {
+    #delete-permissions, #delete-groups, #delete-group-permissions, #delete-group-members {
         background: transparent url(/static/images/certificate/ui/delete.png) center top no-repeat;
     }
-    #delete-permissions:hover, #delete-groups:hover, #delete-group-permission:hover, #delete-group-members:hover {
+    #delete-permissions:hover, #delete-groups:hover, #delete-group-permissions:hover, #delete-group-members:hover {
         background: transparent url(/static/images/certificate/ui/delete_mo.png) center top no-repeat;
     }
     #new-permission, #new-group, #add-group-permission, #add-group-member {
@@ -228,7 +228,7 @@
             return error;
         }
     }
-    function validatePermissionForm() {
+    function validatePermissionForm(type) {
         $('.error-box').removeClass('error-box');
         var valid = true;
         var errors = ['The following errors occurred:\n'];
@@ -239,24 +239,26 @@
             name.addClass('error-box');
         }
         var target = $('#new-permission-submit input[name="target"]');
-        if (!/[A-Za-z0-9]+/.test(name.val())) {
+        if (!/[A-Za-z0-9]+/.test(target.val())) {
             valid = false;
             errors.push('Target is required.');
             target.addClass('error-box');
         }
         var action = $('#new-permission-submit input[name="action"]');
-        if (!/[A-Za-z0-9]+/.test(name.val())) {
+        if (!/[A-Za-z0-9]+/.test(action.val())) {
             valid = false;
             errors.push('Action is required.');
             action.addClass('error-box');
         }
-        var check_permission = checkPermission(name.val(), target.val(), action.val());
-        if (check_permission !== true) {
-            valid = false;
-            errors.push(check_permission);
-            name.addClass('error-box');
-            target.addClass('error-box');
-            action.addClass('error-box');
+        if (type == 'add') {
+            var check_permission = checkPermission(name.val(), target.val(), action.val());
+            if (check_permission !== true) {
+                valid = false;
+                errors.push(check_permission);
+                name.addClass('error-box');
+                target.addClass('error-box');
+                action.addClass('error-box');
+            }
         }
         if (!valid) {
             var error = errors.join('\n');
@@ -264,7 +266,7 @@
         }
         return valid;
     }
-    function validateGroupForm() {
+    function validateGroupForm(type) {
         $('.error-box').removeClass('error-box');
         var valid = true;
         var errors = ['The following errors occurred:\n'];
@@ -274,11 +276,13 @@
             errors.push('Name is required.');
             name.addClass('error-box');
         }
-        var check_permission = checkGroup(name.val());
-        if (check_permission !== true) {
-            valid = false;
-            errors.push(check_permission);
-            name.addClass('error-box');
+        if (type == 'add') {
+            var check_group = checkGroup(name.val());
+            if (check_group !== true) {
+                valid = false;
+                errors.push(check_group);
+                name.addClass('error-box');
+            }
         }
         if (!valid) {
             var error = errors.join('\n');
@@ -299,7 +303,7 @@
                     }
                 }
             } else {
-                alert('There was an error saving this item. Please concat the site admins for help.');
+                alert('There was an error saving this item. Please contact the site admins for help.');
             }
         });
     }
@@ -318,6 +322,7 @@
                 row += '</tr> ';
                 $('#permissions-table').append(row);
             });
+            permissionEditAttach();
         });
     }
     function updateGroups() {
@@ -334,6 +339,7 @@
                 $('#groups-table').append(row);
             });
         });
+        groupEditAttach();
         groupSelect();
     }
     function updateGroupMembers(group_id) {
@@ -348,7 +354,7 @@
                 row += '<td>' + object.district + '</td>';
                 row += '<td>' + object.school + '</td>';
                 row += '<td class="check-column">';
-                row += '<input type="checkbox" value="' + object.user_id + '" class="user-select">';
+                row += '<input type="checkbox" value="' + object.user_id + '" name="group_member_id[' + object.user_id + ']" class="user-select">';
                 row += '</td>';
                 row += '</tr>';
                 $('#group-members-table').append(row);
@@ -364,7 +370,7 @@
                 row += '<td>' + object.item + '</td>';
                 row += '<td>' + object.action + '</td>';
                 row += '<td class="check-column">';
-                row += '<input type="checkbox" value="' + object.id + '" class="group-permission-select">';
+                row += '<input type="checkbox" value="' + object.id + '" name="group_permission_id[' + object.id + ']" class="group-permission-select">';
                 row += '</td>';
                 row += '</tr> ';
                 $('#group-permissions-table').append(row);
@@ -382,6 +388,96 @@
             updateGroupPermissions(group_id);
         });
     }
+    function groupEdit(type, id) {
+        var button_name = 'Add';
+        var name = '';
+        if (type == 'edit') {
+            button_name = 'Save';
+            $.ajax({
+                url: "${reverse('permissions_group_list')}",
+                type: 'GET',
+                async: false,
+                data: {group_id: id},
+                success: function(data) {
+                    name = data[0].name;
+                }
+            });
+        }
+        var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
+        content += '<label>Group Name:<input type="text" name="name" value="' + name + '"></label>';
+        content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+        if (type == 'edit') {
+            content += '<input type="hidden" name="group_id" value="' + id + '"/>';
+        }
+        content += '<input type="submit" name="submit" value="' + button_name + '">';
+        content += '</form>';
+        var dialog = new Dialog('#dialog');
+        dialog.show('New Permission', content);
+        $('#new-group-submit').submit(function (event) {
+            event.preventDefault();
+            if (validateGroupForm(type)) {
+                postForm(this, dialog, updateGroups);
+            }
+        });
+    }
+    function groupEditAttach() {
+        $('#new-group').click(function () {
+            groupEdit('add');
+        });
+        $('.group-edit').click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('href').substr(1);
+            groupEdit('edit', id);
+        });
+    }
+    function permissionEdit(type, id) {
+        var button_name = 'Add';
+        var name = '';
+        var target = '';
+        var action = '';
+        if (type == 'edit') {
+            button_name = 'Save';
+            $.ajax({
+                url: "${reverse('permissions_permissions_list')}",
+                type: 'GET',
+                async: false,
+                data: {permission_id: id},
+                success: function(data) {
+                    name = data[0].name;
+                    target = data[0].item;
+                    action = data[0].action;
+                }
+            });
+        }
+        var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit">';
+        content += '<label>Permission Name:<input type="text" name="name" value="' + name + '"></label>';
+        content += '<label>Permission Target:<input type="text" name="target" value="' + target + '"></label>';
+        content += '<label>Permission Action:<input type="text" name="action" value="' + action + '"></label>';
+        content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
+        if (type == 'edit') {
+            content += '<input type="hidden" name="permission_id" value="' + id + '"/>';
+        }
+        content += '<input type="submit" name="submit" value="' + button_name + '"></label>';
+        content += '</form>';
+        var dialog = new Dialog('#dialog');
+        dialog.show('New Permission', content);
+        $('#new-permission-submit').submit(function (event) {
+            event.preventDefault();
+            if (validatePermissionForm(type)) {
+                postForm(this, dialog, updatePermissions);
+            }
+        });
+    }
+    function permissionEditAttach() {
+        $('#new-permission').click(function () {
+            permissionEdit('add');
+        });
+        $('.permission-edit').click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('href').substr(1);
+            permissionEdit('edit', id);
+        });
+    }
     $(document).ready(function() {
         //** init expand title
         $(".expand_title").click(function () {
@@ -395,38 +491,8 @@
             }
         });
         groupSelect();
-        $('#new-permission').click(function () {
-            var content = '<form action="${reverse('permissions_permission_add')}" method="post" id="new-permission-submit">';
-            content += '<label>Permission Name:<input type="text" name="name"></label>';
-            content += '<label>Permission Target:<input type="text" name="target"></label>';
-            content += '<label>Permission Action:<input type="text" name="action"></label>';
-            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
-            content += '<input type="submit" name="submit" value="Add"></label>';
-            content += '</form>';
-            var dialog = new Dialog('#dialog');
-            dialog.show('New Permission', content);
-            $('#new-permission-submit').submit(function (event) {
-                event.preventDefault();
-                if (validatePermissionForm()) {
-                    postForm(this, dialog, updatePermissions);
-                }
-            });
-        });
-        $('#new-group').click(function () {
-            var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
-            content += '<label>Group Name:<input type="text" name="name"></label>';
-            content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
-            content += '<input type="submit" name="submit" value="Add">';
-            content += '</form>';
-            var dialog = new Dialog('#dialog');
-            dialog.show('New Permission', content);
-            $('#new-group-submit').submit(function (event) {
-                event.preventDefault();
-                if (validateGroupForm()) {
-                    postForm(this, dialog, updateGroups);
-                }
-            });
-        });
+        permissionEditAttach();
+        groupEditAttach();
         $('#add-group-permission').click(function () {
             var group = $(".selected-group input").val();
 
@@ -521,6 +587,22 @@
                 }
             });
         });
+        $('#delete-permissions-form').submit(function (e) {
+            e.preventDefault();
+            // TODO: Add submission code here.
+        });
+        $('#delete-groups-form').submit(function (e) {
+            e.preventDefault();
+            // TODO: Add submission code here.
+        });
+        $('#delete-group-members-form').submit(function (e) {
+            e.preventDefault();
+            // TODO: Add submission code here.
+        });
+        $('#delete-group-permissions-form').submit(function (e) {
+            e.preventDefault();
+            // TODO: Add submission code here.
+        });
     });
 </script>
 
@@ -531,7 +613,7 @@
             Permissions <div class="icon"></div>
         </div>
         <div class="expand_div">
-            <form action="/permissions/permission/delete" method="post">
+            <form action="${reverse('permissions_permission_delete')}" method="post" id="delete-permissions-form">
                 <table id="permissions-table" class="permissions-table">
                     <tr>
                         <th>Name</th>
@@ -545,7 +627,7 @@
                             <td>${permission.item}</td>
                             <td>${permission.action}</td>
                             <td class="check-column">
-                                <input type="checkbox" value="${permission.id}" class="permission-select">&nbsp;
+                                <input type="checkbox" value="${permission.id}" name="permission_id[${permission.id}]" class="permission-select">&nbsp;
                                 <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
                             </td>
                         </tr>
@@ -567,7 +649,7 @@
         </div>
         <div class="expand_div">
             <div id="groups-column">
-                <form action="/permissions/group/delete-group" method="post">
+                <form action="${reverse('permissions_group_delete')}" method="post" id="delete-groups-form">
                     <table id="groups-table" class="permissions-table">
                         <tr>
                             <th>Name</th>
@@ -577,7 +659,7 @@
                             <tr class="data group-select">
                                 <td>${group.name}</td>
                                 <td class="check-column">
-                                    <input type="checkbox" value="${group.id}" class="group-select">&nbsp;
+                                    <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
                                     <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
                                 </td>
                             </tr>
@@ -591,7 +673,7 @@
                 </form>
             </div>
             <div id="groups-info-column">
-                <form action="/permissions/group/remove-user" method="post">
+                <form action="${reverse('permissions_group_member_delete')}" method="post" id="delete-group-members-form">
                     <table id="group-members-table" class="permissions-table">
                         <tr>
                             <th>First Name</th>
@@ -602,17 +684,6 @@
                             <th>School</th>
                             <th class="check-column"><input type="checkbox" value="1" class="user-select-all"></th>
                         </tr>
-                        <!--<tr>
-                            <td>first_name</td>
-                            <td>last_name</td>
-                            <td>email</td>
-                            <td>state</td>
-                            <td>district</td>
-                            <td>school</td>
-                            <td>
-                                <input type="checkbox" value="id" class="user-select">
-                            </td>
-                        </tr>-->
                     </table>
                     <div id="member-actions">
                         <input type="button" value="Add Member" id="add-group-member" disabled="disabled">
@@ -620,7 +691,7 @@
                     </div>
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
-                <form action="/permissions/group/remove-permission" method="post">
+                <form action="${reverse('permissions_group_permission_delete')}" method="post" id="delete-group-permissions-form">
                     <table id="group-permissions-table" class="permissions-table">
                         <tr>
                             <th>Name</th>
@@ -628,18 +699,10 @@
                             <th>Action</th>
                             <th class="check-column"><input type="checkbox" value="1" class="group-permission-select-all"></th>
                         </tr>
-                        <!--<tr>
-                            <td>name</td>
-                            <td>item</td>
-                            <td>action</td>
-                            <td>
-                                <input type="checkbox" value="id" class="group-permission-select">
-                            </td>
-                        </tr>-->
                     </table>
                     <div id="group-permission-actions">
                         <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
-                        <input type="submit" value="Delete Selected" id="delete-group-permission" disabled="disabled">
+                        <input type="submit" value="Delete Selected" id="delete-group-permissions" disabled="disabled">
                     </div>
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
