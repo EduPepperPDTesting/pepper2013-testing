@@ -74,6 +74,13 @@
     .modal label span::after {
         content: ">";
     }
+    #dialogYesNo .content {
+        text-align: center;
+    }
+    #dialogYesNo input {
+        margin-top: 20px;
+        display: inline;
+    }
     .error-box {
         border-color: red !important;
     }
@@ -594,7 +601,7 @@
         $('#delete-permissions-form').submit(function (e) {
             e.preventDefault();
             var form = this;
-            var dialog = new Dialog('#dialog');
+            var dialog = new Dialog('#dialogYesNo');
             dialog.showYesNo('Delete Permission(s)', 'Are you sure you want to delete this permission? This action cannot be undone.', function(answer) {
                 if (answer) {
                     postForm(form, dialog, updatePermissions);
@@ -606,7 +613,7 @@
         $('#delete-groups-form').submit(function (e) {
             e.preventDefault();
             var form = this;
-            var dialog = new Dialog('#dialog');
+            var dialog = new Dialog('#dialogYesNo');
             dialog.showYesNo('Delete Group(s)', 'Are you sure you want to delete this group? This action cannot be undone.', function(answer) {
                 if (answer) {
                     postForm(form, dialog, updateGroups);
@@ -618,7 +625,7 @@
         $('#delete-group-members-form').submit(function (e) {
             e.preventDefault();
             var form = this;
-            var dialog = new Dialog('#dialog');
+            var dialog = new Dialog('#dialogYesNo');
             dialog.showYesNo('Remove Group Member(s)', 'Are you sure you want to remove this group member? This action cannot be undone.', function(answer) {
                 if (answer) {
                     var group = $(".selected-group input").val();
@@ -631,7 +638,7 @@
         $('#delete-group-permissions-form').submit(function (e) {
             e.preventDefault();
             var form = this;
-            var dialog = new Dialog('#dialog');
+            var dialog = new Dialog('#dialogYesNo');
             dialog.showYesNo('Remove Group Permission(s)', 'Are you sure you want to remove this group permission? This action cannot be undone.', function(answer) {
                 if (answer) {
                     var group = $(".selected-group input").val();
@@ -786,6 +793,15 @@
     </div>
 </div>
 <div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="dialogYesNo" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
