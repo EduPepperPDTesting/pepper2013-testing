@@ -19,6 +19,7 @@ class PermGroup(models.Model):
 class PermGroupMember(models.Model):
     class Meta:
         db_table = 'perm_group_membership'
+        unique_together = ('user', 'group')
     user = models.ForeignKey(User)
     group = models.ForeignKey(PermGroup)
 
@@ -26,5 +27,6 @@ class PermGroupMember(models.Model):
 class PermGroupPermission(models.Model):
     class Meta:
         db_table = 'perm_group_permission'
+        unique_together = ('permission', 'group')
     permission = models.ForeignKey(PermPermission)
     group = models.ForeignKey(PermGroup)

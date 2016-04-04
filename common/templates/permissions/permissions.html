@@ -312,7 +312,11 @@
                     }
                 }
             } else {
-                alert('There was an error saving this item. Please contact the site admins for help.');
+                if (data.hasOwnProperty('Error') && data.Error == 'duplicate') {
+                    alert("This item is already part of this group. It can't be added again.")
+                } else {
+                    alert('There was an error processing this request. Please contact the site admins for help.');
+                }
             }
         });
     }

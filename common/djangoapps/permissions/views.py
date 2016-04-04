@@ -3,6 +3,7 @@ from .models import PermGroup, PermGroupMember, PermPermission, PermGroupPermiss
 import json
 from django.http import HttpResponse
 from django_future.csrf import ensure_csrf_cookie
+from django.db import IntegrityError
 from .decorators import user_has_perms
 from student.models import User
 from pepper_utilities.utils import get_request_array
@@ -67,11 +68,16 @@ def group_permission_add(request):
     permission_id = int(request.POST.get('permission', False))
     permission = PermPermission.objects.get(id=permission_id)
     if permission and group:
-        group_permission = PermGroupPermission()
-        group_permission.group = group
-        group_permission.permission = permission
-        group_permission.save()
-        data = {'Success': True}
+        try:
+            group_permission = PermGroupPermission()
+            group_permission.group = group
+            group_permission.permission = permission
+            group_permission.save()
+            data = {'Success': True}
+        except IntegrityError as e:
+            data = {'Success': False, 'Error': 'duplicate'}
+        except Exception as e:
+            data = {'Success': False, 'Error': ''.format(e)}
     else:
         data = {'Success': False}
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -107,11 +113,16 @@ def group_member_add(request):
     if group:
         if member:
             user = User.objects.get(email=member)
-            group_member = PermGroupMember()
-            group_member.group = group
-            group_member.user = user
-            group_member.save()
-            data = {'Success': True}
+            try:
+                group_member = PermGroupMember()
+                group_member.group = group
+                group_member.user = user
+                group_member.save()
+                data = {'Success': True}
+            except IntegrityError as e:
+                data = {'Success': False, 'Error': 'duplicate'}
+            except Exception as e:
+                data = {'Success': False, 'Error': ''.format(e)}
         elif state:
             if school:
                 users = User.objects.filter(profile__school=school)
@@ -119,12 +130,23 @@ def group_member_add(request):
                 users = User.objects.filter(profile__district=district)
             else:
                 users = User.objects.filter(profile__district__state=state)
+            errors = list()
             for user in users:
-                group_member = PermGroupMember()
-                group_member.group = group
-                group_member.user = user
-                group_member.save()
-            data = {'Success': True}
+                try:
+                    group_member = PermGroupMember()
+                    group_member.group = group
+                    group_member.user = user
+                    group_member.save()
+                except IntegrityError as e:
+                    errors.append('duplicate')
+                except Exception as e:
+                    errors.append(''.format(e))
+            if len(errors):
+                data = {'Success': True, 'Errors': errors}
+                if len(errors) == users.count():
+                    data['Success'] = False
+            else:
+                data = {'Success': True}
         else:
             data = {'Success': False}
     else:
@@ -169,13 +191,36 @@ def group_member_list(request):
     group_members = PermGroupMember.objects.prefetch_related().filter(group=group)
     member_list = list()
     for member in group_members:
-        member_list.append({'user_id': member.user.id,
-                            'first_name': member.user.first_name,
-                            'last_name': member.user.last_name,
-                            'email': member.user.email,
-                            'district': member.user.profile.district.name,
-                            'state': member.user.profile.district.state.name,
-                            'school': member.user.profile.school.name})
+        member_dict = dict()
+        try:
+            member_dict.update({'user_id': member.user.id})
+        except:
+            pass
+        try:
+            member_dict.update({'first_name': member.user.first_name})
+        except:
+            pass
+        try:
+            member_dict.update({'last_name': member.user.last_name})
+        except:
+            pass
+        try:
+            member_dict.update({'email': member.user.email})
+        except:
+            pass
+        try:
+            member_dict.update({'district': member.user.profile.district.name})
+        except:
+            pass
+        try:
+            member_dict.update({'state': member.user.profile.district.state.name})
+        except:
+            pass
+        try:
+            member_dict.update({'school': member.user.profile.school.name})
+        except:
+            pass
+        member_list.append(member_dict)
     return HttpResponse(json.dumps(member_list), content_type='application/json')
 
 
@@ -217,11 +262,14 @@ def permission_add(request):
             permission = PermPermission.objects.get(id=permission_id)
         else:
             permission = PermPermission()
-        permission.name = name
-        permission.item = item
-        permission.action = action
-        permission.save()
-        data = {'Success': True}
+        try:
+            permission.name = name
+            permission.item = item
+            permission.action = action
+            permission.save()
+            data = {'Success': True}
+        except Exception as e:
+            data = {'Success': False, 'Error': ''.format(e)}
     else:
         data = {'Success': False}
     return HttpResponse(json.dumps(data), content_type='application/json')
