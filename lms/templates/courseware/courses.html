@@ -146,6 +146,7 @@
             <div style="display:inline-block;padding:0 1em 0 0;">
                 <select name="grade_id" class="form-select">
                     <option value="all">All Grades</option>
+                    <option value="PreK-3">PreK-3</option>
                     <option value="K-5">K-5</option>
                     <option value="6-8">6-8</option>
                     <option value="9-12">9-12</option>
@@ -252,6 +253,17 @@
                         </div>
                     </div>
                 %else:
+                    %if len(courses)>4:
+                        %if len(courses[4])>0:
+                            <div class="grade_title">PreK-3 Courses</div>
+                        %endif
+                        %for course in courses[4]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
                     %if len(courses)>0:
                         %if len(courses[0])>0:
                             <div class="grade_title">K-5 Courses</div>

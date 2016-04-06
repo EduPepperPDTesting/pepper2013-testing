@@ -97,12 +97,18 @@
     <section class="courses" style="padding-top:5px!important;">
       <div class="courses-listing">
         <div style="padding-left:25px;">
-          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/CMS_image.png);background-size:100% 100%;">
+          <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Digital_learning_content_-_original_image.jpg);background-size:100% 100%;">
             <div style="height:100px;"></div>
-            <a href="#" target="_blank" class="card-link image-bottom-style studio-url"><span>CMS</span></a>
+            <a href="#" class="card-link image-bottom-style studio-url"><span>My Resources</span></a>
             <script type="text/javascript">
               $(function(){
-                url_studio = ["https://cms-test.pepperpd.com/bookshelf/paths-to-college-and-career","https://studio-staging.pepperpd.com","#","#"];
+                url_jump = ["https://cms-test.pepperpd.com/libraries",
+                            "https://cms-stg.pepperpd.com/libraries",
+                            "https://cms-training.pepperpd.com/libraries",
+                            "https://cms.pepperpd.com/libraries",
+                            "https://cms-dev.pepperpd.com/libraries",
+                            "https://cms-int.pepperpd.com/libraries",
+                            "https://cms-test.pepperpd.com/libraries"];
                 url_split_array = window.location.href.split('/');
                 split_array_1 = "";
                 split_keyword = "";
@@ -114,16 +120,25 @@
                  }
                               
                 if (split_keyword == "www0"){
-                  url_using = url_studio[0];
+                  url_using = url_jump[0];
                 }
                 else if(split_keyword == "staging"){
-                  url_using = url_studio[1];
+                  url_using = url_jump[1];
                 }
                 else if(split_keyword == "demo"){
-                  url_using = url_studio[2];
+                  url_using = url_jump[2];
                 }
                 else if(split_keyword == "www"){
-                  url_using = url_studio[3];
+                  url_using = url_jump[3];
+                }
+                else if(split_keyword == "major" || split_keyword == "patch"){
+                  url_using = url_jump[4];
+                }
+                else if(split_keyword == "dev"){
+                  url_using = url_jump[5];
+                }
+                else if(split_keyword == "test"){
+                  url_using = url_jump[6];
                 }
                 $(".studio-url").attr("href",url_using);
               });

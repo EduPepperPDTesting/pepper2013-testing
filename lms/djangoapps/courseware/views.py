@@ -41,8 +41,8 @@ import comment_client
 import json
 import pymongo
 log = logging.getLogger("mitx.courseware")
-
 template_imports = {'urllib': urllib}
+
 
 def user_groups(user):
     """
@@ -77,11 +77,12 @@ def courses(request):
     courses = sort_by_custom(courses)
     state_list, district_list, all_state, all_district = get_state_and_district_list(request, courses)
     collections = get_collection_num()
-    return render_to_response("courseware/courses.html", {"courses": courses,
-                                                          "states": state_list,
-                                                          "districts": district_list,
-                                                          "collections": collections,
-                                                          "link": True})
+    return render_to_response("courseware/courses.html", {
+                              "courses": courses,
+                              "states": state_list,
+                              "districts": district_list,
+                              "collections": collections,
+                              "link": True})
 
 
 def is_all(course, type):
@@ -210,7 +211,7 @@ def newgroup_courses(request):
 
 def course_filter(course, subject_index, currSubject, g_courses, currGrades):
     # 20151130 modify the courses shown in different course grade after press All button
-    #begin
+    # begin
     if course.display_grades == 'K-5':
         if course.display_subject != currSubject[0]:
             currSubject[0] = course.display_subject
@@ -235,7 +236,17 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
             subject_index[3] += 1
             g_courses[3].append([])
         g_courses[3][subject_index[3]].append(course)
-    #end
+    # end
+
+    # 20160322 add "Add new grade 'PreK-3'"
+    # begin
+    if course.display_grades == 'PreK-3':
+        if course.display_subject != currSubject[4]:
+            currSubject[4] = course.display_subject
+            subject_index[4] += 1
+            g_courses[4].append([])
+        g_courses[4][subject_index[4]].append(course)
+    # end
 
 
 @ensure_csrf_cookie
@@ -293,9 +304,13 @@ def course_list(request):
 
     items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
-    subject_index = [-1, -1, -1, -1]
-    currSubject = ["", "", "", ""]
-    g_courses = [[], [], [], []]
+    # 20160322 modify "Add new grade 'PreK-3'"
+    # begin
+    subject_index = [-1, -1, -1, -1, -1]
+    currSubject = ["", "", "", "", ""]
+    g_courses = [[], [], [], [], []]
+    # end 
+
     for course in courses:
         if (is_new == '' or course.is_newish) and is_state_district_show(request.user, course, is_member) and \
                 custom_collection_visibility(request.user, course, collection):
@@ -305,9 +320,9 @@ def course_list(request):
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
     return render_to_response("courseware/courses.html", {
-        "courses": g_courses,
-        "states": state_list,
-        "districts": district_list})
+                              "courses": g_courses,
+                              "states": state_list,
+                              "districts": district_list})
 
 
 @ensure_csrf_cookie
@@ -323,7 +338,7 @@ def dpicourse_list(request):
     state = request.GET.get('state', '')
     credit = request.GET.get('credit', '')
     is_new = request.GET.get('is_new', '')
-
+    
     filterDic = {'_id.category': 'course'}
     if subject_id != 'all':
         filterDic['metadata.display_subject'] = subject_id
