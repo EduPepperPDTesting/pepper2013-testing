@@ -8,11 +8,15 @@
   from xmodule.modulestore.django import modulestore
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
+  from django.contrib.auth.models import User
+  from django.utils import timezone
+  from datetime import date
 %>
 <%! import json%>
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -21,6 +25,7 @@
 %endif
 </%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -271,7 +276,14 @@ padding-bottom:50px !important;
           %else:
             <div class="people_tit">People</div>
           %endif
-          %for profile in profiles:
+            %for profile in profiles:
+
+            <%
+            people = User.objects.get(id=profile['user_id'])
+            active_before = (timezone.now().date() - people.profile.last_activity.date()).days if people.profile.last_activity else 999999
+            active_recent = active_before < 11
+            %>
+
           %if profile['is_active']=='0':
           <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
@@ -306,6 +318,7 @@ padding-bottom:50px !important;
                   ${district.name}
                 %endif
               </span>
+
               %if 0:
               <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
               %endif
@@ -318,12 +331,17 @@ padding-bottom:50px !important;
               </a>
               <a class="button-del" onclick="del_people('${profile['user_id']}',this);return false;"></a>
               <a href="#show_personalmessage" rel="leanModal">
-                  <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
-                    <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
-                    <div id="" style="display:none;"></div>
-                  </div>
-                </a>
-              </div>
+                <div class="message_board_btn" style="width:175px;padding:20px 10px 10px 10px;text-align:center;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+
+                  %if request.user.is_superuser and active_recent:
+                  <a href="" style="display:inline-block">active</a> 
+                  %endif
+                  
+                  <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50" style="display:inline-block"/>
+                  <div id="" style="display:none;"></div>
+                </div>
+              </a>
+            </div>
             %else:
             <div class="btn_container btn_container_add">
               <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
@@ -332,7 +350,13 @@ padding-bottom:50px !important;
               </a>
               <a class="button-del"></a>
               <a href="#show_personalmessage" rel="leanModal">
-                <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+                <div class="message_board_btn" style="width:175px;padding:20px 10px 10px 10px;text-align:center;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+
+
+                  %if request.user.is_superuser and active_recent:
+                  <a href="" style="display:inline-block">active</a> 
+                  %endif
+                  
                   <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
                   <div id="" style="display:none;"></div>
                 </div>
@@ -479,4 +503,31 @@ padding-bottom:50px !important;
     userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
     message_board(userInfo);
   }
+</script>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;">sdfsfdsfd</h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;">
+      <img src="/user_photo/90" class="" alt="" />
+    </div>
+    <div style="color:#000;text-align:center;">
+      dgfdfgdfgaa
+      
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+
+  
+  function show_active_user(){
+     new Dialog($('#dialog')).show("Error", "");
+  }
+  
+  new Dialog($('#dialog')).show("Error", "");
 </script>
