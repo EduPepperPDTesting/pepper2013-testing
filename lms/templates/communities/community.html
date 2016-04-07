@@ -12,6 +12,7 @@
     <title>${community.name}</title>
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style type="text/css" media="screen">
     #community-main {
         width: 1185px;
@@ -83,7 +84,6 @@
     #community-header {
         border: 2px solid #ddd;
         width: 100%;
-        min-height: 280px;
     }
     #community-header h1 {
         text-align: left;
@@ -108,7 +108,7 @@
     #community-avatar {
         width: 100px;
         float: left;
-        margin: 30px 15px 15px 20px;
+        margin: 30px 15px 20px 20px;
     }
     #community-logo {
         float: right;
@@ -340,7 +340,7 @@
         width: 680px;
         display: none;
     }
-    #fixed-dialog {
+    #fixed-dialog, #skype-dialog {
         position: fixed;
     }
     .modal .close-modal {
@@ -466,6 +466,17 @@
     }
     .discussion-error-box {
         border-color: red !important;
+    }
+    #create-skype {
+        float: left;
+        margin: 0 20px 0 0;
+    }
+    .skype-container {
+        float: left;
+    }
+    .skype-button .side-button {
+        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+        height: 20px;
     }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
@@ -612,6 +623,11 @@
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
+                %if request.user.is_superuser:
+                    <div class="skype-button">
+                        <a href="#" id="skype-start" class="side-button blue-button">Start Skype Call</a>
+                    </div>
+                %endif
             </div>
         </div>
     </section>
@@ -632,6 +648,33 @@
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
         <div class="content"></div>
+    </div>
+</div>
+<div style="" id="skype-dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Start Skype Call</h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content">
+            <form>
+                <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
+                <label>Topic (optional):<input type="text" name="skype-topic"></label>
+                <input type="button" value="Create" id="create-skype">
+                <div class="skype-container">
+                    <script type="text/javascript">
+                        function startSkype(params) {
+                            var skype_button = Skype.ui(params);
+                            if (skype_button) {
+                                var id = $('.skype-container').attr('id');
+                                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
+                            }
+                        }
+                    </script>
+                </div>
+            </form>
+            <div class="community-clear"></div>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
@@ -889,6 +932,27 @@
                 this.hide();
                 if (!ans) return;
                 window.location.href = continue_url;
+            });
+        });
+        $('#skype-start').click(function(e) {
+            e.preventDefault();
+            var dialog = new Dialog('#skype-dialog');
+            dialog.showOverlay();
+            dialog.$ei.fadeIn(200);
+            $('#create-skype').click(function() {
+                var participants = $("input[name='skype-participants']").val().split(/, ?/);
+                var topic = $("input[name='skype-topic']").val();
+                var skype_params = {
+                    name: "call",
+                    element: "SkypeButton_Call_" + participants[0] + "_1",
+                    participants: participants,
+                    imageSize: 24,
+                    imageColor: "skype",
+                    video: "true",
+                    topic: topic
+                };
+                $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+                startSkype(skype_params);
             });
         });
     });

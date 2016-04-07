@@ -38,7 +38,6 @@ f.close()
 <link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
-
 <!-- User Data Import -->
 <div class="data_import_top">
   <div class="main, data_import_content">
@@ -642,8 +641,105 @@ f.close()
     <div class="content"></div>
   </div>
 </div>
+<div id = "districtEditForm" class = "hidden">
+    <p>
+        Edit District Form
+    </p><br>
+    Code:<input type = 'text' id = 'districtCodeValue'></input><br><br>
+    Name:<input type = 'text' id = 'districtNameValue'></input><br><br>
+    <button type = 'submit' id = 'submitDistrictEditButton'>Submit</button>
+</div>
 <script type="text/javascript">
-
+function editDistrictsInfo(id){
+    $.post('${reverse("pepconn_district_get_info")}', {
+        id: id
+    }, function (r) {
+        var code = " <h2>Edit District Form</h2>Code:<input type = 'text' id = 'districtCodeValue' value = '"+ r.code+"'></input><br><br>Name:<input type = 'text' id = 'districtNameValue' value = '"+ r.name +"'></input><br><br><button data-id = '"+id+"' onclick = 'submitDistrictEdit()' type = 'submit' id = 'submitDistrictEditButton'>Submit</button><p id = 'districtEditMessage'</p>"
+        new Dialog($('#dialog')).show("Edit District",code);
+    });
+}
+function submitDistrictEdit(){
+    $.post('${reverse("pepconn_district_edit_info")}',{
+        id:$("#submitDistrictEditButton").attr("data-id"),
+        name:$("#districtNameValue").val(),
+        code:$("#districtCodeValue").val()
+    },function(r){
+        if(r.success == 'true'){
+            $("#districtEditMessage").text("Updated Successfully.").css("color", "green");
+        }else{
+            $("#districtEditMessage").text(r.error).css("color", "red");
+        }
+    });
+}
+function editSchoolsData(id){
+    $.post('${reverse("pepconn_school_get_info")}', {
+        id: id
+    }, function (r) {
+        var code = r.code;
+        new Dialog($('#dialog')).show("Edit School",code);
+    });
+}
+function submitSchoolEdit(){
+    $.post('${reverse("pepconn_school_edit_info")}',{
+        id:$("#submitSchoolEditButton").attr("data-id"),
+        name:$("#schoolNameValue").val(),
+        code:$("#schoolCodeValue").val(),
+        district:$("#schoolDistrictValue").val()
+    }, function(r){
+        if(r.success == 'true'){
+            $("#schoolEditMessage").text("Updated Successfully.").css("color", "green");
+        }else{
+            $("#schoolEditMessage").text(r.error).css("color", "red");
+        }
+    });
+}
+function editCohortData(id){
+    $.post('${reverse("pepconn_cohort_get_info")}', {
+        id: id
+    }, function (r) {
+        var code = r.code;
+        new Dialog($('#dialog')).show("Edit Cohort",code);
+    });
+}
+function submitCohortEdit(){
+    $.post('${reverse("pepconn_cohort_edit_info")}',{
+        id:$("#submitCohortEditButton").attr("data-id"),
+        code:$("#cohortCodeValue").val(),
+        district:$("#cohortDistrictValue").val(),
+        licences:$("#cohortLicenceValue").val(),
+        term:$("#cohortTermValue").val()
+    }, function(r){
+        if(r.success == 'true'){
+            $("#cohortEditMessage").text("Updated Successfully.").css("color", "green");
+        }else{
+            $("#cohortEditMessage").text(r.error).css("color", "red");
+        }
+    });
+}
+function editUserData(id){
+    $.post('${reverse("pepconn_user_get_info")}', {
+        id: id
+    }, function (r) {
+        var code = r.code;
+        new Dialog($('#dialog')).show("Edit User",code);
+    });
+}
+function submitUserEdit(){
+    $.post('${reverse("pepconn_user_edit_info")}',{
+        id:$("#submitUserEditButton").attr("data-id"),
+        first:$("#userFirstValue").val(),
+        last:$("#userLastValue").val(),
+        cohort:$("#userCohortValue").val(),
+        district:$("#userDistrictValue").val(),
+        school:$("#userSchoolValue").val()
+    }, function(r){
+        if(r.success == 'true'){
+            $("#userEditMessage").text("Updated Successfully.").css("color", "green");
+        }else{
+            $("#userEditMessage").text(r.error).css("color", "red");
+        }
+    });
+}
 $("#singleDistrictImportForm").submit(function () {
     var flds = ["id", "name", "state", "csrfmiddlewaretoken"];
     var data = getFormData(this, flds);
@@ -695,7 +791,6 @@ $("#singleUserImportForm").submit(function () {
     return false;
 });
 
-
 $(document).ready(function () {
     $(".table-section").hide();
     $(".district_table-section").show();
@@ -709,6 +804,10 @@ $(document).ready(function () {
                 this.checked = false;
             });
         }
+    });
+    $(".dialog_close").click(function(){
+        console.log("hit");
+        $("#dialog").hide();
     });
     $("#selectallschool").click(function () {
         if (this.checked) {
@@ -896,7 +995,6 @@ $(document).ready(function () {
         });
     });
 });
-
 function addToCohort() {
     var code = "<p id = 'innercohort'>Select Cohort: " + $("#cohort_select").html() + "</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);
@@ -950,6 +1048,8 @@ function submitRemoveFromCohort() {
 
     });
 }
+
+
 function openBookmark(table) {
     var code = "<p>Select Filter: <select id = 'bookmark_select_" + table + "'>";
     var saveCode = "<hr><p><input placeholder = 'Enter Bookmark Name Here' type = 'text' id = 'bookmark_newname_" + table + "'></input><br><br><button onClick = 'saveBookmark(\"" + table + "\");'>Save Bookmark</button></p>";

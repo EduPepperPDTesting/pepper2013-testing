@@ -20,7 +20,7 @@ urlpatterns = (
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
 
     # === sso begin ===
-    url(r'^genericsso/$', 'sso.sp.genericsso'),
+     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
 
     # edit idp
@@ -82,6 +82,7 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
@@ -100,6 +101,18 @@ urlpatterns = (
     url(r'^pepconn/import_school/submit/$', 'administration.pepconn.import_school_submit', name="pepconn_import_school_submit"),
     url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
     url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
+
+    url(r'^pepconn/edit_district/get_info/$', 'administration.pepconn.district_get_info', name="pepconn_district_get_info"),
+    url(r'^pepconn/edit_district/request/$', 'administration.pepconn.district_edit_info', name="pepconn_district_edit_info"),
+
+    url(r'^pepconn/edit_school/get_info/$', 'administration.pepconn.school_get_info', name="pepconn_school_get_info"),
+    url(r'^pepconn/edit_school/edit_info/$', 'administration.pepconn.school_edit_info', name="pepconn_school_edit_info"),
+
+    url(r'^pepconn/edit_cohort/get_info/$', 'administration.pepconn.cohort_get_info', name="pepconn_cohort_get_info"),
+    url(r'^pepconn/edit_cohort/edit_info/$', 'administration.pepconn.cohort_edit_info', name="pepconn_cohort_edit_info"),
+
+    url(r'^pepconn/edit_user/get_info/$', 'administration.pepconn.user_get_info', name="pepconn_user_get_info"),
+    url(r'^pepconn/edit_user/edit_info/$', 'administration.pepconn.user_edit_info', name="pepconn_user_edit_info"),
 
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),

@@ -218,12 +218,26 @@ def signin_user(request):
     if request.user.is_authenticated():
         return redirect(reverse('dashboard'))
 
-    email = request.GET.get('regcheck', False)
+    email = request.GET.get('regcheck', None)
     if email:
         reg = registration_check(email)
         if reg['status'] == 'unregistered':
             next_page = request.GET.get('next', '')
             return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
+        elif not reg['status']:
+            message = '''Your account has not been set up in our system. Please contact your system administrator to
+                      have your account created in Pepper.'''
+            error_context = {'window_title': 'Missing Account',
+                             'error_title': 'Missing Account',
+                             'error_message': message}
+            return render_to_response('error.html', error_context)
+    elif email is not None:
+        message = '''Your email was not successfully sent by your course provider. This likely means that your email
+                  needs to be added in their system. Please contact your system administrator for help.'''
+        error_context = {'window_title': 'Missing Email',
+                         'error_title': 'Missing Email',
+                         'error_message': message}
+        return render_to_response('error.html', error_context)
 
     context = {
         'course_id': request.GET.get('course_id'),
@@ -288,6 +302,8 @@ def registration_check(email):
             return_value = {'status': 'unregistered', 'key': reg.activation_key}
         else:
             raise Exception('User is already active.')
+    except User.DoesNotExist:
+        return_value = {'status': False}
     except Exception as e:
         return_value = {'status': 'registered', 'error': '{e}'.format(e=e)}
     return return_value

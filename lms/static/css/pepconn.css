@@ -368,3 +368,9 @@ label {
         .selectall{
             float:right;
         }
+        .edit_icon{
+            height:15px;
+            width: 12px;
+            cursor:pointer;
+            padding-left:10px;
+        }
