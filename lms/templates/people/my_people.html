@@ -297,19 +297,19 @@
 		<div class="btn_container">
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="del_people('${profile['user_id']}');return false;"></a>
-          <a href="#show_personalmessage" rel="leanModal">
-            <div class="message_board_btn" style="width:175px;padding:20px 10px 10px 10px;text-align:center;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
-
-              %if request.user.is_superuser and active_recent:
-              <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}')">
-                <img src="/static/images/online/people-online.jpg" class="" alt="" />
-              </a> 
-              %endif
-                  
-              <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50" style="display:inline-block"/>
-              <div id="" style="display:none;"></div>
-            </div>
-          </a>
+          <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
+            %if request.user.is_superuser and active_recent:
+            <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}')">
+              <img src="/static/images/online/people-online.jpg" class="" alt="" />
+            </a> 
+            %endif
+            <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+              <div class="message_board_btn" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+                <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                <div id="" style="display:none;"></div>
+              </div>
+            </a>
+          </div>          
         </div>
       </div>
       %endfor
