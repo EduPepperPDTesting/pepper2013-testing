@@ -10,16 +10,42 @@
   from student.models import UserProfile
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
+  from django.contrib.auth.models import User
+  from django.utils import timezone
+  from datetime import date
 %>
 <%! import json%>
 <style type="text/css" media="screen">
-  section.course-index{
-    padding-bottom:50px !important;
-  }
+ .modal{position:fixed}
+ section.course-index{
+   padding-bottom:50px !important;
+ }
+ .blue-button {
+   border-color: #45719E;
+   background: #5A9BD5;
+ }
+ .green-button {
+   border-color: #595;
+   background: #8cbe41;
+ }
+ .side-button {
+   color: white !important;
+   display: inline-block;
+   padding: 10px;
+   border-width: 1px;
+   border-style: solid;
+   text-align: center;
+   margin-top: 5px;
+ }
+ .skype-button{
+   background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+   padding-left:35px;
+ } 
 </style>
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -235,6 +261,12 @@
       <div class="people_tit">People</div>
       %endif
       %for profile in profiles:
+
+      <%
+      people = User.objects.get(id=profile['user_id'])
+      active_before = (timezone.now().date() - people.profile.last_activity.date()).days if people.profile.last_activity else 999999
+      active_recent = active_before < 11
+      %>      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
           <a href="${reverse('dashboard',args=[profile['user_id']])}" target="_blank">
@@ -256,17 +288,21 @@
               <span class="name_text">${school.name} <br/> ${district.name}</span>
               %endif
 
-          %if 0:
-          <span class="name_text" style="color:#FFC90E;font-weight:bold;">Online Now!</span>              
-          %endif
           </span>
         </span>
 		<div class="btn_container">
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="del_people('${profile['user_id']}');return false;"></a>
           <a href="#show_personalmessage" rel="leanModal">
-            <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
-              <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+            <div class="message_board_btn" style="width:175px;padding:20px 10px 10px 10px;text-align:center;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+
+              %if request.user.is_superuser and active_recent:
+              <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}')">
+                <img src="/static/images/online/people-online.jpg" class="" alt="" />
+              </a> 
+              %endif
+                  
+              <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50" style="display:inline-block"/>
               <div id="" style="display:none;"></div>
             </div>
           </a>
@@ -370,4 +406,85 @@
     userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
     message_board(userInfo);
   }
+</script>
+
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+      <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+      <div style="display:inline-block">
+        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
+        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button">My Communities</a>
+      </div>
+      <div style="display:inline-block">
+        <a href="#" id="skype-start" class="side-button blue-button skype-button">Start Skype Call</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="" id="skype-dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title">Start Skype Call</h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content">
+      <form>
+        <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
+        <label>Topic (optional):<input type="text" name="skype-topic"></label>
+        <input type="button" value="Create" id="create-skype">
+        <div class="skype-container">
+          <script type="text/javascript">
+            function startSkype(params) {
+              var skype_button = Skype.ui(params);
+              if (skype_button) {
+                var id = $('.skype-container').attr('id');
+                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
+              }
+            }
+          </script>
+        </div>
+      </form>
+      <div class="community-clear"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var main_dlg=null;
+  function show_active_user(id, fname, lname){
+    $("#dlg-name-title").html(fname+" "+lname);
+    $("#dlg-user-photo").attr("src", "/user_photo/"+id);
+    main_dlg=new Dialog($('#dialog'));
+    main_dlg.show("Error", "");
+    return false;
+  }
+  $('#skype-start').click(function(e) {
+    e.preventDefault();
+    if(main_dlg)main_dlg.hide();
+    var dialog = new Dialog('#skype-dialog');
+    dialog.showOverlay();
+    dialog.$ei.fadeIn(200);
+    $('#create-skype').click(function() {
+      var participants = $("input[name='skype-participants']").val().split(/, ?/);
+      var topic = $("input[name='skype-topic']").val();
+      var skype_params = {
+        name: "call",
+        element: "SkypeButton_Call_" + participants[0] + "_1",
+        participants: participants,
+        imageSize: 24,
+        imageColor: "skype",
+        video: "true",
+        topic: topic
+      };
+      $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+      startSkype(skype_params);
+    });
+  });
 </script>

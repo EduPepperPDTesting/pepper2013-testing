@@ -1,11 +1,13 @@
 <%inherit file="../main.html" />
 <%!
-    from django.core.urlresolvers import reverse
-    from courseware.courses import course_image_url, get_course_about_section
-    from student.views import course_from_id
-    from administration.configuration import has_hangout_perms
-    from communities.utils import is_facilitator, is_member
-    from file_uploader.utils import get_file_url
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member
+from file_uploader.utils import get_file_url
+from django.utils import timezone
+from datetime import date
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -14,6 +16,15 @@
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style type="text/css" media="screen">
+   .circle {
+      width: 20px;
+      height: 20px;
+      background: #22B14C;
+      border-radius: 10px;
+      position:absolute;
+      right:0;
+    }
+  
     #community-main {
         width: 1185px;
         margin: 30px auto;
@@ -556,6 +567,7 @@
                 </div>
             </div>
         </div>
+        
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -564,11 +576,19 @@
                 </td>
                 <td class="member-column">
                     <div id="members">
-                        %for u in users:
-                            <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
-                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                            </a>
-                        %endfor
+                      %for u in users:
+                      <%
+                      user = u.user
+                      active_before = (timezone.now().date() - user.profile.last_activity.date()).days if user.profile.last_activity else 999999
+                      active_recent = active_before < 11
+                      %>
+                      <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
+                        %if active_recent:
+                        <div class="circle"></div>
+                        %endif
+                        <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
+                      </a>
+                      %endfor
                     </div>
                 </td>
                 <td class="member-arrows">
