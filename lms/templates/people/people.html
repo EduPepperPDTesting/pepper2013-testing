@@ -82,7 +82,11 @@
      }
      .skype-button{
        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
-       padding-left:35px;
+       padding-left:45px;
+     }
+     .hangout-button{
+       background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+       padding-left:45px;
      }
 </style>
 %if course:
@@ -538,11 +542,12 @@
     </div>
     <div style="color:#000;text-align:center;padding:10px;">
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
-      <div style="display:inline-block">
+      <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button">My Communities</a>
+        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button hangout-button">Join Hangout</a>
       </div>
-      <div style="display:inline-block">
+      <div style="display:inline-block;vertical-align:bottom;">
+        <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="#" id="skype-start" class="side-button blue-button skype-button">Start Skype Call</a>
       </div>
     </div>

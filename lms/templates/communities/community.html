@@ -583,7 +583,7 @@ from datetime import date
                       active_recent = active_before < 11
                       %>
                       <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
-                        %if active_recent:
+                        %if request.user.is_superuser and active_recent:
                         <div class="circle"></div>
                         %endif
                         <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
