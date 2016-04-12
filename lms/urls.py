@@ -522,6 +522,7 @@ if settings.COURSEWARE_ENABLED:
             'courseware.views.index', name="courseware_position"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress$',
             'courseware.views.progress', name="progress"),
+        url(r'^courseware/drop_districts$', 'courseware.views.drop_districts', name="courseware_drop_districts"),#20160324 add
         # Takes optional student_id for instructor use--shows profile as that student sees it.
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress/(?P<student_id>[^/]*)/$',
             'courseware.views.progress', name="student_progress"),
