@@ -195,8 +195,61 @@
     .check-column {
         width: 40px;
     }
+    .lean-overlay .loading {
+        width: 128px;
+        height: 128px;
+        display: block;
+        border-radius: 10px;
+        position: absolute;
+        left: 50%;
+        top: 300px;
+        margin-left: -64px;
+    }
 </style>
 <script type="text/javascript">
+    function LoadingStatus(list) {
+        var self = this;
+        setTimeout(function () {
+            if (!self.checkStatus()) {
+                self.showLoader();
+            }
+        }, 300);
+        this.$list = {};
+        $.each(list, function(i, v) {
+            self.$list[v] = true;
+        });
+    }
+    LoadingStatus.prototype.showLoader = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingStatus.prototype.hideLoader = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+    LoadingStatus.prototype.checkStatus = function () {
+        var status = true;
+        $.each(this.$list, function(i, v) {
+            if (v) {
+                status = false;
+            }
+        });
+        return status;
+    };
+    LoadingStatus.prototype.setStatus = function (name) {
+        this.$list[name] = false;
+        this.loaderCheck();
+    };
+    LoadingStatus.prototype.loaderCheck = function () {
+        if (this.checkStatus()) {
+            this.hideLoader();
+        }
+    };
     function checkPermission(name, target, action) {
         var valid = true;
         var error = '';
@@ -355,7 +408,7 @@
         groupEditAttach();
         groupSelect();
     }
-    function updateGroupMembers(group_id) {
+    function updateGroupMembers(group_id, status) {
         $('#group-members-table .data').remove();
         $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
@@ -372,9 +425,10 @@
                 row += '</tr>';
                 $('#group-members-table').append(row);
             });
+            status.setStatus('members');
         });
     }
-    function updateGroupPermissions(group_id) {
+    function updateGroupPermissions(group_id, status) {
         $('#group-permissions-table .data').remove();
         $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
@@ -388,6 +442,7 @@
                 row += '</tr> ';
                 $('#group-permissions-table').append(row);
             });
+            status.setStatus('permissions');
         });
     }
     function groupSelect() {
@@ -399,8 +454,9 @@
             $('#delete-group-permissions').removeAttr('disabled');
             $('#delete-group-members').removeAttr('disabled');
             var group_id = $(this).find('input').attr('value');
-            updateGroupMembers(group_id);
-            updateGroupPermissions(group_id);
+            var status = new LoadingStatus(['members', 'permissions']);
+            updateGroupMembers(group_id, status);
+            updateGroupPermissions(group_id, status);
         });
     }
     function groupEdit(type, id) {
