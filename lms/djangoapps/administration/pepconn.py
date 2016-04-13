@@ -293,7 +293,7 @@ def get_user_rows(request):
             activation_key = ''
         row.append('<a href="/register/' + activation_key + '" target="_blank">Activation Link</a>')
         row.append(str(item.user.date_joined))
-        row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/></td>')
+        row.append('<input class="user_select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/><img onclick = "editUserData('+str(item.id)+')" id = "editUser" data-id = "'+str(item.id)+'" src="/static/images/pencil_edit.png" class = "edit_icon"></td>')
         rows.append(row)
 
     # The list of rows is the second value in the return JSON.
@@ -366,7 +366,7 @@ def get_school_rows(request):
         row.append(str(district_name))
         row.append(str(district_id))
         row.append(str(district_state))
-        row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/>')
+        row.append('<input type="checkbox" name="id" class="school_select_box" value="' + str(item.id) + '"/><img onclick = "editSchoolsData('+str(item.id)+')" id = "editSchool" data-id = "'+str(item.id)+'" src="/static/images/pencil_edit.png" class = "edit_icon">')
         rows.append(row)
 
     # The list of rows is the second value in the return JSON.
@@ -423,13 +423,142 @@ def get_district_rows(request):
         row.append(str(item.code))
         row.append(str(item.name))
         row.append(str(item.state.name))
-        row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/>')
+        row.append('<input type="checkbox" name="id" class="district_select_box" value="' + str(item.id) + '"/><img onclick="editDistrictsInfo('+str(item.id)+')" id = "editDistrict" data-id = "'+str(item.id)+'" src="/static/images/pencil_edit.png" class = "edit_icon">')
         rows.append(row)
 
     # The list of rows is the second value in the return JSON.
     json_out.append(rows)
 
     return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
+def district_get_info(request):
+    district = request.POST.get('id')
+    row = District.objects.get(id=district)
+    code = row.code
+    name = row.name
+    j = json.dumps({'code': code, 'name': name})
+    return HttpResponse(j, content_type="application/json")
+
+
+def school_get_info(request):
+    school_id = request.POST.get('id')
+    school = School.objects.prefetch_related().get(id=school_id)
+    code = "<h2>Edit School Form</h2>Code:<input type = 'text' id = 'schoolCodeValue' value = '"+str(school.code)+"'></input><br><br>"
+    code += "Name:<input type = 'text' id = 'schoolNameValue' value = '"+str(school.name)+"'></input><br><br>"
+    state = school.district.state
+    code += "District:<select type = 'search' id = 'schoolDistrictValue'>"
+    for item in District.objects.filter(state_id=state):
+        code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+    code += "</select><br><br>"
+    code += "<button data-id = '"+str(school.id)+"' onclick = 'submitSchoolEdit()' type = 'submit' id = 'submitSchoolEditButton'>Submit</button>"
+    code += "<p id = 'schoolEditMessage'></p>"
+    j = json.dumps({'code':code})
+    return HttpResponse(j, content_type="application/json")
+
+
+def cohort_get_info(request):
+    cohort_id = request.POST.get('id')
+    cohort = Cohort.objects.prefetch_related().get(id=cohort_id)
+    code = "<h2>Edit Cohort Form</h2>Code:<input type = 'text' id = 'cohortCodeValue' value = '"+str(cohort.code)+"'></input><br><br>"
+    code += "Licences:<input type = 'text' id = 'cohortLicenceValue' value = '"+str(cohort.licences)+"'></input><br><br>"
+    code += "Term Months:<input type = 'text' id = 'cohortTermValue' value = '"+str(cohort.term_months)+"'></input><br><br>"
+    code += "District:<select type = 'search' id = 'cohortDistrictValue'>"
+    try:
+        state=cohort.district.state
+        for item in District.objects.filter(state_id=state):
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+    except:
+        for item in District.objects.all():
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+    code += "<button data-id = '"+str(cohort.id)+"' onclick = 'submitCohortEdit()' type = 'submit' id = 'submitCohortEditButton'>Submit</button>"
+    code += "<p id = 'cohortEditMessage'></p>"
+    j = json.dumps({'code':code})
+    return HttpResponse(j, content_type="application/json")
+
+
+def user_get_info(request):
+    user_id = request.POST.get('id')
+    profile = UserProfile.objects.prefetch_related().get(id=user_id)
+    code = "<h2>Edit User Form</h2>First Name:<input type = 'text' id = 'userFirstValue' value = '"+str(profile.user.first_name)+"'></input><br><br>"
+    code += "Last Name:<input type = 'text' id = 'userLastValue' value = '"+str(profile.user.last_name)+"'></input><br><br>"
+    code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
+
+    for item in Cohort.objects.all():
+        code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
+    code += "</select><br><br>"
+    try:
+        state = profile.district.state
+        code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
+        for item in District.objects.filter(state_id=state):
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+        code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
+        for item in School.objects.filter(district__state_id=state):
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+    except:
+        code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
+        for item in District.objects.all():
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+        code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
+        for item in School.objects.all():
+            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        code += "</select><br><br>"
+    code += "<button data-id = '"+str(profile.id)+"' onclick = 'submitUserEdit()' type = 'submit' id = 'submitUserEditButton'>Submit</button>"
+    code += "<p id = 'userEditMessage'></p>"
+    j = json.dumps({'code':code})
+    return HttpResponse(j, content_type="application/json")
+
+
+def user_edit_info(request):
+    user_id = request.POST.get('id')
+    profile = UserProfile.objects.prefetch_related().get(id=user_id)
+    profile.user.first_name = request.POST.get('first')
+    profile.user.last_name = request.POST.get('last')
+    profile.district_id = request.POST.get('district')
+    profile.cohort_id = request.POST.get('cohort')
+    profile.school_id = request.POST.get('school')
+    profile.user.save()
+    profile.save()
+    j = json.dumps({'success': 'true', 'error':'none', 'data':'hello, here is the name '+str(profile.user.first_name)})
+    return HttpResponse(j, content_type="application/json")
+
+
+def cohort_edit_info(request):
+    cohort_id = request.POST.get('id')
+    cohort = Cohort.objects.get(id=cohort_id)
+    cohort.code = request.POST.get('code')
+    cohort.licences = request.POST.get('licences')
+    cohort.term_months=request.POST.get('term')
+    cohort.district_id=request.POST.get('district')
+    cohort.save()
+    j = json.dumps({'success': 'true', 'error':'none'})
+    return HttpResponse(j, content_type="application/json")
+
+
+def school_edit_info(request):
+    school_id = request.POST.get('id')
+    row = School.objects.prefetch_related().get(id=school_id)
+    row.code = request.POST.get('code')
+    row.name = request.POST.get('name')
+    row.district_id = request.POST.get('district')
+    row.save()
+    j = json.dumps({'success': 'true', 'error':'none'})
+    return HttpResponse(j, content_type="application/json")
+
+
+def district_edit_info(request):
+    district = request.POST.get('id')
+    row = District.objects.get(id=district)
+    row.code = request.POST.get('code')
+    row.name = request.POST.get('name')
+    row.save()
+    j = json.dumps({'success': 'true', 'error':'none'})
+    return HttpResponse(j, content_type="application/json")
 
 
 @login_required
@@ -500,7 +629,7 @@ def get_cohort_rows(request):
         row.append(str(district_name))
         row.append(str(district_code))
         row.append(str(district_state))
-        row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/>')
+        row.append('<input type="checkbox" name="id" class="cohort_select_box" value="' + str(item.id) + '"/><img onclick = "editCohortData('+str(item.id)+')" id = "editCohort" data-id = "'+str(item.id)+'" src="/static/images/pencil_edit.png" class = "edit_icon">')
         rows.append(row)
 
     # The list of rows is the second value in the return JSON.

@@ -123,6 +123,18 @@ urlpatterns = (
     url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
     url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
 
+    url(r'^pepconn/edit_district/get_info/$', 'administration.pepconn.district_get_info', name="pepconn_district_get_info"),
+    url(r'^pepconn/edit_district/request/$', 'administration.pepconn.district_edit_info', name="pepconn_district_edit_info"),
+
+    url(r'^pepconn/edit_school/get_info/$', 'administration.pepconn.school_get_info', name="pepconn_school_get_info"),
+    url(r'^pepconn/edit_school/edit_info/$', 'administration.pepconn.school_edit_info', name="pepconn_school_edit_info"),
+
+    url(r'^pepconn/edit_cohort/get_info/$', 'administration.pepconn.cohort_get_info', name="pepconn_cohort_get_info"),
+    url(r'^pepconn/edit_cohort/edit_info/$', 'administration.pepconn.cohort_edit_info', name="pepconn_cohort_edit_info"),
+
+    url(r'^pepconn/edit_user/get_info/$', 'administration.pepconn.user_get_info', name="pepconn_user_get_info"),
+    url(r'^pepconn/edit_user/edit_info/$', 'administration.pepconn.user_edit_info', name="pepconn_user_edit_info"),
+
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),
     url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools', name="pepconn_drop_schools"),
@@ -240,7 +252,11 @@ urlpatterns = (
     url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
 
     url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^resource_library_global/states/$', 'access_resource_library.views.states', name="^resource_library_global_states"),
+    url(r'^resource_library_global/districts/$', 'access_resource_library.views.districts', name="^resource_library_global_districts"),
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+    url(r'^resource_library_global/resources/$', 'access_resource_library.views.resources', name="resource_library_global_resources"),
+    url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
 
@@ -527,6 +543,7 @@ if settings.COURSEWARE_ENABLED:
             'courseware.views.index', name="courseware_position"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress$',
             'courseware.views.progress', name="progress"),
+        url(r'^courseware/drop_districts$', 'courseware.views.drop_districts', name="courseware_drop_districts"),#20160324 add
         # Takes optional student_id for instructor use--shows profile as that student sees it.
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress/(?P<student_id>[^/]*)/$',
             'courseware.views.progress', name="student_progress"),

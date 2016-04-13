@@ -853,6 +853,10 @@ INSTALLED_APPS = (
 
     # Permissions
     'permissions',
+
+    # Resource library
+    'access_resource_library',
+    
 )
 
 ######################### MARKETING SITE ###############################

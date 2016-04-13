@@ -75,29 +75,6 @@ def tnl_configuration(request):
     return render_to_response('tnl/configuration.html', context)
 
 
-# @login_required
-# @user_passes_test(lambda u: u.is_superuser)
-# def tnl_connection_test(request):
-#     """
-#     Test the connection to TNL server
-#     """
-#     return render_to_response('tnl/test.html')
-#
-#
-# @login_required
-# @user_passes_test(lambda u: u.is_superuser)
-# def tnl_test_register(request):
-#     """
-#     Carries out the actual registration
-#     """
-#     try:
-#         course = course_from_id('PCG/PEP101x/2014_Spring')
-#         response = tnl_register_course(course)
-#     except Exception, e:
-#         raise e
-#     return HttpResponse(json.dumps(response), mimetype='application/json')
-
-
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def tnl_domain_add(request):

@@ -393,6 +393,9 @@
                         %if check_user_perms(curr_user, 'tnl'):
                             <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         %endif
+                        %if check_user_perms(curr_user, 'studio'):
+                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {
@@ -401,6 +404,50 @@
                                     $(".admin-dropdown-menu").hide();
                                 }
                             });
+
+                            url_studio = ["https://studio0.pepperpd.com",
+                                          "https://studio-staging.pepperpd.com",
+                                          "https://studio-demo.pepperpd.com",
+                                          "https://studio.pepperpd.com",
+                                          "https://studio-dev.pepperpd.com",
+                                          "https://studio-major.pepperpd.com",
+                                          "https://studio-patch.pepperpd.com",
+                                          "https://studio-test.pepperpd.com"];
+                            url_split_array = window.location.href.split('/');
+                            split_array_1 = "";
+                            split_keyword = "";
+                            url_using= "#";
+
+                            if (url_split_array.length>2){
+                                split_array_1 = url_split_array[2].split('.');
+                                split_keyword = split_array_1[0];
+                            }
+                            
+                            if (split_keyword == "www0"){
+                               url_using = url_studio[0];
+                            }
+                            else if(split_keyword == "staging"){
+                                url_using = url_studio[1];
+                            }
+                            else if(split_keyword == "demo"){
+                                url_using = url_studio[2];
+                            }
+                            else if(split_keyword == "www"){
+                                url_using = url_studio[3];
+                            }
+                            else if(split_keyword == "dev"){
+                                url_using = url_studio[4];
+                            }
+                            else if(split_keyword == "major"){
+                                url_using = url_studio[5];
+                            }
+                            else if(split_keyword == "patch"){
+                                url_using = url_studio[6];
+                            }
+                            else if(split_keyword == "test"){
+                                url_using = url_studio[7];
+                            }
+                            $("#studio_url").attr("href",url_using);
                         </script>
                     </ul>
                 </li>

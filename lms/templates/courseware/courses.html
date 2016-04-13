@@ -17,10 +17,13 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
 <style type="text/css" media="screen">
-    #page-nav,#page-footer{width:1180px;}
-    #btn-logged-user{display:none;}
-    .form-select{font-size:14px !important;width:180px;}
-    .image-link-style{
+    #btn-logged-user {
+        display:none;
+    }
+    .form-select {
+        font-size:14px !important;
+        width:180px;}
+    .image-link-style {
         border-radius: 6px 6px 6px 6px;
         -moz-border-radius: 6px 6px 6px 6px;
         -webkit-border-radius: 6px 6px 6px 6px;
@@ -28,13 +31,13 @@
         float: left;
         margin: 30px;
     }
-    .image-bottom-style{
-        border-radius: 0px 0px 6px 6px;
-        -moz-border-radius: 0px 0px 6px 6px;
-        -webkit-border-radius: 0px 0px 6px 6px;
+    .image-bottom-style {
+        border-radius: 0 0 6px 6px;
+        -moz-border-radius: 0 0 6px 6px;
+        -webkit-border-radius: 0 0 6px 6px;
         display: block;
     }
-    .card-link{
+    .card-link {
         display: table-cell;
         width: 240px;
         height: 60px;
@@ -44,27 +47,38 @@
         background: rgba(18,111,154,0.95);
         text-decoration: none!important;
     }
-    .card-link span{
+    .card-link span {
         color: #FFFFFF;
     }
-    .grade_title{float:left;width:920px;height:20px;background-color:#fff;text-align:left;padding-left:40px;color:#666;font-size:16px;font-weight:bold;font-family: "Open Sans",Verdana,Geneva,sans-serif;padding-top:4px;padding-bottom:2px;}
+    .grade_title {
+        float: left;
+        width: 920px;
+        height: 20px;
+        background-color: #fff;
+        text-align: left;
+        padding-left: 40px;
+        color: #666;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: "Open Sans",Verdana,Geneva,sans-serif;
+        padding-top: 4px;
+        padding-bottom: 2px;
+    }
     a.btnx:hover {
-        background:#638194;
+        background: #638194;
         transition-delay: 0s, 0s, 0s;
         transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-property:color, background,​ box-shadow;
+        transition-property:color, background,​box-shadow;
         transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-        transition-duration:0.25s,​ 0.25s,​ 0.25s;
         color:#fff;
     }
     a.btnx {
-        background-color:#556370;
-        text-decoration: none;
-        padding-bottom: 2px!important;
+        background-color: #556370;
+        padding-bottom: 2px !important;
         padding-left: 10px;
         padding-right: 10px;
-        padding-top: 2px!important;
-        text-decoration: none!important;
+        padding-top: 2px !important;
+        text-decoration: none !important;
         cursor: pointer;
         font-family: 'Open Sans',Verdana,Geneva,sans-serif;
         color:#fff;
@@ -117,20 +131,22 @@
                 <select name="subject_id" class="form-select">
                     <option value="all">All Subjects</option>
                     <option value="AR">Assessments and Reporting</option>
+                    <option value="DC">Digital Citizenship</option>
                     <option value="ELA">English Language Arts</option>
                     <option value="ELL">English Language Learners</option>
                     <option value="MA">Mathematics</option>
+                    <option value="PEP">Pepper</option>
+                    <option value="POW">Pepper's Online Workshops!</option>
                     <option value="SC">Science</option>
                     <option value="SE">Special Education</option>
                     <option value="TECH">Technology</option>
-                    <option value="PEP">Pepper</option>
-                    <option value="POW">Pepper Online Workshops!</option>
                     <option value="WR">Writing and Poetry</option>
                 </select>
             </div>
             <div style="display:inline-block;padding:0 1em 0 0;">
                 <select name="grade_id" class="form-select">
                     <option value="all">All Grades</option>
+                    <option value="PreK-3">PreK-3</option>
                     <option value="K-5">K-5</option>
                     <option value="6-8">6-8</option>
                     <option value="9-12">9-12</option>
@@ -148,42 +164,65 @@
                 <!--<input type="submit" id="edit-submit" name="op" value="find">-->
             </div>
             <a href="javascript:;" class="btnx" onClick="fsubmit();">Find</a>
-            %if request.user.is_authenticated():
-                <div>
-                    %if len(states) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="state" class="form-select">
-                                <option value="">Select State</option>
-                                %for state in states:
-                                    <option value="${state}">${state}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(districts) > 0:
-                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
-                            <select name="district" class="form-select">
-                                <option value="">Select District</option>
-                                %for district in districts:
-                                    <option value="${district['id']}">${district['name']}</option>
-                                %endfor
-                            </select>
-                        </div>
-                    %endif
-                    %if len(states) > 0 and len(districts) > 0:
-                        <div style="display:inline-block;width:83px;"></div>
-                    %else:
-                        <div style="display:inline-block;width:283px;"></div>
-                    %endif
-                </div>
+            %if link:
+                <input type="hidden" name="origin" value="courses"/>
+                %if request.user.is_authenticated():
+                    <div>
+                        <table style="margin-left:236px;">
+                            <tr>
+                                <td>
+                                    %if len(states_keys) > 0:
+                                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
+                                            <select name="state" class="form-select">
+                                                <option value="__NONE__">Select State</option>
+                                                %for state in states_keys:
+                                                    <option value="${state}">${state}</option>
+                                                %endfor
+                                            </select>
+                                        </div>
+                                    %else:
+                                        <div style="display:inline-block;padding:0 1em 0 0;margin-bottom:5px;">
+                                            <select name="state" class="form-select">
+                                                <option value="__NONE__">Select State</option>
+                                                %for item in State.objects.all().order_by('name'):
+                                                    %if request.GET.get('state')== "%s" % item.id:
+                                                        <option value="${item.name}" selected>${item.name}</option>
+                                                    %else:
+                                                        <option value="${item.name}">${item.name}</option>
+                                                    %endif 
+                                                %endfor
+                                            </select>
+                                        </div>
+                                    %endif
+                                </td>
+                                <td>
+                                    %if len(districts_keys) > 0:
+                                        <div style="display:inline-block;margin-left:1px;">
+                                            <select name="district" class="form-select" id="district_list_normal_user">
+                                                <option value="__NONE__">Select District</option>
+                                                %for district in districts_keys:
+                                                    <option value="${district['id']}">${district['name']}</option>
+                                                %endfor
+                                            </select>
+                                        </div>
+                                    %else:
+                                        <div style="display:inline-block;margin-left:1px;">
+                                            <select name="district" class="form-select" id="district_list">
+                                                <option value="__NONE__">Select District</option>
+                                            </select>
+                                        </div>
+                                    %endif
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                %endif
             %endif
             <script type="text/javascript">
                 var form=$("#course_list_form");
                 form.find("select[name=subject_id]").val("${request.GET.get('subject_id','')}");
                 form.find("select[name=grade_id]").val("${request.GET.get('grade_id','')}");
                 form.find("select[name=author_id]").val("${request.GET.get('author_id','')}");
-                form.find("select[name=state]").val("${request.GET.get('state','')}");
-                form.find("select[name=district]").val("${request.GET.get('district','')}");
             </script>
         </form>
     </section>
@@ -256,12 +295,27 @@
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper's Online Workshops</span></a>
                         </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/DC-digital_citiznship_tile.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=DC&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Digital Citizenship</span></a>
+                        </div>
                         <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Just_Released.jpg);background-size:100% 100%;">
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=all&grade_id=all&author_id=all&is_new=1&op=find" class="card-link image-bottom-style"><span>Just Released!</span></a>
                         </div>
                     </div>
                 %else:
+                    %if len(courses)>4:
+                        %if len(courses[4])>0:
+                            <div class="grade_title">PreK-3 Courses</div>
+                        %endif
+                        %for course in courses[4]:
+                        %for c in course:
+                            <%include file="../course.html" args="course=c" />
+                        %endfor
+                            <div style="float:left;width:900px;"></div>
+                        %endfor
+                    %endif
                     %if len(courses)>0:
                         %if len(courses[0])>0:
                             <div class="grade_title">K-5 Courses</div>
@@ -313,7 +367,7 @@
 </section>
 
 <section id="show_course_prompt" class="modal" style="width:640px;">
-    <div class="inner-wrapper" style="width:629x;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
+    <div class="inner-wrapper" style="width:629px;height:322px;background-image: url(/static/images/pepper_course_prompt.png);background-size:100% 100%;">
         <div class="close-modal" id="course_prompt_close">
             <div class="inner">
                 <p>&#10005;</p>
@@ -321,3 +375,73 @@
         </div>
     </div>
 </section>
+%if link:
+%if len(states_keys) > 0:
+<script type="text/javascript">
+var form=$("#course_list_form");
+var state="${request.GET.get('state','__NONE__')}";
+var district_id="${request.GET.get('district','__NONE__')}";
+form.find("select[name=state]").val("__NONE__");
+$("#district_list_normal_user").val("__NONE__");
+
+$("#district_list_normal_user").css("width","auto");
+</script>
+%else:
+<script type="text/javascript">
+var form=$("#course_list_form");
+var state="${request.GET.get('state','__NONE__')}";
+var district_id="${request.GET.get('district','__NONE__')}";
+form.find("select[name=state]").val("__NONE__");
+$("#district_list").val("__NONE__");
+
+if(state=="__NONE__"){
+    $("#district_list").css("width","182px");
+}
+else{
+    $("#district_list").css("width","auto");
+}
+
+//form.find("select[name=state]").val(state);
+//dropDistrict(form,state,function(){$(this).val(district_id)});
+
+form.find("select[name=state]").change(function(a){
+    var state = $(this).val();
+    dropDistrict(form,state,district_id);
+    if(state=="__NONE__"){
+        $("#district_list").css("width","182px");
+    }
+    else{
+        $("#district_list").css("width","auto");
+    }
+});
+
+function dropDistrict(form,state,callback,no_code){
+  $.get('/courseware/drop_districts',{state_name:state},function(r){
+      if((typeof r) == 'string'){
+        r=$.parseJSON(r)
+      }
+      var html="";
+      var drop=form.find("select[name=district]");
+      clearOption(drop)
+      for(k in r){
+        d=r[k];
+        html+="<option value='" + d.code+"'>" + d.name + "</option>";
+
+      }
+      drop.append(html)
+      if(callback instanceof Function){
+        callback.apply(drop[0]);
+      }
+  });
+}
+function clearOption(drop){
+  drop.find("option").filter(
+    function(){
+      return this.getAttribute("value")!="" && this.getAttribute("value")!="__NONE__"
+    }
+  ).remove()
+}
+</script>
+%endif
+%endif
+
