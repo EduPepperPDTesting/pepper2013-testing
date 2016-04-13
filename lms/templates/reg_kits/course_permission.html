@@ -42,7 +42,17 @@ from student.models import State,District,Transaction,Cohort,School,Registration
               </select></td><td>District:</td><td><select id="" name="district_id" autocomplete="off">
                 <option value="__NONE__"></option>
                 <option value="">all</option>
-              </select></td> </tr>
+              </select></td>
+              <td>Sattus:
+                <select id="" name="subscription_status" autocomplete="off">
+              <option value="">All</option>
+              <option value="Imported">Imported</option>
+              <option value="Unregistered">Unregistered</option>
+              <option value="Registered">Registered</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+              </td>
+              </tr>
               <tr> <td>Cohort:</td><td><select id="" name="cohort_id" autocomplete="off">
                 <option value="__NONE__"></option>
                 <option value="">all</option>
