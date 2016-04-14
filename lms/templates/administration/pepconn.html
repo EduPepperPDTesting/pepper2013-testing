@@ -94,7 +94,15 @@ f.close()
         %for item in Cohort.objects.all().order_by('code'):
             <option value="${item.id}">${item.code}</option>
         %endfor
-      </select></span>
+      </select></span><span class = 'hidden' id="sso_select"><select class="sso_selector"><option value=""></option>
+            <option value="peppertest">Pepper Test</option>
+            <option value="clever">Clever</option>
+            <option value="goalview">Goal View</option>
+      </select></p><p class = 'innerssotype'>Select SSO Type: <select class="sso_selector_type"><option value=""></option>
+            <option value="EasyIEP">EasyIEP</option>
+            <option value="OAuth2">OAuth2</option>
+            <option value="SAML">SAML</option>
+      </select></p></span>
         <div class="school-section import-section">
             <form method="" id="schoolDataImportForm" action="">
                 <div style="padding: 1em 7px 7px 7px;">
@@ -501,6 +509,8 @@ f.close()
                       <th class="user_cohort">Cohort</th>
                       <th class="user_state">State</th>
                       <th class="user_email">E-Mail</th>
+                      <th class="user_sso_type">SSO IDP</th>
+                      <th class="user_sso_idp">IDP Type</th>
                       <th class="user_registration">Registration Status</th>
                       <th class="user_activation_link">Activation Link</th>
                       <th class="user_enrollment_status">Enrollment Start</th>
@@ -537,6 +547,7 @@ f.close()
         <span style="float:right">
             <input type="button" value="Delete Selected Users" style="padding-right:10px;" class="small" id="delete_selected_user"/>
             <input type="button" value="Send Registration Mail" class="small" id="register_selected_user"/>
+            <input type="button" name="" onclick="addToSSO()" style="padding-left:10px;" value="Add To SSO" class="small" id="userAddToSSO"/>
             <input type="button" name="" onclick="addToCohort()" style="padding-left:10px;" value="Add To Cohort" class="small" id="userAddToCohort"/>
             <input type="button" name="" onclick="removeFromCohort()" style="padding-left:10px;" value="Remove From Cohort" class="small" id="userRemoveFromCohort"/>
         </span>
@@ -731,7 +742,9 @@ function submitUserEdit(){
         last:$("#userLastValue").val(),
         cohort:$("#userCohortValue").val(),
         district:$("#userDistrictValue").val(),
-        school:$("#userSchoolValue").val()
+        school:$("#userSchoolValue").val(),
+        ssotype:$("#userSSOTypeValue").val(),
+        ssoidp: $("#userSSOIDPValue").val()
     }, function(r){
         if(r.success == 'true'){
             $("#userEditMessage").text("Updated Successfully.").css("color", "green");
@@ -995,6 +1008,33 @@ $(document).ready(function () {
         });
     });
 });
+function addToSSO(){
+    var code = "<p id = 'innersso'>Select SSO IDP: " + $("#sso_select").html() + "</p><center><span id = 'ssoAddSuccess' style='color:green'></span><br><button onClick='submitAddToSSO()'>Submit</button>";
+    new Dialog($("#dialog")).show("Select SSO Type", code);
+
+}
+function submitAddToSSO(){
+    var ids = [];
+    $("#user_table_init tr").each(function (i, val) {
+        var $row = $(val);
+        var $checkedBoxes = $row.find("input:checked");
+        $checkedBoxes.each(function (i, box) {
+            var $checkbox = $(box);
+
+            $.post('${reverse("pepconn_sso_add_submit")}', {
+                id: $checkbox.val(),
+                sso: $("#innersso .sso_selector").val(),
+                ssotype: $("#innerssotype .sso_selector_type").val()
+            }, function (r) {
+                //console.log(r.message);
+                if (r.message = "success") {
+                    $("#ssoAddSuccess").html("Added successfully to SSO Type");
+                } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
+            });
+
+        });
+    });
+}
 function addToCohort() {
     var code = "<p id = 'innercohort'>Select Cohort: " + $("#cohort_select").html() + "</p><center><span id = 'cohortAddSuccess' style='color:green'></span><br><button onClick='submitAddToCohort()'>Submit</button>";
     new Dialog($("#dialog")).show("Select Cohort", code);

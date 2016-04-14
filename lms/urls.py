@@ -82,6 +82,8 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
+    url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
+
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
