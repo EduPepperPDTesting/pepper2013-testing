@@ -14,6 +14,7 @@ class PermGroup(models.Model):
     class Meta:
         db_table = 'perm_group'
     name = models.CharField(blank=False, max_length=255, db_index=True)
+    type = models.CharField(max_length=10, null=False, default='System')
 
 
 class PermGroupMember(models.Model):

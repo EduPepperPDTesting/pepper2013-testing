@@ -1,6 +1,10 @@
 <%!
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
+    from permissions.utils import check_user_perms
+
+    admin_rights = check_user_perms(request.user, 'permissions', 'administer')
+    assign_rights = check_user_perms(request.user, 'permissions', ['administer', 'assign'])
 %>
 
 <%inherit file="../main.html"/>
@@ -270,14 +274,14 @@
             return error;
         }
     }
-    function checkGroup(name) {
+    function checkGroup(name, group_type) {
         var valid = true;
         var error = '';
         $.ajax({
             url: "${reverse('permissions_group_check')}",
             type: 'GET',
             async: false,
-            data: {name: name},
+            data: {name: name, type: group_type},
             success: function(data) {
                 valid = data.Valid;
                 error = data.Error;
@@ -332,17 +336,19 @@
         var valid = true;
         var errors = ['The following errors occurred:\n'];
         var name = $('#new-group-submit input[name="name"]');
+        var group_type = $('#new-group-submit select[name="group_type"]');
         if (!/[A-Za-z0-9]+/.test(name.val())) {
             valid = false;
             errors.push('Name is required.');
             name.addClass('error-box');
         }
         if (type == 'add') {
-            var check_group = checkGroup(name.val());
+            var check_group = checkGroup(name.val(), group_type.val());
             if (check_group !== true) {
                 valid = false;
                 errors.push(check_group);
                 name.addClass('error-box');
+                group_type.addClass('error-box');
             }
         }
         if (!valid) {
@@ -399,10 +405,13 @@
             $.each(data, function (index, object) {
                 var row = '<tr class="data group-select">';
                 row += '<td>' + object.name + '</td>';
+                row += '<td>' + object.type + '</td>';
+                %if admin_rights:
                 row += '<td class="check-column">';
                 row += '<input type="checkbox" value="' + object.id + '" class="group-select">&nbsp;';
                 row += '<a href="#' + object.id + '" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
                 row += '</td>';
+                %endif
                 row += '</tr> ';
                 $('#groups-table tbody').append(row);
             });
@@ -440,9 +449,11 @@
                 row += '<td>' + object.name + '</td>';
                 row += '<td>' + object.item + '</td>';
                 row += '<td>' + object.action + '</td>';
+                %if admin_rights:
                 row += '<td class="check-column">';
                 row += '<input type="checkbox" value="' + object.id + '" name="group_permission_id[' + object.id + ']" class="group-permission-select">';
                 row += '</td>';
+                %endif
                 row += '</tr> ';
                 $('#group-permissions-table tbody').append(row);
             });
@@ -467,6 +478,8 @@
     function groupEdit(type, id) {
         var button_name = 'Add';
         var name = '';
+        var group_type = 'System';
+        var group_types = ['System', 'State', 'District', 'School'];
         if (type == 'edit') {
             button_name = 'Save';
             $.ajax({
@@ -476,11 +489,21 @@
                 data: {group_id: id},
                 success: function(data) {
                     name = data[0].name;
+                    group_type = data[0].type;
                 }
             });
         }
         var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
         content += '<label>Group Name:<input type="text" name="name" value="' + name + '"></label>';
+        content += '<label>Group Type:<select name="group_type">';
+        $.each(group_types, function (index, value) {
+            var selected = '';
+            if (value == group_type) {
+                selected = ' selected="selected"';
+            }
+            content += '<option value="' + value + '"' + selected + '>' + value + '</option>'
+        });
+        content += '</select></label>';
         content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
         if (type == 'edit') {
             content += '<input type="hidden" name="group_id" value="' + id + '"/>';
@@ -781,7 +804,7 @@
     });
 </script>
 
-<!-- User Data Import -->
+%if admin_rights:
 <div id="permissions">
     <div class="main permissions-content">
         <div class="expand_title expand_title_collapse">
@@ -837,6 +860,8 @@
         </div>
     </div>
 </div>
+%endif
+%if assign_rights:
 <div id="groups">
     <div class="main groups-content">
         <div class="expand_title expand_title_collapse">
@@ -849,21 +874,28 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Type</th>
+                                %if admin_rights:
                                 <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-select-all"></th>
+                                %endif
                             </tr>
                         </thead>
                         <tbody>
                             %for group in groups:
                                 <tr class="data group-select">
                                     <td>${group.name}</td>
+                                    <td>${group.type}</td>
+                                    %if admin_rights:
                                     <td class="check-column">
                                         <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
                                         <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
                                     </td>
+                                    %endif
                                 </tr>
                             %endfor
                         </tbody>
                     </table>
+                    %if admin_rights:
                     <div id="group-actions">
                         <div id="groups-pager" class="pager">
                             <form>
@@ -877,6 +909,7 @@
                         <input type="button" value="New Group" id="new-group">
                         <input type="submit" value="Delete Selected" id="delete-groups">
                     </div>
+                    %endif
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
             </div>
@@ -925,11 +958,14 @@
                                 <th>Name</th>
                                 <th>Target</th>
                                 <th>Action</th>
+                                %if admin_rights:
                                 <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-permission-select-all"></th>
+                                %endif
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
+                    %if admin_rights:
                     <div id="group-permission-actions">
                         <div id="group-permissions-pager" class="pager">
                             <form>
@@ -950,6 +986,7 @@
                         <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
                         <input type="submit" value="Delete Selected" id="delete-group-permissions" disabled="disabled">
                     </div>
+                    %endif
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
             </div>
@@ -957,6 +994,7 @@
         </div>
     </div>
 </div>
+%endif
 <div style="" id="dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
