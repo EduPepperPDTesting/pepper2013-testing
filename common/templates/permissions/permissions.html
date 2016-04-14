@@ -9,8 +9,6 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
-<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
-<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
@@ -26,7 +24,7 @@
         top: 40px;
         background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
         border-radius: 5px;
-        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
         padding: 0 0 8px 0;
         width: 680px;
         display: none;
@@ -205,6 +203,9 @@
         top: 300px;
         margin-left: -64px;
     }
+    .pager {
+        float: left;
+    }
 </style>
 <script type="text/javascript">
     function LoadingStatus(list) {
@@ -213,7 +214,7 @@
             if (!self.checkStatus()) {
                 self.showLoader();
             }
-        }, 300);
+        }, 200);
         this.$list = {};
         $.each(list, function(i, v) {
             self.$list[v] = true;
@@ -374,7 +375,7 @@
         });
     }
     function updatePermissions() {
-        $('#permissions-table .data').remove();
+        $('#permissions-table tbody .data').remove();
         $.get("${reverse('permissions_permissions_list')}", function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -386,13 +387,14 @@
                 row += '<a href="#' + object.id + '" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
                 row += '</td>';
                 row += '</tr> ';
-                $('#permissions-table').append(row);
+                $('#permissions-table tbody').append(row);
             });
             permissionEditAttach();
+            $('#permissions-table').trigger('update');
         });
     }
     function updateGroups() {
-        $('#groups-table .data').remove();
+        $('#groups-table tbody .data').remove();
         $.get("${reverse('permissions_group_list')}", function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data group-select">';
@@ -402,14 +404,15 @@
                 row += '<a href="#' + object.id + '" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>';
                 row += '</td>';
                 row += '</tr> ';
-                $('#groups-table').append(row);
+                $('#groups-table tbody').append(row);
             });
         });
         groupEditAttach();
         groupSelect();
+        $('#groups-table').trigger('update');
     }
     function updateGroupMembers(group_id, status) {
-        $('#group-members-table .data').remove();
+        $('#group-members-table tbody .data').remove();
         $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -423,13 +426,14 @@
                 row += '<input type="checkbox" value="' + object.user_id + '" name="group_member_id[' + object.user_id + ']" class="user-select">';
                 row += '</td>';
                 row += '</tr>';
-                $('#group-members-table').append(row);
+                $('#group-members-table tbody').append(row);
             });
+            $('#group-members-table').trigger('update');
             status.setStatus('members');
         });
     }
     function updateGroupPermissions(group_id, status) {
-        $('#group-permissions-table .data').remove();
+        $('#group-permissions-table tbody .data').remove();
         $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -440,8 +444,9 @@
                 row += '<input type="checkbox" value="' + object.id + '" name="group_permission_id[' + object.id + ']" class="group-permission-select">';
                 row += '</td>';
                 row += '</tr> ';
-                $('#group-permissions-table').append(row);
+                $('#group-permissions-table tbody').append(row);
             });
+            $('#group-permissions-table').trigger('update');
             status.setStatus('permissions');
         });
     }
@@ -547,6 +552,17 @@
             e.preventDefault();
             var id = $(this).attr('href').substr(1);
             permissionEdit('edit', id);
+        });
+    }
+    function selectAll(trigger_selector, target_selector) {
+        $(trigger_selector).change(function () {
+            var checked = false;
+            if ($(this).is(':checked')) {
+                checked = true;
+            }
+            $(target_selector).each(function () {
+                $(this).prop('checked', checked);
+            });
         });
     }
     $(document).ready(function() {
@@ -708,42 +724,60 @@
                 }
             });
         });
-        $('.permission-select-all').change(function (e) {
-            var checked = false;
-            if ($(this).is(':checked')) {
-                checked = true;
-            }
-            $('.permission-select').each(function () {
-                $(this).prop('checked', checked);
-            });
-        });
-        $('.group-select-all').change(function (e) {
-            var checked = false;
-            if ($(this).is(':checked')) {
-                checked = true;
-            }
-            $('.group-select').each(function () {
-                $(this).prop('checked', checked);
-            });
-        });
-        $('.user-select-all').change(function (e) {
-            var checked = false;
-            if ($(this).is(':checked')) {
-                checked = true;
-            }
-            $('.user-select').each(function () {
-                $(this).prop('checked', checked);
-            });
-        });
-        $('.group-permission-select-all').change(function (e) {
-            var checked = false;
-            if ($(this).is(':checked')) {
-                checked = true;
-            }
-            $('.group-permission-select').each(function () {
-                $(this).prop('checked', checked);
-            });
-        });
+        selectAll('.permission-select-all', '.permission-select');
+        selectAll('.group-select-all', '.group-select');
+        selectAll('.user-select-all', '.user-select');
+        selectAll('.group-permission-select-all', '.group-permission-select');
+    });
+    var pagerOptions = {
+        container: '',
+        // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        page: 0,
+        size: 10,
+        ajaxUrl: null,
+        customAjaxUrl: function(table, url) { return url; },
+        ajaxObject: { dataType: 'json' },
+        ajaxProcessing: null,
+        processAjaxOnInit: true,
+        pageReset: 0,
+        countChildRows: false,
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+    };
+    var tablesorterOptions = {
+        theme: 'blue',
+        widthFixed: true,
+        widgets: ["zebra", "filter"],
+        widgetOptions: {
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false
+        }
+    };
+
+    $(function () {
+        pagerOptions.container = $("#permissions-pager");
+        $('#permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#group-members-pager");
+        $('#group-members-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#group-permissions-pager");
+        $('#group-permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#groups-pager");
+        pagerOptions.size = 40;
+        $('#groups-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     });
 </script>
 
@@ -756,25 +790,45 @@
         <div class="expand_div">
             <form action="${reverse('permissions_permission_delete')}" method="post" id="delete-permissions-form">
                 <table id="permissions-table" class="permissions-table">
-                    <tr>
-                        <th>Name</th>
-                        <th>Target</th>
-                        <th>Action</th>
-                        <th class="check-column"><input type="checkbox" value="1" class="permission-select-all"></th>
-                    </tr>
-                    %for permission in permissions:
-                        <tr class="data">
-                            <td>${permission.name}</td>
-                            <td>${permission.item}</td>
-                            <td>${permission.action}</td>
-                            <td class="check-column">
-                                <input type="checkbox" value="${permission.id}" name="permission_id[${permission.id}]" class="permission-select">&nbsp;
-                                <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
-                            </td>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Target</th>
+                            <th>Action</th>
+                            <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="permission-select-all"></th>
                         </tr>
-                    %endfor
+                    </thead>
+                    <tbody>
+                        %for permission in permissions:
+                            <tr class="data">
+                                <td>${permission.name}</td>
+                                <td>${permission.item}</td>
+                                <td>${permission.action}</td>
+                                <td class="check-column">
+                                    <input type="checkbox" value="${permission.id}" name="permission_id[${permission.id}]" class="permission-select">&nbsp;
+                                    <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                </td>
+                            </tr>
+                        %endfor
+                    </tbody>
                 </table>
                 <div id="permission-actions">
+                    <div id="permissions-pager" class="pager">
+                        <form>
+                            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                            <select class="pagesize">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </form>
+                    </div>
                     <input type="button" value="New Permission" id="new-permission">
                     <input type="submit" value="Delete Selected" id="delete-permissions">
                 </div>
@@ -792,21 +846,34 @@
             <div id="groups-column">
                 <form action="${reverse('permissions_group_delete')}" method="post" id="delete-groups-form">
                     <table id="groups-table" class="permissions-table">
-                        <tr>
-                            <th>Name</th>
-                            <th><input type="checkbox" value="1" class="group-select-all"></th>
-                        </tr>
-                        %for group in groups:
-                            <tr class="data group-select">
-                                <td>${group.name}</td>
-                                <td class="check-column">
-                                    <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
-                                    <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
-                                </td>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-select-all"></th>
                             </tr>
-                        %endfor
+                        </thead>
+                        <tbody>
+                            %for group in groups:
+                                <tr class="data group-select">
+                                    <td>${group.name}</td>
+                                    <td class="check-column">
+                                        <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
+                                        <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                    </td>
+                                </tr>
+                            %endfor
+                        </tbody>
                     </table>
                     <div id="group-actions">
+                        <div id="groups-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                            </form>
+                        </div>
                         <input type="button" value="New Group" id="new-group">
                         <input type="submit" value="Delete Selected" id="delete-groups">
                     </div>
@@ -816,17 +883,36 @@
             <div id="groups-info-column">
                 <form action="${reverse('permissions_group_member_delete')}" method="post" id="delete-group-members-form">
                     <table id="group-members-table" class="permissions-table">
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>State</th>
-                            <th>District</th>
-                            <th>School</th>
-                            <th class="check-column"><input type="checkbox" value="1" class="user-select-all"></th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>School</th>
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="user-select-all"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
                     <div id="member-actions">
+                        <div id="group-members-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                                <select class="pagesize">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </form>
+                        </div>
                         <input type="button" value="Add Member" id="add-group-member" disabled="disabled">
                         <input type="submit" value="Remove Selected" id="delete-group-members" disabled="disabled">
                     </div>
@@ -834,14 +920,33 @@
                 </form>
                 <form action="${reverse('permissions_group_permission_delete')}" method="post" id="delete-group-permissions-form">
                     <table id="group-permissions-table" class="permissions-table">
-                        <tr>
-                            <th>Name</th>
-                            <th>Target</th>
-                            <th>Action</th>
-                            <th class="check-column"><input type="checkbox" value="1" class="group-permission-select-all"></th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Target</th>
+                                <th>Action</th>
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-permission-select-all"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
                     <div id="group-permission-actions">
+                        <div id="group-permissions-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                                <select class="pagesize">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </form>
+                        </div>
                         <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
                         <input type="submit" value="Delete Selected" id="delete-group-permissions" disabled="disabled">
                     </div>
