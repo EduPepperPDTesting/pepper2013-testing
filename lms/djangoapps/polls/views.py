@@ -40,7 +40,7 @@ def vote_calc(poll_dict, poll_type, poll_id):
         total += votes[idx]['count']
 
     for key, vote in votes.iteritems():
-        vote.update({'percent': floor((vote['count'] / total) * 100) if total else 0})
+        vote.update({'percent': floor((float(vote['count']) / total) * 100) if total else 0})
 
     return votes
 

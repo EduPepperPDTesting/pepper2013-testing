@@ -1,18 +1,30 @@
 <%inherit file="../main.html" />
 <%!
-    from django.core.urlresolvers import reverse
-    from courseware.courses import course_image_url, get_course_about_section
-    from student.views import course_from_id
-    from administration.configuration import has_hangout_perms
-    from communities.utils import is_facilitator, is_member
-    from file_uploader.utils import get_file_url
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member
+from file_uploader.utils import get_file_url
+from django.utils import timezone
+from datetime import date
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
     <title>${community.name}</title>
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <style type="text/css" media="screen">
+   .circle {
+      width: 20px;
+      height: 20px;
+      background: #22B14C;
+      border-radius: 10px;
+      position:absolute;
+      right:0;
+    }
+  
     #community-main {
         width: 1185px;
         margin: 30px auto;
@@ -83,7 +95,7 @@
     #community-header {
         border: 2px solid #ddd;
         width: 100%;
-        min-height: 280px;
+        position: relative;
     }
     #community-header h1 {
         text-align: left;
@@ -99,7 +111,7 @@
     }
     #community-header h3 {
         color: #006EBF;
-        margin: 40px 0 10px;
+        padding: 10px 0;
     }
     #community-header h4 {
         font-weight: bold;
@@ -108,17 +120,24 @@
     #community-avatar {
         width: 100px;
         float: left;
-        margin: 30px 15px 15px 20px;
+        margin: 0 15px 0 0;
     }
     #community-logo {
         float: right;
         width: 380px;
-        max-height: 300px;
+        height: 260px;
         overflow: hidden;
         margin: 15px;
+        text-align: center;
     }
     #community-logo img {
-        width: 380px;
+        height: 260px;
+    }
+    .facilitator-wrap {
+        position: absolute;
+        width: 450px;
+        bottom: 20px;
+        left: 20px;
     }
     #community-content-area h1 {
         color: #006EBF;
@@ -340,7 +359,7 @@
         width: 680px;
         display: none;
     }
-    #fixed-dialog {
+    #fixed-dialog, #skype-dialog {
         position: fixed;
     }
     .modal .close-modal {
@@ -467,6 +486,17 @@
     .discussion-error-box {
         border-color: red !important;
     }
+    #create-skype {
+        float: left;
+        margin: 0 20px 0 0;
+    }
+    .skype-container {
+        float: left;
+    }
+    .skype-button .side-button {
+        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+        height: 20px;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -479,9 +509,11 @@
             <h1>${community.name}</h1>
             <h2>${community.motto}</h2>
             %if facilitator:
-                <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
-                <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
-                <h4>Community Facilitator</h4>
+                <div class="facilitator-wrap">
+                    <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                    <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                    <h4>Community Facilitator</h4>
+                </div>
             %endif
             <div class="community-clear"></div>
         </div>
@@ -545,6 +577,7 @@
                 </div>
             </div>
         </div>
+        
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -553,11 +586,19 @@
                 </td>
                 <td class="member-column">
                     <div id="members">
-                        %for u in users:
-                            <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
-                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                            </a>
-                        %endfor
+                      %for u in users:
+                      <%
+                      user = u.user
+                      active_before = (timezone.now().date() - user.profile.last_activity.date()).days if user.profile.last_activity else 999999
+                      active_recent = active_before < 11
+                      %>
+                      <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
+                        %if request.user.is_superuser and active_recent:
+                        <div class="circle"></div>
+                        %endif
+                        <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
+                      </a>
+                      %endfor
                     </div>
                 </td>
                 <td class="member-arrows">
@@ -612,6 +653,11 @@
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
+                %if request.user.is_superuser:
+                    <div class="skype-button">
+                        <a href="#" id="skype-start" class="side-button blue-button">Start Skype Call</a>
+                    </div>
+                %endif
             </div>
         </div>
     </section>
@@ -632,6 +678,33 @@
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
         <div class="content"></div>
+    </div>
+</div>
+<div style="" id="skype-dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Start Skype Call</h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content">
+            <form>
+                <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
+                <label>Topic (optional):<input type="text" name="skype-topic"></label>
+                <input type="button" value="Create" id="create-skype">
+                <div class="skype-container">
+                    <script type="text/javascript">
+                        function startSkype(params) {
+                            var skype_button = Skype.ui(params);
+                            if (skype_button) {
+                                var id = $('.skype-container').attr('id');
+                                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
+                            }
+                        }
+                    </script>
+                </div>
+            </form>
+            <div class="community-clear"></div>
+        </div>
     </div>
 </div>
 <script type="text/javascript">
@@ -889,6 +962,27 @@
                 this.hide();
                 if (!ans) return;
                 window.location.href = continue_url;
+            });
+        });
+        $('#skype-start').click(function(e) {
+            e.preventDefault();
+            var dialog = new Dialog('#skype-dialog');
+            dialog.showOverlay();
+            dialog.$ei.fadeIn(200);
+            $('#create-skype').click(function() {
+                var participants = $("input[name='skype-participants']").val().split(/, ?/);
+                var topic = $("input[name='skype-topic']").val();
+                var skype_params = {
+                    name: "call",
+                    element: "SkypeButton_Call_" + participants[0] + "_1",
+                    participants: participants,
+                    imageSize: 24,
+                    imageColor: "skype",
+                    video: "true",
+                    topic: topic
+                };
+                $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+                startSkype(skype_params);
             });
         });
     });

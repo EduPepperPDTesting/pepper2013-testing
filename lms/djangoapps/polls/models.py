@@ -75,6 +75,7 @@ class MongoPollStore(object):
         )
 
     def get_answers(self, type, identifier, answer, user=None):
+        answer = str(answer)
         data = {
             'type': type,
             'identifier': str(identifier),
@@ -87,18 +88,13 @@ class MongoPollStore(object):
         return self.collection_answers.find(data)
 
     def set_answer(self, type, identifier, user, answer):
-        return self.collection_answers.update(
+        return self.collection_answers.insert(
                 {
                     'type': type,
                     'identifier': str(identifier),
+                    'user': str(user),
+                    'answer': str(answer),
                 },
-                {
-                    '$set': {
-                        'user': str(user),
-                        'answer': str(answer),
-                    }
-                },
-                True
         )
 
     def user_answered(self, type, identifier, user):

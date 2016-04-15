@@ -228,8 +228,10 @@ def get_user_rows(request):
                5: ['district__state__name', '__iexact', 'str'],
                6: ['cohort__code', '__icontains', 'str'],
                7: ['user__email', '__icontains', 'str'],
-               8: ['subscription_status', '__iexact', 'str'],
-               10: ['user__date_joined', '__icontains', False]}
+               8: ['sso_type', '__icontains', 'str'],
+               9: ['sso_idp', '__icontains', 'str'],
+               10: ['subscription_status', '__iexact', 'str'],
+               11: ['user__date_joined', '__icontains', False]}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
@@ -286,6 +288,8 @@ def get_user_rows(request):
         row.append(str(user_cohort))
         row.append(str(user_district_state))
         row.append(str(item.user.email))
+        row.append(str(item.sso_type))
+        row.append(str(item.sso_idp))
         row.append(str(item.subscription_status))
         try:
             activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
@@ -1210,6 +1214,21 @@ def task_close(request):
     except Exception as e:
         j = json.dumps({"success": False})
 
+    return HttpResponse(j, content_type="application/json")
+
+
+def add_to_sso(request):
+    try:
+        change = UserProfile.objects.get(user_id=int(request.POST.get('id')))
+        change.sso_idp = str(request.POST.get('sso'))
+        change.sso_type = str(request.POST.get('ssotype'))
+        change.save()
+        message = "success"
+    except Exception as e:
+        db.transaction.rollback()
+        message = "Error: " + str(e)
+
+    j = json.dumps({"message": message})
     return HttpResponse(j, content_type="application/json")
 
 
