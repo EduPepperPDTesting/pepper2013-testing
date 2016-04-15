@@ -94,15 +94,16 @@ f.close()
         %for item in Cohort.objects.all().order_by('code'):
             <option value="${item.id}">${item.code}</option>
         %endfor
-      </select></span><span class = 'hidden' id="sso_select"><select class="sso_selector"><option value=""></option>
-            <option value="peppertest">Pepper Test</option>
-            <option value="clever">Clever</option>
-            <option value="goalview">Goal View</option>
-      </select></p><p id = 'innerssotype'>Select SSO Type: <select class="sso_selector_type"><option value=""></option>
-            <option value="EasyIEP">EasyIEP</option>
-            <option value="OAuth2">OAuth2</option>
-            <option value="SAML">SAML</option>
-      </select></p></span>
+      </select></span>
+        <span class = 'hidden' id="sso_select">
+            <select id = "sso_idp_select_box"></select><p></p>
+            Select SSO Type:<select id = "sso_type_select_box">
+                <option value = ""></option>
+                <option value = "EasyIEP">EasyIEP</option>
+                <option value = "OAuth2">OAuth2</option>
+                <option value = "SAML">SAML</option>
+            </select>
+        </span>
         <div class="school-section import-section">
             <form method="" id="schoolDataImportForm" action="">
                 <div style="padding: 1em 7px 7px 7px;">
@@ -1009,8 +1010,16 @@ $(document).ready(function () {
     });
 });
 function addToSSO(){
-    var code = "<p id = 'innersso'>Select SSO IDP: " + $("#sso_select").html() + "</p><center><span id = 'ssoAddSuccess' style='color:green'></span><br><button onClick='submitAddToSSO()'>Submit</button>";
+    var code = "<span id = 'innersso'>Select SSO IDP: " + $("#sso_select").html() + "</span><center><span id = 'ssoAddSuccess' style='color:green'></span><br><button onClick='submitAddToSSO()'>Submit</button>";
     new Dialog($("#dialog")).show("Select SSO Type", code);
+    $.get('${reverse("sso_idp_metadata_all_json")}', {
+    }, function (r) {
+        var inner = "<option value=''></option>"
+        $.each(r,function(i,e){
+            inner+="<option value ='"+ e.sso_name +"'>"+ e.sso_name+"</option>";
+        });
+        $("#innersso > #sso_idp_select_box").empty().append(inner);
+    });
 
 }
 function submitAddToSSO(){
@@ -1023,15 +1032,14 @@ function submitAddToSSO(){
 
             $.post('${reverse("pepconn_sso_add_submit")}', {
                 id: $checkbox.val(),
-                sso: $("#innersso .sso_selector").val(),
-                ssotype: $("#innerssotype .sso_selector_type").val()
+                sso: $("#innersso > #sso_idp_select_box").val(),
+                ssotype: $("#innersso > #sso_type_select_box").val()
             }, function (r) {
                 //console.log(r.message);
-                if (r.message = "success") {
+                if (r.message == "success") {
                     $("#ssoAddSuccess").html("Added successfully to SSO Type");
                 } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
             });
-
         });
     });
 }
