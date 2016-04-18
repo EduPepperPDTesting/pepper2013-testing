@@ -17,7 +17,7 @@
 
 <style>
     .modal {
-        position: absolute;
+        position: fixed;
         opacity: 1;
         z-index: 11000;
         left: 50%;
@@ -90,7 +90,7 @@
     .group-select {
         cursor: pointer;
     }
-    .selected-group {
+    .selected-group td {
         background-color: #56a033;
     }
     .content-wrapper {
@@ -459,18 +459,20 @@
         });
     }
     function groupSelect() {
-        // TODO: fix this so the last column doesn't select the group.
-        $(".group-select").click(function() {
-            $('#groups-table tr').removeClass('selected-group');
-            $(this).addClass('selected-group');
-            $('#add-group-permission').removeAttr('disabled');
-            $('#add-group-member').removeAttr('disabled');
-            $('#delete-group-permissions').removeAttr('disabled');
-            $('#delete-group-members').removeAttr('disabled');
-            var group_id = $(this).find('input').attr('value');
-            var status = new LoadingStatus(['members', 'permissions']);
-            updateGroupMembers(group_id, status);
-            updateGroupPermissions(group_id, status);
+        $(".group-select").each(function () {
+            $(this).children("td").slice(0, 1).click(function() {
+                var parent = $(this).parents(".group-select");
+                $('#groups-table tr').removeClass('selected-group');
+                $(parent).addClass('selected-group');
+                $('#add-group-permission').removeAttr('disabled');
+                $('#add-group-member').removeAttr('disabled');
+                $('#delete-group-permissions').removeAttr('disabled');
+                $('#delete-group-members').removeAttr('disabled');
+                var group_id = $(parent).find('input').attr('value');
+                var status = new LoadingStatus(['members', 'permissions']);
+                updateGroupMembers(group_id, status);
+                updateGroupPermissions(group_id, status);
+            });
         });
     }
     function groupEdit(type, id) {
