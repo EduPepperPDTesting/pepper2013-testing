@@ -60,7 +60,7 @@ def main(request):
 # -------------- Dropdown Lists -------------
 def drop_states(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', True):
+    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
         state_id = UserProfile.objects.get(user_id=request.user.id).district.state_id
         data = State.objects.filter(id=state_id)[0]
         r.append({"id": data.id, "name": data.name})
@@ -74,7 +74,7 @@ def drop_states(request):
 
 def drop_districts(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', True):
+    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
         data = UserProfile.objects.get(user_id=request.user.id).district
         r.append({"id": data.id, "name": data.name})
     else:
@@ -89,7 +89,7 @@ def drop_districts(request):
 
 def drop_schools(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', True):
+    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
         district = UserProfile.objects.get(user_id=request.user.id).district
         data = School.objects.filter(district=district.id)
         data = data.order_by("name")

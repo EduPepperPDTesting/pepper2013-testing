@@ -333,19 +333,19 @@
         var valid = true;
         var errors = ['The following errors occurred:\n'];
         var name = $('#new-group-submit input[name="name"]');
-        var group_type = $('#new-group-submit select[name="group_type"]');
+        var access_level = $('#new-group-submit select[name="access_level"]');
         if (!/[A-Za-z0-9]+/.test(name.val())) {
             valid = false;
             errors.push('Name is required.');
             name.addClass('error-box');
         }
         if (type == 'add') {
-            var check_group = checkGroup(name.val(), group_type.val());
+            var check_group = checkGroup(name.val(), access_level.val());
             if (check_group !== true) {
                 valid = false;
                 errors.push(check_group);
                 name.addClass('error-box');
-                group_type.addClass('error-box');
+                access_level.addClass('error-box');
             }
         }
         if (!valid) {
@@ -402,7 +402,7 @@
             $.each(data, function (index, object) {
                 var row = '<tr class="data group-select">';
                 row += '<td>' + object.name + '</td>';
-                row += '<td>' + object.type + '</td>';
+                row += '<td>' + object.access_level + '</td>';
                 %if admin_rights:
                 row += '<td class="check-column">';
                 row += '<input type="checkbox" value="' + object.id + '" class="group-select">&nbsp;';
@@ -459,6 +459,7 @@
         });
     }
     function groupSelect() {
+        // TODO: fix this so the last column doesn't select the group.
         $(".group-select").click(function() {
             $('#groups-table tr').removeClass('selected-group');
             $(this).addClass('selected-group');
@@ -475,8 +476,8 @@
     function groupEdit(type, id) {
         var button_name = 'Add';
         var name = '';
-        var group_type = 'System';
-        var group_types = ['System', 'State', 'District', 'School'];
+        var access_level = 'System';
+        var access_levels = ['System', 'State', 'District', 'School'];
         if (type == 'edit') {
             button_name = 'Save';
             $.ajax({
@@ -486,16 +487,16 @@
                 data: {group_id: id},
                 success: function(data) {
                     name = data[0].name;
-                    group_type = data[0].type;
+                    access_level = data[0].access_level;
                 }
             });
         }
         var content = '<form action="${reverse('permissions_group_add')}" method="post" id="new-group-submit">';
         content += '<label>Group Name:<input type="text" name="name" value="' + name + '"></label>';
-        content += '<label>Group Type:<select name="group_type">';
-        $.each(group_types, function (index, value) {
+        content += '<label>Group Type:<select name="access_level">';
+        $.each(access_levels, function (index, value) {
             var selected = '';
-            if (value == group_type) {
+            if (value == access_level) {
                 selected = ' selected="selected"';
             }
             content += '<option value="' + value + '"' + selected + '>' + value + '</option>'
@@ -871,7 +872,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Type</th>
+                                <th>Access Level</th>
                                 %if admin_rights:
                                 <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-select-all"></th>
                                 %endif
@@ -881,7 +882,7 @@
                             %for group in groups:
                                 <tr class="data group-select">
                                     <td>${group.name}</td>
-                                    <td>${group.type}</td>
+                                    <td>${group.access_level}</td>
                                     %if admin_rights:
                                     <td class="check-column">
                                         <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;

@@ -27,9 +27,9 @@ def permissions_view(request):
 def group_check(request):
     valid = True
     error = ''
-    if PermGroup.objects.filter(name=request.GET.get('name'), type=request.GET.get('type')).count():
+    if PermGroup.objects.filter(name=request.GET.get('name'), access_level=request.GET.get('access_level')).count():
         valid = False
-        error = 'This name/type is already in use.'
+        error = 'This name/access level is already in use.'
     return HttpResponse(json.dumps({'Valid': valid, 'Error': error}), content_type='application/json')
 
 
@@ -38,14 +38,14 @@ def group_check(request):
 def group_add(request):
     name = request.POST.get('name', False)
     group_id = request.POST.get('group_id', False)
-    group_type = request.POST.get('group_type', None)
+    access_level = request.POST.get('access_level', None)
     if name:
         if group_id:
             group = PermGroup.objects.get(id=group_id)
         else:
             group = PermGroup()
         group.name = name
-        group.type = group_type
+        group.access_level = access_level
         group.save()
         data = {'Success': True}
     else:
@@ -188,7 +188,7 @@ def group_list(request):
     groups = group_data(request.GET.get('group_id', False))
     data = list()
     for group in groups:
-        data.append({'id': group.id, 'name': group.name, 'type': group.type})
+        data.append({'id': group.id, 'name': group.name, 'access_level': group.access_level})
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 

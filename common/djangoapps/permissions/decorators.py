@@ -8,18 +8,20 @@ from django.http import HttpResponseForbidden
 from mitxmako.shortcuts import render_to_response
 
 
-def user_has_perms(item, action='any'):
+def user_has_perms(item, action='any', access_level='any', exclude_superuser=False):
     """
     Decorator for checking permissions before allowing access to a view. Only usable on views with a request object. If
     called without any parameters, it will check if a user has *any* admin permissions.
     :param item: The item the user is trying to access.
     :param action: The action which the user is trying to take.
+    :param access_level: The level of this access.
+    :param exclude_superuser: Set to True if you want to exclude the superuser override.
     """
 
     def decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view(request, *args, **kwargs):
-            if check_user_perms(request.user, item, action):
+            if check_user_perms(request.user, item, action, access_level, exclude_superuser):
                 return view_func(request, *args, **kwargs)
             if request.user.is_anonymous():
                 path = request.build_absolute_uri()
