@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django_future.csrf import ensure_csrf_cookie
 from django.db import IntegrityError
 from .decorators import user_has_perms
+from .utils import check_user_perms
 from student.models import User
 from pepper_utilities.utils import get_request_array
 
@@ -13,8 +14,12 @@ from pepper_utilities.utils import get_request_array
 def permissions_view(request):
     permissions = permissions_data()
     groups = group_data()
+    admin_rights = check_user_perms(request.user, 'permissions', 'administer')
+    assign_rights = check_user_perms(request.user, 'permissions', ['administer', 'assign'])
     data = {'permissions': permissions,
-            'groups': groups}
+            'groups': groups,
+            'admin_rights': admin_rights,
+            'assign_rights': assign_rights}
     return render_to_response('permissions/permissions.html', data)
 
 

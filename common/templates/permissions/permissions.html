@@ -1,13 +1,10 @@
+<%inherit file="../main.html"/>
 <%!
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
     from permissions.utils import check_user_perms
-
-    admin_rights = check_user_perms(request.user, 'permissions', 'administer')
-    assign_rights = check_user_perms(request.user, 'permissions', ['administer', 'assign'])
 %>
 
-<%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
