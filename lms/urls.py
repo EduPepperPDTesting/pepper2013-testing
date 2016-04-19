@@ -104,6 +104,8 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
+    url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
+
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
     url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
@@ -178,6 +180,8 @@ urlpatterns = (
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
+    url(r'^alert_message/$', 'administration.alert_message.main', name="alert_message"),#20160411 add
+    url(r'^alert_message_post/$', 'administration.alert_message.alert_message_post', name="alert_message_post"),#20160411 add
     
     url(r'^more_courses_available/$', 'student.views.more_courses_available', name="more_courses_available"),
     url(r'^reg_kits/$', 'reg_kits.views.district', name="reg_kits"),

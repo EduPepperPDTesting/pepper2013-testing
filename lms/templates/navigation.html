@@ -396,6 +396,9 @@
                         %if check_user_perms(curr_user, 'studio'):
                             <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
                         %endif
+                        %if check_user_perms(curr_user, 'alert_message'):
+                            <li><a href="${reverse('alert_message')}">Alert</a></li>
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {

@@ -65,6 +65,7 @@ from django.db import models
 from mail import send_html_mail
 from courseware.courses import get_course_by_id
 from study_time.models import record_time_store
+from administration.models import site_setting_store
 
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -225,15 +226,20 @@ def signin_user(request):
             next_page = request.GET.get('next', '')
             return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
         elif not reg['status']:
-            message = '''Your account has not been set up in our system. Please contact your system administrator to
-                      have your account created in Pepper.'''
+            message = '''Your account has not been set up in our system. This means your district has not provided us
+                         with the necessary information. Please contact your district or school's professional
+                         development coordinator to have your account created in Pepper. You can also email
+                         <a href="mailto:pcgpepper@pcgus.com">pcgpepper@pcgus.com</a> for assistance. You will receive a
+                         response within two business days.'''
             error_context = {'window_title': 'Missing Account',
                              'error_title': 'Missing Account',
                              'error_message': message}
             return render_to_response('error.html', error_context)
     elif email is not None:
-        message = '''Your email was not successfully sent by your course provider. This likely means that your email
-                  needs to be added in their system. Please contact your system administrator for help.'''
+        message = '''Your email was not successfully sent by your PD system (TNL). This likely means that your email
+                     needs to be added in that system. Please contact your school or district PD coordinator or Data
+                     Administrator to fix your email in the source system for that information. Once that information is
+                     fixed, within 24 hours you should be able to access the course.'''
         error_context = {'window_title': 'Missing Email',
                          'error_title': 'Missing Email',
                          'error_message': message}
@@ -529,6 +535,25 @@ def dashboard(request, user_id=None):
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+
+    #20160413 load alert_message
+    #begin
+    site_settings = site_setting_store()
+    al_text = "__NONE__"
+    try:
+        al_text = site_settings.get_item('alert_text')['value']
+    except Exception as e:
+        pass
+    if al_text == "__NONE__":
+        al_text = ""
+
+    al_enabled = "un_enabled"
+    try:
+        al_enabled = site_settings.get_item('alert_enabled')['value']
+    except Exception as e:
+        pass
+    #end
+
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
@@ -547,7 +572,9 @@ def dashboard(request, user_id=None):
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
         'external_times': external_times,
-        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
+        'alert_text':al_text,
+        'alert_enabled':al_enabled
     }
 
     return render_to_response('dashboard.html', context)
