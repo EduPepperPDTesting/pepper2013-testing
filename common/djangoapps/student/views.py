@@ -226,15 +226,20 @@ def signin_user(request):
             next_page = request.GET.get('next', '')
             return redirect(reverse('register_user') + reg['key'] + '?next=' + next_page)
         elif not reg['status']:
-            message = '''Your account has not been set up in our system. Please contact your system administrator to
-                      have your account created in Pepper.'''
+            message = '''Your account has not been set up in our system. This means your district has not provided us
+                         with the necessary information. Please contact your district or school's professional
+                         development coordinator to have your account created in Pepper. You can also email
+                         <a href="mailto:pcgpepper@pcgus.com">pcgpepper@pcgus.com</a> for assistance. You will receive a
+                         response within two business days.'''
             error_context = {'window_title': 'Missing Account',
                              'error_title': 'Missing Account',
                              'error_message': message}
             return render_to_response('error.html', error_context)
     elif email is not None:
-        message = '''Your email was not successfully sent by your course provider. This likely means that your email
-                  needs to be added in their system. Please contact your system administrator for help.'''
+        message = '''Your email was not successfully sent by your PD system (TNL). This likely means that your email
+                     needs to be added in that system. Please contact your school or district PD coordinator or Data
+                     Administrator to fix your email in the source system for that information. Once that information is
+                     fixed, within 24 hours you should be able to access the course.'''
         error_context = {'window_title': 'Missing Email',
                          'error_title': 'Missing Email',
                          'error_message': message}
