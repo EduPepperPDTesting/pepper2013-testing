@@ -154,13 +154,12 @@ def get_add_user_rows(request, community_id):
 
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id')
     users = users.exclude(user__in=members)
-    
-    # The number of results is the first value in the return JSON
-    count = users.count()
-    json_out = [count]
+    users = users.exclude(activate_date__isnull=True)
+
 
     # Add the row data to the list of rows.
     rows = list()
+    count=0
     for item in users[start:end]:
         row = list()
 
@@ -195,10 +194,18 @@ def get_add_user_rows(request, community_id):
         #     activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
         # except:
         #     activation_key = ''
-            
+
         # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
-        rows.append(row)
+        try:
+            if(item.user.profile.district.state.name == request.user.profile.district.state.name):
+                if(item.user.profile.district == request.user.profile.district):
+                    rows.append(row)
+                    count+=1
+        except:
+            error=0
+    # The number of results is the first value in the return JSON
+    json_out = [count]
 
     # The list of rows is the second value in the return JSON.
     json_out.append(rows)
