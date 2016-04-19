@@ -154,6 +154,7 @@ def get_add_user_rows(request, community_id):
 
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id')
     users = users.exclude(user__in=members)
+    users = users.exclude(activate_date__isnull=True)
     
     # The number of results is the first value in the return JSON
     count = users.count()
@@ -195,7 +196,7 @@ def get_add_user_rows(request, community_id):
         #     activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
         # except:
         #     activation_key = ''
-            
+
         # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
         rows.append(row)
