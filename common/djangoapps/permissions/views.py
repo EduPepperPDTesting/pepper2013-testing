@@ -5,21 +5,23 @@ from django.http import HttpResponse
 from django_future.csrf import ensure_csrf_cookie
 from django.db import IntegrityError
 from .decorators import user_has_perms
-from .utils import check_user_perms
+from .utils import check_user_perms, check_access_level
 from student.models import User
 from pepper_utilities.utils import get_request_array
 
 
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def permissions_view(request):
     permissions = permissions_data()
     groups = group_data()
     admin_rights = check_user_perms(request.user, 'permissions', 'administer')
     assign_rights = check_user_perms(request.user, 'permissions', ['administer', 'assign'])
+    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
     data = {'permissions': permissions,
             'groups': groups,
             'admin_rights': admin_rights,
-            'assign_rights': assign_rights}
+            'assign_rights': assign_rights,
+            'access_level': access_level}
     return render_to_response('permissions/permissions.html', data)
 
 
@@ -105,7 +107,7 @@ def group_permission_delete(request):
 
 
 @ensure_csrf_cookie
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def group_member_add(request):
     group_id = request.POST.get('group', False)
     try:
@@ -162,7 +164,7 @@ def group_member_add(request):
 
 
 @ensure_csrf_cookie
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def group_member_delete(request):
     try:
         group_member_ids = get_request_array(request.POST, 'group_member_id')
@@ -171,7 +173,7 @@ def group_member_delete(request):
             group_member.delete()
         data = {'Success': True}
     except Exception as e:
-        data = {'Success': False, 'Error': ''.format(e)}
+        data = {'Success': False, 'Error': ''.format(e), 'members': group_member_ids}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -183,7 +185,7 @@ def group_data(group_id=False):
     return groups
 
 
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def group_list(request):
     groups = group_data(request.GET.get('group_id', False))
     data = list()
@@ -192,13 +194,21 @@ def group_list(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def group_member_list(request):
     group = PermGroup.objects.get(id=request.GET.get('group_id'))
-    group_members = PermGroupMember.objects.prefetch_related().filter(group=group)
+    kwargs = {'group': group}
+    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
+    if access_level == 'School':
+        kwargs.update({'user__profile__school': request.user.profile.school})
+    if access_level == 'District':
+        kwargs.update({'user__profile__district': request.user.profile.district})
+    if access_level == 'State':
+        kwargs.update({'user__profile__district__state': request.user.profile.district.state})
+    group_members = PermGroupMember.objects.prefetch_related().filter(**kwargs)
     member_list = list()
     for member in group_members:
-        member_dict = dict()
+        member_dict = {'id': member.id}
         try:
             member_dict.update({'user_id': member.user.id})
         except:
@@ -231,7 +241,7 @@ def group_member_list(request):
     return HttpResponse(json.dumps(member_list), content_type='application/json')
 
 
-@user_has_perms('permissions', 'administer')
+@user_has_perms('permissions', ['administer', 'assign'])
 def group_permissions_list(request):
     group = PermGroup.objects.get(id=request.GET.get('group_id'))
     permissions = PermGroupPermission.objects.filter(group=group)
@@ -300,7 +310,7 @@ def permissions_data(permission_id=False):
     if permission_id:
         permissions = [PermPermission.objects.get(id=permission_id)]
     else:
-        permissions = list(PermPermission.objects.all())
+        permissions = list(PermPermission.objects.all().order_by('item', 'action'))
     return permissions
 
 

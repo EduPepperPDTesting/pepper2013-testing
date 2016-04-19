@@ -2,7 +2,7 @@
 <%!
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
-    from permissions.utils import check_user_perms
+    from permissions.utils import check_user_perms, check_access_level
 %>
 
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
@@ -209,6 +209,41 @@
     }
 </style>
 <script type="text/javascript">
+    var pagerOptions = {
+        container: '',
+        // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        page: 0,
+        size: 10,
+        ajaxUrl: null,
+        customAjaxUrl: function(table, url) { return url; },
+        ajaxObject: { dataType: 'json' },
+        ajaxProcessing: null,
+        processAjaxOnInit: true,
+        pageReset: 0,
+        countChildRows: false,
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+    };
+    var tablesorterOptions = {
+        theme: 'blue',
+        widthFixed: true,
+        widgets: ["zebra", "filter"],
+        widgetOptions: {
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false
+        }
+    };
     function LoadingStatus(list) {
         var self = this;
         setTimeout(function () {
@@ -412,10 +447,10 @@
                 row += '</tr> ';
                 $('#groups-table tbody').append(row);
             });
+            $('#groups-table').trigger('update');
+            groupEditAttach();
+            groupSelect();
         });
-        groupEditAttach();
-        groupSelect();
-        $('#groups-table').trigger('update');
     }
     function updateGroupMembers(group_id, status) {
         $('#group-members-table tbody .data').remove();
@@ -429,7 +464,7 @@
                 row += '<td>' + object.district + '</td>';
                 row += '<td>' + object.school + '</td>';
                 row += '<td class="check-column">';
-                row += '<input type="checkbox" value="' + object.user_id + '" name="group_member_id[' + object.user_id + ']" class="user-select">';
+                row += '<input type="checkbox" value="' + object.id + '" name="group_member_id[' + object.id + ']" class="user-select">';
                 row += '</td>';
                 row += '</tr>';
                 $('#group-members-table tbody').append(row);
@@ -600,6 +635,20 @@
                 $(this).addClass("expand_title_expanded");
             }
         });
+
+        pagerOptions.container = $("#permissions-pager");
+        $('#permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#group-members-pager");
+        $('#group-members-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#group-permissions-pager");
+        $('#group-permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
+        pagerOptions.container = $("#groups-pager");
+        pagerOptions.size = 40;
+        $('#groups-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+
         groupSelect();
         permissionEditAttach();
         groupEditAttach();
@@ -633,12 +682,13 @@
             });
         });
         $('#add-group-member').click(function () {
+            var access_level = '${access_level}';
             var group = $(".selected-group input").val();
 
             var content = '<form action="${reverse('permissions_group_member_add')}" method="post" id="add-member-submit">';
             content += '<label>Choose a user by email:<input type="text" name="member" id="add-user-email">';
             content += '<label><strong>Or</strong> add a group of users: <span id="user-selection">Select State to Start</span></label>';
-            content += '<label id="state-label">By State:<select name="state" id="state-select"><option value=""></option></select></label>';
+            content += '<label id="state-label">By State:<select name="state" id="state-select"></select></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
             content += '<input type=hidden name="group" value="' + group + '">';
             content += '<input type="submit" name="submit" value="Add">';
@@ -648,20 +698,15 @@
                 event.preventDefault();
                 postForm(this, dialog, updateGroupMembers, group);
             });
-            $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
-                var options = '';
-                $.each(data, function (index, object) {
-                    options += '<option value="' + object.id + '">' + object.name + '</option>';
-                });
-                $('#state-select').append(options);
-            });
-            $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}', {remoteDataType: 'json'});
             $('#state-select').change(function () {
                 if ($(this).val()) {
                     $('#district-label').remove();
                     $('#school-label').remove();
-                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
-                        var content = '<label id="district-label">By District<select name="district", id="district-select"><option value=""></option>';
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val(), access_level: access_level}, function (data) {
+                        var content = '<label id="district-label">By District<select name="district", id="district-select">';
+                        if (access_level == 'System' || access_level == 'State') {
+                            content += '<option value=""></option>';
+                        }
                         $.each(data, function (index, object) {
                             content += '<option value="' + object.id + '">' + object.name + '</option>';
                         });
@@ -672,7 +717,10 @@
                             if ($(this).val()) {
                                 $('#school-label').remove();
                                 $.get('${reverse('pepper_utilities_drop_schools')}', {district: $(this).val()}, function (data) {
-                                    var content = '<label id="school-label">By School<select name="school", id="school-select"><option value=""></option>';
+                                    var content = '<label id="school-label">By School<select name="school", id="school-select">';
+                                    if (access_level != 'School') {
+                                        content += '<option value=""></option>';
+                                    }
                                     $.each(data, function (index, object) {
                                         content += '<option value="' + object.id + '">' + object.name + '</option>';
                                     });
@@ -686,16 +734,36 @@
                                             $('#user-selection').html('All users in district ' + $('#district-select').children(':selected').text());
                                         }
                                     });
+                                    if (access_level == 'School') {
+                                        $('#school-select').trigger('change');
+                                    }
                                 });
                             } else {
                                 $('#user-selection').html('All users in ' + $('#state-select').children(':selected').text());
                             }
                         });
+                        if (access_level != 'System' && access_level != 'State') {
+                            $('#district-select').trigger('change');
+                        }
                     });
                 } else {
                     $('#user-selection').html('Select State to Start');
                 }
             });
+            $.get('${reverse('pepper_utilities_drop_states')}', {access_level: access_level}, function (data) {
+                var options = '';
+                if (access_level == 'System') {
+                    options = '<option value=""></option>';
+                }
+                $.each(data, function (index, object) {
+                    options += '<option value="' + object.id + '">' + object.name + '</option>';
+                });
+                $('#state-select').append(options);
+                if (access_level != 'System') {
+                    $('#state-select').trigger('change');
+                }
+            });
+            $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}', {remoteDataType: 'json'});
         });
         $('#delete-permissions-form').submit(function (e) {
             e.preventDefault();
@@ -751,56 +819,6 @@
         selectAll('.group-select-all', '.group-select');
         selectAll('.user-select-all', '.user-select');
         selectAll('.group-permission-select-all', '.group-permission-select');
-    });
-    var pagerOptions = {
-        container: '',
-        // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-        fixedHeight: false,
-        removeRows: false,
-        page: 0,
-        size: 10,
-        ajaxUrl: null,
-        customAjaxUrl: function(table, url) { return url; },
-        ajaxObject: { dataType: 'json' },
-        ajaxProcessing: null,
-        processAjaxOnInit: true,
-        pageReset: 0,
-        countChildRows: false,
-        cssNext: '.next', // next page arrow
-        cssPrev: '.prev', // previous page arrow
-        cssFirst: '.first', // go to first page arrow
-        cssLast: '.last', // go to last page arrow
-        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
-        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
-        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
-        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
-        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
-    };
-    var tablesorterOptions = {
-        theme: 'blue',
-        widthFixed: true,
-        widgets: ["zebra", "filter"],
-        widgetOptions: {
-            filter_columnFilters: true,
-            filter_placeholder: {search: 'Search...'},
-            filter_saveFilters: false
-        }
-    };
-
-    $(function () {
-        pagerOptions.container = $("#permissions-pager");
-        $('#permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-
-        pagerOptions.container = $("#group-members-pager");
-        $('#group-members-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-
-        pagerOptions.container = $("#group-permissions-pager");
-        $('#group-permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-
-        pagerOptions.container = $("#groups-pager");
-        pagerOptions.size = 40;
-        $('#groups-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     });
 </script>
 
@@ -884,18 +902,19 @@
                             %for group in groups:
                                 <tr class="data group-select">
                                     <td>${group.name}</td>
-                                    <td>${group.access_level}</td>
                                     %if admin_rights:
+                                    <td>${group.access_level}</td>
                                     <td class="check-column">
                                         <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
                                         <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
                                     </td>
+                                    %elif assign_rights:
+                                    <td>${group.access_level}<input type="hidden" value="${group.id}"></td>
                                     %endif
                                 </tr>
                             %endfor
                         </tbody>
                     </table>
-                    %if admin_rights:
                     <div id="group-actions">
                         <div id="groups-pager" class="pager">
                             <form>
@@ -906,10 +925,11 @@
                                 <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
                             </form>
                         </div>
+                        %if admin_rights:
                         <input type="button" value="New Group" id="new-group">
                         <input type="submit" value="Delete Selected" id="delete-groups">
+                        %endif
                     </div>
-                    %endif
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
             </div>
@@ -965,7 +985,6 @@
                         </thead>
                         <tbody></tbody>
                     </table>
-                    %if admin_rights:
                     <div id="group-permission-actions">
                         <div id="group-permissions-pager" class="pager">
                             <form>
@@ -983,10 +1002,11 @@
                                 </select>
                             </form>
                         </div>
+                        %if admin_rights:
                         <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
-                        <input type="submit" value="Delete Selected" id="delete-group-permissions" disabled="disabled">
+                        <input type="submit" value="Remove Selected" id="delete-group-permissions" disabled="disabled">
+                        %endif
                     </div>
-                    %endif
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                 </form>
             </div>

@@ -5,35 +5,64 @@ import json
 
 def drop_states(request):
     r = list()
-    data = State.objects.all().order_by('name')
-    for item in data:
-        r.append({'id': item.id, 'name': item.name})
+    access_level = request.GET.get('access_level', 'System')
+    if access_level:
+        if access_level == 'System':
+            data = State.objects.all().order_by('name')
+        else:
+            data = State.objects.filter(id=request.user.profile.district.state.id)
+        for item in data:
+            r.append({'id': item.id, 'name': item.name})
     return HttpResponse(json.dumps(r), content_type='application/json')
 
 
 def drop_districts(request):
     r = list()
-    state = request.GET.get('state', False)
-    if state:
-        data = District.objects.filter(state=state).order_by('name')
-    else:
-        data = District.objects.all().order_by('name')
+    access_level = request.GET.get('access_level', 'System')
+    if access_level:
+        if access_level == 'System':
+            state = request.GET.get('state', False)
+        else:
+            state = request.user.profile.district.state.id
 
-    for item in data:
-        r.append({'id': item.id, 'name': item.name, 'code': item.code})
+        district = False
+        if access_level == 'District' or access_level == 'School':
+            district = request.user.profile.district.id
+
+        if district:
+            data = District.objects.filter(id=district)
+        elif state:
+            data = District.objects.filter(state=state).order_by('name')
+        else:
+            data = District.objects.all().order_by('name')
+
+        for item in data:
+            r.append({'id': item.id, 'name': item.name, 'code': item.code})
     return HttpResponse(json.dumps(r), content_type='application/json')
 
 
 def drop_schools(request):
     r = list()
-    district = request.GET.get('district', False)
-    if district:
-        data = School.objects.filter(district=district).order_by('name')
-    else:
-        data = School.objects.all().order_by('name')
+    access_level = request.GET.get('access_level', 'System')
+    if access_level:
+        if access_level == 'System' or access_level == 'State':
+            district = request.GET.get('district', False)
+        else:
+            district = request.user.profile.district.id
 
-    for item in data:
-        r.append({'id': item.id, 'name': item.name})
+        school = False
+        if access_level == 'School':
+            school = request.user.profile.school.id
+
+        if school:
+            data = School.objects.filter(id=school)
+        elif district:
+            data = School.objects.filter(district=district).order_by('name')
+        else:
+            data = School.objects.all().order_by('name')
+
+        for item in data:
+            r.append({'id': item.id, 'name': item.name})
     return HttpResponse(json.dumps(r), content_type='application/json')
 
 
