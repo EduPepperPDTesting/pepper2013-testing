@@ -101,6 +101,9 @@
     }
     #groups {
         margin-bottom: 20px;
+        %if not admin_rights:
+        margin-top: 20px;
+        %endif
     }
     .expand_div {
         padding: 10px 10px 0 10px;
