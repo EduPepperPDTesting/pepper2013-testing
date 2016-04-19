@@ -33,6 +33,12 @@
         display: block;
         float: left;
         margin: 30px;
+        width:240px;
+        height:150px;
+        background-size: auto 100px;
+        background-color: white;
+        background-position: 50% 0;
+        background-repeat: no-repeat;
     }
     .image-bottom-style {
         border-radius: 0 0 6px 6px;
@@ -152,7 +158,7 @@
             <div class="courses-listing">
                 <div style="padding-left:25px;">
                     %for community in communities:
-                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(${community['logo']});background-size:100% 100%;">
+                        <div class="image-link-style" style="background-image: url('${community['logo']}');">
                             <div style="height:100px;"></div>
                             <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                         </div>

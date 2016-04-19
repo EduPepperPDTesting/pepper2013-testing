@@ -1,0 +1,117 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+from student.models import State,District,School
+
+from administration.models import site_setting_store
+%>
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script src="/static/js/certificate-editor.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<link rel="stylesheet" href="/static/css/configuration.css" type="text/css" media="screen"/>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<!-- Tablesorter: optional -->
+  <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+  <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+
+<!-- Certificate -->
+<div class = "expand_title_container">
+  <div class="main">
+    <div class="configuration_navigation">
+      <span class="configuration_navigation_btn">
+        Alert Message 
+      </span><span class="subItem"></span>
+    </div>
+    <div class="expand_title expand_title_collapse">
+      Alert Message  <div class="icon"></div>
+    </div>
+    <div class="expand_div">
+    <!-- Certificate Filter-->
+      <div class="certificate_filter_div">
+        <form method="post" id="filter_form">
+          <div class="control filter1">
+            <div id="div_enable_alert_title" style="padding-top:10px;padding-left:4px;">
+              <table border="0">
+                <tr>
+                  <td style="font-weight:bold;">Enable Alert:</td>
+                  <td style="padding-top:3px;">&nbsp;<input type="checkbox" name="alert_enabled" id="alert_enabled" value=""/></td>
+                </tr>
+              </table>
+            </div>
+            <div id="div_alert_message_title" style="padding-top:10px;padding-left:4px;font-weight:bold;">Alert Message:</div>
+            <div id="div_alert_message" style="padding-top:7px;padding-left:4px;">
+              <textarea maxlength="1000" id="alert_text" name="alert_text" rows="" cols="" style="width:1172px;height:200px;">${alert_text}</textarea>
+            </div>
+            <div style="padding:10px 0px 10px 4px;">
+              <input class="form_submit" id="btn_save_alert" type="submit" name="" value="Save Alert" />
+            </div>
+          </div>
+          <!--<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>-->
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+$(function(){
+var al_enabled_js = "${alert_enabled}";
+
+if(al_enabled_js == "enabled"){
+  $("#alert_enabled").prop('checked',true);
+}
+else{
+  $("#alert_enabled").prop('checked',false);
+}
+
+
+$(".expand_title").click(function(){
+  $(".expand_div").slideToggle("slow",function(){});
+});
+$("#filter_form").submit(function(){
+      $('#btn_save_alert').attr("disabled",true);
+      var al_text = $(this.alert_text).val();
+      var al_enabled = "";
+    
+      if(trim_start_end(al_text) == ""){
+        al_text = "__NONE__";
+      }
+      
+      if($("#alert_enabled").prop('checked')){
+        al_enabled = "enabled"
+      }
+      else{
+        al_enabled = "un_enabled"
+      }
+      $.post('${reverse("alert_message_post")}',{"alert_text":al_text,"alert_enabled":al_enabled},
+             function(data) {
+              $("#alert_text").val(data.alert_text);
+              if(data.alert_enabled == "enabled"){
+                $("#alert_enabled").prop('checked',true)
+              }
+              else{
+                $("#alert_enabled").prop('checked',false)
+              }
+
+              alert("Save Success.");
+              $('#btn_save_alert').attr("disabled",false);
+             },"json");
+      return false;
+    });
+
+function trim_start_end(str)
+{ 
+  return str.replace(/(^\s*)|(\s*$)/g, ""); 
+}
+
+});
+</script>
