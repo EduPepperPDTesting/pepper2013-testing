@@ -20,7 +20,7 @@ urlpatterns = (
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
 
     # === sso begin ===
-     url(r'^genericsso/$', 'sso.sp.genericsso'),
+    url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
 
     # edit idp
@@ -40,6 +40,28 @@ urlpatterns = (
 
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
+
+    url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
+    url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
+    url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
+    url(r'^pepper-utilities/drop/cohorts', 'pepper_utilities.views.drop_cohorts', name='pepper_utilities_drop_cohorts'),
+    url(r'^pepper-utilities/user/email-completion', 'pepper_utilities.views.user_email_completion', name='pepper_utilities_user_email_completion'),
+
+    url(r'^permissions$', 'permissions.views.permissions_view', name='permissions_view'),
+    url(r'^permissions/groups/permissions/list$', 'permissions.views.group_permissions_list', name='permissions_group_permissions_list'),
+    url(r'^permissions/groups/permissions/add$', 'permissions.views.group_permission_add', name='permissions_group_permission_add'),
+    url(r'^permissions/groups/permissions/delete$', 'permissions.views.group_permission_delete', name='permissions_group_permission_delete'),
+    url(r'^permissions/groups/members/list$', 'permissions.views.group_member_list', name='permissions_group_members_list'),
+    url(r'^permissions/groups/members/add$', 'permissions.views.group_member_add', name='permissions_group_member_add'),
+    url(r'^permissions/groups/members/delete$', 'permissions.views.group_member_delete', name='permissions_group_member_delete'),
+    url(r'^permissions/groups/check$', 'permissions.views.group_check', name='permissions_group_check'),
+    url(r'^permissions/groups/add$', 'permissions.views.group_add', name='permissions_group_add'),
+    url(r'^permissions/groups/delete$', 'permissions.views.group_delete', name='permissions_group_delete'),
+    url(r'^permissions/groups/list$', 'permissions.views.group_list', name='permissions_group_list'),
+    url(r'^permissions/permissions/check$', 'permissions.views.permission_check', name='permissions_permission_check'),
+    url(r'^permissions/permissions/add$', 'permissions.views.permission_add', name='permissions_permission_add'),
+    url(r'^permissions/permissions/delete$', 'permissions.views.permission_delete', name='permissions_permission_delete'),
+    url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -83,7 +105,6 @@ urlpatterns = (
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
     url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
-
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
