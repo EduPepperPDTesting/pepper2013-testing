@@ -12,22 +12,20 @@
     import branding
     # app that handles site status messages
     from status.status import get_site_status_msg
-    from administration.time_report import is_time_report_permission
+    from permissions.utils import check_user_perms
 %>
 
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
 <%block cached="False">
     <%
-
         # print index
-
         try:
-    course_id = course.id
-except:
-    # can't figure out a better way to get at a possibly-defined course var
-    course_id = None
-        site_status_msg = get_site_status_msg(course_id)
+            course_id = course.id
+        except:
+            # can't figure out a better way to get at a possibly-defined course var
+            course_id = None
+            site_status_msg = get_site_status_msg(course_id)
     %>
     % if site_status_msg:
         <div class="site-status">
@@ -371,44 +369,41 @@ except:
             <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-
         <ol class="user admin" >
-
-        %if is_time_report_permission(curr_user):
-          <!-- Time REPORT PERMISSION -->
-          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
-            <ul class="admin-dropdown-menu">
-              <li><a href="${reverse('time_report')}">Time Report</a></li>
-              <script type="text/javascript">
-                $(document).on('click', function(event) {
-                  if(!$(event.target).closest('.admin-menu-holder').length){
-                    $(".admin-dropdown-menu").hide();
-                  }else if($(event.target).closest(".outside_menu").length){
-                    $(".admin-dropdown-menu").hide();
-                  }
-                });
-              </script>
-            </ul>
-          </li>
-        %else:
-            %if show_extended and curr_user.is_superuser:
+            %if show_extended and check_user_perms(curr_user, ['certificate','pepconn', 'permissions', 'time_report', 'sso', 'tnl']):
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
                     <ul class="admin-dropdown-menu">
-                        <li><a href="${reverse('configuration')}">Configuration</a></li>
-                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                        <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                        <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                        <li><a href="${reverse('alert_message')}">Alert</a></li>
+                        %if check_user_perms(curr_user, 'certificate'):
+                            <li><a href="${reverse('configuration')}">Configuration</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'pepconn'):
+                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'permissions'):
+                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'time_report'):
+                            <li><a href="${reverse('time_report')}">Time Report</a></li>
+                        %endif
+                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        %if check_user_perms(curr_user, 'sso'):
+                        %endif
+                        %if check_user_perms(curr_user, 'tnl'):
+                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'studio'):
+                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'alert_message'):
+                            <li><a href="${reverse('alert_message')}">Alert</a></li>
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
-                                if(!$(event.target).closest('.admin-menu-holder').length){
+                                if (!$(event.target).closest('.admin-menu-holder').length) {
                                     $(".admin-dropdown-menu").hide();
-                                }else if($(event.target).closest(".outside_menu").length){
+                                } else if ($(event.target).closest(".outside_menu").length) {
                                     $(".admin-dropdown-menu").hide();
                                 }
                             });
@@ -460,7 +455,6 @@ except:
                     </ul>
                 </li>
             %endif
-        %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
@@ -501,9 +495,8 @@ except:
                         <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
                     </ul>
                 </li>
-            </ol>
             %endif
-
+        </ol>
         %endif
         %if not show_extended:
             <ol class="right nav-courseware" id="btn-dashboard">
@@ -1373,7 +1366,7 @@ except:
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser or is_time_report_permission(curr_user):
+%if curr_user.is_superuser or check_user_perms(request.user, 'time_report'):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
