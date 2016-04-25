@@ -77,6 +77,9 @@ urlpatterns = (
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+    url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
+
+    url(r'^pepconn/add_to_sso/submit$', 'administration.pepconn.add_to_sso', name="pepconn_sso_add_submit"),
 
     url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
     url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
@@ -96,6 +99,18 @@ urlpatterns = (
     url(r'^pepconn/import_school/submit/$', 'administration.pepconn.import_school_submit', name="pepconn_import_school_submit"),
     url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
     url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
+
+    url(r'^pepconn/edit_district/get_info/$', 'administration.pepconn.district_get_info', name="pepconn_district_get_info"),
+    url(r'^pepconn/edit_district/request/$', 'administration.pepconn.district_edit_info', name="pepconn_district_edit_info"),
+
+    url(r'^pepconn/edit_school/get_info/$', 'administration.pepconn.school_get_info', name="pepconn_school_get_info"),
+    url(r'^pepconn/edit_school/edit_info/$', 'administration.pepconn.school_edit_info', name="pepconn_school_edit_info"),
+
+    url(r'^pepconn/edit_cohort/get_info/$', 'administration.pepconn.cohort_get_info', name="pepconn_cohort_get_info"),
+    url(r'^pepconn/edit_cohort/edit_info/$', 'administration.pepconn.cohort_edit_info', name="pepconn_cohort_edit_info"),
+
+    url(r'^pepconn/edit_user/get_info/$', 'administration.pepconn.user_get_info', name="pepconn_user_get_info"),
+    url(r'^pepconn/edit_user/edit_info/$', 'administration.pepconn.user_edit_info', name="pepconn_user_edit_info"),
 
     url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
     url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),
@@ -220,32 +235,6 @@ urlpatterns = (
     url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
     url(r'^resource_library_global/resources/$', 'access_resource_library.views.resources', name="resource_library_global_resources"),
     url(r'^resource_library_global/generic_resources/$', 'access_resource_library.views.generic_resources', name="resource_library_global_generic_resources"),
-
-    url(r'^communities/$', 'communities.views.communities', name="communities"),
-
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)$', 'communities.views.community', name='community_view'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
-    url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),
-    url(r'^community/discussion/new/add$', 'communities.views.discussion_add', name='community_discussion_add'),
-    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
-    url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
-    url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
-
-    url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
-    url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
-    url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/edit$', 'communities.views.community_edit', name='community_edit'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/delete$', 'communities.views.community_delete', name='community_delete'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/join/$', 'communities.views.community_join', name='community_join'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/leave/$', 'communities.views.community_leave', name='community_leave'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/manage_member/$', 'communities.views.community_manage_member', name='community_mange_member'),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'communities.views.get_add_user_rows', name="community_get_add_user_rows"),
-    url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'communities.views.get_remove_user_rows', name="community_get_remove_user_rows"),
-
-    url(r'^polls/(?P<poll_type>[a-zA-Z0-9_]+)/(?P<poll_id>[0-9]+)$', 'polls.views.poll_view', name='poll_view'),
-    url(r'^polls/form/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_view', name='poll_form_view'),
-    url(r'^polls/save/(?P<poll_type>[a-zA-Z0-9_]+)$', 'polls.views.poll_form_submit', name='poll_form_submit'),
-    url(r'^polls/vote$', 'polls.views.poll_vote', name='poll_vote'),
 
     url(r'^communities/$', 'communities.views.communities', name="communities"),
 
