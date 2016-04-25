@@ -1,11 +1,13 @@
 <%inherit file="../main.html" />
 <%!
-    from django.core.urlresolvers import reverse
-    from courseware.courses import course_image_url, get_course_about_section
-    from student.views import course_from_id
-    from administration.configuration import has_hangout_perms
-    from communities.utils import is_facilitator, is_member
-    from file_uploader.utils import get_file_url
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from student.views import course_from_id
+from administration.configuration import has_hangout_perms
+from communities.utils import is_facilitator, is_member
+from file_uploader.utils import get_file_url
+from django.utils import timezone
+from datetime import date
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -34,7 +36,7 @@
         height: 53px;
         text-align: center;
         vertical-align: middle;
-        line-height: 53px;
+        font: 700 1.2em/2.4em "Open Sans",Verdana,Geneva,sans-serif;
     }
     #community-sidebar {
         width: 208px;
@@ -84,6 +86,8 @@
     #community-header {
         border: 2px solid #ddd;
         width: 100%;
+        position: relative;
+        min-height: 260px;
     }
     #community-header h1 {
         text-align: left;
@@ -99,26 +103,33 @@
     }
     #community-header h3 {
         color: #006EBF;
-        margin: 40px 0 10px;
+        padding: 10px 0;
     }
     #community-header h4 {
         font-weight: bold;
-
     }
     #community-avatar {
         width: 100px;
         float: left;
-        margin: 30px 15px 20px 20px;
+        margin: 0 15px 0 0;
     }
     #community-logo {
         float: right;
         width: 380px;
-        max-height: 300px;
+        height: 260px;
         overflow: hidden;
         margin: 15px;
+        text-align: center;
+        background-color: white;
     }
     #community-logo img {
-        width: 380px;
+        height: 260px;
+    }
+    .facilitator-wrap {
+        position: absolute;
+        width: 450px;
+        bottom: 20px;
+        left: 20px;
     }
     #community-content-area h1 {
         color: #006EBF;
@@ -380,7 +391,7 @@
     .modal .inner-wrapper form textarea {
         height: 100px;
     }
-    .hangout_container{
+    .hangout_container {
         text-align: center;
         padding-top: 20px;
     }
@@ -490,9 +501,11 @@
             <h1>${community.name}</h1>
             <h2>${community.motto}</h2>
             %if facilitator:
-                <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
-                <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
-                <h4>Community Facilitator</h4>
+                <div class="facilitator-wrap">
+                    <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                    <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                    <h4>Community Facilitator</h4>
+                </div>
             %endif
             <div class="community-clear"></div>
         </div>
@@ -556,6 +569,7 @@
                 </div>
             </div>
         </div>
+        
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -618,7 +632,7 @@
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
                 %endif
                 %if has_hangout_perms(request.user) and community.hangout:
-                    <div class = "hangout_container" id = "hangout_div">
+                    <div class="hangout_container" id="hangout_div">
                         <img src="/static/images/community_google_hangouts.png" class="" alt="" />
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>

@@ -42,7 +42,18 @@ from student.models import State,District,Transaction,Cohort,School,Registration
               </select></td><td>District:</td><td><select id="" name="district_id" autocomplete="off">
                 <option value="__NONE__"></option>
                 <option value="">all</option>
-              </select></td> </tr>
+              </select></td>
+              <td>Status:
+                <select id="" name="subscription_status" autocomplete="off">
+                  <option value=""></option>
+                  <option value="all">all</option>
+                  <option value="Imported">Imported</option>
+                  <option value="Unregistered">Unregistered</option>
+                  <option value="Registered">Registered</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </td>
+              </tr>
               <tr> <td>Cohort:</td><td><select id="" name="cohort_id" autocomplete="off">
                 <option value="__NONE__"></option>
                 <option value="">all</option>
@@ -285,12 +296,14 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     var first_name="${request.GET.get('first_name','')}";
     var last_name="${request.GET.get('last_name','')}";
     var author_id="${request.GET.get('author_id','')}";
+    var subscription_status="${request.GET.get('subscription_status','')}";
     form.find("select[name=state_id]").val(state_id);
     form.find("input[name=email]").val(email);
     form.find("input[name=last_name]").val(last_name);
     form.find("input[name=first_name]").val(first_name);
     form.find("select[name=subject_id]").val(subject_id);
     form.find("select[name=author_id]").val(author_id);
+    form.find("select[name=subscription_status]").val(subscription_status);
     dropDistrict(form,state_id,function(){
       $(this).val(district_id)
     });
@@ -301,7 +314,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       $(this).val(school_id)
     });
     var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
-                     email:email, first_name:first_name, last_name:last_name,subject_id:subject_id};
+                     email:email, first_name:first_name, last_name:last_name, subject_id:subject_id, author_id:author_id};
     $("#btnDownloadCsv").click(function(){
       var valid_filter=[];
       var h=get_searching();

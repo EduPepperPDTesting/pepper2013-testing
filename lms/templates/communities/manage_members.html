@@ -74,13 +74,23 @@
                             <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
                                 <option value="" class="null_case">Select State</option>
                                 %for item in State.objects.all().order_by('name'):
-                                    <option class="${item.id}" value="${item.name}">${item.name}</option>
+                                    <script>console.log("${item.name} - ${user.profile.district.state.name}")</script>
+                                    %if item.name == user.profile.district.state.name:
+                                        <option class="${item.id}" value="${item.name}" selected>${item.name}</option>
+                                    %else:
+                                        <option class="${item.id}" value="${item.name}" disabled>${item.name}</option>
+                                    %endif
                                 %endfor
+                                <script></script>
                             </select>
                             <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
                                 <option value="" class="-1" name="null_case">Select District</option>
                                 %for item in District.objects.all().order_by('name'):
-                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                                    %if item.name == user.profile.district.name:
+                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}" selected>${item.name}</option>
+                                    %else:
+                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}" disabled>${item.name}</option>
+                                    %endif
                                 %endfor
                             </select>
                         %endif
@@ -89,7 +99,7 @@
                             %for item in School.objects.all().order_by('name'):
                                 <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                             %endfor
-                        </select>
+                        </select><!--
                         %if request.user.is_superuser:
                             <select type="search" class="search-users" data-column="8" id="User_registration_select" autocomplete="off">
                                 <option value="" class="null_case">Select Registration Status</option>
@@ -105,8 +115,8 @@
                             <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
                         %endif
                         <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
-                        <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
-                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
+                        <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
+                        <input type="button" name="" value="LOAD" class="load" onclick="$('#user-table').show()"/>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
                             <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
@@ -327,9 +337,9 @@
                 widgets: ["zebra", "filter", "output"],
                 widgetOptions: {
                     filter_external: '',
-                    filter_columnFilters: false,
+                    filter_columnFilters: true,
                     filter_placeholder: {search: 'Search...'},
-                    filter_saveFilters: true,
+                    filter_saveFilters: false,
                     filter_reset: '.reset',
                     filter_serversideFiltering: true,
                     output_saveFileName: 'data.csv'
@@ -415,6 +425,9 @@
         //* ----------- expend first title
         $(document).ready(function () {
             $(".expand_title").eq(0).click();
+            $("#user-table").hide();
+            $("#User_state_select").val("${user.profile.district.state.name}");
+            $("#User_district_select").val("${user.profile.district.name}");
         });
         //* ----------- do add/remove member
         function add_selected_users(){
