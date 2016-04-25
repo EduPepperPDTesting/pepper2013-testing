@@ -1,4 +1,5 @@
 from django.db import models
+from student.models import User
 from django.conf import settings
 import pymongo
 import logging
@@ -10,14 +11,18 @@ class Reports(models.Model):
         db_table = 'reporting_reports'
     name = models.CharField(blank=False, max_length=255, db_index=True)
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
-    private = models.BooleanField(default=True)
     category = models.ForeignKey(Categories, null=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    order = models.IntegerField(default=0)
 
 
 class Categories(models.Model):
     class Meta:
         db_table = 'reporting_categories'
     name = models.CharField(blank=False, max_length=255, db_index=True)
+    order = models.IntegerField(default=0)
 
 
 class Views(models.Model):
@@ -27,14 +32,6 @@ class Views(models.Model):
     collection = models.CharField(blank=False, max_length=255, db_index=True)
 
 
-class ReportViews(models.Model):
-    class Meta:
-        db_table = 'reporting_report_views'
-    view = models.ForeignKey(Views, on_delete=models.CASCADE)
-    report = models.ForeignKey(Reports, on_delete=models.CASCADE)
-    order = models.IntegerField(blank=False, null=False, default=0)
-
-
 class ViewColumns(models.Model):
     class Meta:
         db_table = 'reporting_view_columns'
@@ -42,6 +39,21 @@ class ViewColumns(models.Model):
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     column = models.CharField(blank=False, max_length=255, db_index=True)
     view = models.ForeignKey(Views, on_delete=models.CASCADE)
+
+
+class ViewRelationships(models.Model):
+    class Meta:
+        db_table = 'reporting_view_relationships'
+    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+
+
+class ReportViews(models.Model):
+    class Meta:
+        db_table = 'reporting_report_views'
+    view = models.ForeignKey(Views, on_delete=models.CASCADE)
+    report = models.ForeignKey(Reports, on_delete=models.CASCADE)
+    order = models.IntegerField(blank=False, null=False, default=0)
 
 
 class ReportViewColumns(models.Model):
