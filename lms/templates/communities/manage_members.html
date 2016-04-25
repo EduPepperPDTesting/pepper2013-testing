@@ -72,14 +72,13 @@
                     <div class="clearfix">
                         %if request.user.is_superuser:
                             <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
-                                <option value="" class="null_case">Select State</option>
+                                <option value="" class="null_case" selected>Select State</option>
                                 %for item in State.objects.all().order_by('name'):
                                     <option class="${item.id}" value="${item.name}">${item.name}</option>
                                 %endfor
-                                <script></script>
                             </select>
                             <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
-                                <option value="" class="-1" name="null_case">Select District</option>
+                                <option value="" class="null_case" selected>Select District</option>
                                 %for item in District.objects.all().order_by('name'):
                                     <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                                 %endfor
@@ -109,16 +108,16 @@
                         <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
                         <input type="button" name="" value="LOAD" class="load" onclick="$('#user-table').show()"/>
                         <div class="select-columns" id="user-select"><br>
-                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
                         </div>
                     </div>
                 </div>
@@ -211,18 +210,18 @@
                         %endif
                         <input placeholder="Search by Email" class=" search-users" type="search" data-column="7" id="User_search_email">
                         <input placeholder="Search All" class=" search-users" type="search" data-column="all" id="User_search">
-                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off"></input>&nbsp<span><b>Select All</b></span></span>
+                        <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off">&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
-                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>State</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"></input><label><i>Removeuser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"></input><label><i>Adduser</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>State</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_removeuser').toggle();"><label><i>Removeuser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_adduser').toggle();"><label><i>Adduser</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                            <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
                         </div>
                     </div>
                 </div>
