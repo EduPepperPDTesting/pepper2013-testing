@@ -74,8 +74,7 @@
                             <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
                                 <option value="" class="null_case">Select State</option>
                                 %for item in State.objects.all().order_by('name'):
-                                    <script>console.log("${item.name} - ${user.profile.district.state.name}")</script>
-                                    %if item.name == user.profile.district.state.name:
+                                    %if item.name == user.profile.district.state.name or user.is_superuser:
                                         <option class="${item.id}" value="${item.name}" selected>${item.name}</option>
                                     %else:
                                         <option class="${item.id}" value="${item.name}" disabled>${item.name}</option>
@@ -86,10 +85,10 @@
                             <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
                                 <option value="" class="-1" name="null_case">Select District</option>
                                 %for item in District.objects.all().order_by('name'):
-                                    %if item.name == user.profile.district.name:
-                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}" selected>${item.name}</option>
+                                    %if item.name == user.profile.district.name or user.is_superuser:
+                                        <option class="${item.state.id}" value="${item.name}" class="${item.id}" selected>${item.name}</option>
                                     %else:
-                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}" disabled>${item.name}</option>
+                                        <option class="${item.state.id}" value="${item.name}" class="${item.id}" disabled>${item.name}</option>
                                     %endif
                                 %endfor
                             </select>
