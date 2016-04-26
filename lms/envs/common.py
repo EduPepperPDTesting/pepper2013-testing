@@ -856,6 +856,9 @@ INSTALLED_APPS = (
 
     # Resource library
     'access_resource_library',
+
+    # Reporting
+    'reporting',
     
 )
 

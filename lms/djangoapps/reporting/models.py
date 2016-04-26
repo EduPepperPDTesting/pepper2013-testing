@@ -6,6 +6,13 @@ import logging
 log = logging.getLogger("tracking")
 
 
+class Categories(models.Model):
+    class Meta:
+        db_table = 'reporting_categories'
+    name = models.CharField(blank=False, max_length=255, db_index=True)
+    order = models.IntegerField(default=0)
+
+
 class Reports(models.Model):
     class Meta:
         db_table = 'reporting_reports'
@@ -15,13 +22,6 @@ class Reports(models.Model):
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    order = models.IntegerField(default=0)
-
-
-class Categories(models.Model):
-    class Meta:
-        db_table = 'reporting_categories'
-    name = models.CharField(blank=False, max_length=255, db_index=True)
     order = models.IntegerField(default=0)
 
 
@@ -44,8 +44,8 @@ class ViewColumns(models.Model):
 class ViewRelationships(models.Model):
     class Meta:
         db_table = 'reporting_view_relationships'
-    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
-    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='viewrelationships_left')
+    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='viewrelationships_right')
 
 
 class ReportViews(models.Model):
@@ -68,6 +68,6 @@ class ReportFilters(models.Model):
         db_table = 'reporting_report_filters'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     conjunction = models.CharField(blank=True, null=True, max_length=3)
-    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
-    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_left')
+    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_right')
     operator = models.CharField(blank=False, max_length=2)
