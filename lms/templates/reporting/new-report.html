@@ -1,0 +1,154 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    import json
+%>
+
+<%inherit file="../main.html"/>
+<link href="/static/css/reporting.css">
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+
+<div class="wrapper">
+    <div class="report-name">
+        <h2>Report</h2>
+        <input type="text" name="report_name" value="Name"/>
+        <input type="submit" value="Cancel" class="report-button">
+        <input type="submit" value="Save" class="report-button">
+        <input type="submit" value="Preview" class="report-button">
+    </div>
+    <div class="view-selector">
+        <h2>Select Views</h2>
+        <select class="view-select" name="">
+            <option value="none">Select...</option>
+            %for view in views:
+                <option value="${view.id}">${view.name}</option>
+            %endfor
+        </select>
+    </div>
+    <div class="column-selector">
+        <h2>Select Columns</h2>
+        <ul>
+            <li class="view1"><label><input type="checkbox"> View1.Column1 - Description of column</label></li>
+            <li class="view1"><label><input type="checkbox"> View1.Column2 - Description of column</label></li>
+            <li class="view1"><label><input type="checkbox"> View1.Column3 - Description of column</label></li>
+            <li class="view1"><label><input type="checkbox"> View1.Column4 - Description of column</label></li>
+            <li class="view1"><label><input type="checkbox"> View1.Column5 - Description of column</label></li>
+            <li class="view2"><label><input type="checkbox"> View2.Column1 - Description of column</label></li>
+            <li class="view2"><label><input type="checkbox"> View2.Column2 - Description of column</label></li>
+        </ul><ul>
+        <li class="view2"><label><input type="checkbox"> View2.Column3 - Description of column</label></li>
+        <li class="view2"><label><input type="checkbox"> View2.Column4 - Description of column</label></li>
+        <li class="view2"><label><input type="checkbox"> View2.Column5 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column1 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column2 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column3 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column4 - Description of column</label></li>
+    </ul><ul>
+        <li class="view3"><label><input type="checkbox"> View3.Column5 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column6 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column7 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column8 - Description of column</label></li>
+        <li class="view3"><label><input type="checkbox"> View3.Column9 - Description of column</label></li>
+    </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="where-selector">
+        <h2>Select Filters</h2>
+        <div class="where-row row1">
+            <select class="main-select">
+                <option>Select...</option>
+                <option>View1.Column1</option>
+                <option>View1.Column2</option>
+                <option>View1.Column3</option>
+                <option>View1.Column4</option>
+                <option>View1.Column5</option>
+                <option>View2.Column1</option>
+                <option>View2.Column2</option>
+                <option>View2.Column3</option>
+                <option>View2.Column4</option>
+                <option>View2.Column5</option>
+                <option>View3.Column1</option>
+                <option>View3.Column2</option>
+                <option>View3.Column3</option>
+                <option>View3.Column4</option>
+                <option>View3.Column5</option>
+                <option>View3.Column6</option>
+                <option>View3.Column7</option>
+                <option>View3.Column8</option>
+                <option>View3.Column9</option>
+            </select>
+            <select>
+                <option>=</option>
+                <option>&gt;</option>
+                <option>&lt;</option>
+                <option>&gt;=</option>
+                <option>&lt;=</option>
+            </select>
+            <input class="small-text" type="text"/>
+            <input class="small-button" type="button" value="+"/>
+        </div>
+        <div class="where-row row2">
+            <select>
+                <option>AND</option>
+                <option>OR</option>
+            </select>
+            <select class="main-select">
+                <option>Select...</option>
+                <option>View1.Column1</option>
+                <option>View1.Column2</option>
+                <option>View1.Column3</option>
+                <option>View1.Column4</option>
+                <option>View1.Column5</option>
+                <option>View2.Column1</option>
+                <option>View2.Column2</option>
+                <option>View2.Column3</option>
+                <option>View2.Column4</option>
+                <option>View2.Column5</option>
+                <option>View3.Column1</option>
+                <option>View3.Column2</option>
+                <option>View3.Column3</option>
+                <option>View3.Column4</option>
+                <option>View3.Column5</option>
+                <option>View3.Column6</option>
+                <option>View3.Column7</option>
+                <option>View3.Column8</option>
+                <option>View3.Column9</option>
+            </select>
+            <select>
+                <option>=</option>
+                <option>&gt;</option>
+                <option>&lt;</option>
+                <option>&gt;=</option>
+                <option>&lt;=</option>
+            </select>
+            <input class="small-text" type="text"/>
+            <input class="small-button" type="button" value="+"/>
+            <input class="small-button" type="button" value="-"/>
+        </div>
+    </div>
+    <div class="sql-area">
+        <h2>SQL Statement</h2>
+        <input type="button" value="Edit"/>
+        <textarea disabled="disabled">SELECT thing.thing FROM other_thing WHERE things=things;</textarea>
+    </div>
+</div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.view-select').change(function () {
+            var view_id = $(this).val();
+            $.get('${reverse('related_views')}', {view_id: view_id}, function () {
+                // TODO: add the next view dropdown.
+            });
+        })
+    });
+</script>

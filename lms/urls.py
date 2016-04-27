@@ -63,6 +63,11 @@ urlpatterns = (
     url(r'^permissions/permissions/delete$', 'permissions.views.permission_delete', name='permissions_permission_delete'),
     url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
 
+    url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
+    url(r'^reporting/report/(?P<report_id>[0-9]+)$', 'reporting.views.report_view', name='reporting_report'),
+    url(r'^reporting/report/(?P<report_id>[0-9]+)/edit$', 'reporting.views.report_edit', name='reporting_report'),
+    url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
+
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
