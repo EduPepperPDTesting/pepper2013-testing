@@ -129,7 +129,7 @@ def get_add_user_rows(request, community_id):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     if filters.get('7'):
         filters['all'] = filters['7']
@@ -160,7 +160,7 @@ def get_add_user_rows(request, community_id):
 
     # Add the row data to the list of rows.
     rows = list()
-    count = 0
+    count = users.count()
     for item in users[start:end]:
         row = list()
 
@@ -188,7 +188,6 @@ def get_add_user_rows(request, community_id):
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
 
         rows.append(row)
-        count += 1
 
     # The number of results is the first value in the return JSON
     json_out = [count]
