@@ -154,6 +154,10 @@ def get_add_user_rows(request, community_id):
 
     users = users.exclude(user__in=members)
     users = users.exclude(activate_date__isnull=True)
+
+    if not request.user.is_superuser:
+        users = users.filter(user__profile__district=request.user.profile.district)
+
     # Add the row data to the list of rows.
     rows = list()
     count = 0
@@ -176,33 +180,16 @@ def get_add_user_rows(request, community_id):
         except:
             user_district = ""
             user_district_state = ""
-        try:
-            user_cohort = str(item.user.profile.cohort.code)
-        except:
-            user_cohort = ""
 
         row.append(str(user_district_state))
         row.append(str(user_district))
-        # row.append(str(user_cohort))
         row.append(str(user_school))
 
-        # row.append(str(item.user.profile.subscription_status))
-        # try:
-        #     activation_key = str(Registration.objects.get(user_id=item.user_id).activation_key)
-        # except:
-        #     activation_key = ''
-
-        # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
-        try:
-            # Gets list of ids of users that are in the requester's network.
-            network = People.objects.filter(people_id=request.user.id).values_list('people_id')
-            if request.user.is_superuser or (item.user.id in network) or (item.user.profile.district.state == request.user.profile.district.state and
-                                             item.user.profile.district == request.user.profile.district):
-                rows.append(row)
-                count += 1
-        except:
-            pass
+
+        rows.append(row)
+        count += 1
+
     # The number of results is the first value in the return JSON
     json_out = [count]
 
