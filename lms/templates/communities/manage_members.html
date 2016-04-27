@@ -168,34 +168,29 @@
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
-                            <select type="search" class=" search-users" data-column="5" id="User_state_select"  autocomplete="off">
+                            <select type="search" class=" search-users" data-column="4" id="User_state_select"  autocomplete="off">
                                 <option value="" class="null_case">Select State</option>
                                 %for item in State.objects.all().order_by('name'):
                                     <option class="${item.id}" value="${item.name}">${item.name}</option>
                                 %endfor
                             </select>
-                            <select type="search" class=" search-users" data-column="4" id="User_district_select"  autocomplete="off">
+                            <select type="search" class=" search-users" data-column="5" id="User_district_select"  autocomplete="off">
                                 <option value="" class="-1" name="null_case">Select District</option>
                                 %for item in District.objects.all().order_by('name'):
                                     <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
                                 %endfor
                             </select>
                         %endif
-                        <select type="search" class=" search-users" data-column="3" id="User_school_select" autocomplete="off">
+                        <select type="search" class=" search-users" data-column="6" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
-                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %if request.user.is_superuser:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %elif item.district_id == user.profile.district_id:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %endif
                             %endfor
                         </select>
-                        %if request.user.is_superuser:
-                            <select type="search" class=" search-users" data-column="8" id="User_registration_select" autocomplete="off">
-                                <option value="" class="null_case">Select Registration Status</option>
-                                <option value="Registered">Registered</option>
-                                <option value="Unregistered">Unregistered</option>
-                                <option value="Imported">Imported</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
-                        %endif
                         <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off">&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
