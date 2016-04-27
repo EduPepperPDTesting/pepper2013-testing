@@ -320,7 +320,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       $(this).val(school_id)
     });
     var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
-                     email:email, first_name:first_name, last_name:last_name, subject_id:subject_id, author_id:author_id};
+                     email:email, first_name:first_name, last_name:last_name, subject_id:subject_id, author_id:author_id, subscription_status:subscription_status};
     $("#btnDownloadCsv").click(function(){
       var valid_filter=[];
       var h=get_searching();
