@@ -32,13 +32,15 @@
                     <option value="none">Select...</option>
                     %for view in views:
                         %if selected_view.id == view.id:
-
+                            <option value="${view.id}" selected>${view.name}</option>
+                        %else:
+                            <option value="${view.id}">${view.name}</option>
                         %endif
-                        <option value="${view.id}">${view.name}</option>
                     %endfor
                 </select>
                 <%! x += 1 %>
             %endfor
+        %endif
     </div>
     <div class="column-selector">
         <h2>Select Columns</h2>
