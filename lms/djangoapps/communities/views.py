@@ -10,7 +10,7 @@ from .utils import is_facilitator
 from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies
 from administration.pepconn import get_post_array
 from operator import itemgetter
-from student.models import User
+from student.models import User, People
 from file_uploader.models import FileUploads
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 from django.db.models import Q
@@ -111,18 +111,16 @@ def get_add_user_rows(request, community_id):
     :param request: User request
     :return: Table rows for the user table
     """
+
     # Defines the columns in the table. Key is the column #, value is a list made up of the column selector, the type of
     # selection, and the type of data in the column (or False to ignore this column in filters).
-    columns = {0: ['user__id', '', 'int'],
-               1: ['user__last_name', '__icontains', 'str'],
+    columns = {0: ['user__email', '__icontains', 'str'],
+               1: ['user__username', '__icontains', 'str'],
                2: ['user__first_name', '__icontains', 'str'],
-               3: ['user__profile__school__name', '__iexact', 'str'],
-               4: ['user__profile__district__name', '__iexact', 'str'],
-               5: ['user__profile__district__state__name', '__iexact', 'str'],
-               6: ['user__profile__cohort__code', '__icontains', 'str'],
-               7: ['user__email', '__icontains', 'str'],
-               8: ['user__profile__subscription_status', '__iexact', 'str'],
-               10: ['user__date_joined', '__icontains', False]}
+               3: ['user__last_name', '__iexact', 'str'],
+               4: ['user__profile__district__state__name', '__iexact', 'str'],
+               5: ['user__profile__district__name', '__iexact', 'str'],
+               6: ['user__profile__school__name', '__icontains', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
@@ -153,9 +151,9 @@ def get_add_user_rows(request, community_id):
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
 
     members = CommunityUsers.objects.filter(community=community_id).values_list('user_id')
+
     users = users.exclude(user__in=members)
     users = users.exclude(activate_date__isnull=True)
-
     # Add the row data to the list of rows.
     rows = list()
     count = 0
@@ -197,7 +195,9 @@ def get_add_user_rows(request, community_id):
         # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
         try:
-            if request.user.is_superuser or (item.user.profile.district.state == request.user.profile.district.state and
+            # Gets list of ids of users that are in the requester's network.
+            network = People.objects.filter(people_id=request.user.id).values_list('people_id')
+            if request.user.is_superuser or (item.user.id in network) or (item.user.profile.district.state == request.user.profile.district.state and
                                              item.user.profile.district == request.user.profile.district):
                 rows.append(row)
                 count += 1
