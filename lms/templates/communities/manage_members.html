@@ -100,23 +100,7 @@
                                     <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %endif
                             %endfor
-                        </select><!--
-                        %if request.user.is_superuser:
-                            <select type="search" class="search-users" data-column="8" id="User_registration_select" autocomplete="off">
-                                <option value="" class="null_case">Select Registration Status</option>
-                                <option value="Registered">Registered</option>
-                                <option value="Unregistered">Unregistered</option>
-                                <option value="Imported">Imported</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
-                        %endif
-                        <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
-                        <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
-                        %if request.user.is_superuser:
-                            <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
-                        %endif
-                        <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
-                        <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
+                        </select>
                         <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
@@ -214,13 +198,6 @@
                                 <option value="Inactive">Inactive</option>
                             </select>
                         %endif
-                        <input placeholder="Search by Last Name" class=" search-users" type="search" data-column="1" id="User_search_last">
-                        <input placeholder="Search by First Name" class=" search-users" type="search" data-column="2" id="User_search_first">
-                        %if request.user.is_superuser:
-                            <input placeholder="Search by Cohort" class=" search-users" type="search" data-column="6" id="User_search_cohort">
-                        %endif
-                        <input placeholder="Search by Email" class=" search-users" type="search" data-column="7" id="User_search_email">
-                        <input placeholder="Search All" class=" search-users" type="search" data-column="all" id="User_search">
                         <span class="selectall"><input type="checkbox" id="selectalluser" name="adduser" autocomplete="off">&nbsp<span><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
