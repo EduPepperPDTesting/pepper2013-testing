@@ -150,7 +150,7 @@ def get_add_user_rows(request, community_id):
     else:
         users = UserProfile.objects.prefetch_related().all().order_by(*order)
 
-    members = CommunityUsers.objects.filter(community=community_id).values_list('user_id')
+    members = CommunityUsers.objects.filter(community=community_id).values_list('user_id', flat=True)
 
     users = users.exclude(user__in=members)
     users = users.exclude(activate_date__isnull=True)
