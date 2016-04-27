@@ -156,10 +156,9 @@ def get_add_user_rows(request, community_id):
     users = users.exclude(user__in=members)
     users = users.exclude(activate_date__isnull=True)
 
-
     # Add the row data to the list of rows.
     rows = list()
-    count=0
+    count = 0
     for item in users[start:end]:
         row = list()
 
@@ -198,12 +197,12 @@ def get_add_user_rows(request, community_id):
         # row.append(str(item.user.date_joined))
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
         try:
-            if(item.user.profile.district.state.name == request.user.profile.district.state.name):
-                if(item.user.profile.district == request.user.profile.district):
-                    rows.append(row)
-                    count+=1
+            if request.user.is_superuser or (item.user.profile.district.state == request.user.profile.district.state and
+                                             item.user.profile.district == request.user.profile.district):
+                rows.append(row)
+                count += 1
         except:
-            error=0
+            pass
     # The number of results is the first value in the return JSON
     json_out = [count]
 

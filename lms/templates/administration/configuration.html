@@ -246,7 +246,6 @@
         });
     }
     var pagerOptions = {
-
         // target the pager markup - see the HTML block below
         container: $(".pager"),
 
@@ -317,18 +316,18 @@
         // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
         cssDisabled: 'disabled', // Note there is no period "." in front of this class name
         cssErrorRow: 'tablesorter-errorRow' // ajax error information row
-
     };
+
     //-------------init--------------------------
-    var configurationNavigation=new ConfigurationNavigation($('.configuration_navigation'));
+    var configurationNavigation = new ConfigurationNavigation($('.configuration_navigation'));
     configurationNavigation.setSubItem('Certificate Editor');
-    configurationNavigation.rootClick(function(){
+    configurationNavigation.rootClick(function() {
         ceditor.cancel(function(){
             displayFilter();
             filterCertificate();
             $('.editor_view_btn').click();
         });
-    })
+    });
 
     var ceditor=new CertificateEditor(CKEDITOR.instances.certificate_editor);
     $(".control.filter").each(function(){new FilterControl(this)});
@@ -337,30 +336,29 @@
         '.menu-trigger': { sorter: false, parser: false }
     }}).tablesorterPager(pagerOptions);
     $('.menu-trigger').hide();
-    function filterCertificate(){
+    function filterCertificate() {
         var filter=$('#fltCertificate')[0].control.getFilter();
         $('#tblCertificate')[0].control.updateFilter(filter);
     }
 
     //-----filter Tool buttons----------------------
-    function displayCertificate()
-    {
+    function displayCertificate() {
         $(".certificate_filter_div").hide();
         $(".certificate_editor_div").show();
         $('.expand_title').hide();
         configurationNavigation.show();
     }
-    function displayFilter()
-    {
+    function displayFilter() {
         $(".certificate_filter_div").show();
         $(".certificate_editor_div").hide();
         $('.expand_title').show();
         configurationNavigation.hide();
     }
-    function addNewCertificate(){
+    function addNewCertificate() {
         displayCertificate();
         ceditor.init();
     }
+
     //iFrame size
     function iframeLoaded() {
         var frame = document.getElementById('certificate_preview');
@@ -370,7 +368,6 @@
             frame.height = frame.contentWindow.document.body.scrollHeight + "px";
         }
     }
-
 
     //-----Editor Tool buttons-----------
     function certificate_editor_cancel(){
@@ -436,13 +433,12 @@
     }
     function deleteSelectCertificate(){
         var ids=$('#tblCertificate')[0].control.getCheckedValues();
-        if(!ids.length){
+        if (!ids.length) {
             new Dialog($('#dialog')).show('Error','You must select at least one certificate.');
             return;
         }
         new Dialog($('#dialog')).showButtons("Warning","<p>Are you sure you want to delete this certificate?</p><br/>",['Yes','No'],function(choice){
-            if(choice==0)
-            {
+            if (choice==0) {
                 $.post('/configuration/certificate/delete',{ids:ids.join(',')},function(){
                     for(var i=0;i<ids.length;i++)
                     {
@@ -451,7 +447,9 @@
                     $('#tblCertificate table').trigger("update");
                 });
                 this.hide();
-            }else{this.hide();}
+            } else {
+                this.hide();
+            }
         })
     }
     $('.editor_view_btn').click(function(){
@@ -460,7 +458,7 @@
         $('.preview_view_btn').removeClass('active');
         $('.preview_view').hide();
         $('.editor_view').show();
-    })
+    });
     $('.preview_view_btn').click(function(){
         ceditor.switchView('Preview');
         $(this).addClass('active');
@@ -470,11 +468,11 @@
         var data=ceditor.replacePlaceholder(ceditor.CKEDITOR.getData());
         $("#certificate_preview").contents().find("#content").html(data);
         iframeLoaded();
-    })
+    });
     //---------------load certificate------------------
-    $('#tblCertificate')[0].onDataLoaded=function(){
+    $('#tblCertificate')[0].onDataLoaded = function(){
         $.each(this.control.getFieldCells('certificate_name'),function(i,cell){
-            $(cell).html("<a class='certificate_load_btn' href='javascript:void(0);'><img src='/static/images/certificate/ui/magnifier.png'/>&nbsp;&nbsp;</a>"+cell.innerHTML);
+            $(cell).html("<a class='certificate_load_btn' href='javascript:void(0);'><img src='/static/images/icons/magnifier.png'/>&nbsp;&nbsp;</a>"+cell.innerHTML);
             $(cell).find('.certificate_load_btn').click(function(){
                 displayCertificate();
                 ceditor.loadCertificate($(this).parent().parent().find('.check-row').val())
@@ -482,5 +480,5 @@
         });
         $('#tblCertificate table').trigger("update");
 
-    }
+    };
 </script>
