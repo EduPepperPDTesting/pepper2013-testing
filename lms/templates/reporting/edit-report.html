@@ -18,12 +18,27 @@
     </div>
     <div class="view-selector">
         <h2>Select Views</h2>
-        <select class="view-select" name="view[0]">
-            <option value="none">Select...</option>
-            %for view in views:
-                <option value="${view.id}">${view.name}</option>
+        %if action == 'new':
+            <select class="view-select" name="view[0]">
+                <option value="none">Select...</option>
+                %for view in views:
+                    <option value="${view.id}">${view.name}</option>
+                %endfor
+            </select>
+        %else:
+            <%! x = 0 %>
+            %for selected_view in selected_views:
+                <select class="view-select" name="view[${x}]">
+                    <option value="none">Select...</option>
+                    %for view in views:
+                        %if selected_view.id == view.id:
+
+                        %endif
+                        <option value="${view.id}">${view.name}</option>
+                    %endfor
+                </select>
+                <%! x += 1 %>
             %endfor
-        </select>
     </div>
     <div class="column-selector">
         <h2>Select Columns</h2>

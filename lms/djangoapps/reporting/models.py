@@ -71,3 +71,4 @@ class ReportFilters(models.Model):
     left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_left')
     right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_right')
     operator = models.CharField(blank=False, max_length=2)
+    order = models.IntegerField(blank=False, null=False, default=0)

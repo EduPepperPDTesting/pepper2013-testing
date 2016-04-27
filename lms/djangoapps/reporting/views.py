@@ -1,6 +1,7 @@
 from mitxmako.shortcuts import render_to_response
-from .models import Reports, Categories, Views
+from .models import Reports, Categories, Views, ViewRelationships, ViewColumns, ReportViews, ReportViewColumns, ReportFilters
 from permissions.decorators import user_has_perms
+from pepper_utilities.utils import get_request_array, render_json_response
 
 
 @user_has_perms('reporting')
@@ -43,15 +44,23 @@ def report_edit(request, report_id):
     if report_id != 'none':
         try:
             report = Reports.objects.get(id=report_id)
+            selected_views = ReportViews.objects.filter(report=report).order_by('order')
+            selected_columns = ReportViewColumns.objects.filter(report=report)
+            filters = ReportFilters.objects.filter(report=report).order_by('order')
+            data.update({'report': report,
+                         'selected_views': selected_views,
+                         'selected_columns': selected_columns,
+                         'filters': filters})
+            action = 'edit'
         except:
             data = {'error_title': 'Report Not Found',
                     'error_message': 'No report found with this ID.',
                     'window_title': 'Report Not Found'}
             return render_to_response('error.html', data, status=404)
     else:
-        report = 'none'
-    data.update({'report': report})
-    return render_to_response('reporting/new-report.html', data)
+        action = 'new'
+    data.update({'action': action})
+    return render_to_response('reporting/edit-report.html', data)
 
 
 @user_has_perms('reporting')
@@ -62,5 +71,20 @@ def report_view(request):
 
 @user_has_perms('reporting', 'administer')
 def related_views(request):
-    # TODO: Add the code to return the views related to the passed view.
-    pass
+    relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('name')
+    data = []
+    for relationship in relationships:
+        data.append({'id': relationship.right.id, 'name': relationship.right.name})
+    return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def view_columns(request):
+    views = get_request_array(request.GET, 'view')
+    columns = ViewColumns.objects.select_related().filter(view__in=views.values()).order_by('view', 'name')
+    data = []
+    for column in columns:
+        data.append({'id': column.id,
+                     'name': column.view.name + '.' + column.name,
+                     'description': column.description})
+    return render_json_response(data)

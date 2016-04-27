@@ -331,25 +331,7 @@ input.form_submit, input.form_submit:hover {
     background-color: #444;
     color: #ccc;
 }
-.column-selector {
-    display: none;
-}
-.where-selector {
-    display: none;
-}
 .sql-area {
-    display: none;
-}
-.view1 {
-    display: none;
-}
-.view2 {
-    display: none;
-}
-.view3 {
-    display: none;
-}
-.row2 {
     display: none;
 }
 .report-button {

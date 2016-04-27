@@ -67,6 +67,7 @@ urlpatterns = (
     url(r'^reporting/report/(?P<report_id>[0-9]+)$', 'reporting.views.report_view', name='reporting_report'),
     url(r'^reporting/report/(?P<report_id>[0-9]+)/edit$', 'reporting.views.report_edit', name='reporting_report'),
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
+    url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
