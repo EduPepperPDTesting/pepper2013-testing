@@ -94,7 +94,9 @@
                         <select type="search" class="search-users" data-column="6" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
-                                %if item.district_id == user.profile.district_id:
+                                %if request.user.is_superuser:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %elif item.district_id == user.profile.district_id:
                                     <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %endif
                             %endfor
