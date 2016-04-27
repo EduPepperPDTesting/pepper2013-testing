@@ -36,6 +36,13 @@
         border: none;
         vertical-align: middle;
     }
+    .load{
+        font-size: 12px !important;
+        height: 2em !important;
+        line-height: 2em !important;
+        padding: 0 10px !important;
+        margin: 1px 5px 0 0 !important;
+    }
 </style>
 
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
@@ -71,23 +78,27 @@
                 <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
                     <div class="clearfix">
                         %if request.user.is_superuser:
-                            <select type="search" class="search-users" data-column="5" id="User_state_select" autocomplete="off">
+                            <select type="search" class="search-users" data-column="4" id="User_state_select" autocomplete="off">
                                 <option value="" class="null_case" selected>Select State</option>
                                 %for item in State.objects.all().order_by('name'):
                                     <option class="${item.id}" value="${item.name}">${item.name}</option>
                                 %endfor
                             </select>
-                            <select type="search" class="search-users" data-column="4" id="User_district_select" autocomplete="off">
+                            <select type="search" class="search-users" data-column="5" id="User_district_select" autocomplete="off">
                                 <option value="" class="null_case" selected>Select District</option>
                                 %for item in District.objects.all().order_by('name'):
-                                    <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                                    <option class="${item.state.id}" value="${item.name}" data-id="${item.id}">${item.name}</option>
                                 %endfor
                             </select>
                         %endif
-                        <select type="search" class="search-users" data-column="3" id="User_school_select" autocomplete="off">
+                        <select type="search" class="search-users" data-column="6" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
-                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %if request.user.is_superuser:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %elif item.district_id == user.profile.district_id:
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                %endif
                             %endfor
                         </select><!--
                         %if request.user.is_superuser:
@@ -106,7 +117,7 @@
                         %endif
                         <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
                         <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
-                        <input type="button" name="" value="LOAD" class="load" onclick="$('#user-table').show()"/>
+                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
                             <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
@@ -231,7 +242,7 @@
                         <tr>
                             <!-- <th class="user_id_select">ID</th> -->
                             <th class="user_email">E-Mail</th>
-                            <th class="user_fname">User Name</th>
+                            <th class="user_username">User Name</th>
                             <th class="user_fname">First Name</th>
                             <th class="user_lname">Last Name</th>
                             <th class="user_state">State</th>
@@ -370,7 +381,7 @@
                 });
             });
             this.$content.find("#User_district_select").change(function () {
-                var id = $(this).children(":selected").attr("class");
+                var id = $(this).children(":selected").attr("data-id");
                 var name = $(this).children(":selected").attr("name");
                 self.$content.find("#User_school_select > option").each(function () {
                     $(this).css("display", "");
@@ -424,6 +435,7 @@
                 $.post("${reverse('community_join',args=[community.id])}",{user_ids:ids.join(",")},function(){
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
+                    new Dialog($('#dialog')).show("Success", "Selected users added successfully to the community.");
                 });
             }else{
                 new Dialog($('#dialog')).show("Error", "Please select at least one user to add.");
