@@ -19,8 +19,8 @@ function x_children(item, subsectionInfo) {
         for (var i = 0; i < item.definition.children.length; i++) {
             try {
                 var arr = item.definition.children[i].split('/');
-                if (modulestore[module_id] != undefined) {
-                    var c = modulestore[module_id];
+                if (modulestore[item.definition.children[i]] != undefined) {
+                    var c = modulestore[item.definition.children[i]];
                 } else {
                     var c = db.modulestore.findOne({
                         '_id.course': arr[3],

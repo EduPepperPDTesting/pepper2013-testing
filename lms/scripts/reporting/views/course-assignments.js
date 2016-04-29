@@ -2,11 +2,9 @@ var db = connect("localhost:37017/reporting")
 
 db.modulestore.aggregate({
     $match: {
-        $or: [{
-            '_id.category': 'problem'
-        }, {
-            '_id.category': 'combinedopenended'
-        }]
+        'q_course_id': {
+            $exists: true
+        }
     }
 }, {
     $project: {
