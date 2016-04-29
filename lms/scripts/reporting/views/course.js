@@ -68,32 +68,6 @@ db.student_courseenrollment.aggregate({
 }, {
     $project: {
         course_id: 1,
-        studentmodule: 1,
-        course_time: 1,
-        external_time: 1,
-        discussion_time: 1,
-        portfolio_time: 1,
-        course_number: '$course_info.metadata.display_coursenumber',
-        course_name: '$course_info.metadata.display_name',
-        course_run: '$course_info._id.org',
-        start_date: '$course_info.metadata.start',
-        end_date: '$course_info.metadata.end',
-        organization: '$course_info.metadata.display_organization'
-    }
-}, {
-    $project: {
-        course_id: 1,
-        course_number: 1,
-        course_name: 1,
-        studentmodule: 1,
-        course_run: 1,
-        start_date: 1,
-        end_date: 1,
-        organization: 1,
-        course_time: 1,
-        external_time: 1,
-        discussion_time: 1,
-        portfolio_time: 1,
         complete_course: {
             $sum: {
                 $map: {
@@ -119,7 +93,7 @@ db.student_courseenrollment.aggregate({
                     in : {
                         $cond: [{
                             $eq: ['$$item.course_id', '$course_id']
-                        }, '$$item.time', 0]
+                        }, '$$item.r_time', 0]
                     }
                 }
             }
@@ -152,15 +126,19 @@ db.student_courseenrollment.aggregate({
         },
         portfolio_time: {
             $sum: '$portfolio_time.time'
-        }
-
+        },
+        course_number: '$course_info.metadata.display_coursenumber',
+        course_name: '$course_info.metadata.display_name',
+        course_run: '$course_info._id.org',
+        start_date: '$course_info.metadata.start',
+        end_date: '$course_info.metadata.end',
+        organization: '$course_info.metadata.display_organization'
     }
 }, {
     $project: {
         course_id: 1,
         course_number: 1,
         course_name: 1,
-        studentmodule: 1,
         course_run: 1,
         start_date: 1,
         end_date: 1,
@@ -193,11 +171,6 @@ db.student_courseenrollment.aggregate({
         },
         enrolled_course_num: {
             $sum: 1
-        },
-        studentmodule: {
-            $push: {
-                $arrayElemAt: ['$studentmodule', 0]
-            }
         },
         course_run: {
             $push: {
@@ -279,7 +252,9 @@ db.student_courseenrollment.aggregate({
             $arrayElemAt: ['$organization', 0]
         },
         avg_course_time: {
-            $divide: ['$course_time', '$enrolled_course_num']
+            $ceil: {
+                $divide: ['$course_time', '$enrolled_course_num']
+            }
         }
     }
 }, {

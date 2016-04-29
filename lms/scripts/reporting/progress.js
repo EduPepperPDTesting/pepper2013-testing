@@ -1,5 +1,6 @@
 var db = connect("localhost:37017/reporting")
 db.user_course_progress.remove({})
+db.problem_point.remove({})
 var modulestore = [];
 
 function x_children(item, subsectionInfo) {
@@ -158,9 +159,7 @@ db.student_courseenrollment.find({
                         if (item.module_weight[i] > 0) {
                             //score = item.module_weight[i];
                             score = module.grade;
-                        }
-                        
-                        else {
+                        } else {
                             print(module.module_id + "-----")
                             score = 0;
                         }
@@ -169,8 +168,9 @@ db.student_courseenrollment.find({
                         print(module.module_id + "-----")
                         score = 0;
                     }
-                    module.point = score;
-                    db.courseware_studentmodule.save(module);
+                    //module.point = score;
+                    // db.courseware_studentmodule.save(module);
+                    set_problem_point(module.module_id, module.student_id, module.course_id, score);
                     //printjson(item.module_weight[i])
 
                 } else if (module.module_type == 'combinedopenended') {
@@ -181,14 +181,16 @@ db.student_courseenrollment.find({
                     } else {
                         score = 0;
                     }
-                    module.point = score;
-                    db.courseware_studentmodule.save(module);
+                    //module.point = score;
+                    //db.courseware_studentmodule.save(module);
+                    set_problem_point(module.module_id, module.student_id, module.course_id, score);
                 }
                 i++;
             } catch (e) {
                 if (module != null) {
-                    module.point = score;
-                    db.courseware_studentmodule.save(module);
+                    //module.point = score;
+                    //db.courseware_studentmodule.save(module);
+                    set_problem_point(module.module_id, module.student_id, module.course_id, score);
                 }
             }
         })
@@ -216,3 +218,15 @@ db.student_courseenrollment.find({
     }
     student_course_num++;
 })
+db.problem_point.createIndex({
+    'module_id': 1
+})
+
+function set_problem_point(module_id, user_id, course_id, point) {
+    db.problem_point.save({
+        'module_id': module_id,
+        'user_id': user_id,
+        'course_id': course_id,
+        'point': point
+    });
+}

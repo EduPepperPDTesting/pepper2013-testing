@@ -166,7 +166,7 @@ db.student_courseenrollment.aggregate({
                     in : {
                         $cond: [{
                             $eq: ['$$item.course_id', '$course_id']
-                        }, '$$item.time', 0]
+                        }, '$$item.r_time', 0]
                     }
                 }
             }
