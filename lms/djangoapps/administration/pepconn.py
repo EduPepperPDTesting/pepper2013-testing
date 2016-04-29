@@ -235,12 +235,12 @@ def get_user_rows(request):
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 11)
+    filters = get_post_array(request.GET, 'fcol', 12)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -329,7 +329,7 @@ def get_school_rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -400,7 +400,7 @@ def get_district_rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -590,7 +590,7 @@ def get_cohort_rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
