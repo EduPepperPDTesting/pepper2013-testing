@@ -968,7 +968,7 @@ from datetime import date
         $('#skype-start').click(function(e) {
             e.preventDefault();
             $('.skype-container').attr('id', '');
-            $('.skype-container').children().not('script').remove();
+            $('.skype-container').children('p').remove();
             $('#create-skype').off('click');
             var dialog = new Dialog('#skype-dialog');
             dialog.showOverlay();
@@ -987,7 +987,7 @@ from datetime import date
                 };
                 $('.skype-container').attr('id', '');
                 $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
-                $('.skype-container').children().not('script').remove();
+                $('.skype-container').children('p').remove();
                 startSkype(skype_params);
             });
         });
