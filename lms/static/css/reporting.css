@@ -338,11 +338,11 @@ input.form_submit, input.form_submit:hover {
     float: right;
     margin-left: 20px;
 }
-.small-button {
+.plus, .minus {
     padding: 0 6px !important;
     margin-right: 5px;
 }
-.small-text {
+.filter-value {
     height: 28px !important;
 }
 .where-row {

@@ -45,9 +45,12 @@ def report_edit(request, report_id):
         try:
             report = Reports.objects.get(id=report_id)
             selected_views = ReportViews.objects.filter(report=report).order_by('order')
+            view_columns = ViewColumns.objects.filter(view__in=selected_views.values_list('id', flat=True)).order_by(
+                'view', 'name')
             selected_columns = ReportViewColumns.objects.filter(report=report)
             filters = ReportFilters.objects.filter(report=report).order_by('order')
             data.update({'report': report,
+                         'view_columns': view_columns,
                          'selected_views': selected_views,
                          'selected_columns': selected_columns,
                          'filters': filters})

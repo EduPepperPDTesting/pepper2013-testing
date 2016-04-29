@@ -1,7 +1,10 @@
 <%!
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
+    from django.utils.html import escape
     import json
+
+    possible_operators = ['=', '!=', '>', '<', '>=', '<=']
 %>
 
 <%inherit file="../main.html"/>
@@ -44,23 +47,88 @@
     </div>
     <div class="column-selector">
         <h2>Select Columns</h2>
+        %if action == 'edit':
+            <%!
+            third_column = math.floor(len(view_columns / 3))
+            remainder = len(view_columns) % 3
+            first_column = third_column + 1 if remainder > 0 else third_column
+            second_column = third_column + 1 if remainder > 1 else third_column
+            s = selected_columns.values_list('id', flat=True)
+            x = 0
+            %>
+            <ul>
+            %for view_column in view_columns:
+                <li><label>
+                %if view_column.id in s:
+                    <input type="checkbox" name="column[${x}]" value="${view_column.id}" checked="checked"> ${view_column.name} - ${view_column.description}
+                %else:
+                    <input type="checkbox" name="column[${x}]" value="${view_column.id}"> ${view_column.name} - ${view_column.description}
+                %endif
+                </label></li>
+                <%! x += 1 %>
+                %if x == second_column or x == third_column:
+                    </ul><ul>
+                %endif
+            }
+            %endfor
+            </ul>
+        %endif
         <div class="clearfix"></div>
     </div>
     <div class="where-selector">
         <h2>Select Filters</h2>
-        <div class="where-row row1">
-            <select class="filter-view" name="filter-view[0]">
-            </select>
-            <select>
-                <option>=</option>
-                <option>&gt;</option>
-                <option>&lt;</option>
-                <option>&gt;=</option>
-                <option>&lt;=</option>
-            </select>
-            <input class="small-text" type="text"/>
-            <input class="small-button" type="button" value="+"/>
-        </div>
+        %if action == 'edit':
+            <%! x = 0 %>
+            %for view_filter in filters:
+                <div class="where-row" id="where-row[${x}]">
+                %if view_filter.conjunction:
+                    <select class="filter-conjuntion" name="filter-conjuntion[${x}]">
+                        %if view_filter.conjunction == 'AND':
+                            <option value="AND" selected>AND</option>
+                            <option value="OR">OR</option>
+                        %else:
+                            <option value="AND">AND</option>
+                            <option value="OR" selected>OR</option>
+                        %endif
+                    </select>
+                %endif
+                <select class="filter-view" name="filter-view[${x}]">
+                    %for column in view_columns:
+                        <option value="${column.id}">${column.name}</option>
+                    %endfor
+                </select>
+                <select class="filter-operator" name="filter-operator[${x}]">
+                    %for possible_operator in possible_operators:
+                        %if possible_operator == view_filter.operator:
+                            <option value="${possible_operator}" selected>${escape(possible_operator)}</option>
+                        %else:
+                            <option value="${possible_operator}">${escape(possible_operator)}</option>
+                        %endif
+                    %endfor
+                </select>
+                <input class="filter-value" type="text" name="filter-value[${x}]"/>
+                <input class="plus" name="plus[${x}]" type="button" value="+"/>
+                %if x > 0:
+                    <input class="minus" name="minus[${x}]" type="button" value="-"/>
+                %endif
+                </div>
+            %endfor
+        %else:
+            <div class="where-row" id="where-row[0]">
+                <select class="filter-view" name="filter-view[0]">
+                </select>
+                <select name="filter-operator[0]">
+                    <option value="=">=</option>
+                    <option value="!=">!=</option>
+                    <option value=">">&gt;</option>
+                    <option value="<">&lt;</option>
+                    <option value=">=">&gt;=</option>
+                    <option value="<=">&lt;=</option>
+                </select>
+                <input class="filter-value" type="text" name="filter-value[0]"/>
+                <input class="plus" name="plus[0]" type="button" value="+"/>
+            </div>
+        %endif
     </div>
     <div class="sql-area">
         <h2>SQL Statement</h2>
@@ -81,5 +149,6 @@
 <script type="text/javascript">
     $(document).ready(function () {
         viewSelect('${reverse('related_views')}', '${reverse('reporting_view_columns')}');
+        filterLines();
     });
 </script>

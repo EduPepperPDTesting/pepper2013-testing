@@ -2,8 +2,7 @@ function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
         $(this).nextAll('select').remove();
-        var view_num = $(this).attr('name');
-        view_num = view_num.substring(view_num.indexOf('['), view_num.length - 1) + 1;
+        var view_num = getLineNumber($(this).attr('name')) + 1;
         var view_id = $(this).val();
         var self = this;
         $.get(related_url, {view_id: view_id}, function (data) {
@@ -34,24 +33,14 @@ function viewSelect(related_url, columns_url) {
                 var first_column = remainder > 0 ? third_column + 1 : third_column;
                 var second_column = remainder > 1 ? third_column + 1 : third_column;
 
-                var x = 0;
                 var columns = '<ul>';
-                for (; x < first_column; x++) {
+                for (var x = 0; x < first_column; x++) {
                     columns += '<li><label>';
                     columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
                     columns += '</label></li>';
-                }
-                columns += '</ul><ul>';
-                for (; x < second_column; x++) {
-                    columns += '<li><label>';
-                    columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
-                    columns += '</label></li>';
-                }
-                columns += '</ul><ul>';
-                for (; x < third_column; x++) {
-                    columns += '<li><label>';
-                    columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
-                    columns += '</label></li>';
+                    if (x == second_column || x == third_column) {
+                        columns += '</ul><ul>';
+                    }
                 }
                 columns += '</ul>';
                 $('.column-selector ul').remove();
@@ -67,3 +56,45 @@ function viewSelect(related_url, columns_url) {
     });
 }
 
+function filterLines() {
+    $('.minus').click(function () {
+        var line_number = getLineNumber($(this).attr('name'));
+        $('#where-row[' + line_number + ']').remove();
+        renumberLines('where-row');
+    });
+    $('.plus').click(function () {
+        var line = '<div class="where-row" id="where-row[]">';
+        line += '    <select class="filter-view" name="filter-view[]">'
+        line += '    </select>';
+        line += '    <select name="filter-operator[]">';
+        line += '        <option value="=">=</option>';
+        line += '        <option value="!=">!=</option>';
+        line += '        <option value=">">&gt;</option>';
+        line += '        <option value="<">&lt;</option>';
+        line += '        <option value=">=">&gt;=</option>';
+        line += '        <option value="<=">&lt;=</option>';
+        line += '    </select>';
+        line += '    <input class="filter-value" type="text" name="filter-value[]"/>';
+        line += '    <input class="plus" name="plus[]" type="button" value="+"/>';
+        line += '</div>';
+        var line_number = getLineNumber($(this).attr('name'));
+        $('#where-row[' + line_number + ']').after(line);
+        renumberLines('where-row');
+    });
+}
+
+function renumberLines(container) {
+    $('.' + container).each(function (index) {
+        $(this).attr('id', '');
+        $(this).attr('id', container + '[' + index + ']');
+        $(this).children().each(function () {
+            $(this).attr('name', '');
+            $(this).attr('name', $(this).attr('class') + '[' + index + ']');
+        });
+    });
+}
+
+function getLineNumber(string) {
+    var number = string.substring(string.indexOf('['), string.length - 1);
+    return number * 1;
+}
