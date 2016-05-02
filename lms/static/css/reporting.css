@@ -150,16 +150,16 @@
     padding: 35px 5px 5px 5px;
 }
 #reporting .add-new {
-    background: transparent url(/static/images/icons/add_new.png) center top/32px 32px no-repeat;
+    background: transparent url(../images/icons/add_new.png) center top/32px 32px no-repeat;
 }
 #reporting .manage {
-    background: transparent url(/static/images/icons/manage.png) center top/32px 32px no-repeat;
+    background: transparent url(../images/icons/manage.png) center top/32px 32px no-repeat;
 }
 #reporting .add-new:hover {
-    background: transparent url(/static/images/icons/add_new_mo.png) center top/32px 32px no-repeat;
+    background: transparent url(../images/icons/add_new_mo.png) center top/32px 32px no-repeat;
 }
 #reporting .manage:hover {
-    background: transparent url(/static/images/icons/manage_mo.png) center top/32px 32px no-repeat;
+    background: transparent url(../images/icons/manage_mo.png) center top/32px 32px no-repeat;
 }
 
 
