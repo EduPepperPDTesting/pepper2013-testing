@@ -35,7 +35,7 @@ div.expand_title .icon {
     top: 5px;
     width: 23px;
     height: 23px;
-    background: url(Pepper_files/arrows.png) no-repeat 0 0;
+    background: url(../images/arrows.png) no-repeat 0 0;
 }
 div.expand_title_expanded {
     border-bottom: 1px solid #999;
@@ -93,7 +93,7 @@ a.district-button, a.school-button, a.user-button {
     text-shadow: 0 -1px 1px rgb(137, 120, 14);
 }
 div.expand_title_expanded .icon {
-    background: url(Pepper_files/arrows.png)no-repeat 0 -23px;
+    background: url(../images/arrows.png)no-repeat 0 -23px;
 }
 div.expand_div {
     display: none;
