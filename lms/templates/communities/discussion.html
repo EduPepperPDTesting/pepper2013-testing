@@ -15,6 +15,7 @@
 </%block>
 
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 
 <style type="text/css" media="screen">
     #table-discuss th {
@@ -103,6 +104,16 @@
         position: absolute;
         top: 20px;
         right: 20px;
+    }
+    .edit-icon{
+        position:absolute;
+        top:22px;
+        right:60px;
+        width:16px;
+        height:16px;
+    }
+    .edit-icon:hover{
+        cursor:pointer;
     }
     .delete-icon {
         position: absolute;
@@ -300,6 +311,9 @@
         display: block;
         margin-bottom: 5px;
     }
+    .hidetoggle{
+        display:none;
+    }
 </style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -315,13 +329,17 @@
             <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
                 <img src="/static/images/link-icon.png" alt="Permalink">
             </a>
+            %if request.user.is_superuser or request.user==discussion.user:
+                    <img class = "edit-icon" onclick="editDiscussion()" src="/static/images/pencil_edit.png" alt="Edit Discussion">
+            %endif
             %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
                 <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
                     <img src="/static/images/trash-small.png" alt="Delete Discussion">
                 </a>
             %endif
             <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
-            <h2>${discussion.subject}</h2>
+            <h2 id="discussion_subject">${discussion.subject}</h2>
+            <span><input type = 'text' id = 'editable_subject' style="display:none" value="${discussion.subject}"></input><br></span>
             %if discussion.attachment:
                 <div class="discussion-download"><span>Attachment: </span>
                     <a href="${get_file_url(discussion.attachment)}" target="_blank">
@@ -331,7 +349,13 @@
             %endif
             <div class="discussion-byline"><span>Posted By: </span>${discussion.user.first_name} ${discussion.user.last_name}</div>
             <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=discussion.date_create)}</div>
-            <div class="discussion-body">${discussion.post}</div>
+            <div id="discussion_post" class="discussion-body">${discussion.post}</div>
+            <span><textarea id="editable_post" style="display:none">${discussion.post}</textarea></span>
+            <span id="edit_buttons" style="display:none"><br>
+                <span id="editSaveMessage" style="display:none;">Edited Post Successfully.<br></span>
+                <input type="button" onclick="discussionEditSave()" class="small" value="Save"></input>
+                <input type = "button" onclick="editDiscussion()" class="small" value="Cancel"></input>
+            </span>
             %if has_poll:
                 <div class="discussion-poll">
                     <img src="/static/images/poll-icon.png" alt="Poll">
@@ -492,6 +516,31 @@
     </div>
 </div>
 <script type="text/javascript">
+    CKEDITOR.replace( 'editable_post', {
+        on: {
+            instanceReady: function( evt ) {
+                $("#cke_editable_post").toggle();
+                $("#cke_editable_post").css("margin-top", "30px");
+            }
+        }
+    });
+    function editDiscussion(){
+        $("#editable_subject").toggle();
+        $("#discussion_subject").toggle();
+        $("#cke_editable_post").toggle();
+        $("#edit_buttons").toggle();
+        $("#discussion_post").toggle();
+    }
+    function discussionEditSave(){
+        for(var instanceName in CKEDITOR.instances)
+            CKEDITOR.instances[instanceName].updateElement();
+        subject=$("#editable_subject").val();
+        post=$("#editable_post").val();
+        $.post("${reverse('community_discussion_edit')}", {id:${discussion.id},subject:subject, post:post}, function(r){
+            $("#editSaveMessage").toggle();
+            $("#editSaveMessage").css("color", "green");
+        });
+    }
     function joinMe(){
         var user_id = "${request.user.id}";
         $.post("${reverse('community_join', args=[discussion.community.id])}",{user_id:user_id}, function(r){

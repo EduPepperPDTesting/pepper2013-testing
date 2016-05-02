@@ -15,6 +15,7 @@ from datetime import date
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
    .circle {
       width: 20px;
@@ -763,7 +764,7 @@ from datetime import date
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
-        content += '<label class="discussion-post">Discussion:<textarea name="post"></textarea></label>';
+        content += '<label class="discussion-post">Discussion:<textarea name="post" id="post"></textarea></label>';
         content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
         content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
@@ -785,11 +786,15 @@ from datetime import date
         content += '</form><div class="discussion-error"></div>';
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
+        CKEDITOR.replace('post');
 
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
+            for(var instanceName in CKEDITOR.instances)
+                CKEDITOR.instances[instanceName].updateElement();
             if (validateDiscussionForm()) {
                 var formData = new FormData($(this)[0]);
+                console.log(formData);
                 var formSelector = $(this);
                 $.ajax({
                     url: '${reverse('community_discussion_add')}',
