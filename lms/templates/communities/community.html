@@ -25,7 +25,7 @@ from datetime import date
       position:absolute;
       right:0;
     }
-  
+
     #community-main {
         width: 1185px;
         margin: 30px auto;
@@ -579,7 +579,7 @@ from datetime import date
                 </div>
             </div>
         </div>
-        
+
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -972,6 +972,9 @@ from datetime import date
         });
         $('#skype-start').click(function(e) {
             e.preventDefault();
+            $('.skype-container').attr('id', '');
+            $('.skype-container').children('p').remove();
+            $('#create-skype').off('click');
             var dialog = new Dialog('#skype-dialog');
             dialog.showOverlay();
             dialog.$ei.fadeIn(200);
@@ -987,7 +990,9 @@ from datetime import date
                     video: "true",
                     topic: topic
                 };
+                $('.skype-container').attr('id', '');
                 $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+                $('.skype-container').children('p').remove();
                 startSkype(skype_params);
             });
         });

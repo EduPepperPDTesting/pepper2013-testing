@@ -66,10 +66,10 @@ db.student_courseenrollment.aggregate({
     }
 }, {
     $lookup: {
-        from: 'courseware_studentmodule',
+        from: 'problem_point',
         localField: 'module_id',
         foreignField: 'module_id',
-        as: 'studentmodule'
+        as: 'problem_point'
     }
 }, {
     $project: {
@@ -90,11 +90,11 @@ db.student_courseenrollment.aggregate({
         point: {
             $sum: {
                 $map: {
-                    input: '$studentmodule',
+                    input: '$problem_point',
                     as: 'item',
                     in : {
                         $cond: [{
-                            $eq: ['$$item.student_id', '$user_id']
+                            $eq: ['$$item.user_id', '$user_id']
                         }, '$$item.point', 0]
                     }
                 }

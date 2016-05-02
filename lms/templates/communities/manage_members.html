@@ -329,7 +329,7 @@
                     $(item).css("display", "");
                 }
                 if (id == "null_case" || $(item).attr("class") == "null_case") {
-                    $(this).css("display", "");
+                    $(item).css("display", "");
                 }
             }
             this.$content.find("#selectalluser").click(function () {
@@ -354,7 +354,7 @@
                 var name = $(this).children(":selected").attr("name");
                 self.$content.find("#User_school_select > option").each(function () {
                     $(this).css("display", "");
-                    if (name != "null_case" || $(this).attr("class") == "null_case") {
+                    if (name != "null_case" && $(this).attr("class") != "null_case") {
                         if ($(this).attr("class") != id) {
                             $(this).css("display", "none");
                         }
