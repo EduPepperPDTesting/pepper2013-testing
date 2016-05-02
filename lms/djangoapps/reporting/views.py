@@ -2,6 +2,8 @@ from mitxmako.shortcuts import render_to_response
 from .models import Reports, Categories, Views, ViewRelationships, ViewColumns, ReportViews, ReportViewColumns, ReportFilters
 from permissions.decorators import user_has_perms
 from pepper_utilities.utils import get_request_array, render_json_response
+from math import floor
+from django_future.csrf import ensure_csrf_cookie
 
 
 @user_has_perms('reporting')
@@ -41,7 +43,7 @@ def reports_view(request):
 def report_edit(request, report_id):
     views = Views.objects.all().order_by('name')
     data = {'views': views}
-    if report_id != 'none':
+    if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
             selected_views = ReportViews.objects.filter(report=report).order_by('order')
@@ -49,21 +51,85 @@ def report_edit(request, report_id):
                 'view', 'name')
             selected_columns = ReportViewColumns.objects.filter(report=report)
             filters = ReportFilters.objects.filter(report=report).order_by('order')
+            third_column = floor(len(view_columns) / 3)
+            remainder = len(view_columns) % 3
+            first_column = third_column + 1 if remainder > 0 else third_column
+            second_column = third_column + 1 if remainder > 1 else third_column
+            s = selected_columns.values_list('id', flat=True)
+            x = 0
             data.update({'report': report,
                          'view_columns': view_columns,
                          'selected_views': selected_views,
                          'selected_columns': selected_columns,
-                         'filters': filters})
+                         'report_filters': filters,
+                         'first_column': first_column,
+                         'second_column': second_column,
+                         'third_column': third_column})
             action = 'edit'
         except:
             data = {'error_title': 'Report Not Found',
-                    'error_message': 'No report found with this ID.',
+                    'error_message': '''No report found with this ID. If you believe this is in error, please contact
+                        site support.''',
                     'window_title': 'Report Not Found'}
             return render_to_response('error.html', data, status=404)
     else:
         action = 'new'
-    data.update({'action': action})
+    data.update({'action': action, 'possible_operators': ['=', '!=', '>', '<', '>=', '<=']})
     return render_to_response('reporting/edit-report.html', data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+def report_save(request):
+    name = request.POST.get('report_name', '')
+    description = request.POST.get('report_description', '')
+    views = get_request_array(request.POST, 'view')
+    columns = get_request_array(request.POST, 'column')
+    filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+    filter_views = get_request_array(request.POST, 'filter-view')
+    filter_operators = get_request_array(request.POST, 'filter-operator')
+    filter_values = get_request_array(request.POST, 'filter-value')
+    action = request.POST.get('action', '')
+    report_id = request.POST.get('report_id', '')
+
+    report = False
+    if action == 'new':
+        report = Reports()
+        report.author = request.user
+    elif action == 'edit':
+        report = Reports.object.get(id=report_id)
+
+    if report:
+        report.name = name
+        report.description = description
+        report.save()
+
+        ReportViews.objects.filter(report=report).delete()
+        for i, view in views:
+            report_view = ReportViews()
+            report_view.report = report
+            report_view.order = int(i)
+            report_view.view = Views.objects.get(id=view)
+            report_view.save()
+
+        ReportViewColumns.objects.filter(report=report).delete()
+        for i, column in columns:
+            report_column = ReportViewColumns()
+            report_column.report = report
+            report_column.column = ViewColumns.objects.get(id=column)
+            report_column.save()
+
+        ReportFilters.objects.filter(report=report)
+        for i, filter in filter_views:
+            report_filter = ReportFilters()
+            report_filter.report = report
+            report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+            report_filter.view = Views.objects.get(id=filter)
+            report_filter.value = filter_values[i]
+            report_filter.operator = filter_operators[i]
+            report_filter.save()
+    else:
+        pass
 
 
 @user_has_perms('reporting')

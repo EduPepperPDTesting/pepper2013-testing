@@ -98,3 +98,16 @@ function getLineNumber(string) {
     var number = string.substring(string.indexOf('['), string.length - 1);
     return number * 1;
 }
+
+function expandTitle() {
+    $(".expand_title").click(function () {
+        var $div = $(this).next("div.expand_div");
+        if ($div.is(':visible')) {
+            $div.slideUp();
+            $(this).removeClass('expand_title_expanded');
+        } else {
+            $div.slideDown();
+            $(this).addClass('expand_title_expanded');
+        }
+    });
+}
