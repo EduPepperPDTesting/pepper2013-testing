@@ -194,6 +194,14 @@
     list-style: none;
     display: block;
     float: left;
+    padding: 0 20px 0 0;
+    width: 360px;
+    margin: 0;
+}
+#reporting .column-selector ul li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 #reporting .sql-area, #reporting .column-selector, #reporting .where-selector, #reporting .view-selector, #reporting .report-name {
     clear: both;

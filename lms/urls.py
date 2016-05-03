@@ -64,9 +64,9 @@ urlpatterns = (
     url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
 
     url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
-    url(r'^reporting/report/(?P<report_id>[0-9]+)$', 'reporting.views.report_view', name='reporting_report'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_view', name='reporting_report'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/edit$', 'reporting.views.report_edit', name='reporting_report_edit'),
-    url(r'^reporting/report/save', 'reporting.views.report_save', name='reporting_report_save'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/save$', 'reporting.views.report_save', name='reporting_report_save'),
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
 

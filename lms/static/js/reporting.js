@@ -15,7 +15,7 @@ function viewSelect(related_url, columns_url) {
                 dropdown += '</select>';
                 $(self).after(dropdown);
                 $('.view-select').off('change');
-                viewSelect();
+                viewSelect(related_url, columns_url);
             }
         });
 
@@ -31,16 +31,16 @@ function viewSelect(related_url, columns_url) {
                 var third_column = Math.floor(data.length / 3);
                 var remainder = data.length % 3;
                 var first_column = remainder > 0 ? third_column + 1 : third_column;
-                var second_column = remainder > 1 ? third_column + 1 : third_column;
+                var second_column = remainder > 1 ? first_column * 2 : first_column * 2 - 1;
 
                 var columns = '<ul>';
-                for (var x = 0; x < first_column; x++) {
+                for (var x = 0; x < data.length; x++) {
+                    if (x == first_column || x == second_column) {
+                        columns += '</ul><ul>';
+                    }
                     columns += '<li><label>';
                     columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
                     columns += '</label></li>';
-                    if (x == second_column || x == third_column) {
-                        columns += '</ul><ul>';
-                    }
                 }
                 columns += '</ul>';
                 $('.column-selector ul').remove();
@@ -51,22 +51,30 @@ function viewSelect(related_url, columns_url) {
             $.each(data, function (index, value) {
                 options += '<option value="' + value.id + '">' + value.name + '</option>';
             });
-            $('.filter-view').html(options);
+            $('.filter-column').html(options);
         });
     });
 }
 
 function filterLines() {
+    $('.minus').off('click');
     $('.minus').click(function () {
         var line_number = getLineNumber($(this).attr('name'));
-        $('#where-row[' + line_number + ']').remove();
+        $('#where-row\\[' + line_number + '\\]').remove();
         renumberLines('where-row');
     });
+    $('.plus').off('click');
     $('.plus').click(function () {
+        var line_number = getLineNumber($(this).attr('name'));
+        var row = '#where-row\\[' + line_number + '\\]';
+        var select = $(row).children('.filter-column').clone().wrap('<p>').parent().html();
         var line = '<div class="where-row" id="where-row[]">';
-        line += '    <select class="filter-view" name="filter-view[]">'
+        line += '    <select class="filter-conjunction" name="filter-conjunction[]">';
+        line += '        <option value="AND">AND</option>';
+        line += '        <option value="OR">OR</option>';
         line += '    </select>';
-        line += '    <select name="filter-operator[]">';
+        line += select;
+        line += '    <select class="filter-operator" name="filter-operator[]">';
         line += '        <option value="=">=</option>';
         line += '        <option value="!=">!=</option>';
         line += '        <option value=">">&gt;</option>';
@@ -76,10 +84,11 @@ function filterLines() {
         line += '    </select>';
         line += '    <input class="filter-value" type="text" name="filter-value[]"/>';
         line += '    <input class="plus" name="plus[]" type="button" value="+"/>';
+        line += '    <input class="minus" name="minus[]" type="button" value="-"/>';
         line += '</div>';
-        var line_number = getLineNumber($(this).attr('name'));
-        $('#where-row[' + line_number + ']').after(line);
+        $(row).after(line);
         renumberLines('where-row');
+        filterLines();
     });
 }
 
@@ -95,7 +104,7 @@ function renumberLines(container) {
 }
 
 function getLineNumber(string) {
-    var number = string.substring(string.indexOf('['), string.length - 1);
+    var number = string.substring(string.indexOf('[') + 1, string.length - 1);
     return number * 1;
 }
 
@@ -109,5 +118,19 @@ function expandTitle() {
             $div.slideDown();
             $(this).addClass('expand_title_expanded');
         }
+    });
+}
+
+function submitHandler(form, success_url) {
+    $(form).submit(function (e) {
+        e.preventDefault();
+        // TODO: add the error checking here.
+        $.post($(this).attr('action'), $(this).serialize(), function (data) {
+            if (data.success) {
+                window.location = success_url.replace('placeholder', data.report_id);
+            } else {
+                new Dialog('#dialog').show('Error Saving Report', 'The report did not save successfully. The error was: ' + data.error);
+            }
+        });
     });
 }

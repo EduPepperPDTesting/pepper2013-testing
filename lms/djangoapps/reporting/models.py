@@ -68,7 +68,7 @@ class ReportFilters(models.Model):
         db_table = 'reporting_report_filters'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     conjunction = models.CharField(blank=True, null=True, max_length=3)
-    view = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    column = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
     value = models.CharField(blank=False, max_length=255)
     operator = models.CharField(blank=False, max_length=2)
     order = models.IntegerField(blank=False, null=False, default=0)
