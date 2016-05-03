@@ -90,3 +90,13 @@ def user_email_completion(request):
         for item in data:
             r.append(item.email)
     return HttpResponse(json.dumps(r), content_type='application/json')
+
+
+def user_email_exists(request):
+    exists = False
+    lookup = request.GET.get('email', False)
+    if lookup:
+        exists = User.objects.filter(email=lookup).exists()
+
+    return HttpResponse(json.dumps(exists), content_type='application/json')
+

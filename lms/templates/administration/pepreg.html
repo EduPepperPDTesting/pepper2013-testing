@@ -1,0 +1,971 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+import json
+from student.models import State,District,School,Cohort,User,UserProfile
+from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+from permissions.utils import check_access_level, check_user_perms
+%>
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<script type="text/javascript" src="/static/js/timedropper/timedropper.js"></script>
+<!-- <script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script> -->
+<script src="/static/js/leaflet/leaflet.js"></script>
+<link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media = "screen" />
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
+<link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type = "text/css" media = "screen"/>
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      PepReg <div class="icon"></div>
+    </div>
+    <div class="expand_div" style="padding:10px;">
+      <div class="table-filter">
+        %if check_user_perms(request.user, 'pepreg'):
+        <select id="state_select" autocomplate="off" class="search" data-column="1">
+          <option value="">Select State</option>
+          %for item in State.objects.all().order_by("name"):
+          <option class="${item.id}" value="${item.name}">${item.name}</option>
+          %endfor          
+        </select>
+        <select id="district_select" autocomplate="off" class="search" data-column="2">
+          <option value="">Select District</option>
+          %for item in District.objects.all().order_by("name"):
+          <option class="${item.state.id}" value="${item.name}">${item.name}</option>
+          %endfor
+        </select>
+        %endif
+        <select id="" name="" autocomplate="off" class="search" data-column="3">
+          <option value="">Select Subject</option>
+          <option value="AR">Assessments and Reporting</option>
+          <option value="DC">Digital Citizenship</option>
+          <option value="ELA">English Language Arts</option>
+          <option value="ELL">English Language Learners</option>
+          <option value="MA">Mathematics</option>
+          <option value="PEP">Pepper</option>
+          <option value="POW">Pepper's Online Workshops!</option>
+          <option value="SC">Science</option>
+          <option value="SE">Special Education</option>
+          <option value="TECH">Technology</option>
+          <option value="WR">Writing and Poetry</option>   
+        </select>
+        %if check_user_perms(request.user, 'pepreg'):
+        <!-- <input type="button" name="" value="ADD NEW TRAINING" class="small" onclick="return pepreg.addTraining();"/> -->
+        <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
+          <a href="#"><div class="icon"></div><div>Add New</div></a>
+        </div>
+        %endif
+        <br>
+        <select id="" name="" autocomplate="off" class="search" data-column="4">
+          <option value="">Select Pepper Courese</option>
+        </select>
+        <input type="text" name="training_data" value="" class="search" data-column="5" placeholder="Select Date" readonly='true'/>
+      </div>
+      <div class="add_table-section table-section clearfix">
+        <table id="data-table" class="tablesorter-blue user_table_init"
+               width="" cellspacing="" cellpadding="" border=""
+               ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+          <thead>
+            <tr>
+              <th class="sorter-false filter-false">Edit/Delete</th>
+              <th>State</th>
+              <th>District</th>
+              <th>Subject</th>
+              <th>Course</th>
+              <th>Training Name</th>
+              <th>Training Date</th>
+              <th>Training Time</th>
+              <th>Training Location</th>
+              <th>PD Credit Hours</th>
+              <th class="sorter-false">Register/Record Attendance</th>
+              <th class="sorter-false filter-false table-menu" style="width:10px;">
+                <div style="width:18px;height:20px;">
+                  <label class="columnSelectorButton" for="colSelect1"></label>
+                </div>
+              </th>
+            </tr>
+          </thread>
+          <tbody id="user_data_tbody"></tbody>
+        </table>
+      </div>
+      <div class="columnSelectorWrapper">
+        <input id="colSelect1" type="checkbox" class="hidden">
+        <div id="columnSelector" class="columnSelector">
+          <!-- this div is where the column selector is added -->
+        </div>
+      </div>      
+      <span id="user-pager" class="pager clearfix">
+        <form style="float:left;">
+          <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+          <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+          <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+          <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+          <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+          <select class="pagesize">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </form>
+        <span style="float:right;"></span>
+      </span>
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
+    <div class="content" id="map_show" style="height:500px;position:relative;background:#fff;padding:10px;border-radius:0;">
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-students" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="titlebar">
+      <h3 class="dialog-title">Students</h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="height:360px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+      <table width="100%" cellspacing="" cellpadding="" border="1" class="students">
+        <thead>
+          <tr><th align="left">User</th><th>Status</th><th>Attendance</th><th>Validation</th><th>Credits</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div style="padding:10px;text-align:right;">
+        <input type="button" name="" value="Download Excel" class="small download-students-excel"/>
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-add-training" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <!-- <div class="titlebar">
+    <h3 class="dialog-title">Add Training</h3>
+    <div class="close-modal" id="dialog_close">✕</div>
+    </div> -->
+    <input type="hidden" name="id" value="" />
+    <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
+      <div class="" style="width:100%;height:100%;overflow:hidden;position:relative;">
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>What training would you like to create?</h4>
+            <div class="form-row" style="font-size:12px;">
+              <input type="radio" name="type" value="pepper_course" autocomplete="off"/> <span>Pepper Course</span>
+              <div style="padding-left:2em;">
+                This option allows you to creatre<br>
+                a training for Pepper course
+              </div>
+            </div>
+            <div class="form-row" style="font-size:12px;">
+              <input type="radio" name="type" value="pd_training" autocomplete="off"/> <span>PD Training</span>
+              <div style="padding-left:2em;">
+                This option allows you<br>
+                to create a PD training
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>General Training Information</h4>
+            <div class="form-row">
+              <span class="label">District:</span>
+              <select name="district_id" autocomplate="off">
+                <option value=""></option>
+                %for item in District.objects.all().order_by("name"):
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="label">Training Name:</span>
+              <input type="text" name="name" value="" />
+            </div>
+            <div class="form-row">
+              <span class="label">Description:</span>
+              <textarea style="width:500px;height:100px;" name="description" id="" rows="" cols="" tabindex=""></textarea>
+            </div>
+            <div class="form-row">
+              <span class="label">Pepper Course:</span>
+              <select name="pepper_course" autocomplate="off">
+                <option value=""></option>
+                %for item in courses:
+                <option value="${item.id}">${item.display_name}</option>
+                %endfor                
+              </select>
+            </div>
+            <div class="form-row">
+              <span class="label">Subject:</span>
+              <select name="subject" autocomplate="off">
+                <option value=""></option>
+                <option value="AR">Assessments and Reporting</option>
+                <option value="DC">Digital Citizenship</option>
+                <option value="ELA">English Language Arts</option>
+                <option value="ELL">English Language Learners</option>
+                <option value="MA">Mathematics</option>
+                <option value="PEP">Pepper</option>
+                <option value="POW">Pepper's Online Workshops!</option>
+                <option value="SC">Science</option>
+                <option value="SE">Special Education</option>
+                <option value="TECH">Technology</option>
+                <option value="WR">Writing and Poetry</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>Configure Schedule</h4>            
+            <div class="form-row">
+              <span class="label" style="width:160px">Please Select a training date:</span>
+              <input type="" name="training_date" class="datePickText" value="" readonly='true' />
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:160px">Please Select Time:</span>
+              <input type="" name="training_time" value="" class="timePickText"/>
+            </div>
+          </div>
+        </div>
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>Configure Location</h4>
+            <div class="form-row">
+              <span class="label" style="width:200px">Please Fill in Classroom:</span>
+              <input type="" name="classroom" value="" style="width:400px"/>
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:200px">Please Select GEO Location of Training:</span>
+              <input type="" name="geo_location" value="" style="width:400px"/>
+            </div>
+            <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
+          </div>
+        </div>
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>Add/Remove Instructors</h4>
+            <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;" id="instructor_emails"></div>
+            <div class="form-row">
+              <label>Choose a instructor by email:<input type="text" name="member" id="complete-email" autocomplete="off"></label>
+              <input type="button" name="" value="Add" class="btn-add-instructor"/>
+            </div>
+          </div>
+        </div>
+        <div class="step-page">
+          <div class="step-content">
+            <h5>Configure A Training</h5>
+            <h4>Registration/Attendance Configuration</h4>
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Credit Hours:</span>
+            <input type="" name="credits" value="" />
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Training ID:</span>
+            <input type="" name="attendancel_id" value="" />
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Registration:</span>
+            <input type="checkbox" name="allow_registration" value="true" />
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
+            <input type="" name="max_registration" value="" />
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
+            <input type="checkbox" name="allow_attendance" value="true" />
+          </div>
+          <div class="form-row">
+            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+            <input type="checkbox" name="allow_validation" value="true" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+%if check_user_perms(request.user, 'pepreg'):
+<script type="text/javascript">
+  var is_admin=true;
+</script>
+%else:
+<script type="text/javascript">
+  var is_admin=false;
+</script>
+<style type="text/css" media="screen">
+ #data-table th:nth-child(1),
+ #data-table td:nth-child(1) {
+   display: none;
+ }
+</style>
+%endif
+<script type="text/javascript">
+  function PepReg($content){
+    var self=this;
+    this.$content=$content;
+    this.initContent();
+    // *** maps ***
+    var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw";
+    this.map_edit = L.map('map_edit');
+    L.tileLayer(url_tile_layer, {
+	  maxZoom: 18,
+	  attribution: '',
+	  id: 'mapbox.streets'
+    }).addTo(this.map_edit);
+    this.map_show = L.map('map_show');
+    L.tileLayer(url_tile_layer, {
+	  maxZoom: 18,
+	  attribution: '',
+	  id: 'mapbox.streets'
+    }).addTo(this.map_show);
+  }
+  PepReg.prototype.initContent=function(){
+    this.initFilter();
+    this.initTable();
+  }
+  PepReg.prototype.getInput=function(){
+    var $form = $("#dlg-add-training");
+    var json= {
+      id: $form.find("input[name=id]").val(),
+      type: $form.find("input[name=type]:checked").val(),
+      district_id: $form.find("select[name=district_id]").val(),
+      name: $form.find("input[name=name]").val(),
+      description: $form.find("textarea[name=description]").val(),
+      pepper_course: $form.find("select[name=pepper_course]").val(),
+      subject: $form.find("select[name=subject]").val(),
+      training_date: $form.find("input[name=training_date]").val(),
+      training_time: $form.find("input[name=training_time]").val(),
+      classroom: $form.find("input[name=classroom]").val(),
+      geo_location: $form.find("input[name=geo_location]").val(),
+      instructor_emails: this.getInstructors().join(","),
+      credits: $form.find("input[name=credits]").val() || 0,
+      attendancel_id: $form.find("input[name=attendancel_id]").val(),
+      allow_registration: $form.find("input[name=allow_registration]:checked").val(),
+      max_registration: $form.find("input[name=max_registration]").val() || 0,
+      allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
+      allow_validation: $form.find("input[name=allow_validation]:checked").val()
+    }
+    // json["geo_props"] =  JSON.stringify({lat: json.geo_lat, lon: json.geo_lon});
+    return json;
+  }
+  PepReg.prototype.validateAllPage=function(data){
+    var self = this;
+    var r = null;
+    $("#dlg-add-training").find(".step-page").each(function(i){
+      if(error = self.validatePage(i, data)){
+        r = {id: i, error: error};
+      }
+    });
+    return r;
+  }
+  PepReg.prototype.validatePage=function(page, data){
+    if(page==0){
+      if(!data.type){
+        return ("Please select type");
+      }
+    }else if(page==1){
+      if(!data.district_id){
+        return ("Please select district");
+      }
+      if(!data.name){
+        return ("Please input name");
+      }
+      if(!data.subject){
+        return ("Please select subject");
+      }
+      if(data.type == "pepper_course" && !data.pepper_course){
+        return ("Please select pepper course");
+      }
+    }else if(page == 2){
+      if(!data.training_date){
+        return ("Please select training date");
+      }
+      if(!data.training_time){
+        return ("Please select training time");
+      }
+    }else if(page == 3){
+    }else if(page == 4){
+    }else if(page == 5){
+      /* if(data.type == "pd_training" && !data.credits){
+         return ("Please input credits");
+         }
+         if(data.type == "pd_training" && !data.attendancel_id){
+         return ("Please input training ID");
+         }
+         if(!data.max_registration){
+         return ("Please input Maximum Registration Cap");
+         } */
+    }
+  }
+  PepReg.prototype.initForm=function(data, finishCallback){
+    var self = this;
+    var dlg = new Dialog($("#dlg-add-training"));
+    dlg.show();
+    var steps = this.steps = new StepsForm($("#dlg-add-training .content div"),
+                                           ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
+    // ************* add dlg close button to each step
+    $("<div class='close-modal' style='right:20px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function(){
+      dlg.hide();
+    });
+    // ************* before switch to another page
+    steps.onBeforeSwitch=function(curr, dest){
+      var $content = this.getContent(curr);
+      var data = self.getInput();
+      if(!this.visited(dest) && (error = self.validatePage(curr, data))){
+         return alert(error);
+      }
+      if(curr==0){
+        if(data.type == "pepper_course"){
+          $("select[name=pepper_course]").parents(".form-row").show();
+          $("input[name=attendancel_id]").parents(".form-row").hide();
+          $("input[name=credits]").parents(".form-row").hide();
+        }else{
+          $("select[name=pepper_course]").parents(".form-row").hide();
+          $("input[name=attendancel_id]").parents(".form-row").show();
+          $("input[name=credits]").parents(".form-row").show();
+        }
+      }
+      return dest==0 || this.visited(dest-1) || alert("Please finish the previous pages before switch to that page"); // return true if ready to switch
+    }
+    // ************* when finish form
+    steps.onFinish=function() {
+      finishCallback && finishCallback(self.getInput());
+    }
+    // ************* unlock pages when editing 
+    if(data && data.id){
+      steps.unlockAll();
+    }else{
+      self.clearData();
+    }
+    self.fillData(data);
+    // ************* input map
+    var hits={};
+    $('input[name=geo_location]').autocomplete({
+      select: function(e,item){
+        // console.log(item.item);
+        var hit = hits[item.item.value];
+        if(hit){
+          self.markPlace(this.map_edit, hit.lat, hit.lon, 15);
+        }
+      },
+      source: function(request, response){
+        $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
+                  {q: $('input[name=geo_location]').val()}, function(r){
+          var data=[];
+          hits = r;
+          $.each(r, function(i, v){
+            data.push(v.display_name);
+            hits[v.display_name] = v;
+          });
+          response(data);
+        });
+      }
+    });
+    // ************* input instructors
+    $(".btn-add-instructor").unbind("click").bind("click", function(){
+      var email = $("#complete-email").val();
+      $.get("${reverse('pepper_utilities_user_email_exists')}", {email:email}, function(exists){
+        var $ta=$("textarea[name=instructor_emails]")
+        if(exists){
+          self.appendInstructors(email);
+          $("#complete-email").val("");
+        }else{
+          alert("User not exists.");
+        }
+      });
+    });
+    return steps;
+  } 
+  PepReg.prototype.getInstructors=function(emails) {
+    var ar=[];
+    $("#instructor_emails").find("div").each(function(){
+      ar.push($(this).find("span").text());
+    });
+    return ar;
+  }  
+  PepReg.prototype.appendInstructors=function(emails) {
+    if(emails){
+      var curr = this.getInstructors();
+      $.each(emails.split(","), function(i,email){
+        if(email && curr.indexOf(email) < 0){
+          $("<div><span>"+email+"</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function(e){
+            e.preventDefault();
+            $(this).parent().remove();
+          });
+        }
+      });
+    }
+  }
+  PepReg.prototype.markPlace=function(map, lat, lon, zoom) {
+    var self = this;
+    map.marks = map.marks || [];
+    $.each(map.marks, function(i, m){
+      map.removeLayer(m);
+    });
+    map.setView([lat, lon], zoom);
+    var marker = L.marker([lat, lon]).addTo(map);
+    map.marks.push(marker);
+  }
+  PepReg.prototype.showPlace=function(map, place) {
+    $(map._container).hide();
+    var self = this;
+    if(place){
+      $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1', {q: place}, function(r){
+        if(r.length){
+          var data = r[0];
+          $.each(r, function(i, d){
+            if(d.display_name == place){
+              data = d;
+            }
+          });
+          self.markPlace(map, data.lat, data.lon, 10);
+        }else{
+          self.markPlace(map, 38.68551, -99.22852, 3); // to USA
+        }
+      });
+    }else{
+      self.markPlace(map, 38.68551, -99.22852, 3); // to USA
+    }
+    setTimeout(function(){
+      $(map._container).show();
+    }, 1000);
+  }
+  PepReg.prototype.fillData=function(data) {
+    var self=this;
+    data = data || {};
+    var state='${request.user.profile.district.state.name} United States';
+    this.showPlace(this.map_edit, data.geo_location || state);
+    $.each(data,function(k, v){
+      var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
+      if($entry.prop("tagName") == "INPUT" && ($entry.attr("type")=="radio" ||  $entry.attr("type")=="checkbox")){
+        $entry.prop('checked', false);
+        $entry.filter("*[value=" + v + "]").prop('checked', true);
+      }else if(k=="instructor_emails"){
+        $("#instructor_emails").html("");
+        self.appendInstructors(v);
+      }else{
+        $entry.val(v);
+      }
+    });
+  }
+  PepReg.prototype.clearData=function() {
+    var empty = {};
+    $.each(this.getInput(), function(k, v){
+      empty[k] = "";
+    });
+    this.fillData(empty);
+  }
+  PepReg.prototype.clickDeleteTraining=function(e, id){
+    var self=this;
+    e.preventDefault();
+    if(!confirm("Are you sure you want to delete the training?")){
+      return;
+    }
+    $.post("${reverse('pepreg_delete_training')}", {id:id}, function(r){
+      if(r.success){
+        self.reloadTable();
+      }
+    });
+  }
+  PepReg.prototype.clickEditTraining=function(e, id){
+    var self=this;
+    e.preventDefault();
+    $.get("${reverse('pepreg_training_json')}",{id:id},function(r){
+      r.instructor_emails = r.instructor_emails.join(",");
+      self.initForm(r, function(data){
+        if(einfo = self.validateAllPage(data)){
+          alert(einfo.error);
+          self.steps.switchTo(einfo.id)
+          return;
+        }
+        $.post("${reverse('pepreg_save_training')}", data, function(r){
+          if(r.success){
+            $("#dlg-add-training").hide();
+            $(".lean-overlay").hide();
+            self.reloadTable();
+          }
+        });
+      });
+    });
+  }
+  PepReg.prototype.reloadTable=function(){
+    var t=this.$content.find('#data-table')[0];
+    var c=t.config;
+    var p=c.pager;
+    p=$.extend(p, p.last);
+    p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+    p.reload();
+  };  
+  PepReg.prototype.addTraining=function(){
+    var self = this;
+    var steps = this.initForm({district_id:${request.user.profile.district_id}}, function(data){
+      // submit
+      if(einfo = self.validateAllPage(data)){
+        alert(einfo.error);
+        self.steps.switchTo(einfo.id);
+        return;
+      }
+      $.post("${reverse('pepreg_save_training')}", data, function(r){
+        if(r.success){
+          $("#dlg-add-training").hide();
+          $(".lean-overlay").hide();
+          self.reloadTable();
+        }
+      });
+    });
+    return false;
+  }
+  PepReg.prototype.registerUser=function(training_id, join){
+    var self = this;
+    $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function(r){
+      if(r.success){
+        //self.reloadTable();
+      }
+    });
+  }
+  PepReg.prototype.setStudentAttended=function(student_id, training_id, yn, cb){
+    var self = this;
+    $.post("${reverse('pepreg_set_student_attended')}", {student_id:student_id, training_id: training_id, yn: yn}, function(r){
+      if(r.success){
+        cb && cb(r.data);
+      }
+    });
+  }
+  PepReg.prototype.setStudentValidated=function(student_id, training_id, yn, cb){
+    var self = this;
+    $.post("${reverse('pepreg_set_student_validated')}", {student_id:student_id, training_id: training_id, yn: yn}, function(r){
+      if(r.success){
+        cb && cb(r.data);
+      }
+    });
+  }
+  PepReg.prototype.deleteStudent=function(id, cb){
+    var self = this;
+    $.post("${reverse('pepreg_delete_student')}", {id:id}, function(r){
+      if(r.success){
+        cb && cb(r.data);
+      }
+    });
+  }  
+  PepReg.prototype.fillString=function(s, data){
+    return s.replace(/\{(.+?)\}/g, function(a, b){
+      return data[b];
+    });
+  }
+  PepReg.prototype.initFilter=function(){
+    var self=this;
+    function filterOptions(item, id) {
+      if ($(item).attr("class") != id) {
+        $(item).css("display", "none");
+      } else {
+        $(item).css("display", "");
+      }
+      if (id == "null_case" || $(item).attr("class") == "null_case") {
+        $(this).css("display", "");
+      }
+    }
+    $("#state_select").change(function () {
+      var id = $(this).children(":selected").attr("class");
+      $("#district_select > option").each(function() {
+        filterOptions(this, id)
+      });
+    });
+  };
+  PepReg.prototype.showStudents=function(training_id){
+    var self = this;
+    $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function(r){
+      if(r.success){
+        var dlg = new Dialog($("#dlg-students"));
+        dlg.show("Student Information for " + r.training_name);
+        $tbody = $("#dlg-students").find("tbody").empty();
+        function fillRow($r, data){
+          data.is_attended=data.is_attended?"checked":"";
+          data.is_validated=data.is_validated?"checked":"";
+          data.student_credit=data.student_credit?data.student_credit+" hours":"0";
+          var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+<td><input type='checkbox' name='is_attended' {is_attended}/></td>\
+<td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>",data));
+          if($r)$r.replaceWith($row);
+          if(!r.allow_attendance)
+            $row.find("input[name=is_attended").remove();
+          if(!r.allow_validation)
+            $row.find("input[name=is_validated").remove();
+          if(r.allow_attendance){
+            if(data.is_attended)
+              $row.find("input[name=is_validated]").show();
+            else
+              $row.find("input[name=is_validated]").hide();
+          }
+          $row.find("a").css("color", "red");
+          $row.find("a").css("cursor", "pointer");
+          $row.find("a").click(function(e){
+            e.preventDefault();
+            if(confirm("Really delete the student?")){
+              self.deleteStudent(data.id, function(){
+                $row.remove();
+              });
+            }
+          });
+          $row.find("input[name=is_attended]").change(function(){
+            var me=this;
+            self.setStudentAttended(data.student_id, r.training_id, this.checked, function(data){
+              if(data)
+                fillRow($row, data);
+              else
+                $row.remove();
+            });
+          });
+          $row.find("input[name=is_validated]").change(function(){
+            var me=this;
+            self.setStudentValidated(data.student_id, r.training_id, this.checked, function(data){
+              fillRow($row, data);
+            });
+          });
+          return $row;
+        }
+        $.each(r.rows, function(i, data){
+          fillRow(null, data).appendTo($tbody);
+        });
+        $(".download-students-excel").unbind("click").click(function(){
+          window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
+        });
+      }
+    });
+  }
+  PepReg.prototype.showMap=function(geo_location){
+    this.showPlace(this.map_show, geo_location);
+    new Dialog($("#dlg-map")).show();
+    // window.open('${reverse('pepreg_map')}' + "?training_id="+training_id, '_blank');
+  }
+  PepReg.prototype.initTable=function(){
+    var self=this;
+    var pagerOptions = {
+      container: '',
+      output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+      fixedHeight: false,
+      removeRows: false,
+      cssGoto: '.gotoPage',
+      ajaxUrl: '',
+      ajaxProcessing: function(data){
+        return data;
+      },
+      processAjaxOnInit: true,
+      page: 0,
+      size: 10
+    };
+    var tablesorterOptions = {
+      debug: false,
+      theme: 'blue',
+      widthFixed: true,
+      widgets: ["zebra", "filter", "output", "columnSelector"],
+      widgetOptions: {
+        filter_external: '',
+        filter_columnFilters: false,
+        filter_placeholder: {search: 'Search...'},
+        filter_saveFilters: true,
+        filter_reset: '.reset',
+        filter_serversideFiltering: true,
+        output_saveFileName: 'data.csv',
+        columnSelector_container: $('#columnSelector'),
+        columnSelector_columns: {0: 'disable', 11: 'disable'},
+        columnSelector_mediaqueryName: 'All: '
+      }
+    };
+    /* if(!is_admin){
+       tablesorterOptions.widgetOptions.columnSelector_columns[1] = 'disable';
+       tablesorterOptions.widgetOptions.columnSelector_columns[2] = 'disable';
+       } */
+    tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
+    pagerOptions.container = this.$content.find("#user-pager");
+    pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
+    this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+    if(is_admin)
+      $("#data-table").trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11]]);
+    else{
+      $("#data-table").trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10]]);
+    }
+   $("#data-table").bind("pagerComplete", function() {
+      // Training Name
+      $(this).find("td:nth-child(6)").each(function(){
+        var training_id = $(this).parent().find("input[name=id]").val();
+        $(this).css("color","#1d9dd9");
+        $(this).css("cursor","pointer");
+        $(this).click(function(){
+          self.showStudents(training_id);
+        });
+      });
+     // location
+      $(this).find("td:nth-child(9)").each(function(){
+        var training_id = $(this).parent().find("input[name=id]").val();
+        $(this).css("color","#1d9dd9");
+        $(this).css("cursor","pointer");
+        $(this).click(function(){
+          self.showMap($(this).text());
+        });
+      });
+      // Register/Record Attendance
+      $(this).find("td:nth-child(11)").each(function(){
+        var apart = $(this).html().split(",");
+        var training_id = apart[0];
+        var arrive = apart[1];
+        var status = apart[2];
+        var allow = apart[3];
+        var attendancel_id = apart[4];
+        if(arrive == "0" && allow == "0"){
+          $(this).html("The training date has not arrived yet.");
+        }else if (arrive == "0" && allow == "1"){
+          var $check = $("<input type='checkbox'> <span>I would like to register for the training</span>").appendTo($(this).empty());
+          $check.prop('checked', status == "Registered");
+          $check.click(function(){
+            self.registerUser(training_id, this.checked);
+          });
+        }else if (arrive == "1"){
+          var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
+          $check.prop('checked', status == "Attended" || status == "Validated");
+          $check.change(function(){
+            if(this.checked){
+              $input.show();
+              $button.show();
+            }else{
+              self.setStudentAttended(${request.user.id},training_id, false, function(){
+                alert("Success");
+              });
+              $input.hide();
+              $button.hide();
+            }
+          });
+          var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
+          /// $input.val(attendancel_id);
+          var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
+          $button.click(function(){
+            if(attendancel_id==$input.val()){
+              self.setStudentAttended(${request.user.id},training_id, true, function(){
+                $input.hide();
+                $button.hide();                
+                alert("Success");
+              });
+            }else{
+              alert("It's a wrong ID.");
+            }
+          });
+        }else if (arrive == "1" && status == ""){
+          $(this).html("The registration date has passed for this training");
+        }else{
+          $(this).html("");
+        }
+      });
+    });
+  };
+  PepReg.prototype.reloadTable=function(){
+    var t=this.$content.find('#data-table')[0];
+    var c=t.config;
+    var p=c.pager;
+    p=$.extend(p, p.last);
+    p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+    p.reload();
+  };
+  PepReg.prototype.getSelectedIds=function(){
+    var ids = [];
+    this.$content.find("table .select_box:checked").each(function () {
+      ids.push($(this).val());
+    });
+    return ids;
+  };
+  $(document).ready(function(){
+    //** init controller
+    window.pepreg=new PepReg($(".expand_div").eq(0));
+    //** init expand title
+    $(".expand_title").click(function(){
+      var $div=$(this).next("div.expand_div");
+      if($div.is(':visible')){
+        $div.slideUp();
+        $(this).removeClass("expand_title_expanded");
+      }else{
+        $div.slideDown();
+        $(this).addClass("expand_title_expanded");
+      }
+    });
+    $(".expand_title").click()    
+  });
+</script>
+<script type="text/javascript">
+  $.datepicker.setDefaults({
+    showButtonPanel: true,
+    closeText: 'Clear',
+    currentText: 'Today',
+    beforeShow: function (input, inst) {
+      datepicker_CurrentInput = input;
+  }});  
+  $(".ui-datepicker-close").live("click", function () {  
+    $(datepicker_CurrentInput).val("");
+    $(datepicker_CurrentInput).change();
+  });
+  $('.datePickText,input[name=training_data]').datepicker({ 
+    autoSize: true ,         
+    gotoCurrent: true,       
+    firstDay: 2,             
+    minDate: new Date(),     
+    hideIfNoPrevNext: true,  
+    navigationAsDateFormat: true,
+    showOtherMonths: true,   
+    selectOtherMonths: false, 
+    stepMonths: 1,           
+    changeMonth: true,       
+    numberOfMonths: [1, 1],  
+    showCurrentAtPos: 0, 
+    showAnim: "",  
+    showWeek: true,
+    dateFormat: 'mm/dd/yy',
+    currentText: 'Today',
+  });
+</script>
+<script type="text/javascript">
+  $('.timePickText').timeDropper();
+  $(document).ready(function(){
+    $('.columnSelectorButton').click(function(e){
+      if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+        $('.columnSelector').show();
+      } else {
+        $('.columnSelector').hide();
+      }
+    });
+  });
+  $(document).click(function(e){
+    var isout = !$('.columnSelectorWrapper').find(e.target).length;
+    if($('.columnSelector').is(":visible")){
+      if(isout && e.target.className != 'columnSelectorButton') {
+        $('.columnSelector').hide();
+      }
+    }
+  });
+  // $('#complete-email').autocomplete('/pepper-utilities/user/email-completion', {remoteDataType: 'json'});
+  $('#complete-email').autocomplete({
+    source: function(request, response){
+      $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
+    }
+  });
+</script>
