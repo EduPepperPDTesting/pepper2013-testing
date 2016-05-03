@@ -352,7 +352,6 @@
             <div id="discussion_post" class="discussion-body">${discussion.post}</div>
             <span><textarea id="editable_post" style="display:none">${discussion.post}</textarea></span>
             <span id="edit_buttons" style="display:none"><br>
-                <span id="editSaveMessage" style="display:none;">Edited Post Successfully.<br></span>
                 <input type="button" onclick="discussionEditSave()" class="small" value="Save"></input>
                 <input type = "button" onclick="editDiscussion()" class="small" value="Cancel"></input>
             </span>
@@ -423,12 +422,14 @@
                 %if request.user.is_superuser or \
                     is_facilitator(request.user, discussion.community) or \
                     request.user.id == reply.user.id:
+                    <img class = "edit-icon" onclick="editReply(${reply.id})" src="/static/images/pencil_edit.png" alt="Edit Discussion">
                     <a class="delete-icon delete-reply" href="${reverse('community_discussion_reply_delete', args=[reply.id])}">
                         <img src="/static/images/trash-small.png" alt="Delete Discussion">
                     </a>
                 %endif
                 <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
-                <h2>${reply.subject}</h2>
+                <h2 id = "reply_subject_${reply.id}">${reply.subject}</h2>
+                <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"></input><br></span>
                 %if reply.attachment:
                     <div class="discussion-download"><span>Attachment: </span>
                         <a href="${get_file_url(reply.attachment)}" target="_blank">
@@ -438,7 +439,22 @@
                 %endif
                 <div class="discussion-byline"><span>Posted By: </span>${reply.user.first_name} ${reply.user.last_name}</div>
                 <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=reply.date_create)}</div>
-                <div class="discussion-body">${reply.post}</div>
+                <div id = "reply_post_${reply.id}" class="discussion-body">${reply.post}</div>
+                <span><textarea id="editable_reply_post_${reply.id}" style="display:none">${reply.post}</textarea></span>
+                <span id="reply_edit_buttons_${reply.id}" style="display:none"><br>
+                    <input type="button" onclick="replyEditSave(${reply.id})" class="small" value="Save"></input>
+                    <input type = "button" onclick="editReply(${reply.id})" class="small" value="Cancel"></input>
+                </span>
+                <script>
+                    CKEDITOR.replace( 'editable_reply_post_${reply.id}', {
+                        on: {
+                            instanceReady: function( evt ) {
+                                $("#cke_editable_reply_post_${reply.id}").toggle();
+                                $("#cke_editable_reply_post_${reply.id}").css("margin-top", "30px");
+                            }
+                        }
+                    });
+                </script>
                 <div class="discussion-actions"></div>
             </div>
         %endfor
@@ -531,14 +547,31 @@
         $("#edit_buttons").toggle();
         $("#discussion_post").toggle();
     }
+    function editReply(id){
+        $("#editable_reply_subject_"+id).toggle();
+        $("#reply_subject_"+id).toggle();
+        $("#cke_editable_reply_post_"+id).toggle();
+        $("#reply_edit_buttons_"+id).toggle();
+        $("#reply_post_"+id).toggle();
+    }
+    function replyEditSave(id){
+        for(var instanceName in CKEDITOR.instances)
+            CKEDITOR.instances[instanceName].updateElement();
+        subject=$("#editable_reply_subject_"+id).val();
+        post=$("#editable_reply_post_"+id).val();
+        $.post("${reverse('community_reply_edit')}", {id:id,subject:subject, post:post}, function(r){
+            editReply(id);
+            $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
+            $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
+        });
+    }
     function discussionEditSave(){
         for(var instanceName in CKEDITOR.instances)
             CKEDITOR.instances[instanceName].updateElement();
         subject=$("#editable_subject").val();
         post=$("#editable_post").val();
         $.post("${reverse('community_discussion_edit')}", {id:${discussion.id},subject:subject, post:post}, function(r){
-            $("#editSaveMessage").toggle();
-            $("#editSaveMessage").css("color", "green");
+            editDiscussion();
             $("#discussion_subject").text($("#editable_subject").val());
             $("#discussion_post").html($("#editable_post").val());
         });
