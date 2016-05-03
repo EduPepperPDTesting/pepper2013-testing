@@ -975,8 +975,9 @@ from datetime import date
                 window.location.href = continue_url;
             });
         });
-        $("#newDiscussionButton").click(function(){
-            scroll(0,0);
+        $("#newDiscussionButton").click(function(e){
+            e.preventDefault();
+            scroll(0,0)
         });
         $('#skype-start').click(function(e) {
             e.preventDefault();
