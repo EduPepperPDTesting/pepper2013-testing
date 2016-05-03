@@ -539,6 +539,8 @@
         $.post("${reverse('community_discussion_edit')}", {id:${discussion.id},subject:subject, post:post}, function(r){
             $("#editSaveMessage").toggle();
             $("#editSaveMessage").css("color", "green");
+            $("#discussion_subject").text($("#editable_subject").val());
+            $("#discussion_post").html($("#editable_post").val());
         });
     }
     function joinMe(){
