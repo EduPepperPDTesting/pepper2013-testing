@@ -433,6 +433,16 @@ def discussion_edit(request):
 
 
 @login_required
+def reply_edit(request):
+    reply = CommunityDiscussionReplies.objects.get(id=request.POST.get('id'))
+    reply.subject = request.POST.get('subject')
+    reply.post = request.POST.get('post')
+    reply.save()
+    data = {'Success': True}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@login_required
 def discussion(request, discussion_id):
     discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
