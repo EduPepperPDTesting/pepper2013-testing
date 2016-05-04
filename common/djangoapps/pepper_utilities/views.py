@@ -1,6 +1,5 @@
 from student.models import State, District, School, Cohort, User
-from django.http import HttpResponse
-import json
+from .utils import render_json_response
 
 
 def drop_states(request):
@@ -13,7 +12,7 @@ def drop_states(request):
             data = State.objects.filter(id=request.user.profile.district.state.id)
         for item in data:
             r.append({'id': item.id, 'name': item.name})
-    return HttpResponse(json.dumps(r), content_type='application/json')
+    return render_json_response(r)
 
 
 def drop_districts(request):
@@ -38,7 +37,7 @@ def drop_districts(request):
 
         for item in data:
             r.append({'id': item.id, 'name': item.name, 'code': item.code})
-    return HttpResponse(json.dumps(r), content_type='application/json')
+    return render_json_response(r)
 
 
 def drop_schools(request):
@@ -63,7 +62,7 @@ def drop_schools(request):
 
         for item in data:
             r.append({'id': item.id, 'name': item.name})
-    return HttpResponse(json.dumps(r), content_type='application/json')
+    return render_json_response(r)
 
 
 def drop_cohorts(request):
@@ -79,7 +78,7 @@ def drop_cohorts(request):
 
     for item in data:
         r.append({'id': item.id, 'code': item.code})
-    return HttpResponse(json.dumps(r), content_type='application/json')
+    return render_json_response(r)
 
 
 def user_email_completion(request):
@@ -89,4 +88,4 @@ def user_email_completion(request):
         data = User.objects.filter(email__istartswith=lookup)
         for item in data:
             r.append(item.email)
-    return HttpResponse(json.dumps(r), content_type='application/json')
+    return render_json_response(r)
