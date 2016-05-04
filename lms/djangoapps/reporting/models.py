@@ -29,6 +29,7 @@ class Views(models.Model):
     class Meta:
         db_table = 'reporting_views'
     name = models.CharField(blank=False, max_length=255, db_index=True)
+    description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     collection = models.CharField(blank=False, max_length=255, db_index=True)
 
 

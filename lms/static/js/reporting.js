@@ -1,3 +1,39 @@
+var pagerOptions = {
+    container: '',
+    // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
+    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    fixedHeight: false,
+    removeRows: false,
+    page: 0,
+    size: 10,
+    ajaxUrl: null,
+    customAjaxUrl: function(table, url) { return url; },
+    ajaxObject: { dataType: 'json' },
+    ajaxProcessing: null,
+    processAjaxOnInit: true,
+    pageReset: 0,
+    countChildRows: false,
+    cssNext: '.next', // next page arrow
+    cssPrev: '.prev', // previous page arrow
+    cssFirst: '.first', // go to first page arrow
+    cssLast: '.last', // go to last page arrow
+    cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+    cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+    cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+    cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+    cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+};
+var tablesorterOptions = {
+    theme: 'blue',
+    widthFixed: true,
+    widgets: ["zebra", "filter"],
+    widgetOptions: {
+        filter_columnFilters: true,
+        filter_placeholder: {search: 'Search...'},
+        filter_saveFilters: false
+    }
+};
+
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
@@ -121,16 +157,60 @@ function expandTitle() {
     });
 }
 
-function submitHandler(form, success_url) {
+function submitHandler(form, success_url, placeholder) {
     $(form).submit(function (e) {
         e.preventDefault();
         // TODO: add the error checking here.
         $.post($(this).attr('action'), $(this).serialize(), function (data) {
             if (data.success) {
-                window.location = success_url.replace('placeholder', data.report_id);
+                if (success_url) {
+                    if (placeholder) {
+                        window.location = success_url.replace('placeholder', data.report_id);
+                    } else {
+                        window.location = success_url
+                    }
+                } else {
+                    alert('The operation was carried out successfully.');
+                }
             } else {
-                new Dialog('#dialog').show('Error Saving Report', 'The report did not save successfully. The error was: ' + data.error);
+                alert('The report did not save successfully. The error was: ' + data.error);
             }
         });
     });
+}
+
+function submitButton(selector, target) {
+    $(selector).click(function (e) {
+        e.preventDefault();
+        $(target).trigger('submit');
+    });
+}
+
+function selectAll(trigger_selector, target_selector) {
+    $(trigger_selector).change(function () {
+        var checked = false;
+        if ($(this).is(':checked')) {
+            checked = true;
+        }
+        $(target_selector).each(function () {
+            $(this).prop('checked', checked);
+        });
+    });
+}
+
+function addView(url) {
+    $('.add-new-view').click(function (e) {
+        e.preventDefault();
+        var dialog = new Dialog('#dialog');
+        var content = '<form id="add-view-form" action="' + url + '">';
+        content += '<label>View Name:<input name="view_name" type ="text"></label>';
+        content += '<label>View Description:<input name="description" type="text"></label>';
+        content += '<label>Columns:<div class="single-line"><input name="column_name[0]" type="text"><input name="" type="text"><input type="button" value="+"></div></label>';
+        content += '</form>';
+        dialog.show('Add New View', content);
+    });
+}
+
+function addRelationship(url) {
+
 }

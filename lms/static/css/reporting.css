@@ -148,6 +148,7 @@
     text-align: center;
     font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
     padding: 35px 5px 5px 5px;
+    text-decoration: none;
 }
 #reporting .add-new {
     background: transparent url(../images/icons/add_new.png) center top/32px 32px no-repeat;
@@ -161,7 +162,23 @@
 #reporting .manage:hover {
     background: transparent url(../images/icons/manage_mo.png) center top/32px 32px no-repeat;
 }
-
+#reporting .edit-views {
+    float: right;
+    background: transparent url(../images/icons/edit_view.png) center top/32px 32px no-repeat;
+}
+#reporting .edit-views:hover {
+    background: transparent url(../images/icons/edit_view_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .delete {
+    float: right;
+    background: transparent url(../images/icons/delete.png) center top/32px 32px no-repeat;
+}
+#reporting .delete:hover {
+    background: transparent url(../images/icons/delete_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .add-new-view, #reporting .add-new-relationship {
+    float: right;
+}
 
 /* New report specific */
 #reporting .add-area {
@@ -203,14 +220,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-#reporting .sql-area, #reporting .column-selector, #reporting .where-selector, #reporting .view-selector, #reporting .report-name {
+#reporting .edit-block {
     clear: both;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
     background-color: #ccc;
 }
-#reporting .sql-area h2, #reporting .column-selector h2, #reporting .where-selector h2, #reporting .view-selector h2, #reporting .report-name h2 {
+#reporting .edit-block h2 {
     border-radius: 10px 10px 0 0;
     padding: 5px 20px;
     margin: -20px -20px 20px -20px;
@@ -240,4 +257,9 @@
 }
 #reporting .sql-area input {
     float: right;
+}
+
+.view-edit img {
+    height: 16px;
+    width: 16px;
 }

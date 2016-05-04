@@ -167,3 +167,61 @@ def view_columns(request):
                      'name': column.view.name + '.' + column.name,
                      'description': column.description})
     return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def views_edit(request):
+    views = Views.objects.all().order_by('name')
+    columns = ViewColumns.objects.all().order_by('name')
+    relationships = ViewRelationships.objects.select_related().all()
+
+    data = {'views': views,
+            'columns': columns,
+            'relationships': relationships}
+    return render_to_response('reporting/edit-views.html', data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def view_add(request):
+    pass
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def relationship_add(request):
+    pass
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def views_delete(request):
+    view_ids = get_request_array(request.POST, 'view_id')
+    try:
+        Views.objects.filter(id__in=view_ids.values()).delete()
+        data = {'success': True}
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        transaction.commit()
+    return render_json_response(data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def relationships_delete(request):
+    relationship_ids = get_request_array(request.POST, 'relationship_id')
+    try:
+        ViewRelationships.objects.filter(id__in=relationship_ids.values()).delete()
+        data = {'success': True}
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        transaction.commit()
+    return render_json_response(data)

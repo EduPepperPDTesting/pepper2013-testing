@@ -10,7 +10,7 @@
 
 <div id="reporting">
     <form id="report-edit" action="${reverse('reporting_report_save', args=['new' if action == 'new' else report.id])}">
-        <div class="report-name">
+        <div class="edit-block report-name">
             <h2>Report</h2>
             %if action == 'edit':
                 <input type="text" name="report_name" value="${report.name}"/>
@@ -25,7 +25,7 @@
             <input type="submit" value="Save" class="report-button" id="report-save"><!-- TODO: JS handler for this -->
             <!--<input type="submit" value="Preview" class="report-button">-->
         </div>
-        <div class="view-selector">
+        <div class="edit-block view-selector">
             <h2>Select Views</h2>
             %if action == 'new':
                 <select class="view-select" name="view[0]">
@@ -49,7 +49,7 @@
                 %endfor
             %endif
         </div>
-        <div class="column-selector">
+        <div class="edit-block column-selector">
             <h2>Select Columns</h2>
             %if action == 'edit':
                 <ul>
@@ -69,7 +69,7 @@
             %endif
             <div class="clearfix"></div>
         </div>
-        <div class="where-selector">
+        <div class="edit-block where-selector">
             <h2>Select Filters</h2>
             %if action == 'edit':
                 %for view_filter in report_filters:
@@ -123,7 +123,7 @@
                 </div>
             %endif
         </div>
-        <div class="sql-area">
+        <div class="edit-block sql-area">
             <h2>SQL Statement</h2>
             <input type="button" value="Edit"/>
             <textarea disabled="disabled"></textarea>
@@ -144,6 +144,6 @@
     $(document).ready(function () {
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
-        submitHandler('#report-edit', '${reverse('reporting_report', args=['placeholder'])}');
+        submitHandler('#report-edit', '${reverse('reporting_report', args=['placeholder'])}', true);
     });
 </script>
