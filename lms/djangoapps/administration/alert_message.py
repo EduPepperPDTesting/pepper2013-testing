@@ -30,8 +30,8 @@ from models import *
 # from pytz import UTC
 # import urllib
 
-
 # log = logging.getLogger("tracking")
+
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -56,6 +56,8 @@ def main(request):
     return render_to_response("administration/alert_message.html", {"alert_text": al_text, "alert_enabled": al_enabled})
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def alert_message_post(request):
     al_text = ""
     al_enabled = ""
