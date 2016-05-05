@@ -70,10 +70,12 @@ urlpatterns = (
     url(r'^reporting/views/edit$', 'reporting.views.views_edit', name='reporting_views_edit'),
     url(r'^reporting/views/add$', 'reporting.views.view_add', name='reporting_view_add'),
     url(r'^reporting/views/delete$', 'reporting.views.views_delete', name='reporting_views_delete'),
+    url(r'^reporting/views/list$', 'reporting.views.views_list', name='reporting_views_list'),
     url(r'^reporting/views/relationships/add$', 'reporting.views.relationship_add', name='reporting_relationship_add'),
     url(r'^reporting/views/relationships/delete$', 'reporting.views.relationships_delete', name='reporting_relationships_delete'),
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
+    url(r'^reporting/views/columns/list$', 'reporting.views.view_columns_list', name='reporting_view_columns_list'),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),

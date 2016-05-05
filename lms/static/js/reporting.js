@@ -198,16 +198,43 @@ function selectAll(trigger_selector, target_selector) {
     });
 }
 
-function addView(url) {
+function updateColumnSelect(view) {
+    $.get(column_list_url, {view: view}, function (data) {
+        var content = '';
+        $.each(data, function (index, value) {
+            content += '<option value="' + value + '">' + value + '</option>';
+        });
+        $('.column-source').html(content);
+    });
+}
+
+function addView() {
     $('.add-new-view').click(function (e) {
         e.preventDefault();
-        var dialog = new Dialog('#dialog');
-        var content = '<form id="add-view-form" action="' + url + '">';
-        content += '<label>View Name:<input name="view_name" type ="text"></label>';
-        content += '<label>View Description:<input name="description" type="text"></label>';
-        content += '<label>Columns:<div class="single-line"><input name="column_name[0]" type="text"><input name="" type="text"><input type="button" value="+"></div></label>';
-        content += '</form>';
-        dialog.show('Add New View', content);
+        $.get(view_list_url, function (data) {
+            var dialog = new Dialog('#dialog');
+            var content = '<div id="add-view-wrapper">';
+            content += '<form id="add-view-form" action="' + add_view_url + '">';
+            content += '<label>View Name:<input name="view_name" type ="text"></label>';
+            content += '<label>View Description:<input name="description" type="text"></label>';
+            content += '<label>View Source:<select name="view_source">';
+            $.each(data, function (index, value) {
+                content += '<option value="' + value + '">' + value + '</option>';
+            });
+            content += '</select></label>';
+            content += '<label>Columns:<div class="single-line">';
+            content += '<input name="column_name[0]" type="text">';
+            content += '<input name="column_description[0]" type="text">';
+            content += '<select class="column-source" name="column_source[0]"><option value=""> </option></select>';
+            content += '<input type="button" value="+">';
+            content += '</div></label>';
+            content += '</form>';
+            content += '</div>';
+            dialog.show('Add New View', content);
+            $('#view-source').change(function () {
+                updateColumnSelect($(this).val())
+            })
+        });
     });
 }
 

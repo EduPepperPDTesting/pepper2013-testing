@@ -122,6 +122,10 @@
     </div>
 </div>
 <script type="text/javascript">
+    var view_list_url = '${reverse('reporting_views_list')}';
+    var column_list_url = '${reverse('reporting_view_columns_list')}';
+    var add_view_url = '${reverse('reporting_view_add')}';
+    var add_relationship_url = '${reverse('reporting_relationship_add')}';
     $(document).ready(function () {
         pagerOptions.container = $("#views-pager");
         $('#views-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
@@ -138,7 +142,7 @@
         submitButton('.delete-views', '#views-delete');
         submitButton('.delete-relationships', '#relationships-delete');
 
-        addView('${reverse('reporting_view_add')}');
-        addRelationship('${reverse('reporting_relationship_add')}');
+        addView();
+        addRelationship();
     });
 </script>

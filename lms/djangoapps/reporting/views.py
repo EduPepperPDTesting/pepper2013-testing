@@ -225,3 +225,21 @@ def relationships_delete(request):
     else:
         transaction.commit()
     return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def views_list(request):
+    view_list = list()
+
+    # TODO: Need to get mongo3 set up so we can get a list of views here
+
+    return render_json_response(view_list)
+
+@user_has_perms('reporting', 'administer')
+def view_columns_list(request):
+    view_column_list = list()
+    view = request.GET.get('view', False)
+
+    # TODO: Need to get mongo3 set up so we can get a list of columns here
+
+    return render_json_response(view_column_list)
