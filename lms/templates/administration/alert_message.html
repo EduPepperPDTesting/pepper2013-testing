@@ -112,7 +112,7 @@ from administration.models import site_setting_store
 
         var txt_alert_message = document.getElementById('alert_text');
         txt_alert_message.oninput = function() {
-            $("#div_remainder_character").html("Maximum 2,000 Characters. " + (2000-txt_alert_message.value.length).toString() + ' used.');
+            $("#div_remainder_character").html("Maximum 2,000 Characters. " + (2000-txt_alert_message.value.length).toString() + ' left.');
         };
         txt_alert_message.oninput();
     });
