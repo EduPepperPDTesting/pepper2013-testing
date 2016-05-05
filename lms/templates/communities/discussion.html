@@ -429,7 +429,7 @@
                 %endif
                 <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
                 <h2 id = "reply_subject_${reply.id}">${reply.subject}</h2>
-                <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"></input><br></span>
+                <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"><br></span>
                 %if reply.attachment:
                     <div class="discussion-download"><span>Attachment: </span>
                         <a href="${get_file_url(reply.attachment)}" target="_blank">
@@ -442,8 +442,8 @@
                 <div id = "reply_post_${reply.id}" class="discussion-body">${reply.post}</div>
                 <span><textarea id="editable_reply_post_${reply.id}" style="display:none">${reply.post}</textarea></span>
                 <span id="reply_edit_buttons_${reply.id}" style="display:none"><br>
-                    <input type="button" onclick="replyEditSave(${reply.id})" class="small" value="Save"></input>
-                    <input type = "button" onclick="editReply(${reply.id})" class="small" value="Cancel"></input>
+                    <input type="button" onclick="replyEditSave(${reply.id})" class="small" value="Save">
+                    <input type = "button" onclick="editReply(${reply.id})" class="small" value="Cancel">
                 </span>
                 <script>
                     CKEDITOR.replace( 'editable_reply_post_${reply.id}', {
