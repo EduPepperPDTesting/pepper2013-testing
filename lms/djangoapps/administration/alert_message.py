@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 # from django.db.models import Q
 
-# from administration.models import site_setting_store
+from administration.models import site_setting_store
 
 # from django.contrib.auth.models import User
 # from django import db
