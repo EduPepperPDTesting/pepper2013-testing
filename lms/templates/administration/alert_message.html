@@ -64,60 +64,56 @@ from administration.models import site_setting_store
   </div>
 </div>
 <script type="text/javascript">
-$(function(){
-var al_enabled_js = "${alert_enabled}";
+    $(function() {
+        var al_enabled_js = "${alert_enabled}";
 
-if(al_enabled_js == "enabled"){
-  $("#alert_enabled").prop('checked',true);
-}
-else{
-  $("#alert_enabled").prop('checked',false);
-}
+        if (al_enabled_js == "enabled"){
+            $("#alert_enabled").prop('checked',true);
+        } else {
+            $("#alert_enabled").prop('checked',false);
+        }
 
 
-$(".expand_title").click(function(){
-  $(".expand_div").slideToggle("slow",function(){});
-});
-$("#filter_form").submit(function(){
-      $('#btn_save_alert').attr("disabled",true);
-      var al_text = $(this.alert_text).val();
-      var al_enabled = "";
-    
-      if(trim_start_end(al_text) == ""){
-        al_text = "__NONE__";
-      }
-      
-      if($("#alert_enabled").prop('checked')){
-        al_enabled = "enabled"
-      }
-      else{
-        al_enabled = "un_enabled"
-      }
-      $.post('${reverse("alert_message_post")}',{"alert_text":al_text,"alert_enabled":al_enabled},
-             function(data) {
-              $("#alert_text").val(data.alert_text);
-              if(data.alert_enabled == "enabled"){
-                $("#alert_enabled").prop('checked',true)
-              }
-              else{
-                $("#alert_enabled").prop('checked',false)
-              }
+        $(".expand_title").click(function() {
+            $(".expand_div").slideToggle("slow",function(){});
+        });
+        $("#filter_form").submit(function() {
+            $('#btn_save_alert').attr("disabled",true);
+            var al_text = $(this.alert_text).val();
+            var al_enabled = "";
 
-              alert("Save Success.");
-              $('#btn_save_alert').attr("disabled",false);
-             },"json");
-      return false;
+            if (trim_start_end(al_text) == "") {
+                al_text = "__NONE__";
+            }
+
+            if ($("#alert_enabled").prop('checked')) {
+                al_enabled = "enabled"
+            } else {
+                al_enabled = "un_enabled"
+            }
+            $.post('${reverse("alert_message_post")}', {"alert_text":al_text, "alert_enabled":al_enabled},
+                    function(data) {
+                        $("#alert_text").val(data.alert_text);
+                        if (data.alert_enabled == "enabled") {
+                            $("#alert_enabled").prop('checked',true)
+                        } else {
+                            $("#alert_enabled").prop('checked',false)
+                        }
+
+                        alert("Save Success.");
+                        $('#btn_save_alert').attr("disabled",false);
+                    },"json");
+            return false;
+        });
+
+        function trim_start_end(str) {
+            return str.replace(/(^\s*)|(\s*$)/g, "");
+        }
+
+        var txt_alert_message = document.getElementById('alert_text');
+        txt_alert_message.oninput = function() {
+            $("#div_remainder_character").html("Maximum 2,000 Characters. " + (2000-txt_alert_message.value.length).toString() + ' used.');
+        };
+        txt_alert_message.oninput();
     });
-
-function trim_start_end(str)
-{ 
-  return str.replace(/(^\s*)|(\s*$)/g, ""); 
-}
-
-var txt_alert_message = document.getElementById('alert_text');
-txt_alert_message.oninput=function(){
-  $("#div_remainder_character").html("Maximum to 2,000 Characters " + (2000-txt_alert_message.value.length).toString());
-}
-txt_alert_message.oninput()
-});
 </script>
