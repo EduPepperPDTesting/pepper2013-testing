@@ -556,22 +556,24 @@
         $("#reply_post_"+id).toggle();
     }
     function replyEditSave(id){
-        for(var instanceName in CKEDITOR.instances)
+        for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
-        subject=$("#editable_reply_subject_"+id).val();
-        post=$("#editable_reply_post_"+id).val();
-        $.post("${reverse('community_reply_edit')}", {id:id,subject:subject, post:post}, function(r){
+        }
+        var subject = $("#editable_reply_subject_"+id).val();
+        var post = $("#editable_reply_post_"+id).val();
+        $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
             editReply(id);
             $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
             $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
         });
     }
     function discussionEditSave(){
-        for(var instanceName in CKEDITOR.instances)
+        for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
-        subject=$("#editable_subject").val();
-        post=$("#editable_post").val();
-        $.post("${reverse('community_discussion_edit')}", {id:${discussion.id},subject:subject, post:post}, function(r){
+        }
+        var subject = $("#editable_subject").val();
+        var post = $("#editable_post").val();
+        $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
             editDiscussion();
             $("#discussion_subject").text($("#editable_subject").val());
             $("#discussion_post").html($("#editable_post").val());
