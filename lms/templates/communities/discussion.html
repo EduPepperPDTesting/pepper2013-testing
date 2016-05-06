@@ -326,7 +326,7 @@
             </a>
         </div>
         <div class="discussion">
-            <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
+            <a class="permalink" id = "linkToDiscussion" href = "#" attr-link="${reverse('community_discussion_view', args=[discussion.id])}">
                 <img src="/static/images/link-icon.png" alt="Permalink">
             </a>
             %if request.user.is_superuser or request.user==discussion.user:
@@ -462,7 +462,7 @@
             <div class="discussion-reply-form">
                 <form action="${reverse('community_discussion_reply', args=[discussion.id])}" method="post" enctype="multipart/form-data" id="reply-form">
                     <label>Subject: <input class="discussion-reply-post" type="text" name="subject"></label>
-                    <label>Reply:<textarea class="discussion-reply-post" name="post"></textarea></label>
+                    <label>Reply:<textarea id = "discussion_reply_textarea" class="discussion-reply-post" name="post"></textarea></label>
                     <label>Attachment:<input type="file" name="attachment"></label>
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
                     <input type="submit" name="submit" value="Reply">
@@ -540,6 +540,7 @@
             }
         }
     });
+    CKEDITOR.replace('discussion_reply_textarea');
     function editDiscussion(){
         $("#editable_subject").toggle();
         $("#discussion_subject").toggle();
@@ -584,7 +585,15 @@
         });
     }
     $(document).ready(function() {
+        $("#linkToDiscussion").click(function(e){
+            e.preventDefault();
+            new Dialog($('#dialog')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
+            $("#selectableLink").val(window.location.hostname+$("#linkToDiscussion").attr("attr-link"));
+            $("#selectableLink").select();
+        });
         $('#reply-form').submit(function() {
+            for(var instanceName in CKEDITOR.instances)
+                CKEDITOR.instances[instanceName].updateElement();
             var valid = true;
             $('.discussion-reply-post').each(function() {
                 if (!/[A-Za-z]/.test($(this).val())) {
