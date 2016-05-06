@@ -388,6 +388,9 @@
                         %if check_user_perms(curr_user, 'time_report'):
                             <li><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
+                        %if check_user_perms(curr_user, 'reporting'):
+                            <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                        %endif
                             <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %if check_user_perms(curr_user, 'sso'):
                         %endif

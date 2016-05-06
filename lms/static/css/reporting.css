@@ -1,25 +1,22 @@
-section.content-wrapper {
-    background: transparent !important;
-}
-.list {
+#reporting .list {
     padding: 0 5px;
 }
-.list li {
+#reporting .list li {
     list-style-type: none;
 }
-div.filter {
+#reporting div.filter {
     padding: 10px 5px;
     border: 1px solid #999;
 }
-div.filter.empty {
+#reporting div.filter.empty {
     padding: 0;
     border: 0;
     /*border-top: 1px solid #ddd;*/
 }
-div.filter h2 {
+#reporting div.filter h2 {
     color: #f90
 }
-div.expand_title {
+#reporting div.expand_title {
     color: #08a;
     font-size: 20px;
     padding: 5px 5px 10px 5px;
@@ -29,87 +26,24 @@ div.expand_title {
     background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
     text-shadow: 0 -1px 1px #aaa;
 }
-div.expand_title .icon {
+#reporting div.expand_title .icon {
     display: inline-block;
     position: relative;
     top: 5px;
     width: 23px;
     height: 23px;
-    background: url(Pepper_files/arrows.png) no-repeat 0 0;
+    background: url(../images/arrows.png) no-repeat 0 0;
 }
-div.expand_title_expanded {
+#reporting div.expand_title_expanded {
     border-bottom: 1px solid #999;
 }
-.section-tab {
-    border-width: 0 1px 1px 1px;
-    border-style: solid;
-    -moz-border-top-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    border-image: none;
-    border-radius: 0 0 5px 5px;
-    color: #FFF;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
-    letter-spacing: 1px;
-    padding: 4px 20px;
-    text-transform: uppercase;
-    vertical-align: top;
-    margin-left: 5px;
+#reporting div.expand_title_expanded .icon {
+    background: url(../images/arrows.png)no-repeat 0 -23px;
 }
-a.district-button, a.school-button, a.user-button {
-    outline: none;
-}
-.section-tab.district {
-    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
-    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
-    background-color: rgb(47, 167, 229);
-    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
-    text-shadow: 0 -1px 1px rgb(47, 87, 169);
-    padding-top: 10px;
-}
-.section-tab.school {
-    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
-    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
-    background-color: rgb(123, 181, 51);
-    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
-    text-shadow: 0 -1px 1px rgb(83, 121, 11);
-}
-.section-tab.user {
-    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
-    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
-    background-color: rgb(234, 110, 7);
-    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
-    text-shadow: 0 -1px 1px rgb(154, 30, 7);
-}
-.section-tab.cohort {
-    border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
-    box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
-    background-color: rgb(217, 200, 14);
-    background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
-    text-shadow: 0 -1px 1px rgb(137, 120, 14);
-}
-div.expand_title_expanded .icon {
-    background: url(Pepper_files/arrows.png)no-repeat 0 -23px;
-}
-div.expand_div {
+#reporting div.expand_div {
     display: none;
 }
-div.filter {
-}
-.custom-email input {
-    width: 400px;
-}
-.custom-email textarea {
-    height: 300px;
-}
-label {
-    cursor: default;
-}
-.lean_overlay {
+#reporting .lean_overlay {
     background: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
     display: block;
     height: 100%;
@@ -119,7 +53,7 @@ label {
     width: 100%;
     z-index: 100;
 }
-.modal {
+#reporting .modal {
     display: block;
     position: absolute;
     opacity: 1;
@@ -135,7 +69,7 @@ label {
     width: 480px;
     display: none;
 }
-.modal .close-modal {
+#reporting .modal .close-modal {
     border-radius: 2px;
     cursor: pointer;
     display: inline-block;
@@ -147,229 +81,185 @@ label {
     z-index: 3;
     color: #333;
 }
-.modal .titlebar {
+#reporting .modal .titlebar {
     height: 70px;
     background: #ccc;
 }
-td.label {
+#reporting td.label {
     text-align: right;
     padding-right: 10px;
     width: 45px;
     vertical-align: top;
     padding-top: 13px;
 }
-.modal .dialog-title {
+#reporting .modal .dialog-title {
     margin: 0;
     padding: 20px 0 0 30px;
     color: #666;
 }
-.modal .content {
+#reporting .modal .content {
     color: #333;
     text-align: center;
     font-size: 16px;
     padding: 20px 10px;
     line-height: 20px;
 }
-.modal .progressbar {
+#reporting .modal .progressbar {
     height: 30px;
     background: #ddd;
     border-radius: 5px;
     margin-top: 10px;
 }
-.modal .progressbar_flow {
+#reporting .modal .progressbar_flow {
     height: 30px;
     background: #2a5;
     border-radius: 5px;
     width: 0px;
 }
-.custom-email, .customize-email {
-    display: none;
-}
-.variable-key {
-    float: right;
-    width: 440px;
-    padding: 20px;
-    margin: 20px 20px 0 20px;
-    background-color: #ccc;
-    font-size: 88%;
-}
-.variable-key ul {
-    margin: .5em 0 0 0;
-    padding: 0 0 0 20px;
-}
-.variable-key ul li {
-    line-height: 130%;
-}
-div.cke {
-    width: 640px;
-}
-.add-area {
-    display: inline-block;
-    font-weight: bold;
-    padding: 5px 0 0 10px;
-}
-.add-area span {
-    color: #aa5500;
-}
-#categories {
-    padding: 20px 0;
-}
-.main {
-    margin: auto;
+#reporting .main {
+    margin: 20px auto;
     width: 1180px;
     border: 1px solid #999;
 }
-.import-section {
-    display: none;
-}
-.district-section {
-    display: block;
-}
-input.form_submit, input.form_submit:hover {
+#reporting input.form_submit, input.form_submit:hover {
     border-color: #777 #777 #555;
     box-shadow: 0 1px 0 0 #aaa inset;
     background-color: #888;
     background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
     text-shadow: 0 -1px 1px #555;
 }
-.expand_div ul {
+#reporting .expand_div ul {
     list-style: none;
     margin: 10px 0 20px 0;
     padding: 0;
 }
-.expand_div ul li {
+#reporting .expand_div ul li {
     border-bottom: 1px solid rgb(204, 204, 204);
     padding: 10px 0;
     margin: 0 30px 10px 30px;
 }
-#iconarea {
-    margin: 20px auto 0 auto;
+#reporting #iconarea {
+    margin: 20px auto 20px auto;
     width: 1180px;
 }
-.iconbutton {
-    text-align: center;
-    margin-right: 20px;
+#reporting .iconbutton {
+    color: black;
     display: inline-block;
+    text-align: center;
+    font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
+    padding: 35px 5px 5px 5px;
+    text-decoration: none;
 }
-.iconbutton img {
-    margin-bottom: 10px;
-    width: 32px;
-    height: 32px;
+#reporting .add-new {
+    background: transparent url(../images/icons/add_new.png) center top/32px 32px no-repeat;
 }
-
+#reporting .manage {
+    background: transparent url(../images/icons/manage.png) center top/32px 32px no-repeat;
+}
+#reporting .add-new:hover {
+    background: transparent url(../images/icons/add_new_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .manage:hover {
+    background: transparent url(../images/icons/manage_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .edit-views {
+    float: right;
+    background: transparent url(../images/icons/edit_view.png) center top/32px 32px no-repeat;
+}
+#reporting .edit-views:hover {
+    background: transparent url(../images/icons/edit_view_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .delete {
+    float: right;
+    background: transparent url(../images/icons/delete.png) center top/32px 32px no-repeat;
+}
+#reporting .delete:hover {
+    background: transparent url(../images/icons/delete_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .add-new-view, #reporting .add-new-relationship {
+    float: right;
+}
 
 /* New report specific */
-.add-area {
+#reporting .add-area {
     display: inline-block;
     font-weight: bold;
     padding: 5px 0 0 10px;
 }
-.add-area span {
+#reporting .add-area span {
     color: #aa5500;
 }
-.wrapper {
+#reporting {
     margin: auto;
     width: 1180px;
     padding: 20px 0;
 }
-.import-section {
-    display: none;
-}
-.district-section {
-    display: block;
-}
-input.form_submit, input.form_submit:hover {
+#reporting input.form_submit, input.form_submit:hover {
     border-color: #777 #777 #555;
     box-shadow: 0 1px 0 0 #aaa inset;
     background-color: #888;
     background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
     text-shadow: 0 -1px 1px #555;
 }
-.expand_div ul {
-    list-style: none;
-    margin: 10px 0 20px 0;
-    padding: 0;
+#reporting .description {
+    width: 650px;
 }
-.expand_div ul li {
-    border-bottom: 1px solid rgb(204, 204, 204);
-    padding: 10px 0;
-    margin: 0 30px 10px 30px;
-}
-#iconarea {
-    margin: 20px auto 0 auto;
-    width: 1180px;
-}
-.iconbutton {
-    text-align: center;
-    margin-right: 20px;
-    display: inline-block;
-}
-.iconbutton img {
-    margin-bottom: 10px;
-    width: 32px;
-    height: 32px;
-}
-.view-selector label {
+#reporting .view-selector label {
     display: block;
 }
-.column-selector ul {
+#reporting .column-selector ul {
     list-style: none;
     display: block;
     float: left;
+    padding: 0 20px 0 0;
+    width: 360px;
+    margin: 0;
 }
-.sql-area, .column-selector, .where-selector, .view-selector, .report-name {
+#reporting .column-selector ul li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#reporting .edit-block {
     clear: both;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
     background-color: #ccc;
 }
-.sql-area h2, .column-selector h2, .where-selector h2, .view-selector h2, .report-name h2 {
+#reporting .edit-block h2 {
     border-radius: 10px 10px 0 0;
     padding: 5px 20px;
     margin: -20px -20px 20px -20px;
     background-color: #444;
     color: #ccc;
 }
-.column-selector {
+#reporting .sql-area {
     display: none;
 }
-.where-selector {
-    display: none;
-}
-.sql-area {
-    display: none;
-}
-.view1 {
-    display: none;
-}
-.view2 {
-    display: none;
-}
-.view3 {
-    display: none;
-}
-.row2 {
-    display: none;
-}
-.report-button {
+#reporting .report-button {
     float: right;
     margin-left: 20px;
 }
-.small-button {
+#reporting .plus, .minus {
     padding: 0 6px !important;
     margin-right: 5px;
 }
-.small-text {
+#reporting .filter-value {
     height: 28px !important;
 }
-.where-row {
+#reporting .where-row {
     padding-top: 10px;
 }
-.sql-area textarea {
+#reporting .sql-area textarea {
     height: 65px;
     width: 89%;
 }
-.sql-area input {
+#reporting .sql-area input {
     float: right;
+}
+
+.view-edit img {
+    height: 16px;
+    width: 16px;
 }
