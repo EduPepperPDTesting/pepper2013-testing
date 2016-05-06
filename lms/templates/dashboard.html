@@ -651,6 +651,19 @@ Add info that you would like to share about yourself here:
 </section>
 <!--@end-->
 
+<!--@begin:Add alert in Dashboard page-->
+<!--@date:2016-04-12-->
+%if alert_enabled == "enabled" and alert_text != "":
+<section class="my-courses">
+<div id="con_alert" style="width:879px;margin:auto;position:relative;margin-bottom:30px;border:2px solid #900;">
+  <div style="width:829px;background-color:#FFC651;font-weight:bold;color:#900;padding:25px;line-height:20px;">
+      ${alert_text}
+  </div>
+</div>
+</section>
+%endif
+<!--@end-->
+
 % if curr_user==request.user:
 % if havent_enroll > 0:
 <section class="my-courses" style="padding:20px 0 20px 0;text-align:right;" >
