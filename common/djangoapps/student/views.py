@@ -1711,6 +1711,14 @@ def confirm_email_change(request, key):
         transaction.rollback()
         raise
 
+
+@ensure_csrf_cookie
+def change_skype_name(request):
+    user = UserProfile.objects.get(user_id=request.user.id)
+    user.skype_username = request.POST['username']
+    user.save()
+    return HttpResponse(json.dumps({'success?': True}))
+
 @ensure_csrf_cookie
 def change_name_request(request):
     """ Log a request for a new name. """

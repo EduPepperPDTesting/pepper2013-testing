@@ -695,6 +695,12 @@ from datetime import date
         </div>
         <div class="content">
             <form>
+                <select id = "skype_usernames_select">
+                    <option id = "uname_null" val="">Select Username</option>
+                    %for u in users:
+                        <option id="${u.user.profile.skype_username}" val="${u.user.profile.skype_username}">${u.user.profile.skype_username}</option>
+                    %endfor
+                </select>
                 <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">

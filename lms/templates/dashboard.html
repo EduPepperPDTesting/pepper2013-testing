@@ -141,6 +141,15 @@
              });
       return false;
     });
+    $("#change_skype_name_form").submit(function(){
+       var username = $("#new_skype_name_field").val();
+        $.post('${reverse("change_skype_name")}',
+             {"username":username},
+             function(data) {
+               location.reload();
+             });
+      return false;
+    });
     $("#change_name_form").submit(function(){
       /*@begin:Change the name to two fileds*/
       /*@date:2013-11-02*/
@@ -404,6 +413,22 @@
 			%if curr_user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
+          </span>
+          <span class="title">
+              <div class="icon name-icon"></div><b>${_("Skype")}:</b>
+            <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.skype_username }</span>
+
+			<script>
+				var full_name = document.getElementById('skype_name_span').textContent;
+				if(full_name.length>31)
+				{
+					document.getElementById('skype_name_span').textContent = full_name.substring(0,27)+" ...";
+				}
+		   </script>
+			%if curr_user==request.user or request.user.is_superuser:
+            (<a href="#apply_skype_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
+            %endif
+          </span>
 <!--@end-->          
         </li>
 <!--@begin:Profile：user photo-->
@@ -1390,3 +1415,37 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </section>
+
+<section id="apply_skype_name_change" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_("Update your Skype Username")}</h2>
+      <hr/>
+    </header>
+    <div id="change_name_body">
+      <form id="change_skype_name_form">
+        <div id="change_skype_name_error" class="modal-form-error"> </div>
+        <fieldset>
+          <div class="input-group">
+            <label>${_("Enter your Skype Username.")}</label>
+<!--@begin:Username change table-->
+<!--@date:2013-11-02-->
+            <br/><br/>
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Skype Username</label>
+            <input id="new_skype_name_field" value="${curr_user.profile.skype_username}" type="text" autocomplete="off" maxlength="255"/>
+<!--@end-->
+          </div>
+          <div class="submit">
+            <input type="submit" id="submit" value="${_('Update Skype Username')}">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div class="close-modal" id="change_name_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+

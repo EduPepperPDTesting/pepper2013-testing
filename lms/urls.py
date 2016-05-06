@@ -351,6 +351,7 @@ urlpatterns = (
     url(r'^change_percent_eng_learner$', 'student.views.change_percent_eng_learner', name="change_percent_eng_learner"),
 
     url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
+    url(r'^change_skype_name$', 'student.views.change_skype_name', name="change_skype_name"),
     url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
     url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),
     url(r'^change_major_subject_area$', 'student.views.change_major_subject_area_request', name="change_major_subject_area"),
