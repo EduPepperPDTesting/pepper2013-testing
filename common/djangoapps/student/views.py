@@ -551,7 +551,9 @@ def dashboard(request, user_id=None):
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
         'external_times': external_times,
-        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
+        'alert_text':al_text,
+        'alert_enabled':al_enabled
     }
 
     return render_to_response('dashboard.html', context)
