@@ -64,9 +64,18 @@ urlpatterns = (
     url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
 
     url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
-    url(r'^reporting/report/(?P<report_id>[0-9]+)$', 'reporting.views.report_view', name='reporting_report'),
-    url(r'^reporting/report/(?P<report_id>[0-9]+)/edit$', 'reporting.views.report_edit', name='reporting_report'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_view', name='reporting_report'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/edit$', 'reporting.views.report_edit', name='reporting_report_edit'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/save$', 'reporting.views.report_save', name='reporting_report_save'),
+    url(r'^reporting/views/edit$', 'reporting.views.views_edit', name='reporting_views_edit'),
+    url(r'^reporting/views/add$', 'reporting.views.view_add', name='reporting_view_add'),
+    url(r'^reporting/views/delete$', 'reporting.views.views_delete', name='reporting_views_delete'),
+    url(r'^reporting/views/list$', 'reporting.views.views_list', name='reporting_views_list'),
+    url(r'^reporting/views/relationships/add$', 'reporting.views.relationship_add', name='reporting_relationship_add'),
+    url(r'^reporting/views/relationships/delete$', 'reporting.views.relationships_delete', name='reporting_relationships_delete'),
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
+    url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
+    url(r'^reporting/views/columns/list$', 'reporting.views.view_columns_list', name='reporting_view_columns_list'),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -181,13 +190,13 @@ urlpatterns = (
     url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
     url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
     url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
-    
+
     url(r'^sso/$', 'student.views.sso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
     url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
     url(r'^alert_message/$', 'administration.alert_message.main', name="alert_message"),#20160411 add
     url(r'^alert_message_post/$', 'administration.alert_message.alert_message_post', name="alert_message_post"),#20160411 add
-    
+
     url(r'^more_courses_available/$', 'student.views.more_courses_available', name="more_courses_available"),
     url(r'^reg_kits/$', 'reg_kits.views.district', name="reg_kits"),
     url(r'^reg_kits/course_permission/$', 'reg_kits.views.course_permission', name="course_permission"),
@@ -201,18 +210,18 @@ urlpatterns = (
     url(r'^reg_kits/drop_states$', 'reg_kits.views.drop_states', name="drop_states"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools', name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts', name="drop_cohorts"),
-    
+
     url(r'^reg_kits/district/$', 'reg_kits.views.district', name="district"),
     url(r'^reg_kits/district/form/$', 'reg_kits.views.district_form', name="district_form"),
     url(r'^reg_kits/district/form/(?P<district_id>\d+)$', 'reg_kits.views.district_form', name="district_form"),
     url(r'^reg_kits/district/delete/$', 'reg_kits.views.district_delete', name="district_delete"),
     url(r'^reg_kits/district/submit/$', 'reg_kits.views.district_submit', name="district_submit"),
-    
+
     url(r'^reg_kits/transaction/$', 'reg_kits.views.transaction', name="transaction"),
     url(r'^reg_kits/transaction/form$', 'reg_kits.views.transaction_form', name="transaction_form"),
     url(r'^reg_kits/transaction/form/h(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form', name="transaction_modify"),
     url(r'^reg_kits/transaction/submit$', 'reg_kits.views.transaction_submit', name="transaction_submit"),
-    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete', name="transaction_delete"), 
+    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete', name="transaction_delete"),
 
     url(r'^reg_kits/cohort/$', 'reg_kits.views.cohort', name="cohort"),
     url(r'^reg_kits/cohort/form/$', 'reg_kits.views.cohort_form', name="cohort_form"),
@@ -225,11 +234,11 @@ urlpatterns = (
     url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form', name="school_form"),
     url(r'^reg_kits/school/delete/$', 'reg_kits.views.school_delete', name="school_delete"),
     url(r'^reg_kits/school/submit/$', 'reg_kits.views.school_submit', name="school_submit"),
-    
+
     url(r'^reg_kits/school/import_school_submit/$', 'reg_kits.views.import_school_submit', name="import_school_submit"),
     url(r'^reg_kits/district/import_district_submit/$', 'reg_kits.views.import_district_submit', name="import_district_submit"),
     url(r'^reg_kits/cohort/import_cohort_submit/$', 'reg_kits.views.import_cohort_submit', name="import_cohort_submit"),
-    
+
     url(r'^reg_kits/user/$', 'reg_kits.views.user', name="user"),
     url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form', name="user_form"),
     url(r'^reg_kits/user/form/(?P<user_id>\d+)$', 'reg_kits.views.user_form', name="user_form"),
@@ -237,7 +246,7 @@ urlpatterns = (
     url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit', name="user_submit"),
     url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email', name="send_invite_email"),
     url(r'^reg_kits/user/modify_status$', 'reg_kits.views.user_modify_status', name="user_modify_status"),
-    
+
     url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit', name="import_user_submit"),
 
     url(r'^reg_kits/download_user_csv/$', 'reg_kits.views.download_user_csv', name="download_user_csv"),
@@ -250,7 +259,7 @@ urlpatterns = (
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
 
     # url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat/$', 'chat.views.index', name="chat"),
-    
+
     url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
     url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
     url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
@@ -273,6 +282,8 @@ urlpatterns = (
     url(r'^community/(?P<community_id>[a-zA-Z0-9_]+)/discussion-list$', 'communities.views.discussion_list', name='community_discussion_list'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)$', 'communities.views.discussion', name='community_discussion_view'),
     url(r'^community/discussion/new/add$', 'communities.views.discussion_add', name='community_discussion_add'),
+    url(r'^community/discussion/edit$', 'communities.views.discussion_edit', name='community_discussion_edit'),
+    url(r'^community/reply/edit$', 'communities.views.reply_edit', name='community_reply_edit'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
     url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
@@ -418,7 +429,7 @@ if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
         (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
         url(r'^submit_feedback$', 'util.views.submit_feedback'),
         url(r'^notifications$', 'notifications.views.notifications', name="notifications"),
-        
+
     )
 # Only enable URLs for those marketing links actually enabled in the
 # settings. Disable URLs by marking them as None.
@@ -559,22 +570,22 @@ if settings.COURSEWARE_ENABLED:
         # For the instructor
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
-        
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
 
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me/(?P<user_id>[^/]+)$',
-            'portfolio.views.about_me', name="portfolio_about_me"),        
-        
+            'portfolio.views.about_me', name="portfolio_about_me"),
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),            
-  
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
-            'portfolio.views.uploads', name="portfolio_uploads"), 
+            'portfolio.views.uploads', name="portfolio_uploads"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',
-            'courseware.views.resource_library', name="resource_library"),        
+            'courseware.views.resource_library', name="resource_library"),
         # see ENABLE_INSTRUCTOR_BETA_DASHBOARD section for more urls
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/gradebook$',
             'instructor.views.legacy.gradebook', name='gradebook'),
@@ -650,7 +661,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
         'courseware.views.static_tab', name="static_tab"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/(?P<is_global>global)/$',
-        'courseware.views.static_tab', name="static_tab"),        
+        'courseware.views.static_tab', name="static_tab"),
     )
     if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
         urlpatterns += (
@@ -673,7 +684,7 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 if not settings.DEBUG:
     admin.autodiscover()
     urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
-    
+
 if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
     urlpatterns += (
         url(r'^openid/login/$', 'django_openid_auth.views.login_begin', name='openid-login'),

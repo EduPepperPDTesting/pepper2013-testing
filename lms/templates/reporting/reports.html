@@ -1,43 +1,50 @@
-<%!
+<%
     from django.utils.translation import ugettext as _
     from django.core.urlresolvers import reverse
     import json
 %>
 
 <%inherit file="../main.html"/>
-<link href="/static/css/reporting.css">
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
 <script type="text/javascript" src="/static/js/reporting.js"></script>
-
-<div id="iconarea">
-    <div class="iconbutton"><img src="Pepper_files/add.png"/><br>Add New</div>
-    <div class="iconbutton"><img src="Pepper_files/Outline-64.png"/><br>Manage</div>
-</div>
-<div id="categories">
-    %for category in categories:
-        <div class="main" id="category-${category['id']}">
-            <div class="expand_title expand_title_collapse">
-                ${category['name']}
-                <div class="icon"></div>
+<div id="reporting">
+    <div id="iconarea">
+        <a class="iconbutton add-new" href="${reverse('reporting_report_edit', args=['new'])}">Add New</a>
+        <a class="iconbutton manage">Manage</a>
+        <a class="iconbutton edit-views" href="${reverse('reporting_views_edit')}">Edit Views</a>
+    </div>
+    <div id="categories">
+        %for category in categories:
+            <div class="main" id="category-${category['id']}">
+                <div class="expand_title expand_title_collapse">
+                    ${category['name']}
+                    <div class="icon"></div>
+                </div>
+                <div class="expand_div">
+                    <ul>
+                        %for report in category['reports']:
+                            <li id="report-${report['id']}">
+                                <img src="/static/images/icons/magnifier.png"/> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
+                            </li>
+                        %endfor
+                    </ul>
+                </div>
             </div>
-            <div class="expand_div">
-                <ul>
-                    %for report in category['reports']:
-                        <li id="report-${report['id']}">
-                            <img src="Pepper_files/magnifier.png"/> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
-                        </li>
-                    %endfor
-                </ul>
-            </div>
-        </div>
-    %endfor
-</div>
-<div style="" id="dialog" class="modal">
-    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-        <div class="titlebar">
-            <h3 class="dialog-title"></h3>
+        %endfor
+    </div>
+    <div style="" id="dialog" class="modal">
+        <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+            <div class="titlebar">
+                <h3 class="dialog-title"></h3>
 
-            <div class="close-modal" id="dialog_close">✕</div>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"></div>
         </div>
-        <div class="content"></div>
     </div>
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        expandTitle();
+    })
+</script>

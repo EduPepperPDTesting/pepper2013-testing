@@ -296,7 +296,7 @@ db.modulestore.createIndex({
 db.modulestore.createIndex({
     'q_course_id': 1
 })
-db.page_time.createIndex({
+db.course_time.createIndex({
     'user_id': 1
 })
 db.discussion_time.createIndex({

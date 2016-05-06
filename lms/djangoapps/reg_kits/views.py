@@ -287,7 +287,11 @@ def filter_user(request):
     if q('cohort_id',True):
         data=data.filter(cohort_id=q('cohort_id'))
 
-    if q('subscription_status'):
+    #20160427 modifed
+    #begin
+    #if q('subscription_status'):
+    if q('subscription_status',True):
+    #end
         data=data.filter(subscription_status=q('subscription_status'))
     if q('invite_days_min'):
         data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_min'))))

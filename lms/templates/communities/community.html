@@ -15,6 +15,7 @@ from datetime import date
 </%block>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
    .circle {
       width: 20px;
@@ -24,7 +25,7 @@ from datetime import date
       position:absolute;
       right:0;
     }
-  
+
     #community-main {
         width: 1185px;
         margin: 30px auto;
@@ -283,6 +284,9 @@ from datetime import date
         display: inline-block;
         padding: 2px 5px;
     }
+    div.cke{
+        width:580px;
+    }
     .community-resource {
         display: block;
         clear: both;
@@ -444,11 +448,13 @@ from datetime import date
     }
     .discussion-attachment {
         float: left;
+        padding-top: 16px;
     }
     .discussion-poll {
         float: right;
         display: block;
         vertical-align: middle;
+        padding-top: 16px;
     }
     #members-title {
         border-bottom: 2px solid #90BF70;
@@ -578,7 +584,7 @@ from datetime import date
                 </div>
             </div>
         </div>
-        
+
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -641,7 +647,7 @@ from datetime import date
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                 %if is_member(request.user, community) or request.user.is_superuser:
-                    <a href="#" class="blue-button side-button" onclick="newDiscussion()">Start a New Discussion</a>
+                    <a href="#" class="blue-button side-button" id = "newDiscussionButton" onclick="newDiscussion()">Start a New Discussion</a>
                 %endif
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
@@ -763,7 +769,7 @@ from datetime import date
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
-        content += '<label class="discussion-post">Discussion:<textarea name="post"></textarea></label>';
+        content += '<label class="discussion-post">Discussion:<textarea name="post" id="post"></textarea></label>';
         content += '<label class="discussion-attachment">Attachment:<input type="file" name="attachment"></label>';
         content += '<label class="discussion-poll"><img src="/static/images/poll-icon.png" alt="Add Poll"> <input type="checkbox" class="poll-add"> Add Poll</label>';
         content += '<div id="poll-form">';
@@ -785,11 +791,16 @@ from datetime import date
         content += '</form><div class="discussion-error"></div>';
         var discussion_dialog = new Dialog($('#dialog'));
         discussion_dialog.show('New Discussion', content);
+        CKEDITOR.replace('post');
 
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
+            for (var instanceName in CKEDITOR.instances) {
+                CKEDITOR.instances[instanceName].updateElement();
+            }
             if (validateDiscussionForm()) {
                 var formData = new FormData($(this)[0]);
+                console.log(formData);
                 var formSelector = $(this);
                 $.ajax({
                     url: '${reverse('community_discussion_add')}',
@@ -965,8 +976,15 @@ from datetime import date
                 window.location.href = continue_url;
             });
         });
+        $("#newDiscussionButton").click(function(e){
+            e.preventDefault();
+            scroll(0,0)
+        });
         $('#skype-start').click(function(e) {
             e.preventDefault();
+            $('.skype-container').attr('id', '');
+            $('.skype-container').children('p').remove();
+            $('#create-skype').off('click');
             var dialog = new Dialog('#skype-dialog');
             dialog.showOverlay();
             dialog.$ei.fadeIn(200);
@@ -982,7 +1000,9 @@ from datetime import date
                     video: "true",
                     topic: topic
                 };
+                $('.skype-container').attr('id', '');
                 $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+                $('.skype-container').children('p').remove();
                 startSkype(skype_params);
             });
         });

@@ -370,7 +370,7 @@
 
         %if curr_user==request.user:
         <ol class="user admin" >
-            %if show_extended and check_user_perms(curr_user, ['certificate','pepconn', 'permissions', 'time_report', 'sso', 'tnl']):
+            %if show_extended:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
@@ -386,6 +386,9 @@
                         %endif
                         %if check_user_perms(curr_user, 'time_report'):
                             <li><a href="${reverse('time_report')}">Time Report</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'reporting'):
+                            <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
                         %endif
                             <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %if check_user_perms(curr_user, 'sso'):

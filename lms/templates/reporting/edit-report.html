@@ -1,0 +1,149 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+%>
+
+<%inherit file="../main.html"/>
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+
+<div id="reporting">
+    <form id="report-edit" action="${reverse('reporting_report_save', args=['new' if action == 'new' else report.id])}">
+        <div class="edit-block report-name">
+            <h2>Report</h2>
+            %if action == 'edit':
+                <input type="text" name="report_name" value="${report.name}"/>
+                <input type="text" name="report_description" class="description" value="${report.description}">
+            %else:
+                <input type="text" name="report_name" placeholder="Name"/>
+                <input type="text" name="report_description" class="description" placeholder="Description">
+            %endif
+            <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            <input type="hidden" name="action" value="${action}">
+            <input type="button" value="Cancel" class="report-button"><!-- TODO: need this to redirect correctly -->
+            <input type="submit" value="Save" class="report-button" id="report-save"><!-- TODO: JS handler for this -->
+            <!--<input type="submit" value="Preview" class="report-button">-->
+        </div>
+        <div class="edit-block view-selector">
+            <h2>Select Views</h2>
+            %if action == 'new':
+                <select class="view-select" name="view[0]">
+                    <option value="none">Select...</option>
+                    %for view in views:
+                        <option value="${view.id}">${view.name}</option>
+                    %endfor
+                </select>
+            %else:
+                %for selected_view in selected_views:
+                    <select class="view-select" name="view[${loop.index}]">
+                        <option value="none">Select...</option>
+                        %for view in views:
+                            %if selected_view.id == view.id:
+                                <option value="${view.id}" selected>${view.name}</option>
+                            %else:
+                                <option value="${view.id}">${view.name}</option>
+                            %endif
+                        %endfor
+                    </select>
+                %endfor
+            %endif
+        </div>
+        <div class="edit-block column-selector">
+            <h2>Select Columns</h2>
+            %if action == 'edit':
+                <ul>
+                %for view_column in view_columns:
+                    <li><label>
+                    %if view_column.id in s:
+                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> ${view_column.name} - ${view_column.description}
+                    %else:
+                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> ${view_column.name} - ${view_column.description}
+                    %endif
+                    </label></li>
+                    %if loop.index == second_column or loop.index == third_column:
+                        </ul><ul>
+                    %endif
+                %endfor
+                </ul>
+            %endif
+            <div class="clearfix"></div>
+        </div>
+        <div class="edit-block where-selector">
+            <h2>Select Filters</h2>
+            %if action == 'edit':
+                %for view_filter in report_filters:
+                    <div class="where-row" id="where-row[${loop.index}]">
+                    %if view_filter.conjunction:
+                        <select class="filter-conjunction" name="filter-conjunction[${loop.index}]">
+                            %if view_filter.conjunction == 'AND':
+                                <option value="AND" selected>AND</option>
+                                <option value="OR">OR</option>
+                            %else:
+                                <option value="AND">AND</option>
+                                <option value="OR" selected>OR</option>
+                            %endif
+                        </select>
+                    %endif
+                    <select class="filter-column" name="filter-column[${loop.index}]">
+                        %for column in view_columns:
+                            <option value="${column.id}">${column.name}</option>
+                        %endfor
+                    </select>
+                    <select class="filter-operator" name="filter-operator[${loop.index}]">
+                        %for possible_operator in possible_operators:
+                            %if possible_operator == view_filter.operator:
+                                <option value="${possible_operator}" selected>${escape(possible_operator)}</option>
+                            %else:
+                                <option value="${possible_operator}">${escape(possible_operator)}</option>
+                            %endif
+                        %endfor
+                    </select>
+                    <input class="filter-value" type="text" name="filter-value[${loop.index}]"/>
+                    <input class="plus" name="plus[${loop.index}]" type="button" value="+"/>
+                    %if loop.index > 0:
+                        <input class="minus" name="minus[${loop.index}]" type="button" value="-"/>
+                    %endif
+                    </div>
+                %endfor
+            %else:
+                <div class="where-row" id="where-row[0]">
+                    <select class="filter-column" name="filter-column[0]">
+                    </select>
+                    <select class="filter-operator" name="filter-operator[0]">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value=">">&gt;</option>
+                        <option value="<">&lt;</option>
+                        <option value=">=">&gt;=</option>
+                        <option value="<=">&lt;=</option>
+                    </select>
+                    <input class="filter-value" type="text" name="filter-value[0]"/>
+                    <input class="plus" name="plus[0]" type="button" value="+"/>
+                </div>
+            %endif
+        </div>
+        <div class="edit-block sql-area">
+            <h2>SQL Statement</h2>
+            <input type="button" value="Edit"/>
+            <textarea disabled="disabled"></textarea>
+        </div>
+    </form>
+</div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
+        filterLines();
+        submitHandler('#report-edit', '${reverse('reporting_report', args=['placeholder'])}', true);
+    });
+</script>

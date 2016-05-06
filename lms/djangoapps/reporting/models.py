@@ -29,6 +29,7 @@ class Views(models.Model):
     class Meta:
         db_table = 'reporting_views'
     name = models.CharField(blank=False, max_length=255, db_index=True)
+    description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     collection = models.CharField(blank=False, max_length=255, db_index=True)
 
 
@@ -68,6 +69,7 @@ class ReportFilters(models.Model):
         db_table = 'reporting_report_filters'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     conjunction = models.CharField(blank=True, null=True, max_length=3)
-    left = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_left')
-    right = models.ForeignKey(ViewColumns, on_delete=models.PROTECT, related_name='reportfilters_right')
+    column = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    value = models.CharField(blank=False, max_length=255)
     operator = models.CharField(blank=False, max_length=2)
+    order = models.IntegerField(blank=False, null=False, default=0)
