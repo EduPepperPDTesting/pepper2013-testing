@@ -513,25 +513,6 @@ def dashboard(request, user_id=None):
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
-
-    #20160413 load alert_message
-    #begin
-    site_settings = site_setting_store()
-    al_text = "__NONE__"
-    try:
-        al_text = site_settings.get_item('alert_text')['value']
-    except Exception as e:
-        pass
-    if al_text == "__NONE__":
-        al_text = ""
-
-    al_enabled = "un_enabled"
-    try:
-        al_enabled = site_settings.get_item('alert_enabled')['value']
-    except Exception as e:
-        pass
-    #end
-
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated,
