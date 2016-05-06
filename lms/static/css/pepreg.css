@@ -1,0 +1,534 @@
+label {
+    cursor: default;
+}
+.lean_overlay {
+    background: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+    display: block;
+    height: 100%;
+    left: 0px;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 100;
+}
+.select-columns {
+    display:none;
+    position: absolute;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 20px;
+    padding-left: 5px;
+    margin-left: 0px;
+}
+.down-arrow{
+    position:relative;
+    top: 5px;
+    width: 23px;
+    height: 23px;
+    background: url("../images/arrows.png") no-repeat 0 0;
+    display:inline;
+}
+.modal {
+    display: block;
+    opacity: 1;
+    z-index: 11000;
+    left: 50%;
+    margin-left: -249px;
+    width: 480px;
+    top: 120px;
+    background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);
+    /* border: 1px solid rgba(150, 150, 150, 0.9); */
+    border-radius: 5px;
+    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    display: none;
+    position:fixed;
+}
+.modal .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+    z-index: 3;
+    color: #333;
+}
+.modal .titlebar {
+    background: #fff;
+    height: 70px;
+    background: #ccc;
+}
+td.label {
+    text-align: right;
+    padding-right: 10px;
+    width: 45px;
+    vertical-align: top;
+    padding-top: 13px;
+}
+.modal .dialog-title {
+    margin: 0;
+    padding: 20px 0 0 30px;
+    color: #666;
+}
+.modal .content {
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px 20px;
+    line-height: 20px;
+}
+.modal .progressbar {
+    height: 30px;
+    background: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+.modal .progressbar_flow {
+    height: 30px;
+    background: #2a5;
+    border-radius: 5px;
+    width: 0px;
+}
+.custom-email, .customize-email {
+    display: none;
+    padding-top:50px;
+}
+.variable-key {
+    float: right;
+    width: 440px;
+    padding: 20px;
+    margin: 20px 20px 0 20px;
+    background-color: #ccc;
+    font-size: 88%;
+}
+.variable-key ul {
+    margin: .5em 0 0 0;
+    padding: 0 0 0 20px;
+}
+.variable-key ul li {
+    line-height: 130%;
+}
+div.cke {
+    width: 640px;
+}
+.add-area {
+    display: inline-block;
+    font-weight: bold;
+    padding: 5px 0 0 10px;
+}
+.select-add-area{
+    display:inline-block;
+    font-weight:bold;
+    color: #gg;;
+}
+.select-add-area:hover{
+    color:black;
+    cursor: pointer;
+}
+.add-area:hover{
+    cursor: pointer;
+}
+.add-area span {
+    color: #aa5500;
+}
+.main {
+    margin: auto;
+    width: 1180px;
+    border: 1px solid #999;
+}
+.import-section {
+    display: none;
+}
+.district-section {
+    display: block;
+}
+.bookmark_icon{
+    width:  32px;
+    height: 32px;
+    padding-bottom:4px;
+    float:  right;
+    cursor: pointer;
+}
+input.form_submit {
+    border-color: #777 #777 #555;
+    box-shadow: 0 1px 0 0 #aaa inset;
+    background-color: #888;
+    background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
+    text-shadow: 0 -1px 1px #555;
+}
+.form_submit:hover{
+    background-image: linear-gradient(to bottom, #888 0%, #666 50%, #555 50%, #555 100%);
+}
+section.content-wrapper {
+    background: transparent !important;
+}
+.list {
+    padding: 0 5px;
+}
+.list li {
+    list-style-type: none;
+}
+div.filter {
+    padding: 10px 5px;
+    border: 1px solid #999;
+}
+div.filter.empty {
+    padding: 0;
+    border: 0;
+    /*border-top: 1px solid #ddd;*/
+}
+div.filter h2 {
+    color: #f90
+}
+div.expand_title {
+    color: #08a;
+    font-size: 20px;
+    padding: 5px 5px 10px 5px;
+    cursor: pointer;
+    background-color: #ccc;
+    box-shadow: 0 1px 0 0 #fff inset;
+    background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
+    text-shadow: 0 -1px 1px #aaa;
+}
+div.expand_title .icon {
+    display: inline-block;
+    position: relative;
+    top: 5px;
+    width: 23px;
+    height: 23px;
+    background: url("../images/arrows.png") no-repeat 0 0;
+}
+div.expand_title_expanded {
+    border-bottom: 1px solid #999;
+}
+.table-tab {
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 0 0 5px 5px;
+    color: #FFF;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+    letter-spacing: 1px;
+    padding: 4px 20px;
+    text-transform: uppercase;
+    vertical-align: top;
+    margin-left: 5px;
+}
+.section-tab {
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 0 0 5px 5px;
+    color: #FFF;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+    letter-spacing: 1px;
+    padding: 4px 20px;
+    text-transform: uppercase;
+    vertical-align: top;
+    margin-left: 5px;
+}
+a.district-button, a.school-button, a.user-button {
+    outline: none;
+}
+.section-tab.district {
+    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+    background-color: rgb(47, 167, 229);
+    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+    text-shadow: 0 -1px 1px rgb(47, 87, 169);
+    padding-top: 10px;
+}
+.section-tab.school {
+    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+    background-color: rgb(123, 181, 51);
+    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+    text-shadow: 0 -1px 1px rgb(83, 121, 11);
+}
+.section-tab.user {
+    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+    background-color: rgb(234, 110, 7);
+    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+    text-shadow: 0 -1px 1px rgb(154, 30, 7);
+}
+.section-tab.cohort {
+    border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
+    box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
+    background-color: rgb(217, 200, 14);
+    background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
+    text-shadow: 0 -1px 1px rgb(137, 120, 14);
+}
+.table-tab.district {
+    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+    background-color: rgb(47, 167, 229);
+    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+    text-shadow: 0 -1px 1px rgb(47, 87, 169);
+    padding-top: 10px;
+}
+.table-tab.school {
+    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+    background-color: rgb(123, 181, 51);
+    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+    text-shadow: 0 -1px 1px rgb(83, 121, 11);
+}
+.table-tab.user {
+    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+    background-color: rgb(234, 110, 7);
+    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+    text-shadow: 0 -1px 1px rgb(154, 30, 7);
+}
+.table-tab.cohort {
+    border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
+    box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
+    background-color: rgb(217, 200, 14);
+    background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
+    text-shadow: 0 -1px 1px rgb(137, 120, 14);
+}
+div.expand_title_expanded .icon {
+    background: url("../images/arrows.png")no-repeat 0 -23px;
+}
+div.expand_div {
+    display: none;
+}
+div.filter {
+}
+.custom-email input {
+    width: 400px;
+}
+.custom-email textarea {
+    height: 300px;
+}
+.selectall{
+    float:right;
+}
+.imgBtn {
+    display:inline-block;
+    vertical-align:top;
+}
+.imgBtn_add_new .icon {
+    background-image:url(../images/icons/add_new.png);
+}
+.imgBtn .icon {
+    width:auto;
+    height:40px;
+    background-repeat:no-repeat;
+    background-position: center;
+}
+#data-table td:nth-child(1) {
+    text-align: center;
+}
+.acResults {
+    z-index: 11001;
+    background-color: #ddd;
+    border-radius: 5px;
+    border: 1px solid #555;
+    padding: 0;
+}
+.ui-autocomplete ul,
+.acResults ul {
+    padding: 0;
+    margin: 0;
+}
+.ui-autocomplete li,
+.acResults li {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+.ui-autocomplete .ui-state-focus,
+.acSelect {
+    padding:0;
+    background: #0000d4;
+    color: white;
+    font-weight:normal;
+}
+.table-menu .tablesorter-header-inner div{
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url('../images/configuration/table_menu.png');
+    background-origin: padding-box;
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: auto auto;
+}
+.columnSelectorWrapper {
+    float: right
+}
+.columnSelector, .hidden {
+    margin-top: 60px;
+    display: none;
+}
+.columnSelectorButton {
+    padding: 10px;
+    cursor: pointer;
+}
+.columnSelector {
+    width: 220px;
+    position: absolute;
+    top: 30px;
+    padding: 10px;
+    background: #fff;
+    border: #99bfe6 1px solid;
+    border-radius: 5px;
+}
+.columnSelector label {
+    display: block;
+    font-size:14px;
+}
+.columnSelector label:nth-child(1) {
+    border-bottom: #99bfe6 solid 1px;
+    margin-bottom: 5px;
+}
+.columnSelector input {
+    margin-right: 5px;
+}
+.columnSelector .disabled {
+    color: #ddd;
+}
+.td-select{
+    font-weight: bold !important;
+}
+.datePickText, .timePickText{
+    position: relative;
+    z-index: 999;
+    cursor: pointer;
+    width:200px;
+}
+.ui-datepicker{
+    z-index: 9998;
+}
+.td-time span{
+    font-weight: bold !important;
+    color: #1977CC;
+}
+.td-time span.on{
+    font-weight: bold !important;
+    color:#f80 !important;
+}
+.tablesorter-filter-row input{
+    width:100%;
+}
+div.create{
+    padding:5px;
+}
+div.create select{
+    margin-bottom:5px;
+}
+.modal{
+    z-index:999;
+}
+.step-page{
+    background:#fff;
+    position:absolute;
+    height:100%;
+    text-align:left;
+}
+.step-content{
+    padding:10px 25px;
+}
+.switch{
+    width:20px;
+    height:100%;
+    float:right;
+    vertical-align:bottom;
+    text-align:left;
+    cursor:pointer;
+}
+.switch i{
+    width:20px;
+    position:absolute;
+    bottom:5px;
+    font-style:normal;
+    text-align:center;
+    font-weight:bold;
+    color:#fff;
+}
+.step-page span.label{
+    width:80px;
+    text-align:right;
+    display:inline-block;
+    font-size:10px;
+}
+.step-page div.form-row{
+    margin-top:10px;
+}
+.step-page input[type=checkbox],
+.step-page input[type=radio],
+.step-page input[type=text],
+.step-page select{
+    vertical-align:middle;
+}
+.step-page h5{
+    font-size:14px;
+    color:#999;
+    margin-bottom:15px;
+}
+.step-page h4{
+    margin-bottom:15px;
+}
+.step-page .move{
+    position:absolute;
+    bottom:20px;
+    right:30px;
+}
+.step-page .prev{
+    background-image: url(../images/common_control/left_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .next{
+    background-image: url(../images/common_control/right_arrow.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.step-page .finish{
+    background-image: url(../images/common_control/finish.png);
+    width: 34px;
+    height: 34px;
+    display:inline-block;
+    cursor:pointer;
+}
+.icon-edit{
+    color:#8DBF42 !important;
+}
+.icon-remove{
+    color:#F18101 !important;
+}
+.table-filter select,
+.table-filter input{
+    height:30px;
+    margin-bottom:10px;
+}
+.ui-datepicker-current{
+    display:none;
+}
+table.students th,
+table.students td{
+    padding:5px 5px;
+}

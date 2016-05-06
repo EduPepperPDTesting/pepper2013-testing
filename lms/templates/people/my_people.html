@@ -269,7 +269,7 @@
       <%
       people = User.objects.get(id=profile['user_id'])
       active_before = (timezone.now().date() - people.profile.last_activity.date()).days if people.profile.last_activity else 999999
-      active_recent = active_before < 11
+      active_recent = active_before < 1
       %>      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
