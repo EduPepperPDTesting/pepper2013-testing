@@ -96,7 +96,4 @@ def user_email_exists(request):
     lookup = request.GET.get('email', False)
     if lookup:
         exists = User.objects.filter(email=lookup).exists()
-
-    return HttpResponse(json.dumps(exists), content_type='application/json')
-
-    return render_json_response(r)
+    return render_json_response(exists)
