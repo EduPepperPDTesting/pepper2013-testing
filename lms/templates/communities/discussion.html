@@ -339,7 +339,7 @@
             %endif
             <img class="discussion-avatar" src="${reverse('user_photo', args=[discussion.user.id])}">
             <h2 id="discussion_subject">${discussion.subject}</h2>
-            <span><input type = 'text' id = 'editable_subject' style="display:none" value="${discussion.subject}"></input><br></span>
+            <span><input type = 'text' id = 'editable_subject' style="display:none" value="${discussion.subject}"><br></span>
             %if discussion.attachment:
                 <div class="discussion-download"><span>Attachment: </span>
                     <a href="${get_file_url(discussion.attachment)}" target="_blank">
@@ -352,8 +352,8 @@
             <div id="discussion_post" class="discussion-body">${discussion.post}</div>
             <span><textarea id="editable_post" style="display:none">${discussion.post}</textarea></span>
             <span id="edit_buttons" style="display:none"><br>
-                <input type="button" onclick="discussionEditSave()" class="small" value="Save"></input>
-                <input type = "button" onclick="editDiscussion()" class="small" value="Cancel"></input>
+                <input type="button" onclick="discussionEditSave()" class="small" value="Save">
+                <input type = "button" onclick="editDiscussion()" class="small" value="Cancel">
             </span>
             %if has_poll:
                 <div class="discussion-poll">
@@ -429,7 +429,7 @@
                 %endif
                 <img class="discussion-avatar" src="${reverse('user_photo', args=[reply.user.id])}">
                 <h2 id = "reply_subject_${reply.id}">${reply.subject}</h2>
-                <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"></input><br></span>
+                <span><input type = 'text' id = 'editable_reply_subject_${reply.id}' style="display:none" value="${reply.subject}"><br></span>
                 %if reply.attachment:
                     <div class="discussion-download"><span>Attachment: </span>
                         <a href="${get_file_url(reply.attachment)}" target="_blank">
@@ -442,8 +442,8 @@
                 <div id = "reply_post_${reply.id}" class="discussion-body">${reply.post}</div>
                 <span><textarea id="editable_reply_post_${reply.id}" style="display:none">${reply.post}</textarea></span>
                 <span id="reply_edit_buttons_${reply.id}" style="display:none"><br>
-                    <input type="button" onclick="replyEditSave(${reply.id})" class="small" value="Save"></input>
-                    <input type = "button" onclick="editReply(${reply.id})" class="small" value="Cancel"></input>
+                    <input type="button" onclick="replyEditSave(${reply.id})" class="small" value="Save">
+                    <input type = "button" onclick="editReply(${reply.id})" class="small" value="Cancel">
                 </span>
                 <script>
                     CKEDITOR.replace( 'editable_reply_post_${reply.id}', {
@@ -556,22 +556,24 @@
         $("#reply_post_"+id).toggle();
     }
     function replyEditSave(id){
-        for(var instanceName in CKEDITOR.instances)
+        for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
-        subject=$("#editable_reply_subject_"+id).val();
-        post=$("#editable_reply_post_"+id).val();
-        $.post("${reverse('community_reply_edit')}", {id:id,subject:subject, post:post}, function(r){
+        }
+        var subject = $("#editable_reply_subject_"+id).val();
+        var post = $("#editable_reply_post_"+id).val();
+        $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
             editReply(id);
             $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
             $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
         });
     }
     function discussionEditSave(){
-        for(var instanceName in CKEDITOR.instances)
+        for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
-        subject=$("#editable_subject").val();
-        post=$("#editable_post").val();
-        $.post("${reverse('community_discussion_edit')}", {id:${discussion.id},subject:subject, post:post}, function(r){
+        }
+        var subject = $("#editable_subject").val();
+        var post = $("#editable_post").val();
+        $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
             editDiscussion();
             $("#discussion_subject").text($("#editable_subject").val());
             $("#discussion_post").html($("#editable_post").val());

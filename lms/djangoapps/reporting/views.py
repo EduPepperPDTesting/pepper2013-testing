@@ -4,6 +4,8 @@ from permissions.decorators import user_has_perms
 from pepper_utilities.utils import get_request_array, render_json_response
 from math import floor
 from django_future.csrf import ensure_csrf_cookie
+from django.db import transaction
+import sys
 
 
 @user_has_perms('reporting')
@@ -80,60 +82,68 @@ def report_edit(request, report_id):
 
 @ensure_csrf_cookie
 @user_has_perms('reporting', 'administer')
-def report_save(request):
-    name = request.POST.get('report_name', '')
-    description = request.POST.get('report_description', '')
-    views = get_request_array(request.POST, 'view')
-    columns = get_request_array(request.POST, 'column')
-    filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
-    filter_views = get_request_array(request.POST, 'filter-view')
-    filter_operators = get_request_array(request.POST, 'filter-operator')
-    filter_values = get_request_array(request.POST, 'filter-value')
-    action = request.POST.get('action', '')
-    report_id = request.POST.get('report_id', '')
+@transaction.commit_manually
+def report_save(request, report_id):
+    try:
+        name = request.POST.get('report_name', '')
+        description = request.POST.get('report_description', '')
+        views = get_request_array(request.POST, 'view')
+        columns = get_request_array(request.POST, 'column')
+        filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
+        filter_columns = get_request_array(request.POST, 'filter-column')
+        filter_operators = get_request_array(request.POST, 'filter-operator')
+        filter_values = get_request_array(request.POST, 'filter-value')
+        action = request.POST.get('action', '')
 
-    report = False
-    if action == 'new':
-        report = Reports()
-        report.author = request.user
-    elif action == 'edit':
-        report = Reports.object.get(id=report_id)
+        report = False
+        if action == 'new':
+            report = Reports()
+            report.author = request.user
+        elif action == 'edit':
+            report = Reports.object.get(id=int(report_id))
 
-    if report:
-        report.name = name
-        report.description = description
-        report.save()
+        if report:
+            report.name = name
+            report.description = description
+            report.save()
 
-        ReportViews.objects.filter(report=report).delete()
-        for i, view in views:
-            report_view = ReportViews()
-            report_view.report = report
-            report_view.order = int(i)
-            report_view.view = Views.objects.get(id=view)
-            report_view.save()
+            ReportViews.objects.filter(report=report).delete()
+            for i, view in views.iteritems():
+                report_view = ReportViews()
+                report_view.report = report
+                report_view.order = int(i)
+                report_view.view = Views.objects.get(id=int(view))
+                report_view.save()
 
-        ReportViewColumns.objects.filter(report=report).delete()
-        for i, column in columns:
-            report_column = ReportViewColumns()
-            report_column.report = report
-            report_column.column = ViewColumns.objects.get(id=column)
-            report_column.save()
+            ReportViewColumns.objects.filter(report=report).delete()
+            for i, column in columns.iteritems():
+                report_column = ReportViewColumns()
+                report_column.report = report
+                report_column.column = ViewColumns.objects.get(id=int(column))
+                report_column.save()
 
-        ReportFilters.objects.filter(report=report)
-        for i, filter in filter_views:
-            report_filter = ReportFilters()
-            report_filter.report = report
-            report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
-            report_filter.view = Views.objects.get(id=filter)
-            report_filter.value = filter_values[i]
-            report_filter.operator = filter_operators[i]
-            report_filter.save()
+            ReportFilters.objects.filter(report=report)
+            for i, column in filter_columns.iteritems():
+                report_filter = ReportFilters()
+                report_filter.report = report
+                report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
+                report_filter.column = ViewColumns.objects.get(id=int(column))
+                report_filter.value = filter_values[i]
+                report_filter.operator = filter_operators[i]
+                report_filter.save()
+        else:
+            raise Exception('Report could not be located or created.')
+    except Exception as e:
+        transaction.rollback()
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        return render_json_response({'success': False, 'error': '{0} (Line# {1})'.format(e, exc_traceback.tb_lineno)})
     else:
-        pass
+        transaction.commit()
+        return render_json_response({'success': True, 'report_id': report.id})
 
 
 @user_has_perms('reporting')
-def report_view(request):
+def report_view(request, report_id):
     # TODO: Add the code to show the actual report itself.
     pass
 
@@ -157,3 +167,79 @@ def view_columns(request):
                      'name': column.view.name + '.' + column.name,
                      'description': column.description})
     return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def views_edit(request):
+    views = Views.objects.all().order_by('name')
+    columns = ViewColumns.objects.all().order_by('name')
+    relationships = ViewRelationships.objects.select_related().all()
+
+    data = {'views': views,
+            'columns': columns,
+            'relationships': relationships}
+    return render_to_response('reporting/edit-views.html', data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def view_add(request):
+    pass
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def relationship_add(request):
+    pass
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def views_delete(request):
+    view_ids = get_request_array(request.POST, 'view_id')
+    try:
+        Views.objects.filter(id__in=view_ids.values()).delete()
+        data = {'success': True}
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        transaction.commit()
+    return render_json_response(data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', 'administer')
+@transaction.commit_manually
+def relationships_delete(request):
+    relationship_ids = get_request_array(request.POST, 'relationship_id')
+    try:
+        ViewRelationships.objects.filter(id__in=relationship_ids.values()).delete()
+        data = {'success': True}
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        transaction.commit()
+    return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def views_list(request):
+    view_list = list()
+
+    # TODO: Need to get mongo3 set up so we can get a list of views here
+
+    return render_json_response(view_list)
+
+@user_has_perms('reporting', 'administer')
+def view_columns_list(request):
+    view_column_list = list()
+    view = request.GET.get('view', False)
+
+    # TODO: Need to get mongo3 set up so we can get a list of columns here
+
+    return render_json_response(view_column_list)

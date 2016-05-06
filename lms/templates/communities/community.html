@@ -801,8 +801,9 @@ from datetime import date
 
         $('#new-discussion-submit').submit(function(event) {
             event.preventDefault();
-            for(var instanceName in CKEDITOR.instances)
+            for (var instanceName in CKEDITOR.instances) {
                 CKEDITOR.instances[instanceName].updateElement();
+            }
             if (validateDiscussionForm()) {
                 var formData = new FormData($(this)[0]);
                 console.log(formData);

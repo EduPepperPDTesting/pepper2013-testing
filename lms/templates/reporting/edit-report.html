@@ -9,8 +9,8 @@
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 
 <div id="reporting">
-    <form id="report-edit" action="${reverse('reporting_report_save')}">
-        <div class="report-name">
+    <form id="report-edit" action="${reverse('reporting_report_save', args=['new' if action == 'new' else report.id])}">
+        <div class="edit-block report-name">
             <h2>Report</h2>
             %if action == 'edit':
                 <input type="text" name="report_name" value="${report.name}"/>
@@ -21,22 +21,16 @@
             %endif
             <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             <input type="hidden" name="action" value="${action}">
-            %if action == 'edit':
-                <input type="hidden" name="report_id" value="${report.id}">
-            %else:
-                <input type="hidden" name="report_id" value="new">
-            %endif
-            <input type="submit" value="Cancel" class="report-button"><!-- TODO: need this to redirect correctly -->
-            <input type="submit" value="Save" class="report-button"><!-- TODO: JS handler for this -->
+            <input type="button" value="Cancel" class="report-button"><!-- TODO: need this to redirect correctly -->
+            <input type="submit" value="Save" class="report-button" id="report-save"><!-- TODO: JS handler for this -->
             <!--<input type="submit" value="Preview" class="report-button">-->
         </div>
-        <div class="view-selector">
+        <div class="edit-block view-selector">
             <h2>Select Views</h2>
             %if action == 'new':
                 <select class="view-select" name="view[0]">
                     <option value="none">Select...</option>
                     %for view in views:
-                        <option value="${view.id}">${view.name}</option>
                         <option value="${view.id}">${view.name}</option>
                     %endfor
                 </select>
@@ -55,7 +49,7 @@
                 %endfor
             %endif
         </div>
-        <div class="column-selector">
+        <div class="edit-block column-selector">
             <h2>Select Columns</h2>
             %if action == 'edit':
                 <ul>
@@ -75,13 +69,13 @@
             %endif
             <div class="clearfix"></div>
         </div>
-        <div class="where-selector">
+        <div class="edit-block where-selector">
             <h2>Select Filters</h2>
             %if action == 'edit':
                 %for view_filter in report_filters:
                     <div class="where-row" id="where-row[${loop.index}]">
                     %if view_filter.conjunction:
-                        <select class="filter-conjuntion" name="filter-conjuntion[${loop.index}]">
+                        <select class="filter-conjunction" name="filter-conjunction[${loop.index}]">
                             %if view_filter.conjunction == 'AND':
                                 <option value="AND" selected>AND</option>
                                 <option value="OR">OR</option>
@@ -91,7 +85,7 @@
                             %endif
                         </select>
                     %endif
-                    <select class="filter-view" name="filter-view[${loop.index}]">
+                    <select class="filter-column" name="filter-column[${loop.index}]">
                         %for column in view_columns:
                             <option value="${column.id}">${column.name}</option>
                         %endfor
@@ -114,9 +108,9 @@
                 %endfor
             %else:
                 <div class="where-row" id="where-row[0]">
-                    <select class="filter-view" name="filter-view[0]">
+                    <select class="filter-column" name="filter-column[0]">
                     </select>
-                    <select name="filter-operator[0]">
+                    <select class="filter-operator" name="filter-operator[0]">
                         <option value="=">=</option>
                         <option value="!=">!=</option>
                         <option value=">">&gt;</option>
@@ -129,7 +123,7 @@
                 </div>
             %endif
         </div>
-        <div class="sql-area">
+        <div class="edit-block sql-area">
             <h2>SQL Statement</h2>
             <input type="button" value="Edit"/>
             <textarea disabled="disabled"></textarea>
@@ -150,5 +144,6 @@
     $(document).ready(function () {
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
+        submitHandler('#report-edit', '${reverse('reporting_report', args=['placeholder'])}', true);
     });
 </script>
