@@ -484,23 +484,21 @@ def download_certificate(request, course_id, completed_time):
 #@date:2016-05-04
 def get_allcoursetime(user_id, course_id):
     user = User.objects.get(id=str(user_id))
-    courses = []
 
+    course_time = 0
     external_time = 0
-    orig_external_times = {}
     rts = record_time_store()
     all_course_time = 0
     all_course_time_unit = ""
 
     try:
         c = course_from_id(course_id)
-        orig_external_times[c.id] = rts.get_external_time(str(user.id), c.id)
-        external_time = orig_external_times[c.id]
+        external_time = rts.get_external_time(str(user.id), c.id)
     except ItemNotFoundError:
         log.error("User {0} enrolled in non-existent course {1}"
                     .format(user.username, course_id))
     
-    course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+    course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
     all_course_time = course_time + external_time
     all_course_time_unit = study_time_format(all_course_time)
     
