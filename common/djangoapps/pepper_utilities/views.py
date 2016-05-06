@@ -89,3 +89,11 @@ def user_email_completion(request):
         for item in data:
             r.append(item.email)
     return render_json_response(r)
+
+
+def user_email_exists(request):
+    exists = False
+    lookup = request.GET.get('email', False)
+    if lookup:
+        exists = User.objects.filter(email=lookup).exists()
+    return render_json_response(exists)
