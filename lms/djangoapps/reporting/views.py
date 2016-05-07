@@ -1,5 +1,6 @@
 from mitxmako.shortcuts import render_to_response
 from .models import Reports, Categories, Views, ViewRelationships, ViewColumns, ReportViews, ReportViewColumns, ReportFilters
+from .models import reporting_store
 from permissions.decorators import user_has_perms
 from pepper_utilities.utils import get_request_array, render_json_response
 from math import floor
@@ -229,17 +230,17 @@ def relationships_delete(request):
 
 @user_has_perms('reporting', 'administer')
 def views_list(request):
-    view_list = list()
-
-    # TODO: Need to get mongo3 set up so we can get a list of views here
+    reporting = reporting_store()
+    view_list = reporting.get_collections()
 
     return render_json_response(view_list)
 
+
 @user_has_perms('reporting', 'administer')
 def view_columns_list(request):
-    view_column_list = list()
     view = request.GET.get('view', False)
 
-    # TODO: Need to get mongo3 set up so we can get a list of columns here
+    reporting = reporting_store()
+    view_column_list = reporting.get_columns(view)
 
     return render_json_response(view_column_list)
