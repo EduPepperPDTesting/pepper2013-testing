@@ -141,3 +141,13 @@ POLLSTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+SITESETTINGSSTORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_ASSIST,
+        'collection': 'site_settings',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
