@@ -466,10 +466,10 @@ div.create select{
     color:#fff;
 }
 .step-page span.label{
-    width:80px;
+    width:100px;
     text-align:right;
     display:inline-block;
-    font-size:10px;
+    font-size:12px;
 }
 .step-page div.form-row{
     margin-top:10px;
