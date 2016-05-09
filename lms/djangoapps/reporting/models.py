@@ -73,3 +73,54 @@ class ReportFilters(models.Model):
     value = models.CharField(blank=False, max_length=255)
     operator = models.CharField(blank=False, max_length=2)
     order = models.IntegerField(blank=False, null=False, default=0)
+
+
+class MongoReportingStore(object):
+
+    def __init__(self, host, db, port=27017, user=None, password=None,
+                 mongo_options=None, **kwargs):
+
+        super(MongoReportingStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.db = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db]
+
+        if user is not None and password is not None:
+            self.db.authenticate(user, password)
+
+        self.collection = None
+
+    def set_collection(self, collection):
+        self.collection = self.db[collection]
+
+    # TODO: see about updating pymongo so this will work.
+    # def get_collections(self):
+    #     return self.db.collection_names()
+
+    def get_columns(self, collection):
+        self.set_collection(collection)
+        return reduce(
+            lambda all_keys, rec_keys: all_keys | set(rec_keys),
+            map(lambda d: d.keys(), self.collection.find()),
+            set()
+        )
+
+    def get_page(self, collection, start, num, db_filter=None):
+        self.set_collection(collection)
+        if db_filter is None:
+            return self.collection.find().skip(start).limit(num)
+
+        return self.collection.find(db_filter).skip(start).limit(num)
+
+
+def reporting_store():
+    options = {}
+    options.update(settings.REPORTINGSTORE['OPTIONS'])
+    return MongoReportingStore(**options)
