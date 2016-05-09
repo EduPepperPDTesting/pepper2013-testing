@@ -97,3 +97,4 @@ def user_email_exists(request):
     if lookup:
         exists = User.objects.filter(email=lookup).exists()
     return render_json_response(exists)
+
