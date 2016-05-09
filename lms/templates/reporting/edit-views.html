@@ -110,20 +110,20 @@
         </div>
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
     </form>
-</div>
-<div style="" id="dialog" class="modal">
-    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-        <div class="titlebar">
-            <h3 class="dialog-title"></h3>
+    <div style="" id="view-dialog" class="modal">
+        <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+            <div class="titlebar">
+                <h3 class="dialog-title"></h3>
 
-            <div class="close-modal" id="dialog_close">✕</div>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"></div>
         </div>
-        <div class="content"></div>
     </div>
 </div>
 <script type="text/javascript">
     var view_list_url = '${reverse('reporting_views_list')}';
-    var column_list_url = '${reverse('reporting_view_columns_list')}';
+    var column_list_url = '${reverse('reporting_view_columns')}';
     var add_view_url = '${reverse('reporting_view_add')}';
     var add_relationship_url = '${reverse('reporting_relationship_add')}';
     $(document).ready(function () {
@@ -136,8 +136,12 @@
         selectAll('.view-select-all', '.view-select');
         selectAll('.relationship-select-all', '.relationship-select');
 
-        submitHandler('#views-delete', false, false);
-        submitHandler('#relationships-delete', false, false);
+        submitHandler('#views-delete', function (data) {
+            alert('View(s) Successfully Deleted');
+        });
+        submitHandler('#relationships-delete', function (data) {
+            alert('Relationships(s) Successfully Deleted');
+        });
 
         submitButton('.delete-views', '#views-delete');
         submitButton('.delete-relationships', '#relationships-delete');

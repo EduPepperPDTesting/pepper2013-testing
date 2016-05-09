@@ -144,6 +144,8 @@
     $(document).ready(function () {
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
-        submitHandler('#report-edit', '${reverse('reporting_report', args=['placeholder'])}', true);
+        submitHandler('#report-edit', function (data) {
+            window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
+        });
     });
 </script>
