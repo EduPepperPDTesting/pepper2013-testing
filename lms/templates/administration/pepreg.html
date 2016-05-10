@@ -851,15 +851,17 @@ from permissions.utils import check_access_level, check_user_perms
       $("#data-table").trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10]]);
     }
    $("#data-table").bind("pagerComplete", function() {
-      // Training Name
-      $(this).find("td:nth-child(6)").each(function(){
-        var training_id = $(this).parent().find("input[name=id]").val();
-        $(this).css("color","#1d9dd9");
-        $(this).css("cursor","pointer");
-        $(this).click(function(){
-          self.showStudents(training_id);
-        });
-      });
+     // Training Name
+     if(is_admin){
+       $(this).find("td:nth-child(6)").each(function(){
+         var training_id = $(this).parent().find("input[name=id]").val();
+         $(this).css("color","#1d9dd9");
+         $(this).css("cursor","pointer");
+         $(this).click(function(){
+           self.showStudents(training_id);
+         });
+       });
+     }
      // location
       $(this).find("td:nth-child(9)").each(function(){
         var training_id = $(this).parent().find("input[name=id]").val();
