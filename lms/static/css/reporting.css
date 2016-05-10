@@ -116,6 +116,35 @@
     border-radius: 5px;
     width: 0px;
 }
+#reporting #view-dialog {
+    width: 680px;
+    margin-left: -349px;
+}
+#reporting #view-dialog .content {
+    text-align: left;
+}
+#reporting .single-line input {
+    margin-right: 20px;
+    float: left;
+    width: 25%;
+}
+#reporting .single-line input.plus {
+    width: auto;
+}
+#reporting #add-relationship-wrapper select {
+    display: block;
+}
+#reporting #add-relationship-wrapper label {
+    float: left;
+    margin-right: 20px;
+}
+#reporting #add-relationship-wrapper div {
+    clear: both;
+}
+#reporting #add-relationship-wrapper input {
+    clear: both;
+    display: block;
+}
 #reporting .main {
     margin: 20px auto;
     width: 1180px;
@@ -259,7 +288,7 @@
     float: right;
 }
 
-.view-edit img {
+.view-edit img, .relationship-edit img {
     height: 16px;
     width: 16px;
 }

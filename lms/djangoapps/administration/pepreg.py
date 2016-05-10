@@ -15,12 +15,18 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
+from xmodule.modulestore.django import modulestore
+import pymongo
+
 
 
 @login_required
 def index(request):
-    courses = get_courses(request.user, request.META.get('HTTP_HOST'))
-    courses = sorted(courses, key=lambda course: course.display_name.lower())
+    # courses = get_courses(request.user, request.META.get('HTTP_HOST'))
+    # courses = sorted(courses, key=lambda course: course.display_name.lower())
+
+    courses = get_courses_drop(request.user.profile.district.state.name, request.user.profile.district.code)
     
     return render_to_response('administration/pepreg.html', {"courses": courses})
 
@@ -171,7 +177,7 @@ def rows(request):
             item.name,
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
             str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
-            item.geo_location,
+            "%s<br>%s" % (item.classroom, item.geo_location),
             item.credits,
             "%s,%s,%s,%s,%s" % (item.id, arrive, status, allow, item.attendancel_id),
             "<input type=hidden value=%s name=id>" % item.id
@@ -239,8 +245,9 @@ def delete_training(request):
     try:
         id = request.POST.get("id", None)
         training = PepRegTraining.objects.get(id=id)
-        PepRegInstructor.filter(training=training).delete()
-        PepRegStudent.filter(training=training).delete()
+        PepRegInstructor.objects.filter(training=training).delete()
+        PepRegStudent.objects.filter(training=training).delete()
+        training.delete()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -343,8 +350,9 @@ def set_student_attended(request):
                 student.save()
             else:
                 student.delete()
+                student = None
 
-        if student.exists():
+        if student:
             data = {"id": student.id,
                     "email": student.student.email,
                     "status": student.student_status,
@@ -426,6 +434,30 @@ def student_list(request):
                                     'training_name': training.name
                                     }),
                         content_type="application/json")
+
+
+def get_courses_drop(state_name, district_code):
+    matches_state = [None, "ALL", district_code]
+    matches_district = [None, "ALL", state_name]
+
+    courses = modulestore().collection.find({'_id.category': 'course', 'metadata.display_state': state_name})
+
+    if courses.count() > 0:
+        matches_state.append('ALL')
+
+    courses = modulestore().collection.find({'_id.category': 'course', 'metadata.display_district': district_code})
+    if courses.count() > 0:
+        matches_district.append('ALL')
+    
+    flt = {
+        '_id.category': 'course',
+        'metadata.display_state':  {'$in': matches_district},
+        'metadata.display_district': {'$in': matches_state}
+        }
+    
+    courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
+    courses = modulestore()._load_items(list(courses), 0)
+    return courses
 
 
 def show_map(request):

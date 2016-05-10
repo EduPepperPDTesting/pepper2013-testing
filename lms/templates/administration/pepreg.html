@@ -26,10 +26,11 @@ from permissions.utils import check_access_level, check_user_perms
 <script src="/static/js/leaflet/leaflet.js"></script>
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media = "screen" />
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
 <link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type = "text/css" media = "screen"/>
+<link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
+
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -73,7 +74,10 @@ from permissions.utils import check_access_level, check_user_perms
         %endif
         <br>
         <select id="" name="" autocomplate="off" class="search" data-column="4">
-          <option value="">Select Pepper Courese</option>
+          <option value="">Select Pepper Courses</option>
+          %for item in courses:
+          <option value="${item.id}">${item.display_name}</option>
+          %endfor               
         </select>
         <input type="text" name="training_data" value="" class="search" data-column="5" placeholder="Select Date" readonly='true'/>
       </div>
@@ -172,7 +176,7 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row" style="font-size:12px;">
               <input type="radio" name="type" value="pepper_course" autocomplete="off"/> <span>Pepper Course</span>
               <div style="padding-left:2em;">
-                This option allows you to creatre<br>
+                This option allows you to create<br>
                 a training for Pepper course
               </div>
             </div>
@@ -212,7 +216,7 @@ from permissions.utils import check_access_level, check_user_perms
                 <option value=""></option>
                 %for item in courses:
                 <option value="${item.id}">${item.display_name}</option>
-                %endfor                
+                %endfor
               </select>
             </div>
             <div class="form-row">
@@ -239,11 +243,11 @@ from permissions.utils import check_access_level, check_user_perms
             <h5>Configure A Training</h5>
             <h4>Configure Schedule</h4>            
             <div class="form-row">
-              <span class="label" style="width:160px">Please Select a training date:</span>
+              <span class="label" style="width:180px">Please Select a training date:</span>
               <input type="" name="training_date" class="datePickText" value="" readonly='true' />
             </div>
             <div class="form-row">
-              <span class="label" style="width:160px">Please Select Time:</span>
+              <span class="label" style="width:180px">Please Select Time:</span>
               <input type="" name="training_time" value="" class="timePickText"/>
             </div>
           </div>
@@ -253,11 +257,11 @@ from permissions.utils import check_access_level, check_user_perms
             <h5>Configure A Training</h5>
             <h4>Configure Location</h4>
             <div class="form-row">
-              <span class="label" style="width:200px">Please Fill in Classroom:</span>
+              <span class="label" style="width:220px">Please Fill in Classroom:</span>
               <input type="" name="classroom" value="" style="width:400px"/>
             </div>
             <div class="form-row">
-              <span class="label" style="width:200px">Please Select GEO Location of Training:</span>
+              <span class="label" style="width:220px">Please Select GEO Location of Training:</span>
               <input type="" name="geo_location" value="" style="width:400px"/>
             </div>
             <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
@@ -280,27 +284,27 @@ from permissions.utils import check_access_level, check_user_perms
             <h4>Registration/Attendance Configuration</h4>
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Credit Hours:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Credit Hours:</span>
             <input type="" name="credits" value="" />
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Training ID:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Training ID:</span>
             <input type="" name="attendancel_id" value="" />
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Registration:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Registration:</span>
             <input type="checkbox" name="allow_registration" value="true" />
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
             <input type="" name="max_registration" value="" />
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
             <input type="checkbox" name="allow_attendance" value="true" />
           </div>
           <div class="form-row">
-            <span class="label" style="width:150px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
             <input type="checkbox" name="allow_validation" value="true" />
           </div>
         </div>
@@ -368,6 +372,10 @@ from permissions.utils import check_access_level, check_user_perms
       max_registration: $form.find("input[name=max_registration]").val() || 0,
       allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
       allow_validation: $form.find("input[name=allow_validation]:checked").val()
+    }
+    if(json.training_date){
+      var apart = json.training_date.split("/");
+      json.training_date = [apart[2], apart[0], apart[1]].join("-");
     }
     // json["geo_props"] =  JSON.stringify({lat: json.geo_lat, lon: json.geo_lon});
     return json;
@@ -469,7 +477,7 @@ from permissions.utils import check_access_level, check_user_perms
         // console.log(item.item);
         var hit = hits[item.item.value];
         if(hit){
-          self.markPlace(this.map_edit, hit.lat, hit.lon, 15);
+          self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
         }
       },
       source: function(request, response){
@@ -824,7 +832,8 @@ from permissions.utils import check_access_level, check_user_perms
         $(this).css("color","#1d9dd9");
         $(this).css("cursor","pointer");
         $(this).click(function(){
-          self.showMap($(this).text());
+          console.log($(this).html())
+          self.showMap($(this).html().split("<br>")[1]);
         });
       });
       // Register/Record Attendance
@@ -846,32 +855,40 @@ from permissions.utils import check_access_level, check_user_perms
         }else if (arrive == "1"){
           var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
           $check.prop('checked', status == "Attended" || status == "Validated");
-          $check.change(function(){
-            if(this.checked){
-              $input.show();
-              $button.show();
-            }else{
-              self.setStudentAttended(${request.user.id},training_id, false, function(){
-                alert("Success");
-              });
-              $input.hide();
-              $button.hide();
-            }
-          });
-          var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
-          /// $input.val(attendancel_id);
-          var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
-          $button.click(function(){
-            if(attendancel_id==$input.val()){
-              self.setStudentAttended(${request.user.id},training_id, true, function(){
+
+          if(attendancel_id.length){
+            $check.change(function(){
+              if(this.checked){
+                $input.show();
+                $button.show();
+              }else{
+                self.setStudentAttended(${request.user.id},training_id, false, function(){
+                  alert("Success");
+                });
                 $input.hide();
-                $button.hide();                
-                alert("Success");
-              });
-            }else{
-              alert("It's a wrong ID.");
-            }
-          });
+                $button.hide();
+              }
+            });
+            var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
+            /// $input.val(attendancel_id);
+            var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
+            $button.click(function(){
+              if(attendancel_id==$input.val()){
+                self.setStudentAttended(${request.user.id},training_id, true, function(){
+                  $input.hide();
+                  $button.hide();                
+                  alert("Success");
+                });
+              }else{
+                alert("It's a wrong ID.");
+              }
+            });
+          }else{
+            $check.change(function(){
+              self.setStudentAttended(${request.user.id},training_id, this.checked, function(){alert("Success");});
+            });            
+          }
+          
         }else if (arrive == "1" && status == ""){
           $(this).html("The registration date has passed for this training");
         }else{
