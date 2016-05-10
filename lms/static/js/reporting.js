@@ -273,8 +273,9 @@ function addView() {
         var content = '<div id="add-view-wrapper">';
         content += '<form id="add-view-form" action="' + add_view_url + '">';
         if (current_data) {
+            var description = current_data.description ? current_data.description : '';
             content += '<label>View Name:<input name="view_name" type ="text" value="' + current_data.name + '"></label>';
-            content += '<label>View Description:<input name="view_description" type="text" value="' + current_data.description + '"></label>';
+            content += '<label>View Description:<input name="view_description" type="text" value="' + description + '"></label>';
             content += '<label>View Source:<input name="view_source" type="text" value="' + current_data.source + '"></label>';
         } else {
             content += '<label>View Name:<input name="view_name" type ="text"></label>';
