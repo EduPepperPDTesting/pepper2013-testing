@@ -326,11 +326,11 @@
             </a>
         </div>
         <div class="discussion">
-            <a class="permalink" id = "linkToDiscussion" href = "#" attr-link="${reverse('community_discussion_view', args=[discussion.id])}">
+            <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
                 <img src="/static/images/link-icon.png" alt="Permalink">
             </a>
             %if request.user.is_superuser or request.user==discussion.user:
-                    <img class = "edit-icon" onclick="editDiscussion()" src="/static/images/pencil_edit.png" alt="Edit Discussion">
+                <img class = "edit-icon" onclick="editDiscussion()" src="/static/images/pencil_edit.png" alt="Edit Discussion">
             %endif
             %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
                 <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
@@ -386,11 +386,11 @@
                             $(this).addClass('hide');
                         }
                     });
-                    %if poll['user_answered']:
-                        $('.discussion-poll-answer').hide();
-                        $('.discussion-poll-votes').show();
-                        $('.discussion-poll-toggle').hide();
-                    %endif
+                        %if poll['user_answered']:
+                            $('.discussion-poll-answer').hide();
+                            $('.discussion-poll-votes').show();
+                            $('.discussion-poll-toggle').hide();
+                        %endif
                     $('.discussion-poll-answer input[type=radio]').change(function() {
                         var answer = $(this).val();
                         $.post('${reverse('poll_vote')}', {'poll_type': '${poll['poll_type']}', 'poll_id': '${poll['poll_id']}', 'vote': answer}, function(data) {
@@ -420,8 +420,8 @@
                     <img src="/static/images/link-icon.png">
                 </a>
                 %if request.user.is_superuser or \
-                    is_facilitator(request.user, discussion.community) or \
-                    request.user.id == reply.user.id:
+                            is_facilitator(request.user, discussion.community) or \
+                            request.user.id == reply.user.id:
                     <img class = "edit-icon" onclick="editReply(${reply.id})" src="/static/images/pencil_edit.png" alt="Edit Discussion">
                     <a class="delete-icon delete-reply" href="${reverse('community_discussion_reply_delete', args=[reply.id])}">
                         <img src="/static/images/trash-small.png" alt="Delete Discussion">
@@ -587,15 +587,10 @@
         });
     }
     $(document).ready(function() {
-        $("#linkToDiscussion").click(function(e){
-            e.preventDefault();
-            new Dialog($('#dialog')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
-            $("#selectableLink").val(window.location.hostname+$("#linkToDiscussion").attr("attr-link"));
-            $("#selectableLink").select();
-        });
         $('#reply-form').submit(function() {
-            for(var instanceName in CKEDITOR.instances)
+            for (var instanceName in CKEDITOR.instances) {
                 CKEDITOR.instances[instanceName].updateElement();
+            }
             var valid = true;
             $('.discussion-reply-post').each(function() {
                 if (!/[A-Za-z]/.test($(this).val())) {

@@ -41,11 +41,27 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
+    # === pepreg begin ==
+    url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
+    url(r'^pepreg/rows$', 'administration.pepreg.rows', name="pepreg_rows"),
+    url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
+    url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
+    url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
+    url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
+    url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
+    url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
+    url(r'^pepreg/student_list$', 'administration.pepreg.student_list', name="pepreg_student_list"),
+    url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
+    url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
+    url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
+    # === pepreg end ==    
+
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
     url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
     url(r'^pepper-utilities/drop/cohorts', 'pepper_utilities.views.drop_cohorts', name='pepper_utilities_drop_cohorts'),
     url(r'^pepper-utilities/user/email-completion', 'pepper_utilities.views.user_email_completion', name='pepper_utilities_user_email_completion'),
+    url(r'^pepper-utilities/user/email-exists', 'pepper_utilities.views.user_email_exists', name='pepper_utilities_user_email_exists'),
 
     url(r'^permissions$', 'permissions.views.permissions_view', name='permissions_view'),
     url(r'^permissions/groups/permissions/list$', 'permissions.views.group_permissions_list', name='permissions_group_permissions_list'),

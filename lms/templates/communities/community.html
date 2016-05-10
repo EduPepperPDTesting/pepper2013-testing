@@ -597,7 +597,7 @@ from datetime import date
                       <%
                       user = u.user
                       active_before = (timezone.now().date() - user.profile.last_activity.date()).days if user.profile.last_activity else 999999
-                      active_recent = active_before < 11
+                      active_recent = active_before < 1
                       %>
                       <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
                         %if request.user.is_superuser and active_recent:
@@ -647,7 +647,7 @@ from datetime import date
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
                 %if is_member(request.user, community) or request.user.is_superuser:
-                    <a href="#" class="blue-button side-button" id = "newDiscussionButton" onclick="newDiscussion()">Start a New Discussion</a>
+                    <a href="#" class="blue-button side-button" id="newDiscussionButton" onclick="newDiscussion()">Start a New Discussion</a>
                 %endif
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
@@ -806,7 +806,6 @@ from datetime import date
             }
             if (validateDiscussionForm()) {
                 var formData = new FormData($(this)[0]);
-                console.log(formData);
                 var formSelector = $(this);
                 $.ajax({
                     url: '${reverse('community_discussion_add')}',
