@@ -123,12 +123,12 @@
 #reporting #view-dialog .content {
     text-align: left;
 }
-#reporting .single-line input {
+#reporting .column-row input {
     margin-right: 20px;
     float: left;
     width: 25%;
 }
-#reporting .single-line input.plus {
+#reporting .column-row input.plus, #reporting .column-row input.minus {
     width: auto;
 }
 #reporting #add-relationship-wrapper select {

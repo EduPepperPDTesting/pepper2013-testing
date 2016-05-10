@@ -171,6 +171,82 @@ def view_columns(request):
 
 
 @user_has_perms('reporting', 'administer')
+def views_edit_update(request):
+    views = Views.objects.all().order_by('name')
+    columns = ViewColumns.objects.all().order_by('name')
+    relationships = ViewRelationships.objects.select_related().all()
+
+    view_list = list()
+    for view in views:
+        view_list.append({'name': view.name,
+                           'description': view.description,
+                           'id': view.id,
+                           'columns': ', '.join(columns.filter(view=view).values_list('name', flat=True))})
+
+    relationship_list = list()
+    for relationship in relationships:
+        relationship_list.append({'relationship': '{0} -> {1}'.format(relationship.left.view.name,
+                                                                      relationship.right.view.name),
+                                  'columns': '{0}.{1} = {2}.{3}'.format(relationship.left.view.name,
+                                                                        relationship.left.name,
+                                                                        relationship.right.view.name,
+                                                                        relationship.right.name),
+                                  'id': relationship.id})
+
+    data = {'views': view_list,
+            'relationships': relationship_list}
+    return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def view_data(request):
+    view_id = request.GET.get('view_id', False)
+    if view_id:
+        try:
+            view = Views.objects.get(id=view_id)
+            columns = ViewColumns.objects.filter(view=view)
+        except Exception as e:
+            data = {'success': False}
+        else:
+            data = {'success': True,
+                    'id': view.id,
+                    'name': view.name,
+                    'description': view.description,
+                    'source': view.collection,
+                    'columns': list()}
+            for column in columns:
+                data['columns'].append({'id': column.id,
+                                        'name': column.name,
+                                        'description': column.description,
+                                        'source': column.column})
+    else:
+        data = {'success': False}
+
+    return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
+def relationship_data(request):
+    relationship_id = request.GET.get('relationship_id', False)
+    if relationship_id:
+        try:
+            relationship = ViewRelationships.objects.select_related().get(id=relationship_id)
+        except Exception as e:
+            data = {'success': False}
+        else:
+            data = {'success': True,
+                    'id': relationship.id,
+                    'left_view': relationship.left.view.id,
+                    'right_view': relationship.right.view.id,
+                    'left_column': relationship.left.id,
+                    'right_column': relationship.right.id}
+    else:
+        data = {'success': False}
+
+    return render_json_response(data)
+
+
+@user_has_perms('reporting', 'administer')
 def views_edit(request):
     views = Views.objects.all().order_by('name')
     columns = ViewColumns.objects.all().order_by('name')
@@ -192,11 +268,15 @@ def view_add(request):
     column_names = get_request_array(request.POST, 'column_name')
     column_descriptions = get_request_array(request.POST, 'column_description')
     column_sources = get_request_array(request.POST, 'column_source')
+    view_id = request.POST.get('view_id', False)
 
     error = list()
 
     try:
-        view = Views()
+        if view_id:
+            view = Views.objects.get(id=view_id)
+        else:
+            view = Views()
         view.name = view_name
         view.description = view_description
         view.collection = view_source
@@ -207,6 +287,8 @@ def view_add(request):
     else:
         transaction.commit()
         try:
+            if view_id:
+                ViewColumns.objects.filter(view=view).delete()
             for i, column_name in column_names.iteritems():
                 column = ViewColumns()
                 column.name = column_name
@@ -234,9 +316,13 @@ def view_add(request):
 def relationship_add(request):
     left_column = request.POST.get('left_column', '')
     right_column = request.POST.get('right_column', '')
+    relationship_id = request.POST.get('relationship_id', False)
 
     try:
-        relationship = ViewRelationships()
+        if relationship_id:
+            relationship = ViewRelationships.objects.get(id=relationship_id)
+        else:
+            relationship = ViewRelationships()
         relationship.left = ViewColumns.objects.get(id=left_column)
         relationship.right = ViewColumns.objects.get(id=right_column)
         relationship.save()
