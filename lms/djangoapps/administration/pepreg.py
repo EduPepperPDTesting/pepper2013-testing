@@ -160,9 +160,9 @@ def rows(request):
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
 
-        is_instructor = PepRegInstructor.objects.filter(instructor=request.user, training=item).exists()
+        is_belong = PepRegInstructor.objects.filter(instructor=request.user, training=item).exists() or item.user_create == request.user
 
-        if check_access_level(request.user, 'pepreg', 'admin') == 'System' or is_instructor:
+        if check_access_level(request.user, 'pepreg', 'admin') == 'System' or is_belong:
             managing = "<a href='' onclick='pepreg.clickEditTraining(event, %s)' class='icon icon-edit'></a> \
             <a href='' onclick='pepreg.clickDeleteTraining(event, %s)' class='icon icon-remove'></a>" % (item.id, item.id),
         else:
@@ -177,7 +177,7 @@ def rows(request):
             item.name,
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
             str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
-            "%s<br>%s" % (item.classroom, item.geo_location),
+            "%s<br>%s<input type='hidden' value='%s'>" % (item.classroom, item.geo_location, item.geo_props),
             item.credits,
             "%s,%s,%s,%s,%s" % (item.id, arrive, status, allow, item.attendancel_id),
             "<input type=hidden value=%s name=id>" % item.id
