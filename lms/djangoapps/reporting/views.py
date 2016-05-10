@@ -186,14 +186,68 @@ def views_edit(request):
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def view_add(request):
-    pass
+    view_name = request.POST.get('view_name', '')
+    view_description = request.POST.get('view_description', '')
+    view_source = request.POST.get('view_source', '')
+    column_names = get_request_array(request.POST, 'column_name')
+    column_descriptions = get_request_array(request.POST, 'column_description')
+    column_sources = get_request_array(request.POST, 'column_source')
+
+    error = list()
+
+    try:
+        view = Views()
+        view.name = view_name
+        view.description = view_description
+        view.collection = view_source
+        view.save()
+    except Exception as e:
+        error.append('View Error: {0}'.format(e))
+        transaction.rollback()
+    else:
+        transaction.commit()
+        try:
+            for i, column_name in column_names.iteritems():
+                column = ViewColumns()
+                column.name = column_name
+                column.description = column_descriptions[i]
+                column.column = column_sources[i]
+                column.view = view
+                column.save()
+        except Exception as e:
+            error.append('Column Error: {0}'.format(e))
+            transaction.rollback()
+        else:
+            transaction.commit()
+
+    if len(error):
+        data = {'success': False, 'error': ' '.join(error)}
+    else:
+        data = {'success': True}
+
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def relationship_add(request):
-    pass
+    left_column = request.POST.get('left_column', '')
+    right_column = request.POST.get('right_column', '')
+
+    try:
+        relationship = ViewRelationships()
+        relationship.left = ViewColumns.objects.get(id=left_column)
+        relationship.right = ViewColumns.objects.get(id=right_column)
+        relationship.save()
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        data = {'success': True}
+        transaction.commit()
+
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -230,8 +284,10 @@ def relationships_delete(request):
 
 @user_has_perms('reporting', 'administer')
 def views_list(request):
-    reporting = reporting_store()
-    view_list = reporting.get_collections()
+    views = Views.objects.all().order_by('name')
+    view_list = dict()
+    for view in views:
+        view_list.update({view.id: view.name})
 
     return render_json_response(view_list)
 

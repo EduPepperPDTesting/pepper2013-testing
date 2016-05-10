@@ -17,7 +17,12 @@ from datetime import date
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
-   .circle {
+    .remove_skype_span:hover{
+        cursor: pointer;
+        padding-left:5px;
+        padding-bottom:2px;
+    }
+    .circle {
       width: 20px;
       height: 20px;
       background: #22B14C;
@@ -695,7 +700,27 @@ from datetime import date
         </div>
         <div class="content">
             <form>
-                <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
+                <label>Select Skype Usernames from the below list to add to call.</label>
+                <select id = "skype_usernames_select">
+                    <option id = "uname_null" val="">Select Username</option>
+                    %for u in users:
+                        %if u.user.profile.skype_username != "NULL":
+                            <option class='skype_uname_option' id="${u.user.username}" val="${u.user.profile.skype_username}">${u.user.profile.skype_username}</option>
+                        %endif
+                    %endfor
+                </select>
+                <script>
+                    $("#skype_usernames_select").change(function(){
+                       if($(this).val() != "Select Username"){
+                           toggleSkypeAddition($(this).attr("id"));
+                       }
+                    });
+                    function toggleSkypeAddition(id){
+                        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+                        $("#skype_usernames_select").val('');
+                    }
+                </script>
+                <span id="selected_skype_names"></span><br>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">
                 <div class="skype-container">
@@ -975,6 +1000,14 @@ from datetime import date
                 window.location.href = continue_url;
             });
         });
+        $(document).on("click", "img.remove_skype_span", function(){
+            $(this).parent().remove();
+        });
+        $(".skype_uname_option").each(function(){
+            if($(this).val() == "None"){
+                $(this).remove();
+            }
+        })
         $("#newDiscussionButton").click(function(e){
             e.preventDefault();
             scroll(0,0)
@@ -988,7 +1021,11 @@ from datetime import date
             dialog.showOverlay();
             dialog.$ei.fadeIn(200);
             $('#create-skype').click(function() {
-                var participants = $("input[name='skype-participants']").val().split(/, ?/);
+                var participants = [];
+                $(".skype_username_list").each(function(i){
+                    participants.push($(this).text());
+                });
+                console.log(participants);
                 var topic = $("input[name='skype-topic']").val();
                 var skype_params = {
                     name: "call",

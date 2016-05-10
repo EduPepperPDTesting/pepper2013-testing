@@ -104,13 +104,14 @@ class MongoReportingStore(object):
     # def get_collections(self):
     #     return self.db.collection_names()
 
-    def get_columns(self, collection):
-        self.set_collection(collection)
-        return reduce(
-            lambda all_keys, rec_keys: all_keys | set(rec_keys),
-            map(lambda d: d.keys(), self.collection.find()),
-            set()
-        )
+    # TODO: test this code to make sure it works as expected.
+    # def get_columns(self, collection):
+    #     self.set_collection(collection)
+    #     return reduce(
+    #         lambda all_keys, rec_keys: all_keys | set(rec_keys),
+    #         map(lambda d: d.keys(), self.collection.find()),
+    #         set()
+    #     )
 
     def get_page(self, collection, start, num, db_filter=None):
         self.set_collection(collection)

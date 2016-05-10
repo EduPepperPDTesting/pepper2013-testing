@@ -157,23 +157,15 @@ function expandTitle() {
     });
 }
 
-function submitHandler(form, success_url, placeholder) {
+function submitHandler(form, callback) {
     $(form).submit(function (e) {
         e.preventDefault();
         // TODO: add the error checking here.
         $.post($(this).attr('action'), $(this).serialize(), function (data) {
             if (data.success) {
-                if (success_url) {
-                    if (placeholder) {
-                        window.location = success_url.replace('placeholder', data.report_id);
-                    } else {
-                        window.location = success_url
-                    }
-                } else {
-                    alert('The operation was carried out successfully.');
-                }
+                callback(data)
             } else {
-                alert('The report did not save successfully. The error was: ' + data.error);
+                alert('The operation was not successful. The error was: ' + data.error);
             }
         });
     });
@@ -198,46 +190,82 @@ function selectAll(trigger_selector, target_selector) {
     });
 }
 
-function updateColumnSelect(view) {
-    $.get(column_list_url, {view: view}, function (data) {
-        var content = '';
-        $.each(data, function (index, value) {
-            content += '<option value="' + value + '">' + value + '</option>';
-        });
-        $('.column-source').html(content);
-    });
-}
-
 function addView() {
     $('.add-new-view').click(function (e) {
         e.preventDefault();
-        $.get(view_list_url, function (data) {
-            var dialog = new Dialog('#dialog');
-            var content = '<div id="add-view-wrapper">';
-            content += '<form id="add-view-form" action="' + add_view_url + '">';
-            content += '<label>View Name:<input name="view_name" type ="text"></label>';
-            content += '<label>View Description:<input name="description" type="text"></label>';
-            content += '<label>View Source:<select name="view_source">';
-            $.each(data, function (index, value) {
-                content += '<option value="' + value + '">' + value + '</option>';
-            });
-            content += '</select></label>';
-            content += '<label>Columns:<div class="single-line">';
-            content += '<input name="column_name[0]" type="text">';
-            content += '<input name="column_description[0]" type="text">';
-            content += '<select class="column-source" name="column_source[0]"><option value=""> </option></select>';
-            content += '<input type="button" value="+">';
-            content += '</div></label>';
-            content += '</form>';
-            content += '</div>';
-            dialog.show('Add New View', content);
-            $('#view-source').change(function () {
-                updateColumnSelect($(this).val())
-            })
+        var dialog = new Dialog('#view-dialog');
+        var content = '<div id="add-view-wrapper">';
+        content += '<form id="add-view-form" action="' + add_view_url + '">';
+        content += '<label>View Name:<input name="view_name" type ="text"></label>';
+        content += '<label>View Description:<input name="view_description" type="text"></label>';
+        content += '<label>View Source:<input name="view_source" type="text"></label>';
+        content += '<label>Columns:<div class="single-line">';
+        content += '<input name="column_name[0]" type="text" placeholder="Name">';
+        content += '<input name="column_description[0]" type="text" placeholder="Description">';
+        content += '<input name="column_source[0]" type="text" placeholder="Source">';
+        content += '<input type="button" value="+" class="plus">';
+        content += '</div></label>';
+        content += '<input type="submit" value="Add">';
+        content += '</form>';
+        content += '</div>';
+        dialog.show('Add New View', content);
+
+        submitHandler('#add-view-form', function (data) {
+            dialog.hide();
+            alert('View Created Successfully.');
+            // TODO: add a refresh here.
         });
     });
 }
 
-function addRelationship(url) {
+function updateColumnSelect(view, selector) {
+    if (view != '') {
+        $.get(column_list_url, {'view[0]': view}, function (data) {
+            var html = '';
+            $.each(data, function (index, value) {
+                html += '<option value="' + value.id + '">' + value.name + '</option>';
+            });
+            $(selector).html(html);
+        });
+    } else {
+        $(selector).html('');
+    }
+}
 
+function addRelationship(url) {
+    $('.add-new-relationship').click(function (e) {
+        e.preventDefault();
+        $.get(view_list_url, function (data) {
+            var dialog = new Dialog('#view-dialog');
+            var content = '<div id="add-relationship-wrapper">';
+            content += '<form id="add-relationship-form" action="' + add_relationship_url + '">';
+            content += '<div><label>Left View:<select id="left-view" name="left_view"><option value="">Select</option>';
+            $.each(data, function (index, value) {
+                content += '<option value="' + index + '">' + value + '</option>';
+            });
+            content += '</select></label>';
+            content += '<label>Right View:<select id="right-view" name="right_view"><option value="">Select</option>';
+            $.each(data, function (index, value) {
+                content += '<option value="' + index + '">' + value + '</option>';
+            });
+            content += '</select></label></div>';
+            content += '<div><label>Left Column:<select id="left-column" name="left_column"></select></label>';
+            content += '<label>Right Column:<select id="right-column" name="right_column"></select></label></div>';
+            content += '<input type="submit" value="Add">';
+            content += '</form></div>';
+            dialog.show('Add New View Relationship', content);
+            $('#left-view').change(function () {
+                updateColumnSelect($(this).val(), '#left-column');
+            });
+            $('#right-view').change(function () {
+                updateColumnSelect($(this).val(), '#right-column');
+            });
+
+            submitHandler('#add-relationship-form', function (data) {
+                dialog.hide();
+                alert('Relationship Created Successfully.');
+                // TODO: add a refresh here.
+            });
+        });
+    });
 }
