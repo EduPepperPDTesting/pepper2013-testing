@@ -482,6 +482,19 @@ function Dialog(el){
         self.hide();
     });
 }
+Dialog.prototype.show=function(title,content){
+    var self=this;
+    this.showOverlay();
+    if(typeof title != "undefined")
+        this.setTitle(title);
+    if((typeof content) != "undefined")
+        this.setContent(content);
+    this.$ei.fadeIn(200);
+};
+Dialog.prototype.lift=function(n){
+    this.$overlay.css('z-index',this.$overlay.css('z-index')+n);
+    this.$ei.css('z-index',this.$ei.css('z-index')+n);
+};
 Dialog.prototype.showOverlay=function(){
     if(!this.$overlay){
         this.$overlay=$("<div class='lean-overlay'></div>");
@@ -498,6 +511,7 @@ Dialog.prototype.hideOverlay=function(){
 Dialog.prototype.hide=function(){
     this.$ei.css('display','none');
     this.hideOverlay();
+    this.$ei.trigger("hide");
 };
 Dialog.prototype.setTitle=function(title){
     this.$ei.find('.dialog-title').html(title);
@@ -557,16 +571,6 @@ Dialog.prototype.showButtons=function(title,content,labels,callback){
         });  
     });
 };
-Dialog.prototype.show=function(title,content){
-    var self=this;
-    this.showOverlay();
-    if(typeof title != "undefined")
-        this.setTitle(title);
-    
-    if((typeof content) != "undefined")
-        this.setContent(content);
-    this.$ei.fadeIn(200);
-};
 Dialog.prototype.isOn=function(){
     return !this.$ei.is(":hidden");
 };
@@ -583,6 +587,7 @@ function ContextMenu($container,$trigger){
         self.toggle();
     });
 }
+//////////////////////////////////////////////////////////////////
 ContextMenu.prototype.createItem=function($el){
     var $li=$("<li></li>").appendTo(this.$container);
     $li.append($el);
@@ -590,9 +595,8 @@ ContextMenu.prototype.createItem=function($el){
 ContextMenu.prototype.toggle=function(){
     this.$container.toggle();
 };
-
-function StepsForm($content, colors){
-    this.$content=$content;
+function StepsForm($eis, colors){
+    this.$eis=$eis;
     this.colors=colors;
     this.arVisited=[];
     this.init();
@@ -608,12 +612,12 @@ StepsForm.prototype.aniMarginLeft=function($el, des, duration, complete){
 }
 StepsForm.prototype.unlockAll=function(id){
     var self=this;
-    this.$content.find(".step-page").each(function(i){
+    this.$eis.find(".step-page").each(function(i){
         self.setVisited(i, true);
     });
 }  
 StepsForm.prototype.getContent=function(id){
-    return this.$content.find(".step-page").eq(id);
+    return this.$eis.find(".step-page").eq(id);
 }
 StepsForm.prototype.visited=function(id){
     return this.arVisited[id];
@@ -622,16 +626,16 @@ StepsForm.prototype.setVisited=function(id, yn){
     return this.arVisited[id]=yn;
 }
 StepsForm.prototype.switchTo=function(id){
-    this.$content.find(".step-page").find(".switch").eq(id).click();
+    this.$eis.find(".step-page").find(".switch").eq(id).click();
 }
 StepsForm.prototype.init=function(){
     var self=this;
     var curr=0;
-    var num_layers = this.$content.find(".step-page").length;
+    var num_layers = this.$eis.find(".step-page").length;
     this.setVisited(0, true);
-    var w=this.$content.width()-(num_layers-1)*20;
-    var $pages = this.$content.find(".step-page");
-    this.$content.find(".step-page").each(function(i) {
+    var w=this.$eis.width()-(num_layers-1)*20;
+    var $pages = this.$eis.find(".step-page");
+    this.$eis.find(".step-page").each(function(i) {
         var cnt=this;
         $(this).width(w+"px");
         $(this).css("margin-left", ((i) * 20) +"px");
@@ -661,7 +665,7 @@ StepsForm.prototype.init=function(){
             if($pages.index($(this).parent()) == curr){
                 return;
             }
-            if(self.$content.find(".moving").length){
+            if(self.$eis.find(".moving").length){
                 return;
             }
             if(self.onBeforeSwitch && !self.onBeforeSwitch.apply(self,[curr,i])){

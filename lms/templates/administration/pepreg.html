@@ -67,7 +67,6 @@ from permissions.utils import check_access_level, check_user_perms
           <option value="WR">Writing and Poetry</option>   
         </select>
         %if check_user_perms(request.user, 'pepreg'):
-        <!-- <input type="button" name="" value="ADD NEW TRAINING" class="small" onclick="return pepreg.addTraining();"/> -->
         <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
           <a href="#"><div class="icon"></div><div>Add New</div></a>
         </div>
@@ -132,6 +131,15 @@ from permissions.utils import check_access_level, check_user_perms
         <span style="float:right;"></span>
       </span>
     </div>
+  </div>
+</div>
+<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
   </div>
 </div>
 <div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
@@ -265,6 +273,7 @@ from permissions.utils import check_access_level, check_user_perms
               <input type="" name="geo_location" value="" style="width:400px"/>
             </div>
             <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
+            <input type="hidden" name="geo_props" value="" style="width:400px"/>
           </div>
         </div>
         <div class="step-page">
@@ -312,7 +321,7 @@ from permissions.utils import check_access_level, check_user_perms
     </div>
   </div>
 </div>
-%if check_user_perms(request.user, 'pepreg'):
+%if check_user_perms(request.user, 'pepreg') or request.user.is_instructor:
 <script type="text/javascript">
   var is_admin=true;
 </script>
@@ -365,6 +374,7 @@ from permissions.utils import check_access_level, check_user_perms
       training_time: $form.find("input[name=training_time]").val(),
       classroom: $form.find("input[name=classroom]").val(),
       geo_location: $form.find("input[name=geo_location]").val(),
+      geo_props: $form.find("input[name=geo_props]").val(),
       instructor_emails: this.getInstructors().join(","),
       credits: $form.find("input[name=credits]").val() || 0,
       attendancel_id: $form.find("input[name=attendancel_id]").val(),
@@ -377,7 +387,6 @@ from permissions.utils import check_access_level, check_user_perms
       var apart = json.training_date.split("/");
       json.training_date = [apart[2], apart[0], apart[1]].join("-");
     }
-    // json["geo_props"] =  JSON.stringify({lat: json.geo_lat, lon: json.geo_lon});
     return json;
   }
   PepReg.prototype.validateAllPage=function(data){
@@ -390,6 +399,19 @@ from permissions.utils import check_access_level, check_user_perms
     });
     return r;
   }
+  PepReg.prototype.warning=function(s){
+    new Dialog($("#dlg-warning")).show("Warning", s);
+  }
+  PepReg.prototype.warningInvalid=function(s){
+    var self=this;
+    this.dlsForm.hideOverlay();
+    var dlg = new Dialog($("#dlg-warning"));
+    dlg.show("Warning", s);
+    dlg.lift(100);
+    $("#dlg-warning").bind("hide",function(){
+      self.dlsForm.showOverlay();
+    });
+  }  
   PepReg.prototype.validatePage=function(page, data){
     if(page==0){
       if(!data.type){
@@ -431,7 +453,7 @@ from permissions.utils import check_access_level, check_user_perms
   }
   PepReg.prototype.initForm=function(data, finishCallback){
     var self = this;
-    var dlg = new Dialog($("#dlg-add-training"));
+    var dlg = this.dlsForm = new Dialog($("#dlg-add-training"));
     dlg.show();
     var steps = this.steps = new StepsForm($("#dlg-add-training .content div"),
                                            ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
@@ -444,7 +466,7 @@ from permissions.utils import check_access_level, check_user_perms
       var $content = this.getContent(curr);
       var data = self.getInput();
       if(!this.visited(dest) && (error = self.validatePage(curr, data))){
-         return alert(error);
+         return self.warningInvalid(error);
       }
       if(curr==0){
         if(data.type == "pepper_course"){
@@ -457,7 +479,7 @@ from permissions.utils import check_access_level, check_user_perms
           $("input[name=credits]").parents(".form-row").show();
         }
       }
-      return dest==0 || this.visited(dest-1) || alert("Please finish the previous pages before switch to that page"); // return true if ready to switch
+      return dest==0 || this.visited(dest-1) || self.warning("Please finish the previous pages before switch to that page"); // return true if ready to switch
     }
     // ************* when finish form
     steps.onFinish=function() {
@@ -474,7 +496,6 @@ from permissions.utils import check_access_level, check_user_perms
     var hits={};
     $('input[name=geo_location]').autocomplete({
       select: function(e,item){
-        // console.log(item.item);
         var hit = hits[item.item.value];
         if(hit){
           self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
@@ -502,7 +523,7 @@ from permissions.utils import check_access_level, check_user_perms
           self.appendInstructors(email);
           $("#complete-email").val("");
         }else{
-          alert("User not exists.");
+          self.warning("User not exists.");
         }
       });
     });
@@ -529,6 +550,8 @@ from permissions.utils import check_access_level, check_user_perms
     }
   }
   PepReg.prototype.markPlace=function(map, lat, lon, zoom) {
+    $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat:lat, lon:lon}));
+    
     var self = this;
     map.marks = map.marks || [];
     $.each(map.marks, function(i, m){
@@ -550,7 +573,7 @@ from permissions.utils import check_access_level, check_user_perms
               data = d;
             }
           });
-          self.markPlace(map, data.lat, data.lon, 10);
+          self.markPlace(map, data.lat, data.lon, 15);
         }else{
           self.markPlace(map, 38.68551, -99.22852, 3); // to USA
         }
@@ -566,7 +589,14 @@ from permissions.utils import check_access_level, check_user_perms
     var self=this;
     data = data || {};
     var state='${request.user.profile.district.state.name} United States';
-    this.showPlace(this.map_edit, data.geo_location || state);
+
+    if(data.geo_props){
+      var props = JSON.parse(data.geo_props);
+      this.markPlace(this.map_edit, props.lat, props.lon, 15);
+    }else{
+      this.showPlace(this.map_edit, state);
+    }
+
     $.each(data,function(k, v){
       var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
       if($entry.prop("tagName") == "INPUT" && ($entry.attr("type")=="radio" ||  $entry.attr("type")=="checkbox")){
@@ -590,12 +620,13 @@ from permissions.utils import check_access_level, check_user_perms
   PepReg.prototype.clickDeleteTraining=function(e, id){
     var self=this;
     e.preventDefault();
-    if(!confirm("Are you sure you want to delete the training?")){
-      return;
-    }
-    $.post("${reverse('pepreg_delete_training')}", {id:id}, function(r){
-      if(r.success){
-        self.reloadTable();
+    new Dialog("#dlg-warning").showYesNo("Confirm", "Are you sure you want to delete the training?", function(r){
+      this.hide();
+      if(r){
+        $.post("${reverse('pepreg_delete_training')}", {id:id}, function(r){
+          if(r.success)
+            self.reloadTable();
+        });
       }
     });
   }
@@ -606,7 +637,7 @@ from permissions.utils import check_access_level, check_user_perms
       r.instructor_emails = r.instructor_emails.join(",");
       self.initForm(r, function(data){
         if(einfo = self.validateAllPage(data)){
-          alert(einfo.error);
+          self.warningInvalid(einfo.error);
           self.steps.switchTo(einfo.id)
           return;
         }
@@ -633,7 +664,7 @@ from permissions.utils import check_access_level, check_user_perms
     var steps = this.initForm({district_id:${request.user.profile.district_id}}, function(data){
       // submit
       if(einfo = self.validateAllPage(data)){
-        alert(einfo.error);
+        self.warningInvalid(einfo.error);
         self.steps.switchTo(einfo.id);
         return;
       }
@@ -732,11 +763,14 @@ from permissions.utils import check_access_level, check_user_perms
           $row.find("a").css("cursor", "pointer");
           $row.find("a").click(function(e){
             e.preventDefault();
-            if(confirm("Really delete the student?")){
-              self.deleteStudent(data.id, function(){
-                $row.remove();
-              });
-            }
+            new Dialog("#dlg-warning").showYesNo("Confirm","Really delete the student?", function(r){
+              this.hide();
+              if(r){
+                self.deleteStudent(data.id, function(){
+                  $row.remove();
+                });
+              }
+            });
           });
           $row.find("input[name=is_attended]").change(function(){
             var me=this;
@@ -764,8 +798,8 @@ from permissions.utils import check_access_level, check_user_perms
       }
     });
   }
-  PepReg.prototype.showMap=function(geo_location){
-    this.showPlace(this.map_show, geo_location);
+  PepReg.prototype.showMap=function(props){
+    this.markPlace(this.map_show, props.lat, props.lon, 15);
     new Dialog($("#dlg-map")).show();
     // window.open('${reverse('pepreg_map')}' + "?training_id="+training_id, '_blank');
   }
@@ -832,8 +866,8 @@ from permissions.utils import check_access_level, check_user_perms
         $(this).css("color","#1d9dd9");
         $(this).css("cursor","pointer");
         $(this).click(function(){
-          console.log($(this).html())
-          self.showMap($(this).html().split("<br>")[1]);
+          var props = JSON.parse($(this).find("input").val());
+          self.showMap(props);
         });
       });
       // Register/Record Attendance
@@ -863,7 +897,7 @@ from permissions.utils import check_access_level, check_user_perms
                 $button.show();
               }else{
                 self.setStudentAttended(${request.user.id},training_id, false, function(){
-                  alert("Success");
+                  self.warning("Success");
                 });
                 $input.hide();
                 $button.hide();
@@ -877,15 +911,15 @@ from permissions.utils import check_access_level, check_user_perms
                 self.setStudentAttended(${request.user.id},training_id, true, function(){
                   $input.hide();
                   $button.hide();                
-                  alert("Success");
+                  self.warning("Success");
                 });
               }else{
-                alert("It's a wrong ID.");
+                self.warning("It's a wrong ID.");
               }
             });
           }else{
             $check.change(function(){
-              self.setStudentAttended(${request.user.id},training_id, this.checked, function(){alert("Success");});
+              self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
             });            
           }
           
