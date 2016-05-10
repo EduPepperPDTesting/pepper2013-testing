@@ -702,7 +702,7 @@ from datetime import date
         </div>
         <div class="content">
             <form>
-                <label>Select Skype Usernames from the below list to add to call.</label><br></br>
+                <label>Select Skype Usernames from the below list to add to call.</label><br>
                 <select id = "skype_usernames_select">
                     <option id = "uname_null" val="">Select Username</option>
                     %for u in users:
@@ -711,17 +711,6 @@ from datetime import date
                         %endif
                     %endfor
                 </select>
-                <script>
-                    $("#skype_usernames_select").change(function(){
-                       if($(this).val() != "Select Username"){
-                           toggleSkypeAddition($(this).attr("id"));
-                       }
-                    });
-                    function toggleSkypeAddition(id){
-                        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
-                        $("#skype_usernames_select").val('');
-                    }
-                </script>
                 <span id="selected_skype_names"></span><br>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">
@@ -1002,6 +991,11 @@ from datetime import date
                 window.location.href = continue_url;
             });
         });
+        $("#skype_usernames_select").change(function(){
+           if($(this).val() != "Select Username"){
+               toggleSkypeAddition($(this).attr("id"));
+           }
+        });
         $(document).on("click", "img.remove_skype_span", function(){
             $(this).parent().remove();
         });
@@ -1027,7 +1021,6 @@ from datetime import date
                 $(".skype_username_list").each(function(i){
                     participants.push($(this).text());
                 });
-                console.log(participants);
                 var topic = $("input[name='skype-topic']").val();
                 var skype_params = {
                     name: "call",
@@ -1045,5 +1038,9 @@ from datetime import date
             });
         });
     });
+    function toggleSkypeAddition(id){
+        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+        $("#skype_usernames_select").val('');
+    }
 </script>
 </body>
