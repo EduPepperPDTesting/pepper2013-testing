@@ -321,21 +321,7 @@ from permissions.utils import check_access_level, check_user_perms
     </div>
   </div>
 </div>
-%if check_user_perms(request.user, 'pepreg') or request.user.is_staff:
-<script type="text/javascript">
-  var is_admin=true;
-</script>
-%else:
-<script type="text/javascript">
-  var is_admin=false;
-</script>
-<style type="text/css" media="screen">
- #data-table th:nth-child(1),
- #data-table td:nth-child(1) {
-   display: none;
- }
-</style>
-%endif
+
 <script type="text/javascript">
   function PepReg($content){
     var self=this;
@@ -837,32 +823,40 @@ from permissions.utils import check_access_level, check_user_perms
         columnSelector_mediaqueryName: 'All: '
       }
     };
-    /* if(!is_admin){
-       tablesorterOptions.widgetOptions.columnSelector_columns[1] = 'disable';
-       tablesorterOptions.widgetOptions.columnSelector_columns[2] = 'disable';
-       } */
     tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
     pagerOptions.container = this.$content.find("#user-pager");
     pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
     this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-    if(is_admin)
-      $("#data-table").trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11]]);
-    else{
-      $("#data-table").trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10]]);
-    }
-   $("#data-table").bind("pagerComplete", function() {
-     // Training Name
-     if(is_admin){
-       $(this).find("td:nth-child(6)").each(function(){
-         var training_id = $(this).parent().find("input[name=id]").val();
-         $(this).css("color","#1d9dd9");
-         $(this).css("cursor","pointer");
-         $(this).click(function(){
-           self.showStudents(training_id);
-         });
-       });
-     }
-     // location
+    $("#data-table").bind("pagerComplete", function() {
+      var is_admin = $(this).find("a.icon-edit").length > 0;
+      if(!is_admin){
+        $(this).find("th:nth-child(1)").hide();
+        $(this).find("td:nth-child(1)").hide();
+        $(this).find("th:nth-child(12)").hide();
+        $(this).find("td:nth-child(12)").hide();
+      }else{
+        $(this).find("th:nth-child(1)").show();
+        $(this).find("td:nth-child(1)").show();
+        $(this).find("th:nth-child(12)").show();
+        $(this).find("td:nth-child(12)").show();
+      }
+      if(is_admin)
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11]]);
+      else{
+        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10]]);
+      }
+      // Training Name
+      if(is_admin){
+        $(this).find("td:nth-child(6)").each(function(){
+          var training_id = $(this).parent().find("input[name=id]").val();
+          $(this).css("color","#1d9dd9");
+          $(this).css("cursor","pointer");
+          $(this).click(function(){
+            self.showStudents(training_id);
+          });
+        });
+      }
+      // location
       $(this).find("td:nth-child(9)").each(function(){
         var training_id = $(this).parent().find("input[name=id]").val();
         $(this).css("color","#1d9dd9");
@@ -891,7 +885,6 @@ from permissions.utils import check_access_level, check_user_perms
         }else if (arrive == "1"){
           var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
           $check.prop('checked', status == "Attended" || status == "Validated");
-
           if(attendancel_id.length){
             $check.change(function(){
               if(this.checked){
@@ -924,7 +917,6 @@ from permissions.utils import check_access_level, check_user_perms
               self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
             });            
           }
-          
         }else if (arrive == "1" && status == ""){
           $(this).html("The registration date has passed for this training");
         }else{
