@@ -463,7 +463,8 @@ def download_certificate(request, course_id, completed_time):
             coursename=course_name,
             coursenumber=course_full_name,
             date=completed_time,
-            hours=all_course_time)
+            hours=estimated_effort,
+            recordedhours=all_course_time)
     except KeyError, e:
         output_error = 'The placeholder {0} does not exist.'.format(str(e))
     # return render_to_response('download_certificate.html', {'content': blob, 'outputError': output_error})
@@ -500,7 +501,7 @@ def get_allcoursetime(user_id, course_id):
     
     course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
     all_course_time = course_time + external_time
-    all_course_time_unit = study_time_format(all_course_time)
+    all_course_time_unit = recorded_time_format(all_course_time)
     
     return all_course_time_unit
 
@@ -517,6 +518,25 @@ def study_time_format(t, is_sign=False):
         hour_unit = ' Hours, '
     if minute != 1:
         minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
+
+def recorded_time_format(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour '
+    minute_unit = ' Min'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    if hour != 1:
+        hour_unit = ' Hours '
+    if minute != 1:
+        minute_unit = 'Min'
     if hour > 0:
         hour_full = str(hour) + hour_unit
     else:
