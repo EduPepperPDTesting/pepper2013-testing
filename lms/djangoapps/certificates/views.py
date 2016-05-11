@@ -443,16 +443,22 @@ def download_certificate(request, course_id, completed_time):
     user_course = get_course_with_access(user_id, course_id, 'load')
     first_name = request.user.first_name
     last_name = request.user.last_name
-    
+    estimated_effort = user_course.certificates_estimated_effort
+
     #@begin:get course-time for certificate
     #@date:2016-05-04
     all_course_time = get_allcoursetime(user_id, course_id)
+
+    estimated_effort_list = estimated_effort.split()
+    estimated_effort_new_list = []
+    for el in estimated_effort_list:
+        estimated_effort_new_list.append(el.capitalize())
+    estimated_effort_Upper = ' '.join(estimated_effort_new_list)
     #@end
 
     course_name = user_course.display_name_with_default
     # user_name = first_name + ' ' + last_name
     course_full_name = user_course.display_number_with_default + " " + course_name
-    estimated_effort = user_course.certificates_estimated_effort
     completed_time = datetime.datetime.strptime(completed_time, '%Y-%m-%d').strftime('%B %d, %Y ')
     blob = urllib.unquote(getCertificateBlob(request, user_course.display_organization).decode('utf8').encode('utf8'))
     output_error = ''
@@ -463,7 +469,7 @@ def download_certificate(request, course_id, completed_time):
             coursename=course_name,
             coursenumber=course_full_name,
             date=completed_time,
-            hours=estimated_effort,
+            hours=estimated_effort_Upper,
             recordedhours=all_course_time)
     except KeyError, e:
         output_error = 'The placeholder {0} does not exist.'.format(str(e))
