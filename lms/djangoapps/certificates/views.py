@@ -35,7 +35,21 @@ from xhtml2pdf import pisa
 from django.http import HttpResponse
 from cgi import escape
 
-logger = logging.getLogger(__name__)
+#@begin:get course-time for certificate
+#@date:2016-05-04
+from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
+                            TestCenterRegistration, TestCenterRegistrationForm,
+                            PendingNameChange, PendingEmailChange,
+                            CourseEnrollment, unique_id_for_user,
+                            get_testcenter_registration, CourseEnrollmentAllowed)
+from study_time.models import record_time_store
+from xmodule.course_module import CourseDescriptor
+from xmodule.modulestore.exceptions import ItemNotFoundError
+from xmodule.modulestore.django import modulestore
+from django.contrib.auth.models import User
+#@end
+
+logger = logging.getLogger(__name__) 
 
 @csrf_exempt
 def update_certificate(request):
@@ -429,6 +443,11 @@ def download_certificate(request, course_id, completed_time):
     user_course = get_course_with_access(user_id, course_id, 'load')
     first_name = request.user.first_name
     last_name = request.user.last_name
+    
+    #@begin:get course-time for certificate
+    #@date:2016-05-04
+    all_course_time = get_allcoursetime(user_id, course_id)
+    #@end
 
     course_name = user_course.display_name_with_default
     # user_name = first_name + ' ' + last_name
@@ -444,7 +463,7 @@ def download_certificate(request, course_id, completed_time):
             coursename=course_name,
             coursenumber=course_full_name,
             date=completed_time,
-            hours=estimated_effort)
+            hours=all_course_time)
     except KeyError, e:
         output_error = 'The placeholder {0} does not exist.'.format(str(e))
     # return render_to_response('download_certificate.html', {'content': blob, 'outputError': output_error})
@@ -461,3 +480,46 @@ def download_certificate(request, course_id, completed_time):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
 
+#@begin:get course-time for certificate
+#@date:2016-05-04
+def get_allcoursetime(user_id, course_id):
+    user = User.objects.get(id=str(user_id))
+
+    course_time = 0
+    external_time = 0
+    rts = record_time_store()
+    all_course_time = 0
+    all_course_time_unit = ""
+
+    try:
+        c = course_from_id(course_id)
+        external_time = rts.get_external_time(str(user.id), c.id)
+    except ItemNotFoundError:
+        log.error("User {0} enrolled in non-existent course {1}"
+                    .format(user.username, course_id))
+    
+    course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
+    all_course_time = course_time + external_time
+    all_course_time_unit = study_time_format(all_course_time)
+    
+    return all_course_time_unit
+
+def study_time_format(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour, '
+    minute_unit = ' Minute'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    if hour != 1:
+        hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
+#@end
