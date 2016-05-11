@@ -30,7 +30,7 @@
                     %for view in views:
                         <tr class="data">
                             <td>${view.name}</td>
-                            <td>${view.description}</td>
+                            <td>${view.description if view.description else ''}</td>
                             <td>${', '.join(columns.filter(view=view).values_list('name', flat=True))}</td>
                             <td class="check-column">
                                 <input type="checkbox" value="${view.id}" name="view_id[${view.id}]" class="view-select">&nbsp;
@@ -126,6 +126,9 @@
     var column_list_url = '${reverse('reporting_view_columns')}';
     var add_view_url = '${reverse('reporting_view_add')}';
     var add_relationship_url = '${reverse('reporting_relationship_add')}';
+    var view_update_url = '${reverse('reporting_views_edit_update')}';
+    var view_data_url = '${reverse('reporting_view_data')}';
+    var relationship_data_url = '${reverse('reporting_relationship_data')}';
     $(document).ready(function () {
         pagerOptions.container = $("#views-pager");
         $('#views-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
