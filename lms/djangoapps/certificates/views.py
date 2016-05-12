@@ -536,13 +536,13 @@ def recorded_time_format(t, is_sign=False):
         sign = '-'
         t = abs(t)
     hour_unit = ' Hour '
-    minute_unit = ' Min'
+    minute_unit = ' Minute'
     hour = int(t / 60 / 60)
     minute = int(t / 60 % 60)
     if hour != 1:
         hour_unit = ' Hours '
     if minute != 1:
-        minute_unit = 'Min'
+        minute_unit = 'Minutes'
     if hour > 0:
         hour_full = str(hour) + hour_unit
     else:
