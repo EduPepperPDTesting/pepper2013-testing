@@ -300,7 +300,7 @@ function addView() {
             content += '<input class="column_name" name="column_name[0]" type="text" placeholder="Name">';
             content += '<input class="column_description" name="column_description[0]" type="text" placeholder="Description">';
             content += '<input class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<input type="button" value="+" class="plus" name="plus[' + index + ']">';
+            content += '<input type="button" value="+" class="plus" name="plus[0]">';
             content += '</div>';
         }
         content += '</label>';
