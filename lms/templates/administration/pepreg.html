@@ -328,9 +328,10 @@ from permissions.utils import check_access_level, check_user_perms
     this.$content=$content;
     this.initContent();
     // *** maps ***
-    var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw";
+    var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
     this.map_edit = L.map('map_edit');
     L.tileLayer(url_tile_layer, {
+      trackResize: true,
 	  maxZoom: 18,
 	  attribution: '',
 	  id: 'mapbox.streets'
@@ -451,6 +452,7 @@ from permissions.utils import check_access_level, check_user_perms
     var steps = this.steps = new StepsForm($("#dlg-add-training .content div"),
                                            ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
     // ************* add dlg close button to each step
+    $("#dlg-add-training").find(".close-modal").remove();
     $("<div class='close-modal' style='right:20px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function(){
       dlg.hide();
     });
@@ -544,13 +546,15 @@ from permissions.utils import check_access_level, check_user_perms
   }
   PepReg.prototype.markPlace=function(map, lat, lon, zoom) {
     $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat:lat, lon:lon}));
-    
     var self = this;
     map.marks = map.marks || [];
     $.each(map.marks, function(i, m){
       map.removeLayer(m);
     });
-    map.setView([lat, lon], zoom);
+    map.setView([lat, lon], zoom, {
+      reset: true
+    });
+    map._onResize()
     var marker = L.marker([lat, lon]).addTo(map);
     map.marks.push(marker);
   }
