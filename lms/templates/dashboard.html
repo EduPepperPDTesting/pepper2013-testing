@@ -48,6 +48,9 @@
    color:#fff;
    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
  }
+ .skype-icon{
+     background-image: url("/static/images/skype-add.png") !important;
+ }
  #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
    background:#126F9A;
    text-decoration: none;
@@ -414,8 +417,9 @@
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
+          %if request.user==curr_user:
           <span class="title">
-              <div class="icon name-icon"></div><b>${_("Skype")}:</b>
+              <div class="icon skype-icon name-icon"></div><b>${_("Skype")}:</b>
             <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.skype_username }</span>
 
 			<script>
@@ -425,10 +429,11 @@
 					document.getElementById('skype_name_span').textContent = full_name.substring(0,27)+" ...";
 				}
 		   </script>
-			%if curr_user==request.user or request.user.is_superuser:
+			%if curr_user==request.user:
             (<a href="#apply_skype_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
+          %endif
 <!--@end-->          
         </li>
 <!--@begin:Profile：user photo-->
