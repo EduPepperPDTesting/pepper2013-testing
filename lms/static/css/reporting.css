@@ -340,6 +340,15 @@ body.dragging, body.dragging * {
     padding-right: 20px;
     display: none;
 }
+#reporting .delete-report, #reporting .edit-report {
+    float: right;
+    display: none;
+}
+#reporting .delete-report img, #reporting .edit-report img {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+}
 #reporting #back {
     margin-bottom: 10px;
 }

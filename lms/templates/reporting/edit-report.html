@@ -27,8 +27,8 @@
             %endif
             <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             <input type="hidden" name="action" value="${action}">
-            <input type="button" value="Cancel" class="report-button"><!-- TODO: need this to redirect correctly -->
-            <input type="submit" value="Save" class="report-button" id="report-save"><!-- TODO: JS handler for this -->
+            <input type="button" value="Cancel" class="report-button" id="report-cancel">
+            <input type="submit" value="Save" class="report-button" id="report-save">
             <!--<input type="submit" value="Preview" class="report-button">-->
         </div>
         <div class="edit-block view-selector">
@@ -45,7 +45,7 @@
                     <select class="view-select" name="view[${loop.index}]">
                         <option value="none">Select...</option>
                         %for view in views:
-                            %if selected_view.id == view.id:
+                            %if selected_view == view.id:
                                 <option value="${view.id}" selected>${view.name}</option>
                             %else:
                                 <option value="${view.id}">${view.name}</option>
@@ -60,16 +60,16 @@
             %if action == 'edit':
                 <ul>
                 %for view_column in view_columns:
-                    <li><label>
-                    %if view_column.id in s:
-                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> ${view_column.name} - ${view_column.description}
-                    %else:
-                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> ${view_column.name} - ${view_column.description}
-                    %endif
-                    </label></li>
-                    %if loop.index == second_column or loop.index == third_column:
+                    %if loop.index == first_column or loop.index == second_column:
                         </ul><ul>
                     %endif
+                    <li><label>
+                    %if view_column.id in selected_columns:
+                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
+                    %else:
+                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
+                    %endif
+                    </label></li>
                 %endfor
                 </ul>
             %endif
@@ -93,7 +93,11 @@
                     %endif
                     <select class="filter-column" name="filter-column[${loop.index}]">
                         %for column in view_columns:
-                            <option value="${column.id}">${column.name}</option>
+                            %if column.id == view_filter.column.id:
+                                <option value="${column.id}" selected>${column.view.name}.${column.name}</option>
+                            %else:
+                                <option value="${column.id}">${column.view.name}.${column.name}</option>
+                            %endif
                         %endfor
                     </select>
                     <select class="filter-operator" name="filter-operator[${loop.index}]">
@@ -105,7 +109,7 @@
                             %endif
                         %endfor
                     </select>
-                    <input class="filter-value" type="text" name="filter-value[${loop.index}]"/>
+                    <input class="filter-value" type="text" name="filter-value[${loop.index}]" value="${view_filter.value}"/>
                     <input class="plus" name="plus[${loop.index}]" type="button" value="+"/>
                     %if loop.index > 0:
                         <input class="minus" name="minus[${loop.index}]" type="button" value="-"/>
@@ -151,7 +155,13 @@
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
         submitHandler('#report-edit', function (data) {
-            window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
+            // TODO: Disabling this for now, since this page isn't done yet. Will redirect to the main reports page for now.
+            //window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
+            window.location = '${reverse('reporting_reports')}';
+        });
+        $('#report-cancel').click(function (e) {
+            e.preventDefault();
+            window.location = '${reverse('reporting_reports')}';
         });
     });
 </script>

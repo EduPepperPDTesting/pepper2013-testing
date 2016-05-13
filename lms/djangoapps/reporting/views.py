@@ -125,25 +125,21 @@ def report_edit(request, report_id):
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
-            selected_views = ReportViews.objects.filter(report=report).order_by('order')
-            view_columns = ViewColumns.objects.filter(view__in=selected_views.values_list('id', flat=True)).order_by(
-                'view', 'name')
-            selected_columns = ReportViewColumns.objects.filter(report=report)
+            selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
+            selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
+            selected_columns = ReportViewColumns.objects.filter(report=report).values_list('column__id', flat=True)
             filters = ReportFilters.objects.filter(report=report).order_by('order')
-            third_column = floor(len(view_columns) / 3)
-            remainder = len(view_columns) % 3
+            third_column = int(floor(len(selected_views_columns) / 3))
+            remainder = len(selected_views_columns) % 3
             first_column = third_column + 1 if remainder > 0 else third_column
-            second_column = third_column + 1 if remainder > 1 else third_column
-            s = selected_columns.values_list('id', flat=True)
-            x = 0
+            second_column = first_column * 2 if remainder > 1 else first_column * 2 - 1
             data.update({'report': report,
-                         'view_columns': view_columns,
+                         'view_columns': selected_views_columns,
                          'selected_views': selected_views,
                          'selected_columns': selected_columns,
                          'report_filters': filters,
                          'first_column': first_column,
-                         'second_column': second_column,
-                         'third_column': third_column})
+                         'second_column': second_column})
             action = 'edit'
         except:
             data = {'error_title': 'Report Not Found',
@@ -154,6 +150,7 @@ def report_edit(request, report_id):
     else:
         action = 'new'
     data.update({'action': action, 'possible_operators': ['=', '!=', '>', '<', '>=', '<=']})
+    #raise Exception('{0}'.format(data))
     return render_to_response('reporting/edit-report.html', data)
 
 
@@ -177,7 +174,7 @@ def report_save(request, report_id):
             report = Reports()
             report.author = request.user
         elif action == 'edit':
-            report = Reports.object.get(id=int(report_id))
+            report = Reports.objects.get(id=int(report_id))
 
         if report:
             access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
@@ -208,7 +205,7 @@ def report_save(request, report_id):
                 report_column.column = ViewColumns.objects.get(id=int(column))
                 report_column.save()
 
-            ReportFilters.objects.filter(report=report)
+            ReportFilters.objects.filter(report=report).delete()
             for i, column in filter_columns.iteritems():
                 report_filter = ReportFilters()
                 report_filter.report = report
@@ -216,6 +213,7 @@ def report_save(request, report_id):
                 report_filter.column = ViewColumns.objects.get(id=int(column))
                 report_filter.value = filter_values[i]
                 report_filter.operator = filter_operators[i]
+                report_filter.order = int(i)
                 report_filter.save()
         else:
             raise Exception('Report could not be located or created.')
@@ -226,6 +224,26 @@ def report_save(request, report_id):
     else:
         transaction.commit()
         return render_json_response({'success': True, 'report_id': report.id})
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', ['administer', 'create_reports'])
+@transaction.commit_manually
+def report_delete(request):
+    report_id = request.POST.get('report_id', False)
+    if report_id:
+        try:
+            Reports.objects.get(id=report_id).delete()
+        except Exception as e:
+            data = {'success': False, 'error': '{0}'.format(e)}
+            transaction.rollback()
+        else:
+            data = {'success': True}
+            transaction.commit()
+    else:
+        data = {'success': False, 'error': 'No Report ID given.'}
+
+    return render_json_response(data)
 
 
 @user_has_perms('reporting')

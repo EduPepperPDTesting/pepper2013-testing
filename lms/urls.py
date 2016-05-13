@@ -82,6 +82,7 @@ urlpatterns = (
     url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
     url(r'^reporting/categories/save$', 'reporting.views.category_save', name='reporting_category_save'),
     url(r'^reporting/order/save$', 'reporting.views.order_save', name='reporting_order_save'),
+    url(r'^reporting/report/delete$', 'reporting.views.report_delete', name='reporting_report_delete'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_view', name='reporting_report'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/edit$', 'reporting.views.report_edit', name='reporting_report_edit'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/save$', 'reporting.views.report_save', name='reporting_report_save'),

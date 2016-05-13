@@ -423,14 +423,14 @@ function markClean() {
 }
 
 function animateToggle() {
-    $('.main.hidden-category').slideToggle();
+    $('.main.hidden-category, #save-report-order').slideToggle();
     $('.move, .imove').animate({
         opacity: 'toggle',
         width: 'toggle',
         paddingRight: 'toggle'
     });
-    $('.new-category').fadeToggle();
-    $('#save-report-order').slideToggle();
+    $('.new-category, .delete-report, .edit-report').fadeToggle();
+    $('.expand_title').not('.expand_title_expanded').trigger('click');
 }
 
 function afterDrop($item, container, _super, event) {
@@ -544,6 +544,23 @@ function saveOrderHandler() {
                 }
             }
         });
+    });
+}
 
-    })
+function deleteReportHandler() {
+    $('.delete-report').click(function (e) {
+        e.preventDefault();
+        var $parent = $(this).parent();
+        var report_id = $parent.attr('data-id');
+        if (confirm('Are you sure you want to delete this report?')) {
+            $.post(report_delete_url, {report_id: report_id}, function (data) {
+                if (data.success) {
+                    $parent.remove();
+                    checkCategoryStatus();
+                } else {
+                    alert('There was a problem when trying to delete this report. The error was: ' + data.error);
+                }
+            });
+        }
+    });
 }
