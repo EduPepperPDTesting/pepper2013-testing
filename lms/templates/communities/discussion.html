@@ -36,6 +36,10 @@
         text-align: left;
         font-weight: bold;
     }
+    .reply-link:hover{
+        cursor:pointer;
+    }
+
     #table-discuss td span {
         font-size: 12px;
     }
@@ -56,6 +60,9 @@
     #members a {
         margin-right: 5px;
         display: inline-block;
+    }
+    #selectableLink{
+        width:75%;
     }
     .discussion, .discussion-reply, .discussion-reply-form {
         position: relative;
@@ -326,7 +333,7 @@
             </a>
         </div>
         <div class="discussion">
-            <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}">
+            <a class="permalink" id = "linkToDiscussion" href = "#" attr-link="${reverse('community_discussion_view', args=[discussion.id])}">
                 <img src="/static/images/link-icon.png" alt="Permalink">
             </a>
             %if request.user.is_superuser or request.user==discussion.user:
@@ -416,7 +423,7 @@
         %for reply in replies:
             <div class="discussion-reply">
                 <a name="${reply.id}"></a>
-                <a class="permalink" href="${reverse('community_discussion_view', args=[discussion.id])}#${reply.id}">
+                <a class="permalink reply-link " attr-link="${reverse('community_discussion_view', args=[discussion.id])}#${reply.id}">
                     <img src="/static/images/link-icon.png">
                 </a>
                 %if request.user.is_superuser or \
@@ -587,6 +594,18 @@
         });
     }
     $(document).ready(function() {
+        $("#linkToDiscussion").click(function(e){
+            e.preventDefault();
+            new Dialog($('#dialog')).show("Link to discussion.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
+            $("#selectableLink").val(window.location.hostname+$("#linkToDiscussion").attr("attr-link"));
+            $("#selectableLink").select();
+        });
+        $(".reply-link").click(function(e){
+            e.preventDefault();
+            new Dialog($('#dialog')).show("Link to reply.", "<input type='text' id='selectableLink' readonly></input>", function(ans) {});
+            $("#selectableLink").val(window.location.hostname+$(this).attr("attr-link"));
+            $("#selectableLink").select();
+        });
         $('#reply-form').submit(function() {
             for (var instanceName in CKEDITOR.instances) {
                 CKEDITOR.instances[instanceName].updateElement();
