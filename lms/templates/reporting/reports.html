@@ -19,7 +19,10 @@
         %for category in categories:
             <li class="main ${'' if len(category['reports']) else 'hidden-category'}" id="category-${category['id']}" data-id="${category['id']}" data-name="${category['name']}">
                 <div class="expand_title expand_title_collapse">
-                    <img class="move" src="/static/images/icons/move.png">
+                    %if loop.index > 0:
+                        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>
+                        <img class="move" src="/static/images/icons/move.png">
+                    %endif
                     ${category['name']}
                     <div class="icon"></div>
                 </div>
@@ -57,6 +60,7 @@
     var category_save_url = '${reverse('reporting_category_save')}';
     var order_save_url = '${reverse('reporting_order_save')}';
     var report_delete_url = '${reverse('reporting_report_delete')}';
+    var category_delete_url = '${reverse('reporting_category_delete')}';
 
     $(document).ready(function () {
         expandTitle();
@@ -64,5 +68,6 @@
         addCategoryHandler();
         saveOrderHandler();
         deleteReportHandler();
+        deleteCategoryHandler();
     })
 </script>

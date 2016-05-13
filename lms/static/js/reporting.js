@@ -145,6 +145,7 @@ function getLineNumber(string) {
 }
 
 function expandTitle() {
+    $(".expand_title").off('click');
     $(".expand_title").click(function () {
         var $div = $(this).next("div.expand_div");
         if ($div.is(':visible')) {
@@ -429,13 +430,15 @@ function animateToggle() {
         width: 'toggle',
         paddingRight: 'toggle'
     });
-    $('.new-category, .delete-report, .edit-report').fadeToggle();
+    $('.new-category, .delete-report, .edit-report, .delete-category').fadeToggle();
     $('.expand_title').not('.expand_title_expanded').trigger('click');
 }
 
 function afterDrop($item, container, _super, event) {
+    console.log($item);
     markDirty();
     _super($item, container);
+    $item.show().find(':hidden').show();
 }
 
 function checkCategoryStatus() {
@@ -458,6 +461,11 @@ function manageHandler() {
         handle: '.move',
         onDrop: function ($item, container, _super, event) {
             afterDrop($item, container, _super, event);
+        },
+        exclude: '#category-None',
+        isValidTarget: function  ($item, container) {
+            // TODO: see if I can figure out how to not allow things before Drafts.
+            return true;
         }
     });
     $reports.sortable({
@@ -500,6 +508,7 @@ function addCategoryHandler() {
             if (data.success) {
                 var category = '<li class="main hidden-category">';
                 category += '    <div class="expand_title expand_title_collapse">';
+                category += '        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>';
                 category += '        <img class="move" src="/static/images/icons/move.png">' + data.name;
                 category += '        <div class="icon"></div>';
                 category += '    </div>';
@@ -508,6 +517,12 @@ function addCategoryHandler() {
                 category += '    </div>';
                 category += '</li>';
                 $('#categories').append(category);
+                var $new_category = $('.main').last();
+                $new_category.show().find(':hidden').show();
+                $new_category.children('.expand_title').addClass('expand_title_expanded');
+                expandTitle();
+                $("ul#categories").sortable('refresh');
+                $("ul.reports").sortable('refresh');
             } else {
                 alert('The category was not saved successfully. The error was: ' + data.error);
             }
@@ -559,6 +574,25 @@ function deleteReportHandler() {
                     checkCategoryStatus();
                 } else {
                     alert('There was a problem when trying to delete this report. The error was: ' + data.error);
+                }
+            });
+        }
+    });
+}
+
+function deleteCategoryHandler() {
+    $('.delete-category').click(function (e) {
+        e.preventDefault();
+        var $parent = $(this).parents('.main');
+        var category_id = $parent.attr('data-id');
+        if (confirm('Are you sure you want to delete this category? If there are any reports in this category, they will be unpublished until you choose another category.')) {
+            $.post(category_delete_url, {category_id: category_id}, function (data) {
+                if (data.success) {
+                    $parent.find('ul.reports li').appendTo('.reports:first');
+                    $parent.remove();
+                    checkCategoryStatus();
+                } else {
+                    alert('There was a problem when trying to delete this category. The error was: ' + data.error);
                 }
             });
         }

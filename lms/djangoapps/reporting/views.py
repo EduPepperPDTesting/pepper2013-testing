@@ -92,6 +92,26 @@ def category_save(request):
 @ensure_csrf_cookie
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
+def category_delete(request):
+    category_id = request.POST.get('category_id', False)
+    if category_id:
+        try:
+            Categories.objects.get(id=category_id).delete()
+        except Exception as e:
+            data = {'success': False, 'error': '{0}'.format(e)}
+            transaction.rollback()
+        else:
+            data = {'success': True}
+            transaction.commit()
+    else:
+        data = {'success': False, 'error': 'No Category ID submitted.'}
+
+    return render_json_response(data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', ['administer', 'create_reports'])
+@transaction.commit_manually
 def order_save(request):
     order = json.loads(request.body)
     try:
