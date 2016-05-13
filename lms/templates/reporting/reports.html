@@ -61,6 +61,7 @@
     var order_save_url = '${reverse('reporting_order_save')}';
     var report_delete_url = '${reverse('reporting_report_delete')}';
     var category_delete_url = '${reverse('reporting_category_delete')}';
+    var is_dirty = false;
 
     $(document).ready(function () {
         expandTitle();

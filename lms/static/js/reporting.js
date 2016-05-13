@@ -414,11 +414,13 @@ function addRelationship() {
 }
 
 function markDirty() {
+    is_dirty = true;
     $('#dirty-message').fadeIn();
     $('#save-report-order input').prop('disabled', false);
 }
 
 function markClean() {
+    is_dirty = false;
     $('#dirty-message').fadeOut();
     $('#save-report-order input').prop('disabled', true);
 }
@@ -481,10 +483,14 @@ function manageHandler() {
     $('.manage').click(function (e) {
         e.preventDefault();
         if ($(this).hasClass('enabled')) {
-            animateToggle();
-            $categories.sortable('disable');
-            $reports.sortable('disable');
-            $(this).removeClass('enabled');
+            if (is_dirty && confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+                window.location.reload();
+            } else {
+                animateToggle();
+                $categories.sortable('disable');
+                $reports.sortable('disable');
+                $(this).removeClass('enabled');
+            }
         } else {
             animateToggle();
             $categories.sortable('enable');
