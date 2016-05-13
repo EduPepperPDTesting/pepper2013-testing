@@ -883,8 +883,13 @@ from permissions.utils import check_access_level, check_user_perms
         $(this).css("color","#1d9dd9");
         $(this).css("cursor","pointer");
         $(this).click(function(){
-          var props = JSON.parse($(this).find("input").val());
-          self.showMap(props);
+          if($(this).find("input").length){
+            var props = JSON.parse($(this).find("input").val());
+            self.showMap(props);
+          }else{
+            var state='${request.user.profile.district.state.name} United States';
+            self.showPlace(self.map_show, state);
+          }
         });
       });
       // Register/Record Attendance
