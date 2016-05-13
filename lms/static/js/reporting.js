@@ -300,7 +300,7 @@ function addView() {
             content += '<input class="column_name" name="column_name[0]" type="text" placeholder="Name">';
             content += '<input class="column_description" name="column_description[0]" type="text" placeholder="Description">';
             content += '<input class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<input type="button" value="+" class="plus" name="plus[' + index + ']">';
+            content += '<input type="button" value="+" class="plus" name="plus[0]">';
             content += '</div>';
         }
         content += '</label>';
@@ -410,4 +410,140 @@ function addRelationship() {
             });
         });
     });
+}
+
+function markDirty() {
+    $('#dirty-message').fadeIn();
+    $('#save-report-order input').prop('disabled', false);
+}
+
+function markClean() {
+    $('#dirty-message').fadeOut();
+    $('#save-report-order input').prop('disabled', true);
+}
+
+function animateToggle() {
+    $('.main.hidden-category').slideToggle();
+    $('.move, .imove').animate({
+        opacity: 'toggle',
+        width: 'toggle',
+        paddingRight: 'toggle'
+    });
+    $('.new-category').fadeToggle();
+    $('#save-report-order').slideToggle();
+}
+
+function afterDrop($item, container, _super, event) {
+    markDirty();
+    _super($item, container);
+}
+
+function checkCategoryStatus() {
+    $('.main').each(function () {
+        if ($(this).find('li').length) {
+            $(this).removeClass('hidden-category');
+        } else {
+            $(this).addClass('hidden-category').show();
+        }
+    });
+}
+
+function manageHandler() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+    $categories.sortable({
+        group: 'categories',
+        nested: false,
+        itemSelector: 'ul#categories > li',
+        handle: '.move',
+        onDrop: function ($item, container, _super, event) {
+            afterDrop($item, container, _super, event);
+        }
+    });
+    $reports.sortable({
+        group: 'reports',
+        itemSelector: 'ul.reports > li',
+        handle: '.imove',
+        onDrop: function ($item, container, _super, event) {
+            afterDrop($item, container, _super, event);
+        }
+    });
+    $categories.sortable('disable');
+    $reports.sortable('disable');
+    $('.manage').click(function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('enabled')) {
+            animateToggle();
+            $categories.sortable('disable');
+            $reports.sortable('disable');
+            $(this).removeClass('enabled');
+        } else {
+            animateToggle();
+            $categories.sortable('enable');
+            $reports.sortable('enable');
+            $(this).addClass('enabled');
+        }
+    });
+}
+
+function addCategoryHandler() {
+    $('.new-category').click(function (e) {
+        e.preventDefault();
+        var dialog = new Dialog('#dialog');
+        var content = '<form action="' + category_save_url + '" id="category-save">';
+        content += '<label>Category Name:<input type="text" name="name"></label>';
+        content += '<input type="submit" value="Add">';
+        content += '</form>';
+        dialog.show('Add Category', content);
+        submitHandler('#category-save', function (data) {
+            dialog.hide();
+            if (data.success) {
+                var category = '<li class="main hidden-category">';
+                category += '    <div class="expand_title expand_title_collapse">';
+                category += '        <img class="move" src="/static/images/icons/move.png">' + data.name;
+                category += '        <div class="icon"></div>';
+                category += '    </div>';
+                category += '    <div class="expand_div">';
+                category += '        <ul class="reports"></ul>';
+                category += '    </div>';
+                category += '</li>';
+                $('#categories').append(category);
+            } else {
+                alert('The category was not saved successfully. The error was: ' + data.error);
+            }
+        });
+    });
+}
+
+function saveOrderHandler() {
+    $('#save-report-order input').click(function (e) {
+        e.preventDefault();
+        var $categories = $("ul#categories");
+        var $reports = $("ul.reports");
+
+        var category_order = $categories.sortable('serialize').get();
+        var report_order = $reports.sortable('serialize').get();
+        var full_order = [];
+
+        $.each(category_order[0], function (index, value) {
+            full_order[index] = value;
+            full_order[index].reports = report_order[index]
+        });
+
+        $.ajax({
+            url: order_save_url,
+            data: JSON.stringify(full_order, null, ' '),
+            contentType: 'application/json',
+            type: 'POST',
+            success: function (data) {
+                if (data.success) {
+                    markClean();
+                    checkCategoryStatus();
+                } else {
+                    alert('There was a problem saving the order. The error was: ' + data.error);
+                }
+            }
+        });
+
+    })
 }

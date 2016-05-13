@@ -443,16 +443,22 @@ def download_certificate(request, course_id, completed_time):
     user_course = get_course_with_access(user_id, course_id, 'load')
     first_name = request.user.first_name
     last_name = request.user.last_name
-    
+    estimated_effort = user_course.certificates_estimated_effort
+
     #@begin:get course-time for certificate
     #@date:2016-05-04
     all_course_time = get_allcoursetime(user_id, course_id)
+
+    estimated_effort_list = estimated_effort.split()
+    estimated_effort_new_list = []
+    for el in estimated_effort_list:
+        estimated_effort_new_list.append(el.capitalize())
+    estimated_effort_Upper = ' '.join(estimated_effort_new_list)
     #@end
 
     course_name = user_course.display_name_with_default
     # user_name = first_name + ' ' + last_name
     course_full_name = user_course.display_number_with_default + " " + course_name
-    estimated_effort = user_course.certificates_estimated_effort
     completed_time = datetime.datetime.strptime(completed_time, '%Y-%m-%d').strftime('%B %d, %Y ')
     blob = urllib.unquote(getCertificateBlob(request, user_course.display_organization).decode('utf8').encode('utf8'))
     output_error = ''
@@ -463,7 +469,8 @@ def download_certificate(request, course_id, completed_time):
             coursename=course_name,
             coursenumber=course_full_name,
             date=completed_time,
-            hours=all_course_time)
+            hours=estimated_effort_Upper,
+            recordedhours=all_course_time)
     except KeyError, e:
         output_error = 'The placeholder {0} does not exist.'.format(str(e))
     # return render_to_response('download_certificate.html', {'content': blob, 'outputError': output_error})
@@ -500,7 +507,7 @@ def get_allcoursetime(user_id, course_id):
     
     course_time = rts.get_course_time(str(user.id), course_id, 'courseware')
     all_course_time = course_time + external_time
-    all_course_time_unit = study_time_format(all_course_time)
+    all_course_time_unit = recorded_time_format(all_course_time)
     
     return all_course_time_unit
 
@@ -515,6 +522,25 @@ def study_time_format(t, is_sign=False):
     minute = int(t / 60 % 60)
     if hour != 1:
         hour_unit = ' Hours, '
+    if minute != 1:
+        minute_unit = 'Minutes'
+    if hour > 0:
+        hour_full = str(hour) + hour_unit
+    else:
+        hour_full = ''
+    return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
+
+def recorded_time_format(t, is_sign=False):
+    sign = ''
+    if t < 0 and is_sign:
+        sign = '-'
+        t = abs(t)
+    hour_unit = ' Hour '
+    minute_unit = ' Minute'
+    hour = int(t / 60 / 60)
+    minute = int(t / 60 % 60)
+    if hour != 1:
+        hour_unit = ' Hours '
     if minute != 1:
         minute_unit = 'Minutes'
     if hour > 0:

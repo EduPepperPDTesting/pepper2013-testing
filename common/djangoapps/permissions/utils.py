@@ -66,6 +66,9 @@ def check_access_level(user, items, actions):
     except:
         return False
 
+    if count == 0:
+        return False
+
     if count == 1:
         return permissions[0].access_level
 

@@ -20,6 +20,8 @@ class Reports(models.Model):
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     category = models.ForeignKey(Categories, null=True, on_delete=models.SET_NULL)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    access_level = models.CharField(blank=True, default='System', max_length=10)
+    access_id = models.IntegerField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     order = models.IntegerField(default=0)

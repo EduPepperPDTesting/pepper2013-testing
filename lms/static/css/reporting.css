@@ -145,10 +145,16 @@
     clear: both;
     display: block;
 }
+#reporting #categories {
+    padding: 0;
+    margin: 0;
+}
 #reporting .main {
     margin: 20px auto;
     width: 1180px;
     border: 1px solid #999;
+    padding: 0;
+    list-style: none;
 }
 #reporting input.form_submit, input.form_submit:hover {
     border-color: #777 #777 #555;
@@ -178,18 +184,26 @@
     font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
     padding: 35px 5px 5px 5px;
     text-decoration: none;
+    outline: none;
 }
 #reporting .add-new {
     background: transparent url(../images/icons/add_new.png) center top/32px 32px no-repeat;
 }
-#reporting .manage {
-    background: transparent url(../images/icons/manage.png) center top/32px 32px no-repeat;
-}
 #reporting .add-new:hover {
     background: transparent url(../images/icons/add_new_mo.png) center top/32px 32px no-repeat;
 }
-#reporting .manage:hover {
+#reporting .manage {
+    background: transparent url(../images/icons/manage.png) center top/32px 32px no-repeat;
+}
+#reporting .manage:hover, #reporting .manage.enabled {
     background: transparent url(../images/icons/manage_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .new-category {
+    display: none;
+    background: transparent url(../images/icons/add_category.png) center top/32px 32px no-repeat;
+}
+#reporting .new-category:hover {
+    background: transparent url(../images/icons/add_category_mo.png) center top/32px 32px no-repeat;
 }
 #reporting .edit-views {
     float: right;
@@ -287,8 +301,42 @@
 #reporting .sql-area input {
     float: right;
 }
-
+#reporting .hidden-category {
+    display: none;
+}
 .view-edit img, .relationship-edit img {
     height: 16px;
     width: 16px;
+}
+
+body.dragging, body.dragging * {
+    cursor: move !important;
+}
+.dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+}
+#reporting ul.categories li.placeholder,
+#reporting ul.reports li.placeholder {
+    position: relative;
+    height: 10px;
+    display: block;
+    background-color: #56a033;
+    opacity: .5;
+}
+#reporting .move, #reporting .imove {
+    display: none;
+    width: 16px;
+    height: 16px;
+    padding-right: 10px;
+}
+#reporting #save-report-order {
+    text-align: right;
+    display: none;
+}
+#reporting #dirty-message {
+    color: red;
+    padding-right: 20px;
+    display: none;
 }
