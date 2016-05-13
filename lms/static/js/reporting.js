@@ -485,7 +485,7 @@ function manageHandler() {
         if ($(this).hasClass('enabled')) {
             if (is_dirty && confirm('You have unsaved changes. Are you sure you want to discard them?')) {
                 window.location.reload();
-            } else {
+            } else if (!is_dirty) {
                 animateToggle();
                 $categories.sortable('disable');
                 $reports.sortable('disable');
