@@ -14,6 +14,12 @@
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
 
 <div id="reporting">
+    <div id="back">
+        <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
+        <a href="${reverse('reporting_reports')}">
+            Back to Reports
+        </a>
+    </div>
     <form id="views-delete" action="${reverse('reporting_views_delete')}">
         <div class="edit-block views-area">
             <h2>Views</h2>

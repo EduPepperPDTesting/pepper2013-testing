@@ -340,3 +340,15 @@ body.dragging, body.dragging * {
     padding-right: 20px;
     display: none;
 }
+#reporting #back {
+    margin-bottom: 10px;
+}
+#reporting .up_page {
+    display: inline-block;
+    width: 17px !important;
+    line-height: 24px;
+    height: 20px;
+    background: url(../tmp-resource/image/up_page.png) no-repeat;
+    border: none;
+    vertical-align: middle;
+}

@@ -9,6 +9,12 @@
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 
 <div id="reporting">
+    <div id="back">
+        <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
+        <a href="${reverse('reporting_reports')}">
+            Back to Reports
+        </a>
+    </div>
     <form id="report-edit" action="${reverse('reporting_report_save', args=['new' if action == 'new' else report.id])}">
         <div class="edit-block report-name">
             <h2>Report</h2>
