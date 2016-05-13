@@ -417,6 +417,7 @@
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
+          %if request.user==curr_user:
           <span class="title">
               <div class="icon skype-icon name-icon"></div><b>${_("Skype")}:</b>
             <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.skype_username }</span>
@@ -432,6 +433,7 @@
             (<a href="#apply_skype_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
+          %endif
 <!--@end-->          
         </li>
 <!--@begin:Profile：user photo-->
