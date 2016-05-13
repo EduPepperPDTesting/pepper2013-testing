@@ -369,6 +369,12 @@ from permissions.utils import check_access_level, check_user_perms
       allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
       allow_validation: $form.find("input[name=allow_validation]:checked").val()
     }
+    if(json.training_time){
+      var apart = json.training_time.split(/[ :]/);
+      if(apart.pop() == "PM")
+        apart[0]=parseInt(apart[0]) + 12;
+      json.training_time=apart.join(":");
+    }
     if(json.training_date){
       var apart = json.training_date.split("/");
       json.training_date = [apart[2], apart[0], apart[1]].join("-");
@@ -390,12 +396,13 @@ from permissions.utils import check_access_level, check_user_perms
   }
   PepReg.prototype.warningInvalid=function(s){
     var self=this;
-    this.dlsForm.hideOverlay();
+    this.dlgForm.hideOverlay();
     var dlg = new Dialog($("#dlg-warning"));
     dlg.show("Warning", s);
     dlg.lift(100);
     $("#dlg-warning").bind("hide",function(){
-      self.dlsForm.showOverlay();
+      $(this).unbind('hide');
+      self.dlgForm.showOverlay();
     });
   }  
   PepReg.prototype.validatePage=function(page, data){
@@ -439,7 +446,7 @@ from permissions.utils import check_access_level, check_user_perms
   }
   PepReg.prototype.initForm=function(data, finishCallback){
     var self = this;
-    var dlg = this.dlsForm = new Dialog($("#dlg-add-training"));
+    var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
     dlg.show();
     var steps = this.steps = new StepsForm($("#dlg-add-training .content div"),
                                            ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
@@ -749,7 +756,14 @@ from permissions.utils import check_access_level, check_user_perms
           $row.find("a").css("cursor", "pointer");
           $row.find("a").click(function(e){
             e.preventDefault();
-            new Dialog("#dlg-warning").showYesNo("Confirm","Really delete the student?", function(r){
+
+            var dlgWarn = new Dialog("#dlg-warning");
+            dlg.hideOverlay();
+            $("#dlg-warning").bind("hide",function(){
+              $(this).unbind('hide');
+              dlg.showOverlay();
+            });
+            dlgWarn.showYesNo("Confirm","Really delete the student?", function(r){
               this.hide();
               if(r){
                 self.deleteStudent(data.id, function(){
@@ -757,6 +771,9 @@ from permissions.utils import check_access_level, check_user_perms
                 });
               }
             });
+            dlgWarn.lift(100);
+
+            
           });
           $row.find("input[name=is_attended]").change(function(){
             var me=this;
