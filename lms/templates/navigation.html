@@ -373,12 +373,12 @@
             %if show_extended:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(curr_user, 'certificate'):
                             <li><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
-                            <li><a href="${reverse('pepreg')}">PepReg</a></li>
+                        <li><a href="${reverse('pepreg')}">PepReg</a></li>
                         %if check_user_perms(curr_user, 'pepconn'):
                             <li><a href="${reverse('pepconn')}">PepConn</a></li>
                         %endif
@@ -388,11 +388,9 @@
                         %if check_user_perms(curr_user, 'time_report'):
                             <li><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'reporting'):
-                            <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
-                        %endif
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
                         %if check_user_perms(curr_user, 'sso'):
+                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'tnl'):
                             <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
