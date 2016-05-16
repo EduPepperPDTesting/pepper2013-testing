@@ -250,6 +250,35 @@
 #reporting .view-selector label {
     display: block;
 }
+#reporting #order-title {
+    font-weight: bold;
+    padding-bottom: 15px;
+}
+#reporting #order-title div {
+    width: 360px;
+    float: right;
+}
+#reporting #selected-columns {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #fff;
+    width: 360px;
+    float: right;
+}
+#reporting #selected-columns li {
+    margin: 7px 0;
+}
+#reporting #selected-columns .move {
+    display: inline-block;
+    padding-right: 5px;
+}
+#reporting ul li.ui-sortable-placeholder {
+    position: relative;
+    height: 5px;
+    display: block;
+    background-color: #56a033;
+    opacity: .5;
+}
 #reporting .column-selector ul {
     list-style: none;
     display: block;
@@ -317,8 +346,7 @@ body.dragging, body.dragging * {
     opacity: 0.5;
     z-index: 2000;
 }
-#reporting ul#categories li.placeholder,
-#reporting ul.reports li.placeholder {
+#reporting ul li.placeholder {
     position: relative;
     height: 10px;
     display: block;

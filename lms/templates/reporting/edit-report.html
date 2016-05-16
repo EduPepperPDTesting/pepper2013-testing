@@ -7,6 +7,7 @@
 <%inherit file="../main.html"/>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
 <script type="text/javascript" src="/static/js/reporting.js"></script>
+<script type="text/javascript" src="/static/js/jquery.sortable.js"></script>
 
 <div id="reporting">
     <div id="back">
@@ -29,7 +30,11 @@
             <input type="hidden" name="action" value="${action}">
             <input type="button" value="Cancel" class="report-button" id="report-cancel">
             <input type="submit" value="Save" class="report-button" id="report-save">
-            <!--<input type="submit" value="Preview" class="report-button">-->
+            %if action == 'edit':
+                %for selected_column in selected_columns:
+                    <input type="hidden" value="${loop.index}" class="selected-column" name="selected-column[${view_columns.get(id=selected_column).id}]">
+                %endfor
+            %endif
         </div>
         <div class="edit-block view-selector">
             <h2>Select Views</h2>
@@ -57,17 +62,26 @@
         </div>
         <div class="edit-block column-selector">
             <h2>Select Columns</h2>
+            <div id="order-title">Select columns to show in the report:<div>Column order:</div></div>
             %if action == 'edit':
+                <ul id="selected-columns">
+                    %for selected_column in selected_columns:
+                        <li data-id="${view_columns.get(id=selected_column).id}">
+                            <img class="move" src="/static/images/icons/move.png">
+                            ${view_columns.get(id=selected_column).view.name}.${view_columns.get(id=selected_column).name}
+                        </li>
+                    %endfor
+                </ul>
                 <ul>
                 %for view_column in view_columns:
-                    %if loop.index == first_column or loop.index == second_column:
+                    %if loop.index == first_column:
                         </ul><ul>
                     %endif
                     <li><label>
                     %if view_column.id in selected_columns:
-                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
                     %else:
-                        <input type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> ${view_column.view.name}.${view_column.name} - ${view_column.description}
                     %endif
                     </label></li>
                 %endfor
@@ -163,5 +177,6 @@
             e.preventDefault();
             window.location = '${reverse('reporting_reports')}';
         });
+        columnOrdering();
     });
 </script>

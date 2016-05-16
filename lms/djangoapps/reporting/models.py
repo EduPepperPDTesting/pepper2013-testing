@@ -64,6 +64,7 @@ class ReportViewColumns(models.Model):
         db_table = 'reporting_report_view_columns'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     column = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    order = models.IntegerField(default=0)
 
 
 class ReportFilters(models.Model):

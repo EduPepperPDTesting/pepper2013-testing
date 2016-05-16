@@ -64,23 +64,24 @@ function viewSelect(related_url, columns_url) {
         $.get(columns_url, get_data, function (data) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
-                var third_column = Math.floor(data.length / 3);
-                var remainder = data.length % 3;
-                var first_column = remainder > 0 ? third_column + 1 : third_column;
-                var second_column = remainder > 1 ? first_column * 2 : first_column * 2 - 1;
+                var second_column = Math.floor(data.length / 2);
+                var remainder = data.length % 2;
+                var first_column = second_column + remainder;
 
                 var columns = '<ul>';
                 for (var x = 0; x < data.length; x++) {
-                    if (x == first_column || x == second_column) {
+                    if (x == first_column) {
                         columns += '</ul><ul>';
                     }
                     columns += '<li><label>';
-                    columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
+                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
                     columns += '</label></li>';
                 }
                 columns += '</ul>';
-                $('.column-selector ul').remove();
-                $('.column-selector h2').after(columns);
+                $('.column-selector ul').not('#selected-columns').remove();
+                $('#selected-columns li').remove();
+                $('#order-title').after(columns);
+                columnChangeHandler();
             }
             // Create the dropdown for the filters.
             var options = '';
@@ -437,7 +438,6 @@ function animateToggle() {
 }
 
 function afterDrop($item, container, _super, event) {
-    console.log($item);
     markDirty();
     _super($item, container);
     $item.show().find(':hidden').show();
@@ -464,7 +464,6 @@ function manageHandler() {
         onDrop: function ($item, container, _super, event) {
             afterDrop($item, container, _super, event);
         },
-        exclude: '#category-None',
         isValidTarget: function  ($item, container) {
             // TODO: see if I can figure out how to not allow things before Drafts.
             return true;
@@ -536,24 +535,31 @@ function addCategoryHandler() {
     });
 }
 
+function getFullOrder() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
+    var category_order = $categories.sortable('serialize').get();
+    var full_order = [];
+
+    $.each(category_order[0], function (index, value) {
+        full_order[index] = value;
+        var report_order = [];
+        $($reports[index]).children('li').each(function (index, item) {
+            report_order[index] = {id: $(this).attr('data-id'), name: $(this).attr('data-name')}
+        });
+        full_order[index].reports = report_order
+    });
+
+    return JSON.stringify(full_order, null, ' ')
+}
+
 function saveOrderHandler() {
     $('#save-report-order input').click(function (e) {
         e.preventDefault();
-        var $categories = $("ul#categories");
-        var $reports = $("ul.reports");
-
-        var category_order = $categories.sortable('serialize').get();
-        var report_order = $reports.sortable('serialize').get();
-        var full_order = [];
-
-        $.each(category_order[0], function (index, value) {
-            full_order[index] = value;
-            full_order[index].reports = report_order[index]
-        });
-
         $.ajax({
             url: order_save_url,
-            data: JSON.stringify(full_order, null, ' '),
+            data: getFullOrder(),
             contentType: 'application/json',
             type: 'POST',
             success: function (data) {
@@ -603,4 +609,35 @@ function deleteCategoryHandler() {
             });
         }
     });
+}
+
+function columnChangeHandler() {
+    $('.column-check').change(function () {
+        var column_id = $(this).attr('value');
+        var text = $(this).parent().text();
+        var name = $.trim(text.slice(0, text.indexOf('-')));
+        if ($(this).is(':checked')) {
+            $('#selected-columns').append('<li data-id="' + column_id + '"><img class="move" src="/static/images/icons/move.png"> ' + name + '</li>');
+        } else {
+            $('#selected-columns li[data-id=' + column_id + ']').remove();
+        }
+        $('#selected-columns').sortable('refresh');
+    });
+}
+
+function columnOrdering() {
+    $('#selected-columns').sortable({
+        group: 'columns',
+        itemSelector: 'ul#selected-columns > li',
+        handle: '.move',
+        onDrop: function ($item, container, _super, event) {
+            _super($item, container);
+            $('.selected-column').remove();
+            var order = $('#selected-columns').sortable('serialize').get();
+            $.each(order[0], function (index, item) {
+                $('.report-name').append('<input type="hidden" value="' + index + '" class="selected-column" name="selected-column[' + item.id + ']">')
+            });
+        }
+    });
+    columnChangeHandler();
 }
