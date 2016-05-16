@@ -418,12 +418,14 @@ function markDirty() {
     is_dirty = true;
     $('#dirty-message').fadeIn();
     $('#save-report-order input').prop('disabled', false);
+    $('#report-save').prop('disabled', false);
 }
 
 function markClean() {
     is_dirty = false;
     $('#dirty-message').fadeOut();
     $('#save-report-order input').prop('disabled', true);
+    $('#report-save').prop('disabled', true);
 }
 
 function animateToggle() {
@@ -637,7 +639,15 @@ function columnOrdering() {
             $.each(order[0], function (index, item) {
                 $('.report-name').append('<input type="hidden" value="' + index + '" class="selected-column" name="selected-column[' + item.id + ']">')
             });
+            markDirty();
         }
     });
     columnChangeHandler();
+}
+
+function dirtyReportHandler() {
+    var is_dirty = false;
+    $('input, select, textarea').change(function () {
+        markDirty();
+    });
 }

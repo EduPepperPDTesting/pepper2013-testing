@@ -29,12 +29,13 @@
             <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
             <input type="hidden" name="action" value="${action}">
             <input type="button" value="Cancel" class="report-button" id="report-cancel">
-            <input type="submit" value="Save" class="report-button" id="report-save">
+            <input type="submit" value="Save" class="report-button" id="report-save" disabled>
             %if action == 'edit':
                 %for selected_column in selected_columns:
                     <input type="hidden" value="${loop.index}" class="selected-column" name="selected-column[${view_columns.get(id=selected_column).id}]">
                 %endfor
             %endif
+            <div id="dirty-message">This report has been changed. You <strong>MUST</strong> click save to keep these changes.</div>
         </div>
         <div class="edit-block view-selector">
             <h2>Select Views</h2>
@@ -178,5 +179,6 @@
             window.location = '${reverse('reporting_reports')}';
         });
         columnOrdering();
+        dirtyReportHandler();
     });
 </script>

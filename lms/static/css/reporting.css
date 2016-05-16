@@ -250,6 +250,10 @@
 #reporting .view-selector label {
     display: block;
 }
+#reporting div#dirty-message {
+    padding: 10px 0 0 0;
+    text-align: right;
+}
 #reporting #order-title {
     font-weight: bold;
     padding-bottom: 15px;
