@@ -247,7 +247,7 @@ def group_permissions_list(request):
     permissions = PermGroupPermission.objects.filter(group=group)
     permission_list = list()
     for permission in permissions:
-        permission_list.append({'id': permission.permission.id,
+        permission_list.append({'id': permission.id,
                                 'name': permission.permission.name,
                                 'item': permission.permission.item,
                                 'action': permission.permission.action})
