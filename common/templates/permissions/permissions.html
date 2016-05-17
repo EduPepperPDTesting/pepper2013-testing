@@ -766,7 +766,7 @@
                     $('#state-select').trigger('change');
                 }
             });
-            $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}', {remoteDataType: 'json'});
+            $('#add-user-email').autocomplete('${reverse('pepper_utilities_user_email_completion')}' + '?access_level=' + access_level, {remoteDataType: 'json'});
         });
         $('#delete-permissions-form').submit(function (e) {
             e.preventDefault();

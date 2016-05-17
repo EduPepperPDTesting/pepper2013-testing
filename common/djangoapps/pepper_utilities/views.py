@@ -83,9 +83,18 @@ def drop_cohorts(request):
 
 def user_email_completion(request):
     r = list()
+    access_level = request.GET.get('access_level', False)
     lookup = request.GET.get('q', False)
     if lookup:
-        data = User.objects.filter(email__istartswith=lookup)
+        kwargs = {'email__istartswith': lookup}
+        if access_level == 'State':
+            kwargs.update({'profile__district__state': request.user.profile.district.state})
+        elif access_level == 'District':
+            kwargs.update({'profile__district': request.user.profile.district})
+        elif access_level == 'School':
+            kwargs.update({'profile__school': request.user.profile.school})
+
+        data = User.objects.filter(**kwargs)
         for item in data:
             r.append(item.email)
     return render_json_response(r)
