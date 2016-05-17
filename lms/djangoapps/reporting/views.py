@@ -11,7 +11,9 @@ from django.db import transaction
 from django.db.models import Q, Max
 import sys
 import json
-
+from .aggregation_config import AggregationConfig
+from student.views import study_time_format
+from .treatment_filters import get_mongo_filters
 
 @login_required
 def reports_view(request):
@@ -268,8 +270,129 @@ def report_delete(request):
 
 @user_has_perms('reporting')
 def report_view(request, report_id):
-    # TODO: Add the code to show the actual report itself.
-    pass
+    data = {}
+    report = Reports.objects.get(id=report_id)
+    selected_view = ReportViews.objects.filter(report=report)[0]
+    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+    create_report_collection(request, selected_view, selected_columns, report_filters)
+    data = {
+        'report': report,
+        'display_columns': selected_columns,
+    }
+    return render_to_response('reporting/view-report.html', data)
+
+
+@user_has_perms('reporting')
+def report_get_rows(request):
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    report_id = request.GET['report_id']
+    start = page * size
+    rows = []
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    data = rs.get_page(collection, start, size)
+    total = rs.get_count(collection)
+    report = Reports.objects.get(id=report_id)
+    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    for d in data:
+        row = []
+        for col in selected_columns:
+            try:
+                row.append(data_format(col.column.column, d))
+            except Exception as e:
+                row.append('')
+        row.append('')
+        rows.append(row)
+    return render_json_response({'total': total, 'rows': rows})
+
+
+def get_cache_collection(request):
+    return 'tmp_collection_' + str(request.user.id)
+
+
+def create_report_collection(request, selected_view, selected_columns, report_filters):
+    aggregate_config = AggregationConfig[selected_view.view.collection]
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], selected_columns, report_filters)
+    rs = reporting_store()
+    rs.set_collection(aggregate_config['collection'])
+    rs.collection.aggregate(aggregate_query)
+
+
+def aggregate_query_format(request, query, columns, filters, out=True):
+    query = query_ref_variable(query, request.user, columns, filters)
+    query = query.replace('\n', '').replace('\r', '').replace(' ', '')
+    if out:
+        query += ',{"$out":"' + get_cache_collection(request) + '"}'
+    query = eval(query)
+    return query
+
+
+def query_ref_variable(query, user, columns, filters):
+    domain = get_query_user_domain(user)
+    columns = get_query_display_columns(columns)
+    filters = get_query_filters(filters)
+    #query = query.format(user_domain=domain, display_columns=columns)
+    return query.replace('{user_domain}', domain).replace('{display_columns}', columns).replace('{filters}', filters)
+
+
+def get_query_user_domain(user):
+    level = check_access_level(user, 'reporting', ['view'])
+    domain = '{"$match":{"user_id":' + str(user.id) + '}},'
+    if level == 'System':
+        domain = ''
+    elif level == 'State':
+        domain = '{"$match":{"state_id":' + user.profile.district.state.id + '}},'
+    elif level == 'District':
+        domain = '{"$match":{"district_id":"' + user.profile.district.code + '"}},'
+    elif level == 'School':
+        domain = '{"$match":{"school_id": ' + user.profile.school.id + '}},'
+    return domain
+
+
+def get_query_display_columns(columns):
+    column_str = ''
+    for col in columns:
+        column_str += '"' + col.column.column + '":1,'
+    if column_str != '':
+        return ',{"$project": {' + column_str[:-1] + '}}'
+    else:
+        return column_str
+
+
+def get_query_filters(filters):
+    filter_str = ''
+    if len(filters) > 0:
+        for filter in filters:
+            conjunction = ' '
+            value = filter.value
+            if filter.conjunction != None:
+                conjunction += filter.conjunction.lower() + ' '
+            if filter.value.isdigit() is False:
+                value = '"' + filter.value + '"'
+            filter_str += conjunction + filter.column.column + filter.operator + value
+        sql = get_mongo_filters(filter_str[1:])
+        return ',{"$match":' + sql + '}'
+    return filter_str
+
+
+def data_format(col, data):
+    time_colunms = [
+        'total_time',
+        'course_time',
+        'external_time',
+        'discussion_time',
+        'portfolio_time',
+        'collaboration_time'
+    ]
+    if col in time_colunms:
+        return study_time_format(data[col])
+    if col == 'portfolio_url':
+        return '<a href={0}>portfolio link</a>'.format(data[col])
+    return data[col]
 
 
 @user_has_perms('reporting', 'administer')

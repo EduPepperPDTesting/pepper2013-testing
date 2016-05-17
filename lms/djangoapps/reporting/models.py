@@ -80,7 +80,7 @@ class ReportFilters(models.Model):
 
 class MongoReportingStore(object):
 
-    def __init__(self, host, db, port=27017, user=None, password=None,
+    def __init__(self, host, db, port=37017, user=None, password=None,
                  mongo_options=None, **kwargs):
 
         super(MongoReportingStore, self).__init__(**kwargs)
@@ -123,6 +123,12 @@ class MongoReportingStore(object):
 
         return self.collection.find(db_filter).skip(start).limit(num)
 
+    def get_count(self, collection, db_filter=None):
+        self.set_collection(collection)
+        if db_filter is None:
+            return self.collection.find().count()
+
+        return self.collection.find(db_filter).count()
 
 def reporting_store():
     options = {}
