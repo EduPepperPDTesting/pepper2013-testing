@@ -141,19 +141,21 @@
                 <div class="certificate_editor_frame">
                     <div class="certificate_tabs_div">
                         <ol class="certificate_tabs">
+                            %if check_user_perms(request.user, 'certificate', ['add', 'edit']):
                             <li>
                                 <a class="editor_view_btn active" href="javascript:void(0);">Editor</a>
                             </li>
+                            %endif
                             <li>
                                 <a class="preview_view_btn" href="javascript:void(0);">Preview</a>
                             </li>
                         </ol>
                         <input class="certificate_name" type="text" size="32" name="certificate_name" value="" placeholder="Certificate Name" style="float:right;"/>
                     </div>
-                    <div class="editor_view" style="">
+                    <div class="editor_view">
                         <textarea id="certificate_editor" class="certificate_editor" cols="10"></textarea>
                     </div>
-                    <div class="preview_view" style="display:none;">
+                    <div class="preview_view" style="display: none;">
                         <iframe class = "preview-frame" id="certificate_preview" name="certificate_preview" frameBorder=1 scrolling=no src="${reverse('certificate_preview')}" width="100%" ></iframe>
                     </div>
                 </div>
@@ -475,7 +477,13 @@
             $(cell).html("<a class='certificate_load_btn' href='javascript:void(0);'><img src='/static/images/icons/magnifier.png'/>&nbsp;&nbsp;</a>"+cell.innerHTML);
             $(cell).find('.certificate_load_btn').click(function(){
                 displayCertificate();
-                ceditor.loadCertificate($(this).parent().parent().find('.check-row').val())
+                ceditor.loadCertificate($(this).parent().parent().find('.check-row').val());
+                // TODO: See about doing this in a cleaner way.
+                %if not check_user_perms(request.user, 'certificate', ['add', 'edit']):
+                    setTimeout(function () {
+                        $('.preview_view_btn').trigger('click');
+                    }, 500);
+                %endif
             })
         });
         $('#tblCertificate table').trigger("update");
