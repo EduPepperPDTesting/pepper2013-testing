@@ -616,11 +616,9 @@ function deleteCategoryHandler() {
 function columnChangeHandler() {
     $('.column-check').change(function () {
         var column_id = $(this).attr('value');
-        var text = $(this).parent().text();
-        var name = $.trim(text.slice(0, text.indexOf('-')));
         if ($(this).is(':checked')) {
-            var current_columns = $('#selected-columns li').length;
-            $('#selected-columns').append('<li data-id="' + column_id + '"><img class="move" src="/static/images/icons/move.png"> ' + name + '</li>');
+            var text = $(this).siblings('.column-name').text();
+            $('#selected-columns').append('<li data-id="' + column_id + '"><img class="move" src="/static/images/icons/move.png"> ' + text + '</li>');
         } else {
             $('#selected-columns li[data-id=' + column_id + ']').remove();
         }
