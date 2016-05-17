@@ -65,7 +65,7 @@ def group_delete(request):
             group.delete()
         data = {'Success': True}
     except Exception as e:
-        data = {'Success': False, 'Error': ''.format(e)}
+        data = {'Success': False, 'Error': '{0}'.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -86,7 +86,7 @@ def group_permission_add(request):
         except IntegrityError as e:
             data = {'Success': False, 'Error': 'duplicate'}
         except Exception as e:
-            data = {'Success': False, 'Error': ''.format(e)}
+            data = {'Success': False, 'Error': '{0}'.format(e)}
     else:
         data = {'Success': False}
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -102,7 +102,7 @@ def group_permission_delete(request):
             group_permission.delete()
         data = {'Success': True}
     except Exception as e:
-        data = {'Success': False, 'Error': ''.format(e)}
+        data = {'Success': False, 'Error': '{0}'.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -131,7 +131,7 @@ def group_member_add(request):
             except IntegrityError as e:
                 data = {'Success': False, 'Error': 'duplicate'}
             except Exception as e:
-                data = {'Success': False, 'Error': ''.format(e)}
+                data = {'Success': False, 'Error': '{0}'.format(e)}
         elif state:
             if school:
                 users = User.objects.filter(profile__school=school)
@@ -149,7 +149,7 @@ def group_member_add(request):
                 except IntegrityError as e:
                     errors.append('duplicate')
                 except Exception as e:
-                    errors.append(''.format(e))
+                    errors.append('{0}'.format(e))
             if len(errors):
                 data = {'Success': True, 'Errors': errors}
                 if len(errors) == users.count():
@@ -173,7 +173,7 @@ def group_member_delete(request):
             group_member.delete()
         data = {'Success': True}
     except Exception as e:
-        data = {'Success': False, 'Error': ''.format(e), 'members': group_member_ids}
+        data = {'Success': False, 'Error': '{0}'.format(e), 'members': group_member_ids}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -286,7 +286,7 @@ def permission_add(request):
             permission.save()
             data = {'Success': True}
         except Exception as e:
-            data = {'Success': False, 'Error': ''.format(e)}
+            data = {'Success': False, 'Error': '{0}'.format(e)}
     else:
         data = {'Success': False}
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -302,7 +302,7 @@ def permission_delete(request):
             permission.delete()
         data = {'Success': True}
     except Exception as e:
-        data = {'Success': False, 'Error': ''.format(e)}
+        data = {'Success': False, 'Error': '{0}'.format(e)}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
