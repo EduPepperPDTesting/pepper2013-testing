@@ -215,6 +215,26 @@ EOF
 # /usr/local/mongodb3/mongoimport -d "reporting" -c "student_courseenrollment" --port 37017 -f "user_id,course_id,created" --type=csv --file=/tmp/student_courseenrollment.csv
 /usr/local/mongodb3/mongoimport -d "reporting" -c "student_courseenrollment" --port 37017 -f "user_id,course_id,created,is_active" --type=csv --file=/tmp/student_courseenrollment.csv
 sudo rm -f /tmp/student_courseenrollment.csv;
+/usr/local/mongodb3/mongo --port=37017 <<EOF
+use reporting
+var user_info = [];
+db.student_courseenrollment.find().forEach(
+  function(x){
+    var key = x.user_id;
+    if(user_info[key] == null){
+      user_info[key] = db.user_info.findOne({'user_id':x.user_id})
+    }
+    if(user_info[key] != null){
+      x.state_id = user_info[key].state_id;
+      x.district_id = user_info[key].district_id;
+      x.school_id = user_info[key].school_id;
+      db.student_courseenrollment.save(x);
+    }
+    else{
+      db.student_courseenrollment.remove(x);
+    }
+})
+EOF
 echo '-------------------------------------------'
 echo 'Course enrollment conversion is complete!'
 echo '-------------------------------------------'
@@ -275,12 +295,12 @@ echo 3 | sudo tee /proc/sys/vm/drop_caches
 /usr/local/mongodb3/mongo --port=37017 <<EOF
 use reporting
 
-//var courseArr = [];
-//db.modulestore.find({'_id.category':'course'}).forEach(function(x){
-  //courseArr.push(x.course_id);
-//})
-//db.student_courseenrollment.remove({'course_id':{'$nin':courseArr}});
-//db.courseware_studentmodule.remove({'course_id':{'$nin':courseArr}});
+var courseArr = [];
+db.modulestore.find({'_id.category':'course'}).forEach(function(x){
+  courseArr.push(x.course_id);
+})
+db.student_courseenrollment.remove({'course_id':{'$nin':courseArr}});
+db.courseware_studentmodule.remove({'course_id':{'$nin':courseArr}});
 db.student_courseenrollment.createIndex({
     'user_id': 1
 })

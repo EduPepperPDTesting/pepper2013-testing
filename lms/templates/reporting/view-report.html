@@ -1,0 +1,140 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+%>
+
+<%inherit file="../main.html"/>
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css">
+<!--<link rel="stylesheet" href="/static/js/tablesorter/css/jq.css">-->
+<link rel="stylesheet" href="/static/css/time_report.css" type="text/css" media="screen"/>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<script src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<!-- Tablesorter: optional -->
+  <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+  <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<div id="reporting">
+    <h1>${report.name}</h1>
+     <div class="table">    
+          <div class="" style="padding:5px;"></div>
+          <div class="body table_scroll">
+          <table class="tblReport tablesorter">
+            <thead>
+             %for col in display_columns:
+               <th>${col.column.name}</th>
+              %endfor
+              <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          </div>
+          <div class="columnSelectorWrapper">
+            <input id="colSelect1" type="checkbox" class="hidden">
+            
+            <div id="columnSelector" class="columnSelector">
+              <!-- this div is where the column selector is added -->
+            </div>
+          </div>
+           <span class="footer">
+            <div class="pager">
+              <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+              <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+              <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+              <select class="pagesize" title="Select page size">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+              </select>
+              <select class="gotoPage" title="Select page number"></select>
+            </span>
+            <span class="time_download">
+              Download <span class="total"></span> User(s) As
+              <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
+            </span>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+
+   var pagerOptions = {
+        container: $(".pager"),
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        cssGoto: '.gotoPage',
+        ajaxUrl: '${reverse("reporting_report_get_rows")}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}',
+        ajaxProcessing: function(data){
+            return [data.total, data.rows]
+          },
+        processAjaxOnInit: true,
+        page: 0,
+        size: 10
+    };
+    var tablesorterOptions = {
+        debug: false,
+        theme: 'blue',
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output","columnSelector"],
+        widgetOptions: {
+            filter_external: '',
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false,
+            filter_reset: '.reset',
+            filter_serversideFiltering: true,
+            output_saveFileName: 'data.csv',
+            columnSelector_container : $('#columnSelector'),
+            columnSelector_columns : { '${len(display_columns)}': 'disable'},
+            columnSelector_mediaqueryName: 'All: '
+        }
+    };
+     //----------- column selector event----------//
+    /*
+    $('.columnSelectorButton').click(function(e){
+      if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+        $('.columnSelector').show();
+      }
+      else {
+        $('.columnSelector').hide();
+      }
+    })
+
+    $(document).click(function(e){
+        var isout = !$('.columnSelectorWrapper').find(e.target).length;
+        if($('.columnSelector').is(":visible")){
+          if(isout && e.target.className != 'columnSelectorButton') {
+            $('.columnSelector').hide();
+          }
+        }
+     
+    })
+    */
+    $(document).ready(function () {
+    //----------- tablesorter init----------//
+      $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+      //$(".tblReport").trigger("update");
+    });
+
+</script>
