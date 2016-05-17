@@ -619,11 +619,21 @@ function columnChangeHandler() {
         var text = $(this).parent().text();
         var name = $.trim(text.slice(0, text.indexOf('-')));
         if ($(this).is(':checked')) {
+            var current_columns = $('#selected-columns li').length;
             $('#selected-columns').append('<li data-id="' + column_id + '"><img class="move" src="/static/images/icons/move.png"> ' + name + '</li>');
         } else {
             $('#selected-columns li[data-id=' + column_id + ']').remove();
         }
         $('#selected-columns').sortable('refresh');
+        hiddenOrderUpdate();
+    });
+}
+
+function hiddenOrderUpdate() {
+    $('.selected-column').remove();
+    var order = $('#selected-columns').sortable('serialize').get();
+    $.each(order[0], function (index, item) {
+        $('.report-name').append('<input type="hidden" value="' + index + '" class="selected-column" name="selected-column[' + item.id + ']">')
     });
 }
 
@@ -634,11 +644,7 @@ function columnOrdering() {
         handle: '.move',
         onDrop: function ($item, container, _super, event) {
             _super($item, container);
-            $('.selected-column').remove();
-            var order = $('#selected-columns').sortable('serialize').get();
-            $.each(order[0], function (index, item) {
-                $('.report-name').append('<input type="hidden" value="' + index + '" class="selected-column" name="selected-column[' + item.id + ']">')
-            });
+            hiddenOrderUpdate();
             markDirty();
         }
     });
