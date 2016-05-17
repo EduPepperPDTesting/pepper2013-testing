@@ -529,13 +529,18 @@
                 <!--@date:2013-11-02-->
                 <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
             % else:
-                <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
+                <li><a  class="main-link" href="/contact">Become a Member</a></li>
                 <!--@end-->
             % endif
         % endif
             <!--@begin:Add tab About Us-->
             <!--@date:2013-11-02-->
             <li><a href="/about_pepper" class="main-link">About Us</a></li>
+            <!--@end-->
+
+            <!--@begin:Add Paypal-->
+            <!--@date:2016-05-17-->
+            <li><a  class="main-link" href="/contact"><img src="/static/images/paypal.png" width="100" height="27"/></a></li>
             <!--@end-->
         </ol>
 
