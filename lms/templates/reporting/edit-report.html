@@ -6,6 +6,7 @@
 
 <%inherit file="../main.html"/>
 <link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/jquery.sortable.js"></script>
 
@@ -87,6 +88,8 @@
                     </label></li>
                 %endfor
                 </ul>
+            %else:
+                <ul id="selected-columns"></ul>
             %endif
             <div class="clearfix"></div>
         </div>
@@ -96,7 +99,7 @@
                 %for view_filter in report_filters:
                     <div class="where-row" id="where-row[${loop.index}]">
                     %if view_filter.conjunction:
-                        <select class="filter-conjunction" name="filter-conjunction[${loop.index}]">
+                        <select data-name="filter-conjunction" class="filter-conjunction" name="filter-conjunction[${loop.index}]">
                             %if view_filter.conjunction == 'AND':
                                 <option value="AND" selected>AND</option>
                                 <option value="OR">OR</option>
@@ -106,16 +109,16 @@
                             %endif
                         </select>
                     %endif
-                    <select class="filter-column" name="filter-column[${loop.index}]">
+                    <select data-name="filter-column" class="filter-column" name="filter-column[${loop.index}]">
                         %for column in view_columns:
                             %if column.id == view_filter.column.id:
-                                <option value="${column.id}" selected>${column.view.name}.${column.name}</option>
+                                <option data-type="${column.data_type}" value="${column.id}" selected>${column.view.name}.${column.name}</option>
                             %else:
-                                <option value="${column.id}">${column.view.name}.${column.name}</option>
+                                <option data-type="${column.data_type}" value="${column.id}">${column.view.name}.${column.name}</option>
                             %endif
                         %endfor
                     </select>
-                    <select class="filter-operator" name="filter-operator[${loop.index}]">
+                    <select data-name="filter-operator" class="filter-operator" name="filter-operator[${loop.index}]">
                         %for possible_operator in possible_operators:
                             %if possible_operator == view_filter.operator:
                                 <option value="${possible_operator}" selected>${escape(possible_operator)}</option>
@@ -124,18 +127,18 @@
                             %endif
                         %endfor
                     </select>
-                    <input class="filter-value" type="text" name="filter-value[${loop.index}]" value="${view_filter.value}"/>
-                    <input class="plus" name="plus[${loop.index}]" type="button" value="+"/>
+                    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[${loop.index}]" value="${view_filter.value}"/>
+                    <input data-name="plus" class="plus" name="plus[${loop.index}]" type="button" value="+"/>
                     %if loop.index > 0:
-                        <input class="minus" name="minus[${loop.index}]" type="button" value="-"/>
+                        <input data-name="minus" class="minus" name="minus[${loop.index}]" type="button" value="-"/>
                     %endif
                     </div>
                 %endfor
             %else:
                 <div class="where-row" id="where-row[0]">
-                    <select class="filter-column" name="filter-column[0]">
+                    <select data-name="filter-column" class="filter-column" name="filter-column[0]">
                     </select>
-                    <select class="filter-operator" name="filter-operator[0]">
+                    <select data-name="filter-operator" class="filter-operator" name="filter-operator[0]">
                         <option value="=">=</option>
                         <option value="!=">!=</option>
                         <option value=">">&gt;</option>
@@ -143,8 +146,8 @@
                         <option value=">=">&gt;=</option>
                         <option value="<=">&lt;=</option>
                     </select>
-                    <input class="filter-value" type="text" name="filter-value[0]"/>
-                    <input class="plus" name="plus[0]" type="button" value="+"/>
+                    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[0]"/>
+                    <input data-name="plus" class="plus" name="plus[0]" type="button" value="+"/>
                 </div>
             %endif
         </div>
@@ -180,5 +183,7 @@
         });
         columnOrdering();
         dirtyReportHandler();
+        dateField();
+        fieldTypeUpdater();
     });
 </script>

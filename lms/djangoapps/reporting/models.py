@@ -41,6 +41,7 @@ class ViewColumns(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     column = models.CharField(blank=False, max_length=255, db_index=True)
+    data_type = models.CharField(blank=True, max_length=4, default='text')
     view = models.ForeignKey(Views, on_delete=models.CASCADE)
 
 

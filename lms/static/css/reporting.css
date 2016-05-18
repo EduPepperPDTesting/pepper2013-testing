@@ -123,10 +123,22 @@
 #reporting #view-dialog .content {
     text-align: left;
 }
+#reporting #add-view-wrapper .view-submit {
+    clear: both;
+    display: block;
+}
+#reporting .column-row {
+    clear: both;
+}
 #reporting .column-row input {
-    margin-right: 20px;
+    margin-right: 5px;
     float: left;
     width: 25%;
+}
+#reporting .column-row select {
+    margin-right: 5px;
+    float: left;
+    height: 45px;
 }
 #reporting .column-row input.plus, #reporting .column-row input.minus {
     width: auto;
@@ -323,6 +335,7 @@
 }
 #reporting .filter-value {
     height: 28px !important;
+    width: 200px !important;
 }
 #reporting .where-row {
     padding-top: 10px;

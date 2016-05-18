@@ -270,7 +270,6 @@ def report_delete(request):
 
 @user_has_perms('reporting')
 def report_view(request, report_id):
-    data = {}
     report = Reports.objects.get(id=report_id)
     selected_view = ReportViews.objects.filter(report=report)[0]
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
@@ -411,6 +410,7 @@ def view_columns(request):
     data = []
     for column in columns:
         data.append({'id': column.id,
+                     'type': column.data_type,
                      'name': column.view.name + '.' + column.name,
                      'description': column.description})
     return render_json_response(data)
@@ -464,7 +464,8 @@ def view_data(request):
                 data['columns'].append({'id': column.id,
                                         'name': column.name,
                                         'description': column.description,
-                                        'source': column.column})
+                                        'source': column.column,
+                                        'type': column.data_type})
     else:
         data = {'success': False}
 
@@ -514,6 +515,7 @@ def view_add(request):
     column_names = get_request_array(request.POST, 'column_name')
     column_descriptions = get_request_array(request.POST, 'column_description')
     column_sources = get_request_array(request.POST, 'column_source')
+    column_types = get_request_array(request.POST, 'column_type')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -540,6 +542,7 @@ def view_add(request):
                 column.name = column_name
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]
+                column.data_type = column_types[i]
                 column.view = view
                 column.save()
         except Exception as e:

@@ -74,7 +74,7 @@ function viewSelect(related_url, columns_url) {
                         columns += '</ul><ul>';
                     }
                     columns += '<li><label>';
-                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
+                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> <span class="column-name">' + data[x].name + '</span> - ' + data[x].description;
                     columns += '</label></li>';
                 }
                 columns += '</ul>';
@@ -86,7 +86,7 @@ function viewSelect(related_url, columns_url) {
             // Create the dropdown for the filters.
             var options = '';
             $.each(data, function (index, value) {
-                options += '<option value="' + value.id + '">' + value.name + '</option>';
+                options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
             });
             $('.filter-column').html(options);
         });
@@ -106,12 +106,12 @@ function filterLines() {
         var row = '#where-row\\[' + line_number + '\\]';
         var select = $(row).children('.filter-column').clone().wrap('<p>').parent().html();
         var line = '<div class="where-row" id="where-row[]">';
-        line += '    <select class="filter-conjunction" name="filter-conjunction[]">';
+        line += '    <select data-name="filter-conjunction" class="filter-conjunction" name="filter-conjunction[]">';
         line += '        <option value="AND">AND</option>';
         line += '        <option value="OR">OR</option>';
         line += '    </select>';
         line += select;
-        line += '    <select class="filter-operator" name="filter-operator[]">';
+        line += '    <select data-name="filter-operator" class="filter-operator" name="filter-operator[]">';
         line += '        <option value="=">=</option>';
         line += '        <option value="!=">!=</option>';
         line += '        <option value=">">&gt;</option>';
@@ -119,13 +119,14 @@ function filterLines() {
         line += '        <option value=">=">&gt;=</option>';
         line += '        <option value="<=">&lt;=</option>';
         line += '    </select>';
-        line += '    <input class="filter-value" type="text" name="filter-value[]"/>';
-        line += '    <input class="plus" name="plus[]" type="button" value="+"/>';
-        line += '    <input class="minus" name="minus[]" type="button" value="-"/>';
+        line += '    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[]"/>';
+        line += '    <input data-name="plus" class="plus" name="plus[]" type="button" value="+"/>';
+        line += '    <input data-name="minus" class="minus" name="minus[]" type="button" value="-"/>';
         line += '</div>';
         $(row).after(line);
         renumberLines('where-row');
         filterLines();
+        fieldTypeUpdater();
     });
 }
 
@@ -135,7 +136,7 @@ function renumberLines(container) {
         $(this).attr('id', container + '[' + index + ']');
         $(this).children().each(function () {
             $(this).attr('name', '');
-            $(this).attr('name', $(this).attr('class') + '[' + index + ']');
+            $(this).attr('name', $(this).attr('data-name') + '[' + index + ']');
         });
     });
 }
@@ -238,14 +239,20 @@ function filterColumns() {
     });
     $('.plus').off('click');
     $('.plus').click(function () {
+        var data_types = ['text', 'int', 'date'];
         var line_number = getLineNumber($(this).attr('name'));
         var row = '#column-row\\[' + line_number + '\\]';
-        var line = '<div class="column-row" id="column-row[]">';
-        line += '<input class="column_name" name="column_name[]" type="text" placeholder="Name">';
-        line += '<input class="column_description" name="column_description[]" type="text" placeholder="Description">';
-        line += '<input class="column_source" name="column_source[]" type="text" placeholder="Source">';
-        line += '<input type="button" value="+" class="plus" name="plus[]">';
-        line += '<input type="button" value="-" class="minus" name="minus[]">';
+        var line = '<div data-name="column-row" class="column-row" id="column-row[]">';
+        line += '<input data-name="column_name" class="column_name" name="column_name[]" type="text" placeholder="Name">';
+        line += '<input data-name="column_description" class="column_description" name="column_description[]" type="text" placeholder="Description">';
+        line += '<input data-name="column_source" class="column_source" name="column_source[]" type="text" placeholder="Source">';
+        line += '<select data-name="column_type" class="column_type" name="column_type[]">';
+        $.each(data_types, function (i, v) {
+            line += '    <option value="' + v + '">' + v + '</option>';
+        });
+        line += '</select>';
+        line += '<input type="button" value="+" data-name="plus" class="plus" name="plus[]">';
+        line += '<input type="button" value="-" data-name="minus" class="minus" name="minus[]">';
         line += '</div>';
         $(row).after(line);
         renumberLines('column-row');
@@ -257,6 +264,8 @@ function addView() {
     $('.add-new-view, .view-edit').off('click');
     $('.add-new-view, .view-edit').click(function (e) {
         e.preventDefault();
+        
+        var data_types = ['text', 'int', 'date'];
 
         var current_data = false;
         if ($(this).attr('class') == 'view-edit') {
@@ -287,30 +296,44 @@ function addView() {
         content += '<label>Columns:';
         if (current_data) {
             $.each(current_data.columns, function (index, value) {
-                content += '<div class="column-row" id="column-row[' + index + ']">';
-                content += '<input class="column_name" name="column_name[' + index + ']" type="text" placeholder="Name" value="' + value.name + '">';
-                content += '<input class="column_description" name="column_description[' + index + ']" type="text" placeholder="Description" value="' + value.description + '">';
-                content += '<input class="column_source" name="column_source[' + index + ']" type="text" placeholder="Source" value="' + value.source + '">';
-                content += '<input type="button" value="+" class="plus" name="plus[' + index + ']">';
+                content += '<div data-name="column-row" class="column-row" id="column-row[' + index + ']">';
+                content += '<input data-name="column_name" class="column_name" name="column_name[' + index + ']" type="text" placeholder="Name" value="' + value.name + '">';
+                content += '<input data-name="column_description" class="column_description" name="column_description[' + index + ']" type="text" placeholder="Description" value="' + value.description + '">';
+                content += '<input data-name="column_source" class="column_source" name="column_source[' + index + ']" type="text" placeholder="Source" value="' + value.source + '">';
+                content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+                $.each(data_types, function (i, v) {
+                    if (value.type == v) {
+                        content += '    <option value="' + v + '" selected>' + v + '</option>';
+                    } else {
+                        content += '    <option value="' + v + '">' + v + '</option>';
+                    }
+                });
+                content += '</select>';
+                content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[' + index + ']">';
                 if (index > 0) {
-                    content += '<input type="button" value="-" class="minus" name="minus[' + index + ']">';
+                    content += '<input type="button" value="-" data-name="minus" class="minus" name="minus[' + index + ']">';
                 }
                 content += '</div>';
             });
         } else {
-            content += '<div class="column-row" id="column-row[0]">';
-            content += '<input class="column_name" name="column_name[0]" type="text" placeholder="Name">';
-            content += '<input class="column_description" name="column_description[0]" type="text" placeholder="Description">';
-            content += '<input class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<input type="button" value="+" class="plus" name="plus[0]">';
+            content += '<div data-name="column-row" class="column-row" id="column-row[0]">';
+            content += '<input data-name="column_name" class="column_name" name="column_name[0]" type="text" placeholder="Name">';
+            content += '<input data-name="column_description" class="column_description" name="column_description[0]" type="text" placeholder="Description">';
+            content += '<input data-name="column_source" class="column_source" name="column_source[0]" type="text" placeholder="Source">';
+            content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+            $.each(data_types, function (i, v) {
+                content += '    <option value="' + v + '">' + v + '</option>';
+            });
+            content += '</select>';
+            content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[0]">';
             content += '</div>';
         }
         content += '</label>';
         if (current_data) {
-            content += '<input type="hidden" name="view_id" value="' + current_data.id + '">'
-            content += '<input type="submit" value="Save">';
+            content += '<input type="hidden" name="view_id" value="' + current_data.id + '">';
+            content += '<input type="submit" value="Save" class="view-submit">';
         } else {
-            content += '<input type="submit" value="Add">';
+            content += '<input type="submit" value="Add" class="view-submit">';
         }
         content += '</form>';
         content += '</div>';
@@ -653,5 +676,38 @@ function dirtyReportHandler() {
     var is_dirty = false;
     $('input, select, textarea').change(function () {
         markDirty();
+    });
+}
+
+function dateField() {
+    $('.filter-value').each(function () {
+        if ($(this).siblings('.filter-column').children(':selected').attr('data-type') == 'date') {
+            $(this).datepicker({
+                autoSize: true ,
+                gotoCurrent: true,
+                firstDay: 2,
+                hideIfNoPrevNext: true,
+                navigationAsDateFormat: true,
+                showOtherMonths: true,
+                selectOtherMonths: false,
+                stepMonths: 1,
+                changeMonth: true,
+                changeYear: true,
+                numberOfMonths: [1, 1],
+                showCurrentAtPos: 0,
+                showAnim: "",
+                showWeek: false,
+                dateFormat: 'yy-mm-dd',
+                currentText: 'Today'
+            });
+        } else {
+            $(this).datepicker('destroy');
+        }
+    });
+}
+
+function fieldTypeUpdater() {
+    $('.filter-column').change(function () {
+        dateField();
     });
 }
