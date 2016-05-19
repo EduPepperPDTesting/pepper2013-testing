@@ -333,7 +333,7 @@
     padding: 0 6px !important;
     margin-right: 5px;
 }
-#reporting #filter-enable {
+#reporting #filter-enable, #reporting #distinct-enable {
     float: right;
 }
 #reporting .filter-value {

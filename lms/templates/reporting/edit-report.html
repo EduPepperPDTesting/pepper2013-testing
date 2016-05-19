@@ -41,6 +41,7 @@
         <div class="edit-block view-selector">
             <h2>Select Views</h2>
             %if action == 'new':
+                <label id="distinct-enable"><input type="checkbox" name="distinct-enable" value="yes"> Show Duplicate Rows</label>
                 <select class="view-select" name="view[0]">
                     <option value="none">Select...</option>
                     %for view in views:
@@ -48,6 +49,7 @@
                     %endfor
                 </select>
             %else:
+                <label id="distinct-enable"><input type="checkbox" name="distinct-enable" value="yes"${'' if report.distinct else ' checked'}> Show Duplicate Rows</label>
                 %for selected_view in selected_views:
                     <select class="view-select" name="view[${loop.index}]">
                         <option value="none">Select...</option>

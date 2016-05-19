@@ -18,6 +18,7 @@ class Reports(models.Model):
         db_table = 'reporting_reports'
     name = models.CharField(blank=False, max_length=255, db_index=True)
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
+    distinct = models.BooleanField(blank=True, default=False)
     category = models.ForeignKey(Categories, null=True, on_delete=models.SET_NULL)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     access_level = models.CharField(blank=True, default='System', max_length=10)

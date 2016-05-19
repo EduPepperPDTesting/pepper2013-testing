@@ -181,6 +181,7 @@ def report_save(request, report_id):
     try:
         name = request.POST.get('report_name', '')
         description = request.POST.get('report_description', '')
+        distinct = not request.POST.get('distinct-enable', False) == 'yes'
         views = get_request_array(request.POST, 'view')
         columns = get_request_array(request.POST, 'column')
         column_order = get_request_array(request.POST, 'selected-column')
@@ -202,6 +203,7 @@ def report_save(request, report_id):
 
             report.name = name
             report.description = description
+            report.distinct = distinct
             report.access_level = access_level
             if access_level == 'State':
                 report.access_id = request.user.profile.district.state.id
