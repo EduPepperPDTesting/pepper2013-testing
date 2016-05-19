@@ -64,6 +64,12 @@
     .modal label, .modal input, .modal select {
         display: block;
     }
+    .modal input[type='radio'] {
+        display: inline;
+    }
+    .modal #import-errors {
+        margin: 30px;
+    }
     .modal label span {
         color: red;
     }
@@ -209,6 +215,16 @@
     }
     .pager {
         float: left;
+    }
+    #import-progress {
+        height: 30px;
+        width: 300px;
+        background-color: #edbd3c;
+    }
+    #import-progress div {
+        height: 30px;
+        width: 0;
+        background-color: #00A000;
     }
 </style>
 <script type="text/javascript">
@@ -417,6 +433,7 @@
     }
     function updatePermissions() {
         $('#permissions-table tbody .data').remove();
+        $('.permission-select-all:checked').prop({checked: false});
         $.get("${reverse('permissions_permissions_list')}", function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -436,6 +453,7 @@
     }
     function updateGroups() {
         $('#groups-table tbody .data').remove();
+        $('.group-select-all:checked').prop({checked: false});
         $.get("${reverse('permissions_group_list')}", function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data group-select">';
@@ -457,6 +475,7 @@
     }
     function updateGroupMembers(group_id, status) {
         $('#group-members-table tbody .data').remove();
+        $('.user-select-all:checked').prop({checked: false});
         $.get("${reverse('permissions_group_members_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -478,6 +497,7 @@
     }
     function updateGroupPermissions(group_id, status) {
         $('#group-permissions-table tbody .data').remove();
+        $('.group-permission-select-all:checked').prop({checked: false});
         $.get("${reverse('permissions_group_permissions_list')}", {group_id: group_id}, function (data) {
             $.each(data, function (index, object) {
                 var row = '<tr class="data">';
@@ -688,18 +708,72 @@
             var access_level = '${access_level}';
             var group = $(".selected-group input").val();
 
-            var content = '<form action="${reverse('permissions_group_member_add')}" method="post" id="add-member-submit">';
-            content += '<label>Choose a user by email:<input type="text" name="member" id="add-user-email">';
-            content += '<label><strong>Or</strong> add a group of users: <span id="user-selection">Select State to Start</span></label>';
-            content += '<label id="state-label">By State:<select name="state" id="state-select"></select></label>';
+            var content = '<form action="${reverse('permissions_group_member_add')}" method="post" id="add-member-submit" enctype="multipart/form-data">';
+            content += '<label><input type="radio" name="type" value="email" checked> Choose a user by email:<input type="text" name="member" id="add-user-email">';
+            content += '<label><input type="radio" name="type" value="import"> <strong>Or</strong> import a group of users (text file or CSV with one email address per line): <input type="file" name="import_file" id="add-user-file" disabled></label>';
+            content += '<label><input type="radio" name="type" value="group"> <strong>Or</strong> add a group of users: <span id="user-selection">Select State to Start</span></label>';
+            content += '<label id="state-label">By State:<select name="state" id="state-select" disabled></select></label>';
             content += '<input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>';
             content += '<input type=hidden name="group" value="' + group + '">';
             content += '<input type="submit" name="submit" value="Add">';
             var dialog = new Dialog('#dialog');
             dialog.show('Add User', content);
+            $("#add-member-submit input[name='type']").change(function () {
+                if ($(this).attr('value') == 'email') {
+                    $('#add-user-email').prop({disabled: false});
+                    $('#add-user-file').prop({disabled: true});
+                    $('#state-select').prop({disabled: true});
+                    $('#district-select').prop({disabled: true});
+                    $('#school-select').prop({disabled: true});
+                } else if ($(this).attr('value') == 'import') {
+                    $('#add-user-email').prop({disabled: true});
+                    $('#add-user-file').prop({disabled: false});
+                    $('#state-select').prop({disabled: true});
+                    $('#district-select').prop({disabled: true});
+                    $('#school-select').prop({disabled: true});
+                } else if ($(this).attr('value') == 'group') {
+                    $('#add-user-email').prop({disabled: true});
+                    $('#add-user-file').prop({disabled: true});
+                    $('#state-select').prop({disabled: false});
+                    $('#district-select').prop({disabled: false});
+                    $('#school-select').prop({disabled: false});
+                }
+            });
             $('#add-member-submit').submit(function (event) {
                 event.preventDefault();
-                postForm(this, dialog, updateGroupMembers, group);
+                if ($("#add-member-submit input[name='type']:checked").val() != 'import') {
+                    postForm(this, dialog, updateGroupMembers, group);
+                } else {
+                    var url = $(this).attr('action');
+                    var formData = new FormData($(this)[0]);
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: formData,
+                        async: false,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            if (data.Success) {
+                                updateGroupMembers(group);
+                                if (dialog) {
+                                    dialog.hide();
+                                }
+                                if (data.Errors.length) {
+                                    var content = '<div id="import-errors"><strong>The following errors were encountered during the import:</strong><ul>';
+                                    $.each(data.Errors, function (index, item) {
+                                        content += '<li>' + item.email + ' - ' + item.error + '</li>';
+                                    });
+                                    content += '</ul></div>';
+                                }
+                                dialog.show('Errors Encountered', content);
+                            } else {
+                                alert('There was an error processing this request. Please contact the site admins for help.');
+                            }
+                        }
+                    });
+                }
             });
             $('#state-select').change(function () {
                 if ($(this).val()) {

@@ -1,13 +1,15 @@
 from mitxmako.shortcuts import render_to_response
 from .models import PermGroup, PermGroupMember, PermPermission, PermGroupPermission
-import json
-from django.http import HttpResponse
+import csv
 from django_future.csrf import ensure_csrf_cookie
 from django.db import IntegrityError
 from .decorators import user_has_perms
 from .utils import check_user_perms, check_access_level
 from student.models import User
-from pepper_utilities.utils import get_request_array
+from pepper_utilities.utils import get_request_array, render_json_response
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
 
 @user_has_perms('permissions', ['administer', 'assign'])
@@ -32,7 +34,7 @@ def group_check(request):
     if PermGroup.objects.filter(name=request.GET.get('name'), access_level=request.GET.get('access_level')).count():
         valid = False
         error = 'This name/access level is already in use.'
-    return HttpResponse(json.dumps({'Valid': valid, 'Error': error}), content_type='application/json')
+    return render_json_response({'Valid': valid, 'Error': error})
 
 
 @ensure_csrf_cookie
@@ -52,7 +54,7 @@ def group_add(request):
         data = {'Success': True}
     else:
         data = {'Success': False}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -66,7 +68,7 @@ def group_delete(request):
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -89,7 +91,7 @@ def group_permission_add(request):
             data = {'Success': False, 'Error': '{0}'.format(e)}
     else:
         data = {'Success': False}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -103,24 +105,23 @@ def group_permission_delete(request):
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
 @user_has_perms('permissions', ['administer', 'assign'])
 def group_member_add(request):
+    submit_type = request.POST.get('type', False)
+
     group_id = request.POST.get('group', False)
     try:
         group = PermGroup.objects.get(id=group_id)
     except:
         group = False
-    member = request.POST.get('member', False)
-    state = request.POST.get('state', False)
-    district = request.POST.get('district', False)
-    school = request.POST.get('school', False)
 
     if group:
-        if member:
+        if submit_type == 'email':
+            member = request.POST.get('member', False)
             user = User.objects.get(email=member)
             try:
                 group_member = PermGroupMember()
@@ -132,7 +133,11 @@ def group_member_add(request):
                 data = {'Success': False, 'Error': 'duplicate'}
             except Exception as e:
                 data = {'Success': False, 'Error': '{0}'.format(e)}
-        elif state:
+
+        elif submit_type == 'group':
+            state = request.POST.get('state', False)
+            district = request.POST.get('district', False)
+            school = request.POST.get('school', False)
             if school:
                 users = User.objects.filter(profile__school=school)
             elif district:
@@ -156,11 +161,52 @@ def group_member_add(request):
                     data['Success'] = False
             else:
                 data = {'Success': True}
+        elif submit_type == 'import':
+            if request.FILES.get('import_file') is not None and request.FILES.get('import_file').size:
+                import_file = request.FILES.get('import_file')
+                r = csv.reader(import_file, dialect=csv.excel)
+                r1 = []
+                r1.extend(r)
+
+                errors = list()
+                count = 0
+                for i, line in enumerate(r1):
+                    count += 1
+                    email = line[0]
+                    try:
+                        validate_email(email)
+                        user = User.objects.get(email=email)
+                        try:
+                            group_member = PermGroupMember()
+                            group_member.group = group
+                            group_member.user = user
+                            group_member.save()
+                        except IntegrityError as e:
+                            raise Exception('Already a member.')
+                        except Exception as e:
+                            raise Exception(e)
+                    except ValidationError:
+                        transaction.rollback()
+                        errors.append({'email': email, 'error': 'Invalid email address.'})
+                    except Exception as e:
+                        transaction.rollback()
+                        errors.append({'email': email, 'error': '{0}'.format(e)})
+                    else:
+                        transaction.commit()
+
+                if count > len(errors):
+                    data = {'Success': True}
+                else:
+                    data = {'Success': False}
+                data.update({'Errors': errors})
+            else:
+                data = {'Success': False}
         else:
             data = {'Success': False}
     else:
         data = {'Success': False}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -174,7 +220,7 @@ def group_member_delete(request):
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e), 'members': group_member_ids}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 def group_data(group_id=False):
@@ -191,7 +237,7 @@ def group_list(request):
     data = list()
     for group in groups:
         data.append({'id': group.id, 'name': group.name, 'access_level': group.access_level})
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @user_has_perms('permissions', ['administer', 'assign'])
@@ -238,7 +284,7 @@ def group_member_list(request):
         except:
             pass
         member_list.append(member_dict)
-    return HttpResponse(json.dumps(member_list), content_type='application/json')
+    return render_json_response(member_list)
 
 
 @user_has_perms('permissions', ['administer', 'assign'])
@@ -251,7 +297,7 @@ def group_permissions_list(request):
                                 'name': permission.permission.name,
                                 'item': permission.permission.item,
                                 'action': permission.permission.action})
-    return HttpResponse(json.dumps(permission_list), content_type='application/json')
+    return render_json_response(permission_list)
 
 
 @user_has_perms('permissions', 'administer')
@@ -264,7 +310,7 @@ def permission_check(request):
     if PermPermission.objects.filter(item=request.GET.get('target'), action=request.GET.get('action')).count():
         valid = False
         error += 'This target/action combination is already in use.'
-    return HttpResponse(json.dumps({'Valid': valid, 'Error': error}), content_type='application/json')
+    return render_json_response({'Valid': valid, 'Error': error})
 
 
 @ensure_csrf_cookie
@@ -289,7 +335,7 @@ def permission_add(request):
             data = {'Success': False, 'Error': '{0}'.format(e)}
     else:
         data = {'Success': False}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
@@ -303,7 +349,7 @@ def permission_delete(request):
         data = {'Success': True}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
 
 
 def permissions_data(permission_id=False):
@@ -323,4 +369,4 @@ def permissions_list(request):
                      'name': permission.name,
                      'item': permission.item,
                      'action': permission.action})
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return render_json_response(data)
