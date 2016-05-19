@@ -717,7 +717,7 @@
             content += '<input type=hidden name="group" value="' + group + '">';
             content += '<input type="submit" name="submit" value="Add">';
             var dialog = new Dialog('#dialog');
-            dialog.show('Add User', content);
+            dialog.show('Add Member(s)', content);
             $("#add-member-submit input[name='type']").change(function () {
                 if ($(this).attr('value') == 'email') {
                     $('#add-user-email').prop({disabled: false});
@@ -1043,7 +1043,7 @@
                                 </select>
                             </form>
                         </div>
-                        <input type="button" value="Add Member" id="add-group-member" disabled="disabled">
+                        <input type="button" value="Add Member(s)" id="add-group-member" disabled="disabled">
                         <input type="submit" value="Remove Selected" id="delete-group-members" disabled="disabled">
                     </div>
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
