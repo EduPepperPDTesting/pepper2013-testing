@@ -333,6 +333,9 @@
     padding: 0 6px !important;
     margin-right: 5px;
 }
+#reporting #filter-enable {
+    float: right;
+}
 #reporting .filter-value {
     height: 28px !important;
     width: 200px !important;

@@ -95,7 +95,8 @@
         </div>
         <div class="edit-block where-selector">
             <h2>Select Filters</h2>
-            %if action == 'edit':
+            %if action == 'edit' and len(report_filters):
+                <label id="filter-enable"><input type="checkbox" name="filter-enable" checked> Enable Filtering</label>
                 %for view_filter in report_filters:
                     <div class="where-row" id="where-row[${loop.index}]">
                     %if view_filter.conjunction:
@@ -135,10 +136,16 @@
                     </div>
                 %endfor
             %else:
+                <label id="filter-enable"><input type="checkbox" name="filter-enable"> Enable Filtering</label>
                 <div class="where-row" id="where-row[0]">
-                    <select data-name="filter-column" class="filter-column" name="filter-column[0]">
+                    <select data-name="filter-column" class="filter-column" name="filter-column[0]" disabled>
+                        %if action == 'edit':
+                            %for column in view_columns:
+                                <option data-type="${column.data_type}" value="${column.id}">${column.view.name}.${column.name}</option>
+                            %endfor
+                        %endif
                     </select>
-                    <select data-name="filter-operator" class="filter-operator" name="filter-operator[0]">
+                    <select data-name="filter-operator" class="filter-operator" name="filter-operator[0]" disabled>
                         <option value="=">=</option>
                         <option value="!=">!=</option>
                         <option value=">">&gt;</option>
@@ -146,8 +153,8 @@
                         <option value=">=">&gt;=</option>
                         <option value="<=">&lt;=</option>
                     </select>
-                    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[0]"/>
-                    <input data-name="plus" class="plus" name="plus[0]" type="button" value="+"/>
+                    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[0]" disabled/>
+                    <input data-name="plus" class="plus" name="plus[0]" type="button" value="+" disabled/>
                 </div>
             %endif
         </div>
@@ -172,6 +179,7 @@
     $(document).ready(function () {
         viewSelect('${reverse('reporting_related_views')}', '${reverse('reporting_view_columns')}');
         filterLines();
+        filterEnabler();
         submitHandler('#report-edit', function (data) {
             // TODO: Disabling this for now, since this page isn't done yet. Will redirect to the main reports page for now.
             //window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);

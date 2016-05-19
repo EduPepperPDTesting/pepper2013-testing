@@ -260,6 +260,16 @@ function filterColumns() {
     });
 }
 
+function filterEnabler() {
+    $('#filter-enable input').change(function () {
+        if ($(this).prop('checked')) {
+            $('.where-row').children(':input').prop({disabled: false});
+        } else {
+            $('.where-row').children(':input').prop({disabled: true});
+        }
+    });
+}
+
 function addView() {
     $('.add-new-view, .view-edit').off('click');
     $('.add-new-view, .view-edit').click(function (e) {
