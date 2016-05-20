@@ -1,3 +1,4 @@
+// Options for the TableSorter tables.
 var pagerOptions = {
     container: '',
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
@@ -33,6 +34,9 @@ var tablesorterOptions = {
         filter_saveFilters: false
     }
 };
+
+// A loading status throbber setup.
+// Initial object.
 function LoadingStatus(list) {
     var self = this;
     setTimeout(function () {
@@ -45,6 +49,7 @@ function LoadingStatus(list) {
         self.$list[v] = true;
     });
 }
+// Shows the loader.
 LoadingStatus.prototype.showLoader = function () {
     if (!this.$loader) {
         this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
@@ -52,12 +57,14 @@ LoadingStatus.prototype.showLoader = function () {
     }
     this.$loader.css('display','block');
 };
+// Hides the loader.
 LoadingStatus.prototype.hideLoader = function () {
     if (this.$loader) {
         this.$loader.remove();
         this.$loader = null;
     }
 };
+// Checks the status of all operations.
 LoadingStatus.prototype.checkStatus = function () {
     var status = true;
     $.each(this.$list, function(i, v) {
@@ -67,15 +74,19 @@ LoadingStatus.prototype.checkStatus = function () {
     });
     return status;
 };
+// Sets the current status for an operation.
 LoadingStatus.prototype.setStatus = function (name) {
     this.$list[name] = false;
     this.loaderCheck();
 };
+// Checks the status and hides the loader if appropriate.
 LoadingStatus.prototype.loaderCheck = function () {
     if (this.checkStatus()) {
         this.hideLoader();
     }
 };
+
+// Checks to see if the target/action is already in use.
 function checkPermission(name, target, action) {
     var valid = true;
     var error = '';
@@ -95,6 +106,8 @@ function checkPermission(name, target, action) {
         return error;
     }
 }
+
+// Checks to see if this group exists at the access level.
 function checkGroup(name, group_type) {
     var valid = true;
     var error = '';
@@ -114,6 +127,8 @@ function checkGroup(name, group_type) {
         return error;
     }
 }
+
+// Validate the data in the permission submit form.
 function validatePermissionForm(type) {
     $('.error-box').removeClass('error-box');
     var valid = true;
@@ -152,6 +167,8 @@ function validatePermissionForm(type) {
     }
     return valid;
 }
+
+// Validate the data in the group submission form.
 function validateGroupForm(type) {
     $('.error-box').removeClass('error-box');
     var valid = true;
@@ -178,6 +195,8 @@ function validateGroupForm(type) {
     }
     return valid;
 }
+
+// Generic function for POSTing form data.
 function postForm(form, dialog, callback, passthrough) {
     var params = $(form).serialize();
     $.post($(form).attr('action'), params, function (data) {
@@ -201,6 +220,8 @@ function postForm(form, dialog, callback, passthrough) {
         }
     });
 }
+
+// Update the permissions table data.
 function updatePermissions() {
     $('#permissions-table tbody .data').remove();
     $('.permission-select-all:checked').prop({checked: false});
@@ -221,6 +242,8 @@ function updatePermissions() {
         $('#permissions-table').trigger('update');
     });
 }
+
+// Update the groups table data.
 function updateGroups() {
     $('#groups-table tbody .data').remove();
     $('.group-select-all:checked').prop({checked: false});
@@ -243,6 +266,8 @@ function updateGroups() {
         groupSelect();
     });
 }
+
+// Update the group members table data.
 function updateGroupMembers(group_id, status) {
     $('#group-members-table tbody .data').remove();
     $('.user-select-all:checked').prop({checked: false});
@@ -265,6 +290,8 @@ function updateGroupMembers(group_id, status) {
         status.setStatus('members');
     });
 }
+
+// Update the group permissions table data.
 function updateGroupPermissions(group_id, status) {
     $('#group-permissions-table tbody .data').remove();
     $('.group-permission-select-all:checked').prop({checked: false});
@@ -286,6 +313,9 @@ function updateGroupPermissions(group_id, status) {
         status.setStatus('permissions');
     });
 }
+
+// Sets up the onclick on the group rows to load the member and permission data, enable the action buttons, and mark the
+// currently selected group for any member and group permission actions.
 function groupSelect() {
     $(".group-select").each(function () {
         $(this).children("td").slice(0, 1).click(function() {
@@ -303,6 +333,8 @@ function groupSelect() {
         });
     });
 }
+
+// Creates the modal form for adding/editing groups, as well as the submission handler for the form.
 function groupEdit(type, id) {
     var button_name = 'Add';
     var name = '';
@@ -347,6 +379,8 @@ function groupEdit(type, id) {
         }
     });
 }
+
+// Attaches the onclick to the add/edit buttons for groups.
 function groupEditAttach() {
     $('#new-group').click(function () {
         groupEdit('add');
@@ -357,6 +391,8 @@ function groupEditAttach() {
         groupEdit('edit', id);
     });
 }
+
+// Creates the modal form for adding/editing permissions, as well as the submission handler for the form.
 function permissionEdit(type, id) {
     var button_name = 'Add';
     var name = '';
@@ -395,6 +431,8 @@ function permissionEdit(type, id) {
         }
     });
 }
+
+// Attaches the onclick to the add/edit buttons for permissions.
 function permissionEditAttach() {
     $('#new-permission').click(function () {
         permissionEdit('add');
@@ -405,6 +443,8 @@ function permissionEditAttach() {
         permissionEdit('edit', id);
     });
 }
+
+// attaches action for selecting all on the select all checkboxes on the various tables.
 function selectAll(trigger_selector, target_selector) {
     $(trigger_selector).change(function () {
         var checked = false;
@@ -416,8 +456,10 @@ function selectAll(trigger_selector, target_selector) {
         });
     });
 }
+
+// Initializes all the code for the page.
 function initPermissions() {
-    //** init expand title
+    // Sets up the expansion of the sections of the page.
     $(".expand_title").click(function () {
         var $div = $(this).next("div.expand_div");
         if ($div.is(':visible')) {
@@ -429,6 +471,7 @@ function initPermissions() {
         }
     });
 
+    // Sets up the tablesorter tables for the 4 tables on the page.
     pagerOptions.container = $("#permissions-pager");
     $('#permissions-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 
@@ -442,9 +485,13 @@ function initPermissions() {
     pagerOptions.size = 40;
     $('#groups-table').tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
 
+    // Initialize the various onclicks for the page. The first 3 are separate functions as they need to be reinitialized
+    // when the tables are updated. See the comments on the functions for descriptions.
     groupSelect();
     permissionEditAttach();
     groupEditAttach();
+
+    // Creates the modal form for adding group permissions, as well as the submission handler for the form.
     $('#add-group-permission').click(function () {
         var group = $(".selected-group input").val();
 
@@ -474,9 +521,13 @@ function initPermissions() {
             postForm(this, dialog, updateGroupPermissions, group);
         });
     });
+
+    // Creates the modal form for adding members, as well as the submission handler for the form.
     $('#add-group-member').click(function () {
+        // Get the currently selected group ID.
         var group = $(".selected-group input").val();
 
+        // Generate the form content.
         var content = '<form action="' + group_member_add_url + '" method="post" id="add-member-submit" enctype="multipart/form-data">';
         content += '<label><input type="radio" name="type" value="email" checked> Choose a user by email:<input type="text" name="member" id="add-user-email">';
         content += '<label><input type="radio" name="type" value="import"> <strong>Or</strong> import a group of users (text file or CSV with one email address per line): <input type="file" name="import_file" id="add-user-file" disabled></label>';
@@ -485,8 +536,11 @@ function initPermissions() {
         content += '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrf_token + '"/>';
         content += '<input type=hidden name="group" value="' + group + '">';
         content += '<input type="submit" name="submit" value="Add">';
+        // Show the dialog.
         var dialog = new Dialog('#dialog');
         dialog.show('Add Member(s)', content);
+
+        // Enable/disable the member addition types based on the radio selection.
         $("#add-member-submit input[name='type']").change(function () {
             if ($(this).attr('value') == 'email') {
                 $('#add-user-email').prop({disabled: false});
@@ -508,13 +562,22 @@ function initPermissions() {
                 $('#school-select').prop({disabled: false});
             }
         });
+
+        // Submission handler.
         $('#add-member-submit').submit(function (event) {
+            // Don't submit normally.
             event.preventDefault();
+
+            // If this is a single addition by email or addition of a selected group, just submit the form.
             if ($("#add-member-submit input[name='type']:checked").val() != 'import') {
                 postForm(this, dialog, updateGroupMembers, group);
             } else {
+                // If it is an import by CSV, we need a different POST handler.
+                // Get the URL for submission.
                 var url = $(this).attr('action');
+                // Get the form data, including the uploaded file.
                 var formData = new FormData($(this)[0]);
+                // Submit the form, showing any errors that occurred during import.
                 $.ajax({
                     url: url,
                     type: 'POST',
@@ -525,10 +588,13 @@ function initPermissions() {
                     processData: false,
                     success: function (data) {
                         if (data.Success) {
+                            // Update the members table.
                             updateGroupMembers(group);
+                            // Hide the modal.
                             if (dialog) {
                                 dialog.hide();
                             }
+                            // If there were errors, show them in a separate modal.
                             if (data.Errors.length) {
                                 var content = '<div id="import-errors"><strong>The following errors were encountered during the import:</strong><ul>';
                                 $.each(data.Errors, function (index, item) {
@@ -544,12 +610,17 @@ function initPermissions() {
                 });
             }
         });
+
+        // Sets up the various onchanges for the dropdowns to add by group, starting with state at the top.
         $('#state-select').change(function () {
             if ($(this).val()) {
+                // Clear the current district and school options since the state changed.
                 $('#district-label').remove();
                 $('#school-label').remove();
+                // Get the allowed Districts
                 $.get(drop_districts_url, {state: $(this).val(), access_level: access_level}, function (data) {
-                    var content = '<label id="district-label">By District<select name="district", id="district-select">';
+                    // Build the district dropdown.
+                    var content = '<label id="district-label">By District<select name="district" id="district-select">';
                     if (access_level == 'System' || access_level == 'State') {
                         content += '<option value=""></option>';
                     }
@@ -557,13 +628,20 @@ function initPermissions() {
                         content += '<option value="' + object.id + '">' + object.name + '</option>';
                     });
                     content += '</select></label>';
+                    // Add it to the form.
                     $('#state-label').after(content);
+                    // Update the descriptive language at the top.
                     $('#user-selection').html('All users in ' + $('#state-select').children(':selected').text());
+
+                    // Attach the onchange for the districts.
                     $('#district-select').change(function () {
                         if ($(this).val()) {
+                            // Clear the current school options since the district changed.
                             $('#school-label').remove();
+                            // Get the allowed schools.
                             $.get(drop_schools_url, {district: $(this).val()}, function (data) {
-                                var content = '<label id="school-label">By School<select name="school", id="school-select">';
+                                // Build the school dropdown.
+                                var content = '<label id="school-label">By School<select name="school" id="school-select">';
                                 if (access_level != 'School') {
                                     content += '<option value=""></option>';
                                 }
@@ -571,32 +649,44 @@ function initPermissions() {
                                     content += '<option value="' + object.id + '">' + object.name + '</option>';
                                 });
                                 content += '</select></label>';
+                                // Add it to the form.
                                 $('#district-label').after(content);
+                                // Update the descriptive language at the top.
                                 $('#user-selection').html('All users in district ' + $('#district-select').children(':selected').text());
+
+                                // Attach the onchange for the schools.
                                 $('#school-select').change(function () {
+                                    // No further to go down the tree, so we just update the descriptive language.
                                     if ($(this).val()) {
                                         $('#user-selection').html('All users in school ' + $('#school-select').children(':selected').text());
                                     } else {
                                         $('#user-selection').html('All users in district ' + $('#district-select').children(':selected').text());
                                     }
                                 });
+                                // If you can't change the dropdown, make sure the language is still updated.
                                 if (access_level == 'School') {
                                     $('#school-select').trigger('change');
                                 }
                             });
                         } else {
+                            // Revert the descriptive language if we unselected a district.
                             $('#user-selection').html('All users in ' + $('#state-select').children(':selected').text());
                         }
                     });
+                    // If you can't change the dropdown, make sure the language is still updated.
                     if (access_level != 'System' && access_level != 'State') {
                         $('#district-select').trigger('change');
                     }
                 });
             } else {
+                // Revert the descriptive language if we unselected a state.
                 $('#user-selection').html('Select State to Start');
             }
         });
+
+        // Get the allowed states.
         $.get(drop_states_url, {access_level: access_level}, function (data) {
+            // Build the options.
             var options = '';
             if (access_level == 'System') {
                 options = '<option value=""></option>';
@@ -604,13 +694,19 @@ function initPermissions() {
             $.each(data, function (index, object) {
                 options += '<option value="' + object.id + '">' + object.name + '</option>';
             });
+            // Add them to the state dropdown.
             $('#state-select').append(options);
+            // If you can't change the dropdown, make sure the language is still updated.
             if (access_level != 'System') {
                 $('#state-select').trigger('change');
             }
         });
+
+        // Add the autocomplete to the email field.
         $('#add-user-email').autocomplete(user_email_completion_url + '?access_level=' + access_level, {remoteDataType: 'json'});
     });
+
+    // Creates the modal form for deleting permissions, as well as the submission handler for the form.
     $('#delete-permissions-form').submit(function (e) {
         e.preventDefault();
         var form = this;
@@ -623,6 +719,8 @@ function initPermissions() {
             }
         });
     });
+
+    // Creates the modal form for deleting groups, as well as the submission handler for the form.
     $('#delete-groups-form').submit(function (e) {
         e.preventDefault();
         var form = this;
@@ -635,6 +733,8 @@ function initPermissions() {
             }
         });
     });
+
+    // Creates the modal form for deleting members, as well as the submission handler for the form.
     $('#delete-group-members-form').submit(function (e) {
         e.preventDefault();
         var form = this;
@@ -648,6 +748,8 @@ function initPermissions() {
             }
         });
     });
+
+    // Creates the modal form for deleting group permissions, as well as the submission handler for the form.
     $('#delete-group-permissions-form').submit(function (e) {
         e.preventDefault();
         var form = this;
@@ -661,6 +763,8 @@ function initPermissions() {
             }
         });
     });
+
+    // Initialize the select all checkboxes.
     selectAll('.permission-select-all', '.permission-select');
     selectAll('.group-select-all', '.group-select');
     selectAll('.user-select-all', '.user-select');
