@@ -33,7 +33,10 @@
                                 <a class="delete-report" href="#"><img src="/static/images/icons/Delete-64.png"></a>
                                 <a class="edit-report" href="${reverse('reporting_report_edit', args=[report['id']])}"><img src="/static/images/icons/pencil.png"></a>
                                 <img class="imove" src="/static/images/icons/move.png">
-                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
+                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']}
+                                %if report['description']:
+                                    &mdash; <span class="report-description">${report['description']}</span>
+                                %endif
                             </li>
                         %endfor
                     </ul>
