@@ -595,19 +595,24 @@ ContextMenu.prototype.createItem=function($el){
 ContextMenu.prototype.toggle=function(){
     this.$container.toggle();
 };
-function StepsForm($eis, colors){
-    this.$eis=$eis;
+function StepsForm($ei, colors){
+    this.$ei=$ei;
+    this.$eis=$ei.find("div.content>div");
     this.colors=colors;
     this.arVisited=[];
     this.init();
 }
 StepsForm.prototype.aniMarginLeft=function($el, des, duration, complete){
+    var self=this;
     $el.addClass("moving");
     var cur = parseInt($el.css("margin-left"));
     var prefix = cur > des ? "-=" : "+=";
     $el.animate({marginLeft: prefix + Math.abs(cur-des) + "px"}, {complete:function(){
         $el.removeClass("moving");
         complete && complete();
+         if(!self.$ei.find(".moving").length){
+             self.$ei.trigger('afterSwitch');
+         }        
     }, duration: duration});
 }
 StepsForm.prototype.unlockAll=function(id){
@@ -663,6 +668,8 @@ StepsForm.prototype.init=function(){
         $switch = $("<div class='switch'><i>"+(i+1)+"</i></div>").prependTo(this);
         $switch.click(function(){
             if($pages.index($(this).parent()) == curr){
+                alert(0)
+                self.$ei.trigger('afterSwitch');
                 return;
             }
             if(self.$eis.find(".moving").length){
@@ -678,7 +685,8 @@ StepsForm.prototype.init=function(){
                 $($(this).parent().prevAll(".step-page").get().reverse()).each(function(j){
                     var me = this;
                     $(me).find(".switch").show();
-                    self.aniMarginLeft($(this), -w+(j+1)*20, 300);
+                    self.aniMarginLeft($(this), -w+(j+1)*20, 300, function(){
+                    });
                 });
                 $(sw).hide();
             }else{

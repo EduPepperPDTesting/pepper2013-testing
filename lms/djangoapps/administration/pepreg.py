@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
 import urllib2
@@ -18,6 +18,12 @@ import xlsxwriter
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
 from xmodule.modulestore.django import modulestore
 import pymongo
+
+from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
+                            TestCenterRegistration, TestCenterRegistrationForm,
+                            PendingNameChange, PendingEmailChange,
+                            CourseEnrollment, unique_id_for_user,
+                            get_testcenter_registration, CourseEnrollmentAllowed)
 
 
 
@@ -111,11 +117,15 @@ def build_sorts(columns, sorts):
     return order
 
 
+def reach_limit(training):
+    return training.max_registration > 0 and PepRegStudent.objects.filter(training=training).count() >= training.max_registration
+
+    
 def rows(request):
     columns = {
         1: ['district__state__name', '__iexact', 'str'],
         2: ['district__name', '__iexact', 'str'],
-        3: ['subject__name', '__iexact', 'str'],
+        3: ['subject', '__iexact', 'str'],
         4: ['pepper_course', '__iexact', 'str'],
         5: ['name', '__iexact', 'str'],
         6: ['training_date', '__iexact', False],
@@ -132,7 +142,7 @@ def rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
-    end = start + size - 1
+    end = start + size
 
     # limit to district trainings for none-system
     if check_access_level(request.user, 'pepreg', 'admin') != "System":
@@ -155,7 +165,8 @@ def rows(request):
     for item in trainings[start:end]:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
-
+        rl = "1" if reach_limit(item) else "0"
+        
         status = ""
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
@@ -163,24 +174,27 @@ def rows(request):
         is_belong = PepRegInstructor.objects.filter(instructor=request.user, training=item).exists() or item.user_create == request.user
 
         if check_access_level(request.user, 'pepreg', 'admin') == 'System' or is_belong:
-            managing = "<a href='' onclick='pepreg.clickEditTraining(event, %s)' class='icon icon-edit'></a> \
-            <a href='' onclick='pepreg.clickDeleteTraining(event, %s)' class='icon icon-remove'></a>" % (item.id, item.id),
+            managing = "true"
         else:
             managing = ""
         
         row = [
-            managing,
+            "",
             item.district.state.name if item.district else "",
             item.district.name if item.district else "",
             item.subject,
             item.pepper_course,
             item.name,
+            item.description,
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
             str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
             "%s<br>%s<input type='hidden' value='%s'>" % (item.classroom, item.geo_location, item.geo_props),
             item.credits,
-            "%s,%s,%s,%s,%s" % (item.id, arrive, status, allow, item.attendancel_id),
-            "<input type=hidden value=%s name=id>" % item.id
+            "",
+            "<input type=hidden value=%s name=id> \
+            <input type=hidden value=%s name=managing> \
+            <input type=hidden value=%s,%s,%s,%s,%s name=status>" % (
+                item.id, managing, arrive, status, allow, item.attendancel_id, rl)
             ]
         rows.append(row)
     json_out.append(rows)
@@ -261,6 +275,9 @@ def training_json(request):
     instructor_emails = []
     for pi in PepRegInstructor.objects.filter(training=item):
         instructor_emails.append(pi.instructor.email)
+
+    arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+        
     data = {
         "id": item.id,
         "type": item.type,
@@ -280,39 +297,59 @@ def training_json(request):
         "max_registration": item.max_registration,
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
-        "instructor_emails": instructor_emails
+        "instructor_emails": instructor_emails,
+        "arrive": arrive
         }
+    
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 
+def remove_student(student):
+    if student.training.type == "pepper_course":
+        CourseEnrollment.unenroll(student.student, student.training.pepper_course)
+        CourseEnrollmentAllowed.objects.filter(email=student.student.email, course_id=student.training.pepper_course).delete()
+    student.delete()
+
+    
 def register(request):
     try:
-        join = request.POST.get("join", False)
+        join = request.POST.get("join", "false") == "true"
         training_id = request.POST.get("training_id")
         user_id = request.POST.get("user_id")
+        training = PepRegTraining.objects.get(id=training_id)
 
         if user_id:
             student_user = User.objects.get(id=int(user_id))
         else:
             student_user = request.user
-            
+
         if join:
+            if reach_limit(training):
+                raise Exception("Maximum number of users have registered for this training.")
+
             try:
-                student = PepRegStudent.objects.get(training_id=training_id, student=request.user)
+                student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             except:
                 student = PepRegStudent()
                 student.user_create = request.user
                 student.date_create = datetime.now(UTC)
-                
+
             student.student = student_user
             student.student_status = "Registered"
             student.training_id = int(training_id)
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
             student.save()
-        else:
-            PepRegStudent.object.filter(training_id=training_id, student=request.user).delete()
 
+            if training.type == "pepper_course":
+                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email, course_id=training.pepper_course)
+                cea.is_active = True
+                cea.save()
+                CourseEnrollment.enroll(student_user, training.pepper_course)
+        else:
+            student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
+            remove_student(student)
+    
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -365,6 +402,7 @@ def set_student_attended(request):
             data = None
         
     except Exception as e:
+        db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
     return HttpResponse(json.dumps({'success': True, 'data': data}), content_type="application/json")
@@ -405,7 +443,6 @@ def set_student_validated(request):
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
     return HttpResponse(json.dumps({'success': True, 'data': data}), content_type="application/json")
-
 
 def student_list(request):
     try:
@@ -469,8 +506,9 @@ def show_map(request):
 def delete_student(request):
     try:
         id = int(request.POST.get("id"))
-        PepRegStudent.objects.get(id=id).delete()
+        remove_student(PepRegStudent.objects.get(id=id))
     except Exception as e:
+        db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
