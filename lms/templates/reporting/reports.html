@@ -19,16 +19,21 @@
         %for category in categories:
             <li class="main ${'' if len(category['reports']) else 'hidden-category'}" id="category-${category['id']}" data-id="${category['id']}" data-name="${category['name']}">
                 <div class="expand_title expand_title_collapse">
-                    <img class="move" src="/static/images/icons/move.png">
+                    %if loop.index > 0:
+                        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>
+                        <img class="move" src="/static/images/icons/move.png">
+                    %endif
                     ${category['name']}
                     <div class="icon"></div>
                 </div>
                 <div class="expand_div">
                     <ul class="reports">
                         %for report in category['reports']:
-                            <li id="report-${report['id']}" data-id="${report['id']}"" data-name="${report['name']}">
+                            <li id="report-${report['id']}" data-id="${report['id']}" data-name="${report['name']}">
+                                <a class="delete-report" href="#"><img src="/static/images/icons/Delete-64.png"></a>
+                                <a class="edit-report" href="${reverse('reporting_report_edit', args=[report['id']])}"><img src="/static/images/icons/pencil.png"></a>
                                 <img class="imove" src="/static/images/icons/move.png">
-                                <img src="/static/images/icons/magnifier.png"/> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
+                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
                             </li>
                         %endfor
                     </ul>
@@ -54,11 +59,16 @@
 <script type="text/javascript">
     var category_save_url = '${reverse('reporting_category_save')}';
     var order_save_url = '${reverse('reporting_order_save')}';
+    var report_delete_url = '${reverse('reporting_report_delete')}';
+    var category_delete_url = '${reverse('reporting_category_delete')}';
+    var is_dirty = false;
 
     $(document).ready(function () {
         expandTitle();
         manageHandler();
         addCategoryHandler();
         saveOrderHandler();
+        deleteReportHandler();
+        deleteCategoryHandler();
     })
 </script>

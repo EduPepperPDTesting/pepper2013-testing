@@ -81,7 +81,9 @@ urlpatterns = (
 
     url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
     url(r'^reporting/categories/save$', 'reporting.views.category_save', name='reporting_category_save'),
+    url(r'^reporting/categories/delete$', 'reporting.views.category_delete', name='reporting_category_delete'),
     url(r'^reporting/order/save$', 'reporting.views.order_save', name='reporting_order_save'),
+    url(r'^reporting/report/delete$', 'reporting.views.report_delete', name='reporting_report_delete'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_view', name='reporting_report'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/edit$', 'reporting.views.report_edit', name='reporting_report_edit'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/save$', 'reporting.views.report_save', name='reporting_report_save'),
@@ -96,6 +98,9 @@ urlpatterns = (
     url(r'^reporting/views/relationships/data$', 'reporting.views.relationship_data', name='reporting_relationship_data'),
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
+    url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
+    url(r'^reporting/report/get_progress$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
+    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -325,6 +330,7 @@ urlpatterns = (
     url(r'^polls/vote$', 'polls.views.poll_vote', name='poll_vote'),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+    url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
 
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),

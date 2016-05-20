@@ -18,6 +18,7 @@ class Reports(models.Model):
         db_table = 'reporting_reports'
     name = models.CharField(blank=False, max_length=255, db_index=True)
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
+    distinct = models.BooleanField(blank=True, default=False)
     category = models.ForeignKey(Categories, null=True, on_delete=models.SET_NULL)
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     access_level = models.CharField(blank=True, default='System', max_length=10)
@@ -41,6 +42,7 @@ class ViewColumns(models.Model):
     name = models.CharField(blank=False, max_length=255, db_index=True)
     description = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     column = models.CharField(blank=False, max_length=255, db_index=True)
+    data_type = models.CharField(blank=True, max_length=4, default='text')
     view = models.ForeignKey(Views, on_delete=models.CASCADE)
 
 
@@ -64,6 +66,7 @@ class ReportViewColumns(models.Model):
         db_table = 'reporting_report_view_columns'
     report = models.ForeignKey(Reports, on_delete=models.CASCADE)
     column = models.ForeignKey(ViewColumns, on_delete=models.PROTECT)
+    order = models.IntegerField(default=0)
 
 
 class ReportFilters(models.Model):
@@ -79,7 +82,7 @@ class ReportFilters(models.Model):
 
 class MongoReportingStore(object):
 
-    def __init__(self, host, db, port=27017, user=None, password=None,
+    def __init__(self, host, db, port=37017, user=None, password=None,
                  mongo_options=None, **kwargs):
 
         super(MongoReportingStore, self).__init__(**kwargs)
@@ -115,12 +118,22 @@ class MongoReportingStore(object):
     #         set()
     #     )
 
-    def get_page(self, collection, start, num, db_filter=None):
+    def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1]):
         self.set_collection(collection)
-        if db_filter is None:
-            return self.collection.find().skip(start).limit(num)
+        return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
 
-        return self.collection.find(db_filter).skip(start).limit(num)
+    def get_count(self, collection, db_filter={}):
+        self.set_collection(collection)
+        return self.collection.find(db_filter).count()
+
+    def del_collection(self, collection):
+        self.set_collection(collection)
+        self.collection.drop()
+
+    def get_collection_stats(self, collection):
+        fun = 'function(){return db.' + collection + '.stats()}'
+        self.db.system_js.collection_stats = fun
+        return self.db.system_js.collection_stats()
 
 
 def reporting_store():

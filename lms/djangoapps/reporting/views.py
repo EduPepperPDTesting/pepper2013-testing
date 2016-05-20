@@ -11,6 +11,22 @@ from django.db import transaction
 from django.db.models import Q, Max
 import sys
 import json
+from .aggregation_config import AggregationConfig
+from student.views import study_time_format
+from .treatment_filters import get_mongo_filters
+from threading import Thread
+import gevent
+from StringIO import StringIO
+from datetime import datetime
+from django.http import HttpResponse
+
+
+def postpone(function):
+    def decorator(*args, **kwargs):
+        t = Thread(target=function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    return decorator
 
 
 @login_required
@@ -92,6 +108,26 @@ def category_save(request):
 @ensure_csrf_cookie
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
+def category_delete(request):
+    category_id = request.POST.get('category_id', False)
+    if category_id:
+        try:
+            Categories.objects.get(id=category_id).delete()
+        except Exception as e:
+            data = {'success': False, 'error': '{0}'.format(e)}
+            transaction.rollback()
+        else:
+            data = {'success': True}
+            transaction.commit()
+    else:
+        data = {'success': False, 'error': 'No Category ID submitted.'}
+
+    return render_json_response(data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('reporting', ['administer', 'create_reports'])
+@transaction.commit_manually
 def order_save(request):
     order = json.loads(request.body)
     try:
@@ -125,25 +161,19 @@ def report_edit(request, report_id):
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
-            selected_views = ReportViews.objects.filter(report=report).order_by('order')
-            view_columns = ViewColumns.objects.filter(view__in=selected_views.values_list('id', flat=True)).order_by(
-                'view', 'name')
-            selected_columns = ReportViewColumns.objects.filter(report=report)
+            selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
+            selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
             filters = ReportFilters.objects.filter(report=report).order_by('order')
-            third_column = floor(len(view_columns) / 3)
-            remainder = len(view_columns) % 3
-            first_column = third_column + 1 if remainder > 0 else third_column
-            second_column = third_column + 1 if remainder > 1 else third_column
-            s = selected_columns.values_list('id', flat=True)
-            x = 0
+            second_column = int(floor(len(selected_views_columns) / 2))
+            remainder = len(selected_views_columns) % 2
+            first_column = second_column + remainder
             data.update({'report': report,
-                         'view_columns': view_columns,
+                         'view_columns': selected_views_columns,
                          'selected_views': selected_views,
                          'selected_columns': selected_columns,
                          'report_filters': filters,
-                         'first_column': first_column,
-                         'second_column': second_column,
-                         'third_column': third_column})
+                         'first_column': first_column})
             action = 'edit'
         except:
             data = {'error_title': 'Report Not Found',
@@ -154,6 +184,7 @@ def report_edit(request, report_id):
     else:
         action = 'new'
     data.update({'action': action, 'possible_operators': ['=', '!=', '>', '<', '>=', '<=']})
+    #raise Exception('{0}'.format(data))
     return render_to_response('reporting/edit-report.html', data)
 
 
@@ -164,8 +195,10 @@ def report_save(request, report_id):
     try:
         name = request.POST.get('report_name', '')
         description = request.POST.get('report_description', '')
+        distinct = not request.POST.get('distinct-enable', False) == 'yes'
         views = get_request_array(request.POST, 'view')
         columns = get_request_array(request.POST, 'column')
+        column_order = get_request_array(request.POST, 'selected-column')
         filter_conjunctions = get_request_array(request.POST, 'filter-conjunction')
         filter_columns = get_request_array(request.POST, 'filter-column')
         filter_operators = get_request_array(request.POST, 'filter-operator')
@@ -177,13 +210,14 @@ def report_save(request, report_id):
             report = Reports()
             report.author = request.user
         elif action == 'edit':
-            report = Reports.object.get(id=int(report_id))
+            report = Reports.objects.get(id=int(report_id))
 
         if report:
             access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports'])
 
             report.name = name
             report.description = description
+            report.distinct = distinct
             report.access_level = access_level
             if access_level == 'State':
                 report.access_id = request.user.profile.district.state.id
@@ -206,9 +240,10 @@ def report_save(request, report_id):
                 report_column = ReportViewColumns()
                 report_column.report = report
                 report_column.column = ViewColumns.objects.get(id=int(column))
+                report_column.order = column_order[column]
                 report_column.save()
 
-            ReportFilters.objects.filter(report=report)
+            ReportFilters.objects.filter(report=report).delete()
             for i, column in filter_columns.iteritems():
                 report_filter = ReportFilters()
                 report_filter.report = report
@@ -216,6 +251,7 @@ def report_save(request, report_id):
                 report_filter.column = ViewColumns.objects.get(id=int(column))
                 report_filter.value = filter_values[i]
                 report_filter.operator = filter_operators[i]
+                report_filter.order = int(i)
                 report_filter.save()
         else:
             raise Exception('Report could not be located or created.')
@@ -228,10 +264,225 @@ def report_save(request, report_id):
         return render_json_response({'success': True, 'report_id': report.id})
 
 
-@user_has_perms('reporting')
+@ensure_csrf_cookie
+@user_has_perms('reporting', ['administer', 'create_reports'])
+@transaction.commit_manually
+def report_delete(request):
+    report_id = request.POST.get('report_id', False)
+    if report_id:
+        try:
+            Reports.objects.get(id=report_id).delete()
+        except Exception as e:
+            data = {'success': False, 'error': '{0}'.format(e)}
+            transaction.rollback()
+        else:
+            data = {'success': True}
+            transaction.commit()
+    else:
+        data = {'success': False, 'error': 'No Report ID given.'}
+
+    return render_json_response(data)
+
+
+@login_required
 def report_view(request, report_id):
-    # TODO: Add the code to show the actual report itself.
-    pass
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    rs.del_collection(collection)
+    report = Reports.objects.get(id=report_id)
+    selected_view = ReportViews.objects.filter(report=report)[0]
+    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+
+    columns = []
+    filters = []
+    for col in selected_columns:
+        columns.append(col)
+    for f in report_filters:
+        filters.append(f)
+
+    create_report_collection(request, selected_view, columns, filters)
+    data = {
+        'report': report,
+        'display_columns': selected_columns,
+    }
+    return render_to_response('reporting/view-report.html', data)
+
+
+def report_get_rows(request):
+    sorts = get_request_array(request.GET, 'col')
+    filters = get_request_array(request.GET, 'fcol')
+    page = int(request.GET['page'])
+    size = int(request.GET['size'])
+    report_id = request.GET['report_id']
+    start = page * size
+    rows = []
+    report = Reports.objects.get(id=report_id)
+    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    sorts, filters = build_sorts_and_filters(selected_columns, sorts, filters)
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    data = rs.get_page(collection, start, size, filters, sorts)
+    total = rs.get_count(collection)
+
+    for d in data:
+        row = []
+        for col in selected_columns:
+            try:
+                row.append(data_format(col.column.column, d))
+            except Exception as e:
+                row.append('')
+        row.append('')
+        rows.append(row)
+    return render_json_response({'total': total, 'rows': rows})
+
+
+def build_sorts_and_filters(columns, sorts, filters):
+    column = []
+    for i, col in enumerate(columns):
+        column.append(col.column.column)
+
+    order = ['$natural', 1]
+    for col, sort in sorts.iteritems():
+        pre = 1
+        if bool(int(sort)):
+            pre = -1
+        order = [column[int(col)], pre]
+
+    filter = {}
+    for col, f in filters.iteritems():
+        # TODO: Temporary scheme (Mongo Int type).
+        if f.isdigit():
+            filter[column[int(col)]] = int(f)
+        else:
+            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+            filter[column[int(col)]] = reg
+    return order, filter
+
+
+def get_cache_collection(request):
+    return 'tmp_collection_' + str(request.user.id)
+
+
+@postpone
+def create_report_collection(request, selected_view, columns, filters):
+    gevent.sleep(0)
+    aggregate_config = AggregationConfig[selected_view.view.collection]
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], columns, filters)
+    rs = reporting_store()
+    rs.set_collection(aggregate_config['collection'])
+    rs.collection.aggregate(aggregate_query)
+
+
+def aggregate_query_format(request, query, columns, filters, out=True):
+    query = query_ref_variable(query, request.user, columns, filters)
+    query = query.replace('\n', '').replace('\r', '').replace(' ', '')
+    if out:
+        query += ',{"$out":"' + get_cache_collection(request) + '"}'
+    query = eval(query)
+    return query
+
+
+def query_ref_variable(query, user, columns, filters):
+    domain = get_query_user_domain(user)
+    columns = get_query_display_columns(columns)
+    filters = get_query_filters(filters)
+    #query = query.format(user_domain=domain, display_columns=columns)
+    return query.replace('{user_domain}', domain).replace('{display_columns}', columns).replace('{filters}', filters)
+
+
+def get_query_user_domain(user):
+    domain = '{"$match":{"user_id":' + str(user.id) + '}},'
+    if check_user_perms(user, 'reporting', ['view']):
+        level = check_access_level(user, 'reporting', ['view'])
+        if level == 'System':
+            domain = ''
+        elif level == 'State':
+            domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
+        elif level == 'District':
+            domain = '{"$match":{"district_id":"' + str(user.profile.district.code) + '"}},'
+        elif level == 'School':
+            domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
+    return domain
+
+
+def get_query_display_columns(columns):
+    column_str = ''
+    for col in columns:
+        column_str += '"' + col.column.column + '":1,'
+    if column_str != '':
+        return ',{"$project": {' + column_str[:-1] + '}}'
+    else:
+        return column_str
+
+
+def get_query_filters(filters):
+    filter_str = ''
+    if len(filters) > 0:
+        for filter in filters:
+            conjunction = ' '
+            value = filter.value
+            if filter.conjunction is not None:
+                conjunction += filter.conjunction.lower() + ' '
+            if filter.value.isdigit() is False:
+                value = '"' + filter.value + '"'
+            filter_str += conjunction + filter.column.column + filter.operator + value
+        sql = get_mongo_filters(filter_str[1:])
+        return ',{"$match":' + sql + '}'
+    return filter_str
+
+
+def data_format(col, data):
+    time_colunms = [
+        'total_time',
+        'course_time',
+        'external_time',
+        'discussion_time',
+        'portfolio_time',
+        'collaboration_time'
+    ]
+    if col in time_colunms:
+        return study_time_format(data[col])
+    if col == 'portfolio_url':
+        return '<a href={0}>portfolio link</a>'.format(data[col])
+    return data[col]
+
+
+@login_required
+def report_download_excel(request, report_id):
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
+    worksheet = workbook.add_worksheet()
+    report = Reports.objects.get(id=report_id)
+    columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+
+    for i, k in enumerate(columns):
+        worksheet.write(0, i, k.column.name)
+    row = 1
+    rs = reporting_store()
+    rs.set_collection(get_cache_collection(request))
+    results = rs.collection.find()
+    for p in results:
+        for i, k in enumerate(columns):
+            try:
+                p[k.column.column] = data_format(k.column.column, p)
+            except:
+                p[k.column.column] = ''
+            worksheet.write(row, i, p[k.column.column])
+        row += 1
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
+
+
+def report_get_progress(request):
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    stats = int(rs.get_collection_stats(collection)['ok'])
+    return render_json_response({'success': stats})
 
 
 @user_has_perms('reporting', 'administer')
@@ -250,6 +501,7 @@ def view_columns(request):
     data = []
     for column in columns:
         data.append({'id': column.id,
+                     'type': column.data_type,
                      'name': column.view.name + '.' + column.name,
                      'description': column.description})
     return render_json_response(data)
@@ -303,7 +555,8 @@ def view_data(request):
                 data['columns'].append({'id': column.id,
                                         'name': column.name,
                                         'description': column.description,
-                                        'source': column.column})
+                                        'source': column.column,
+                                        'type': column.data_type})
     else:
         data = {'success': False}
 
@@ -353,6 +606,7 @@ def view_add(request):
     column_names = get_request_array(request.POST, 'column_name')
     column_descriptions = get_request_array(request.POST, 'column_description')
     column_sources = get_request_array(request.POST, 'column_source')
+    column_types = get_request_array(request.POST, 'column_type')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -379,6 +633,7 @@ def view_add(request):
                 column.name = column_name
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]
+                column.data_type = column_types[i]
                 column.view = view
                 column.save()
         except Exception as e:

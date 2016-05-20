@@ -1,6 +1,7 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
 <%! from time import strftime %>
+<%! from student.models import State,District,Transaction,Cohort,School,Registration,CourseEnrollment,CourseEnrollmentAllowed %>
 
 <%namespace name='static' file='static_content.html'/>
 <%inherit file="main.html" />
@@ -24,6 +25,35 @@
   }
 
   span.red{float:right;padding-right:10px;}
+
+.connect_input_modal {
+    height: 28px;
+    width: 300px;
+    border: 1px solid rgb(174, 174, 174);
+    padding-left: 10px;
+}
+.connect_us_select_modal { 
+    cursor: pointer;
+    border-radius: 0px 0px 0px 0px;
+    -moz-appearance: button;
+    -moz-padding-end: 3px;
+    -moz-padding-start: 3px;
+    -moz-user-select: none;
+    background-position: right center;
+    background-repeat: no-repeat;
+    border: 1px solid rgb(174, 174, 174);
+    margin: 0px;
+    overflow: hidden;
+    padding-bottom: 6px;
+    padding-top: 6px; padding-right:5px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 312px;
+    height: 33px;
+}
+
+.connect_us_table_modal td { height:55px; }
+.connect_us_table_modal { margin-top:20px;}
 </style>
 <div style="text-align:center;background:#f5f5f5">
   <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
@@ -36,7 +66,7 @@
     <!--@end-->
   </div>
   <div style="width:960px;margin:auto;background:#fff;">
-    <div style="float:left;width:217px;height:951px;background:#E6F4FB;text-align:left;">
+    <div style="float:left;width:217px;height:1550px;background:#E6F4FB;text-align:left;">
       <ul class="left">
         <li><a href="/about_pepper">ABOUT PEPPER</a></li>
         <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
@@ -49,9 +79,39 @@
         <!--@end-->
       </ul>
     </div>
-    <div style="float:left;width:743px;height:951px;text-align:left;">
+    <div style="float:left;width:743px;height:1550px;text-align:left;">
       <div style="padding:20px;">
-        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:0px;">SCHEDULE A DEMO</h2>
+          <!--@begin:add new content of payment-->
+          <!--@date:2016-05-18-->
+          <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:0px;">JOIN THE PEPPER NETWORK TODAY!</h2>
+          <hr />    
+          <p class="_body_content_font">
+              If you are interested in joining the Pepper Network today, please visit our online store to register.  Content collections include all courses and workshops from the following publishers:
+          <br/>
+          <ul class="_body_content_font">
+              <li>WestEd</li>
+              <li>Stanford University</li>
+              <li>Accelerated Literacy Learning</li>
+              <li>PCG Education</li>
+          </ul>
+          </p>
+          <p class="_body_content_font">
+              Professional Learning topics include Math, English Language Arts, English Language Learning, Special Education, Writing, Science, and a variety of other subjects from our nation’s most trusted, research-based organizations.
+          </p>
+          <p class="_body_content_font">
+              Your subscription includes a full year of access to courses and workshops, including new weekly releases during that time.
+          </p>
+          <p class="_body_content_font" style="text-align:center;">
+              <a href="#show_signup_payment" rel="leanModal" class="_blue" style="font-size:20px;">Click Here to Purchase a Subscription</a>
+          </p>
+          <p class="_body_content_font">
+              For a complete listing of content collections, please visit our <a href="/courses" class="_blue">Professional Learning Catalog of Courses, Teacher Certifications, & Workshops</a> (some content listed here can be purchased separately).
+          </p>
+          <p class="_body_content_font">
+              Sign-up or <a href="mailto:pepper@pcgus.com" class="_blue">contact us</a> today with more questions!
+          </p>
+          <!--@end-->
+        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;margin-bottom:0;margin-top:30px;">SCHEDULE A DEMO</h2>
         <hr />
         <!--@begin:add code(class="_...") to modify font style; add some new content and mail>
             <!--@date:2013-11-02-->
@@ -112,14 +172,90 @@
 			<td style="padding:20px 20px 0 0;text-align:right;"><input type="Submit" name="submit" value="Submit" autocomplate="off"/></td>
 		  </tr>
 		</table>
+    </form>
 	    <!--@end-->
       </div>
     </div>
     <br style="clear:both"/>
   </div>
 </div>
+<!--@begin:add new content of payment-->
+<!--@date:2016-05-19-->
+<section id="show_signup_payment" class="modal" style="width:542px;">
+    <div class="inner-wrapper" style="width:520px;height:520px;">
+        <header>
+          <h2>${_("Sign up for Pepper")}</h2>
+          <hr/>
+        </header>
+        <div id="signup_pay_step1" style="display:auto;">
+            <p style="font-weight:bold;padding-left:20px;">Step 1</p>
+            <div id="message_modal" style="background:#f99;margin:auto;margin-top:15px;border:1px solid #f33;display:none;width:445px;padding:10px;color:#000;"> </div>
+            <form method="" id="form_modal" action="">
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
+           
+                <table class="connect_us_table_modal _body_content_font" width="450" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td width="130">Full Name: <span class="red"> *</span></td>
+                        <td><input class="connect_input_modal" name="fullname_modal" size="60" chkType="Require" chkMsg="Full Name is required."></td>
+                    </tr>
+                    <tr>
+                        <td>Your Email: <span class="red">*</span></td>
+                        <td><input class="connect_input_modal" name="email_modal" size="60" chkType="Email" chkMsg="Email is invalid."></td>
+                    </tr>
+                    <tr>
+                        <td>Confirm Email: <span class="red">*</span></td>
+                        <td><input class="connect_input_modal" name="confirmemail_modal" size="60" operator="" to="" chkType="Compare" chkMsg="The email addresses you have entered do not match."></td>
+                    </tr>
+                    <tr>
+                        <td>State: </td>
+                        <td>
+                            <select id="edit-submitted-inquiry-type-student" name="state_modal" class="connect_us_select_modal">
+                                <option value="" selected="selected">- Select -</option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option>${item.name}</option>
+                                %endfor
+                            </select>
+                       </td>
+                    </tr>
+                    <tr>
+                        <td>District: </td>
+                        <td><input class="connect_input_modal" name="district_modal" size="60"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td style="text-align:right;height:30px;">
+                            <span style="margin-right:60px;line-height:55px;"><span style="color:#f00;">*</span>&nbsp;&nbsp;Required Fields</span>
+                            <input type="Submit" name="submit" value="Submit" autocomplate="off" style="margin-top:10px;margin-right:10px;"/>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="signup_pay_step2" style="display:none;">
+            <p style="font-weight:bold;padding-left:20px;">Step 2</p>
+            <div style="padding:20px 20px 20px 20px;">
+                <p class="_body_content_font">Please click on the “Buy Now” button to pay for the Pepper subscription and start enjoying all of the Pepper benefits.</p>
+            </div>
+            <div style="text-align:center;padding-top:80px;">
+                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                    <input type="hidden" name="cmd" value="_s-xclick">
+                    <input type="hidden" name="hosted_button_id" value="C8SXGQB8GKX8L">
+                    <input id="pay_logo" type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" width="220" height="60">
+                    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                </form>
+            </div>
+        </div>
+        <div class="close-modal" id="change_name_close">
+            <div class="inner">
+                <p>&#10005;</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!--@end-->
+
 <script type="text/javascript" src="/static/js/validator.js" charset="utf-8"></script>
-<script type="text/javascript" src="/static/js/easy.js" charset="utf-8"></script>
+<!--<script type="text/javascript" src="/static/js/easy.js" charset="utf-8"></script>-->
 <script type="text/javascript">
 var form=$("#form");
 form.submit(function(){
@@ -154,3 +290,79 @@ form.submit(function(){
   return false;
 });
 </script>
+<!--@begin:add new content of payment-->
+<!--@date:2016-05-19-->
+<script type="text/javascript">
+    var form = $("#form_modal");
+    form.submit(function(){
+        $("input[name='confirmemail_modal']").attr("to", $("input[name='email_modal']").val().trim());
+    
+        var self = this;
+        var fv = new FormValidator();
+        $("#message_modal").show();
+        if(!fv.check(this,0)){
+            $("#message_modal").html(fv.errorMessage[0]);
+            return false;
+        }
+        this.submit.disabled = true;
+        var flds = ["fullname_modal","email_modal","state_modal","district_modal","csrfmiddlewaretoken"];
+        var data = easy.form.getFormData(this,flds);
+        data['send_by_js'] = 'true'
+        //if(!data['message']){
+        //    alert("Can't send form, please contact us. ")
+        //}
+        $("#message_modal").html("Submiting..");
+        $.post('${reverse("contact_us_modal_submit")}',data,
+        function(r) {
+            if((typeof r) == 'string') r = $.parseJSON(r);
+            self.reset();
+            $("#message_modal").show();
+            if (r.success) {
+                $("#message_modal").css("background","#fc5")
+                $("#message_modal").css("border-color","#f70")
+                easy.form.infoAndWait($("#message_modal"),"Submit success",0,"justhide")
+            } 
+            else {
+                $("#message_modal").html(r.error);
+            }
+        });
+        return false;
+    });
+</script>
+<script type="text/javascript">
+    var easy = {}
+    easy.form = {}
+    easy.form.getFormData = function(form,flds){
+        var data = {}
+        $.each(flds,function(i,n){
+            data[n] = $(form[n]).val();
+        })
+       return data;
+    }
+    easy.form.infoAndWait = function(box,info,seconds,go){
+        var w = seconds;
+        $(box).show()
+        function count(){
+            //$(box).html(info + ". <b>" + w + "</b>");
+            $(box).html(info);
+            setTimeout(function(){
+                if(w < 1){
+                    if(go == "justhide"){
+                        $("#signup_pay_step1").hide(500,function(){
+                            $("#signup_pay_step2").show(500);
+                        });
+                    }
+                    else{
+                        window.location.href = go;
+                    }
+                }
+                else{
+                    w--;
+                    count()
+                }
+            },1000);                             
+        }
+        count();
+    }
+</script>
+<!--@end-->
