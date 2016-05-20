@@ -328,6 +328,7 @@ urlpatterns = (
     url(r'^polls/vote$', 'polls.views.poll_vote', name='poll_vote'),
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+    url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
 
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),

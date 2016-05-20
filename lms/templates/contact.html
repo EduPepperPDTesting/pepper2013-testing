@@ -212,7 +212,7 @@
                             <select id="edit-submitted-inquiry-type-student" name="state_modal" class="connect_us_select_modal">
                                 <option value="" selected="selected">- Select -</option>
                                 %for item in State.objects.all().order_by('name'):
-                                    <option value="${item.id}">${item.name}</option>
+                                    <option>${item.name}</option>
                                 %endfor
                             </select>
                        </td>
@@ -306,13 +306,13 @@ form.submit(function(){
         }
         this.submit.disabled = true;
         var flds = ["fullname_modal","email_modal","state_modal","district_modal","csrfmiddlewaretoken"];
-        var data=easy.form.getFormData(this,flds);
-        data['send_by_js']='true'
+        var data = easy.form.getFormData(this,flds);
+        data['send_by_js'] = 'true'
         //if(!data['message']){
         //    alert("Can't send form, please contact us. ")
         //}
         $("#message_modal").html("Submiting..");
-        $.post('${reverse("contact_us_submit")}',data,
+        $.post('${reverse("contact_us_modal_submit")}',data,
         function(r) {
             if((typeof r) == 'string') r = $.parseJSON(r);
             self.reset();
