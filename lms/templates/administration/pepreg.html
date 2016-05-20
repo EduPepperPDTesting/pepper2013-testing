@@ -22,7 +22,10 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
 <script type="text/javascript" src="/static/js/timedropper/timedropper.js"></script>
-<!-- <script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script> -->
+
+<script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
+
+
 <script src="/static/js/leaflet/leaflet.js"></script>
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media = "screen" />
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
@@ -92,6 +95,7 @@ from permissions.utils import check_access_level, check_user_perms
               <th>Subject</th>
               <th>Course</th>
               <th>Training Name</th>
+              <th>Description</th>
               <th>Training Date</th>
               <th>Training Time</th>
               <th>Training Location</th>
@@ -182,7 +186,8 @@ from permissions.utils import check_access_level, check_user_perms
             <h5>Configure A Training</h5>
             <h4>What training would you like to create?</h4>
             <div class="form-row" style="font-size:12px;">
-              <input type="radio" name="type" value="pepper_course" autocomplete="off"/> <span>Pepper Course</span>
+              <input type="radio" name="type" value="pepper_course" autocomplete="off"/>
+              <span>Pepper Course</span><span class="check-mark"></span>
               <div style="padding-left:2em;">
                 This option allows you to create<br>
                 a training for Pepper course
@@ -204,15 +209,21 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row">
               <span class="label">District:</span>
               <select name="district_id" autocomplate="off">
-                <option value=""></option>
-                %for item in District.objects.all().order_by("name"):
-                <option value="${item.id}">${item.name}</option>
-                %endfor
+                %if check_access_level(request.user, 'pepreg', 'admin') == "System":
+                  <option value=""></option>
+                  %for item in District.objects.all().order_by("name"):
+                  <option value="${item.id}">${item.name}</option>
+                  %endfor
+                %else:
+                  <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>  
+                %endif
               </select>
+              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Training Name:</span>
               <input type="text" name="name" value="" />
+              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Description:</span>
@@ -226,6 +237,7 @@ from permissions.utils import check_access_level, check_user_perms
                 <option value="${item.id}">${item.display_name}</option>
                 %endfor
               </select>
+              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Subject:</span>
@@ -243,6 +255,7 @@ from permissions.utils import check_access_level, check_user_perms
                 <option value="TECH">Technology</option>
                 <option value="WR">Writing and Poetry</option>
               </select>
+              <span class="check-mark"></span>
             </div>
           </div>
         </div>
@@ -252,11 +265,13 @@ from permissions.utils import check_access_level, check_user_perms
             <h4>Configure Schedule</h4>            
             <div class="form-row">
               <span class="label" style="width:180px">Please Select a training date:</span>
-              <input type="" name="training_date" class="datePickText" value="" readonly='true' />
+              <input type="" name="training_date" class="datePickText lock_past" value="" readonly='true' />
+              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label" style="width:180px">Please Select Time:</span>
               <input type="" name="training_time" value="" class="timePickText"/>
+              <span class="check-mark"></span>
             </div>
           </div>
         </div>
@@ -295,6 +310,7 @@ from permissions.utils import check_access_level, check_user_perms
           <div class="form-row">
             <span class="label" style="width:190px;text-align:left;padding-left:20px;">Credit Hours:</span>
             <input type="" name="credits" value="" />
+            <span class="check-mark"></span>
           </div>
           <div class="form-row">
             <span class="label" style="width:190px;text-align:left;padding-left:20px;">Training ID:</span>
@@ -307,6 +323,7 @@ from permissions.utils import check_access_level, check_user_perms
           <div class="form-row">
             <span class="label" style="width:190px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
             <input type="" name="max_registration" value="" />
+            <span class="check-mark"></span>
           </div>
           <div class="form-row">
             <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
@@ -392,64 +409,88 @@ from permissions.utils import check_access_level, check_user_perms
     });
     return r;
   }
-  PepReg.prototype.warning=function(s){
-    new Dialog($("#dlg-warning")).show("Warning", s);
-  }
-  PepReg.prototype.warningInvalid=function(s){
+  PepReg.prototype.confirm=function(message, dlgFlyOn, callback) {
+    var dlgWarn = new Dialog("#dlg-warning");
+    dlgFlyOn.hideOverlay();
+    $("#dlg-warning").bind("hide",function(){
+      $(this).unbind('hide');
+      dlgFlyOn.showOverlay();
+    });
+    dlgWarn.showYesNo("Warning",message, function(r){
+      this.hide();
+      callback(r);
+    });
+    dlgWarn.lift(100);
+  }  
+  PepReg.prototype.warning=function(s, dlgFlyOn){
     var self=this;
-    this.dlgForm.hideOverlay();
+    if(dlgFlyOn)
+      dlgFlyOn.hideOverlay();
     var dlg = new Dialog($("#dlg-warning"));
     dlg.show("Warning", s);
     dlg.lift(100);
     $("#dlg-warning").bind("hide",function(){
       $(this).unbind('hide');
-      self.dlgForm.showOverlay();
+      if(dlgFlyOn)dlgFlyOn.showOverlay();
     });
-  }  
+  }
   PepReg.prototype.validatePage=function(page, data){
     if(page==0){
       if(!data.type){
-        return ("Please select type");
+        return ["type","Please select type"];
       }
     }else if(page==1){
       if(!data.district_id){
-        return ("Please select district");
+        return ["district_id", "Please select district"];
       }
       if(!data.name){
-        return ("Please input name");
+        return ["name", "Please input name"];
       }
       if(!data.subject){
-        return ("Please select subject");
+        return ["subject", "Please select subject"];
       }
       if(data.type == "pepper_course" && !data.pepper_course){
-        return ("Please select pepper course");
+        return ["pepper_course", "Please select pepper course"];
       }
     }else if(page == 2){
       if(!data.training_date){
-        return ("Please select training date");
+        return ["training_date", "Please select training date"];
       }
       if(!data.training_time){
-        return ("Please select training time");
+        return ["training_time", "Please select training time"];
       }
     }else if(page == 3){
     }else if(page == 4){
     }else if(page == 5){
-      /* if(data.type == "pd_training" && !data.credits){
-         return ("Please input credits");
-         }
-         if(data.type == "pd_training" && !data.attendancel_id){
-         return ("Please input training ID");
-         }
-         if(!data.max_registration){
-         return ("Please input Maximum Registration Cap");
-         } */
+      if(!/^\d*(.\d*)?$/.test(data.credits)){
+        return ["credits", "Please input a valid credits"];
+      }
+      if(!/^\d*(.\d*)?$/.test(data.max_registration)){
+        return ["max_registration", "Please input a valid Maximum Registration Cap"];
+      }
     }
+  }
+  PepReg.prototype.markInvalid=function(name, message){
+
+    var $input = $("#dlg-add-training").find("*[name="+ name +"]");
+
+    var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
+
+
+    $mark.addClass("on");
+    $mark.showBalloon({position: 'bottom', contents: message, css: {backgroundColor: '#fff'}});
+    $input.off('focus').focus(function(){
+      $mark.removeClass("on");
+      $mark.hideBalloon();
+      $mark.next(".check-mark").hideBalloon();
+    });
   }
   PepReg.prototype.initForm=function(data, finishCallback){
     var self = this;
     var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
     dlg.show();
-    var steps = this.steps = new StepsForm($("#dlg-add-training .content div"),
+      
+    var steps = this.steps = new StepsForm($("#dlg-add-training"),
                                            ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
     // ************* add dlg close button to each step
     $("#dlg-add-training").find(".close-modal").remove();
@@ -461,7 +502,7 @@ from permissions.utils import check_access_level, check_user_perms
       var $content = this.getContent(curr);
       var data = self.getInput();
       if(!this.visited(dest) && (error = self.validatePage(curr, data))){
-         return self.warningInvalid(error);
+        return self.markInvalid(error[0],error[1]);
       }
       if(curr==0){
         if(data.type == "pepper_course"){
@@ -474,13 +515,13 @@ from permissions.utils import check_access_level, check_user_perms
           $("input[name=credits]").parents(".form-row").show();
         }
       }
-      return dest==0 || this.visited(dest-1) || self.warning("Please finish the previous pages before switch to that page"); // return true if ready to switch
+      return dest==0 || this.visited(dest-1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
     }
     // ************* when finish form
     steps.onFinish=function() {
       finishCallback && finishCallback(self.getInput());
     }
-    // ************* unlock pages when editing 
+    // ************* unlock all pages when editing 
     if(data && data.id){
       steps.unlockAll();
     }else{
@@ -518,12 +559,27 @@ from permissions.utils import check_access_level, check_user_perms
           self.appendInstructors(email);
           $("#complete-email").val("");
         }else{
-          self.warning("User not exists.");
+          self.warning("User not exists.", self.dlgForm);
         }
       });
     });
+    // ************* change credits after training data arrived
+    if(data.arrive == "1"){
+      $("input[name=credits]").off("focusin").on("focusin", function(){
+        $(this).data('val', this.value);
+      }).off("change").on("change", function(){
+        var me=this;
+        self.confirm("Please note that you have edited Credit Hours to a training that is past. \
+This change is not retroactive for users who have already received credit. \
+Please refer to the user guide for more information.<br>Continue?", self.dlgForm, function(r){
+          if(!r) $(me).val($(me).data('val'));
+        });
+      });
+    }
+    // ************* clear checking status
+    $("#dlg-add-training").find(".check-mark").removeClass("on");
     return steps;
-  } 
+  }
   PepReg.prototype.getInstructors=function(emails) {
     var ar=[];
     $("#instructor_emails").find("div").each(function(){
@@ -586,14 +642,12 @@ from permissions.utils import check_access_level, check_user_perms
     var self=this;
     data = data || {};
     var state='${request.user.profile.district.state.name} United States';
-
     if(data.geo_props){
       var props = JSON.parse(data.geo_props);
       this.markPlace(this.map_edit, props.lat, props.lon, 15);
     }else{
       this.showPlace(this.map_edit, state);
     }
-
     $.each(data,function(k, v){
       var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
       if($entry.prop("tagName") == "INPUT" && ($entry.attr("type")=="radio" ||  $entry.attr("type")=="checkbox")){
@@ -614,9 +668,8 @@ from permissions.utils import check_access_level, check_user_perms
     });
     this.fillData(empty);
   }
-  PepReg.prototype.clickDeleteTraining=function(e, id){
+  PepReg.prototype.deleteTraining=function(id){
     var self=this;
-    e.preventDefault();
     new Dialog("#dlg-warning").showYesNo("Confirm", "Are you sure you want to delete the training?", function(r){
       this.hide();
       if(r){
@@ -627,15 +680,17 @@ from permissions.utils import check_access_level, check_user_perms
       }
     });
   }
-  PepReg.prototype.clickEditTraining=function(e, id){
+  PepReg.prototype.editTraining=function(id){
     var self=this;
-    e.preventDefault();
     $.get("${reverse('pepreg_training_json')}",{id:id},function(r){
       r.instructor_emails = r.instructor_emails.join(",");
       self.initForm(r, function(data){
         if(einfo = self.validateAllPage(data)){
-          self.warningInvalid(einfo.error);
-          self.steps.switchTo(einfo.id)
+          self.steps.switchTo(einfo.id);
+          $("#dlg-add-training").bind('afterSwitch', function(){
+            $(this).unbind('afterSwitch');
+            self.markInvalid(einfo.error[0], einfo.error[1]);
+          }); 
           return;
         }
         $.post("${reverse('pepreg_save_training')}", data, function(r){
@@ -661,8 +716,11 @@ from permissions.utils import check_access_level, check_user_perms
     var steps = this.initForm({district_id:${request.user.profile.district_id}}, function(data){
       // submit
       if(einfo = self.validateAllPage(data)){
-        self.warningInvalid(einfo.error);
-        self.steps.switchTo(einfo.id);
+          self.steps.switchTo(einfo.id);
+          $("#dlg-add-training").bind('afterSwitch', function(){
+            $(this).unbind('afterSwitch');
+            self.markInvalid(einfo.error[0], einfo.error[1]);
+          }); 
         return;
       }
       $.post("${reverse('pepreg_save_training')}", data, function(r){
@@ -677,7 +735,7 @@ from permissions.utils import check_access_level, check_user_perms
   }
   PepReg.prototype.registerUser=function(training_id, join){
     var self = this;
-    $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function(r){
+    $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join  }, function(r){
       if(r.success){
         //self.reloadTable();
       }
@@ -760,24 +818,13 @@ from permissions.utils import check_access_level, check_user_perms
           $row.find("a").css("cursor", "pointer");
           $row.find("a").click(function(e){
             e.preventDefault();
-
-            var dlgWarn = new Dialog("#dlg-warning");
-            dlg.hideOverlay();
-            $("#dlg-warning").bind("hide",function(){
-              $(this).unbind('hide');
-              dlg.showOverlay();
-            });
-            dlgWarn.showYesNo("Confirm","Really delete the student?", function(r){
-              this.hide();
+            self.confirm("Really delete the student?", dlg, function(r){
               if(r){
                 self.deleteStudent(data.id, function(){
                   $row.remove();
                 });
               }
             });
-            dlgWarn.lift(100);
-
-            
           });
           $row.find("input[name=is_attended]").change(function(){
             var me=this;
@@ -840,7 +887,7 @@ from permissions.utils import check_access_level, check_user_perms
         filter_serversideFiltering: true,
         output_saveFileName: 'data.csv',
         columnSelector_container: $('#columnSelector'),
-        columnSelector_columns: {0: 'disable', 11: 'disable'},
+        columnSelector_columns: {0: 'disable', 11: 'disable', 12: 'disable'},
         columnSelector_mediaqueryName: 'All: '
       }
     };
@@ -849,7 +896,12 @@ from permissions.utils import check_access_level, check_user_perms
     pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
     this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#data-table").bind("pagerComplete", function() {
-      var is_admin = $(this).find("a.icon-edit").length > 0;
+      var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
+      if(is_admin)
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12]]);
+      else{
+        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11]]);
+      }
       if(!is_admin){
         $(this).find("th:nth-child(1)").hide();
         $(this).find("td:nth-child(1)").hide();
@@ -861,24 +913,8 @@ from permissions.utils import check_access_level, check_user_perms
         $(this).find("th:nth-child(12)").show();
         $(this).find("td:nth-child(12)").show();
       }
-      if(is_admin)
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11]]);
-      else{
-        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10]]);
-      }
-      // Training Name
-      if(is_admin){
-        $(this).find("td:nth-child(6)").each(function(){
-          var training_id = $(this).parent().find("input[name=id]").val();
-          $(this).css("color","#1d9dd9");
-          $(this).css("cursor","pointer");
-          $(this).click(function(){
-            self.showStudents(training_id);
-          });
-        });
-      }
       // location
-      $(this).find("td:nth-child(9)").each(function(){
+      $(this).find("td:nth-child(10)").each(function(){
         var training_id = $(this).parent().find("input[name=id]").val();
         $(this).css("color","#1d9dd9");
         $(this).css("cursor","pointer");
@@ -892,61 +928,96 @@ from permissions.utils import check_access_level, check_user_perms
           }
         });
       });
-      // Register/Record Attendance
-      $(this).find("td:nth-child(11)").each(function(){
-        var apart = $(this).html().split(",");
-        var training_id = apart[0];
-        var arrive = apart[1];
-        var status = apart[2];
-        var allow = apart[3];
-        var attendancel_id = apart[4];
-        if(arrive == "0" && allow == "0"){
-          $(this).html("The training date has not arrived yet.");
-        }else if (arrive == "0" && allow == "1"){
-          var $check = $("<input type='checkbox'> <span>I would like to register for the training</span>").appendTo($(this).empty());
-          $check.prop('checked', status == "Registered");
-          $check.click(function(){
-            self.registerUser(training_id, this.checked);
+      // each row
+      $(this).find("tr").each(function(){
+        var training_id = $(this).find("input[name=id]").val();
+        if(!training_id)
+          return; // continue
+        var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
+        var apart = $(this).find("input[name=status]").val().split(",");
+        var arrive = apart[0];
+        var status = apart[1];
+        var allow = apart[2];
+        var attendancel_id = apart[3];
+        var reach_limit = apart[4];
+        if(is_row_admin){
+          $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function(e){
+            e.preventDefault();
+            self.editTraining(training_id);
           });
-        }else if (arrive == "1"){
-          var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
-          $check.prop('checked', status == "Attended" || status == "Validated");
-          if(attendancel_id.length){
-            $check.change(function(){
-              if(this.checked){
-                $input.show();
-                $button.show();
-              }else{
-                self.setStudentAttended(${request.user.id},training_id, false, function(){
-                  self.warning("Success");
-                });
-                $input.hide();
-                $button.hide();
-              }
-            });
-            var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
-            /// $input.val(attendancel_id);
-            var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
-            $button.click(function(){
-              if(attendancel_id==$input.val()){
-                self.setStudentAttended(${request.user.id},training_id, true, function(){
+          $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function(e){
+            e.preventDefault();
+            self.deleteTraining(training_id);
+          });
+        }
+        // Register/Record Attendance
+        $(this).find("td:nth-child(12)").each(function(){
+          if(arrive == "0" && allow == "0"){
+            $(this).html("The training date has not arrived yet.");
+          }else if (arrive == "0" && allow == "1"){
+            if(status=="" && reach_limit=="1"){
+              // not reigistered and reach limit
+              $(this).html("Maximum number of users have registered for this training.");
+            }else{
+              var $check = $("<input type='checkbox'> <span>I would like to register for the training</span>").appendTo($(this).empty());
+              $check.prop('checked', status == "Registered");
+              $check.click(function(){
+                self.registerUser(training_id, this.checked);
+              });            
+            }
+          }else if (arrive == "1" && status == "" && allow == "1"){
+            $(this).html("The registration date has passed for this training");
+          }else if (arrive == "1"){
+            var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
+            $check.prop('checked', status == "Attended" || status == "Validated");
+            if(attendancel_id.length){
+              $check.change(function(){
+                if(this.checked){
+                  $input.show();
+                  $button.show();
+                }else{
+                  if(!$input.is(":visible")){
+                    self.setStudentAttended(${request.user.id},training_id, false, function(){
+                      self.warning("Success");
+                    });
+                  }
                   $input.hide();
-                  $button.hide();                
-                  self.warning("Success");
-                });
-              }else{
-                self.warning("It's a wrong ID.");
-              }
-            });
+                  $button.hide();
+                }
+              });
+              var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
+              /// $input.val(attendancel_id);
+              var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
+              $button.click(function(){
+                if(attendancel_id==$input.val()){
+                  self.setStudentAttended(${request.user.id},training_id, true, function(){
+                    $input.hide();
+                    $button.hide();                
+                    self.warning("Success");
+                  });
+                }else{
+                  self.warning("It's a wrong ID.");
+                }
+              });
+            }else{
+              $check.change(function(){
+                self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
+              });            
+            }
           }else{
-            $check.change(function(){
-              self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
-            });            
+            $(this).html("");
           }
-        }else if (arrive == "1" && status == ""){
-          $(this).html("The registration date has passed for this training");
-        }else{
-          $(this).html("");
+        });
+        // Training Name
+        if(is_admin){
+          $(this).find("td:nth-child(6)").each(function(){
+            var training_id = $(this).parent().find("input[name=id]").val();
+            $(this).css("color","#1d9dd9");
+            $(this).css("cursor","pointer");
+            $(this).click(function(){
+              self.showStudents(training_id);
+            });
+          });
         }
       });
     });
@@ -980,7 +1051,11 @@ from permissions.utils import check_access_level, check_user_perms
         $(this).addClass("expand_title_expanded");
       }
     });
-    $(".expand_title").click()    
+    $(".expand_title").click();
+    $.balloon.defaults.classname = "balloon";
+    $(document).on('click', function(event) {
+      //$(".check-mark.on").hideBalloon();
+    });
   });
 </script>
 <script type="text/javascript">
@@ -995,23 +1070,27 @@ from permissions.utils import check_access_level, check_user_perms
     $(datepicker_CurrentInput).val("");
     $(datepicker_CurrentInput).change();
   });
-  $('.datePickText,input[name=training_data]').datepicker({ 
-    autoSize: true ,         
-    gotoCurrent: true,       
-    firstDay: 2,             
-    minDate: new Date(),     
-    hideIfNoPrevNext: true,  
-    navigationAsDateFormat: true,
-    showOtherMonths: true,   
-    selectOtherMonths: false, 
-    stepMonths: 1,           
-    changeMonth: true,       
-    numberOfMonths: [1, 1],  
-    showCurrentAtPos: 0, 
-    showAnim: "",  
-    showWeek: true,
-    dateFormat: 'mm/dd/yy',
-    currentText: 'Today',
+  $('.datePickText,input[name=training_data]').each(function(){
+    var lock_past = $(this).hasClass("lock_past");
+    $(this).datepicker({ 
+      autoSize: true ,         
+      gotoCurrent: true,       
+      firstDay: 2,             
+      minDate: new Date(),     
+      hideIfNoPrevNext: false,  
+      navigationAsDateFormat: true,
+      showOtherMonths: true,   
+      selectOtherMonths: false, 
+      stepMonths: 1,           
+      changeMonth: true,       
+      numberOfMonths: [1, 1],  
+      showCurrentAtPos: 0, 
+      showAnim: "",  
+      showWeek: true,
+      dateFormat: 'mm/dd/yy',
+      currentText: 'Today',
+      minDate: lock_past ? 0 : new Date("1999-9-9")
+    });
   });
 </script>
 <script type="text/javascript">
@@ -1033,7 +1112,6 @@ from permissions.utils import check_access_level, check_user_perms
       }
     }
   });
-  // $('#complete-email').autocomplete('/pepper-utilities/user/email-completion', {remoteDataType: 'json'});
   $('#complete-email').autocomplete({
     source: function(request, response){
       $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
