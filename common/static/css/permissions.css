@@ -1,0 +1,198 @@
+.modal {
+    position: fixed;
+    opacity: 1;
+    z-index: 11000;
+    left: 50%;
+    margin-left: -349px;
+    top: 40px;
+    background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    width: 680px;
+    display: none;
+}
+.modal .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0;
+    z-index: 3;
+    color: #333;
+}
+.modal .titlebar {
+    height: 70px;
+    background: #ccc;
+}
+.modal .dialog-title {
+    margin: 0;
+    padding: 20px 0 0 30px;
+    color: #666;
+}
+.modal .content {
+    color: #333;
+    text-align: left;
+    font-size: 16px;
+    padding: 20px 10px;
+    line-height: 20px;
+}
+.modal .inner-wrapper form textarea {
+    height: 100px;
+}
+.modal label, .modal input, .modal select {
+    display: block;
+}
+.modal input[type='radio'] {
+    display: inline;
+}
+.modal #import-errors {
+    margin: 30px;
+}
+.modal label span {
+    color: red;
+}
+.modal label span::before {
+    content: "<";
+}
+.modal label span::after {
+    content: ">";
+}
+#dialogYesNo .content {
+    text-align: center;
+}
+#dialogYesNo input {
+    margin-top: 20px;
+    display: inline;
+}
+.error-box {
+    border-color: red !important;
+}
+.group-edit img, .permission-edit img {
+    height: 16px;
+    width: 16px;
+}
+.group-select {
+    cursor: pointer;
+}
+.selected-group td {
+    background-color: #56a033;
+}
+.content-wrapper {
+    padding: 20px auto;
+}
+#permissions {
+    margin-top: 20px;
+}
+#groups {
+    margin-bottom: 20px;
+%if not admin_rights:
+margin-top: 20px;
+%endif
+}
+.expand_div {
+    padding: 10px 10px 0 10px;
+}
+#groups-column {
+    width: 33%;
+    float: left;
+}
+.permissions-table {
+    width: 100%;
+    border: 1px solid #555;
+}
+.permissions-table th {
+    border-bottom: 1px solid #555;
+    background-color: #ddd;
+    border-right: 1px solid #555;
+    text-align: left;
+    padding: 4px;
+}
+.permissions-table tr {
+    border-bottom: 1px solid #555;
+}
+.permissions-table td {
+    border-right: 1px solid #555;
+    padding: 4px;
+    text-align: left;
+}
+#groups-info-column {
+    width: 66%;
+    float: right;
+}
+#permission-actions, #group-actions, #group-permission-actions, #member-actions {
+    padding: 10px 0;
+    text-align: right;
+}
+.clear {
+    clear: both;
+    height: 1px;
+    margin-top: -1px;
+}
+.acResults {
+    z-index: 11001;
+    background-color: #ddd;
+    border-radius: 5px;
+    border: 1px solid #555;
+    padding: 0;
+}
+.acResults ul {
+    padding: 0;
+    margin: 0;
+}
+.acResults li {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+.acSelect {
+    background-color: #0000d4;
+    color: white;
+}
+#delete-permissions, #delete-groups, #delete-group-permissions, #delete-group-members,
+#new-permission, #new-group, #add-group-permission, #add-group-member {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    color: black;
+    display: inline-block;
+    background-color: transparent;
+    background-image: none;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: none;
+    font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
+    letter-spacing: normal;
+    padding: 32px 5px 5px 5px;
+    text-transform: none;
+    height: 52px;
+}
+.check-column {
+    width: 40px;
+}
+.lean-overlay .loading {
+    width: 128px;
+    height: 128px;
+    display: block;
+    border-radius: 10px;
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    margin-left: -64px;
+}
+.pager {
+    float: left;
+}
+#import-progress {
+    height: 30px;
+    width: 300px;
+    background-color: #edbd3c;
+}
+#import-progress div {
+    height: 30px;
+    width: 0;
+    background-color: #00A000;
+}
