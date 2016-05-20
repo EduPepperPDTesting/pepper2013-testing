@@ -14,6 +14,20 @@ import json
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
+from threading import Thread
+import gevent
+from StringIO import StringIO
+from datetime import datetime
+from django.http import HttpResponse
+
+
+def postpone(function):
+    def decorator(*args, **kwargs):
+        t = Thread(target=function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    return decorator
+
 
 @login_required
 def reports_view(request):
@@ -270,13 +284,24 @@ def report_delete(request):
     return render_json_response(data)
 
 
-@user_has_perms('reporting')
+@login_required
 def report_view(request, report_id):
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    rs.del_collection(collection)
     report = Reports.objects.get(id=report_id)
     selected_view = ReportViews.objects.filter(report=report)[0]
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
     report_filters = ReportFilters.objects.filter(report=report).order_by('order')
-    create_report_collection(request, selected_view, selected_columns, report_filters)
+
+    columns = []
+    filters = []
+    for col in selected_columns:
+        columns.append(col)
+    for f in report_filters:
+        filters.append(f)
+
+    create_report_collection(request, selected_view, columns, filters)
     data = {
         'report': report,
         'display_columns': selected_columns,
@@ -284,7 +309,6 @@ def report_view(request, report_id):
     return render_to_response('reporting/view-report.html', data)
 
 
-@user_has_perms('reporting')
 def report_get_rows(request):
     sorts = get_request_array(request.GET, 'col')
     filters = get_request_array(request.GET, 'fcol')
@@ -293,12 +317,14 @@ def report_get_rows(request):
     report_id = request.GET['report_id']
     start = page * size
     rows = []
-    rs = reporting_store()
-    collection = get_cache_collection(request)
-    data = rs.get_page(collection, start, size)
-    total = rs.get_count(collection)
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    sorts, filters = build_sorts_and_filters(selected_columns, sorts, filters)
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    data = rs.get_page(collection, start, size, filters, sorts)
+    total = rs.get_count(collection)
+
     for d in data:
         row = []
         for col in selected_columns:
@@ -311,13 +337,38 @@ def report_get_rows(request):
     return render_json_response({'total': total, 'rows': rows})
 
 
+def build_sorts_and_filters(columns, sorts, filters):
+    column = []
+    for i, col in enumerate(columns):
+        column.append(col.column.column)
+
+    order = ['$natural', 1]
+    for col, sort in sorts.iteritems():
+        pre = 1
+        if bool(int(sort)):
+            pre = -1
+        order = [column[int(col)], pre]
+
+    filter = {}
+    for col, f in filters.iteritems():
+        # TODO: Temporary scheme (Mongo Int type).
+        if f.isdigit():
+            filter[column[int(col)]] = int(f)
+        else:
+            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+            filter[column[int(col)]] = reg
+    return order, filter
+
+
 def get_cache_collection(request):
     return 'tmp_collection_' + str(request.user.id)
 
 
-def create_report_collection(request, selected_view, selected_columns, report_filters):
+@postpone
+def create_report_collection(request, selected_view, columns, filters):
+    gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], selected_columns, report_filters)
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], columns, filters)
     rs = reporting_store()
     rs.set_collection(aggregate_config['collection'])
     rs.collection.aggregate(aggregate_query)
@@ -341,16 +392,17 @@ def query_ref_variable(query, user, columns, filters):
 
 
 def get_query_user_domain(user):
-    level = check_access_level(user, 'reporting', ['view'])
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
-    if level == 'System':
-        domain = ''
-    elif level == 'State':
-        domain = '{"$match":{"state_id":' + user.profile.district.state.id + '}},'
-    elif level == 'District':
-        domain = '{"$match":{"district_id":"' + user.profile.district.code + '"}},'
-    elif level == 'School':
-        domain = '{"$match":{"school_id": ' + user.profile.school.id + '}},'
+    if check_user_perms(user, 'reporting', ['view']):
+        level = check_access_level(user, 'reporting', ['view'])
+        if level == 'System':
+            domain = ''
+        elif level == 'State':
+            domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
+        elif level == 'District':
+            domain = '{"$match":{"district_id":"' + str(user.profile.district.code) + '"}},'
+        elif level == 'School':
+            domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
     return domain
 
 
@@ -370,7 +422,7 @@ def get_query_filters(filters):
         for filter in filters:
             conjunction = ' '
             value = filter.value
-            if filter.conjunction != None:
+            if filter.conjunction is not None:
                 conjunction += filter.conjunction.lower() + ' '
             if filter.value.isdigit() is False:
                 value = '"' + filter.value + '"'
@@ -394,6 +446,43 @@ def data_format(col, data):
     if col == 'portfolio_url':
         return '<a href={0}>portfolio link</a>'.format(data[col])
     return data[col]
+
+
+@login_required
+def report_download_excel(request, report_id):
+    import xlsxwriter
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
+    worksheet = workbook.add_worksheet()
+    report = Reports.objects.get(id=report_id)
+    columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+
+    for i, k in enumerate(columns):
+        worksheet.write(0, i, k.column.name)
+    row = 1
+    rs = reporting_store()
+    rs.set_collection(get_cache_collection(request))
+    results = rs.collection.find()
+    for p in results:
+        for i, k in enumerate(columns):
+            try:
+                p[k.column.column] = data_format(k.column.column, p)
+            except:
+                p[k.column.column] = ''
+            worksheet.write(row, i, p[k.column.column])
+        row += 1
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = datetime.now().strftime('attachment; filename=report-%Y-%m-%d-%H-%M-%S.xlsx')
+    workbook.close()
+    response.write(output.getvalue())
+    return response
+
+
+def report_get_progress(request):
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    stats = int(rs.get_collection_stats(collection)['ok'])
+    return render_json_response({'success': stats})
 
 
 @user_has_perms('reporting', 'administer')

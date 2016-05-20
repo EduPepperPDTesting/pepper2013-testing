@@ -118,19 +118,23 @@ class MongoReportingStore(object):
     #         set()
     #     )
 
-    def get_page(self, collection, start, num, db_filter=None):
+    def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1]):
         self.set_collection(collection)
-        if db_filter is None:
-            return self.collection.find().skip(start).limit(num)
+        return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
 
-        return self.collection.find(db_filter).skip(start).limit(num)
-
-    def get_count(self, collection, db_filter=None):
+    def get_count(self, collection, db_filter={}):
         self.set_collection(collection)
-        if db_filter is None:
-            return self.collection.find().count()
-
         return self.collection.find(db_filter).count()
+
+    def del_collection(self, collection):
+        self.set_collection(collection)
+        self.collection.drop()
+
+    def get_collection_stats(self, collection):
+        fun = 'function(){return db.' + collection + '.stats()}'
+        self.db.system_js.collection_stats = fun
+        return self.db.system_js.collection_stats()
+
 
 def reporting_store():
     options = {}
