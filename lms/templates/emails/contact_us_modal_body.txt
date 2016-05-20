@@ -1,0 +1,4 @@
+Your Email: ${email}<br/>
+Full Name: ${fullname}<br/>
+State: ${state}<br/>
+District: ${district}

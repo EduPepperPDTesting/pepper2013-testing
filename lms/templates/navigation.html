@@ -19,14 +19,12 @@
 <%block name="navigation_top" />
 <%block cached="False">
     <%
-
         # print index
-
         try:
-    course_id = course.id
-except:
-    # can't figure out a better way to get at a possibly-defined course var
-    course_id = None
+            course_id = course.id
+        except:
+            # can't figure out a better way to get at a possibly-defined course var
+            course_id = None
         site_status_msg = get_site_status_msg(course_id)
     %>
     % if site_status_msg:
@@ -526,6 +524,18 @@ except:
         </ol>
 
             <ol class="right nav-courseware">
+                <!--@begin:Add Paypal-->
+                <!--@date:2016-05-19-->
+                <li class="nav-courseware-01">
+                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                            <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}" target="_blank" style="margin-right:30px;"><img src="/static/images/paypal.png" width="100" height="27"/></a>
+                        % else:
+                            <a  class="main-link" href="/contact" target="_blank" ><img src="/static/images/paypal.png" width="100" height="27"/></a>        
+                        % endif
+                    % endif
+                </li>
+                <!--@end-->
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
