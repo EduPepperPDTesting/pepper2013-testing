@@ -320,7 +320,7 @@ form.submit(function(){
             if (r.success) {
                 $("#message_modal").css("background","#fc5")
                 $("#message_modal").css("border-color","#f70")
-                easy.form.infoAndWait($("#message_modal"),"Submit success",5,"justhide")
+                easy.form.infoAndWait($("#message_modal"),"Submit success",0,"justhide")
             } 
             else {
                 $("#message_modal").html(r.error);
@@ -343,7 +343,8 @@ form.submit(function(){
         var w = seconds;
         $(box).show()
         function count(){
-            $(box).html(info + ". <b>" + w + "</b>");
+            //$(box).html(info + ". <b>" + w + "</b>");
+            $(box).html(info);
             setTimeout(function(){
                 if(w < 1){
                     if(go == "justhide"){
