@@ -391,10 +391,12 @@ def more_courses_available(request):
     # sort courses
     courses.sort(cmp=lambda x, y: cmp(x.display_subject.lower(), y.display_subject.lower()))
 
-    # group courses by grade
-    subject_index = [-1, -1, -1, -1]
-    currSubject = ["", "", "", ""]
-    g_courses = [[], [], [], []]
+    # 20160322 modify "Add new grade 'PreK-3'"
+    # begin
+    subject_index = [-1, -1, -1, -1, -1]
+    currSubject = ["", "", "", "", ""]
+    g_courses = [[], [], [], [], []]
+    # end 
 
     for course in courses:
         course_filter(course, subject_index, currSubject, g_courses, '')
