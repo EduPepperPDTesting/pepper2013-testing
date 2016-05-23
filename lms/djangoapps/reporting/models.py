@@ -135,6 +135,11 @@ class MongoReportingStore(object):
         self.db.system_js.collection_stats = fun
         return self.db.system_js.collection_stats()
 
+    def get_aggregate(self, collection, pipeline, disk=False):
+        self.db.command({'aggregate': collection,
+                         'pipeline': pipeline,
+                         'allowDiskUse': disk})
+
 
 def reporting_store():
     options = {}

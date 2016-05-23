@@ -301,7 +301,7 @@ def report_view(request, report_id):
     for f in report_filters:
         filters.append(f)
 
-    create_report_collection(request, selected_view, columns, filters)
+    create_report_collection(request, report, selected_view, columns, filters)
     data = {
         'report': report,
         'display_columns': selected_columns,
@@ -365,17 +365,16 @@ def get_cache_collection(request):
 
 
 @postpone
-def create_report_collection(request, selected_view, columns, filters):
+def create_report_collection(request, report, selected_view, columns, filters):
     gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], columns, filters)
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters)
     rs = reporting_store()
-    rs.set_collection(aggregate_config['collection'])
-    rs.collection.aggregate(aggregate_query)
+    rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
-def aggregate_query_format(request, query, columns, filters, out=True):
-    query = query_ref_variable(query, request.user, columns, filters)
+def aggregate_query_format(request, query, report, columns, filters, out=True):
+    query = query_ref_variable(query, request.user, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '').replace(' ', '')
     if out:
         query += ',{"$out":"' + get_cache_collection(request) + '"}'
@@ -383,12 +382,15 @@ def aggregate_query_format(request, query, columns, filters, out=True):
     return query
 
 
-def query_ref_variable(query, user, columns, filters):
+def query_ref_variable(query, user, report, columns, filters):
     domain = get_query_user_domain(user)
+    distinct = get_query_distinct(report.distinct, columns)
     columns = get_query_display_columns(columns)
     filters = get_query_filters(filters)
-    #query = query.format(user_domain=domain, display_columns=columns)
-    return query.replace('{user_domain}', domain).replace('{display_columns}', columns).replace('{filters}', filters)
+    return query.replace('{user_domain}', domain)\
+        .replace('{display_columns}', columns)\
+        .replace('{filters}', filters)\
+        .replace('{distinct}', distinct)
 
 
 def get_query_user_domain(user):
@@ -430,6 +432,21 @@ def get_query_filters(filters):
         sql = get_mongo_filters(filter_str[1:])
         return ',{"$match":' + sql + '}'
     return filter_str
+
+
+def get_query_distinct(is_distinct, columns):
+    distinct = ''
+    column_str = ''
+    if len(columns) > 0 and is_distinct:
+        distinct = {'$group': {'_id': {}}}
+        for col in columns:
+            field = col.column.column
+            field_value = '$' + col.column.column
+            distinct['$group']['_id'][field] = field_value
+            distinct['$group'][field] = {'$push': field_value}
+            column_str += "'" + field + "':{'$arrayElemAt': ['" + field_value + "', 0]},"
+        return ',' + str(distinct) + ',{"$project":{' + column_str[:-1] + '}}'
+    return distinct
 
 
 def data_format(col, data):

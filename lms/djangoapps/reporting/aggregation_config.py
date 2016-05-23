@@ -27,7 +27,7 @@ AggregationConfig = {
     }
 }
 
-# aggregation query:  (*placeholder: {user_domain}, {display_columns} ,{filters})
+# aggregation query:  (*placeholder: {user_domain}, {display_columns}, {filters}, {distinct})
 
 #  user -------------------------------------------------------------------------------
 
@@ -150,7 +150,7 @@ AggregationConfig["UserView"]["query"] = '''{user_domain}
             "$add": ["$course_time", "$external_time", "$discussion_time", "$portfolio_time"]
         }
     }
-}{filters}{display_columns}
+}{filters}{display_columns}{distinct}
 '''
 
 # user course -------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ AggregationConfig["UserCourseView"]["query"] = '''{user_domain}{
             "$add": ["$course_time", "$external_time", "$discussion_time", "$portfolio_time"]
         }
     }
-}{filters}{display_columns}'''
+}{filters}{display_columns}{distinct}'''
 
 #  course -------------------------------------------------------------------------------
 
@@ -652,7 +652,7 @@ AggregationConfig["CourseView"]["query"] = '''{user_domain}{
             }
         }
     }
-}{filters}{display_columns}'''
+}{filters}{display_columns}{distinct}'''
 
 #  course assignments -------------------------------------------------------------------------------
 
@@ -678,7 +678,7 @@ AggregationConfig["CourseAssignmentsView"]["query"] = '''{
             "$ifNull": ["$metadata.weight", 1]
         }
     }
-}{filters}{display_columns}'''
+}{filters}{display_columns}{distinct}'''
 
 #  aggregate grades -------------------------------------------------------------------------------
 
@@ -783,7 +783,7 @@ AggregationConfig["AggregateGradesView"]["query"] = '''{user_domain}{
             }
         }
     }
-}{filters}{display_columns}'''
+}{filters}{display_columns}{distinct}'''
 
 #  aggregate timer -------------------------------------------------------------------------------
 
@@ -868,4 +868,4 @@ AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
             "$sum": "$total_time"
         }
     }
-}{filters}{display_columns}'''
+}{filters}{display_columns}{distinct}'''
