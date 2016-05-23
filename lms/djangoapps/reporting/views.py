@@ -498,7 +498,7 @@ def report_get_progress(request):
 
 @user_has_perms('reporting', ['administer', 'create_reports'])
 def related_views(request):
-    relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('name')
+    relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('right__name')
     data = []
     for relationship in relationships:
         data.append({'id': relationship.right.id, 'name': relationship.right.name})
