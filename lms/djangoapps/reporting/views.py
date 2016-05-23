@@ -46,10 +46,16 @@ def reports_view(request):
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
-    data = {'categories': list()}
+    admin_rights = check_user_perms(request.user, 'reporting', 'administer')
+    create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
+
+    data = {'categories': list(),
+            'admin_rights': admin_rights,
+            'create_rights': create_rights,
+            'access_level': access_level}
 
     # Add uncategorized (unpublished) reports for admins.
-    if check_user_perms(request.user, 'reporting', ['administer', 'create_reports']):
+    if admin_rights or create_rights:
         report_list = list()
         category_reports = reports.filter(category__isnull=True)
         for category_report in category_reports:
@@ -57,11 +63,13 @@ def reports_view(request):
                                 'name': category_report.name,
                                 'description': category_report.description,
                                 'author': category_report.author.first_name + ' ' + category_report.author.last_name,
+                                'access_level': category_report.access_level,
                                 'created': category_report.created,
                                 'modified': category_report.modified})
         data['categories'].append({'id': None,
                                    'name': 'Draft Reports',
                                    'reports': report_list})
+
     # Add the rest of the reports by category.
     for category in categories:
         report_list = list()
@@ -71,6 +79,7 @@ def reports_view(request):
                                 'name': category_report.name,
                                 'description': category_report.description,
                                 'author': category_report.author.first_name + ' ' + category_report.author.last_name,
+                                'access_level': category_report.access_level,
                                 'created': category_report.created,
                                 'modified': category_report.modified})
         data['categories'].append({'id': category.id,
@@ -309,6 +318,7 @@ def report_view(request, report_id):
     return render_to_response('reporting/view-report.html', data)
 
 
+@login_required
 def report_get_rows(request):
     sorts = get_request_array(request.GET, 'col')
     filters = get_request_array(request.GET, 'fcol')
@@ -478,6 +488,7 @@ def report_download_excel(request, report_id):
     return response
 
 
+@login_required
 def report_get_progress(request):
     rs = reporting_store()
     collection = get_cache_collection(request)
@@ -485,7 +496,7 @@ def report_get_progress(request):
     return render_json_response({'success': stats})
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def related_views(request):
     relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('name')
     data = []
@@ -494,7 +505,7 @@ def related_views(request):
     return render_json_response(data)
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def view_columns(request):
     views = get_request_array(request.GET, 'view')
     columns = ViewColumns.objects.select_related().filter(view__in=views.values()).order_by('view', 'name')
@@ -708,7 +719,7 @@ def relationships_delete(request):
     return render_json_response(data)
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def views_list(request):
     views = Views.objects.all().order_by('name')
     view_list = dict()
@@ -718,7 +729,7 @@ def views_list(request):
     return render_json_response(view_list)
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def view_columns_list(request):
     view = request.GET.get('view', False)
 
