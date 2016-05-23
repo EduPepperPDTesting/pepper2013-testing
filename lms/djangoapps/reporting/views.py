@@ -203,20 +203,28 @@ def report_edit(request, report_id):
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
-            selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
-            selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
-            filters = ReportFilters.objects.filter(report=report).order_by('order')
-            second_column = int(floor(len(selected_views_columns) / 2))
-            remainder = len(selected_views_columns) % 2
-            first_column = second_column + remainder
-            data.update({'report': report,
-                         'view_columns': selected_views_columns,
-                         'selected_views': selected_views,
-                         'selected_columns': selected_columns,
-                         'report_filters': filters,
-                         'first_column': first_column})
-            action = 'edit'
+            admin_rights = check_user_perms(request.user, 'reporting', 'administer')
+            create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
+            access_level = check_access_level(request.user, 'reporting', 'create_reports')
+            if admin_rights or (create_rights and
+                                access_level == report.access_level and
+                                request.user.profile.district.id == report.access_id):
+                selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
+                selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
+                filters = ReportFilters.objects.filter(report=report).order_by('order')
+                second_column = int(floor(len(selected_views_columns) / 2))
+                remainder = len(selected_views_columns) % 2
+                first_column = second_column + remainder
+                data.update({'report': report,
+                             'view_columns': selected_views_columns,
+                             'selected_views': selected_views,
+                             'selected_columns': selected_columns,
+                             'report_filters': filters,
+                             'first_column': first_column})
+                action = 'edit'
+            else:
+                raise Exception('Not allowed.')
         except:
             data = {'error_title': 'Report Not Found',
                     'error_message': '''No report found with this ID. If you believe this is in error, please contact
@@ -226,7 +234,6 @@ def report_edit(request, report_id):
     else:
         action = 'new'
     data.update({'action': action, 'possible_operators': ['=', '!=', '>', '<', '>=', '<=']})
-    #raise Exception('{0}'.format(data))
     return render_to_response('reporting/edit-report.html', data)
 
 
@@ -547,7 +554,7 @@ def get_query_filters(filters):
 
 def get_query_distinct(is_distinct, columns):
     """
-    
+
     :param is_distinct:
     :param columns:
     :return:
