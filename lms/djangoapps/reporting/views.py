@@ -944,16 +944,17 @@ def views_list(request):
     return render_json_response(view_list)
 
 
-@user_has_perms('reporting', ['administer', 'create_reports'])
-def view_columns_list(request):
-    """
-    Gets a list of columns for the selected collection.
-    :param request: Request object.
-    :return: JSON list of columns.
-    """
-    view = request.GET.get('view', False)
-
-    reporting = reporting_store()
-    view_column_list = reporting.get_columns(view)
-
-    return render_json_response(view_column_list)
+# TODO: Test this at some point to see if it works as expected.
+# @user_has_perms('reporting', ['administer', 'create_reports'])
+# def view_columns_list(request):
+#     """
+#     Gets a list of columns for the selected collection.
+#     :param request: Request object.
+#     :return: JSON list of columns.
+#     """
+#     view = request.GET.get('view', False)
+#
+#     reporting = reporting_store()
+#     view_column_list = reporting.get_columns(view)
+#
+#     return render_json_response(view_column_list)
