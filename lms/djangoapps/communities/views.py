@@ -12,7 +12,7 @@ from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
 from file_uploader.models import FileUploads
-from student.models import UserProfile, Registration, CourseEnrollmentAllowed
+from student.models import UserProfile, Registration, CourseEnrollmentAllowed, State, District
 from django.db.models import Q
 from people.views import get_pager
 from view_counter.models import view_counter_store
@@ -703,10 +703,22 @@ def community_edit_process(request):
     """
     try:
         # Get all of the form data.
+        no_district = None
+        no_state = None
         community_id = request.POST.get('community_id', '')
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
         hangout = request.POST.get('hangout', '')
+        try:
+            district_id = int(request.POST.get('district-dropdown'))
+            district = District.objects.get(id=district_id)
+        except:
+            district = None
+        try:
+            state_id = int(request.POST.get('state-dropdown'))
+            state = State.objects.get(id=state_id)
+        except:
+            state = None
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.
         if request.POST.get('logo', 'nothing') == 'nothing':
             # Try to grab the new file, and if it isn't there, just make it blank.
@@ -742,6 +754,8 @@ def community_edit_process(request):
             community_object.logo = logo
         community_object.hangout = hangout
         community_object.private = int(private)
+        community_object.district = district
+        community_object.state = state
         community_object.save()
 
         # Load the main user object for the facilitator user.
@@ -832,3 +846,38 @@ def community_check_user(request):
     except:
         valid = False
     return HttpResponse(json.dumps({'Valid': valid}), content_type='application/json')
+
+
+def community_in_district(community_id, user_id_val):
+    try:
+        user_val = UserProfile.objects.get(user__id=user_id_val)
+        district = user_val.district
+        if CommunityCommunities.objects.filter(id=community_id, district=district).exists():
+            return True
+        else:
+            return False
+    except:
+        return False
+
+
+def community_in_state(community_id, user_id_val):
+    try:
+        user_val = UserProfile.objects.get(user__id=user_id_val)
+        state_id = user_val.district.state
+        if CommunityCommunities.objects.filter(id=community_id, state=state_id).exists():
+            return True
+        else:
+            return False
+    except:
+        return False
+
+def user_in_community(community_id, user_id):
+    try:
+        user_val = User.objects.get(id=user_id)
+        community_val = CommunityCommunities.objects.get(id=community_id)
+        if CommunityUsers.objects.filter(user=user_val, community=community_val).exists():
+            return True
+        else:
+            return False
+    except:
+        return False
