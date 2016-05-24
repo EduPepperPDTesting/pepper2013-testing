@@ -589,7 +589,7 @@ def data_format(col, data):
         return study_time_format(data[col.column])
     if col.data_type == 'url':
         return '<a href="{0}">Link</a>'.format(data[col.column])
-    return data[col]
+    return data[col.column]
 
 
 @login_required
