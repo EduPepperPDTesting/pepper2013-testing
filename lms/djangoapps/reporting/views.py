@@ -801,6 +801,7 @@ def view_add(request):
     column_descriptions = get_request_array(request.POST, 'column_description')
     column_sources = get_request_array(request.POST, 'column_source')
     column_types = get_request_array(request.POST, 'column_type')
+    column_ids = get_request_array(request.POST, 'column_id')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -821,9 +822,14 @@ def view_add(request):
         transaction.commit()
         try:
             if view_id:
-                ViewColumns.objects.filter(view=view).delete()
+                columns = [int(i) for i in column_ids.values()]
+                ViewColumns.objects.filter(view=view).exclude(id__in=columns).delete()
             for i, column_name in column_names.iteritems():
-                column = ViewColumns()
+                column_id = column_ids.get(i, False)
+                if column_id:
+                    column = ViewColumns.objects.get(id=int(column_id))
+                else:
+                    column = ViewColumns()
                 column.name = column_name
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]

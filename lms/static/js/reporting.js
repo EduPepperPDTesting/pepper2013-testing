@@ -319,6 +319,7 @@ function addView() {
                     }
                 });
                 content += '</select>';
+                content += '<input type="hidden" data-name="column_id" class="column_id" name="column_id[' + index + ']" value="' + value.id + '">';
                 content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[' + index + ']">';
                 if (index > 0) {
                     content += '<input type="button" value="-" data-name="minus" class="minus" name="minus[' + index + ']">';
