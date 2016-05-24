@@ -519,6 +519,7 @@ div.create select{
 }
 .icon-remove{
     color:#F18101 !important;
+    margin-left:10px;
 }
 .table-filter select,
 .table-filter input{
@@ -531,4 +532,24 @@ div.create select{
 table.students th,
 table.students td{
     padding:5px 5px;
+}
+.check-mark::after {
+    content: '?';
+    font-size: 100%;
+    font-family: sans-serif;
+    vertical-align: middle;
+    font-weight: bold;
+    text-align: center;
+    display: inline-block;
+    width: 2.8ex;
+    height: 2.8ex;
+    border-radius: 2ex;
+    color: blue;
+    background: #ccc;
+    line-height:2.8ex;
+    color:#fff;
+    margin-left:1ex;
+}
+.check-mark.on::after {
+    background: orange;
 }

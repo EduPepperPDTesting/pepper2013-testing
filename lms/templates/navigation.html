@@ -373,12 +373,12 @@
             %if show_extended:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(curr_user, 'certificate'):
                             <li><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
-                            <li><a href="${reverse('pepreg')}">PepReg</a></li>
+                        <li><a href="${reverse('pepreg')}">PepReg</a></li>
                         %if check_user_perms(curr_user, 'pepconn'):
                             <li><a href="${reverse('pepconn')}">PepConn</a></li>
                         %endif
@@ -388,11 +388,9 @@
                         %if check_user_perms(curr_user, 'time_report'):
                             <li><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
-                        %if check_user_perms(curr_user, 'reporting'):
-                            <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
-                        %endif
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
                         %if check_user_perms(curr_user, 'sso'):
+                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'tnl'):
                             <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
@@ -531,7 +529,7 @@
                 <!--@date:2013-11-02-->
                 <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
             % else:
-                <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
+                <li><a  class="main-link" href="/contact">Become a Member</a></li>
                 <!--@end-->
             % endif
         % endif
@@ -542,6 +540,18 @@
         </ol>
 
             <ol class="right nav-courseware">
+                <!--@begin:Add Paypal-->
+                <!--@date:2016-05-19-->
+                <li class="nav-courseware-01">
+                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                            <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}" target="_blank" style="margin-right:30px;"><img src="/static/images/paypal.png" width="100" height="27"/></a>
+                        % else:
+                            <a  class="main-link" href="/contact" target="_blank" ><img src="/static/images/paypal.png" width="100" height="27"/></a>        
+                        % endif
+                    % endif
+                </li>
+                <!--@end-->
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:

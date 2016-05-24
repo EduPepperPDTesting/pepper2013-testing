@@ -240,8 +240,7 @@ def certificate_save(request):
     return HttpResponse(json.dumps(info), content_type="application/json")
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
+@user_has_perms('certificate', 'view')
 def certificate_loadData(request):
     c = Certificate.objects.filter(id=request.POST.get('id'))[0]
     try:

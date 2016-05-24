@@ -64,28 +64,29 @@ function viewSelect(related_url, columns_url) {
         $.get(columns_url, get_data, function (data) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
-                var third_column = Math.floor(data.length / 3);
-                var remainder = data.length % 3;
-                var first_column = remainder > 0 ? third_column + 1 : third_column;
-                var second_column = remainder > 1 ? first_column * 2 : first_column * 2 - 1;
+                var second_column = Math.floor(data.length / 2);
+                var remainder = data.length % 2;
+                var first_column = second_column + remainder;
 
                 var columns = '<ul>';
                 for (var x = 0; x < data.length; x++) {
-                    if (x == first_column || x == second_column) {
+                    if (x == first_column) {
                         columns += '</ul><ul>';
                     }
                     columns += '<li><label>';
-                    columns += '<input type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> ' + data[x].name + ' - ' + data[x].description;
+                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> <span class="column-name">' + data[x].name + '</span> - ' + data[x].description;
                     columns += '</label></li>';
                 }
                 columns += '</ul>';
-                $('.column-selector ul').remove();
-                $('.column-selector h2').after(columns);
+                $('.column-selector ul').not('#selected-columns').remove();
+                $('#selected-columns li').remove();
+                $('#order-title').after(columns);
+                columnChangeHandler();
             }
             // Create the dropdown for the filters.
             var options = '';
             $.each(data, function (index, value) {
-                options += '<option value="' + value.id + '">' + value.name + '</option>';
+                options += '<option data-type="' + value.type + '" value="' + value.id + '">' + value.name + '</option>';
             });
             $('.filter-column').html(options);
         });
@@ -105,12 +106,12 @@ function filterLines() {
         var row = '#where-row\\[' + line_number + '\\]';
         var select = $(row).children('.filter-column').clone().wrap('<p>').parent().html();
         var line = '<div class="where-row" id="where-row[]">';
-        line += '    <select class="filter-conjunction" name="filter-conjunction[]">';
+        line += '    <select data-name="filter-conjunction" class="filter-conjunction" name="filter-conjunction[]">';
         line += '        <option value="AND">AND</option>';
         line += '        <option value="OR">OR</option>';
         line += '    </select>';
         line += select;
-        line += '    <select class="filter-operator" name="filter-operator[]">';
+        line += '    <select data-name="filter-operator" class="filter-operator" name="filter-operator[]">';
         line += '        <option value="=">=</option>';
         line += '        <option value="!=">!=</option>';
         line += '        <option value=">">&gt;</option>';
@@ -118,13 +119,14 @@ function filterLines() {
         line += '        <option value=">=">&gt;=</option>';
         line += '        <option value="<=">&lt;=</option>';
         line += '    </select>';
-        line += '    <input class="filter-value" type="text" name="filter-value[]"/>';
-        line += '    <input class="plus" name="plus[]" type="button" value="+"/>';
-        line += '    <input class="minus" name="minus[]" type="button" value="-"/>';
+        line += '    <input data-name="filter-value" class="filter-value" type="text" name="filter-value[]"/>';
+        line += '    <input data-name="plus" class="plus" name="plus[]" type="button" value="+"/>';
+        line += '    <input data-name="minus" class="minus" name="minus[]" type="button" value="-"/>';
         line += '</div>';
         $(row).after(line);
         renumberLines('where-row');
         filterLines();
+        fieldTypeUpdater();
     });
 }
 
@@ -134,7 +136,7 @@ function renumberLines(container) {
         $(this).attr('id', container + '[' + index + ']');
         $(this).children().each(function () {
             $(this).attr('name', '');
-            $(this).attr('name', $(this).attr('class') + '[' + index + ']');
+            $(this).attr('name', $(this).attr('data-name') + '[' + index + ']');
         });
     });
 }
@@ -145,6 +147,7 @@ function getLineNumber(string) {
 }
 
 function expandTitle() {
+    $(".expand_title").off('click');
     $(".expand_title").click(function () {
         var $div = $(this).next("div.expand_div");
         if ($div.is(':visible')) {
@@ -236,14 +239,20 @@ function filterColumns() {
     });
     $('.plus').off('click');
     $('.plus').click(function () {
+        var data_types = ['text', 'int', 'date'];
         var line_number = getLineNumber($(this).attr('name'));
         var row = '#column-row\\[' + line_number + '\\]';
-        var line = '<div class="column-row" id="column-row[]">';
-        line += '<input class="column_name" name="column_name[]" type="text" placeholder="Name">';
-        line += '<input class="column_description" name="column_description[]" type="text" placeholder="Description">';
-        line += '<input class="column_source" name="column_source[]" type="text" placeholder="Source">';
-        line += '<input type="button" value="+" class="plus" name="plus[]">';
-        line += '<input type="button" value="-" class="minus" name="minus[]">';
+        var line = '<div data-name="column-row" class="column-row" id="column-row[]">';
+        line += '<input data-name="column_name" class="column_name" name="column_name[]" type="text" placeholder="Name">';
+        line += '<input data-name="column_description" class="column_description" name="column_description[]" type="text" placeholder="Description">';
+        line += '<input data-name="column_source" class="column_source" name="column_source[]" type="text" placeholder="Source">';
+        line += '<select data-name="column_type" class="column_type" name="column_type[]">';
+        $.each(data_types, function (i, v) {
+            line += '    <option value="' + v + '">' + v + '</option>';
+        });
+        line += '</select>';
+        line += '<input type="button" value="+" data-name="plus" class="plus" name="plus[]">';
+        line += '<input type="button" value="-" data-name="minus" class="minus" name="minus[]">';
         line += '</div>';
         $(row).after(line);
         renumberLines('column-row');
@@ -251,10 +260,22 @@ function filterColumns() {
     });
 }
 
+function filterEnabler() {
+    $('#filter-enable input').change(function () {
+        if ($(this).prop('checked')) {
+            $('.where-row').children(':input').prop({disabled: false});
+        } else {
+            $('.where-row').children(':input').prop({disabled: true});
+        }
+    });
+}
+
 function addView() {
     $('.add-new-view, .view-edit').off('click');
     $('.add-new-view, .view-edit').click(function (e) {
         e.preventDefault();
+        
+        var data_types = ['text', 'int', 'date'];
 
         var current_data = false;
         if ($(this).attr('class') == 'view-edit') {
@@ -285,30 +306,45 @@ function addView() {
         content += '<label>Columns:';
         if (current_data) {
             $.each(current_data.columns, function (index, value) {
-                content += '<div class="column-row" id="column-row[' + index + ']">';
-                content += '<input class="column_name" name="column_name[' + index + ']" type="text" placeholder="Name" value="' + value.name + '">';
-                content += '<input class="column_description" name="column_description[' + index + ']" type="text" placeholder="Description" value="' + value.description + '">';
-                content += '<input class="column_source" name="column_source[' + index + ']" type="text" placeholder="Source" value="' + value.source + '">';
-                content += '<input type="button" value="+" class="plus" name="plus[' + index + ']">';
+                content += '<div data-name="column-row" class="column-row" id="column-row[' + index + ']">';
+                content += '<input data-name="column_name" class="column_name" name="column_name[' + index + ']" type="text" placeholder="Name" value="' + value.name + '">';
+                content += '<input data-name="column_description" class="column_description" name="column_description[' + index + ']" type="text" placeholder="Description" value="' + value.description + '">';
+                content += '<input data-name="column_source" class="column_source" name="column_source[' + index + ']" type="text" placeholder="Source" value="' + value.source + '">';
+                content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+                $.each(data_types, function (i, v) {
+                    if (value.type == v) {
+                        content += '    <option value="' + v + '" selected>' + v + '</option>';
+                    } else {
+                        content += '    <option value="' + v + '">' + v + '</option>';
+                    }
+                });
+                content += '</select>';
+                content += '<input type="hidden" data-name="column_id" class="column_id" name="column_id[' + index + ']" value="' + value.id + '">';
+                content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[' + index + ']">';
                 if (index > 0) {
-                    content += '<input type="button" value="-" class="minus" name="minus[' + index + ']">';
+                    content += '<input type="button" value="-" data-name="minus" class="minus" name="minus[' + index + ']">';
                 }
                 content += '</div>';
             });
         } else {
-            content += '<div class="column-row" id="column-row[0]">';
-            content += '<input class="column_name" name="column_name[0]" type="text" placeholder="Name">';
-            content += '<input class="column_description" name="column_description[0]" type="text" placeholder="Description">';
-            content += '<input class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<input type="button" value="+" class="plus" name="plus[0]">';
+            content += '<div data-name="column-row" class="column-row" id="column-row[0]">';
+            content += '<input data-name="column_name" class="column_name" name="column_name[0]" type="text" placeholder="Name">';
+            content += '<input data-name="column_description" class="column_description" name="column_description[0]" type="text" placeholder="Description">';
+            content += '<input data-name="column_source" class="column_source" name="column_source[0]" type="text" placeholder="Source">';
+            content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+            $.each(data_types, function (i, v) {
+                content += '    <option value="' + v + '">' + v + '</option>';
+            });
+            content += '</select>';
+            content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[0]">';
             content += '</div>';
         }
         content += '</label>';
         if (current_data) {
-            content += '<input type="hidden" name="view_id" value="' + current_data.id + '">'
-            content += '<input type="submit" value="Save">';
+            content += '<input type="hidden" name="view_id" value="' + current_data.id + '">';
+            content += '<input type="submit" value="Save" class="view-submit">';
         } else {
-            content += '<input type="submit" value="Add">';
+            content += '<input type="submit" value="Add" class="view-submit">';
         }
         content += '</form>';
         content += '</div>';
@@ -413,29 +449,34 @@ function addRelationship() {
 }
 
 function markDirty() {
+    is_dirty = true;
     $('#dirty-message').fadeIn();
     $('#save-report-order input').prop('disabled', false);
+    $('#report-save').prop('disabled', false);
 }
 
 function markClean() {
+    is_dirty = false;
     $('#dirty-message').fadeOut();
     $('#save-report-order input').prop('disabled', true);
+    $('#report-save').prop('disabled', true);
 }
 
 function animateToggle() {
-    $('.main.hidden-category').slideToggle();
+    $('.main.hidden-category, #save-report-order').slideToggle();
     $('.move, .imove').animate({
         opacity: 'toggle',
         width: 'toggle',
         paddingRight: 'toggle'
     });
-    $('.new-category').fadeToggle();
-    $('#save-report-order').slideToggle();
+    $('.new-category, .delete-report, .edit-report, .delete-category').fadeToggle();
+    $('.expand_title').not('.expand_title_expanded').trigger('click');
 }
 
 function afterDrop($item, container, _super, event) {
     markDirty();
     _super($item, container);
+    $item.show().find(':hidden').show();
 }
 
 function checkCategoryStatus() {
@@ -458,6 +499,10 @@ function manageHandler() {
         handle: '.move',
         onDrop: function ($item, container, _super, event) {
             afterDrop($item, container, _super, event);
+        },
+        isValidTarget: function  ($item, container) {
+            // TODO: see if I can figure out how to not allow things before Drafts.
+            return true;
         }
     });
     $reports.sortable({
@@ -473,10 +518,14 @@ function manageHandler() {
     $('.manage').click(function (e) {
         e.preventDefault();
         if ($(this).hasClass('enabled')) {
-            animateToggle();
-            $categories.sortable('disable');
-            $reports.sortable('disable');
-            $(this).removeClass('enabled');
+            if (is_dirty && confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+                window.location.reload();
+            } else if (!is_dirty) {
+                animateToggle();
+                $categories.sortable('disable');
+                $reports.sortable('disable');
+                $(this).removeClass('enabled');
+            }
         } else {
             animateToggle();
             $categories.sortable('enable');
@@ -500,6 +549,7 @@ function addCategoryHandler() {
             if (data.success) {
                 var category = '<li class="main hidden-category">';
                 category += '    <div class="expand_title expand_title_collapse">';
+                category += '        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>';
                 category += '        <img class="move" src="/static/images/icons/move.png">' + data.name;
                 category += '        <div class="icon"></div>';
                 category += '    </div>';
@@ -508,6 +558,12 @@ function addCategoryHandler() {
                 category += '    </div>';
                 category += '</li>';
                 $('#categories').append(category);
+                var $new_category = $('.main').last();
+                $new_category.show().find(':hidden').show();
+                $new_category.children('.expand_title').addClass('expand_title_expanded');
+                expandTitle();
+                $("ul#categories").sortable('refresh');
+                $("ul.reports").sortable('refresh');
             } else {
                 alert('The category was not saved successfully. The error was: ' + data.error);
             }
@@ -515,24 +571,31 @@ function addCategoryHandler() {
     });
 }
 
+function getFullOrder() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
+    var category_order = $categories.sortable('serialize').get();
+    var full_order = [];
+
+    $.each(category_order[0], function (index, value) {
+        full_order[index] = value;
+        var report_order = [];
+        $($reports[index]).children('li').each(function (index, item) {
+            report_order[index] = {id: $(this).attr('data-id'), name: $(this).attr('data-name')}
+        });
+        full_order[index].reports = report_order
+    });
+
+    return JSON.stringify(full_order, null, ' ')
+}
+
 function saveOrderHandler() {
     $('#save-report-order input').click(function (e) {
         e.preventDefault();
-        var $categories = $("ul#categories");
-        var $reports = $("ul.reports");
-
-        var category_order = $categories.sortable('serialize').get();
-        var report_order = $reports.sortable('serialize').get();
-        var full_order = [];
-
-        $.each(category_order[0], function (index, value) {
-            full_order[index] = value;
-            full_order[index].reports = report_order[index]
-        });
-
         $.ajax({
             url: order_save_url,
-            data: JSON.stringify(full_order, null, ' '),
+            data: getFullOrder(),
             contentType: 'application/json',
             type: 'POST',
             success: function (data) {
@@ -544,6 +607,118 @@ function saveOrderHandler() {
                 }
             }
         });
+    });
+}
 
-    })
+function deleteReportHandler() {
+    $('.delete-report').click(function (e) {
+        e.preventDefault();
+        var $parent = $(this).parent();
+        var report_id = $parent.attr('data-id');
+        if (confirm('Are you sure you want to delete this report?')) {
+            $.post(report_delete_url, {report_id: report_id}, function (data) {
+                if (data.success) {
+                    $parent.remove();
+                    checkCategoryStatus();
+                } else {
+                    alert('There was a problem when trying to delete this report. The error was: ' + data.error);
+                }
+            });
+        }
+    });
+}
+
+function deleteCategoryHandler() {
+    $('.delete-category').click(function (e) {
+        e.preventDefault();
+        var $parent = $(this).parents('.main');
+        var category_id = $parent.attr('data-id');
+        if (confirm('Are you sure you want to delete this category? If there are any reports in this category, they will be unpublished until you choose another category.')) {
+            $.post(category_delete_url, {category_id: category_id}, function (data) {
+                if (data.success) {
+                    $parent.find('ul.reports li').appendTo('.reports:first');
+                    $parent.remove();
+                    checkCategoryStatus();
+                } else {
+                    alert('There was a problem when trying to delete this category. The error was: ' + data.error);
+                }
+            });
+        }
+    });
+}
+
+function columnChangeHandler() {
+    $('.column-check').change(function () {
+        var column_id = $(this).attr('value');
+        if ($(this).is(':checked')) {
+            var text = $(this).siblings('.column-name').text();
+            $('#selected-columns').append('<li data-id="' + column_id + '"><img class="move" src="/static/images/icons/move.png"> ' + text + '</li>');
+        } else {
+            $('#selected-columns li[data-id=' + column_id + ']').remove();
+        }
+        $('#selected-columns').sortable('refresh');
+        hiddenOrderUpdate();
+    });
+}
+
+function hiddenOrderUpdate() {
+    $('.selected-column').remove();
+    var order = $('#selected-columns').sortable('serialize').get();
+    $.each(order[0], function (index, item) {
+        $('.report-name').append('<input type="hidden" value="' + index + '" class="selected-column" name="selected-column[' + item.id + ']">')
+    });
+}
+
+function columnOrdering() {
+    $('#selected-columns').sortable({
+        group: 'columns',
+        itemSelector: 'ul#selected-columns > li',
+        handle: '.move',
+        onDrop: function ($item, container, _super, event) {
+            _super($item, container);
+            hiddenOrderUpdate();
+            markDirty();
+        }
+    });
+    columnChangeHandler();
+}
+
+function dirtyReportHandler() {
+    var is_dirty = false;
+    $('input, select, textarea').change(function () {
+        markDirty();
+    });
+}
+
+function dateField() {
+    $('.filter-value').each(function () {
+        if ($(this).siblings('.filter-column').children(':selected').attr('data-type') == 'date') {
+            $(this).datepicker({
+                autoSize: true ,
+                gotoCurrent: true,
+                firstDay: 2,
+                hideIfNoPrevNext: true,
+                navigationAsDateFormat: true,
+                showOtherMonths: true,
+                selectOtherMonths: false,
+                stepMonths: 1,
+                changeMonth: true,
+                changeYear: true,
+                numberOfMonths: [1, 1],
+                showCurrentAtPos: 0,
+                showAnim: "",
+                showWeek: false,
+                dateFormat: 'yy-mm-dd',
+                currentText: 'Today'
+            });
+        } else {
+            $(this).datepicker('destroy');
+        }
+    });
+}
+
+function fieldTypeUpdater() {
+    $('.filter-column').change(function () {
+        dateField();
+    });
 }

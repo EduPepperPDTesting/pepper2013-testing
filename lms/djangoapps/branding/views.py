@@ -153,6 +153,43 @@ def contact_us_submit(request):
     return HttpResponse(json.dumps(ret))
 #@end
 
+#@begin:Add new submit method for modal(window) in contact page
+#@date:2016-05-20
+def contact_us_modal_submit(request):
+    ret = {"success":True}
+    
+    if request.POST.get("send_by_js") != 'true':
+        ret['success'] = False
+        return HttpResponse(json.dumps(ret))
+
+    fullname = request.POST.get("fullname_modal")
+    email = request.POST.get("email_modal")
+    state = request.POST.get("state_modal")
+    district = request.POST.get("district_modal")
+    
+    from django.core.mail import send_mail
+    from mitxmako.shortcuts import render_to_response, render_to_string
+    from smtplib import SMTPException
+    from mail import send_html_mail
+
+    d = {"email":email, "fullname":fullname, "state":state, "district":district}
+    subject = "PepperPd Contact Us From " + request.META['HTTP_HOST']
+    body = render_to_string('emails/contact_us_modal_body.txt', d)
+
+    # todo: catch SMTPAuthenticationError and SMTPException
+
+    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [
+        settings.SUPPORT_EMAIL,
+        "gingerj@education2000.com",  
+        "mailfcl@126.com",
+        "ashardonofsky@pcgus.com", 
+        "jmclaughlin@pcgus.com",
+        "mmullen@pcgus.com"
+        ])
+
+    return HttpResponse(json.dumps(ret))
+#@end
+
 #@begin:View of the new added page
 #@date:2013-11-21  
 @ensure_csrf_cookie
