@@ -6,8 +6,11 @@
     from certificates.models import CertificateStatuses
     from xmodule.modulestore import MONGO_MODULESTORE_TYPE
     from xmodule.modulestore.django import modulestore
-    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
+    from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation, UserProfile, User
     from baseinfo.models import Enum
+    from communities.models import CommunityCommunities, CommunityUsers
+    from communities.views import user_in_community, community_in_state, community_in_district
+
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -16,6 +19,63 @@
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 
 <style type="text/css" media="screen">
+    a.district-button, a.school-button, a.user-button {
+            outline: none;
+        }
+
+        .section-tab.public {
+            border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+            box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+            background-color: rgb(47, 167, 229);
+            background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+            text-shadow: 0 -1px 1px rgb(47, 87, 169);
+            padding-top: 10px;
+        }
+
+        .section-tab.private {
+            border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+            box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+            background-color: rgb(123, 181, 51);
+            background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+            text-shadow: 0 -1px 1px rgb(83, 121, 11);
+        }
+
+        .section-tab.mystate {
+            border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+            box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+            background-color: rgb(234, 110, 7);
+            background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+            text-shadow: 0 -1px 1px rgb(154, 30, 7);
+        }
+
+        .section-tab.mydistrict {
+            border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
+            box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
+            background-color: rgb(217, 200, 14);
+            background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
+            text-shadow: 0 -1px 1px rgb(137, 120, 14);
+        }
+
+    .section-tab {
+            border-width: 0 1px 1px 1px;
+            border-style: solid;
+            -moz-border-top-colors: none;
+            -moz-border-right-colors: none;
+            -moz-border-bottom-colors: none;
+            -moz-border-left-colors: none;
+            border-image: none;
+            border-radius: 0 0 5px 5px;
+            color: #FFF;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+            letter-spacing: 1px;
+            padding: 4px 20px;
+            text-transform: uppercase;
+            vertical-align: top;
+            margin-left: 5px;
+        }
     #page-nav,#page-footer {
         width: 1180px;
     }
@@ -59,6 +119,15 @@
     .card-link span {
         color: #FFFFFF;
     }
+    .data_import_top {
+    padding-top: 20px;
+}
+
+.data_import_content {
+    margin: auto;
+    background: #e4e4e4;
+    width: 960px;
+}
     .grade_title {
         float: left;
         width: 920px;
@@ -100,6 +169,28 @@
         font-family: 'Open Sans',Verdana,Geneva,sans-serif;
         color: #fff;
         transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    }
+    div.expand_title {
+            color: #08a;
+            font-size: 20px;
+            padding: 5px 5px 10px 5px;
+            cursor: pointer;
+            background-color: #ccc;
+            box-shadow: 0 1px 0 0 #fff inset;
+            background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
+            text-shadow: 0 -1px 1px #aaa;
+        }
+
+        div.expand_title .icon {
+            display: inline-block;
+            position: relative;
+            top: 5px;
+            width: 23px;
+            height: 23px;
+            background: url("../images/arrows.png") no-repeat 0 0;
+        }
+    div.expand_div{
+        display:block !important;
     }
 </style>
 <script>
@@ -152,19 +243,109 @@
             %endif
         </form>
     </section>
+    <!-- Begin Tabs -->
 
-    <section style="margin:auto;width:960px;background:#E4E4E4;">
-        <section class="courses" style="padding-top:5px!important;">
-            <div class="courses-listing">
-                <div style="padding-left:25px;">
-                    %for community in communities:
-                        <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                            <div style="height:100px;"></div>
-                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+<div class="data_import_top">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      Select Communities <div class="icon"></div>
+    </div>
+
+      <div class="expand_div">
+        <a href="#" onclick="toggle('public')" class="public-button"><div class="section-tab public">Public</div></a>
+        <a href="#" onclick="toggle('private')" class="private-button"><div class="section-tab private">Private</div></a>
+        <a href="#" onclick="toggle('mystate')" class="mystate-button"><div class="section-tab mystate">My State</div></a>
+        <a href="#" onclick="toggle('mydistrict')" class="mydistrict-button"><div class="section-tab mydistrict">My District</div></a>
+        <div class="public-section import-section">
+            <section style="margin:auto;width:960px;background:#E4E4E4;">
+                <section class="courses" style="padding-top:5px!important;">
+                    <div class="courses-listing">
+                        <div style="padding-left:25px;">
+                            %for community in communities:
+                                %if community['private'] == 0:
+                                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                                        <div style="height:100px;"></div>
+                                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                                    </div>
+                                %endif
+                            %endfor
                         </div>
-                    %endfor
-                </div>
-            </div>
-        </section>
-    </section>
+                    </div>
+                </section>
+            </section>
+        </div>
+        <div class="private-section import-section">
+            <section style="margin:auto;width:960px;background:#E4E4E4;">
+                <section class="courses" style="padding-top:5px!important;">
+                    <div class="courses-listing">
+                        <div style="padding-left:25px;">
+                            %for community in communities:
+                                %if user_in_community(community['id'], request.user.id):
+                                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                                        <div style="height:100px;"></div>
+                                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+
+
+    <div class="mystate-section import-section">
+            <section style="margin:auto;width:960px;background:#E4E4E4;">
+                <section class="courses" style="padding-top:5px!important;">
+                    <div class="courses-listing">
+                        <div style="padding-left:25px;">
+                            %for community in communities:
+                                %if community_in_state(community['id'], request.user.id):
+                                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                                        <div style="height:100px;"></div>
+                                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+                </section>
+            </section>
+    </div>
+    <div class="mydistrict-section import-section">
+            <section style="margin:auto;width:960px;background:#E4E4E4;">
+                <section class="courses" style="padding-top:5px!important;">
+                    <div class="courses-listing">
+                        <div style="padding-left:25px;">
+                            %for community in communities:
+                                %if community_in_district(community['id'], request.user.id):
+                                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                                        <div style="height:100px;"></div>
+                                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                                    </div>
+                                %endif
+                            %endfor
+                        </div>
+                    </div>
+                </section>
+            </section>
+    </div>
+</div>
+      </div></div>
+    <!-- End Tabs -->
+
 </section>
+<script>
+$(document).ready(function(){
+   $(".public-button, .private-button, .mystate-button, .mydistrict-button").click(function(e){
+       e.preventDefault();
+   });
+    toggle("public");
+});
+function toggle(which) {
+    $(".import-section").hide();
+    $("." + which + "-section").show();
+    $(".section-tab").css("padding-top", "4px");
+    $(".section-tab." + which).css("padding-top", "10px")
+}
+</script>
