@@ -34,6 +34,8 @@ var tablesorterOptions = {
     }
 };
 
+var data_types = ['text', 'int', 'date', 'time', 'url'];
+
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
         // Get the related views if any and add a dropdown for them.
@@ -239,7 +241,6 @@ function filterColumns() {
     });
     $('.plus').off('click');
     $('.plus').click(function () {
-        var data_types = ['text', 'int', 'date'];
         var line_number = getLineNumber($(this).attr('name'));
         var row = '#column-row\\[' + line_number + '\\]';
         var line = '<div data-name="column-row" class="column-row" id="column-row[]">';
@@ -274,8 +275,6 @@ function addView() {
     $('.add-new-view, .view-edit').off('click');
     $('.add-new-view, .view-edit').click(function (e) {
         e.preventDefault();
-        
-        var data_types = ['text', 'int', 'date'];
 
         var current_data = false;
         if ($(this).attr('class') == 'view-edit') {

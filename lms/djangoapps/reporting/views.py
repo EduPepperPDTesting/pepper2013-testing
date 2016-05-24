@@ -401,7 +401,7 @@ def report_get_rows(request):
         row = []
         for col in selected_columns:
             try:
-                row.append(data_format(col.column.column, d))
+                row.append(data_format(col.column, d))
             except Exception as e:
                 row.append('')
         row.append('')
@@ -585,19 +585,10 @@ def data_format(col, data):
     :param data: Each row of data in the report.
     :return: The formatted data.
     """
-    time_colunms = [
-        'total_time',
-        'course_time',
-        'external_time',
-        'discussion_time',
-        'portfolio_time',
-        'collaboration_time',
-        'avg_course_time'
-    ]
-    if col in time_colunms:
-        return study_time_format(data[col])
-    if col == 'portfolio_url':
-        return '<a href={0}>portfolio link</a>'.format(data[col])
+    if col.data_type == 'time':
+        return study_time_format(data[col.column])
+    if col.data_type == 'url':
+        return '<a href="{0}">Link</a>'.format(data[col.column])
     return data[col]
 
 
