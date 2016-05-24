@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo -e "tahoe" | sudo -S netstat -tlnp
 echo '-------------------------------------------'
 echo 'User information conversion'
 echo '-------------------------------------------'
@@ -371,6 +372,27 @@ EOF
 echo '------------------------------------------------'
 echo 'User Course Progress is complete!'
 echo '------------------------------------------------'
+
+#exit 0;
+
+echo '###########################################'
+
+echo '-----------------------------------------------'
+echo 'Clear cache collections'
+echo '-----------------------------------------------'
+
+/usr/local/mongodb3/mongo --port=37017 <<EOF
+
+db.getCollectionNames().forEach(function(x){
+  if(x.indexOf('tmp_collection_') >= 0){
+    db.getCollection(x).drop();
+  }
+})
+
+EOF
+echo '-----------------------------------------------'
+echo 'Clear cache collections complete!'
+echo '-----------------------------------------------'
 
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
