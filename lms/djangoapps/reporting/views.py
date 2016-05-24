@@ -440,6 +440,11 @@ def build_sorts_and_filters(columns, sorts, filters):
 
 
 def get_cache_collection(request):
+    """
+    Returns the name of the aggregate collection.
+    :param request: Request object.
+    :return: aggregate collection name.
+    """
     return 'tmp_collection_' + str(request.user.id)
 
 
@@ -463,10 +468,10 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     """
     Does some formatting to the query for mongo.
     :param request: The request object from upstream.
-    :param query: ?
+    :param query: Mongo query.
     :param columns: The columns to show in the aggregate collection.
     :param filters: The filters to use in the aggregate collection.
-    :param out: ?
+    :param out: Whether to generate aggregate collection.
     :return: The formatted query.
     """
     query = query_ref_variable(query, request.user, report, columns, filters)
@@ -479,12 +484,12 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
 
 def query_ref_variable(query, user, report, columns, filters):
     """
-
-    :param query:
-    :param user:
-    :param columns:
-    :param filters:
-    :return:
+    Replace the placeholders.
+    :param query: Mongo query
+    :param user: The user object.
+    :param columns: The columns to show in the report.
+    :param filters: The filters to use in the report.
+    :return: The replaced query.
     """
     domain = get_query_user_domain(user)
     distinct = get_query_distinct(report.distinct, columns)
@@ -498,9 +503,9 @@ def query_ref_variable(query, user, report, columns, filters):
 
 def get_query_user_domain(user):
     """
-
-    :param user:
-    :return:
+    Get the user's domain (permissions).
+    :param user: The user object.
+    :return: Mongo query
     """
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
     if check_user_perms(user, 'reporting', ['view']):
@@ -518,9 +523,9 @@ def get_query_user_domain(user):
 
 def get_query_display_columns(columns):
     """
-
-    :param columns:
-    :return:
+    Get the columns shown in the report.
+    :param columns: The columns shown in the report.
+    :return: Mongo query.
     """
     column_str = ''
     for col in columns:
@@ -533,9 +538,9 @@ def get_query_display_columns(columns):
 
 def get_query_filters(filters):
     """
-
-    :param filters:
-    :return:
+    Get the filters in the report.
+    :param filters: The filters to use in the report.
+    :return: Mongo query.
     """
     filter_str = ''
     if len(filters) > 0:
@@ -554,10 +559,10 @@ def get_query_filters(filters):
 
 def get_query_distinct(is_distinct, columns):
     """
-
-    :param is_distinct:
-    :param columns:
-    :return:
+    Get the distinct filtering in the report.
+    :param is_distinct: Whether distinct or not.
+    :param columns: The columns shown in the report.
+    :return: Mongo query.
     """
     distinct = ''
     column_str = ''
@@ -575,10 +580,10 @@ def get_query_distinct(is_distinct, columns):
 
 def data_format(col, data):
     """
-
-    :param col:
-    :param data:
-    :return:
+    Report data format.
+    :param col: The columns shown in the report.
+    :param data: Each row of data in the report.
+    :return: The formatted data.
     """
     time_colunms = [
         'total_time',
@@ -586,7 +591,8 @@ def data_format(col, data):
         'external_time',
         'discussion_time',
         'portfolio_time',
-        'collaboration_time'
+        'collaboration_time',
+        'avg_course_time'
     ]
     if col in time_colunms:
         return study_time_format(data[col])
