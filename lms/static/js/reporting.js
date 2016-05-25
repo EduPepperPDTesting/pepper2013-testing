@@ -99,12 +99,14 @@ function viewSelect(related_url, columns_url) {
 
 function descriptionPopups() {
     $('span.column-name').parent().mouseenter(function () {
+        $(this).parent().addClass('mouseover');
         $(this).addClass('column-mouseover');
         $(this).children('.column-description').show();
     });
     $('span.column-name').parent().mouseleave(function () {
         $(this).children('.column-description').hide();
         $(this).removeClass('column-mouseover');
+        $(this).parent().removeClass('mouseover');
     });
 }
 
