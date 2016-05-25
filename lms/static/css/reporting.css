@@ -305,9 +305,6 @@
 }
 #reporting .column-selector ul li {
     height: 1.5em;
-    /*white-space: nowrap;*/
-    /*overflow: hidden;*/
-    /*text-overflow: ellipsis;*/
 }
 #reporting .column-selector li {
     position: relative;
@@ -319,8 +316,8 @@
     position: absolute;
     background-color: #fff;
     color: #555;
-    padding: 0 3px;
-    margin-left: -3px;
+    padding: 0 5px;
+    margin-left: -5px;
     z-index: 999;
     overflow: visible;
     white-space: nowrap;
