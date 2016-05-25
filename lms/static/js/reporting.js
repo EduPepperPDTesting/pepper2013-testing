@@ -76,7 +76,8 @@ function viewSelect(related_url, columns_url) {
                         columns += '</ul><ul>';
                     }
                     columns += '<li><label>';
-                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '"> <span class="column-name">' + data[x].name + '</span> - ' + data[x].description;
+                    columns += '<input class="column-check" type="checkbox" name="column[' + x + ']" value="' + data[x].id + '">';
+                    columns += ' <span class="column-name">' + data[x].name + '</span><span class="column-description"> - ' + data[x].description + '</span>';
                     columns += '</label></li>';
                 }
                 columns += '</ul>';
@@ -84,6 +85,7 @@ function viewSelect(related_url, columns_url) {
                 $('#selected-columns li').remove();
                 $('#order-title').after(columns);
                 columnChangeHandler();
+                descriptionPopups();
             }
             // Create the dropdown for the filters.
             var options = '';
@@ -92,6 +94,17 @@ function viewSelect(related_url, columns_url) {
             });
             $('.filter-column').html(options);
         });
+    });
+}
+
+function descriptionPopups() {
+    $('span.column-name').parent().mouseenter(function () {
+        $(this).addClass('column-mouseover');
+        $(this).children('.column-description').show();
+    });
+    $('span.column-name').parent().mouseleave(function () {
+        $(this).children('.column-description').hide();
+        $(this).removeClass('column-mouseover');
     });
 }
 

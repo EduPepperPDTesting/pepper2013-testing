@@ -83,9 +83,9 @@
                     %endif
                     <li><label>
                     %if view_column.id in selected_columns:
-                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> <span class="column-name">${view_column.view.name}.${view_column.name}</span> - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> <span class="column-name">${view_column.view.name}.${view_column.name}</span><span class="column-description"> - ${view_column.description}</span>
                     %else:
-                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> <span class="column-name">${view_column.view.name}.${view_column.name}</span> - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> <span class="column-name">${view_column.view.name}.${view_column.name}</span><span class="column-description"> - ${view_column.description}</span>
                     %endif
                     </label></li>
                 %endfor
@@ -195,5 +195,6 @@
         dirtyReportHandler();
         dateField();
         fieldTypeUpdater();
+        descriptionPopups();
     });
 </script>
