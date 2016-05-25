@@ -3,6 +3,7 @@
     from django.core.urlresolvers import reverse
     from file_uploader.utils import get_file_url
     from administration.configuration import has_hangout_perms
+    from student.models import State,District
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -86,9 +87,8 @@
     }
     #community-private {
         display: block;
-        float: left;
+        float: right;
         text-align: left;
-        padding-top: 1.75em;
     }
     #community-private input {
         margin-left: 10px;
@@ -168,7 +168,21 @@
             <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
-        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
+        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label><br>
+        <label id="community-motto"><span>Select State: </span><br>
+        <select id = "state-dropdown" name = "state-dropdown">
+            <option id="null_state" value = "NULL"></option>
+            %for item in State.objects.all().order_by('name'):
+                <option value="${item.id}">${item.name}</option>
+            %endfor
+        </select></label>
+        <label id="community-motto"><span>Select District: </span><br>
+        <select id = "district-dropdown" name="distict-dropdown">
+            <option id="null_district" value = "NULL"></option>
+            %for item in District.objects.all().order_by('name'):
+                <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+            %endfor
+        </select></label>
         %if private:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
@@ -306,6 +320,14 @@
         return valid;
     }
     $(document).ready(function() {
+        $("#state-dropdown").change(function(){
+            id=$(this).val();
+            $("#district-dropdown > option").each(function(){
+               if($(this).attr("data-state") == id){
+                   $(this).show();
+               }else $(this).hide();
+            });
+        });
         $('#community-logo .remove').click(function() {
             var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>';
             $('#community-logo').replaceWith(content);

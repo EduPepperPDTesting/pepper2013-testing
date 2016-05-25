@@ -9,12 +9,16 @@
 <script type="text/javascript" src="/static/js/reporting.js"></script>
 <script type="text/javascript" src="/static/js/jquery.sortable.js"></script>
 <div id="reporting">
+    %if admin_rights or create_rights:
     <div id="iconarea">
         <a class="iconbutton add-new" href="${reverse('reporting_report_edit', args=['new'])}">Add New</a>
         <a class="iconbutton manage" href="#">Manage</a>
         <a class="iconbutton new-category" href="#">Add Category</a>
+        %if admin_rights:
         <a class="iconbutton edit-views" href="${reverse('reporting_views_edit')}">Edit Views</a>
+        %endif
     </div>
+    %endif
     <ul id="categories">
         %for category in categories:
             <li class="main ${'' if len(category['reports']) else 'hidden-category'}" id="category-${category['id']}" data-id="${category['id']}" data-name="${category['name']}">
@@ -30,10 +34,15 @@
                     <ul class="reports">
                         %for report in category['reports']:
                             <li id="report-${report['id']}" data-id="${report['id']}" data-name="${report['name']}">
+                                %if admin_rights or report['access_level'] == access_level:
                                 <a class="delete-report" href="#"><img src="/static/images/icons/Delete-64.png"></a>
                                 <a class="edit-report" href="${reverse('reporting_report_edit', args=[report['id']])}"><img src="/static/images/icons/pencil.png"></a>
                                 <img class="imove" src="/static/images/icons/move.png">
-                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']} &mdash; <span class="report-description">${report['description']}</span>
+                                %endif
+                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']}
+                                %if report['description']:
+                                    &mdash; <span class="report-description">${report['description']}</span>
+                                %endif
                             </li>
                         %endfor
                     </ul>

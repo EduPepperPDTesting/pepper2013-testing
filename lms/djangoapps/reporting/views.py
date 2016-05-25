@@ -14,6 +14,7 @@ import json
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
+from django.conf import settings
 from threading import Thread
 import gevent
 from StringIO import StringIO
@@ -22,6 +23,11 @@ from django.http import HttpResponse
 
 
 def postpone(function):
+    """
+    Decorator for processing in a separate thread through gevent.
+    :param function: Function to apply this decorator to.
+    :return: Decorator.
+    """
     def decorator(*args, **kwargs):
         t = Thread(target=function, args=args, kwargs=kwargs)
         t.daemon = True
@@ -31,8 +37,15 @@ def postpone(function):
 
 @login_required
 def reports_view(request):
+    """
+    View for the main reports page.
+    :param request: Request object.
+    :return: The Reports page.
+    """
     levels = {'System': 0, 'State': 1, 'District': 2, 'School': 3}
     access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view_reports'])
+
+    # If this is user has System access, show all the reports, otherwise, only show reports above their access level.
     if access_level == 'System':
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').all().order_by('order')
     else:
@@ -46,10 +59,16 @@ def reports_view(request):
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
-    data = {'categories': list()}
+    admin_rights = check_user_perms(request.user, 'reporting', 'administer')
+    create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
+
+    data = {'categories': list(),
+            'admin_rights': admin_rights,
+            'create_rights': create_rights,
+            'access_level': access_level}
 
     # Add uncategorized (unpublished) reports for admins.
-    if check_user_perms(request.user, 'reporting', ['administer', 'create_reports']):
+    if admin_rights or create_rights:
         report_list = list()
         category_reports = reports.filter(category__isnull=True)
         for category_report in category_reports:
@@ -57,11 +76,13 @@ def reports_view(request):
                                 'name': category_report.name,
                                 'description': category_report.description,
                                 'author': category_report.author.first_name + ' ' + category_report.author.last_name,
+                                'access_level': category_report.access_level,
                                 'created': category_report.created,
                                 'modified': category_report.modified})
         data['categories'].append({'id': None,
                                    'name': 'Draft Reports',
                                    'reports': report_list})
+
     # Add the rest of the reports by category.
     for category in categories:
         report_list = list()
@@ -71,6 +92,7 @@ def reports_view(request):
                                 'name': category_report.name,
                                 'description': category_report.description,
                                 'author': category_report.author.first_name + ' ' + category_report.author.last_name,
+                                'access_level': category_report.access_level,
                                 'created': category_report.created,
                                 'modified': category_report.modified})
         data['categories'].append({'id': category.id,
@@ -84,6 +106,11 @@ def reports_view(request):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def category_save(request):
+    """
+    Save new categories added by the user.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     name = request.POST.get('name', False)
     if name:
         try:
@@ -109,6 +136,11 @@ def category_save(request):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def category_delete(request):
+    """
+    Delete requested category.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     category_id = request.POST.get('category_id', False)
     if category_id:
         try:
@@ -129,6 +161,11 @@ def category_delete(request):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def order_save(request):
+    """
+    Save the order of the categories and reports in the report view.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     order = json.loads(request.body)
     try:
         for ci, cat in enumerate(order):
@@ -156,25 +193,39 @@ def order_save(request):
 
 @user_has_perms('reporting', ['administer', 'create_reports'])
 def report_edit(request, report_id):
+    """
+    View for editing reports.
+    :param request: Request object.
+    :param report_id: The ID of the report to be edited. 'new' if this is a new report.
+    :return: Report editing page.
+    """
     views = Views.objects.all().order_by('name')
     data = {'views': views}
     if report_id != 'new':
         try:
             report = Reports.objects.get(id=report_id)
-            selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
-            selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
-            filters = ReportFilters.objects.filter(report=report).order_by('order')
-            second_column = int(floor(len(selected_views_columns) / 2))
-            remainder = len(selected_views_columns) % 2
-            first_column = second_column + remainder
-            data.update({'report': report,
-                         'view_columns': selected_views_columns,
-                         'selected_views': selected_views,
-                         'selected_columns': selected_columns,
-                         'report_filters': filters,
-                         'first_column': first_column})
-            action = 'edit'
+            admin_rights = check_user_perms(request.user, 'reporting', 'administer')
+            create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
+            access_level = check_access_level(request.user, 'reporting', 'create_reports')
+            if admin_rights or (create_rights and
+                                access_level == report.access_level and
+                                request.user.profile.district.id == report.access_id):
+                selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
+                selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
+                filters = ReportFilters.objects.filter(report=report).order_by('order')
+                second_column = int(floor(len(selected_views_columns) / 2))
+                remainder = len(selected_views_columns) % 2
+                first_column = second_column + remainder
+                data.update({'report': report,
+                             'view_columns': selected_views_columns,
+                             'selected_views': selected_views,
+                             'selected_columns': selected_columns,
+                             'report_filters': filters,
+                             'first_column': first_column})
+                action = 'edit'
+            else:
+                raise Exception('Not allowed.')
         except:
             data = {'error_title': 'Report Not Found',
                     'error_message': '''No report found with this ID. If you believe this is in error, please contact
@@ -184,7 +235,6 @@ def report_edit(request, report_id):
     else:
         action = 'new'
     data.update({'action': action, 'possible_operators': ['=', '!=', '>', '<', '>=', '<=']})
-    #raise Exception('{0}'.format(data))
     return render_to_response('reporting/edit-report.html', data)
 
 
@@ -192,6 +242,12 @@ def report_edit(request, report_id):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def report_save(request, report_id):
+    """
+    Save edited or new reports.
+    :param request: Request object.
+    :param report_id: The ID of the report to be edited. 'new' if this is a new report.
+    :return: JSON reporting success or failure of the operation.
+    """
     try:
         name = request.POST.get('report_name', '')
         description = request.POST.get('report_description', '')
@@ -268,6 +324,11 @@ def report_save(request, report_id):
 @user_has_perms('reporting', ['administer', 'create_reports'])
 @transaction.commit_manually
 def report_delete(request):
+    """
+    Delete requested report.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     report_id = request.POST.get('report_id', False)
     if report_id:
         try:
@@ -286,6 +347,12 @@ def report_delete(request):
 
 @login_required
 def report_view(request, report_id):
+    """
+    View for viewing reports.
+    :param request: Request object.
+    :param report_id: The ID of the report to be edited.
+    :return: The Report page.
+    """
     rs = reporting_store()
     collection = get_cache_collection(request)
     rs.del_collection(collection)
@@ -301,7 +368,7 @@ def report_view(request, report_id):
     for f in report_filters:
         filters.append(f)
 
-    create_report_collection(request, selected_view, columns, filters)
+    create_report_collection(request, report, selected_view, columns, filters)
     data = {
         'report': report,
         'display_columns': selected_columns,
@@ -309,7 +376,13 @@ def report_view(request, report_id):
     return render_to_response('reporting/view-report.html', data)
 
 
+@login_required
 def report_get_rows(request):
+    """
+    Gets the rows for the tablesorter table.
+    :param request: Request object.
+    :return: Tablesorter table rows.
+    """
     sorts = get_request_array(request.GET, 'col')
     filters = get_request_array(request.GET, 'fcol')
     page = int(request.GET['page'])
@@ -329,7 +402,7 @@ def report_get_rows(request):
         row = []
         for col in selected_columns:
             try:
-                row.append(data_format(col.column.column, d))
+                row.append(data_format(col.column, d))
             except Exception as e:
                 row.append('')
         row.append('')
@@ -338,6 +411,13 @@ def report_get_rows(request):
 
 
 def build_sorts_and_filters(columns, sorts, filters):
+    """
+    Builds the sorts and filters for mongo based on the input params from tablesorter.
+    :param columns: The columns on which to act.
+    :param sorts: The sorts from tablesorter.
+    :param filters: the filters from tablesorter
+    :return: Sorts and filters for mongo.
+    """
     column = []
     for i, col in enumerate(columns):
         column.append(col.column.column)
@@ -361,21 +441,41 @@ def build_sorts_and_filters(columns, sorts, filters):
 
 
 def get_cache_collection(request):
+    """
+    Returns the name of the aggregate collection.
+    :param request: Request object.
+    :return: aggregate collection name.
+    """
     return 'tmp_collection_' + str(request.user.id)
 
 
 @postpone
-def create_report_collection(request, selected_view, columns, filters):
+def create_report_collection(request, report, selected_view, columns, filters):
+    """
+    Creates aggregate collections in Mongo in a background process.
+    :param request: Request object from the report view.
+    :param selected_view: The view off of which to build the aggregate collection.
+    :param columns: The columns to show in the aggregate collection.
+    :param filters: The filters to use in the aggregate collection.
+    """
     gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], columns, filters)
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters)
     rs = reporting_store()
-    rs.set_collection(aggregate_config['collection'])
-    rs.collection.aggregate(aggregate_query)
+    rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
-def aggregate_query_format(request, query, columns, filters, out=True):
-    query = query_ref_variable(query, request.user, columns, filters)
+def aggregate_query_format(request, query, report, columns, filters, out=True):
+    """
+    Does some formatting to the query for mongo.
+    :param request: The request object from upstream.
+    :param query: Mongo query.
+    :param columns: The columns to show in the aggregate collection.
+    :param filters: The filters to use in the aggregate collection.
+    :param out: Whether to generate aggregate collection.
+    :return: The formatted query.
+    """
+    query = query_ref_variable(query, request.user, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '').replace(' ', '')
     if out:
         query += ',{"$out":"' + get_cache_collection(request) + '"}'
@@ -383,15 +483,31 @@ def aggregate_query_format(request, query, columns, filters, out=True):
     return query
 
 
-def query_ref_variable(query, user, columns, filters):
+def query_ref_variable(query, user, report, columns, filters):
+    """
+    Replace the placeholders.
+    :param query: Mongo query
+    :param user: The user object.
+    :param columns: The columns to show in the report.
+    :param filters: The filters to use in the report.
+    :return: The replaced query.
+    """
     domain = get_query_user_domain(user)
+    distinct = get_query_distinct(report.distinct, columns)
     columns = get_query_display_columns(columns)
     filters = get_query_filters(filters)
-    #query = query.format(user_domain=domain, display_columns=columns)
-    return query.replace('{user_domain}', domain).replace('{display_columns}', columns).replace('{filters}', filters)
+    return query.replace('{user_domain}', domain)\
+        .replace('{display_columns}', columns)\
+        .replace('{filters}', filters)\
+        .replace('{distinct}', distinct)
 
 
 def get_query_user_domain(user):
+    """
+    Get the user's domain (permissions).
+    :param user: The user object.
+    :return: Mongo query
+    """
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
     if check_user_perms(user, 'reporting', ['view']):
         level = check_access_level(user, 'reporting', ['view'])
@@ -407,6 +523,11 @@ def get_query_user_domain(user):
 
 
 def get_query_display_columns(columns):
+    """
+    Get the columns shown in the report.
+    :param columns: The columns shown in the report.
+    :return: Mongo query.
+    """
     column_str = ''
     for col in columns:
         column_str += '"' + col.column.column + '":1,'
@@ -417,6 +538,11 @@ def get_query_display_columns(columns):
 
 
 def get_query_filters(filters):
+    """
+    Get the filters in the report.
+    :param filters: The filters to use in the report.
+    :return: Mongo query.
+    """
     filter_str = ''
     if len(filters) > 0:
         for filter in filters:
@@ -432,24 +558,53 @@ def get_query_filters(filters):
     return filter_str
 
 
-def data_format(col, data):
-    time_colunms = [
-        'total_time',
-        'course_time',
-        'external_time',
-        'discussion_time',
-        'portfolio_time',
-        'collaboration_time'
-    ]
-    if col in time_colunms:
-        return study_time_format(data[col])
-    if col == 'portfolio_url':
-        return '<a href={0}>portfolio link</a>'.format(data[col])
-    return data[col]
+def get_query_distinct(is_distinct, columns):
+    """
+    Get the distinct filtering in the report.
+    :param is_distinct: Whether distinct or not.
+    :param columns: The columns shown in the report.
+    :return: Mongo query.
+    """
+    distinct = ''
+    column_str = ''
+    if len(columns) > 0 and is_distinct:
+        distinct = {'$group': {'_id': {}}}
+        for col in columns:
+            field = col.column.column
+            field_value = '$' + col.column.column
+            distinct['$group']['_id'][field] = field_value
+            distinct['$group'][field] = {'$push': field_value}
+            column_str += "'" + field + "':{'$arrayElemAt': ['" + field_value + "', 0]},"
+        return ',' + str(distinct) + ',{"$project":{' + column_str[:-1] + '}}'
+    return distinct
+
+
+def data_format(col, data, is_excel=False):
+    """
+    Report data format.
+    :param col: The columns shown in the report.
+    :param data: Each row of data in the report.
+    :param is_excel: If this is True, then the operation of object is Excel.
+    :return: The formatted data.
+    """
+    if col.data_type == 'time':
+        return study_time_format(data[col.column])
+    if col.data_type == 'url':
+        if is_excel:
+            return settings.LMS_BASE + data[col.column]
+        else:
+            return '<a href="{0}">Link</a>'.format(data[col.column])
+    return data[col.column]
 
 
 @login_required
 def report_download_excel(request, report_id):
+    """
+    View for serving an Excel version of the report.
+    :param request: Request object.
+    :param report_id: The ID of the requested report.
+    :return: The Excel document.
+    """
     import xlsxwriter
     output = StringIO()
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
@@ -466,9 +621,10 @@ def report_download_excel(request, report_id):
     for p in results:
         for i, k in enumerate(columns):
             try:
-                p[k.column.column] = data_format(k.column.column, p)
+                p[k.column.column] = data_format(k.column, p, True)
             except:
                 p[k.column.column] = ''
+
             worksheet.write(row, i, p[k.column.column])
         row += 1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -478,24 +634,40 @@ def report_download_excel(request, report_id):
     return response
 
 
+@login_required
 def report_get_progress(request):
+    """
+    Checks the status of the collection creation progress.
+    :param request: Request object.
+    :return: JSON representation of the status.
+    """
     rs = reporting_store()
     collection = get_cache_collection(request)
     stats = int(rs.get_collection_stats(collection)['ok'])
     return render_json_response({'success': stats})
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def related_views(request):
-    relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('name')
+    """
+    Gets the views related to the selected view.
+    :param request: Request object.
+    :return: JSON list of related views.
+    """
+    relationships = ViewRelationships.objects.select_related().filter(left=request.GET.get('view_id')).order_by('right__name')
     data = []
     for relationship in relationships:
         data.append({'id': relationship.right.id, 'name': relationship.right.name})
     return render_json_response(data)
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def view_columns(request):
+    """
+    Gets a list of the columns in the selected view.
+    :param request: Request object
+    :return: JSON list of columns in the selected view.
+    """
     views = get_request_array(request.GET, 'view')
     columns = ViewColumns.objects.select_related().filter(view__in=views.values()).order_by('view', 'name')
     data = []
@@ -509,6 +681,11 @@ def view_columns(request):
 
 @user_has_perms('reporting', 'administer')
 def views_edit_update(request):
+    """
+    Update info for the view and relationship tables in the view editor.
+    :param request: Request object.
+    :return: JSON list of views and relationships.
+    """
     views = Views.objects.all().order_by('name')
     columns = ViewColumns.objects.all().order_by('name')
     relationships = ViewRelationships.objects.select_related().all()
@@ -537,6 +714,11 @@ def views_edit_update(request):
 
 @user_has_perms('reporting', 'administer')
 def view_data(request):
+    """
+    Gets the view data for the editing form.
+    :param request: Request object.
+    :return: JSON representation of the view data.
+    """
     view_id = request.GET.get('view_id', False)
     if view_id:
         try:
@@ -565,6 +747,11 @@ def view_data(request):
 
 @user_has_perms('reporting', 'administer')
 def relationship_data(request):
+    """
+    Gets the view relationship data for the editing form.
+    :param request: Request object.
+    :return: JSON representation of the relationship data.
+    """
     relationship_id = request.GET.get('relationship_id', False)
     if relationship_id:
         try:
@@ -586,6 +773,11 @@ def relationship_data(request):
 
 @user_has_perms('reporting', 'administer')
 def views_edit(request):
+    """
+    The view for the view editing page.
+    :param request: Request object.
+    :return: The view edit page.
+    """
     views = Views.objects.all().order_by('name')
     columns = ViewColumns.objects.all().order_by('name')
     relationships = ViewRelationships.objects.select_related().all()
@@ -600,6 +792,11 @@ def views_edit(request):
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def view_add(request):
+    """
+    Handles the creation/saving of views.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     view_name = request.POST.get('view_name', '')
     view_description = request.POST.get('view_description', '')
     view_source = request.POST.get('view_source', '')
@@ -607,6 +804,7 @@ def view_add(request):
     column_descriptions = get_request_array(request.POST, 'column_description')
     column_sources = get_request_array(request.POST, 'column_source')
     column_types = get_request_array(request.POST, 'column_type')
+    column_ids = get_request_array(request.POST, 'column_id')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -627,9 +825,14 @@ def view_add(request):
         transaction.commit()
         try:
             if view_id:
-                ViewColumns.objects.filter(view=view).delete()
+                columns = [int(i) for i in column_ids.values()]
+                ViewColumns.objects.filter(view=view).exclude(id__in=columns).delete()
             for i, column_name in column_names.iteritems():
-                column = ViewColumns()
+                column_id = column_ids.get(i, False)
+                if column_id:
+                    column = ViewColumns.objects.get(id=int(column_id))
+                else:
+                    column = ViewColumns()
                 column.name = column_name
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]
@@ -654,6 +857,11 @@ def view_add(request):
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def relationship_add(request):
+    """
+    Handles the creation/saving of view relationships.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     left_column = request.POST.get('left_column', '')
     right_column = request.POST.get('right_column', '')
     relationship_id = request.POST.get('relationship_id', False)
@@ -680,6 +888,11 @@ def relationship_add(request):
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def views_delete(request):
+    """
+    Deletes selected view.
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     view_ids = get_request_array(request.POST, 'view_id')
     try:
         Views.objects.filter(id__in=view_ids.values()).delete()
@@ -696,6 +909,11 @@ def views_delete(request):
 @user_has_perms('reporting', 'administer')
 @transaction.commit_manually
 def relationships_delete(request):
+    """
+    Deletes selected view relationship
+    :param request: Request object.
+    :return: JSON reporting success or failure of the operation.
+    """
     relationship_ids = get_request_array(request.POST, 'relationship_id')
     try:
         ViewRelationships.objects.filter(id__in=relationship_ids.values()).delete()
@@ -708,8 +926,13 @@ def relationships_delete(request):
     return render_json_response(data)
 
 
-@user_has_perms('reporting', 'administer')
+@user_has_perms('reporting', ['administer', 'create_reports'])
 def views_list(request):
+    """
+    Gets a list o available views.
+    :param request: Request object.
+    :return: JSON list of views.
+    """
     views = Views.objects.all().order_by('name')
     view_list = dict()
     for view in views:
@@ -718,11 +941,17 @@ def views_list(request):
     return render_json_response(view_list)
 
 
-@user_has_perms('reporting', 'administer')
-def view_columns_list(request):
-    view = request.GET.get('view', False)
-
-    reporting = reporting_store()
-    view_column_list = reporting.get_columns(view)
-
-    return render_json_response(view_column_list)
+# TODO: Test this at some point to see if it works as expected.
+# @user_has_perms('reporting', ['administer', 'create_reports'])
+# def view_columns_list(request):
+#     """
+#     Gets a list of columns for the selected collection.
+#     :param request: Request object.
+#     :return: JSON list of columns.
+#     """
+#     view = request.GET.get('view', False)
+#
+#     reporting = reporting_store()
+#     view_column_list = reporting.get_columns(view)
+#
+#     return render_json_response(view_column_list)
