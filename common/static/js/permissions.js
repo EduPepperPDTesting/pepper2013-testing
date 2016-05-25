@@ -2,7 +2,7 @@
 var pagerOptions = {
     container: '',
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    output: '{startRow} - {endRow} ({totalRows})',
     fixedHeight: false,
     removeRows: false,
     page: 0,
