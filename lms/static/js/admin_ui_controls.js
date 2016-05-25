@@ -668,7 +668,6 @@ StepsForm.prototype.init=function(){
         $switch = $("<div class='switch'><i>"+(i+1)+"</i></div>").prependTo(this);
         $switch.click(function(){
             if($pages.index($(this).parent()) == curr){
-                alert(0)
                 self.$ei.trigger('afterSwitch');
                 return;
             }
