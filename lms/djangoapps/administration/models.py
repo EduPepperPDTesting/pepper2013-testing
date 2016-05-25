@@ -193,6 +193,7 @@ class PepRegTraining(models.Model):
     allow_registration = models.BooleanField(blank=False, default=0)
     max_registration = models.IntegerField(blank=False, default=0)
     allow_attendance = models.BooleanField(blank=False, default=0)
+    allow_student_attendance = models.BooleanField(blank=False, default=0)
     allow_validation = models.BooleanField(blank=False, default=0)
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=False, db_index=False)

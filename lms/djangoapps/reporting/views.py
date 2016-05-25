@@ -14,6 +14,7 @@ import json
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
+from django.conf import settings
 from threading import Thread
 import gevent
 from StringIO import StringIO
@@ -578,17 +579,21 @@ def get_query_distinct(is_distinct, columns):
     return distinct
 
 
-def data_format(col, data):
+def data_format(col, data, is_excel=False):
     """
     Report data format.
     :param col: The columns shown in the report.
     :param data: Each row of data in the report.
+    :param is_excel: If this is True, then the operation of object is Excel.
     :return: The formatted data.
     """
     if col.data_type == 'time':
         return study_time_format(data[col.column])
     if col.data_type == 'url':
-        return '<a href="{0}">Link</a>'.format(data[col.column])
+        if is_excel:
+            return settings.LMS_BASE + data[col.column]
+        else:
+            return '<a href="{0}">Link</a>'.format(data[col.column])
     return data[col.column]
 
 
@@ -616,9 +621,10 @@ def report_download_excel(request, report_id):
     for p in results:
         for i, k in enumerate(columns):
             try:
-                p[k.column.column] = data_format(k.column.column, p)
+                p[k.column.column] = data_format(k.column, p, True)
             except:
                 p[k.column.column] = ''
+
             worksheet.write(row, i, p[k.column.column])
         row += 1
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')

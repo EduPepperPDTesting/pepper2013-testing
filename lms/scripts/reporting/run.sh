@@ -382,6 +382,7 @@ echo 'Clear cache collections'
 echo '-----------------------------------------------'
 
 /usr/local/mongodb3/mongo --port=37017 <<EOF
+use reporting
 
 db.getCollectionNames().forEach(function(x){
   if(x.indexOf('tmp_collection_') >= 0){

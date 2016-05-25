@@ -447,6 +447,8 @@ div.create select{
 }
 .step-content{
     padding:10px 25px;
+    width:630px;
+    position:relative;
 }
 .switch{
     width:20px;
@@ -473,6 +475,7 @@ div.create select{
 }
 .step-page div.form-row{
     margin-top:10px;
+    position:relative;
 }
 .step-page input[type=checkbox],
 .step-page input[type=radio],
@@ -533,6 +536,9 @@ table.students th,
 table.students td{
     padding:5px 5px;
 }
+.check-mark{
+    cursor:default;
+}
 .check-mark::after {
     content: '?';
     font-size: 100%;
@@ -549,7 +555,77 @@ table.students td{
     line-height:2.8ex;
     color:#fff;
     margin-left:1ex;
+    position:relative;
 }
 .check-mark.on::after {
     background: orange;
 }
+
+
+/*
+
+
+
+.balloon{
+    border:1px solid #999;
+    border-radius:5px;
+    position:absolute;
+    box-shadow: 4px 4px 4px rgb(85, 85, 85);
+    background-color: rgb(255, 255, 255);
+    opacity: 0.85; z-index: 32767;
+    padding:0px;
+}
+.balloon .tip-outer{
+    width: 0;
+    height: 0;
+    position:absolute;
+}
+.balloon .tip-inner{
+    width: 0;
+    height: 0;
+    position:absolute;
+}
+.balloon .tip-inner.left{
+    border-top: 5px solid transparent;
+    border-left: 10px solid #fff;
+    border-bottom: 5px solid transparent;
+}
+.balloon .tip-inner.right{
+    border-top: 5px solid transparent;
+    border-right: 10px solid #fff;
+    border-bottom: 5px solid transparent;
+} 
+.balloon .tip-inner.top{
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid #fff;
+}
+.balloon .tip-inner.bottom{
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid #fff;
+}
+.balloon .tip-outer.left{
+    border-top: 6px solid transparent;
+    border-left: 12px solid #999;
+    border-bottom: 6px solid transparent;
+}
+.balloon .tip-outer.right{
+    border-top: 6px solid transparent;
+    border-right: 12px solid #999;
+    border-bottom: 6px solid transparent;
+} 
+.balloon .tip-outer.top{
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 12px solid #999;
+}
+.balloon .tip-outer.bottom{
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 12px solid #999;
+}
+.balloon .content{
+    padding: 15px;
+}
+*/

@@ -120,7 +120,14 @@ def build_sorts(columns, sorts):
 def reach_limit(training):
     return training.max_registration > 0 and PepRegStudent.objects.filter(training=training).count() >= training.max_registration
 
-    
+
+def instructor_names(training):
+    names = ["%s %s" % (training.user_create.first_name, training.user_create.last_name)]
+    for instructor in PepRegInstructor.objects.filter(training=training):
+        names.append("%s %s" % (instructor.instructor.first_name, instructor.instructor.last_name))
+    return names
+
+
 def rows(request):
     columns = {
         1: ['district__state__name', '__iexact', 'str'],
@@ -128,15 +135,18 @@ def rows(request):
         3: ['subject', '__iexact', 'str'],
         4: ['pepper_course', '__iexact', 'str'],
         5: ['name', '__iexact', 'str'],
-        6: ['training_date', '__iexact', False],
-        7: ['training_time', '__iexact', 'str'],
-        8: ['geo_location', '__iexact', 'str'],
-        9: ['credits', '__iexact', 'int'],
-        10: ['attendancel_id', '__iexact', 'str']
+        6: ['description', '__iexact', 'str'],
+        7: ['training_date', '__iexact', False],
+        8: ['training_time', '__iexact', 'str'],
+        9: ['geo_location', '__iexact', 'str'],
+        10: ['credits', '__iexact', 'int']
         }
 
     sorts = get_post_array(request.GET, 'col')
     order = build_sorts(columns, sorts)
+
+    if not order:
+        order = ["-id"]
 
     filters = get_post_array(request.GET, 'fcol')
     page = int(request.GET['page'])
@@ -144,8 +154,11 @@ def rows(request):
     start = page * size
     end = start + size
 
+    if filters.get('7'):
+        filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
+
     # limit to district trainings for none-system
-    if check_access_level(request.user, 'pepreg', 'admin') != "System":
+    if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
         filters[1] = request.user.profile.district.state.name
         filters[2] = request.user.profile.district.name
 
@@ -173,7 +186,7 @@ def rows(request):
 
         is_belong = PepRegInstructor.objects.filter(instructor=request.user, training=item).exists() or item.user_create == request.user
 
-        if check_access_level(request.user, 'pepreg', 'admin') == 'System' or is_belong:
+        if check_access_level(request.user, 'pepreg', 'add_new_training') == 'System' or is_belong:
             managing = "true"
         else:
             managing = ""
@@ -190,11 +203,12 @@ def rows(request):
             str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
             "%s<br>%s<input type='hidden' value='%s'>" % (item.classroom, item.geo_location, item.geo_props),
             item.credits,
+            "<br>".join(instructor_names(item)),
             "",
             "<input type=hidden value=%s name=id> \
             <input type=hidden value=%s name=managing> \
-            <input type=hidden value=%s,%s,%s,%s,%s name=status>" % (
-                item.id, managing, arrive, status, allow, item.attendancel_id, rl)
+            <input type=hidden value=%s,%s,%s,%s,%s,%s name=status>" % (
+                item.id, managing, arrive, status, allow, item.attendancel_id, rl, "1" if item.allow_student_attendance else "0")
             ]
         rows.append(row)
     json_out.append(rows)
@@ -234,6 +248,7 @@ def save_training(request):
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
         training.allow_attendance = request.POST.get("allow_attendance", False)
+        training.allow_student_attendance = request.POST.get("allow_student_attendance", False)
         training.allow_validation = request.POST.get("allow_validation", False)
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
@@ -444,11 +459,13 @@ def set_student_validated(request):
 
     return HttpResponse(json.dumps({'success': True, 'data': data}), content_type="application/json")
 
+
 def student_list(request):
     try:
         training_id = request.POST.get("training_id")
         training = PepRegTraining.objects.get(id=training_id)
         students = PepRegStudent.objects.filter(training_id=training_id)
+        arrive = datetime.now(UTC).date() >= training.training_date
         rows = []
         for item in students:
             rows.append({
@@ -468,7 +485,8 @@ def student_list(request):
                                     'allow_attendance': training.allow_attendance,
                                     'allow_validation': training.allow_validation,
                                     'training_id': training.id,
-                                    'training_name': training.name
+                                    'training_name': training.name,
+                                    'arrive': arrive
                                     }),
                         content_type="application/json")
 

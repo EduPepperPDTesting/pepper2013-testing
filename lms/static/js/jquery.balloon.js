@@ -105,18 +105,15 @@
     var outerTip, innerTip,
       initTipStyle = {position: "absolute", height: "0", width: "0", border: "solid 0 transparent"},
       target = new NumericalBoxElement($target),
-        balloon = new NumericalBoxElement($balloon);
-      
-    // balloon.setTop(-options.offsetY
-    //   + ((options.position && options.position.indexOf("top") >= 0) ? target.top - balloon.height
-    //   : ((options.position && options.position.indexOf("bottom") >= 0) ? target.bottom
-      //   : target.center.top - balloon.height / 2)));
-      
-    // balloon.setLeft(options.offsetX
-    //   + ((options.position && options.position.indexOf("left") >= 0) ? target.left - balloon.width
-    //   : ((options.position && options.position.indexOf("right") >= 0) ? target.right
-    //      : target.center.left - balloon.width / 2)));
-      
+      balloon = new NumericalBoxElement($balloon);
+    balloon.setTop(-options.offsetY
+      + ((options.position && options.position.indexOf("top") >= 0) ? target.top - balloon.height
+      : ((options.position && options.position.indexOf("bottom") >= 0) ? target.bottom
+      : target.center.top - balloon.height / 2)));
+    balloon.setLeft(options.offsetX
+      + ((options.position && options.position.indexOf("left") >= 0) ? target.left - balloon.width
+      : ((options.position && options.position.indexOf("right") >= 0) ? target.right
+      : target.center.left - balloon.width / 2)));
     if(options.tipSize > 0) {
       // Add hidden balloon tips into balloon body.
       if($balloon.data("outerTip")) { $balloon.data("outerTip").remove(); $balloon.removeData("outerTip"); }
@@ -226,8 +223,7 @@
           .addClass(options.classname)
           .css(options.css || {})
           .css({visibility: "hidden", position: "absolute"})
-              .insertAfter($target)//  .appendTo("body");
-          
+          .appendTo("body");
         $target.data("balloon", $balloon);
         makeupBalloon($target, $balloon, options);
         $balloon.hide().css("visibility", "visible");

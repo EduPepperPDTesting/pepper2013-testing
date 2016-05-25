@@ -22,10 +22,7 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
 <script type="text/javascript" src="/static/js/timedropper/timedropper.js"></script>
-
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
-
-
 <script src="/static/js/leaflet/leaflet.js"></script>
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media = "screen" />
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
@@ -33,7 +30,6 @@ from permissions.utils import check_access_level, check_user_perms
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
 <link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type = "text/css" media = "screen"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
-
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -43,16 +39,24 @@ from permissions.utils import check_access_level, check_user_perms
       <div class="table-filter">
         %if check_user_perms(request.user, 'pepreg'):
         <select id="state_select" autocomplate="off" class="search" data-column="1">
+          %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
           <option value="">Select State</option>
           %for item in State.objects.all().order_by("name"):
-          <option class="${item.id}" value="${item.name}">${item.name}</option>
-          %endfor          
+          <option class="${item.name}" value="${item.name}">${item.name}</option>
+          %endfor
+          %else:
+          <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>  
+          %endif
         </select>
         <select id="district_select" autocomplate="off" class="search" data-column="2">
+          %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
           <option value="">Select District</option>
           %for item in District.objects.all().order_by("name"):
-          <option class="${item.state.id}" value="${item.name}">${item.name}</option>
+          <option value="${item.name}">${item.name}</option>
           %endfor
+          %else:
+          <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>  
+          %endif
         </select>
         %endif
         <select id="" name="" autocomplate="off" class="search" data-column="3">
@@ -67,7 +71,8 @@ from permissions.utils import check_access_level, check_user_perms
           <option value="SC">Science</option>
           <option value="SE">Special Education</option>
           <option value="TECH">Technology</option>
-          <option value="WR">Writing and Poetry</option>   
+          <option value="WR">Writing and Poetry</option>
+          <option value="Other">Other</option>   
         </select>
         %if check_user_perms(request.user, 'pepreg'):
         <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
@@ -81,7 +86,7 @@ from permissions.utils import check_access_level, check_user_perms
           <option value="${item.id}">${item.display_name}</option>
           %endfor               
         </select>
-        <input type="text" name="training_data" value="" class="search" data-column="5" placeholder="Select Date" readonly='true'/>
+        <input type="text" name="training_data" value="" class="search" data-column="7" placeholder="Select Date" readonly='true'/>
       </div>
       <div class="add_table-section table-section clearfix">
         <table id="data-table" class="tablesorter-blue user_table_init"
@@ -100,6 +105,7 @@ from permissions.utils import check_access_level, check_user_perms
               <th>Training Time</th>
               <th>Training Location</th>
               <th>PD Credit Hours</th>
+              <th class="sorter-false">Instructors</th>
               <th class="sorter-false">Register/Record Attendance</th>
               <th class="sorter-false filter-false table-menu" style="width:10px;">
                 <div style="width:18px;height:20px;">
@@ -180,14 +186,14 @@ from permissions.utils import check_access_level, check_user_perms
     </div> -->
     <input type="hidden" name="id" value="" />
     <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
-      <div class="" style="width:100%;height:100%;overflow:hidden;position:relative;">
+      <div class="" style="width:100%;height:100%;overflow:hidden;">
         <div class="step-page">
           <div class="step-content">
             <h5>Configure A Training</h5>
             <h4>What training would you like to create?</h4>
-            <div class="form-row" style="font-size:12px;">
+            <div class="form-row" style="font-size:12px;position:relative;">
               <input type="radio" name="type" value="pepper_course" autocomplete="off"/>
-              <span>Pepper Course</span><span class="check-mark"></span>
+              <span>Pepper Course</span>
               <div style="padding-left:2em;">
                 This option allows you to create<br>
                 a training for Pepper course
@@ -209,7 +215,7 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row">
               <span class="label">District:</span>
               <select name="district_id" autocomplate="off">
-                %if check_access_level(request.user, 'pepreg', 'admin') == "System":
+                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                   <option value=""></option>
                   %for item in District.objects.all().order_by("name"):
                   <option value="${item.id}">${item.name}</option>
@@ -218,12 +224,10 @@ from permissions.utils import check_access_level, check_user_perms
                   <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>  
                 %endif
               </select>
-              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Training Name:</span>
               <input type="text" name="name" value="" />
-              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Description:</span>
@@ -237,7 +241,6 @@ from permissions.utils import check_access_level, check_user_perms
                 <option value="${item.id}">${item.display_name}</option>
                 %endfor
               </select>
-              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label">Subject:</span>
@@ -254,8 +257,9 @@ from permissions.utils import check_access_level, check_user_perms
                 <option value="SE">Special Education</option>
                 <option value="TECH">Technology</option>
                 <option value="WR">Writing and Poetry</option>
+                <option value="Other">Other</option>
               </select>
-              <span class="check-mark"></span>
+              <input type="text" name="subject-other" value="" />
             </div>
           </div>
         </div>
@@ -266,12 +270,10 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row">
               <span class="label" style="width:180px">Please Select a training date:</span>
               <input type="" name="training_date" class="datePickText lock_past" value="" readonly='true' />
-              <span class="check-mark"></span>
             </div>
             <div class="form-row">
               <span class="label" style="width:180px">Please Select Time:</span>
               <input type="" name="training_time" value="" class="timePickText"/>
-              <span class="check-mark"></span>
             </div>
           </div>
         </div>
@@ -306,39 +308,45 @@ from permissions.utils import check_access_level, check_user_perms
           <div class="step-content">
             <h5>Configure A Training</h5>
             <h4>Registration/Attendance Configuration</h4>
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Credit Hours:</span>
-            <input type="" name="credits" value="" />
-            <span class="check-mark"></span>
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Training ID:</span>
-            <input type="" name="attendancel_id" value="" />
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Registration:</span>
-            <input type="checkbox" name="allow_registration" value="true" />
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
-            <input type="" name="max_registration" value="" />
-            <span class="check-mark"></span>
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
-            <input type="checkbox" name="allow_attendance" value="true" />
-          </div>
-          <div class="form-row">
-            <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
-            <input type="checkbox" name="allow_validation" value="true" />
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Credit Hours:</span>
+              <input type="" name="credits" value="" />
+              <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Registration:</span>
+              <input type="checkbox" name="allow_registration" value="true" />
+              <span class="check-mark" alt="Valid only before the training date."></span>
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</span>
+              <input type="" name="max_registration" value="" />
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Student can record attendance:</span>
+              <input type="checkbox" name="allow_student_attendance" value="true" />
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Recording:</span>
+              <input type="checkbox" name="allow_attendance" value="true" />
+              <span class="check-mark" alt="This allows users to record their attendance. It can be used with training ID field below."></span>
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Training ID:</span>
+              <input type="" name="attendancel_id" value="" />
+              <span class="check-mark" alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
+            </div>            
+            <div class="form-row">
+              <span class="label" style="width:190px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+              <input type="checkbox" name="allow_validation" value="true" />
+              <span class="check-mark" alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <script type="text/javascript">
   function PepReg($content){
     var self=this;
@@ -370,22 +378,26 @@ from permissions.utils import check_access_level, check_user_perms
       id: $form.find("input[name=id]").val(),
       type: $form.find("input[name=type]:checked").val(),
       district_id: $form.find("select[name=district_id]").val(),
-      name: $form.find("input[name=name]").val(),
+      name: $.trim($form.find("input[name=name]").val()),
       description: $form.find("textarea[name=description]").val(),
       pepper_course: $form.find("select[name=pepper_course]").val(),
       subject: $form.find("select[name=subject]").val(),
       training_date: $form.find("input[name=training_date]").val(),
       training_time: $form.find("input[name=training_time]").val(),
-      classroom: $form.find("input[name=classroom]").val(),
+      classroom: $.trim($form.find("input[name=classroom]").val()),
       geo_location: $form.find("input[name=geo_location]").val(),
       geo_props: $form.find("input[name=geo_props]").val(),
       instructor_emails: this.getInstructors().join(","),
       credits: $form.find("input[name=credits]").val() || 0,
-      attendancel_id: $form.find("input[name=attendancel_id]").val(),
+      attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
       allow_registration: $form.find("input[name=allow_registration]:checked").val(),
       max_registration: $form.find("input[name=max_registration]").val() || 0,
       allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
+      allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
       allow_validation: $form.find("input[name=allow_validation]:checked").val()
+    }
+    if(json.subject == "Other"){
+      json.subject = $form.find("input[name=subject-other]").val();
     }
     if(json.training_time){
       var apart = json.training_time.split(/[ :]/);
@@ -446,11 +458,11 @@ from permissions.utils import check_access_level, check_user_perms
       if(!data.name){
         return ["name", "Please input name"];
       }
-      if(!data.subject){
-        return ["subject", "Please select subject"];
-      }
       if(data.type == "pepper_course" && !data.pepper_course){
         return ["pepper_course", "Please select pepper course"];
+      }      
+      if(!data.subject){
+        return ["subject", "Please select subject"];
       }
     }else if(page == 2){
       if(!data.training_date){
@@ -462,39 +474,32 @@ from permissions.utils import check_access_level, check_user_perms
     }else if(page == 3){
     }else if(page == 4){
     }else if(page == 5){
-      if(!/^\d*(.\d*)?$/.test(data.credits)){
+      if(!/^\d*(\.[05]*)?$/.test(data.credits)){
         return ["credits", "Please input a valid credits"];
       }
-      if(!/^\d*(.\d*)?$/.test(data.max_registration)){
+      if(!/^\d*(\.\d*)?$/.test(data.max_registration)){
         return ["max_registration", "Please input a valid Maximum Registration Cap"];
       }
     }
   }
-  PepReg.prototype.markInvalid=function(name, message){
-
-    var $input = $("#dlg-add-training").find("*[name="+ name +"]");
-
-    var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
-
-
-    $mark.addClass("on");
-    $mark.showBalloon({position: 'bottom', contents: message, css: {backgroundColor: '#fff'}});
-    $input.off('focus').focus(function(){
-      $mark.removeClass("on");
-      $mark.hideBalloon();
-      $mark.next(".check-mark").hideBalloon();
-    });
-  }
+  /* PepReg.prototype.markInvalid=function(name, message){
+     var $input = $("#dlg-add-training").find("*[name="+ name +"]");
+     var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
+     $mark.addClass("on");
+     $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
+     $input.one('focus', function(){
+     $mark.removeClass("on").hideBalloon();
+     });
+     } */
   PepReg.prototype.initForm=function(data, finishCallback){
     var self = this;
     var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
     dlg.show();
-      
     var steps = this.steps = new StepsForm($("#dlg-add-training"),
                                            ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
     // ************* add dlg close button to each step
     $("#dlg-add-training").find(".close-modal").remove();
-    $("<div class='close-modal' style='right:20px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function(){
+    $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function(){
       dlg.hide();
     });
     // ************* before switch to another page
@@ -502,7 +507,7 @@ from permissions.utils import check_access_level, check_user_perms
       var $content = this.getContent(curr);
       var data = self.getInput();
       if(!this.visited(dest) && (error = self.validatePage(curr, data))){
-        return self.markInvalid(error[0],error[1]);
+        return self.warning(error[1], self.dlgForm);
       }
       if(curr==0){
         if(data.type == "pepper_course"){
@@ -565,19 +570,33 @@ from permissions.utils import check_access_level, check_user_perms
     });
     // ************* change credits after training data arrived
     if(data.arrive == "1"){
+      var warn = true;
       $("input[name=credits]").off("focusin").on("focusin", function(){
         $(this).data('val', this.value);
-      }).off("change").on("change", function(){
+      }).off("keyup").on("keyup", function(){
         var me=this;
-        self.confirm("Please note that you have edited Credit Hours to a training that is past. \
-This change is not retroactive for users who have already received credit. \
-Please refer to the user guide for more information.<br>Continue?", self.dlgForm, function(r){
-          if(!r) $(me).val($(me).data('val'));
+        var message = "Please note that you have edited Credit Hours to a training that is past. \
+                      This change is not retroactive for users who have already received credit. \
+                      Please refer to the user guide for more information.<br>Continue?";
+        $(this).blur();
+        warn && self.confirm(message, self.dlgForm, function(r){
+          if(!r){
+            $(me).val($(me).data('val'));
+          }else{
+            $(me).off("keyup");
+          }
+          $(me).focus();
         });
       });
     }
-    // ************* clear checking status
-    $("#dlg-add-training").find(".check-mark").removeClass("on");
+    // ************* change subject
+    $("#dlg-add-training").find("select[name=subject]").off('change').change(function(){
+      if($(this).val() == "Other"){
+        $(this).next("input").show();
+      }else{
+        $(this).next("input").hide();
+      }
+    }).change();
     return steps;
   }
   PepReg.prototype.getInstructors=function(emails) {
@@ -660,6 +679,14 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
         $entry.val(v);
       }
     });
+    if(data.subject){
+      var $subject = $("#dlg-add-training").find("select[name=subject]")
+      var $opts = $subject.find("option[value=" + data.subject + "]");
+      if(!$opts.length){
+        $subject.next("input[name=subject-other]").show().val(data.subject);
+        $subject.val("Other");
+      }
+    }    
   }
   PepReg.prototype.clearData=function() {
     var empty = {};
@@ -686,11 +713,8 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
       r.instructor_emails = r.instructor_emails.join(",");
       self.initForm(r, function(data){
         if(einfo = self.validateAllPage(data)){
+          self.warning(einfo.error[1], self.dlgForm);
           self.steps.switchTo(einfo.id);
-          $("#dlg-add-training").bind('afterSwitch', function(){
-            $(this).unbind('afterSwitch');
-            self.markInvalid(einfo.error[0], einfo.error[1]);
-          }); 
           return;
         }
         $.post("${reverse('pepreg_save_training')}", data, function(r){
@@ -716,11 +740,8 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
     var steps = this.initForm({district_id:${request.user.profile.district_id}}, function(data){
       // submit
       if(einfo = self.validateAllPage(data)){
-          self.steps.switchTo(einfo.id);
-          $("#dlg-add-training").bind('afterSwitch', function(){
-            $(this).unbind('afterSwitch');
-            self.markInvalid(einfo.error[0], einfo.error[1]);
-          }); 
+        self.warning(einfo.error[1], self.dlgForm);
+        self.steps.switchTo(einfo.id);
         return;
       }
       $.post("${reverse('pepreg_save_training')}", data, function(r){
@@ -804,9 +825,9 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
 <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
 <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>",data));
           if($r)$r.replaceWith($row);
-          if(!r.allow_attendance)
+          if(!r.allow_attendance || !r.arrive)
             $row.find("input[name=is_attended").remove();
-          if(!r.allow_validation)
+          if(!r.allow_validation || !r.arrive)
             $row.find("input[name=is_validated").remove();
           if(r.allow_attendance){
             if(data.is_attended)
@@ -887,7 +908,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
         filter_serversideFiltering: true,
         output_saveFileName: 'data.csv',
         columnSelector_container: $('#columnSelector'),
-        columnSelector_columns: {0: 'disable', 11: 'disable', 12: 'disable'},
+        columnSelector_columns: {0: 'disable',  13: 'disable'},
         columnSelector_mediaqueryName: 'All: '
       }
     };
@@ -898,20 +919,20 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
     $("#data-table").bind("pagerComplete", function() {
       var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
       if(is_admin)
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12]]);
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13]]);
       else{
-        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11]]);
+        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12]]);
       }
       if(!is_admin){
         $(this).find("th:nth-child(1)").hide();
         $(this).find("td:nth-child(1)").hide();
-        $(this).find("th:nth-child(12)").hide();
-        $(this).find("td:nth-child(12)").hide();
+        $(this).find("th:nth-child(14)").hide();
+        $(this).find("td:nth-child(14)").hide();
       }else{
         $(this).find("th:nth-child(1)").show();
         $(this).find("td:nth-child(1)").show();
-        $(this).find("th:nth-child(12)").show();
-        $(this).find("td:nth-child(12)").show();
+        $(this).find("th:nth-child(14)").show();
+        $(this).find("td:nth-child(14)").show();
       }
       // location
       $(this).find("td:nth-child(10)").each(function(){
@@ -940,6 +961,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
         var allow = apart[2];
         var attendancel_id = apart[3];
         var reach_limit = apart[4];
+        var allow_student_attendance = apart[5];
         if(is_row_admin){
           $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function(e){
             e.preventDefault();
@@ -951,7 +973,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
           });
         }
         // Register/Record Attendance
-        $(this).find("td:nth-child(12)").each(function(){
+        $(this).find("td:nth-child(13)").each(function(){
           if(arrive == "0" && allow == "0"){
             $(this).html("The training date has not arrived yet.");
           }else if (arrive == "0" && allow == "1"){
@@ -967,7 +989,9 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
             }
           }else if (arrive == "1" && status == "" && allow == "1"){
             $(this).html("The registration date has passed for this training");
-          }else if (arrive == "1"){
+          }else if (arrive == "1" && allow_student_attendance == "0"){
+            $(this).html("Instructor records attendance.");
+          }else if (arrive == "1" && allow_student_attendance == "1"){
             var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
             $check.prop('checked', status == "Attended" || status == "Validated");
             if(attendancel_id.length){
@@ -978,7 +1002,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
                 }else{
                   if(!$input.is(":visible")){
                     self.setStudentAttended(${request.user.id},training_id, false, function(){
-                      self.warning("Success");
+                      self.warning("Thank you! You are no longer registered for this training.");
                     });
                   }
                   $input.hide();
@@ -993,7 +1017,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
                   self.setStudentAttended(${request.user.id},training_id, true, function(){
                     $input.hide();
                     $button.hide();                
-                    self.warning("Success");
+                    self.warning("Thank you for registering/recording attendance for this training!");
                   });
                 }else{
                   self.warning("It's a wrong ID.");
@@ -1002,14 +1026,15 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
             }else{
               $check.change(function(){
                 self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
-              });            
+              });
             }
           }else{
             $(this).html("");
           }
         });
+         $(this).find("td:nth-child(12)").css("white-space", "nowrap");
         // Training Name
-        if(is_admin){
+        if(is_row_admin){
           $(this).find("td:nth-child(6)").each(function(){
             var training_id = $(this).parent().find("input[name=id]").val();
             $(this).css("color","#1d9dd9");
@@ -1052,10 +1077,6 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
       }
     });
     $(".expand_title").click();
-    $.balloon.defaults.classname = "balloon";
-    $(document).on('click', function(event) {
-      //$(".check-mark.on").hideBalloon();
-    });
   });
 </script>
 <script type="text/javascript">
@@ -1094,7 +1115,7 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
   });
 </script>
 <script type="text/javascript">
-  $('.timePickText').timeDropper();
+  $('.timePickText').timeDropper({readonly:true, format: 'h:mm A', meridians: true});
   $(document).ready(function(){
     $('.columnSelectorButton').click(function(e){
       if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
@@ -1116,5 +1137,13 @@ Please refer to the user guide for more information.<br>Continue?", self.dlgForm
     source: function(request, response){
       $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
     }
+  });
+</script>
+<script type="text/javascript">
+  $(".check-mark").balloon({position:"bottom", css: {maxWidth: "300px"}});
+  $(".check-mark").on("mouseenter",function(){
+    $(this).addClass("on");
+  }).on("mouseleave",function(){
+    $(this).removeClass("on");
   });
 </script>
