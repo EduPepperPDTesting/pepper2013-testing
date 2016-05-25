@@ -270,6 +270,10 @@
     font-weight: bold;
     padding-bottom: 15px;
 }
+#reporting #order-title label {
+    font-weight: normal;
+    font-size: 90%;
+}
 #reporting #order-title div {
     width: 360px;
     float: right;

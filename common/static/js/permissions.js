@@ -444,7 +444,7 @@ function permissionEditAttach() {
     });
 }
 
-// attaches action for selecting all on the select all checkboxes on the various tables.
+// Attaches action for selecting all on the select all checkboxes on the various tables.
 function selectAll(trigger_selector, target_selector) {
     $(trigger_selector).change(function () {
         var checked = false;

@@ -66,7 +66,7 @@
         </div>
         <div class="edit-block column-selector">
             <h2>Select Columns</h2>
-            <div id="order-title">Select columns to show in the report:<div>Column order:</div></div>
+            <div id="order-title">Select columns to show in the report: <label><input type="checkbox" id="column-select-all"> Select All</label><div>Column order:</div></div>
             %if action == 'edit':
                 <ul id="selected-columns">
                     %for selected_column in selected_columns:
@@ -196,5 +196,6 @@
         dateField();
         fieldTypeUpdater();
         descriptionPopups();
+        selectAll('#column-select-all', '.column-check');
     });
 </script>

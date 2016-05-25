@@ -734,3 +734,16 @@ function fieldTypeUpdater() {
         dateField();
     });
 }
+
+// Attaches action for selecting all on the select all checkbox.
+function selectAll(trigger_selector, target_selector) {
+    $(trigger_selector).change(function () {
+        var checked = false;
+        if ($(this).is(':checked')) {
+            checked = true;
+        }
+        $(target_selector).each(function () {
+            $(this).prop('checked', checked);
+        });
+    });
+}
