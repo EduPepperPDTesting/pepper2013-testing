@@ -47,7 +47,12 @@
         width: 900px;
         padding: 20px;
     }
-    #community-name, #community-hangouts, #community-logo, #community-facilitator {
+    #community-name,
+    #community-hangouts,
+    #community-logo,
+    #community-facilitator,
+    #community-state,
+    #community-district {
         display: block;
         float: left;
         margin: 0 40px 20px 0;
@@ -72,10 +77,15 @@
         display: block;
         width: 500px;
     }
-    #community-logo input {
+    #community-logo input,
+    #community-state select,
+    #community-district select {
         display: block;
     }
-    #community-name, #community-motto, #community-courses, #community-resources {
+    #community-name,
+    #community-motto,
+    #community-courses,
+    #community-resources {
         clear: both;
         display: block;
         text-align: left;
@@ -85,10 +95,14 @@
         display: block;
         width: 860px;
     }
+    #community-state {
+        float: left;
+    }
     #community-private {
         display: block;
         float: right;
         text-align: left;
+        clear: both;
     }
     #community-private input {
         margin-left: 10px;
@@ -125,7 +139,7 @@
     #community-resources .minus, #community-courses .minus {
         padding: 0 8px;
     }
-    .community-course, .community-resource {
+    .community-course, .community-resource, #community-state {
         clear: both;
     }
     .community-logo-thumb {
@@ -168,10 +182,10 @@
             <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
-        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label><br>
-        <label id="community-motto"><span>Select State: </span><br>
-        <select id = "state-dropdown" name = "state-dropdown">
-            <option id="null_state" value = "NULL"></option>
+        <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
+        <label id="community-state"><span>Select State:</span>
+        <select id="state-dropdown" name="state-dropdown">
+            <option id="null_state" value="NULL"></option>
             %for item in State.objects.all().order_by('name'):
                 %if item.id == request.user.profile.district.state.id and not request.user.is_superuser:
                     <option value="${item.id}" selected>${item.name}</option>
@@ -180,14 +194,14 @@
                 %endif
             %endfor
         </select></label>
-        <label id="community-motto"><span>Select District: </span><br>
-        <select id = "district-dropdown" name="district-dropdown">
-            <option id="null_district" value = "NULL"></option>
+        <label id="community-district"><span>Select District:</span>
+        <select id="district-dropdown" name="district-dropdown">
+            <option id="null_district" value="NULL"></option>
             %for item in District.objects.all().order_by('name'):
                 %if item.id == request.user.profile.district.id and not request.user.is_superuser:
-                    <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}" selected>${item.name}</option>
+                    <option data-state="${item.state.id}" value="${item.id}" class="${item.id}" selected>${item.name}</option>
                 %else:
-                    <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                    <option data-state="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
                 %endif
             %endfor
         </select></label>
@@ -328,12 +342,16 @@
         return valid;
     }
     $(document).ready(function() {
-        $("#state-dropdown").change(function(){
-            id=$(this).val();
-            $("#district-dropdown > option").each(function(){
-               if($(this).attr("data-state") == id){
+        $("#state-dropdown").change(function () {
+            var id = $(this).val();
+            $('#district-dropdown option:selected').prop({'selected': false});
+            $('#null_district').prop({'selected': true});
+            $("#district-dropdown > option").not(':selected').each(function () {
+               if ($(this).attr("data-state") == id) {
                    $(this).show();
-               }else $(this).hide();
+               } else {
+                   $(this).hide();
+               }
             });
         });
         $("#state-dropdown").trigger("change");
