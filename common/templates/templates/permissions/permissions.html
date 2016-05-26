@@ -1,0 +1,273 @@
+<%inherit file="../main.html"/>
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from permissions.utils import check_user_perms, check_access_level
+%>
+
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
+<script type="text/javascript" src="/static/js/permissions.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/pepconn.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+<link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
+<link rel="stylesheet" href="/static/css/permissions.css" type="text/css" media="screen" />
+
+<style>
+    #delete-permissions, #delete-groups, #delete-group-permissions, #delete-group-members {
+        background: transparent url(/static/images/icons/delete.png) center top no-repeat;
+    }
+    #delete-permissions:hover, #delete-groups:hover, #delete-group-permissions:hover, #delete-group-members:hover {
+        background: transparent url(/static/images/icons/delete_mo.png) center top no-repeat;
+    }
+    #new-permission, #new-group, #add-group-permission, #add-group-member {
+        background: transparent url(/static/images/icons/add_new.png) center top no-repeat;
+    }
+    #new-permission:hover, #new-group:hover, #add-group-permission:hover, #add-group-member:hover {
+        background: transparent url(/static/images/icons/add_new_mo.png) center top no-repeat;
+    }
+    %if not admin_rights:
+        #groups {
+            margin-top: 20px;
+        }
+    %endif
+</style>
+
+%if admin_rights:
+<div id="permissions">
+    <div class="main permissions-content">
+        <div class="expand_title expand_title_collapse">
+            Permissions <div class="icon"></div>
+        </div>
+        <div class="expand_div">
+            <form action="${reverse('permissions_permission_delete')}" method="post" id="delete-permissions-form">
+                <table id="permissions-table" class="permissions-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Target</th>
+                            <th>Action</th>
+                            <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="permission-select-all"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        %for permission in permissions:
+                            <tr class="data">
+                                <td>${permission.name}</td>
+                                <td>${permission.item}</td>
+                                <td>${permission.action}</td>
+                                <td class="check-column">
+                                    <input type="checkbox" value="${permission.id}" name="permission_id[${permission.id}]" class="permission-select">&nbsp;
+                                    <a href="#${permission.id}" class="permission-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                </td>
+                            </tr>
+                        %endfor
+                    </tbody>
+                </table>
+                <div id="permission-actions">
+                    <div id="permissions-pager" class="pager">
+                        <form>
+                            <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                            <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                            <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                            <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                            <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                            <select class="pagesize">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </form>
+                    </div>
+                    <input type="button" value="New Permission" id="new-permission">
+                    <input type="submit" value="Delete Selected" id="delete-permissions">
+                </div>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+            </form>
+        </div>
+    </div>
+</div>
+%endif
+%if assign_rights:
+<div id="groups">
+    <div class="main groups-content">
+        <div class="expand_title expand_title_collapse">
+            Users &amp; Groups <div class="icon"></div>
+        </div>
+        <div class="expand_div">
+            <div id="groups-column">
+                <form action="${reverse('permissions_group_delete')}" method="post" id="delete-groups-form">
+                    <table id="groups-table" class="permissions-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Access Level</th>
+                                %if admin_rights:
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-select-all"></th>
+                                %endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            %for group in groups:
+                                <tr class="data group-select">
+                                    <td>${group.name}</td>
+                                    %if admin_rights:
+                                    <td>${group.access_level}</td>
+                                    <td class="check-column">
+                                        <input type="checkbox" value="${group.id}" name="group_id[${group.id}]" class="group-select">&nbsp;
+                                        <a href="#${group.id}" class="group-edit"><img src="/static/images/portal-icons/pencil-icon.png"></a>
+                                    </td>
+                                    %elif assign_rights:
+                                    <td>${group.access_level}<input type="hidden" value="${group.id}"></td>
+                                    %endif
+                                </tr>
+                            %endfor
+                        </tbody>
+                    </table>
+                    <div id="group-actions">
+                        <div id="groups-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                            </form>
+                        </div>
+                        %if admin_rights:
+                        <input type="button" value="New Group" id="new-group">
+                        <input type="submit" value="Delete Selected" id="delete-groups">
+                        %endif
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+            </div>
+            <div id="groups-info-column">
+                <form action="${reverse('permissions_group_member_delete')}" method="post" id="delete-group-members-form">
+                    <table id="group-members-table" class="permissions-table">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>School</th>
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="user-select-all"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div id="member-actions">
+                        <div id="group-members-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                                <select class="pagesize">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </form>
+                        </div>
+                        <input type="button" value="Add Member(s)" id="add-group-member" disabled="disabled">
+                        <input type="submit" value="Remove Selected" id="delete-group-members" disabled="disabled">
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+                <form action="${reverse('permissions_group_permission_delete')}" method="post" id="delete-group-permissions-form">
+                    <table id="group-permissions-table" class="permissions-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Target</th>
+                                <th>Action</th>
+                                %if admin_rights:
+                                <th class="check-column sorter-false filter-false"><input type="checkbox" value="1" class="group-permission-select-all"></th>
+                                %endif
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div id="group-permission-actions">
+                        <div id="group-permissions-pager" class="pager">
+                            <form>
+                                <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+                                <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+                                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                                <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+                                <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+                                <select class="pagesize">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </form>
+                        </div>
+                        %if admin_rights:
+                        <input type="button" value="Add Permission" id="add-group-permission" disabled="disabled">
+                        <input type="submit" value="Remove Selected" id="delete-group-permissions" disabled="disabled">
+                        %endif
+                    </div>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+                </form>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+%endif
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="dialogYesNo" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    var admin_rights = ${'true' if admin_rights else 'false'};
+    var access_level = '${access_level}';
+    var permissions_check_url = '${reverse('permissions_permission_check')}';
+    var group_check_url = '${reverse('permissions_group_check')}';
+    var permissions_list_url = '${reverse('permissions_permissions_list')}';
+    var group_list_url = '${reverse('permissions_group_list')}';
+    var group_member_list_url = '${reverse('permissions_group_members_list')}';
+    var group_permissions_list_url = '${reverse('permissions_group_permissions_list')}';
+    var group_add_url = '${reverse('permissions_group_add')}';
+    var csrf_token = '${csrf_token}';
+    var permission_add_url = '${reverse('permissions_permission_add')}';
+    var group_permission_add_url = '${reverse('permissions_group_permission_add')}';
+    var group_member_add_url = '${reverse('permissions_group_member_add')}';
+    var drop_states_url = '${reverse('pepper_utilities_drop_states')}';
+    var drop_districts_url = '${reverse('pepper_utilities_drop_districts')}';
+    var drop_schools_url = '${reverse('pepper_utilities_drop_schools')}';
+    var user_email_completion_url = '${reverse('pepper_utilities_user_email_completion')}';
+
+    $(document).ready(function() {
+        initPermissions();
+    });
+</script>

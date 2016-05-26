@@ -1,14 +1,14 @@
 <%! from django.utils.translation import ugettext as _ %>
 
 <%!
-from django.core.urlresolvers import reverse
-from courseware.courses import course_image_url, get_course_about_section
-from courseware.access import has_access
-from certificates.models import CertificateStatuses
-from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-from xmodule.modulestore.django import modulestore
-from student.models import State,District,School
-from administration.time_report import is_time_report_permission
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,School
+    from permissions.utils import check_user_perms
 %>
 
 
@@ -25,802 +25,816 @@ from administration.time_report import is_time_report_permission
 <script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
 <!-- Tablesorter: optional -->
-  <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
-  <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 
 <!-- Time Report -->
+%if check_user_perms(request.user, 'time_report', 'adjust_time'):
 <div class = "data_import_top">
-  <div class="main, data_import_content">
-    <div class="expand_title expand_title_collapse">
-      Time Report <div class="icon"></div>
-    </div>
-    <div class="expand_div">
-      <form method="" id="usrTimeForm" action="" onsubmit="return false;">
-        <div class="control filter" id="fltUserTime">
-          <span class="body" style="display:inline-block;"></span>
-          <textarea class="setting">
-            {
-            "fields":{
-            "state":{"display":"State","type":"drop","require":[],"url":"${reverse('time_report_drop_states')}","format":"<option value='{id}'>{name}</option>"},
-            "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('time_report_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
-            "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('time_report_drop_schools')}","format":"<option value='{id}'>{name}</option>"},
-            "course":{"display":"Course","type":"drop","require":[],"url":"${reverse('time_report_drop_courses')}","format":"<option value='{id}'>{name}</option>"}
-            },
-            "favorite":{
-               "show":false,
-               "urls":{
-                  "load":"${reverse('pepconn_favorite_filter_load')}",
-                  "save":"${reverse('pepconn_favorite_filter_save')}",
-                  "remove":"${reverse('pepconn_favorite_filter_delete')}"
-                }
-            }
-            }
-          </textarea>
-          <input type="button" name="" value="LOAD" class="load" onclick="userTimeReport.filterTime()"/>
+%else:
+<div class="data_import_top data_import_bottom">
+%endif
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse">
+            Time Report <div class="icon"></div>
         </div>
-        <div class="table">      
-          <div class="" style="padding:5px;"></div>
-          <div class="body table_scroll">
-          <table class="tblUserTime tablesorter">
-            <thead>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
-              <th>District</th>
-              <th>School</th>
-              <th>Total Time</th>
-              <th>Collaboration Time</th>
-              <th>Discussion Time</th>
-              <th>Portfolio Time</th>
-              <th>External Time</th>
-              <th>Course Units Time</th>
-              <th>Completed Courses</th>
-              <th>Current Courses</th>
-              <th class="sorter-false filter-false">Time Adjustment</th>
-              <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="expand_div">
+            <form method="" id="usrTimeForm" action="" onsubmit="return false;">
+                <div class="control filter" id="fltUserTime">
+                    <span class="body" style="display:inline-block;"></span>
+                    <textarea class="setting">
+                    {
+                    "fields":{
+                    "state":{"display":"State","type":"drop","require":[],"url":"${reverse('time_report_drop_states')}","format":"<option value='{id}'>{name}</option>"},
+                    "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('time_report_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
+                    "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('time_report_drop_schools')}","format":"<option value='{id}'>{name}</option>"},
+                    "course":{"display":"Course","type":"drop","require":[],"url":"${reverse('time_report_drop_courses')}","format":"<option value='{id}'>{name}</option>"}
+                    },
+                    "favorite":{
+                       "show":false,
+                       "urls":{
+                          "load":"${reverse('pepconn_favorite_filter_load')}",
+                          "save":"${reverse('pepconn_favorite_filter_save')}",
+                          "remove":"${reverse('pepconn_favorite_filter_delete')}"
+                        }
+                    }
+                    }
+                    </textarea>
+                    <input type="button" name="" value="LOAD" class="load" onclick="userTimeReport.filterTime()"/>
+                </div>
+                <div class="table">
+                    <div class="" style="padding:5px;"></div>
+                    <div class="body table_scroll">
+                        <table class="tblUserTime tablesorter">
+                            <thead>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>District</th>
+                            <th>School</th>
+                            <th>Total Time</th>
+                            <th>Collaboration Time</th>
+                            <th>Discussion Time</th>
+                            <th>Portfolio Time</th>
+                            <th>External Time</th>
+                            <th>Course Units Time</th>
+                            <th>Completed Courses</th>
+                            <th>Current Courses</th>
+                            %if check_user_perms(request.user, 'time_report', 'adjust_time'):
+                                <th class="sorter-false filter-false">Time Adjustment</th>
+                            %endif
+                            <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
 
-          </div>
-          <div class="columnSelectorWrapper">
-            <input id="colSelect1" type="checkbox" class="hidden">
-            
-            <div id="columnSelector" class="columnSelector">
-              <!-- this div is where the column selector is added -->
-            </div>
-          </div>
-           <span class="footer">
-            <div class="pager">
-              <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
-              <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
-              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-              <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
-              <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
-              <select class="pagesize" title="Select page size">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-              </select>
-              <select class="gotoPage" title="Select page number"></select>
-            </span>
-            <span class="time_download">
-              Download <span class="total"></span> User(s) As
-              <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
-            </span>
-          </div>
+                    </div>
+                    <div class="columnSelectorWrapper">
+                        <input id="colSelect1" type="checkbox" class="hidden">
+
+                        <div id="columnSelector" class="columnSelector">
+                            <!-- this div is where the column selector is added -->
+                        </div>
+                    </div>
+                    <span class="pager">
+                        <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                        <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                        <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                        <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                        <select class="pagesize" title="Select page size">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                        </select>
+                        <select class="gotoPage" title="Select page number"></select>
+                    </span>
+                    <span class="time_download">
+                      Download <span class="total"></span> User(s) As
+                      <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
+                    </span>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
-</div>
 </div>
 
+%if check_user_perms(request.user, 'time_report', 'adjust_time'):
 <!-- Adjustment Time Import -->
-<div class = "data_import_bottom">
-  <div class="main, data_import_content">
-    <div class="expand_title expand_title_collapse">
-      Adjustment Time Import <div class="icon"></div>
-    </div>
-    <div class="expand_div">
-      <form method="" id="adjustmentTimeDataImportForm" action="">
-        <div style="padding:7px;">
-          CSV File: <input type="file" name="file" value="" />
-          <p style="margin-top:1em;">
-            <label style="font-style:normal;color:#555;cursor:default;">
-            * CSV file should contain the following columns (email address, adjustment time (in min), adjustment type, course number, comments).
-            </label>
-          </p>
-          <p>
-            <label style="font-style:normal;color:#555;cursor:default;">
-            * 4 adjustment types are: courseware/discussion/portfolio/external
-            </label>
-          </p>
-          <p>
-            <label style="font-style:normal;color:#555;cursor:default;">
-            * Course number: eg. PEP101x
-            </label>
-          </p>
+<div class="data_import_bottom">
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse">
+            Adjustment Time Import <div class="icon"></div>
         </div>
-        <div style="padding:10px 5px">
-          <input class="form_submit" type="submit" name="" value="Import Data" />
+        <div class="expand_div">
+            <form method="" id="adjustmentTimeDataImportForm" action="">
+                <div style="padding:7px;">
+                    CSV File: <input type="file" name="file" value="" />
+                    <p style="margin-top:1em;">
+                        <label style="font-style:normal;color:#555;cursor:default;">
+                            * CSV file should contain the following columns (email address, adjustment time (in min), adjustment type, course number, comments).
+                        </label>
+                    </p>
+                    <p>
+                        <label style="font-style:normal;color:#555;cursor:default;">
+                            * 4 adjustment types are: courseware/discussion/portfolio/external
+                        </label>
+                    </p>
+                    <p>
+                        <label style="font-style:normal;color:#555;cursor:default;">
+                            * Course number: eg. PEP101x
+                        </label>
+                    </p>
+                </div>
+                <div style="padding:10px 5px">
+                    <input class="form_submit" type="submit" name="" value="Import Data" />
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>
+%endif
+
 <!-- dialog -->
 <div style="" id="dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 class="dialog-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
     </div>
-    <div class="content"></div>
-  </div>
 </div>
 <!-- Enrollment courses dialog -->
 <div style="" id="enrollment_courses_dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 class="dialog-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="course_list"></div>
+        <div class="content"></div>
     </div>
-    <div class="course_list"></div>
-    <div class="content"></div>
-  </div>
 </div>
 <!-- Time Adjustment dialog -->
 <div style="width:600px;" id="time_edit_dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 class="dialog-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div id="tabs">
+            <ul>
+                <!-- hide total tab -->
+                <!--<li><a href="#total_tab">Total Time</a></li>-->
+                <li><a href="#courseware_tab">Course Units Time</a></li>
+                <li><a href="#discussion_tab">Discussion Time</a></li>
+                <li><a href="#portfolio_tab">Portfolio Time</a></li>
+                <li><a href="#external_tab">External Time</a></li>
+            </ul>
+            <!--
+            <div id="total_tab" class="tab_item">
+              <table>
+                <tr>
+                  <td style="width:350px;">
+                    <div>Adjust time: (30/-30 min)</div><br/>
+                    <input type="text" class="adjustment_txt">
+                  </td>
+                  <td>
+                    <div>Adjusted time:</div><br/>
+                    <div class="adjusted_txt">0 Minutes</div>
+                  </td>
+                </tr>
+              </table>
+              <hr/>
+              <div>Comments:</div><br/>
+              <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+              <div>(1,000 characters maximum)</div>
+            </div>
+            -->
+            <div id="courseware_tab" class="tab_item">
+                <select class="drop_course" style="width:300px;"></select>
+                <hr/>
+                <table>
+                    <tr>
+                        <td style="width:350px;">
+                            <div>Adjust time: (30/-30 min)</div><br/>
+                            <input type="text" class="adjustment_txt">
+                        </td>
+                        <td>
+                            <div>Adjusted time:</div><br/>
+                            <div class="adjusted_txt">0 Minutes</div>
+                        </td>
+                    </tr>
+                </table>
+                <hr/>
+                <div>Comments:</div><br/>
+                <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+                <div>(1,000 characters maximum)</div>
+            </div>
+            <div id="discussion_tab" class="tab_item">
+                <select class="drop_course" style="width:300px;"></select>
+                <hr/>
+                <table>
+                    <tr>
+                        <td style="width:350px;">
+                            <div>Adjust time: (30/-30 min)</div><br/>
+                            <input type="text" class="adjustment_txt">
+                        </td>
+                        <td>
+                            <div>Adjusted time:</div><br/>
+                            <div class="adjusted_txt">0 Minutes</div>
+                        </td>
+                    </tr>
+                </table>
+                <hr/>
+                <div>Comments:</div><br/>
+                <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+                <div>(1,000 characters maximum)</div>
+            </div>
+            <div id="portfolio_tab" class="tab_item">
+                <table>
+                    <tr>
+                        <td style="width:350px;">
+                            <div>Adjust time: (30/-30 min)</div><br/>
+                            <input type="text" class="adjustment_txt">
+                        </td>
+                        <td>
+                            <div>Adjusted time:</div><br/>
+                            <div class="adjusted_txt">0 Minutes</div>
+                        </td>
+                    </tr>
+                </table>
+                <hr/>
+                <div>Comments:</div><br/>
+                <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+                <div>(1,000 characters maximum)</div>
+            </div>
+            <div id="external_tab" class="tab_item">
+                <select class="drop_course" style="width:300px;"></select>
+                <hr/>
+                <table>
+                    <tr>
+                        <td style="width:350px;">
+                            <div>Adjust time: (30/-30 min)</div><br/>
+                            <input type="text" class="adjustment_txt">
+                        </td>
+                        <td>
+                            <div>Adjusted time:</div><br/>
+                            <div class="adjusted_txt">0 Minutes</div>
+                        </td>
+                    </tr>
+                </table>
+                <hr/>
+                <div>Comments:</div><br/>
+                <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
+                <div>(1,000 characters maximum)</div>
+            </div>
+            <div class="details">
+                Details
+                <div class="icon"></div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="content"></div>
+        <div class="adjustment_log">
+            <div class="adjustment_log_title">Adjustment log:</div>
+            <div class="adjustment_log_list"></div>
+        </div>
     </div>
-    <div id="tabs">
-      <ul>
-        <!-- hide total tab -->
-        <!--<li><a href="#total_tab">Total Time</a></li>-->
-        <li><a href="#courseware_tab">Course Units Time</a></li>
-        <li><a href="#discussion_tab">Discussion Time</a></li>
-        <li><a href="#portfolio_tab">Portfolio Time</a></li>
-        <li><a href="#external_tab">External Time</a></li> 
-      </ul>
-      <!--
-      <div id="total_tab" class="tab_item">
-        <table>
-          <tr> 
-            <td style="width:350px;">
-              <div>Adjust time: (30/-30 min)</div><br/>
-              <input type="text" class="adjustment_txt">
-            </td>
-            <td>
-              <div>Adjusted time:</div><br/>
-              <div class="adjusted_txt">0 Minutes</div>
-            </td>
-          </tr>
-        </table>
-        <hr/>
-        <div>Comments:</div><br/>
-        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
-        <div>(1,000 characters maximum)</div>
-      </div>
-      -->
-      <div id="courseware_tab" class="tab_item">
-        <select class="drop_course" style="width:300px;"></select>
-        <hr/>
-        <table>
-          <tr> 
-            <td style="width:350px;">
-              <div>Adjust time: (30/-30 min)</div><br/>
-              <input type="text" class="adjustment_txt">
-            </td>
-            <td>
-              <div>Adjusted time:</div><br/>
-              <div class="adjusted_txt">0 Minutes</div>
-            </td>
-          </tr>
-        </table>
-        <hr/>
-        <div>Comments:</div><br/>
-        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
-        <div>(1,000 characters maximum)</div>
-      </div>
-      <div id="discussion_tab" class="tab_item">
-        <select class="drop_course" style="width:300px;"></select>
-        <hr/>
-        <table>
-          <tr> 
-            <td style="width:350px;">
-              <div>Adjust time: (30/-30 min)</div><br/>
-              <input type="text" class="adjustment_txt">
-            </td>
-            <td>
-              <div>Adjusted time:</div><br/>
-              <div class="adjusted_txt">0 Minutes</div>
-            </td>
-          </tr>
-        </table>
-        <hr/>
-        <div>Comments:</div><br/>
-        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
-        <div>(1,000 characters maximum)</div>
-      </div>
-      <div id="portfolio_tab" class="tab_item">
-        <table>
-          <tr> 
-            <td style="width:350px;">
-              <div>Adjust time: (30/-30 min)</div><br/>
-              <input type="text" class="adjustment_txt">
-            </td>
-            <td>
-              <div>Adjusted time:</div><br/>
-              <div class="adjusted_txt">0 Minutes</div>
-            </td>
-          </tr>
-        </table>
-        <hr/>
-        <div>Comments:</div><br/>
-        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
-        <div>(1,000 characters maximum)</div>
-      </div>
-      <div id="external_tab" class="tab_item">
-        <select class="drop_course" style="width:300px;"></select>
-        <hr/>
-        <table>
-          <tr> 
-            <td style="width:350px;">
-              <div>Adjust time: (30/-30 min)</div><br/>
-              <input type="text" class="adjustment_txt">
-            </td>
-            <td>
-              <div>Adjusted time:</div><br/>
-              <div class="adjusted_txt">0 Minutes</div>
-            </td>
-          </tr>
-        </table>
-        <hr/>
-        <div>Comments:</div><br/>
-        <textarea class="comments_txt" rows="5" cols="75" maxlength="1000"></textarea>
-        <div>(1,000 characters maximum)</div>
-      </div>
-      <div class="details">
-        Details
-        <div class="icon"></div>
-      </div>
-      <div style="clear:both;"></div>
-    </div>
-    <div class="content"></div>
-    <div class="adjustment_log">
-      <div class="adjustment_log_title">Adjustment log:</div>
-      <div class="adjustment_log_list"></div>
-    </div>
-  </div>
 </div>
 <script type="text/javascript">
 
-  //---------------- Time Report -----------------//
+    //---------------- Time Report -----------------//
 
-  var pagerOptions = {
+    var pagerOptions = {
 
-    // target the pager markup - see the HTML block below
-    container: $(".pager"),
+        // target the pager markup - see the HTML block below
+        container: $(".pager"),
 
-    // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
-    ajaxUrl: null,
+        // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+        ajaxUrl: null,
 
-    // modify the url after all processing has been applied
-    customAjaxUrl: function(table, url) { return url; },
+        // modify the url after all processing has been applied
+        customAjaxUrl: function(table, url) { return url; },
 
-    // add more ajax settings here
-    // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
-    ajaxObject: { dataType: 'json' },
+        // add more ajax settings here
+        // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+        ajaxObject: { dataType: 'json' },
 
-    // process ajax so that the data object is returned along with the total number of rows
-    ajaxProcessing: null,
+        // process ajax so that the data object is returned along with the total number of rows
+        ajaxProcessing: null,
 
-    // Set this option to false if your table data is preloaded into the table, but you are still using ajax
-    processAjaxOnInit: true,
+        // Set this option to false if your table data is preloaded into the table, but you are still using ajax
+        processAjaxOnInit: true,
 
-    // output string - default is '{page}/{totalPages}'
-    // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
-    // also {page:input} & {startRow:input} will add a modifiable input in place of the value
-    output: '{startRow} to {endRow} ({totalRows})',
+        // output string - default is '{page}/{totalPages}'
+        // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+        // also {page:input} & {startRow:input} will add a modifiable input in place of the value
+        output: '{startRow} to {endRow} ({totalRows})',
 
-    // apply disabled classname (cssDisabled option) to the pager arrows when the rows
-    // are at either extreme is visible; default is true
-    updateArrows: true,
+        // apply disabled classname (cssDisabled option) to the pager arrows when the rows
+        // are at either extreme is visible; default is true
+        updateArrows: true,
 
-    // starting page of the pager (zero based index)
-    page: 0,
+        // starting page of the pager (zero based index)
+        page: 0,
 
-    // Number of visible rows - default is 10
-    size: 10,
+        // Number of visible rows - default is 10
+        size: 10,
 
-    // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
-    //savePages : true,
+        // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
+        //savePages : true,
 
-    // Saves tablesorter paging to custom key if defined.
-    // Key parameter name used by the $.tablesorter.storage function.
-    // Useful if you have multiple tables defined
-    //storageKey:'tablesorter-pager',
+        // Saves tablesorter paging to custom key if defined.
+        // Key parameter name used by the $.tablesorter.storage function.
+        // Useful if you have multiple tables defined
+        //storageKey:'tablesorter-pager',
 
-    // Reset pager to this page after filtering; set to desired page number (zero-based index),
-    // or false to not change page at filter start
-    pageReset: 0,
+        // Reset pager to this page after filtering; set to desired page number (zero-based index),
+        // or false to not change page at filter start
+        pageReset: 0,
 
-    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
-    // table row set to a height to compensate; default is false
-    fixedHeight: true,
+        // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+        // table row set to a height to compensate; default is false
+        fixedHeight: true,
 
-    // remove rows from the table to speed up the sort of large tables.
-    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
-    removeRows: false,
+        // remove rows from the table to speed up the sort of large tables.
+        // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+        removeRows: false,
 
-    // If true, child rows will be counted towards the pager set size
-    countChildRows: false,
+        // If true, child rows will be counted towards the pager set size
+        countChildRows: false,
 
-    // css class names of pager arrows
-    cssNext: '.next', // next page arrow
-    cssPrev: '.prev', // previous page arrow
-    cssFirst: '.first', // go to first page arrow
-    cssLast: '.last', // go to last page arrow
-    cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+        // css class names of pager arrows
+        cssNext: '.next', // next page arrow
+        cssPrev: '.prev', // previous page arrow
+        cssFirst: '.first', // go to first page arrow
+        cssLast: '.last', // go to last page arrow
+        cssGoto: '.gotoPage', // select dropdown to allow choosing a page
 
-    cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
-    cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+        cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+        cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
 
-    // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
-    cssDisabled: 'disabled', // Note there is no period "." in front of this class name
-    cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+        // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+        cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+        cssErrorRow: 'tablesorter-errorRow' // ajax error information row
 
-  };
-  function safeJSON(j){
-    j.csrfmiddlewaretoken="${csrf_token}"
-    return j;
-  }
-  //** init expand title
-  $(".expand_title").click(function(){
-    var $div=$(this).next("div.expand_div");
-    if($div.is(':visible')){
-      $div.slideUp();
-      $(this).removeClass("expand_title_expanded");
-    }else{
-      $div.slideDown();
-      $(this).addClass("expand_title_expanded");
+    };
+    function safeJSON(j){
+        j.csrfmiddlewaretoken="${csrf_token}";
+        return j;
     }
-  });
-  //** init filter controls
-  $(".control.filter").each(function(){
-    var el=this;
-    new FilterControl(this);
-    this.onFavoriteServerUpdated=function(){
-      $(".control.filter").each(function(){
-        if(!$(el).is(this)) this.control.createFavorite();
-      });
-    }
-  });
-  $(function() {
+    //** init expand title
+    $(".expand_title").click(function(){
+        var $div=$(this).next("div.expand_div");
+        if($div.is(':visible')){
+            $div.slideUp();
+            $(this).removeClass("expand_title_expanded");
+        }else{
+            $div.slideDown();
+            $(this).addClass("expand_title_expanded");
+        }
+    });
+    //** init filter controls
+    $(".control.filter").each(function(){
+        var el=this;
+        new FilterControl(this);
+        this.onFavoriteServerUpdated=function(){
+            $(".control.filter").each(function(){
+                if(!$(el).is(this)) this.control.createFavorite();
+            });
+        }
+    });
+    $(function() {
 
-    //----------- tablesorter init----------//
+        //----------- tablesorter init----------//
 
-    $(".tblUserTime").tablesorter({
-      theme : 'blue',
-      widgets:['zebra','filter','columnSelector'],
-      widgetOptions: {
-       filter_placeholder: { search : 'Search...' },
-       columnSelector_container : $('#columnSelector'),
-       columnSelector_columns : {14: 'disable'},
-       columnSelector_mediaqueryName: 'All: '
-      }
-    }).tablesorterPager(pagerOptions);
-    $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,13]]);
+        $(".tblUserTime").tablesorter({
+            theme : 'blue',
+            widgets:['zebra','filter','columnSelector'],
+            widgetOptions: {
+                filter_placeholder: { search : 'Search...' },
+                columnSelector_container : $('#columnSelector'),
+                columnSelector_columns : {14: 'disable'},
+                columnSelector_mediaqueryName: 'All: '
+            }
+        }).tablesorterPager(pagerOptions);
+        $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,13]]);
 
-    //----------- course drop change----------//
+        //----------- course drop change----------//
 
-      $(".tab_item").find(".drop_course").change(function(){
-        var cousre_id = $(this).val()!=''?$(this).val():undefined;
-        userTimeReport.load_adjustment_time(userTimeReport.user_id, $(this).parent().attr('id'), cousre_id);
-      })
+        $(".tab_item").find(".drop_course").change(function(){
+            var cousre_id = $(this).val()!=''?$(this).val():undefined;
+            userTimeReport.load_adjustment_time(userTimeReport.user_id, $(this).parent().attr('id'), cousre_id);
+        });
 
-    //----------- tabs init / change----------//
+        //----------- tabs init / change----------//
 
-    $("#tabs").tabs({
-      activate: function(event, ui) {
-        userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
-      }
+        $("#tabs").tabs({
+            activate: function(event, ui) {
+                userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
+            }
+        });
+
+        //----------- column selector event----------//
+
+        $('.columnSelectorButton').click(function(e){
+            if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+                $('.columnSelector').show();
+            }
+            else {
+                $('.columnSelector').hide();
+            }
+        });
+
+        $(document).click(function(e){
+            var isout = !$('.columnSelectorWrapper').find(e.target).length;
+            if($('.columnSelector').is(":visible")){
+                if(isout && e.target.className != 'columnSelectorButton') {
+                    $('.columnSelector').hide();
+                }
+            }
+
+        });
+
+        //----------- time report permission UI init----------//
+        function timeReportPermInit() {
+            $('#fltUserTime')[0].control.getFieldArea('state').empty();
+            $('#fltUserTime')[0].control.getFieldArea('district').empty();
+            $.get("${reverse('time_report_drop_states')}", {}, function(data) {
+                if (data) {
+                    for(d in data){
+                        $('select[name="state"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                    }
+                }
+            });
+            $.get("${reverse('time_report_drop_districts')}", {}, function(data) {
+                if (data) {
+                    for(d in data){
+                        $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                    }
+                }
+            });
+            $.get("${reverse('time_report_drop_schools')}", {}, function(data) {
+                if (data) {
+                    for(d in data){
+                        $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                    }
+                }
+            });
+        }
+        %if check_user_perms(request.user, 'time_report', exclude_superuser=True):
+            timeReportPermInit();
+        %endif
     });
 
-    //----------- column selector event----------//
-
-    $('.columnSelectorButton').click(function(e){
-      if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
-        $('.columnSelector').show();
-      }
-      else {
-        $('.columnSelector').hide();
-      }
-    })
-
-    $(document).click(function(e){
-        var isout = !$('.columnSelectorWrapper').find(e.target).length;
-        if($('.columnSelector').is(":visible")){
-          if(isout && e.target.className != 'columnSelectorButton') {
-            $('.columnSelector').hide();
-          }
-        }
-     
-    })
-
-    //----------- time report permission UI init----------//
-    function timeReportPermInit() {
-      $('#fltUserTime')[0].control.getFieldArea('state').empty();
-      $('#fltUserTime')[0].control.getFieldArea('district').empty();
-      $.get("${reverse('time_report_drop_districts')}", {}, function(data) {
-        if (data) {
-           for(d in data){
-            $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
-          }
-        }
-      });
-
-      $.get("${reverse('time_report_drop_schools')}", {}, function(data) {
-        if (data) {
-           for(d in data){
-            $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
-          }
-        }
-      });
-    }
-    %if is_time_report_permission(request.user):
-      timeReportPermInit();
-    %endif
-  })
-
-  var userTimeReport = {
-    timeID:null,
-    dialog:null,
-    total_num:0,
-    user_id:0,
-    curr_course:null,
-    createTimeTable:function(data){
-      var self = this;
-      var table_con = "";
-      $(".tblUserTime tbody").empty();
-      for(d in data){
-        table_con+='<tr role="row" user_id='+data[d].id+'>\
-        <td>'+data[d].user_first_name+'</td><td>'+data[d].user_last_name+'</td>\
-        <td>'+data[d].user_email+'</td><td>'+data[d].district+'</td><td>'+data[d].school+'</td>\
-        <td type="total">'+data[d].total_time+'</td><td type="collaboration">'+data[d].collaboration_time+'</td>\
-        <td type="discussion">'+data[d].discussion_time+'</td><td type="portfolio">'+data[d].portfolio_time+'</td>\
-        <td type="external">'+data[d].external_time+'</td><td type="course">'+data[d].course_time+'</td>\
-        <td>'+course_num_format('complete', data[d].id, data[d].complete_course_num)+'</td>\
-        <td>'+course_num_format('current', data[d].id, data[d].current_course_num)+'</td>\
-        <td><center><a class="icon icon-edit time_edit_btn" href="javascript:void(0);" style="font-size:24px;\
-        color:#89c252;"></a></center></td><td></td></tr>';
-      }
-      $(".tblUserTime tbody").append(table_con);
-
-      //----------- Edit button click----------//
-
-      $(".time_edit_btn").click(function(){
-
-        self.user_id = $(this).parent().parent().parent().attr('user_id');
-        self.email = $(this).parent().parent().parent().children('td').get(2).innerHTML;
-        $("#tabs").tabs({active: 0});
-        userTimeReport.load_adjustment_time(userTimeReport.user_id, 'courseware_tab');
-        var title = "Time Adjustment for <span style='color:#0000E3;font-size:16px;'>"+ self.email+"</span>";
-
-       //----------- Dialog show----------//
-
-        new Dialog($('#time_edit_dialog')).showButtons(title,"",['Save','Cancel'],function(choice){
-           if(choice == 0){
-              var active_tab_id = $(".ui-tabs-active").attr("aria-controls");
-              var select_course_id = $("#"+active_tab_id).find(".drop_course option:selected").val();
-              var timeVal = $("#"+active_tab_id).find(".adjustment_txt")[0].value;
-              var comments = $("#"+active_tab_id).find(".comments_txt")[0].value;
-              comments = comments.replaceAll('<', '&lt;');
-              comments = comments.replaceAll('>', '&gt;');
-              var isInteger = new RegExp("^-?\\d+$").test(timeVal);
-              if(isInteger && select_course_id != ""){
-                timeVal = parseInt(timeVal) * 60;
-                self.save_adjustment_time(self.user_id, active_tab_id, select_course_id, timeVal, comments, this);
-              }
-              else {
-                if(!isInteger){
-                  alert("Please enter an integer!");
-                  return 0;
-                }
-                if(select_course_id == ""){
-                  alert("Please select a course!");
-                  return 0;
-                }
-              }
-              
-           }
-           else {
-            this.hide();
-          }
-        })
-        //----------- UI init (course drop / time text ...)----------//
-
-        self.create_course_drop_menu(self.user_id, 'courseware_tab');
-        self.create_course_drop_menu(self.user_id, 'discussion_tab');
-        self.create_course_drop_menu(self.user_id, 'external_tab');
-        $(".adjustment_txt").val('');
-        $(".comments_txt").val('');
-        $(".adjustment_log").hide();
-        $(".adjustment_log_list").empty();
-        $(".details").removeClass("details_expanded");
-
-        //----------- Adjustment log ----------//
-
-        $(".details").unbind("click");
-        $(".details").click(function(){
-          var details = this;
-          $(".adjustment_log").slideToggle('slow', function(){
-            $(details).toggleClass('details_expanded');
-            if ($(this).is(':visible')){
-              self.load_adjustment_log(self.user_id);
+    var userTimeReport = {
+        timeID:null,
+        dialog:null,
+        total_num:0,
+        user_id:0,
+        curr_course:null,
+        createTimeTable:function(data){
+            var self = this;
+            var table_con = "";
+            $(".tblUserTime tbody").empty();
+            for(d in data){
+                table_con += '<tr role="row" user_id=' + data[d].id + '>';
+                table_con += '<td>' + data[d].user_first_name + '</td><td>' + data[d].user_last_name + '</td>';
+                table_con += '<td>' + data[d].user_email + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
+                table_con += '<td type="total">' + data[d].total_time + '</td><td type="collaboration">' + data[d].collaboration_time + '</td>';
+                table_con += '<td type="discussion">' + data[d].discussion_time + '</td><td type="portfolio">' + data[d].portfolio_time + '</td>';
+                table_con += '<td type="external">' + data[d].external_time + '</td><td type="course">' + data[d].course_time + '</td>';
+                table_con += '<td>' + course_num_format('complete', data[d].id, data[d].complete_course_num) + '</td>';
+                table_con += '<td>' + course_num_format('current', data[d].id, data[d].current_course_num) + '</td>';
+                %if check_user_perms(request.user, 'time_report', 'adjust_time'):
+                    table_con += '<td><center><a class="icon icon-edit time_edit_btn" href="#" ></a></center></td>';
+                %endif
+                table_con += '<td></td></tr>';
             }
-          });
-        })
-      })
+            $(".tblUserTime tbody").append(table_con);
 
-        //----------- (Completed courses / Current courses) click ----------//
+            //----------- Edit button click----------//
 
-        $(".complete_courses_btn").click(function(){
-          self.user_id = $(this).parent().parent().parent().attr('user_id');
-          self.load_enrollment_courses(self.user_id, 'complete');
-        })
+            $(".time_edit_btn").click(function(e){
+                e.preventDefault();
+                self.user_id = $(this).parent().parent().parent().attr('user_id');
+                self.email = $(this).parent().parent().parent().children('td').get(2).innerHTML;
+                $("#tabs").tabs({active: 0});
+                userTimeReport.load_adjustment_time(userTimeReport.user_id, 'courseware_tab');
+                var title = "Time Adjustment for <span style='color:#0000E3;font-size:16px;'>" + self.email + "</span>";
 
-        $(".current_courses_btn").click(function(){
-          self.user_id = $(this).parent().parent().parent().attr('user_id');
-          self.load_enrollment_courses(self.user_id, 'current');
-        })
+                //----------- Dialog show----------//
 
-      //------------------------------------------------------------------//
+                new Dialog($('#time_edit_dialog')).showButtons(title,"",['Save','Cancel'],function(choice){
+                    if(choice == 0){
+                        var active_tab_id = $(".ui-tabs-active").attr("aria-controls");
+                        var select_course_id = $("#" + active_tab_id).find(".drop_course option:selected").val();
+                        var timeVal = $("#" + active_tab_id).find(".adjustment_txt")[0].value;
+                        var comments = $("#" + active_tab_id).find(".comments_txt")[0].value;
+                        comments = comments.replaceAll('<', '&lt;');
+                        comments = comments.replaceAll('>', '&gt;');
+                        var isInteger = new RegExp("^-?\\d+$").test(timeVal);
+                        if(isInteger && select_course_id != ""){
+                            timeVal = parseInt(timeVal) * 60;
+                            self.save_adjustment_time(self.user_id, active_tab_id, select_course_id, timeVal, comments, this);
+                        }
+                        else {
+                            if(!isInteger){
+                                alert("Please enter an integer!");
+                                return 0;
+                            }
+                            if(select_course_id == ""){
+                                alert("Please select a course!");
+                                return 0;
+                            }
+                        }
 
-      $(".tblUserTime").trigger("update");
-      this.total_num = data.length;
-      $(".time_download .total").html(data.length);
-    },
-    filterTime:function(){
-      var self = this;
-      var filter = $('#fltUserTime')[0].control.getFilter();
-      this.curr_course = filter.course;
-      $.get("${reverse('time_report_time_table')}", {
-            'state': filter.state,
-            'district': filter.district,
-            'school': filter.school,
-            'course':filter.course,
-        }, function(data) {
-            if (data.success) {
-                self.dialog = new Dialog($('#dialog'));
-                clearInterval(self.timeID);
-                self.dialog.showProgress("Loading data","Please wait...");
-                self.timeID = setInterval(self.show_progress, 2000, self, data.taskId);
-            }
-      });
-    },
-    show_progress: function(obj,taskId){
-      $.post("${reverse('time_report_time_table_progress')}", {
-            'taskId': taskId
-        }, function(data) {
-            if (data != null) {
-              obj.dialog.setProgress(data.percent);
-              if(data.success)
-              {
-                clearInterval(obj.timeID);
-                obj.get_table_result();
-                
-              }
-            }
-      });
-    },
-    get_table_result:function(){
-       var self = this;
-       $.post("${reverse('time_report_get_time_table_result')}", {
-        }, function(data) {
-            if (data != null) {
-              self.dialog.hide();
-              self.createTimeTable(data.rows);
-            }
-      });
-    },
-    postToNewTab: function(url, params) {
-      var form = document.createElement("form");
-      form.setAttribute("method", "post");
-      form.setAttribute("action", url);
-      form.setAttribute("target", "_blank");
-      for (var i in params) {
-        if (params.hasOwnProperty(i)) {
-          var input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = i;
-          input.value = params[i];
-          form.appendChild(input);
-        }
-      }
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-    },
-    downloadUserTimeExcel:function(){
-      var filter = $('#fltUserTime')[0].control.getFilter();
-      this.postToNewTab("${reverse('time_report_download_excel')}",safeJSON(filter));
-    },
-    create_course_drop_menu:function(user_id, active_id){
-      $.get("${reverse('time_report_drop_enroll_courses')}", {
-        user_id:user_id
-        }, function(data) {
-            if (data != null) {
-              var course_drop = $("#"+active_id+" select");
-              course_drop.empty();
-              course_drop.append('<option value="">Select Course</option>');      
-              for(d in data){
-                course_drop.append('<option value='+data[d].id+'>'+data[d].name+'</option>')
-              }
-            }
-      });
-    },
-    save_adjustment_time:function(user_id, active_tab_id, course_id, timeVal, comments, time_edit_dialog){
-      var self = this;
-      $.post("${reverse('time_report_adjustment_time_save')}", {
-            'user_id': user_id,
-            'course_id':course_id,
-            'type': active_tab_id.split("_")[0],
-            'time':timeVal,
-            'comments':comments
+                    }
+                    else {
+                        this.hide();
+                    }
+                });
+                //----------- UI init (course drop / time text ...)----------//
+
+                self.create_course_drop_menu(self.user_id, 'courseware_tab');
+                self.create_course_drop_menu(self.user_id, 'discussion_tab');
+                self.create_course_drop_menu(self.user_id, 'external_tab');
+                $(".adjustment_txt").val('');
+                $(".comments_txt").val('');
+                $(".adjustment_log").hide();
+                $(".adjustment_log_list").empty();
+                $(".details").removeClass("details_expanded");
+
+                //----------- Adjustment log ----------//
+
+                $(".details").unbind("click");
+                $(".details").click(function(){
+                    var details = this;
+                    $(".adjustment_log").slideToggle('slow', function(){
+                        $(details).toggleClass('details_expanded');
+                        if ($(this).is(':visible')){
+                            self.load_adjustment_log(self.user_id);
+                        }
+                    });
+                });
+            });
+
+            //----------- (Completed courses / Current courses) click ----------//
+
+            $(".complete_courses_btn").click(function(){
+                self.user_id = $(this).parent().parent().parent().attr('user_id');
+                self.load_enrollment_courses(self.user_id, 'complete');
+            });
+
+            $(".current_courses_btn").click(function(){
+                self.user_id = $(this).parent().parent().parent().attr('user_id');
+                self.load_enrollment_courses(self.user_id, 'current');
+            });
+
+            //------------------------------------------------------------------//
+
+            $(".tblUserTime").trigger("update");
+            this.total_num = data.length;
+            $(".time_download .total").html(data.length);
+        },
+        filterTime:function(){
+            var self = this;
+            var filter = $('#fltUserTime')[0].control.getFilter();
+            this.curr_course = filter.course;
+            $.get("${reverse('time_report_time_table')}", {
+                'state': filter.state,
+                'district': filter.district,
+                'school': filter.school,
+                'course':filter.course,
             }, function(data) {
-              if(data.success){
-                time_edit_dialog.hide();
-                new Dialog($('#dialog')).show('Success','Save successful.');
-              }
-              else {
-                alert('Adjustment was not saved because it made time negative.');
-              }
-              self.load_single_user_time(user_id ,course_id);
-          });
-    },
-    load_adjustment_time:function(user_id, active_tab_id, course_id){
-      var self = this;
-      $.post("${reverse('time_report_adjustment_time_load')}", {
-            'user_id': user_id,
-            'course_id':course_id,
-            'type': active_tab_id.split("_")[0]
-            }, function(data) {
-              $("#"+active_tab_id).find('.adjusted_txt').html(data.time);
-          });
-    },
-    load_single_user_time:function(user_id, adjustment_course){
-      var self = this;
-      $.post("${reverse('time_report_single_user_time_load')}", {
-        'user_id': user_id,
-        'course_id':self.curr_course
-        }, function(data) {
-            $('.tblUserTime tr[user_id=' + user_id + '] td').each(function(i){
-              var type = $(this).attr('type');
-              if(type == 'total' || type == 'portfolio' || type == 'collaboration'){
-                $(this).html(data.row[type + '_time']); 
-              }
-              else{
-                if(adjustment_course == self.curr_course || self.curr_course == ""){
-                  $(this).html(data.row[type + '_time']); 
+                if (data.success) {
+                    self.dialog = new Dialog($('#dialog'));
+                    clearInterval(self.timeID);
+                    self.dialog.showProgress("Loading data","Please wait...");
+                    self.timeID = setInterval(self.show_progress, 2000, self, data.taskId);
                 }
-              }     
-            })                      
-       });
-    },
-    load_enrollment_courses:function(user_id, type){
-      var self = this;
-      var dialog = $('#enrollment_courses_dialog');
-      var course_list = dialog.find('.course_list');
-      $.post("${reverse('time_report_enrollment_courses_load')}", {
-        'user_id':user_id,
-        'type':type
-        }, function(data) {
-        var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
-        var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
-        course_list.empty();
-        for(var d in data){
-          course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');  
-        }
-        new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
-          this.hide();
-        })
-      });
-    },
-    load_adjustment_log:function(user_id){
-      var adjustment_list = $('.adjustment_log_list');
-      $.post("${reverse('time_report_adjustment_log_load')}", {
-        'user_id': user_id,
-        }, function(data) {
-          adjustment_list.empty();
-          for(var d in data.rows) {
-            var row = '';
-            for(var v in data.rows[d]) {
-              row += '<span>[' + v + ' : </span>\
+            });
+        },
+        show_progress: function(obj,taskId){
+            $.post("${reverse('time_report_time_table_progress')}", {
+                'taskId': taskId
+            }, function(data) {
+                if (data != null) {
+                    obj.dialog.setProgress(data.percent);
+                    if(data.success)
+                    {
+                        clearInterval(obj.timeID);
+                        obj.get_table_result();
+
+                    }
+                }
+            });
+        },
+        get_table_result:function(){
+            var self = this;
+            $.post("${reverse('time_report_get_time_table_result')}", {
+            }, function(data) {
+                if (data != null) {
+                    self.dialog.hide();
+                    self.createTimeTable(data.rows);
+                }
+            });
+        },
+        postToNewTab: function(url, params) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", url);
+            form.setAttribute("target", "_blank");
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        },
+        downloadUserTimeExcel:function(){
+            var filter = $('#fltUserTime')[0].control.getFilter();
+            this.postToNewTab("${reverse('time_report_download_excel')}",safeJSON(filter));
+        },
+        create_course_drop_menu:function(user_id, active_id){
+            $.get("${reverse('time_report_drop_enroll_courses')}", {
+                user_id:user_id
+            }, function(data) {
+                if (data != null) {
+                    var course_drop = $("#"+active_id+" select");
+                    course_drop.empty();
+                    course_drop.append('<option value="">Select Course</option>');
+                    for(d in data){
+                        course_drop.append('<option value='+data[d].id+'>'+data[d].name+'</option>')
+                    }
+                }
+            });
+        },
+        save_adjustment_time:function(user_id, active_tab_id, course_id, timeVal, comments, time_edit_dialog){
+            var self = this;
+            $.post("${reverse('time_report_adjustment_time_save')}", {
+                'user_id': user_id,
+                'course_id':course_id,
+                'type': active_tab_id.split("_")[0],
+                'time':timeVal,
+                'comments':comments
+            }, function(data) {
+                if(data.success){
+                    time_edit_dialog.hide();
+                    new Dialog($('#dialog')).show('Success','Save successful.');
+                }
+                else {
+                    alert('Adjustment was not saved because it made time negative.');
+                }
+                self.load_single_user_time(user_id ,course_id);
+            });
+        },
+        load_adjustment_time:function(user_id, active_tab_id, course_id){
+            var self = this;
+            $.post("${reverse('time_report_adjustment_time_load')}", {
+                'user_id': user_id,
+                'course_id':course_id,
+                'type': active_tab_id.split("_")[0]
+            }, function(data) {
+                $("#"+active_tab_id).find('.adjusted_txt').html(data.time);
+            });
+        },
+        load_single_user_time:function(user_id, adjustment_course){
+            var self = this;
+            $.post("${reverse('time_report_single_user_time_load')}", {
+                'user_id': user_id,
+                'course_id':self.curr_course
+            }, function(data) {
+                $('.tblUserTime tr[user_id=' + user_id + '] td').each(function(i){
+                    var type = $(this).attr('type');
+                    if(type == 'total' || type == 'portfolio' || type == 'collaboration'){
+                        $(this).html(data.row[type + '_time']);
+                    }
+                    else{
+                        if(adjustment_course == self.curr_course || self.curr_course == ""){
+                            $(this).html(data.row[type + '_time']);
+                        }
+                    }
+                })
+            });
+        },
+        load_enrollment_courses:function(user_id, type){
+            var self = this;
+            var dialog = $('#enrollment_courses_dialog');
+            var course_list = dialog.find('.course_list');
+            $.post("${reverse('time_report_enrollment_courses_load')}", {
+                'user_id':user_id,
+                'type':type
+            }, function(data) {
+                var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
+                var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
+                course_list.empty();
+                for(var d in data){
+                    course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');
+                }
+                new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
+                    this.hide();
+                });
+            });
+        },
+        load_adjustment_log:function(user_id){
+            var adjustment_list = $('.adjustment_log_list');
+            $.post("${reverse('time_report_adjustment_log_load')}", {
+                'user_id': user_id,
+            }, function(data) {
+                adjustment_list.empty();
+                for(var d in data.rows) {
+                    var row = '';
+                    for(var v in data.rows[d]) {
+                        row += '<span>[' + v + ' : </span>\
               <span style="color:red">'+ data.rows[d][v] + '</span>\
               <span>]</span>';
-              
+
+                    }
+                    adjustment_list.append($('<div></div>').append(row));
+                }
+            });
+        },
+        init:function(){
+            var self = this;
+            $("#btnDownloadUserTimeExcel").click(function(){
+                if(self.total_num > 0){
+                    self.downloadUserTimeExcel();
+                }
+                else{
+                    self.dialog = new Dialog($('#dialog'));
+                    self.dialog.show('Download Excel','Data is empty!');
+                }
+            });
+        }
+    };
+    userTimeReport.init();
+
+    //--------------------------------------------------------------------------//
+    //* controller for adjustment time import
+    var adjustmentTimeDataImport = {
+        submit: function () {
+            var self = this;
+            var form = this.$form[0];
+
+            if (!((/\.csv/i).test(form.file.value))) {
+                new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
+                return false;
             }
-            adjustment_list.append($('<div></div>').append(row));
-          }
-      });
-    },
-    init:function(){
-      var self = this;
-      $("#btnDownloadUserTimeExcel").click(function(){
-        if(self.total_num > 0){
-          self.downloadUserTimeExcel();
-        }
-        else{
-          self.dialog = new Dialog($('#dialog'));
-          self.dialog.show('Download Excel','Data is empty!');
-        }
-      });
-    }
-  }
-  userTimeReport.init();
-
-//--------------------------------------------------------------------------//
-  //* controller for adjustment time import
-  var adjustmentTimeDataImport = {
-      submit: function () {
-          var self = this;
-          var form = this.$form[0];
-
-          if (!((/\.csv/i).test(form.file.value))) {
-              new Dialog($('#dialog')).show('Error', 'Please select a CSV file.');
-              return false;
-          }
-          $.ajax({
-              url: "${reverse('time_report_import_adjustment_time_submit')}",
-              data: new FormData(form), processData: false, contentType: false, type: 'POST',
-              /* enctype: 'multipart/form-data',
-                 mimeType: 'multipart/form-data', */
-              success: function (data) {
-                  self.renderProgress(data.taskId);
-              }
-          });
-      },
-      renderProgress: function (taskId) {
-          var dialog = new Dialog($('#dialog'));
-          dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
+            $.ajax({
+                url: "${reverse('time_report_import_adjustment_time_submit')}",
+                data: new FormData(form), processData: false, contentType: false, type: 'POST',
+                /* enctype: 'multipart/form-data',
+                   mimeType: 'multipart/form-data', */
+                success: function (data) {
+                    self.renderProgress(data.taskId);
+                }
+            });
+        },
+        renderProgress: function (taskId) {
+            var dialog = new Dialog($('#dialog'));
+            dialog.show("User Import", "<p style='font-size:20px;font-weight:bold;'>Import Started</p>\
   <br>You may monitor the progress in the Unread Tasks, below.\
   <br>If there are any errors, you will receive them in an email.");
-      },
-      init: function () {
-          
-          var self = this;
-          this.$form = $("#adjustmentTimeDataImportForm");
-        
-          this.$form.submit(function () {
-              self.submit();
-              return false;
-          });
-      }
-  };
-  adjustmentTimeDataImport.init();
+        },
+        init: function () {
 
-  //----------- (Completed courses / Current courses) column format ----------//
+            var self = this;
+            this.$form = $("#adjustmentTimeDataImportForm");
 
-  function course_num_format(type, user_id, num) {
-    var item_class = type == 'complete' ? 'complete_courses_btn complete_courses_color' : 'current_courses_btn current_courses_color';
-    if(num > 0){
-      return '<center>' + num + '&nbsp;<a class="' + item_class +' icon icon-list-ul" \
+            this.$form.submit(function () {
+                self.submit();
+                return false;
+            });
+        }
+    };
+    adjustmentTimeDataImport.init();
+
+    //----------- (Completed courses / Current courses) column format ----------//
+
+    function course_num_format(type, user_id, num) {
+        var item_class = type == 'complete' ? 'complete_courses_btn complete_courses_color' : 'current_courses_btn current_courses_color';
+        if(num > 0){
+            return '<center>' + num + '&nbsp;<a class="' + item_class +' icon icon-list-ul" \
       href="javascript:void(0);" style="font-size:20px;"></a></center>';
-    }
-    else{
-      return '<center>' + num + '</center>';
+        }
+        else{
+            return '<center>' + num + '</center>';
+        }
+
     }
 
-  }
-
-  //------------------------------------------------------
-  String.prototype.replaceAll = function(s1, s2) { 
-    return this.replace(new RegExp(s1, "gm"), s2); 
-  }
+    //------------------------------------------------------
+    String.prototype.replaceAll = function(s1, s2) {
+        return this.replace(new RegExp(s1, "gm"), s2);
+    }
 </script>

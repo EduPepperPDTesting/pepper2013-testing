@@ -12,7 +12,7 @@
     import branding
     # app that handles site status messages
     from status.status import get_site_status_msg
-    from administration.time_report import is_time_report_permission
+    from permissions.utils import check_user_perms
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -369,49 +369,53 @@
             <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-
         <ol class="user admin" >
-
-        %if is_time_report_permission(curr_user):
-          <!-- Time REPORT PERMISSION -->
-          <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-            <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
-            <ul class="admin-dropdown-menu">
-              <li><a href="${reverse('time_report')}">Time Report</a></li>
-              <script type="text/javascript">
-                $(document).on('click', function(event) {
-                  if(!$(event.target).closest('.admin-menu-holder').length){
-                    $(".admin-dropdown-menu").hide();
-                  }else if($(event.target).closest(".outside_menu").length){
-                    $(".admin-dropdown-menu").hide();
-                  }
-                });
-              </script>
-            </ul>
-          </li>
-        %else:
-            %if show_extended and curr_user.is_superuser:
+            %if show_extended:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Admin &#9662;</a>
+                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
-                        <li><a href="${reverse('configuration')}">Configuration</a></li>
-                        <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                        <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                        <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                        <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                        <li><a href="${reverse('alert_message')}">Alert</a></li>
+                        %if check_user_perms(curr_user, 'certificate'):
+                            <li><a href="${reverse('configuration')}">Configuration</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'pepconn'):
+                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'permissions'):
+                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'time_report'):
+                            <li><a href="${reverse('time_report')}">Time Report</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'sso'):
+                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'tnl'):
+                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'studio'):
+                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                        %endif
+                        %if check_user_perms(curr_user, 'alert_message'):
+                            <li><a href="${reverse('alert_message')}">Alert</a></li>
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
-                                if(!$(event.target).closest('.admin-menu-holder').length){
+                                if (!$(event.target).closest('.admin-menu-holder').length) {
                                     $(".admin-dropdown-menu").hide();
-                                }else if($(event.target).closest(".outside_menu").length){
+                                } else if ($(event.target).closest(".outside_menu").length) {
                                     $(".admin-dropdown-menu").hide();
                                 }
                             });
 
-                            url_studio = ["https://studio0.pepperpd.com","https://studio-staging.pepperpd.com","https://studio-demo.pepperpd.com","https://studio.pepperpd.com"];
+                            url_studio = ["https://studio0.pepperpd.com",
+                                          "https://studio-staging.pepperpd.com",
+                                          "https://studio-demo.pepperpd.com",
+                                          "https://studio.pepperpd.com",
+                                          "https://studio-dev.pepperpd.com",
+                                          "https://studio-major.pepperpd.com",
+                                          "https://studio-patch.pepperpd.com",
+                                          "https://studio-test.pepperpd.com"];
                             url_split_array = window.location.href.split('/');
                             split_array_1 = "";
                             split_keyword = "";
@@ -434,12 +438,23 @@
                             else if(split_keyword == "www"){
                                 url_using = url_studio[3];
                             }
+                            else if(split_keyword == "dev"){
+                                url_using = url_studio[4];
+                            }
+                            else if(split_keyword == "major"){
+                                url_using = url_studio[5];
+                            }
+                            else if(split_keyword == "patch"){
+                                url_using = url_studio[6];
+                            }
+                            else if(split_keyword == "test"){
+                                url_using = url_studio[7];
+                            }
                             $("#studio_url").attr("href",url_using);
                         </script>
                     </ul>
                 </li>
             %endif
-        %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
@@ -480,9 +495,8 @@
                         <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
                     </ul>
                 </li>
-            </ol>
             %endif
-
+        </ol>
         %endif
         %if not show_extended:
             <ol class="right nav-courseware" id="btn-dashboard">
@@ -513,7 +527,7 @@
                 <!--@date:2013-11-02-->
                 <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
             % else:
-                <li><a  class="main-link" href="/contact" styledd>Become a Member</a></li>
+                <li><a  class="main-link" href="/contact">Become a Member</a></li>
                 <!--@end-->
             % endif
         % endif
@@ -1364,7 +1378,7 @@
     <!--@end-->
 
     <!-- task panel -->
-%if curr_user.is_superuser or is_time_report_permission(curr_user):
+%if curr_user.is_superuser or check_user_perms(request.user, 'time_report'):
     <div class="global_task_panel_wrapper">
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>

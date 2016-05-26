@@ -16,7 +16,6 @@ urlpatterns = (
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
-    
 
     # === sso begin ===
     url(r'^genericsso/$', 'sso.sp.genericsso'),
@@ -39,6 +38,29 @@ urlpatterns = (
 
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
+
+    url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
+    url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
+    url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
+    url(r'^pepper-utilities/drop/cohorts', 'pepper_utilities.views.drop_cohorts', name='pepper_utilities_drop_cohorts'),
+    url(r'^pepper-utilities/user/email-completion', 'pepper_utilities.views.user_email_completion', name='pepper_utilities_user_email_completion'),
+    url(r'^pepper-utilities/user/email-exists', 'pepper_utilities.views.user_email_exists', name='pepper_utilities_user_email_exists'),
+
+    url(r'^permissions$', 'permissions.views.permissions_view', name='permissions_view'),
+    url(r'^permissions/groups/permissions/list$', 'permissions.views.group_permissions_list', name='permissions_group_permissions_list'),
+    url(r'^permissions/groups/permissions/add$', 'permissions.views.group_permission_add', name='permissions_group_permission_add'),
+    url(r'^permissions/groups/permissions/delete$', 'permissions.views.group_permission_delete', name='permissions_group_permission_delete'),
+    url(r'^permissions/groups/members/list$', 'permissions.views.group_member_list', name='permissions_group_members_list'),
+    url(r'^permissions/groups/members/add$', 'permissions.views.group_member_add', name='permissions_group_member_add'),
+    url(r'^permissions/groups/members/delete$', 'permissions.views.group_member_delete', name='permissions_group_member_delete'),
+    url(r'^permissions/groups/check$', 'permissions.views.group_check', name='permissions_group_check'),
+    url(r'^permissions/groups/add$', 'permissions.views.group_add', name='permissions_group_add'),
+    url(r'^permissions/groups/delete$', 'permissions.views.group_delete', name='permissions_group_delete'),
+    url(r'^permissions/groups/list$', 'permissions.views.group_list', name='permissions_group_list'),
+    url(r'^permissions/permissions/check$', 'permissions.views.permission_check', name='permissions_permission_check'),
+    url(r'^permissions/permissions/add$', 'permissions.views.permission_add', name='permissions_permission_add'),
+    url(r'^permissions/permissions/delete$', 'permissions.views.permission_delete', name='permissions_permission_delete'),
+    url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -130,7 +152,6 @@ urlpatterns = (
     url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
     url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
 
-
     url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
     url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
     url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
@@ -172,18 +193,18 @@ urlpatterns = (
     url(r'^reg_kits/drop_states$', 'reg_kits.views.drop_states', name="drop_states"),
     url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools', name="drop_schools"),
     url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts', name="drop_cohorts"),
-    
+
     url(r'^reg_kits/district/$', 'reg_kits.views.district', name="district"),
     url(r'^reg_kits/district/form/$', 'reg_kits.views.district_form', name="district_form"),
     url(r'^reg_kits/district/form/(?P<district_id>\d+)$', 'reg_kits.views.district_form', name="district_form"),
     url(r'^reg_kits/district/delete/$', 'reg_kits.views.district_delete', name="district_delete"),
     url(r'^reg_kits/district/submit/$', 'reg_kits.views.district_submit', name="district_submit"),
-    
+
     url(r'^reg_kits/transaction/$', 'reg_kits.views.transaction', name="transaction"),
     url(r'^reg_kits/transaction/form$', 'reg_kits.views.transaction_form', name="transaction_form"),
     url(r'^reg_kits/transaction/form/h(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form', name="transaction_modify"),
     url(r'^reg_kits/transaction/submit$', 'reg_kits.views.transaction_submit', name="transaction_submit"),
-    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete', name="transaction_delete"), 
+    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete', name="transaction_delete"),
 
     url(r'^reg_kits/cohort/$', 'reg_kits.views.cohort', name="cohort"),
     url(r'^reg_kits/cohort/form/$', 'reg_kits.views.cohort_form', name="cohort_form"),
@@ -196,11 +217,11 @@ urlpatterns = (
     url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form', name="school_form"),
     url(r'^reg_kits/school/delete/$', 'reg_kits.views.school_delete', name="school_delete"),
     url(r'^reg_kits/school/submit/$', 'reg_kits.views.school_submit', name="school_submit"),
-    
+
     url(r'^reg_kits/school/import_school_submit/$', 'reg_kits.views.import_school_submit', name="import_school_submit"),
     url(r'^reg_kits/district/import_district_submit/$', 'reg_kits.views.import_district_submit', name="import_district_submit"),
     url(r'^reg_kits/cohort/import_cohort_submit/$', 'reg_kits.views.import_cohort_submit', name="import_cohort_submit"),
-    
+
     url(r'^reg_kits/user/$', 'reg_kits.views.user', name="user"),
     url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form', name="user_form"),
     url(r'^reg_kits/user/form/(?P<user_id>\d+)$', 'reg_kits.views.user_form', name="user_form"),
@@ -208,7 +229,7 @@ urlpatterns = (
     url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit', name="user_submit"),
     url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email', name="send_invite_email"),
     url(r'^reg_kits/user/modify_status$', 'reg_kits.views.user_modify_status', name="user_modify_status"),
-    
+
     url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit', name="import_user_submit"),
 
     url(r'^reg_kits/download_user_csv/$', 'reg_kits.views.download_user_csv', name="download_user_csv"),
@@ -221,7 +242,7 @@ urlpatterns = (
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
 
     # url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat/$', 'chat.views.index', name="chat"),
-    
+
     url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
     url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
     url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
@@ -268,7 +289,7 @@ urlpatterns = (
 
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
-    
+
     url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
@@ -392,7 +413,7 @@ if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
         (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
         url(r'^submit_feedback$', 'util.views.submit_feedback'),
         url(r'^notifications$', 'notifications.views.notifications', name="notifications"),
-        
+
     )
 # Only enable URLs for those marketing links actually enabled in the
 # settings. Disable URLs by marking them as None.
@@ -533,22 +554,22 @@ if settings.COURSEWARE_ENABLED:
         # For the instructor
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
             'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
-        
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
             'portfolio.views.about_me', name="portfolio_about_me"),
 
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me/(?P<user_id>[^/]+)$',
-            'portfolio.views.about_me', name="portfolio_about_me"),        
-        
+            'portfolio.views.about_me', name="portfolio_about_me"),
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
-            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),            
-  
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),
+
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
-            'portfolio.views.uploads', name="portfolio_uploads"), 
+            'portfolio.views.uploads', name="portfolio_uploads"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',
-            'courseware.views.resource_library', name="resource_library"),        
+            'courseware.views.resource_library', name="resource_library"),
         # see ENABLE_INSTRUCTOR_BETA_DASHBOARD section for more urls
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/gradebook$',
             'instructor.views.legacy.gradebook', name='gradebook'),
@@ -624,7 +645,7 @@ if settings.COURSEWARE_ENABLED:
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
         'courseware.views.static_tab', name="static_tab"),
         url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/(?P<is_global>global)/$',
-        'courseware.views.static_tab', name="static_tab"),        
+        'courseware.views.static_tab', name="static_tab"),
     )
     if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
         urlpatterns += (
@@ -647,7 +668,7 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 if not settings.DEBUG:
     admin.autodiscover()
     urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
-    
+
 if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
     urlpatterns += (
         url(r'^openid/login/$', 'django_openid_auth.views.login_begin', name='openid-login'),
