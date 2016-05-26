@@ -337,11 +337,13 @@ function groupSelect() {
 // Creates the modal form for adding/editing groups, as well as the submission handler for the form.
 function groupEdit(type, id) {
     var button_name = 'Add';
+    var dialog_title = 'New Group';
     var name = '';
     var access_level = 'System';
     var access_levels = ['System', 'State', 'District', 'School'];
     if (type == 'edit') {
         button_name = 'Save';
+        dialog_title = 'Edit Group';
         $.ajax({
             url: group_list_url,
             type: 'GET',
@@ -371,7 +373,7 @@ function groupEdit(type, id) {
     content += '<input type="submit" name="submit" value="' + button_name + '">';
     content += '</form>';
     var dialog = new Dialog('#dialog');
-    dialog.show('New Permission', content);
+    dialog.show(dialog_title, content);
     $('#new-group-submit').submit(function (event) {
         event.preventDefault();
         if (validateGroupForm(type)) {
@@ -395,11 +397,13 @@ function groupEditAttach() {
 // Creates the modal form for adding/editing permissions, as well as the submission handler for the form.
 function permissionEdit(type, id) {
     var button_name = 'Add';
+    var dialog_title = 'New Permission';
     var name = '';
     var target = '';
     var action = '';
     if (type == 'edit') {
         button_name = 'Save';
+        dialog_title = 'Edit Permission';
         $.ajax({
             url: permissions_list_url,
             type: 'GET',
@@ -423,7 +427,7 @@ function permissionEdit(type, id) {
     content += '<input type="submit" name="submit" value="' + button_name + '"></label>';
     content += '</form>';
     var dialog = new Dialog('#dialog');
-    dialog.show('New Permission', content);
+    dialog.show(dialog_title, content);
     $('#new-permission-submit').submit(function (event) {
         event.preventDefault();
         if (validatePermissionForm(type)) {
