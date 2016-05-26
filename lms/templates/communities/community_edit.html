@@ -173,14 +173,22 @@
         <select id = "state-dropdown" name = "state-dropdown">
             <option id="null_state" value = "NULL"></option>
             %for item in State.objects.all().order_by('name'):
-                <option value="${item.id}">${item.name}</option>
+                %if item.id == request.user.profile.district.state.id and not request.user.is_superuser:
+                    <option value="${item.id}" selected>${item.name}</option>
+                %else:
+                    <option value="${item.id}">${item.name}</option>
+                %endif
             %endfor
         </select></label>
         <label id="community-motto"><span>Select District: </span><br>
-        <select id = "district-dropdown" name="distict-dropdown">
+        <select id = "district-dropdown" name="district-dropdown">
             <option id="null_district" value = "NULL"></option>
             %for item in District.objects.all().order_by('name'):
-                <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                %if item.id == request.user.profile.district.id and not request.user.is_superuser:
+                    <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}" selected>${item.name}</option>
+                %else:
+                    <option data-state = "${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                %endif
             %endfor
         </select></label>
         %if private:
@@ -328,6 +336,7 @@
                }else $(this).hide();
             });
         });
+        $("#state-dropdown").trigger("change");
         $('#community-logo .remove').click(function() {
             var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>';
             $('#community-logo').replaceWith(content);

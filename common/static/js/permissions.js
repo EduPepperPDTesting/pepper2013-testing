@@ -2,7 +2,7 @@
 var pagerOptions = {
     container: '',
     // output string - default is '{page}/{totalPages}'; possible variables: {page}, {totalPages}, {startRow}, {endRow} and {totalRows}
-    output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+    output: '{startRow} - {endRow} ({totalRows})',
     fixedHeight: false,
     removeRows: false,
     page: 0,
@@ -444,7 +444,7 @@ function permissionEditAttach() {
     });
 }
 
-// attaches action for selecting all on the select all checkboxes on the various tables.
+// Attaches action for selecting all on the select all checkboxes on the various tables.
 function selectAll(trigger_selector, target_selector) {
     $(trigger_selector).change(function () {
         var checked = false;

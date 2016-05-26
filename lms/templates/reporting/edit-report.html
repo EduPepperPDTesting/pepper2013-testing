@@ -66,7 +66,7 @@
         </div>
         <div class="edit-block column-selector">
             <h2>Select Columns</h2>
-            <div id="order-title">Select columns to show in the report:<div>Column order:</div></div>
+            <div id="order-title">Select columns to show in the report: <label><input type="checkbox" id="column-select-all"> Select All</label><div>Column order:</div></div>
             %if action == 'edit':
                 <ul id="selected-columns">
                     %for selected_column in selected_columns:
@@ -83,9 +83,9 @@
                     %endif
                     <li><label>
                     %if view_column.id in selected_columns:
-                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> <span class="column-name">${view_column.view.name}.${view_column.name}</span> - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}" checked="checked"> <span class="column-name">${view_column.view.name}.${view_column.name}</span><span class="column-description"> - ${view_column.description}</span>
                     %else:
-                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> <span class="column-name">${view_column.view.name}.${view_column.name}</span> - ${view_column.description}
+                        <input class="column-check" type="checkbox" name="column[${loop.index}]" value="${view_column.id}"> <span class="column-name">${view_column.view.name}.${view_column.name}</span><span class="column-description"> - ${view_column.description}</span>
                     %endif
                     </label></li>
                 %endfor
@@ -195,5 +195,7 @@
         dirtyReportHandler();
         dateField();
         fieldTypeUpdater();
+        descriptionPopups();
+        selectAll('#column-select-all', '.column-check');
     });
 </script>

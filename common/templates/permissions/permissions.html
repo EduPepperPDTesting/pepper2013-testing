@@ -30,6 +30,11 @@
     #new-permission:hover, #new-group:hover, #add-group-permission:hover, #add-group-member:hover {
         background: transparent url(/static/images/icons/add_new_mo.png) center top no-repeat;
     }
+    %if not admin_rights:
+        #groups {
+            margin-top: 20px;
+        }
+    %endif
 </style>
 
 %if admin_rights:

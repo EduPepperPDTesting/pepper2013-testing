@@ -270,6 +270,10 @@
     font-weight: bold;
     padding-bottom: 15px;
 }
+#reporting #order-title label {
+    font-weight: normal;
+    font-size: 90%;
+}
 #reporting #order-title div {
     width: 360px;
     float: right;
@@ -304,9 +308,30 @@
     margin: 0;
 }
 #reporting .column-selector ul li {
+    height: 1.5em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+#reporting .column-selector ul li.mouseover {
+    overflow: visible;
+}
+#reporting .column-selector li {
+    position: relative;
+}
+#reporting .column-description {
+    display: none;
+}
+#reporting .column-mouseover {
+    position: absolute;
+    background-color: #fff;
+    color: #555;
+    padding: 0 5px;
+    margin-left: -5px;
+    z-index: 999;
+    overflow: visible;
+    white-space: nowrap;
+    box-shadow: 2px 2px 4px #000;
 }
 #reporting .edit-block {
     clear: both;

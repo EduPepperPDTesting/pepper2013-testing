@@ -3,6 +3,7 @@ from .models import PermGroup, PermGroupMember, PermPermission, PermGroupPermiss
 import csv
 from django_future.csrf import ensure_csrf_cookie
 from django.db import IntegrityError
+from django.db.models import Q
 from .decorators import user_has_perms
 from .utils import check_user_perms, check_access_level
 from student.models import User
@@ -14,11 +15,11 @@ from django.db import transaction
 
 @user_has_perms('permissions', ['administer', 'assign'])
 def permissions_view(request):
+    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
     permissions = permissions_data()
-    groups = group_data()
+    groups = group_data(access_level=access_level)
     admin_rights = check_user_perms(request.user, 'permissions', 'administer')
     assign_rights = check_user_perms(request.user, 'permissions', ['administer', 'assign'])
-    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
     data = {'permissions': permissions,
             'groups': groups,
             'admin_rights': admin_rights,
@@ -223,9 +224,16 @@ def group_member_delete(request):
     return render_json_response(data)
 
 
-def group_data(group_id=False):
+def group_data(group_id=False, access_level='System'):
     if group_id:
         groups = [PermGroup.objects.get(id=group_id)]
+    elif access_level != 'System':
+        qs = Q(access_level='School')
+        if access_level in ['District', 'State']:
+            qs |= Q(access_level='District')
+        if access_level == 'State':
+            qs |= Q(access_level='State')
+        groups = list(PermGroup.objects.filter(qs))
     else:
         groups = list(PermGroup.objects.all())
     return groups
@@ -233,7 +241,8 @@ def group_data(group_id=False):
 
 @user_has_perms('permissions', ['administer', 'assign'])
 def group_list(request):
-    groups = group_data(request.GET.get('group_id', False))
+    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
+    groups = group_data(request.GET.get('group_id', False), access_level)
     data = list()
     for group in groups:
         data.append({'id': group.id, 'name': group.name, 'access_level': group.access_level})
