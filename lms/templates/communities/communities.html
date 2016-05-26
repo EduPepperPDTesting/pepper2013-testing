@@ -24,6 +24,13 @@
         }
 
         .section-tab.public {
+            border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+            box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+            background-color: rgb(123, 181, 51);
+            background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+            text-shadow: 0 -1px 1px rgb(83, 121, 11);
+        }
+        .section-tab.private {
             border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
             box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
             background-color: rgb(47, 167, 229);
@@ -31,29 +38,12 @@
             text-shadow: 0 -1px 1px rgb(47, 87, 169);
             padding-top: 10px;
         }
-
-        .section-tab.private {
-            border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
-            box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
-            background-color: rgb(123, 181, 51);
-            background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
-            text-shadow: 0 -1px 1px rgb(83, 121, 11);
-        }
-
-        .section-tab.mystate {
+        .section-tab.mydistrict {
             border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
             box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
             background-color: rgb(234, 110, 7);
             background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
             text-shadow: 0 -1px 1px rgb(154, 30, 7);
-        }
-
-        .section-tab.mydistrict {
-            border-color: rgb(157, 140, 14) rgb(157, 140, 14) rgb(137, 120, 14);
-            box-shadow: 0 1px 0 0 rgb(267, 250, 64) inset;
-            background-color: rgb(217, 200, 14);
-            background-image: linear-gradient(to bottom, rgb(267, 250, 64) 0%, rgb(217, 200, 14) 50%, rgb(197, 180, 4) 50%, rgb(197, 180, 4) 100%);
-            text-shadow: 0 -1px 1px rgb(137, 120, 14);
         }
 
     .section-tab {
@@ -252,28 +242,9 @@
     </div>
 
       <div class="expand_div">
-        <a href="#" onclick="toggle('public')" class="public-button"><div class="section-tab public">Public</div></a>
-        <a href="#" onclick="toggle('private')" class="private-button"><div class="section-tab private">Private</div></a>
-        <a href="#" onclick="toggle('mystate')" class="mystate-button"><div class="section-tab mystate">My State</div></a>
+        <a href="#" onclick="toggle('private')" class="private-button"><div class="section-tab private">My Communities</div></a>
+        <a href="#" onclick="toggle('public')" class="public-button"><div class="section-tab public">Public Communities</div></a>
         <a href="#" onclick="toggle('mydistrict')" class="mydistrict-button"><div class="section-tab mydistrict">My District</div></a>
-        <div class="public-section import-section">
-            <section style="margin:auto;width:960px;background:#E4E4E4;">
-                <section class="courses" style="padding-top:5px!important;">
-                    <div class="courses-listing">
-                        <div style="padding-left:25px;">
-                            %for community in communities:
-                                %if community['private'] == 0:
-                                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                                        <div style="height:100px;"></div>
-                                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                                    </div>
-                                %endif
-                            %endfor
-                        </div>
-                    </div>
-                </section>
-            </section>
-        </div>
         <div class="private-section import-section">
             <section style="margin:auto;width:960px;background:#E4E4E4;">
                 <section class="courses" style="padding-top:5px!important;">
@@ -292,15 +263,13 @@
                 </section>
             </section>
         </div>
-
-
-    <div class="mystate-section import-section">
+        <div class="public-section import-section">
             <section style="margin:auto;width:960px;background:#E4E4E4;">
                 <section class="courses" style="padding-top:5px!important;">
                     <div class="courses-listing">
                         <div style="padding-left:25px;">
                             %for community in communities:
-                                %if community_in_state(community['id'], request.user.id):
+                                %if community['private'] == 0:
                                     <div class="image-link-style" style="background-image: url('${community['logo']}');">
                                         <div style="height:100px;"></div>
                                         <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
@@ -311,7 +280,7 @@
                     </div>
                 </section>
             </section>
-    </div>
+        </div>
     <div class="mydistrict-section import-section">
             <section style="margin:auto;width:960px;background:#E4E4E4;">
                 <section class="courses" style="padding-top:5px!important;">
@@ -340,7 +309,7 @@ $(document).ready(function(){
    $(".public-button, .private-button, .mystate-button, .mydistrict-button").click(function(e){
        e.preventDefault();
    });
-    toggle("public");
+    toggle("private");
 });
 function toggle(which) {
     $(".import-section").hide();
