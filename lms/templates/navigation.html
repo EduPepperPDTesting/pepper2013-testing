@@ -370,7 +370,7 @@
 
         %if curr_user==request.user:
         <ol class="user admin" >
-            %if show_extended:
+            %if show_extended and check_user_perms(curr_user, ['certificate', 'pepconn', 'permissions', 'time_report', 'sso', 'tnl', 'studio', 'alert_message']):
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
