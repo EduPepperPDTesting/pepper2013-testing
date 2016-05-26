@@ -59,7 +59,7 @@ from permissions.utils import check_access_level, check_user_perms
           %endif
         </select>
         %endif
-        <select id="" name="" autocomplate="off" class="search" data-column="3">
+        <select id="filter-suject-drop" name="" autocomplete="off">
           <option value="">Select Subject</option>
           <option value="AR">Assessments and Reporting</option>
           <option value="DC">Digital Citizenship</option>
@@ -74,6 +74,7 @@ from permissions.utils import check_access_level, check_user_perms
           <option value="WR">Writing and Poetry</option>
           <option value="Other">Other</option>   
         </select>
+        <input type="" name="" value="" class="search" data-column="3" autocomplete="off" style="display:none;"/>
         %if check_user_perms(request.user, 'pepreg'):
         <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
           <a href="#"><div class="icon"></div><div>Add New</div></a>
@@ -679,14 +680,16 @@ from permissions.utils import check_access_level, check_user_perms
         $entry.val(v);
       }
     });
+    var $subject = $("#dlg-add-training").find("select[name=subject]");
     if(data.subject){
-      var $subject = $("#dlg-add-training").find("select[name=subject]")
       var $opts = $subject.find("option[value=" + data.subject + "]");
       if(!$opts.length){
         $subject.next("input[name=subject-other]").show().val(data.subject);
         $subject.val("Other");
       }
-    }    
+    }else{
+      $subject.next("input[name=subject-other]").val("");
+    }
   }
   PepReg.prototype.clearData=function() {
     var empty = {};
@@ -809,6 +812,17 @@ from permissions.utils import check_access_level, check_user_perms
         filterOptions(this, id)
       });
     });
+    $("#filter-suject-drop").change(function(){
+      var val = $(this).val();
+      var $input = $(this).next("input");
+      if(val == "Other"){
+        $input.show().val("");
+      }else{
+        $input.hide();
+        $input.val(val);
+      }
+      $input.change();
+    });    
   };
   PepReg.prototype.showStudents=function(training_id){
     var self = this;
@@ -892,6 +906,7 @@ from permissions.utils import check_access_level, check_user_perms
       },
       processAjaxOnInit: true,
       page: 0,
+      savePages: false,
       size: 10
     };
     var tablesorterOptions = {
@@ -903,7 +918,7 @@ from permissions.utils import check_access_level, check_user_perms
         filter_external: '',
         filter_columnFilters: false,
         filter_placeholder: {search: 'Search...'},
-        filter_saveFilters: true,
+        filter_saveFilters: false,
         filter_reset: '.reset',
         filter_serversideFiltering: true,
         output_saveFileName: 'data.csv',
@@ -937,17 +952,16 @@ from permissions.utils import check_access_level, check_user_perms
       // location
       $(this).find("td:nth-child(10)").each(function(){
         var training_id = $(this).parent().find("input[name=id]").val();
-        $(this).css("color","#1d9dd9");
-        $(this).css("cursor","pointer");
-        $(this).click(function(){
-          if($(this).find("input").length){
+        if($(this).find("span.geo_location").html()){
+          $(this).find('span').css("color","#1d9dd9");
+          $(this).css("cursor","pointer");
+          $(this).click(function(){
             var props = JSON.parse($(this).find("input").val());
-            self.showMap(props);
-          }else{
-            var state='${request.user.profile.district.state.name} United States';
-            self.showPlace(self.map_show, state);
-          }
-        });
+            self.showMap(props);  
+          });
+        }
+        // var state='${request.user.profile.district.state.name} United States';
+        // self.showPlace(self.map_show, state);
       });
       // each row
       $(this).find("tr").each(function(){

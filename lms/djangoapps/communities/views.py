@@ -703,8 +703,6 @@ def community_edit_process(request):
     """
     try:
         # Get all of the form data.
-        no_district = None
-        no_state = None
         community_id = request.POST.get('community_id', '')
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
