@@ -850,6 +850,13 @@ INSTALLED_APPS = (
 
     # Polling
     'polls',
+
+    # Pepper Utilities
+    'pepper_utilities'
+
+    # Permissions
+    'permissions',
+
     # Resource library
     'access_resource_library',
 )
