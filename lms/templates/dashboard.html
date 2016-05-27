@@ -52,12 +52,55 @@
  .skype-icon{
      background-image: url("/static/images/skype-add.png") !important;
  }
+ #create-skype, #create-skype-online {
+        float: left;
+        margin: 0 20px 0 0;
+    }
+    .skype-container {
+        float: left;
+    }
+    .skype-button .side-button {
+        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+        height: 20px;
+    }
+     .hangout_container {
+        text-align: center;
+        padding-top: 20px;
+    }
+    .hangout_container img {
+        width: 120px;
+        vertical-align: top;
+    }
+    .hangout_container .side-button {
+        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
+        height: 20px;
+    }
+    .side-button {
+        color: white !important;
+        display: block;
+        padding: 10px;
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        margin-top: 5px;
+    }
+    .blue-button {
+        border-color: #45719E;
+        background: #5A9BD5;
+    }
+    .green-button {
+        border-color: #595;
+        background: #8cbe41;
+    }
+    .red-button {
+        border-color: #df0000;
+        background: #ED2828;
+    }
  .online-circle{
     width: 20px;
     margin-left: 10px;
     margin-top: 2px;
     height: 20px;
-    background: #22B14C;
     border-radius: 10px;
     position: absolute;
  }
@@ -415,8 +458,8 @@
           active_recent = active_before < 1
           %>
       <h1 class="user-name">${ curr_user.username }
-          %if active_recent:
-              <span class="online-circle" id="${curr_user.profile.id}" data-fname="${curr_user.first_name}" data-lname="${curr_user.last_name}" data-skypename="${curr_user.profile.skype_username}"></span>
+          %if active_recent and not curr_user == request.user:
+              <img src="/static/images/online-3.png" class="online-circle" id="${curr_user.profile.id}" data-fname="${curr_user.first_name}" data-lname="${curr_user.last_name}" data-skypename="${curr_user.profile.skype_username}"></img>
           %endif
       </h1>
     </header>
@@ -1528,7 +1571,8 @@ Add info that you would like to share about yourself here:
     $(document).ready(function(){
        $(".online-circle").click(function(event){
             event.preventDefault();
-            scroll(0,0)
+            scroll(0,0);
+            $("#skype-online-name").text("");
             $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
             $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
             if($(this).attr("data-skypename") == "None"){
