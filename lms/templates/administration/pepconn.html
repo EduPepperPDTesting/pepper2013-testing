@@ -734,6 +734,17 @@ function editUserData(id){
     }, function (r) {
         var code = r.code;
         new Dialog($('#dialog')).show("Edit User",code);
+        $("#userDistrictValue").change(function(){
+            id=$(this).val();
+            $("#userSchoolValue > option").each(function() {
+                if($(this).attr("data-district") != id){
+                    $(this).hide();
+                }else $(this).show();
+            });
+            if($("#userSchoolValue option:selected" ).attr("data-district") != id){
+                $("#userSchoolValue").val("");
+            }
+        });
     });
 }
 function submitUserEdit(){

@@ -491,17 +491,35 @@ def user_get_info(request):
     code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
 
     for item in Cohort.objects.all():
-        code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
+        try:
+            if profile.cohort == item:
+                code += "<option value = '"+str(item.id)+"' selected>"+str(item.code)+"</option>"
+            else:
+                code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
+        except:
+            code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
     code += "</select><br><br>"
     try:
         state = profile.district.state
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
-        for item in District.objects.filter(state_id=state):
-            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+        for item in District.objects.filter(state_id=state.id):
+            try:
+                if profile.district == item:
+                    code += "<option value = '"+str(item.id)+"' selected>"+str(item.name)+"</option>"
+                else:
+                    code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+            except:
+                code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
         code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
-            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+            try:
+                if profile.school_id == item.id:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"' selected>"+str(item.name)+"</option>"
+                else:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"' >"+str(item.name)+"</option>"
+            except:
+                code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.name)+"</option>"
         code += "</select><br><br>"
     except:
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
@@ -510,7 +528,7 @@ def user_get_info(request):
         code += "</select><br><br>"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.all():
-            code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
+            code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.name)+"</option>"
         code += "</select><br><br>"
     code += "<button data-id = '"+str(profile.id)+"' onclick = 'submitUserEdit()' type = 'submit' id = 'submitUserEditButton'>Submit</button>"
     code += "<p id = 'userEditMessage'></p>"
