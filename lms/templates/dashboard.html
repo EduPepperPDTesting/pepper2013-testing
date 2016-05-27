@@ -1485,8 +1485,8 @@ Add info that you would like to share about yourself here:
         </div>
         <div class="content">
             <form>
-                <label>Begin a call with: .</label><span id="skype-online-name"></span><br>
-                <label>Topic (optional):<input type="text" name="skype-topic"></label>
+                <label id="skype-name-exists">Begin a call with: .</label><span id="skype-online-name"></span><br>
+                <span id ="skype-name-exists-toggle"><label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype-online">
                 <div class="skype-container-online">
                     <script type="text/javascript">
@@ -1499,6 +1499,7 @@ Add info that you would like to share about yourself here:
                         }
                     </script>
                 </div>
+                </span>
             </form>
             <div class="community-clear"></div>
         </div>
@@ -1530,7 +1531,12 @@ Add info that you would like to share about yourself here:
             scroll(0,0)
             $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
             $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
-            $("#skype-online-name").text($(this).attr("data-skypename"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }
             main_dlg=new Dialog($('#online_dialog'));
             main_dlg.show("Error", "");
             return false;
