@@ -60,36 +60,42 @@ def main(request):
 # -------------- Dropdown Lists -------------
 def drop_states(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
-        state_id = UserProfile.objects.get(user_id=request.user.id).district.state_id
-        data = State.objects.filter(id=state_id)[0]
+    if request.user.is_superuser is False:
+        data = State.objects.get(id=request.user.profile.district.state.id)
         r.append({"id": data.id, "name": data.name})
     else:
         data = State.objects.all()
         data = data.order_by("name")
         for item in data:
-            r.append({"id": item.id, "name": item.name})
+            if item.id == request.user.profile.district.state.id:
+                r.append({"id": item.id, "name": item.name, 'curr': item.id})
+            else:
+                r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_districts(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
-        data = UserProfile.objects.get(user_id=request.user.id).district
+    if request.user.is_superuser is False:
+        data = District.objects.get(id=request.user.profile.district.id)
         r.append({"id": data.id, "name": data.name})
     else:
         if request.GET.get('state'):
-            data = District.objects.all()
-            data = data.filter(state=request.GET.get('state'))
-            data = data.order_by("name")
-            for item in data:
+            data = District.objects.filter(state=request.GET.get('state'))
+        else:
+            data = District.objects.filter(state=request.user.profile.district.state.id)
+        data = data.order_by("name")
+        for item in data:
+            if item.id == request.user.profile.district.id:
+                r.append({"id": item.id, "name": item.name, "code": item.code, 'curr': item.id})
+            else:
                 r.append({"id": item.id, "name": item.name, "code": item.code})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_schools(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
+    if request.user.is_superuser is False:
         district = UserProfile.objects.get(user_id=request.user.id).district
         data = School.objects.filter(district=district.id)
         data = data.order_by("name")
@@ -97,10 +103,14 @@ def drop_schools(request):
             r.append({"id": item.id, "name": item.name})
     else:
         if request.GET.get('district'):
-            data = School.objects.all()
-            data = data.filter(district=request.GET.get('district'))
-            data = data.order_by("name")
-            for item in data:
+            data = School.objects.filter(district=request.GET.get('district'))
+        else:
+            data = School.objects.filter(district=request.user.profile.district.id)
+        data = data.order_by("name")
+        for item in data:
+            if item.id == request.user.profile.school.id:
+                r.append({"id": item.id, "name": item.name, 'curr': item.id})
+            else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
@@ -152,14 +162,16 @@ def load_enrollment_courses(request):
     for enrollment in CourseEnrollment.enrollments_for_user(user):
         try:
             course = course_from_id(enrollment.course_id)
-            field_data_cache = FieldDataCache([course], course.id, user)
+            # field_data_cache = FieldDataCache([course], course.id, user)
+            field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course.id, user, course, depth=None)
             course_instance = get_module(user, request, course.location, field_data_cache, course.id, grade_bucket_type='ajax')
-            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name}
+            progress = grade(user, request, course, field_data_cache)['percent']
+            item = {'name': str(course.display_coursenumber) + ' ' + course.display_name, 'progress': progress}
             if course_instance.complete_course:
                 complete_course.append(item)
             else:
                 current_course.append(item)
-        except ItemNotFoundError:
+        except:
             log.error("User {0} enrolled in non-existent course {1}".format(user.username, enrollment.course_id))
     if enrollment_type == 'complete':
         r = complete_course

@@ -173,6 +173,7 @@
             <h3 class="dialog-title"></h3>
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
+        <div class="load_info">Loading...</div>
         <div class="course_list"></div>
         <div class="content"></div>
     </div>
@@ -434,6 +435,7 @@
 
         $("#tabs").tabs({
             activate: function(event, ui) {
+                $("#"+ui.newPanel.attr('id')).find(".drop_course").get(0).selectedIndex = 0;
                 userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
             }
         });
@@ -460,33 +462,46 @@
         });
 
         //----------- time report permission UI init----------//
-        function timeReportPermInit() {
-            $('#fltUserTime')[0].control.getFieldArea('state').empty();
-            $('#fltUserTime')[0].control.getFieldArea('district').empty();
+        function timeReportPermInit(admin) {
+            if(!admin){
+              $('#fltUserTime')[0].control.getFieldArea('state').empty();
+              $('#fltUserTime')[0].control.getFieldArea('district').empty();
+            }
+
             $.get("${reverse('time_report_drop_states')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="state"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      if(data[d].curr!= undefined){
+                        $('select[name="state"]').find('option[value='+ data[d].id +']').attr('selected',true);
+                      }
                     }
                 }
             });
+
             $.get("${reverse('time_report_drop_districts')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      if(data[d].curr!= undefined){
+                        $('select[name="district"]').find('option[value='+ data[d].id +']').attr('selected',true);
+                      }
                     }
                 }
             });
+
             $.get("${reverse('time_report_drop_schools')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
                     }
                 }
             });
         }
+
         %if check_user_perms(request.user, 'time_report', exclude_superuser=True):
-            timeReportPermInit();
+            timeReportPermInit(false);
+        %else:
+            timeReportPermInit(true);
         %endif
     });
 
@@ -731,19 +746,31 @@
             var self = this;
             var dialog = $('#enrollment_courses_dialog');
             var course_list = dialog.find('.course_list');
-            $.post("${reverse('time_report_enrollment_courses_load')}", {
+            var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
+            var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
+            course_list.empty();
+            $('.load_info').show();
+            var xhr = $.post("${reverse('time_report_enrollment_courses_load')}", {
                 'user_id':user_id,
                 'type':type
             }, function(data) {
-                var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
-                var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
-                course_list.empty();
+                $('.load_info').hide();
                 for(var d in data){
-                    course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');
+                    var progress = (Number(data[d].progress) * 100) + '% completed';
+                    course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>\
+                              <div class="pass">(' + progress + ')</div>');
                 }
-                new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
-                    this.hide();
-                });
+            });
+
+            new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
+                this.hide();
+                xhr.abort();
+            });
+
+            dialog.find('.close-modal').off("click").click(function(){
+                $(dialog).css('display','none');
+                $('.lean-overlay').hide();
+                xhr.abort();
             });
         },
         load_adjustment_log:function(user_id){
