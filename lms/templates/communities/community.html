@@ -32,6 +32,14 @@ from datetime import date
       position:absolute;
       right:0;
     }
+    .redcircle{
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 10px;
+      position:absolute;
+      right:0;
+    }
 
     #community-main {
         width: 1185px;
@@ -500,7 +508,7 @@ from datetime import date
     .discussion-error-box {
         border-color: red !important;
     }
-    #create-skype {
+    #create-skype, #create-skype-online {
         float: left;
         margin: 0 20px 0 0;
     }
@@ -607,8 +615,8 @@ from datetime import date
                       active_recent = active_before < 1
                       %>
                       <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
-                        %if request.user.is_superuser and active_recent:
-                        <div class="circle"></div>
+                        %if active_recent:
+                            <div class="circle" id="${user.profile.id}" data-fname="${user.first_name}" data-lname="${user.last_name}" data-skypename="${user.profile.skype_username}"></div>
                         %endif
                         <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
                       </a>
@@ -685,6 +693,25 @@ from datetime import date
         <div class="content"></div>
     </div>
 </div>
+<div style="" id="online_dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+      <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+      <div style="display:inline-block;vertical-align:bottom;">
+        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
+        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button hangout-button">Join Hangout</a>
+      </div>
+      <div style="display:inline-block;vertical-align:bottom;">
+        <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
+        <a href="#" id="skype-start-online" class="side-button blue-button skype-button">Start Skype Call</a>
+      </div>
+    </div>
+  </div>
+</div>
 <div style="" id="fixed-dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -720,6 +747,33 @@ from datetime import date
                             var skype_button = Skype.ui(params);
                             if (skype_button) {
                                 var id = $('.skype-container').attr('id');
+                                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
+                            }
+                        }
+                    </script>
+                </div>
+            </form>
+            <div class="community-clear"></div>
+        </div>
+    </div>
+</div>
+<div style="" id="skype-dialog-online" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title">Start Skype Call</h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content">
+            <form>
+                <label id="skype-name-exists">Begin a call with: .</label><span id="skype-online-name"></span><br>
+                <span id ="skype-name-exists-toggle"><label>Topic (optional):<input type="text" name="skype-topic"></label>
+                <input type="button" value="Create" id="create-skype-online">
+                <div class="skype-container-online">
+                    <script type="text/javascript">
+                        function startSkypeOnline(params) {
+                            var skype_button_online = Skype.ui(params);
+                            if (skype_button_online) {
+                                var id = $('.skype-container-online').attr('id');
                                 $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
                             }
                         }
@@ -978,6 +1032,20 @@ from datetime import date
         }
     }
     $(document).ready(function() {
+        $(".circle").click(function(event){
+            event.preventDefault();
+            scroll(0,0)
+            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
+            if($(this).attr("data-skypename") == "None"){
+                $("#skype-name-exists").text("This user does not have their skype name set.");
+                $("#skype-name-exists-toggle").hide();
+            }else{
+                $("#skype-online-name").text($(this).attr("data-skypename"));
+            }            main_dlg=new Dialog($('#online_dialog'));
+            main_dlg.show("Error", "");
+            return false;
+        });
         $("#members").scrollLeft(0);
         $('.card-link').attr('target', '_blank');
         $('.delete-icon').click(function(event) {
@@ -1037,6 +1105,28 @@ from datetime import date
                 startSkype(skype_params);
             });
         });
+        $('#skype-start-online').click(function(e) {
+            e.preventDefault();
+            if(main_dlg)main_dlg.hide();
+            var dialog = new Dialog('#skype-dialog-online');
+            dialog.showOverlay();
+            dialog.$ei.fadeIn(200);
+            $('#create-skype-online').click(function() {
+              var participants = $("span[id='skype-online-name']").text().split(/, ?/);;
+              var topic = $("input[name='skype-topic-online']").val();
+              var skype_params = {
+                name: "call",
+                element: "SkypeButton_Call_" + participants[0] + "_1",
+                participants: participants,
+                imageSize: 24,
+                imageColor: "skype",
+                video: "true",
+                topic: topic
+              };
+              $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+              startSkypeOnline(skype_params);
+            });
+          });
     });
     function toggleSkypeAddition(id){
         $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
