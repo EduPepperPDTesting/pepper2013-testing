@@ -641,6 +641,8 @@ def community_edit(request, community_id='new'):
                      'motto': '',
                      'logo': '',
                      'facilitator': '',
+                     'state': '',
+                     'district': '',
                      'hangout': '',
                      'private': '',
                      'courses': [''],
@@ -681,6 +683,8 @@ def community_edit(request, community_id='new'):
                      'motto': community_object.motto,
                      'logo': community_object.logo.upload.url if community_object.logo else '',
                      'facilitator': facilitator[0].user.email if len(facilitator) else None,
+                     'state': community_object.state.id,
+                     'district': community_object.district.id,
                      'hangout': community_object.hangout if community_object.hangout else '',
                      'private': community_object.private,
                      'courses': course_list,
@@ -708,13 +712,19 @@ def community_edit_process(request):
         motto = request.POST.get('motto', '')
         hangout = request.POST.get('hangout', '')
         try:
-            district_id = int(request.POST.get('district-dropdown'))
-            district = District.objects.get(id=district_id)
+            district_id = request.POST.get('district-dropdown', False)
+            if district_id:
+                district = District.objects.get(id=int(district_id))
+            else:
+                district = None
         except:
             district = None
         try:
-            state_id = int(request.POST.get('state-dropdown'))
-            state = State.objects.get(id=state_id)
+            state_id = request.POST.get('state-dropdown', False)
+            if state_id:
+                state = State.objects.get(id=int(state_id))
+            else:
+                state = None
         except:
             state = None
         # The logo needs special handling. If the path isn't passed in the post, we'll look to see if it's a new file.

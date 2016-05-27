@@ -183,28 +183,21 @@
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
-        <label id="community-state"><span>Select State:</span>
-        <select id="state-dropdown" name="state-dropdown">
-            <option id="null_state" value="NULL"></option>
-            %for item in State.objects.all().order_by('name'):
-                %if item.id == request.user.profile.district.state.id and not request.user.is_superuser:
-                    <option value="${item.id}" selected>${item.name}</option>
-                %else:
-                    <option value="${item.id}">${item.name}</option>
-                %endif
-            %endfor
-        </select></label>
-        <label id="community-district"><span>Select District:</span>
-        <select id="district-dropdown" name="district-dropdown">
-            <option id="null_district" value="NULL"></option>
-            %for item in District.objects.all().order_by('name'):
-                %if item.id == request.user.profile.district.id and not request.user.is_superuser:
-                    <option data-state="${item.state.id}" value="${item.id}" class="${item.id}" selected>${item.name}</option>
-                %else:
-                    <option data-state="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
-                %endif
-            %endfor
-        </select></label>
+        %if user_type == 'super':
+            <label id="community-state"><span>Select State:</span>
+                <select id="state-dropdown" name="state-dropdown"></select>
+            </label>
+            <label id="community-district"><span>Select District:</span>
+                <select id="district-dropdown" name="district-dropdown"></select>
+            </label>
+        %else:
+            <label id="community-state"><span>Select State:</span>
+                <select id="state-dropdown" name="state-dropdown" disabled></select>
+            </label>
+            <label id="community-district"><span>Select District:</span>
+                <select id="district-dropdown" name="district-dropdown" disabled></select>
+            </label>
+        %endif
         %if private:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
@@ -341,20 +334,44 @@
         });
         return valid;
     }
+    var state_id = '${state}';
+    var district_id = '${district}';
     $(document).ready(function() {
-        $("#state-dropdown").change(function () {
-            var id = $(this).val();
-            $('#district-dropdown option:selected').prop({'selected': false});
-            $('#null_district').prop({'selected': true});
-            $("#district-dropdown > option").not(':selected').each(function () {
-               if ($(this).attr("data-state") == id) {
-                   $(this).show();
-               } else {
-                   $(this).hide();
-               }
+        $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
+            // Build the options.
+            var options = '<option value=""></option>';
+            $.each(data, function (index, object) {
+                options += '<option value="' + object.id+ '"';
+                if (object.id == state_id) {
+                    options += ' selected';
+                }
+                options += '>' + object.name + '</option>';
             });
+            // Add them to the state dropdown.
+            $('#state-dropdown').append(options);
+            $("#state-dropdown").change(function () {
+                if ($(this).val()) {
+                    // Clear the current district and school options since the state changed.
+                    $('#district-dropdown option').remove();
+                    // Get the allowed Districts
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
+                        var content = '<option value=""></option>';
+                        $.each(data, function (index, object) {
+                            content += '<option value="' + object.id + '"';
+                            if (object.id == district_id) {
+                                content += ' selected';
+                            }
+                            content += '>' + object.name + '</option>';
+                        });
+                        // Add it to the form.
+                        $('#district-dropdown').append(content);
+                    });
+                }
+            });
+            if (state_id) {
+                $("#state-dropdown").trigger('change');
+            }
         });
-        $("#state-dropdown").trigger("change");
         $('#community-logo .remove').click(function() {
             var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>';
             $('#community-logo').replaceWith(content);
