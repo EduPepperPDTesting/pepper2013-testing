@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from student.models import District, State
 from file_uploader.models import FileUploads
 
 
@@ -10,6 +11,8 @@ class CommunityCommunities(models.Model):
     motto = models.CharField(blank=False, max_length=255, db_index=True)
     logo = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
     hangout = models.CharField(blank=True, null=True, max_length=255, db_index=False)
+    state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, blank=True)
+    district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
 
 
