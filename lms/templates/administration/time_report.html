@@ -462,33 +462,46 @@
         });
 
         //----------- time report permission UI init----------//
-        function timeReportPermInit() {
-            $('#fltUserTime')[0].control.getFieldArea('state').empty();
-            $('#fltUserTime')[0].control.getFieldArea('district').empty();
+        function timeReportPermInit(admin) {
+            if(!admin){
+              $('#fltUserTime')[0].control.getFieldArea('state').empty();
+              $('#fltUserTime')[0].control.getFieldArea('district').empty();
+            }
+
             $.get("${reverse('time_report_drop_states')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="state"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      if(data[d].curr!= undefined){
+                        $('select[name="state"]').find('option[value='+ data[d].id +']').attr('selected',true);
+                      }
                     }
                 }
             });
+
             $.get("${reverse('time_report_drop_districts')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      $('select[name="district"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      if(data[d].curr!= undefined){
+                        $('select[name="district"]').find('option[value='+ data[d].id +']').attr('selected',true);
+                      }
                     }
                 }
             });
+
             $.get("${reverse('time_report_drop_schools')}", {}, function(data) {
                 if (data) {
                     for(d in data){
-                        $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
+                      $('select[name="school"]').append('<option value=' + data[d].id + '>' + data[d].name + '</option>')
                     }
                 }
             });
         }
+
         %if check_user_perms(request.user, 'time_report', exclude_superuser=True):
-            timeReportPermInit();
+            timeReportPermInit(false);
+        %else:
+            timeReportPermInit(true);
         %endif
     });
 

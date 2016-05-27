@@ -60,36 +60,42 @@ def main(request):
 # -------------- Dropdown Lists -------------
 def drop_states(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
-        state_id = UserProfile.objects.get(user_id=request.user.id).district.state_id
-        data = State.objects.filter(id=state_id)[0]
+    if check_user_perms(request.user, 'time_report', 'view', exclude_superuser=True):
+        data = State.objects.get(id=request.user.profile.district.state.id)
         r.append({"id": data.id, "name": data.name})
     else:
         data = State.objects.all()
         data = data.order_by("name")
         for item in data:
-            r.append({"id": item.id, "name": item.name})
+            if item.id == request.user.profile.district.state.id:
+                r.append({"id": item.id, "name": item.name, 'curr': item.id})
+            else:
+                r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_districts(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
-        data = UserProfile.objects.get(user_id=request.user.id).district
+    if check_user_perms(request.user, 'time_report', 'view', exclude_superuser=True):
+        data = District.objects.get(id=request.user.profile.district.id)
         r.append({"id": data.id, "name": data.name})
     else:
         if request.GET.get('state'):
-            data = District.objects.all()
-            data = data.filter(state=request.GET.get('state'))
-            data = data.order_by("name")
-            for item in data:
+            data = District.objects.filter(state=request.GET.get('state'))
+        else:
+            data = District.objects.filter(state=request.user.profile.district.state.id)
+        data = data.order_by("name")
+        for item in data:
+            if item.id == request.user.profile.district.id:
+                r.append({"id": item.id, "name": item.name, "code": item.code, 'curr': item.id})
+            else:
                 r.append({"id": item.id, "name": item.name, "code": item.code})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
 
 def drop_schools(request):
     r = list()
-    if check_user_perms(request.user, 'time_report', 'district_admin', exclude_superuser=True):
+    if check_user_perms(request.user, 'time_report', 'view', exclude_superuser=True):
         district = UserProfile.objects.get(user_id=request.user.id).district
         data = School.objects.filter(district=district.id)
         data = data.order_by("name")
@@ -97,10 +103,14 @@ def drop_schools(request):
             r.append({"id": item.id, "name": item.name})
     else:
         if request.GET.get('district'):
-            data = School.objects.all()
-            data = data.filter(district=request.GET.get('district'))
-            data = data.order_by("name")
-            for item in data:
+            data = School.objects.filter(district=request.GET.get('district'))
+        else:
+            data = School.objects.filter(district=request.user.profile.district.id)
+        data = data.order_by("name")
+        for item in data:
+            if item.id == request.user.profile.school.id:
+                r.append({"id": item.id, "name": item.name, 'curr': item.id})
+            else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
