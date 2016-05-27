@@ -1437,6 +1437,13 @@ def do_send_registration_email(task, user_ids, request):
 
     count_success = 0
     for i, user_id in enumerate(user_ids):
+        #** create log
+        tasklog = EmailTaskLog()
+        tasklog.task = task
+        tasklog.send_date = datetime.now(UTC)
+        tasklog.username = ''
+        tasklog.email = ''
+        tasklog.district_name = ''
         try:
             user = User.objects.get(id=user_id)
             profile = UserProfile.objects.get(user=user)
@@ -1445,10 +1452,6 @@ def do_send_registration_email(task, user_ids, request):
             #** record processed count
             task.process_emails = i + 1
 
-            #** create log
-            tasklog = EmailTaskLog()
-            tasklog.task = task
-            tasklog.send_date = datetime.now(UTC)
             tasklog.username = user.username
             tasklog.email = user.email
             tasklog.district_name = user.profile.district.name
