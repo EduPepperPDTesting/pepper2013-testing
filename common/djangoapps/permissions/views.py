@@ -251,48 +251,53 @@ def group_list(request):
 
 @user_has_perms('permissions', ['administer', 'assign'])
 def group_member_list(request):
-    group = PermGroup.objects.get(id=request.GET.get('group_id'))
-    kwargs = {'group': group}
-    access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
-    if access_level == 'School':
-        kwargs.update({'user__profile__school': request.user.profile.school})
-    if access_level == 'District':
-        kwargs.update({'user__profile__district': request.user.profile.district})
-    if access_level == 'State':
-        kwargs.update({'user__profile__district__state': request.user.profile.district.state})
-    group_members = PermGroupMember.objects.prefetch_related().filter(**kwargs)
     member_list = list()
-    for member in group_members:
-        member_dict = {'id': member.id}
-        try:
-            member_dict.update({'user_id': member.user.id})
-        except:
-            pass
-        try:
-            member_dict.update({'first_name': member.user.first_name})
-        except:
-            pass
-        try:
-            member_dict.update({'last_name': member.user.last_name})
-        except:
-            pass
-        try:
-            member_dict.update({'email': member.user.email})
-        except:
-            pass
-        try:
-            member_dict.update({'district': member.user.profile.district.name})
-        except:
-            pass
-        try:
-            member_dict.update({'state': member.user.profile.district.state.name})
-        except:
-            pass
-        try:
-            member_dict.update({'school': member.user.profile.school.name})
-        except:
-            pass
-        member_list.append(member_dict)
+    try:
+        group = PermGroup.objects.get(id=request.GET.get('group_id'))
+        kwargs = {'group': group}
+        access_level = check_access_level(request.user, 'permissions', ['administer', 'assign'])
+        if access_level == 'School':
+            kwargs.update({'user__profile__school': request.user.profile.school})
+        if access_level == 'District':
+            kwargs.update({'user__profile__district': request.user.profile.district})
+        if access_level == 'State':
+            kwargs.update({'user__profile__district__state': request.user.profile.district.state})
+        group_members = PermGroupMember.objects.prefetch_related().filter(**kwargs)
+
+        for member in group_members:
+            member_dict = {'id': member.id}
+            try:
+                member_dict.update({'user_id': member.user.id})
+            except:
+                pass
+            try:
+                member_dict.update({'first_name': member.user.first_name})
+            except:
+                pass
+            try:
+                member_dict.update({'last_name': member.user.last_name})
+            except:
+                pass
+            try:
+                member_dict.update({'email': member.user.email})
+            except:
+                pass
+            try:
+                member_dict.update({'district': member.user.profile.district.name})
+            except:
+                pass
+            try:
+                member_dict.update({'state': member.user.profile.district.state.name})
+            except:
+                pass
+            try:
+                member_dict.update({'school': member.user.profile.school.name})
+            except:
+                pass
+            member_list.append(member_dict)
+    except:
+        pass
+
     return render_json_response(member_list)
 
 
