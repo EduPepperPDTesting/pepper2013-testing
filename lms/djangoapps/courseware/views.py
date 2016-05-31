@@ -424,7 +424,7 @@ def course_list(request):
     if credit != '':
         filterDic['metadata.display_credit'] = True
 
-    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject.0", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
     # 20160322 modify "Add new grade 'PreK-3'"
     # begin
