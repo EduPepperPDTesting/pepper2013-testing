@@ -298,7 +298,7 @@
           <a href="#" class="button_default button-ondark button-icon button-yellow icon icon-search" style="-webkit-user-select: none; ">&nbsp;&nbsp;&nbsp;In My Network&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
           <a class="button-del" style="cursor:pointer;" onclick="del_people('${profile['user_id']}');return false;"></a>
           <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
-            %if request.user.is_superuser and active_recent:
+            %if active_recent:
             <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}')">
               <img src="/static/images/online/people-online.jpg" class="" alt="" />
             </a> 

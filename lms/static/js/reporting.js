@@ -747,5 +747,7 @@ function selectAll(trigger_selector, target_selector) {
         $(target_selector).each(function () {
             $(this).prop('checked', checked);
         });
+        $('#selected-columns').empty();
+        $('.column-check').change();
     });
 }

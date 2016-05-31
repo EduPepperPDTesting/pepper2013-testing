@@ -400,8 +400,12 @@ class CourseFields(object):
 
     display_grades = String(help="grade", default="", scope=Scope.settings)
 
-    display_subject = String(help="subject", default="", scope=Scope.settings)
-    
+    #@begin:change type of display_subject to list 
+    #@date:2016-05-31
+    #display_subject = String(help="subject", default="", scope=Scope.settings)
+    display_subject = List(help="List for the course subject ", scope=Scope.settings)
+    #@end
+
     display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
     
     display_credit = Boolean(help="credit", default=True, scope=Scope.settings)
