@@ -137,7 +137,7 @@ def rows(request):
         5: ['name', '__iexact', 'str'],
         6: ['description', '__iexact', 'str'],
         7: ['training_date', '__iexact', False],
-        8: ['training_time', '__iexact', 'str'],
+        8: ['training_time_start', '__iexact', 'str'],
         9: ['geo_location', '__iexact', 'str'],
         10: ['credits', '__iexact', 'int']
         }
@@ -179,6 +179,7 @@ def rows(request):
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
+        remain = item.max_registration - PepRegStudent.objects.filter(training=item).count() if item.max_registration > 0 else -1
         
         status = ""
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
@@ -190,6 +191,8 @@ def rows(request):
             managing = "true"
         else:
             managing = ""
+
+        geo_location_shorter = ",".join(item.geo_location.split(",")[:3])
         
         row = [
             "",
@@ -200,15 +203,19 @@ def rows(request):
             item.name,
             item.description,
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
-            str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
-            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'>" % (item.classroom, item.geo_location, item.geo_props),
+            str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
+            str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
+            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props),
             item.credits,
             "<br>".join(instructor_names(item)),
             "",
             "<input type=hidden value=%s name=id> \
             <input type=hidden value=%s name=managing> \
-            <input type=hidden value=%s,%s,%s,%s,%s,%s name=status>" % (
-                item.id, managing, arrive, status, allow, item.attendancel_id, rl, "1" if item.allow_student_attendance else "0")
+            <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
+                item.id, managing, arrive, status, allow,
+                item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
+                remain
+                )
             ]
         rows.append(row)
     json_out.append(rows)
@@ -240,7 +247,8 @@ def save_training(request):
         
         training.subject = request.POST.get("subject")
         training.training_date = request.POST.get("training_date", "")
-        training.training_time = request.POST.get("training_time", "")
+        training.training_time_start = request.POST.get("training_time_start", "")
+        training.training_time_end = request.POST.get("training_time_end", "")
         training.classroom = request.POST.get("classroom", "")
         training.geo_location = request.POST.get("geo_location", "")
         training.geo_props = request.POST.get("geo_props", "")
@@ -302,7 +310,8 @@ def training_json(request):
         "pepper_course": item.pepper_course,
         "subject": item.subject,
         "training_date": str('{d:%m/%d/%Y}'.format(d=item.training_date)),
-        "training_time": str('{d:%I:%M %p}'.format(d=item.training_time)).lstrip('0'),
+        "training_time_start": str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
+        "training_time_end": str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
         "classroom": item.classroom,
         "geo_location": item.geo_location,
         "geo_props": item.geo_props,

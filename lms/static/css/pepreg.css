@@ -551,81 +551,22 @@ table.students td{
     height: 2.8ex;
     border-radius: 2ex;
     color: blue;
-    background: #ccc;
+    background: #9B9B9B;
     line-height:2.8ex;
     color:#fff;
     margin-left:1ex;
     position:relative;
 }
+
 .check-mark.on::after {
     background: orange;
 }
 
-
-/*
-
-
-
-.balloon{
-    border:1px solid #999;
-    border-radius:5px;
+.print-map{
+    display:block;
     position:absolute;
-    box-shadow: 4px 4px 4px rgb(85, 85, 85);
-    background-color: rgb(255, 255, 255);
-    opacity: 0.85; z-index: 32767;
-    padding:0px;
+    bottom:0;
+    background-color:rgba(255, 255, 255, 0.9);
+    padding:5px;
+    font-size:11px !important;
 }
-.balloon .tip-outer{
-    width: 0;
-    height: 0;
-    position:absolute;
-}
-.balloon .tip-inner{
-    width: 0;
-    height: 0;
-    position:absolute;
-}
-.balloon .tip-inner.left{
-    border-top: 5px solid transparent;
-    border-left: 10px solid #fff;
-    border-bottom: 5px solid transparent;
-}
-.balloon .tip-inner.right{
-    border-top: 5px solid transparent;
-    border-right: 10px solid #fff;
-    border-bottom: 5px solid transparent;
-} 
-.balloon .tip-inner.top{
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 10px solid #fff;
-}
-.balloon .tip-inner.bottom{
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 10px solid #fff;
-}
-.balloon .tip-outer.left{
-    border-top: 6px solid transparent;
-    border-left: 12px solid #999;
-    border-bottom: 6px solid transparent;
-}
-.balloon .tip-outer.right{
-    border-top: 6px solid transparent;
-    border-right: 12px solid #999;
-    border-bottom: 6px solid transparent;
-} 
-.balloon .tip-outer.top{
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 12px solid #999;
-}
-.balloon .tip-outer.bottom{
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 12px solid #999;
-}
-.balloon .content{
-    padding: 15px;
-}
-*/
