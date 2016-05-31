@@ -593,7 +593,7 @@ def data_format(col, data, is_excel=False):
         if is_excel:
             return settings.LMS_BASE + data[col.column]
         else:
-            return '<a href="{0}">Link</a>'.format(data[col.column])
+            return '<a href="{0}" target="_blank">Link</a>'.format(data[col.column])
     return data[col.column]
 
 

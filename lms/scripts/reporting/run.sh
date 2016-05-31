@@ -300,8 +300,8 @@ var courseArr = [];
 db.modulestore.find({'_id.category':'course'}).forEach(function(x){
   courseArr.push(x.course_id);
 })
-db.student_courseenrollment.remove({'course_id':{'$nin':courseArr}});
-db.courseware_studentmodule.remove({'course_id':{'$nin':courseArr}});
+db.student_courseenrollment.remove({'course_id':{'\$nin':courseArr}});
+db.courseware_studentmodule.remove({'course_id':{'\$nin':courseArr}});
 db.student_courseenrollment.createIndex({
     'user_id': 1
 })
@@ -366,7 +366,7 @@ echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 /usr/local/mongodb3/mongo --port=37017 <<EOF
 
-load('progress.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/progress.js');
 
 EOF
 echo '------------------------------------------------'
