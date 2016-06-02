@@ -49,6 +49,11 @@
    color:#fff;
    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
  }
+ #dlg-user-photo{
+     width:140px;
+     height:140px;
+ }
+
  .skype-icon{
      background-image: url("/static/images/skype-add.png") !important;
  }
@@ -123,6 +128,8 @@
 </style>
 <!--@end-->
 <%block name="js_extra">
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
 <script type="text/javascript">
   /*@begin:Click the round button in grade_level table*/
   /*@date:2013-11-02*/
@@ -1555,10 +1562,10 @@ Add info that you would like to share about yourself here:
       <div class="close-modal" id="dialog_close">✕</div>
     </div>
     <div style="color:#000;text-align:center;padding:10px;">
-      <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
+      <img src="" class="" alt="" id="dlg-user-photo" /><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button hangout-button">Join Hangout</a>
+        <g:hangout render="createhangout" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
