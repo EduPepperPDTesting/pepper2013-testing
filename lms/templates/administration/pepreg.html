@@ -106,8 +106,9 @@ from permissions.utils import check_access_level, check_user_perms
               <th>Training Start Time</th>
               <th>Training End Time</th>
               <th>Training Location</th>
-              <th>PD CEUs</th>
+              <th>Hours</th>
               <th class="sorter-false">Instructors</th>
+              <th class="sorter-false">Creator</th>
               <th class="sorter-false">Register/Record Attendance</th>
               <th class="sorter-false filter-false table-menu" style="width:10px;">
                 <div style="width:18px;height:20px;">
@@ -192,7 +193,7 @@ from permissions.utils import check_access_level, check_user_perms
       <div class="" style="width:100%;height:100%;overflow:hidden;">
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 1 of 6</h5>
             <h4>What type of training would you like to create?</h4>
             <div class="form-row" style="font-size:12px;position:relative;">
               <input type="radio" name="type" value="pepper_course" autocomplete="off"/>
@@ -207,7 +208,6 @@ from permissions.utils import check_access_level, check_user_perms
               <span style="font-weight:bold;">District/School Training or PD Event</span>
               <div style="padding-left:2em;">
                 Choosing this option will allow you to create a custom training<br> or PD event specific for your District/School staff.<br/>
-
                 <i style="margin-top:10px;display:block;">Example: Schedule a District-sponsored, <br> on-site PD event for ELL Teachers</i> 
               </div>
             </div>
@@ -215,7 +215,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 2 of 6</h5>
             <h4>General Training Information</h4>
             <div class="form-row">
               <span class="label">District:</span>
@@ -270,7 +270,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 3 of 6</h5>
             <h4>Training or PD Event Schedule</h4>            
             <div class="form-row">
               <span class="label" style="width:180px">Please Select the Training Date:</span>
@@ -291,7 +291,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 4 of 6</h5>
             <h4>Training or PD Event Location</h4>
             <div class="form-row">
               <span class="label" style="width:220px">Please Fill-in Room # or Location:</span>
@@ -307,7 +307,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 5 of 6</h5>
             <h4>Add/Remove Instructors</h4>
             <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;" id="instructor_emails"></div>
             <div class="form-row">
@@ -320,7 +320,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
         <div class="step-page">
           <div class="step-content">
-            <h5>Create Your Training or PD</h5>
+            <h5>Create Your Training or PD Event: Step 6 of 6 - Almost There!</h5>
             <h4>Registration & Attendance Tracking</h4>
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
@@ -341,16 +341,16 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
               <input type="checkbox" name="allow_student_attendance" value="true" />
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
-              <input type="checkbox" name="allow_attendance" value="true" />
-              <span class="check-mark" alt="This allows users to record their attendance. It can be used with training ID field below."></span>
+              <span class="check-mark" alt="This allows users to record their attendance. It can be used with training ID field below."></span>              
             </div>
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
               <input type="" name="attendancel_id" value="" />
               <span class="check-mark" alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
+            </div>
+            <div class="form-row">
+              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
+              <input type="checkbox" name="allow_attendance" value="true" />
             </div>            
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
@@ -952,7 +952,7 @@ from permissions.utils import check_access_level, check_user_perms
         filter_serversideFiltering: true,
         output_saveFileName: 'data.csv',
         columnSelector_container: $('#columnSelector'),
-        columnSelector_columns: {0: 'disable',  14: 'disable'},
+        columnSelector_columns: {0: 'disable',  15: 'disable'},
         columnSelector_mediaqueryName: 'All: '
       }
     };
@@ -963,20 +963,20 @@ from permissions.utils import check_access_level, check_user_perms
     $("#data-table").bind("pagerComplete", function() {
       var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
       if(is_admin)
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]]);
       else{
         $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12, 13]]);
       }
       if(!is_admin){
         $(this).find("th:nth-child(1)").hide();
         $(this).find("td:nth-child(1)").hide();
-        $(this).find("th:nth-child(15)").hide();
-        $(this).find("td:nth-child(15)").hide();
+        $(this).find("th:nth-child(16)").hide();
+        $(this).find("td:nth-child(16)").hide();
       }else{
         $(this).find("th:nth-child(1)").show();
         $(this).find("td:nth-child(1)").show();
-        $(this).find("th:nth-child(15)").show();
-        $(this).find("td:nth-child(15)").show();
+        $(this).find("th:nth-child(16)").show();
+        $(this).find("td:nth-child(16)").show();
       }
       // location
       $(this).find("td:nth-child(11)").each(function(){
@@ -1017,7 +1017,7 @@ from permissions.utils import check_access_level, check_user_perms
           });
         }
         // Register/Record Attendance
-        $(this).find("td:nth-child(14)").each(function(){
+        $(this).find("td:nth-child(15)").each(function(){
           if(arrive == "0" && allow == "0"){
             $(this).html("The training date has not arrived yet.");
           }else if (arrive == "0" && allow == "1"){
@@ -1025,15 +1025,14 @@ from permissions.utils import check_access_level, check_user_perms
               // not reigistered and reach limit
               $(this).html("Maximum number of users have registered for this training.");
             }else{
-              var $check = $("<input type='checkbox'> <span>I would like to register for this training</span>").appendTo($(this).empty());
+              var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
               if(remain > -1){
-                $("<span> (" + remain + " seats available).</span>").appendTo(this);
+                $("<span style='line-height:16px;'> (" + remain + " seats available).</span>").appendTo($(this).find("span"));
               }
               $check.prop('checked', status == "Registered");
               $check.click(function(){
                 self.registerUser(training_id, this.checked, function(){
                   self.reloadTable();
-
                 });
               });            
             }
@@ -1042,7 +1041,7 @@ from permissions.utils import check_access_level, check_user_perms
           }else if (arrive == "1" && allow_student_attendance == "0"){
             $(this).html("Instructor records attendance.");
           }else if (arrive == "1" && allow_student_attendance == "1"){
-            var $check = $("<input type='checkbox'> Yes I attended this training <br>").appendTo($(this).empty());
+            var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
             $check.prop('checked', status == "Attended" || status == "Validated");
             if(attendancel_id.length){
               $check.change(function(){

@@ -122,7 +122,7 @@ def reach_limit(training):
 
 
 def instructor_names(training):
-    names = ["%s %s" % (training.user_create.first_name, training.user_create.last_name)]
+    names = []
     for instructor in PepRegInstructor.objects.filter(training=training):
         names.append("%s %s" % (instructor.instructor.first_name, instructor.instructor.last_name))
     return names
@@ -192,7 +192,7 @@ def rows(request):
         else:
             managing = ""
 
-        geo_location_shorter = ",".join(item.geo_location.split(",")[:3])
+        geo_location_shorter = " ".join(item.geo_location.split(",")[:3])
         
         row = [
             "",
@@ -208,6 +208,7 @@ def rows(request):
             "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props),
             item.credits,
             "<br>".join(instructor_names(item)),
+            "%s %s" % (item.user_create.first_name, item.user_create.last_name),
             "",
             "<input type=hidden value=%s name=id> \
             <input type=hidden value=%s name=managing> \
