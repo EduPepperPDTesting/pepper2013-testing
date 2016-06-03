@@ -76,6 +76,7 @@
                             <th>Collaboration Time</th>
                             <th>Discussion Time</th>
                             <th>Portfolio Time</th>
+                            <th>PD Time</th>
                             <th>External Time</th>
                             <th>Course Units Time</th>
                             <th>Completed Courses</th>
@@ -418,11 +419,11 @@
             widgetOptions: {
                 filter_placeholder: { search : 'Search...' },
                 columnSelector_container : $('#columnSelector'),
-                columnSelector_columns : {14: 'disable'},
+                columnSelector_columns : {15: 'disable'},
                 columnSelector_mediaqueryName: 'All: '
             }
         }).tablesorterPager(pagerOptions);
-        $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,13]]);
+        $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,14]]);
 
         //----------- course drop change----------//
 
@@ -521,6 +522,7 @@
                 table_con += '<td>' + data[d].user_email + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
                 table_con += '<td type="total">' + data[d].total_time + '</td><td type="collaboration">' + data[d].collaboration_time + '</td>';
                 table_con += '<td type="discussion">' + data[d].discussion_time + '</td><td type="portfolio">' + data[d].portfolio_time + '</td>';
+                table_con += '<td type="pd_time">' + data[d].pd_time + '</td>';
                 table_con += '<td type="external">' + data[d].external_time + '</td><td type="course">' + data[d].course_time + '</td>';
                 table_con += '<td>' + course_num_format('complete', data[d].id, data[d].complete_course_num) + '</td>';
                 table_con += '<td>' + course_num_format('current', data[d].id, data[d].current_course_num) + '</td>';
