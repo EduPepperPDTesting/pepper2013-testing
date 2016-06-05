@@ -27,8 +27,6 @@ from datetime import date
     .circle {
       width: 20px;
       height: 20px;
-      background: #22B14C;
-      border-radius: 10px;
       position:absolute;
       right:0;
     }
@@ -619,7 +617,7 @@ from datetime import date
                       %>
                       <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
                         %if active_recent:
-                            <div class="circle" id="${user.profile.id}" data-email="${user.email}" data-fname="${user.first_name}" data-lname="${user.last_name}" data-skypename="${user.profile.skype_username}"></div>
+                            <img src="/static/images/online-3.png" class="circle" id="${user.profile.id}" data-email="${user.email}" data-fname="${user.first_name}" data-lname="${user.last_name}" data-skypename="${user.profile.skype_username}"></img>
                         %endif
                         <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
                       </a>
