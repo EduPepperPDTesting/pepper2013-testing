@@ -1538,7 +1538,7 @@ Add info that you would like to share about yourself here:
                 <label id="skype-name-exists">Begin a call with: .</label><span id="skype-online-name"></span><br>
                 <span id ="skype-name-exists-toggle"><label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype-online">
-                <div class="skype-container-online">
+                <div class="skype-container-online-2">
                     <script type="text/javascript">
                         function startSkypeOnline(params) {
                             var skype_button_online = Skype.ui(params);
@@ -1569,7 +1569,8 @@ Add info that you would like to share about yourself here:
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
-        <a href="#" id="skype-start-online" class="side-button blue-button skype-button">Start Skype Call</a>
+        <a href="skype:${curr_user.profile.skype_username}?call" id="" class="side-button blue-button skype-button">Start Skype Call</a>
+          <div class="skype-container-online"></div>
       </div>
     </div>
   </div>
@@ -1594,11 +1595,6 @@ Add info that you would like to share about yourself here:
         });
         $('#skype-start-online').click(function(e) {
             e.preventDefault();
-            if(main_dlg)main_dlg.hide();
-            var dialog = new Dialog('#skype-dialog-online');
-            dialog.showOverlay();
-            dialog.$ei.fadeIn(200);
-            $('#create-skype-online').click(function() {
               var participants = $("span[id='skype-online-name']").text().split(/, ?/);;
               var topic = $("input[name='skype-topic-online']").val();
               var skype_params = {
@@ -1612,7 +1608,6 @@ Add info that you would like to share about yourself here:
               };
               $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
               startSkypeOnline(skype_params);
-            });
           });
     });
 
