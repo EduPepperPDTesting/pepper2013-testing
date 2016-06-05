@@ -446,7 +446,14 @@
                                          'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
     var url = $(this).attr("link");
     $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
-   })
+   });
+    function imessage_click(obj)
+  {
+    var userInfo=[];
+    userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+    userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+    message_board(userInfo);
+  }
   </script>
     <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 
@@ -475,6 +482,7 @@
         <li>
 <!--@begin:Profile：username-->
 <!--@date:2013-11-02-->
+
           <span class="title">
             <div class="icon name-icon"></div><b>${_("Name")}:</b>
             <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
@@ -491,6 +499,7 @@
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
           </span>
+
           %if request.user==curr_user:
           <span class="title">
               <div class="icon skype-icon name-icon"></div><b>${_("Skype")}:</b>
@@ -1555,6 +1564,63 @@ Add info that you would like to share about yourself here:
         </div>
     </div>
 </div>
+
+<section id="show_personalmessage" class="modal modal-wide">
+            <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
+                <header>
+                    <h2 class="message_board_full_name">${_("namename")}</h2>
+                    <hr/>
+                </header>
+                <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
+                <form id="" method="post" style="padding:0px;line-height:18px;">
+
+                    <div style="width:520px;margin:10px;">
+                        <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
+
+                        <div style="color:black;font-size:12px;color:#aaa;">
+                            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
+                        </div>
+                        <div style="width:530px;height:30px;">
+                            <table width="530" border="0" cellpadding="0" cellspacing="0">
+                                <tr height="30" style="color:#000;">
+                                    <td widht="265" style="vertical-align:middle;">
+                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
+                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
+                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
+                  </span>
+
+                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
+                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
+                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
+                  </span>
+
+                                    </td>
+                                    <td align="right" style="vertical-align:middle;">
+                                        <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
+                                    </td>
+                                </tr>
+                                <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
+                </form>
+                <br/>
+                <!--
+                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
+                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
+                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
+                </a>
+                </div>
+                -->
+                <div class="close-modal" id="message_board_close">
+                    <div class="inner">
+                        <p>&#10005;</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
 <div style="" id="online_dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
     <div class="titlebar">
@@ -1567,11 +1633,18 @@ Add info that you would like to share about yourself here:
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
         <g:hangout render="createhangout" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
       </div>
+
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="skype:${curr_user.profile.skype_username}?call" id="" class="side-button blue-button skype-button">Start Skype Call</a>
           <div class="skype-container-online"></div>
-      </div>
+      </div><br><br>
+        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+                  <div class="message_board_btn" data-fullname="${curr_user.first_name} ${curr_user.last_name}" data-name="${curr_user.username}" data-id="${curr_user.user_id}" onclick="imessage_click(this);">
+                    <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                    <div id="" style="display:none;"></div>
+                  </div>
+                </a>
     </div>
   </div>
 </div>
@@ -1609,7 +1682,11 @@ Add info that you would like to share about yourself here:
               $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
               startSkypeOnline(skype_params);
           });
+        $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
     });
+
 
 </script>
 
