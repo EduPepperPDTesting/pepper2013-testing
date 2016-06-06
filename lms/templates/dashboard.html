@@ -481,7 +481,7 @@
             active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
           else:
             active_recent = False
-          %><script>alert("${active_recent}"); alert("${d_min}"); alert("${utc_m} ::: ${utc_h}" )</script>
+          %>
       <h1 class="user-name">${ curr_user.username }
           %if active_recent and not curr_user == request.user:
               <img src="/static/images/online-3.png" class="online-circle" id="${curr_user.profile.id}" data-fname="${curr_user.first_name}" data-lname="${curr_user.last_name}" data-skypename="${curr_user.profile.skype_username}"></img>
