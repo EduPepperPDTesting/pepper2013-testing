@@ -341,7 +341,7 @@ from permissions.utils import check_access_level, check_user_perms
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
               <input type="checkbox" name="allow_student_attendance" value="true" />
-              <span class="check-mark" alt="This allows users to record their attendance. It can be used with training ID field below."></span>              
+              <span class="check-mark" alt="This should only be used for trainings or PD events that do not have an instructor."></span>              
             </div>
             <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
@@ -363,6 +363,15 @@ from permissions.utils import check_access_level, check_user_perms
     </div>
   </div>
 </div>
+%if request.user.is_superuser:
+<script type="text/javascript">
+  var is_superuser=true;
+</script>
+%else:
+<script type="text/javascript">
+  var is_superuser=false;
+</script>
+%endif
 <script type="text/javascript">
   function PepReg($content){
     var self=this;
@@ -497,7 +506,12 @@ from permissions.utils import check_access_level, check_user_perms
       if(!data.training_time_end){
         return ["training_time_end", "Please select training end time"];
       }
-      if(new Date(data.training_date + " " + data.training_time_end) < new Date(data.training_date + " " + data.training_time_start)){
+      function todate(d, t){
+        var d = d.split("-");
+        var t = t.split(":")
+        return new Date(d[0],d[1],d[2],t[0],t[1],0);
+      }
+      if(todate(data.training_date, data.training_time_end), todate(data.training_date, data.training_time_start)){
         return ["training_time_end", "Please select time that after the Start Time."];
       }
     }else if(page == 3){
@@ -790,7 +804,7 @@ from permissions.utils import check_access_level, check_user_perms
     var self = this;
     $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join  }, function(r){
       if(r.success){
-        cb();
+        cb(join);
         //self.reloadTable();
       }
     });
@@ -962,21 +976,23 @@ from permissions.utils import check_access_level, check_user_perms
     this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
     $("#data-table").bind("pagerComplete", function() {
       var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
-      if(is_admin)
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]]);
-      else{
-        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12, 13]]);
-      }
-      if(!is_admin){
-        $(this).find("th:nth-child(1)").hide();
-        $(this).find("td:nth-child(1)").hide();
-        $(this).find("th:nth-child(16)").hide();
-        $(this).find("td:nth-child(16)").hide();
+      if(is_superuser){
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+      }else if(is_admin){
+        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
       }else{
+        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12, 14]]);
+      }
+      if(is_admin){
         $(this).find("th:nth-child(1)").show();
         $(this).find("td:nth-child(1)").show();
         $(this).find("th:nth-child(16)").show();
         $(this).find("td:nth-child(16)").show();
+      }else{
+        $(this).find("th:nth-child(1)").hide();
+        $(this).find("td:nth-child(1)").hide();
+        $(this).find("th:nth-child(16)").hide();
+        $(this).find("td:nth-child(16)").hide();
       }
       // location
       $(this).find("td:nth-child(11)").each(function(){
@@ -1031,8 +1047,12 @@ from permissions.utils import check_access_level, check_user_perms
               }
               $check.prop('checked', status == "Registered");
               $check.click(function(){
-                self.registerUser(training_id, this.checked, function(){
-                  self.reloadTable();
+                self.registerUser(training_id, this.checked, function(reg){
+                  // self.reloadTable();
+                  if(reg)
+                    self.warning("Thank you for registering/recording attendance for this training!");
+                  else
+                    self.warning("Thank you! You are no longer registered for this training.");
                 });
               });            
             }
@@ -1074,7 +1094,12 @@ from permissions.utils import check_access_level, check_user_perms
               });
             }else{
               $check.change(function(){
-                self.setStudentAttended(${request.user.id},training_id, this.checked, function(){self.warning("Success");});
+                self.setStudentAttended(${request.user.id},training_id, this.checked, function(data){
+                  if(data && data.is_attended)
+                    self.warning("Thank you for registering/recording attendance for this training!");
+                  else
+                    self.warning("Thank you! You are no longer registered for this training.");
+                });
               });
             }
           }else{
@@ -1156,7 +1181,7 @@ from permissions.utils import check_access_level, check_user_perms
     $(this).datepicker({ 
       autoSize: true ,         
       gotoCurrent: true,       
-      firstDay: 2,             
+      firstDay: 0,             
       minDate: new Date(),     
       hideIfNoPrevNext: false,  
       navigationAsDateFormat: true,
