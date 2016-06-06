@@ -26,6 +26,12 @@ from mail import send_html_mail
 from permissions.decorators import user_has_perms
 from permissions.utils import check_user_perms
 
+#@begin:add pd_time in time_report
+#@date:2016-06-03
+from django.db.models import Sum
+from models import PepRegStudent
+#@end
+
 log = logging.getLogger("tracking")
 
 ADJUSTMENT_TIME_CSV_COLS = ('email', 'time', 'type', 'course_number', 'comments')
@@ -255,7 +261,16 @@ def do_get_report_data(task, data, request, course_id=None):
                 discussion_time = rts.get_course_time(user_id, course_id, 'discussion')
                 collaboration_time = all_discussion_time + portfolio_time
                 all_course_time = all_course_time + all_external_time
-                total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total')
+
+                #@begin:add pd_time in time_report
+                #@date:2016-06-03
+                pd_time = 0;
+                pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=user_id)
+                if pd_time_tmp:
+                    pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+                total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total') + pd_time
+                #total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total')
+                #@end
             else:
                 for enrollment in CourseEnrollment.enrollments_for_user(p.user):
                     try:
@@ -274,7 +289,16 @@ def do_get_report_data(task, data, request, course_id=None):
                 course_time, discussion_time, portfolio_time = rts.get_stats_time(user_id)
                 all_course_time = course_time + external_time
                 collaboration_time = discussion_time + portfolio_time
-                total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total')
+
+                #@begin:add pd_time in time_report
+                #@date:2016-06-03
+                pd_time = 0;
+                pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=user_id)
+                if pd_time_tmp:
+                    pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+                total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total') + pd_time
+                #total_time = all_course_time + collaboration_time + rts.get_adjustment_time(user_id, 'total')
+                #@end
 
             rows.append({'id': p.user.id,
                          'user_first_name': p.user.first_name,
@@ -286,6 +310,7 @@ def do_get_report_data(task, data, request, course_id=None):
                          "collaboration_time": study_time_format(collaboration_time, True),
                          "discussion_time": study_time_format(discussion_time, True),
                          "portfolio_time": study_time_format(portfolio_time, True),
+                         "pd_time": study_time_format(pd_time, True), #2016-06-03 add pd_time in time_report
                          "external_time": study_time_format(external_time, True),
                          "course_time": study_time_format(course_time, True),
                          "complete_course_num": complete_course_num,
