@@ -9,6 +9,7 @@
   from django.utils import timezone
   from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
+  import datetime
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -468,9 +469,19 @@
     <header class="profile">
           <%
           user = curr_user
-          active_before = (timezone.now().date() - user.profile.last_activity.date()).days if user.profile.last_activity else 999999
-          active_recent = active_before < 1
-          %>
+          utc_month=datetime.datetime.utcnow().strftime("%m")
+          utc_day=datetime.datetime.utcnow().strftime("%d")
+          utc_h=datetime.datetime.utcnow().strftime("%H")
+          utc_m=datetime.datetime.utcnow().strftime("%M")
+          d_min = 60*int(utc_h) + int(utc_m)
+          if user.profile.last_activity:
+            u=user.profile.last_activity
+            u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
+            close = int(d_min) - int(u_min) < 10
+            active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
+          else:
+            active_recent = False
+          %><script>alert("${active_recent}"); alert("${d_min}"); alert("${utc_m} ::: ${utc_h}" )</script>
       <h1 class="user-name">${ curr_user.username }
           %if active_recent and not curr_user == request.user:
               <img src="/static/images/online-3.png" class="online-circle" id="${curr_user.profile.id}" data-fname="${curr_user.first_name}" data-lname="${curr_user.last_name}" data-skypename="${curr_user.profile.skype_username}"></img>

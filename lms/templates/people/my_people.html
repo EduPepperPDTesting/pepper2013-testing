@@ -13,6 +13,8 @@
   from django.contrib.auth.models import User
   from django.utils import timezone
   from datetime import date
+  import datetime
+
 %>
 <%! import json%>
 <style type="text/css" media="screen">
@@ -267,9 +269,19 @@
       %for profile in profiles:
 
       <%
-      people = User.objects.get(id=profile['user_id'])
-      active_before = (timezone.now().date() - people.profile.last_activity.date()).days if people.profile.last_activity else 999999
-      active_recent = active_before < 1
+      user = User.objects.get(id=profile['user_id'])
+      utc_month=datetime.datetime.utcnow().strftime("%m")
+      utc_day=datetime.datetime.utcnow().strftime("%d")
+      utc_h=datetime.datetime.utcnow().strftime("%H")
+      utc_m=datetime.datetime.utcnow().strftime("%M")
+      d_min = 60*int(utc_h) + int(utc_m)
+      if user.profile.last_activity:
+        u=user.profile.last_activity
+        u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
+        close = int(d_min) - int(u_min) < 10
+        active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
+      else:
+        active_recent = False
       %>      
       <div class="people_content">
         <span class="head_photo" style="background:transparent;">
