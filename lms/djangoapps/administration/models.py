@@ -218,4 +218,3 @@ class PepRegStudent(models.Model):
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
-    

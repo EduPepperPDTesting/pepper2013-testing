@@ -482,6 +482,7 @@ div.create select{
 .step-page input[type=text],
 .step-page select{
     vertical-align:middle;
+    max-width:500px;
 }
 .step-page h5{
     font-size:14px;
