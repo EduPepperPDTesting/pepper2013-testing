@@ -3,9 +3,6 @@ from student.models import District
 from django.contrib.auth.models import User
 from django.conf import settings
 import pymongo
-import logging
-log = logging.getLogger("tracking")
-
 
 class ImportTask(models.Model):
     class Meta:
@@ -118,7 +115,6 @@ class HangoutPermissions(models.Model):
     district = models.ForeignKey(District, blank=False)
     permission = models.BooleanField(default=1)
 
-
 class MongoSiteSettingsStore(object):
 
     def __init__(self, host, db, collection, port=27017, default_class=None, user=None, password=None,
@@ -172,54 +168,3 @@ def site_setting_store():
     options = {}
     options.update(settings.SITESETTINGSSTORE['OPTIONS'])
     return MongoSiteSettingsStore(**options)
-
-
-class PepRegTraining(models.Model):
-    class Meta:
-        db_table = 'pepreg_training'
-    type = models.CharField(blank=False, max_length=50, db_index=False)
-    district = models.ForeignKey(District)
-    description = models.TextField(blank=False, null=True)
-    subject = models.CharField(blank=False, max_length=50, db_index=False)
-    name = models.CharField(blank=False, max_length=255, db_index=False)
-    pepper_course = models.CharField(blank=False, max_length=255, db_index=False)
-    training_date = models.DateField(auto_now_add=False, db_index=False)
-    training_time_start = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
-    training_time_end = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
-    geo_location = models.CharField(blank=False, max_length=255, db_index=False)
-    geo_props = models.TextField(blank=False, null=True)
-    classroom = models.CharField(blank=False, max_length=255, db_index=False)
-    credits = models.FloatField(blank=False, default=0)
-    attendancel_id = models.CharField(blank=False, max_length=255, db_index=False)
-    allow_registration = models.BooleanField(blank=False, default=0)
-    max_registration = models.IntegerField(blank=False, default=0)
-    allow_attendance = models.BooleanField(blank=False, default=0)
-    allow_student_attendance = models.BooleanField(blank=False, default=0)
-    allow_validation = models.BooleanField(blank=False, default=0)
-    user_create = models.ForeignKey(User, related_name='+')
-    date_create = models.DateField(auto_now_add=False, db_index=False)
-    user_modify = models.ForeignKey(User, related_name='+')
-    date_modify = models.DateField(auto_now_add=False, db_index=False)
-
-
-class PepRegInstructor(models.Model):
-    class Meta:
-        db_table = 'pepreg_instructor'
-    training = models.ForeignKey(PepRegTraining)
-    instructor = models.ForeignKey(User, related_name='+')
-    user_create = models.ForeignKey(User, related_name='+')
-    date_create = models.DateField(auto_now_add=True, db_index=False)
-
-
-class PepRegStudent(models.Model):
-    class Meta:
-        db_table = 'pepreg_student'
-    training = models.ForeignKey(PepRegTraining)
-    student = models.ForeignKey(User, related_name='+')
-    student_status = models.CharField(blank=False, max_length=50, db_index=False)
-    student_credit = models.IntegerField(blank=False, default=0)
-    user_create = models.ForeignKey(User, related_name='+')
-    date_create = models.DateField(auto_now_add=True, db_index=False)
-    user_modify = models.ForeignKey(User, related_name='+')
-    date_modify = models.DateField(auto_now_add=True, db_index=False)
-    

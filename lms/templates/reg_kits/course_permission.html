@@ -45,8 +45,8 @@ from student.models import State,District,Transaction,Cohort,School,Registration
               </select></td>
               <td>Status:
                 <select id="" name="subscription_status" autocomplete="off">
-                  <option value="__NONE__"></option>
-                  <option value="">all</option>
+                  <option value=""></option>
+                  <option value="all">all</option>
                   <option value="Imported">Imported</option>
                   <option value="Unregistered">Unregistered</option>
                   <option value="Registered">Registered</option>
@@ -122,17 +122,11 @@ from student.models import State,District,Transaction,Cohort,School,Registration
                 <tbody style="" id="ttt">
                   %for item in users:
                   <tr>
-                    <td>
-                      %try:
-                        ${item.district.name}
-                      %except:
-                        &nbsp;
-                      %endtry
-                    </td>
-                    <td>${item.user.last_name}</td>
-                    <td>${item.user.first_name}</td>
-                    <td>${item.user.email}</td>
-                    <td><input type="checkbox" class="checkrow" autocomplete="off" style="margin-left:50px;"/></td>
+                    <td >${item.district.name}</td>
+                    <td >${item.user.last_name}</td>
+                    <td >${item.user.first_name}</td>
+                    <td >${item.user.email}</td>
+                    <td ><input type="checkbox" class="checkrow" autocomplete="off" style="margin-left:50px;"/></td>
                   </tr>
                   %endfor           
                 </tbody>
@@ -302,7 +296,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
     var first_name="${request.GET.get('first_name','')}";
     var last_name="${request.GET.get('last_name','')}";
     var author_id="${request.GET.get('author_id','')}";
-    var subscription_status="${request.GET.get('subscription_status','__NONE__')}";
+    var subscription_status="${request.GET.get('subscription_status','')}";
     form.find("select[name=state_id]").val(state_id);
     form.find("input[name=email]").val(email);
     form.find("input[name=last_name]").val(last_name);
@@ -320,7 +314,7 @@ from student.models import State,District,Transaction,Cohort,School,Registration
       $(this).val(school_id)
     });
     var curr_filter={state_id:state_id, cohort_id:cohort_id, district_id:district_id, school_id:school_id,
-                     email:email, first_name:first_name, last_name:last_name, subject_id:subject_id, author_id:author_id, subscription_status:subscription_status};
+                     email:email, first_name:first_name, last_name:last_name, subject_id:subject_id, author_id:author_id};
     $("#btnDownloadCsv").click(function(){
       var valid_filter=[];
       var h=get_searching();

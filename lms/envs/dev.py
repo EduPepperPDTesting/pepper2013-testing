@@ -219,7 +219,6 @@ MIDDLEWARE_CLASSES += ('django_comment_client.utils.QueryCountDebugMiddleware'
                        ,'debug_toolbar.middleware.DebugToolbarMiddleware'
                        # ,'online_status.middleware.OnlineStatusMiddleware'
                        ,'middleware.SessionExpiry'
-                       ,'middleware.UpdateLastActivityMiddleware'
                        )
 INTERNAL_IPS = ('127.0.0.1',)
 

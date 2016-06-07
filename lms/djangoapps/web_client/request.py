@@ -47,8 +47,8 @@ class WebRequest:
             kwargs = {'method': method,
                       'url': self.base_url + endpoint,
                       'timeout': 15,
-                      'headers': {'Content-Type': self.content_type},
-                      'verify': False}  # TODO: Need to get SSL up to date and re-enable verification.
+                      'headers': {'Content-Type': self.content_type}
+                      }
             if method == 'post':
                 kwargs.update({'data': data})
             else:

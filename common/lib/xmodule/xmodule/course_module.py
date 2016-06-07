@@ -384,11 +384,11 @@ class CourseFields(object):
     # Explicit comparison to True because we always want to return a bool.
     hide_progress_tab = Boolean(help="DO NOT USE THIS", scope=Scope.settings)
 
-    display_state = List(help="An optional display string for the course state that will get rendered in the LMS",
-                         scope=Scope.settings)
+    display_state = List(help="An optional list of display strings for the course state that will get rendered in the LMS",
+                           scope=Scope.settings)
 
-    display_district = List(help="An optional display string for the course district that will get rendered in the LMS",
-                            scope=Scope.settings)
+    display_district = List(help="An optional list of display strings for the course district that will get rendered in the LMS",
+                              scope=Scope.settings)
 
     display_organization = String(help="An optional display string for the course organization that will get rendered in the LMS",
                                   scope=Scope.settings)
@@ -400,12 +400,8 @@ class CourseFields(object):
 
     display_grades = String(help="grade", default="", scope=Scope.settings)
 
-    #@begin:change type of display_subject to list 
-    #@date:2016-05-31
-    #display_subject = String(help="subject", default="", scope=Scope.settings)
-    display_subject = List(help="List for the course subject ", scope=Scope.settings)
-    #@end
-
+    display_subject = String(help="subject", default="", scope=Scope.settings)
+    
     display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
     
     display_credit = Boolean(help="credit", default=True, scope=Scope.settings)

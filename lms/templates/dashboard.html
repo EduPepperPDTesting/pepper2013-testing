@@ -6,10 +6,8 @@
   from certificates.models import CertificateStatuses
   from xmodule.modulestore import MONGO_MODULESTORE_TYPE
   from xmodule.modulestore.django import modulestore
-  from django.utils import timezone
   from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
-  import datetime
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -50,69 +48,6 @@
    color:#fff;
    transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
  }
- #dlg-user-photo{
-     width:140px;
-     height:140px;
- }
-
- .skype-icon{
-     background-image: url("/static/images/skype-add.png") !important;
- }
- #create-skype, #create-skype-online {
-        float: left;
-        margin: 0 20px 0 0;
-    }
-    .skype-container {
-        float: left;
-    }
-    .skype-button .side-button {
-        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
-        height: 20px;
-    }
-     .hangout_container {
-        text-align: center;
-        padding-top: 20px;
-    }
-    .hangout_container img {
-        width: 120px;
-        vertical-align: top;
-    }
-    .hangout_container .side-button {
-        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
-        height: 20px;
-    }
-    .side-button {
-        color: white !important;
-        display: block;
-        padding: 10px;
-        border-width: 1px;
-        border-style: solid;
-        text-align: center;
-        margin-top: 5px;
-    }
-    .blue-button {
-        border-color: #45719E;
-        background: #5A9BD5;
-    }
-    .green-button {
-        border-color: #595;
-        background: #8cbe41;
-    }
-    .red-button {
-        border-color: #df0000;
-        background: #ED2828;
-    }
- .online-circle{
-    width: 20px;
-    margin-left: 10px;
-    margin-top: 2px;
-    height: 20px;
-    border-radius: 10px;
-    position: absolute;
- }
- .online-circle:hover{
-     cursor:pointer;
- }
  #submit:normal,,#submit_email_change:normal,#photo_submit:normal {
    background:#126F9A;
    text-decoration: none;
@@ -129,8 +64,6 @@
 </style>
 <!--@end-->
 <%block name="js_extra">
-<script src="https://apis.google.com/js/platform.js" async defer></script>
-
 <script type="text/javascript">
   /*@begin:Click the round button in grade_level table*/
   /*@date:2013-11-02*/
@@ -208,15 +141,6 @@
              });
       return false;
     });
-    $("#change_skype_name_form").submit(function(){
-       var username = $("#new_skype_name_field").val();
-        $.post('${reverse("change_skype_name")}',
-             {"username":username},
-             function(data) {
-               location.reload();
-             });
-      return false;
-    });
     $("#change_name_form").submit(function(){
       /*@begin:Change the name to two fileds*/
       /*@date:2013-11-02*/
@@ -238,7 +162,7 @@
     });
 <!--@begin:Process the newly added fields in dashboard-->
 <!--@date:2013-11-02-->
-    $("#change_school_form").find("select[name='school_id']").val('${curr_user.profile.school_id}')
+     $("#change_school_form").find("select[name='school_id']").val('${curr_user.profile.school_id}')
     $("#change_school_form").submit(function(){
       var school_id = $(this.school_id).val();
       $.post('${reverse("change_school")}',
@@ -447,17 +371,8 @@
                                          'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
     var url = $(this).attr("link");
     $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
-   });
-    function imessage_click(obj)
-  {
-    var userInfo=[];
-    userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-    userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
-    message_board(userInfo);
-  }
+   })
   </script>
-    <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
-
 </%block>
 <section class="container dashboard" id="container_dashboard">
   %if message and curr_user==request.user:
@@ -467,33 +382,13 @@
   %endif
   <section class="profile-sidebar">
     <header class="profile">
-          <%
-          user = curr_user
-          utc_month=datetime.datetime.utcnow().strftime("%m")
-          utc_day=datetime.datetime.utcnow().strftime("%d")
-          utc_h=datetime.datetime.utcnow().strftime("%H")
-          utc_m=datetime.datetime.utcnow().strftime("%M")
-          d_min = 60*int(utc_h) + int(utc_m)
-          if user.profile.last_activity:
-            u=user.profile.last_activity
-            u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
-            close = int(d_min) - int(u_min) < 10
-            active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
-          else:
-            active_recent = False
-          %>
-      <h1 class="user-name">${ curr_user.username }
-          %if active_recent and not curr_user == request.user:
-              <img src="/static/images/online-3.png" class="online-circle" id="${curr_user.profile.id}" data-fname="${curr_user.first_name}" data-lname="${curr_user.last_name}" data-skypename="${curr_user.profile.skype_username}"></img>
-          %endif
-      </h1>
+      <h1 class="user-name">${ curr_user.username }</h1>
     </header>
     <section class="user-info">
       <ul>
         <li>
 <!--@begin:Profile：username-->
 <!--@date:2013-11-02-->
-
           <span class="title">
             <div class="icon name-icon"></div><b>${_("Name")}:</b>
             <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
@@ -509,25 +404,6 @@
 			%if curr_user==request.user:
             (<a href="#apply_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
             %endif
-          </span>
-
-          %if request.user==curr_user:
-          <span class="title">
-              <div class="icon skype-icon name-icon"></div><b>${_("Skype")}:</b>
-            <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">${ curr_user.profile.skype_username }</span>
-
-			<script>
-				var full_name = document.getElementById('skype_name_span').textContent;
-				if(full_name.length>31)
-				{
-					document.getElementById('skype_name_span').textContent = full_name.substring(0,27)+" ...";
-				}
-		   </script>
-			%if curr_user==request.user:
-            (<a href="#apply_skype_name_change" rel="leanModal" class="edit-name">${_("edit")}</a>)
-            %endif
-          </span>
-          %endif
 <!--@end-->          
         </li>
 <!--@begin:Profile：user photo-->
@@ -798,34 +674,10 @@ Add info that you would like to share about yourself here:
 % endif
 % endif
 
-
-<section class="my-courses" style="" >
-  <header>
-    <h2>${_("External Courses")}</h2>
-  </header>
-
-  <article class="my-course" style="border-bottom:3px solid #0098C9">
-    <a href="/sso/idp/auth/?sp=edu2000" class="cover" target="_blank">
-      <img src="/static/images/realgebra_icon.png" style="width:200px;height:135px;" alt="PEP101x User’s Guide to Pepper Cover Image">
-    </a>
-    <section class="info">
-      <hgroup>
-        <p class="date-block"></p>
-        <h2 class="university">Edu2000</h2>
-        <h3><a href="/sso/idp/auth/?sp=edu2000" target="_blank">Realgebra</a></h3>
-      </hgroup>
-      <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen">
-      <a href="/sso/idp/auth/?sp=edu2000" target="_blank" class="enter-course dashboard-btn2">View Course</a>
-      <div class="course-time" time_type="course" course_id="PCG/PEP101x/2014_Spring"></div>
-    </section>
-  </article>
-</section>
-
 <section class="my-courses" style="" >
     <header>
       <h2>${_("Current Courses")}</h2>
     </header>
-
     % if len(courses_incomplated) > 0:
 <!--@begin:Change the disply of the courses list in Dashboard-->
 <!--@date:2013-11-02-->    
@@ -1514,190 +1366,3 @@ Add info that you would like to share about yourself here:
     </div>
   </div>
 </section>
-
-<section id="apply_skype_name_change" class="modal">
-  <div class="inner-wrapper">
-    <header>
-      <h2>${_("Update your Skype Username")}</h2>
-      <hr/>
-    </header>
-    <div id="change_name_body">
-      <form id="change_skype_name_form">
-        <div id="change_skype_name_error" class="modal-form-error"> </div>
-        <fieldset>
-          <div class="input-group">
-            <label>${_("Enter your Skype Username.")}</label>
-<!--@begin:Username change table-->
-<!--@date:2013-11-02-->
-            <br/><br/>
-            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Skype Username</label>
-            <input id="new_skype_name_field" value="${curr_user.profile.skype_username}" type="text" autocomplete="off" maxlength="255"/>
-<!--@end-->
-          </div>
-          <div class="submit">
-            <input type="submit" id="submit" value="${_('Update Skype Username')}">
-          </div>
-        </fieldset>
-      </form>
-    </div>
-    <div class="close-modal" id="change_name_close">
-      <div class="inner">
-        <p>&#10005;</p>
-      </div>
-    </div>
-  </div>
-</section>
-<div style="" id="skype-dialog-online" class="modal">
-    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-        <div class="titlebar">
-            <h3 class="dialog-title">Start Skype Call</h3>
-            <div class="close-modal" id="dialog_close">✕</div>
-        </div>
-        <div class="content">
-            <form>
-                <label id="skype-name-exists">Begin a call with: .</label><span id="skype-online-name"></span><br>
-                <span id ="skype-name-exists-toggle"><label>Topic (optional):<input type="text" name="skype-topic"></label>
-                <input type="button" value="Create" id="create-skype-online">
-                <div class="skype-container-online-2">
-                    <script type="text/javascript">
-                        function startSkypeOnline(params) {
-                            var skype_button_online = Skype.ui(params);
-                            if (skype_button_online) {
-                                var id = $('.skype-container-online').attr('id');
-                                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
-                            }
-                        }
-                    </script>
-                </div>
-                </span>
-            </form>
-            <div class="community-clear"></div>
-        </div>
-    </div>
-</div>
-
-<section id="show_personalmessage" class="modal modal-wide">
-            <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
-                <header>
-                    <h2 class="message_board_full_name">${_("namename")}</h2>
-                    <hr/>
-                </header>
-                <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-                <form id="" method="post" style="padding:0px;line-height:18px;">
-
-                    <div style="width:520px;margin:10px;">
-                        <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
-
-                        <div style="color:black;font-size:12px;color:#aaa;">
-                            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
-                        </div>
-                        <div style="width:530px;height:30px;">
-                            <table width="530" border="0" cellpadding="0" cellspacing="0">
-                                <tr height="30" style="color:#000;">
-                                    <td widht="265" style="vertical-align:middle;">
-                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-                  </span>
-
-                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-                  </span>
-
-                                    </td>
-                                    <td align="right" style="vertical-align:middle;">
-                                        <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
-                                    </td>
-                                </tr>
-                                <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
-                            </table>
-                        </div>
-                    </div>
-                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
-                </form>
-                <br/>
-                <!--
-                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-                </a>
-                </div>
-                -->
-                <div class="close-modal" id="message_board_close">
-                    <div class="inner">
-                        <p>&#10005;</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-<div style="" id="online_dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
-    </div>
-    <div style="color:#000;text-align:center;padding:10px;">
-      <img src="" class="" alt="" id="dlg-user-photo" /><br/>
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <g:hangout render="createhangout" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
-      </div>
-
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
-        <a href="skype:${curr_user.profile.skype_username}?call" id="" class="side-button blue-button skype-button">Start Skype Call</a>
-          <div class="skype-container-online"></div>
-      </div><br><br>
-        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
-                  <div class="message_board_btn" data-fullname="${curr_user.first_name} ${curr_user.last_name}" data-name="${curr_user.username}" data-id="${curr_user.user_id}" onclick="imessage_click(this);">
-                    <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
-                    <div id="" style="display:none;"></div>
-                  </div>
-                </a>
-    </div>
-  </div>
-</div>
-<script>
-    $(document).ready(function(){
-       $(".online-circle").click(function(event){
-            event.preventDefault();
-            scroll(0,0);
-            $("#skype-online-name").text("");
-            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
-            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
-            if($(this).attr("data-skypename") == "None"){
-                $("#skype-name-exists").text("This user does not have their skype name set.");
-                $("#skype-name-exists-toggle").hide();
-            }else{
-                $("#skype-online-name").text($(this).attr("data-skypename"));
-            }
-            main_dlg=new Dialog($('#online_dialog'));
-            main_dlg.show("Error", "");
-            return false;
-        });
-        $('#skype-start-online').click(function(e) {
-            e.preventDefault();
-              var participants = $("span[id='skype-online-name']").text().split(/, ?/);;
-              var topic = $("input[name='skype-topic-online']").val();
-              var skype_params = {
-                name: "call",
-                element: "SkypeButton_Call_" + participants[0] + "_1",
-                participants: participants,
-                imageSize: 24,
-                imageColor: "skype",
-                video: "true",
-                topic: topic
-              };
-              $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
-              startSkypeOnline(skype_params);
-          });
-        $("#message_board_close").click(function(){
-            $(".lean-overlay").remove();
-        });
-    });
-
-
-</script>
-

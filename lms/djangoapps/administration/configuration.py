@@ -197,10 +197,10 @@ def favorite_filter_delete(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-# @login_required
-# @user_passes_test(lambda u: u.is_superuser)
-# def send_registration_email(request):
-#     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def send_registration_email(request):
+    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 @user_has_perms('certificate', 'delete')
@@ -267,13 +267,3 @@ def has_hangout_perms(user):
         permission = 1
         
     return permission
-
-
-@login_required
-def get_user_info(request):
-    json_return = {'first_name': request.user.first_name,
-                   'last_name': request.user.last_name,
-                   'email': request.user.email,
-                   'secret': 'La2aiphaab2gaeB'
-                   }
-    return HttpResponse(json.dumps(json_return), content_type="application/json")

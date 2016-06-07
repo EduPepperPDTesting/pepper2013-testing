@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<entities xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <entity type="OAuth2" name="Clever">
+    <setting name="oauth2_grant_type">authorization_code</setting>
+    <setting name="oauth2_request_token_url">https://clever.com/oauth/tokens</setting>
+    <setting name="oauth2_me_url">/me</setting>
+    <setting name="oauth2_client_secret">f04b49c3477a607b19dc12a629b80a0190602c3f</setting>
+    <setting name="oauth2_redirect_url">https://staging.pepperpd.com/genericsso/?idp=Clever</setting>
+    <setting name="oauth2_api_url">https://api.clever.com</setting>
+    <setting name="oauth2_client_id">172ddae01da8b5f08e6b</setting>
+    <attribute name="data.email" map="email"></attribute>
+    <attribute name="data.name.first" map="first_name"></attribute>
+    <attribute name="data.name.last" map="last_name"></attribute>
+    <attribute name="data.id" map="sso_user_id"></attribute>
+  </entity>
+  <entity type="SAML" name="pepper_idp">
+    <attribute name="email" map="email"></attribute>
+    <attribute name="username" map="username"></attribute>
+  </entity>
+</entities>

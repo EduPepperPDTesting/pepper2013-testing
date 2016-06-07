@@ -5,7 +5,7 @@
   </div>
 
   <div class="field text value">
-    <label for="<%= valueUniqueId %>">Policy Value: <%= keyValueNote %></label>
+    <label for="<%= valueUniqueId %>">Policy Value:</label>
     <textarea class="json text" id="<%= valueUniqueId %>"><%= value %></textarea>
   </div>
 </li>

@@ -67,12 +67,6 @@ from courseware.courses import get_course_by_id
 from study_time.models import record_time_store
 from administration.models import site_setting_store
 
-#@begin:add pd_time to total_time
-#@date:2016-06-06
-from django.db.models import Sum
-from administration.models import PepRegStudent
-#@end
-
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -395,12 +389,7 @@ def more_courses_available(request):
             pass
 
     # sort courses
-    #@begin:change the type of display_subject to list 
-    #@date:2016-05-31
-    #courses.sort(cmp=lambda x, y: cmp(x.display_subject.lower(), y.display_subject.lower()))
-    courses.sort(cmp=lambda x, y: cmp(x.display_subject[0].lower(), y.display_subject[0].lower()))
-    more_subjects_courses = [[], [], [], [], []]
-    #@end
+    courses.sort(cmp=lambda x, y: cmp(x.display_subject.lower(), y.display_subject.lower()))
 
     # 20160322 modify "Add new grade 'PreK-3'"
     # begin
@@ -410,14 +399,7 @@ def more_courses_available(request):
     # end 
 
     for course in courses:
-        course_filter(course, subject_index, currSubject, g_courses, '', more_subjects_courses)
-
-    #@begin:add the course which subject more than 1 to g_courses 
-    #@date:2016-05-31
-    for i in range(0,len(more_subjects_courses)):
-        if len(more_subjects_courses[i]) > 0:
-            g_courses[i].append(more_subjects_courses[i])
-    #@end
+        course_filter(course, subject_index, currSubject, g_courses, '')
 
     for gc in g_courses:
         for sc in gc:
@@ -540,19 +522,6 @@ def dashboard(request, user_id=None):
     except ExternalAuthMap.DoesNotExist:
         pass
 
-    #@begin:add pd_time to total_time
-    #@date:2016-06-06
-    id_of_user = ''
-    if user_id:
-        id_of_user = user_id
-    else:
-        id_of_user = request.user.id
-    pd_time = 0;
-    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
-    if pd_time_tmp:
-        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
-    #@end
-
     if user.is_superuser:
 
         course_time = 0
@@ -567,11 +536,7 @@ def dashboard(request, user_id=None):
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-        #@begin:add pd_time to total_time
-        #@date:2016-06-06
-        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
-        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
-        #@end
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
 
     #20160413 load alert_message
     #begin
@@ -1748,14 +1713,6 @@ def confirm_email_change(request, key):
         transaction.rollback()
         raise
 
-
-@ensure_csrf_cookie
-def change_skype_name(request):
-    user = UserProfile.objects.get(user_id=request.user.id)
-    user.skype_username = request.POST['username']
-    user.save()
-    return HttpResponse(json.dumps({'success?': True}))
-
 @ensure_csrf_cookie
 def change_name_request(request):
     """ Log a request for a new name. """
@@ -2311,16 +2268,6 @@ def get_pepper_stats(request):
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
-
-    #@begin:add pd_time to total_time
-    #@date:2016-06-06
-    id_of_user = request.POST.get('user_id')
-    pd_time = 0;
-    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
-    if pd_time_tmp:
-        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
-    #@end
-
     if user.is_superuser:
         course_times = {course.id: 0 for course in courses}
 
@@ -2339,11 +2286,7 @@ def get_pepper_stats(request):
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-        #@begin:add pd_time to total_time
-        #@date:2016-06-06
-        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
-        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
-        #@end
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
 
     context = {
         'all_course_time': study_time_format(all_course_time),

@@ -1,160 +1,170 @@
-div.expand_title {
-    color: #08a;
-    font-size: 20px;
-    padding: 5px 5px 10px 5px;
-    cursor: pointer;
-    background-color: #ccc;
-    box-shadow: 0 1px 0 0 #fff inset;
-    background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
-    text-shadow: 0 -1px 1px #aaa;
-}
-div.expand_title .icon {
-    display: inline-block;
-    position: relative;
-    top: 5px;
-    width: 23px;
-    height: 23px;
-    background: url("../images/arrows.png") no-repeat 0 0;
-}
-div.expand_title_expanded {
-    border-bottom: 1px solid #999;
-}
-div.expand_title_expanded .icon {
-    background: url("../images/arrows.png")no-repeat 0 -23px;
-}
-div.expand_div {
-    display: none;
-}
-.table_scroll{
-    height:600px;
-    width:auto;
-    overflow-x:auto;
-}
-div{
-    font-size:small;
-}
-.table-menu .tablesorter-header-inner div{
-    background-attachment: scroll;
-    background-clip: border-box;
-    background-color: rgba(0, 0, 0, 0);
-    background-image: url('../images/configuration/table_menu.png');
-    background-origin: padding-box;
-    background-position: 0 0;
-    background-repeat: repeat;
-    background-size: auto auto;
-}
-.columnSelectorWrapper {
-    float: right
-}
-.columnSelector, .hidden {
-    margin-top: 60px;
-    display: none;
-}
-.columnSelectorButton {
-    padding: 10px;
-}
-#colSelect1:checked + label {
-    background: #5797d7;
-    border-color: #555;
-}
-#colSelect1:checked ~ #columnSelector {
-    display: block;
-}
-.columnSelector {
-    width: 220px;
-    position: absolute;
-    top: 30px;
-    padding: 10px;
-    background: #fff;
-    border: #99bfe6 1px solid;
-    border-radius: 5px;
-}
-.columnSelector label {
-    display: block;
-    font-size:14px;
-}
-.columnSelector label:nth-child(1) {
-    border-bottom: #99bfe6 solid 1px;
-    margin-bottom: 5px;
-}
-.columnSelector input {
-    margin-right: 5px;
-}
-.columnSelector .disabled {
-    color: #ddd;
-}
-#tabs li a{
-    clear: both;
-    padding: 12px;
-    font-size: 12px;
-}
-#enrollment_courses_dialog .course_list{
-    height: 300px;
-    overflow-y: auto;
-}
-#enrollment_courses_dialog .course_list_item{
-    font-size: 15px;
-    font-weight: bold;
-    margin: 10px 0px 0px 20px;
-}
-#enrollment_courses_dialog .pass{
-    font-size: 12px;
-    margin: 0px 0px 20px 20px;
-    color: #666;
-}
-#enrollment_courses_dialog .load_info{
-    font-size: 18px;
-    font-weight: bold;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 280px;
-    float: left;
-    width: 100%;
-    color: #666;
-}
-.complete_courses_color{
-    color: #2bbaec !important;
-}
-.current_courses_color{
-    color: #f58220 !important;
-}
-.details{
-    float: right;
-    margin: 10px;
-    height: 20px;
-    font-size: 15px;
-    color: #900b09;
-    cursor: pointer;
-}
-.adjustment_log{
-    height: 200px;
-    display: none;
-    color: #000000;
-    border:1px solid #AAAAAA;
-    background-color:#FFFFFF;
-}
-.adjustment_log_title{
-    margin: 10px;
-    color: #900b09;
-    font-size: 14px;
-}
-.adjustment_log_list{
-    margin: 10px;
-    color: blue;
-    overflow: auto;
-    height: 150px;
-    white-space:nowrap;
-}
-div.details .icon {
-    display: inline-block;
-    width: 12px;
-    height: 15px;
-    background: url("../images/configuration/arrow_dn.png");
-}
-div.details_expanded .icon {
-    background: url("../images/configuration/arrow_up.png");
-}
-.time_edit_btn {
-    font-size: 24px !important;
-    color: #89c252 !important;
-}
+
+        div.expand_title {
+            color: #08a;
+            font-size: 20px;
+            padding: 5px 5px 10px 5px;
+            cursor: pointer;
+            background-color: #ccc;
+            box-shadow: 0 1px 0 0 #fff inset;
+            background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
+            text-shadow: 0 -1px 1px #aaa;
+        }
+
+        div.expand_title .icon {
+            display: inline-block;
+            position: relative;
+            top: 5px;
+            width: 23px;
+            height: 23px;
+            background: url("../images/arrows.png") no-repeat 0 0;
+        }
+
+        div.expand_title_expanded {
+            border-bottom: 1px solid #999;
+        }
+
+
+        div.expand_title_expanded .icon {
+            background: url("../images/arrows.png")no-repeat 0 -23px;
+        }
+
+        div.expand_div {
+            display: none;
+        }
+
+        .table_scroll{
+            height:600px;
+            width:auto;
+            overflow-x:auto;
+          }
+
+        div{
+            font-size:small;
+        }
+        
+        .table-menu .tablesorter-header-inner div{
+            background-attachment: scroll;
+            background-clip: border-box;
+            background-color: rgba(0, 0, 0, 0);
+            background-image: url('../images/configuration/table_menu.png');
+            background-origin: padding-box;
+            background-position: 0 0;
+            background-repeat: repeat;
+            background-size: auto auto;
+        }
+
+        .columnSelectorWrapper {
+            float: right
+        }
+
+        .columnSelector, .hidden {
+            margin-top: 60px;
+            display: none;
+        }
+
+        .columnSelectorButton {
+            padding: 10px;
+        }
+        
+        #colSelect1:checked + label {
+            background: #5797d7;
+            border-color: #555;
+        }
+
+        #colSelect1:checked ~ #columnSelector {
+            display: block;
+        }
+
+        .columnSelector {
+            width: 220px;
+            position: absolute;
+            top: 30px;
+            padding: 10px;
+            background: #fff;
+            border: #99bfe6 1px solid;
+            border-radius: 5px;
+        }
+
+        .columnSelector label {
+            display: block;
+            font-size:14px;
+        }
+
+        .columnSelector label:nth-child(1) {
+            border-bottom: #99bfe6 solid 1px;
+            margin-bottom: 5px;
+        }
+
+        .columnSelector input {
+            margin-right: 5px;
+        }
+
+        .columnSelector .disabled {
+            color: #ddd;
+        }
+
+        #tabs li a{
+          clear: both;
+          padding: 12px;
+          font-size: 12px;
+        }
+
+        #enrollment_courses_dialog .course_list{
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        #enrollment_courses_dialog .course_list_item{
+            font-size: 15px;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        .complete_courses_color{
+            color: #2bbaec !important;
+        }
+
+        .current_courses_color{
+            color: #f58220 !important;
+        }
+
+        .details{
+            float: right;
+            margin: 10px;
+            height: 20px;
+            font-size: 15px;
+            color: #900b09;
+            cursor: pointer;
+        }
+
+        .adjustment_log{
+            height: 200px;
+            display: none;
+            color: #000000;
+            border:1px solid #AAAAAA;
+            background-color:#FFFFFF;
+        }
+        .adjustment_log_title{
+            margin: 10px;
+            color: #900b09;
+            font-size: 14px;
+        }
+
+        .adjustment_log_list{
+            margin: 10px;
+            color: blue;
+            overflow: auto;
+            height: 150px;
+            white-space:nowrap; 
+        }
+
+        div.details .icon {
+            display: inline-block;
+            width: 12px;
+            height: 15px;
+            background: url("../images/configuration/arrow_dn.png");
+        }
+
+        div.details_expanded .icon {
+            background: url("../images/configuration/arrow_up.png");
+        }

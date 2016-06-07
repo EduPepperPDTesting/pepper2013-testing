@@ -76,7 +76,6 @@
                             <th>Collaboration Time</th>
                             <th>Discussion Time</th>
                             <th>Portfolio Time</th>
-                            <th>PD Time</th>
                             <th>External Time</th>
                             <th>Course Units Time</th>
                             <th>Completed Courses</th>
@@ -174,7 +173,6 @@
             <h3 class="dialog-title"></h3>
             <div class="close-modal" id="dialog_close">✕</div>
         </div>
-        <div class="load_info">Loading...</div>
         <div class="course_list"></div>
         <div class="content"></div>
     </div>
@@ -419,11 +417,11 @@
             widgetOptions: {
                 filter_placeholder: { search : 'Search...' },
                 columnSelector_container : $('#columnSelector'),
-                columnSelector_columns : {15: 'disable'},
+                columnSelector_columns : {14: 'disable'},
                 columnSelector_mediaqueryName: 'All: '
             }
         }).tablesorterPager(pagerOptions);
-        $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,10,11,14]]);
+        $(".tblUserTime").trigger('refreshColumnSelector', [[2,5,6,9,10,13]]);
 
         //----------- course drop change----------//
 
@@ -436,7 +434,6 @@
 
         $("#tabs").tabs({
             activate: function(event, ui) {
-                $("#"+ui.newPanel.attr('id')).find(".drop_course").get(0).selectedIndex = 0;
                 userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
             }
         });
@@ -522,7 +519,6 @@
                 table_con += '<td>' + data[d].user_email + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
                 table_con += '<td type="total">' + data[d].total_time + '</td><td type="collaboration">' + data[d].collaboration_time + '</td>';
                 table_con += '<td type="discussion">' + data[d].discussion_time + '</td><td type="portfolio">' + data[d].portfolio_time + '</td>';
-                table_con += '<td type="pd_time">' + data[d].pd_time + '</td>';
                 table_con += '<td type="external">' + data[d].external_time + '</td><td type="course">' + data[d].course_time + '</td>';
                 table_con += '<td>' + course_num_format('complete', data[d].id, data[d].complete_course_num) + '</td>';
                 table_con += '<td>' + course_num_format('current', data[d].id, data[d].current_course_num) + '</td>';
@@ -748,31 +744,19 @@
             var self = this;
             var dialog = $('#enrollment_courses_dialog');
             var course_list = dialog.find('.course_list');
-            var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
-            var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
-            course_list.empty();
-            $('.load_info').show();
-            var xhr = $.post("${reverse('time_report_enrollment_courses_load')}", {
+            $.post("${reverse('time_report_enrollment_courses_load')}", {
                 'user_id':user_id,
                 'type':type
             }, function(data) {
-                $('.load_info').hide();
+                var title = type == 'complete' ? 'Completed Courses' : 'Current Courses';
+                var color_class = type == 'complete' ? 'complete_courses_color' : 'current_courses_color';
+                course_list.empty();
                 for(var d in data){
-                    var progress = (Number(data[d].progress) * 100) + '% completed';
-                    course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>\
-                              <div class="pass">(' + progress + ')</div>');
+                    course_list.append('<div class="course_list_item '+ color_class +'">' + data[d].name + '</div>');
                 }
-            });
-
-            new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
-                this.hide();
-                xhr.abort();
-            });
-
-            dialog.find('.close-modal').off("click").click(function(){
-                $(dialog).css('display','none');
-                $('.lean-overlay').hide();
-                xhr.abort();
+                new Dialog(dialog).showButtons(title, '', ['CLOSE'], function(choice){
+                    this.hide();
+                });
             });
         },
         load_adjustment_log:function(user_id){

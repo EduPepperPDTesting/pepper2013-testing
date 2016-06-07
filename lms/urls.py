@@ -12,8 +12,6 @@ if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 urlpatterns = (
     '',  # nopep8
 
-    # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
-
 ####### Ancestor
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
@@ -41,21 +39,6 @@ urlpatterns = (
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 
-    # === pepreg begin ==
-    url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
-    url(r'^pepreg/rows$', 'administration.pepreg.rows', name="pepreg_rows"),
-    url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
-    url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
-    url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
-    url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
-    url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
-    url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
-    url(r'^pepreg/student_list$', 'administration.pepreg.student_list', name="pepreg_student_list"),
-    url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
-    url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
-    url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
-    # === pepreg end ==    
-
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
     url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
@@ -78,29 +61,6 @@ urlpatterns = (
     url(r'^permissions/permissions/add$', 'permissions.views.permission_add', name='permissions_permission_add'),
     url(r'^permissions/permissions/delete$', 'permissions.views.permission_delete', name='permissions_permission_delete'),
     url(r'^permissions/permissions/list$', 'permissions.views.permissions_list', name='permissions_permissions_list'),
-
-    url(r'^reporting$', 'reporting.views.reports_view', name='reporting_reports'),
-    url(r'^reporting/categories/save$', 'reporting.views.category_save', name='reporting_category_save'),
-    url(r'^reporting/categories/delete$', 'reporting.views.category_delete', name='reporting_category_delete'),
-    url(r'^reporting/order/save$', 'reporting.views.order_save', name='reporting_order_save'),
-    url(r'^reporting/report/delete$', 'reporting.views.report_delete', name='reporting_report_delete'),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_view', name='reporting_report'),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/edit$', 'reporting.views.report_edit', name='reporting_report_edit'),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/save$', 'reporting.views.report_save', name='reporting_report_save'),
-    url(r'^reporting/views/edit$', 'reporting.views.views_edit', name='reporting_views_edit'),
-    url(r'^reporting/views/edit/update$', 'reporting.views.views_edit_update', name='reporting_views_edit_update'),
-    url(r'^reporting/views/add$', 'reporting.views.view_add', name='reporting_view_add'),
-    url(r'^reporting/views/delete$', 'reporting.views.views_delete', name='reporting_views_delete'),
-    url(r'^reporting/views/data$', 'reporting.views.view_data', name='reporting_view_data'),
-    url(r'^reporting/views/list$', 'reporting.views.views_list', name='reporting_views_list'),
-    url(r'^reporting/views/relationships/add$', 'reporting.views.relationship_add', name='reporting_relationship_add'),
-    url(r'^reporting/views/relationships/delete$', 'reporting.views.relationships_delete', name='reporting_relationships_delete'),
-    url(r'^reporting/views/relationships/data$', 'reporting.views.relationship_data', name='reporting_relationship_data'),
-    url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
-    url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
-    url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
-    url(r'^reporting/report/get_progress$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
-    url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -137,8 +97,6 @@ urlpatterns = (
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
-
-    url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),
 
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
@@ -332,7 +290,7 @@ urlpatterns = (
     url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
     url(r'^contact_us_modal_submit/$', 'branding.views.contact_us_modal_submit', name="contact_us_modal_submit"),
 
-    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^\/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
              'portfolio.views.my_discussions', name="portfolio_my_discussions"),
 
     #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
@@ -384,7 +342,6 @@ urlpatterns = (
     url(r'^change_percent_eng_learner$', 'student.views.change_percent_eng_learner', name="change_percent_eng_learner"),
 
     url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
-    url(r'^change_skype_name$', 'student.views.change_skype_name', name="change_skype_name"),
     url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
     url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),
     url(r'^change_major_subject_area$', 'student.views.change_major_subject_area_request', name="change_major_subject_area"),

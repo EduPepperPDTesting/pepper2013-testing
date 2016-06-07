@@ -618,21 +618,13 @@ def modx_dispatch(request, dispatch, location, course_id):
         #@begin:complete_course_survey
         #@data:2013-12-13
         try:
-            if hasattr(instance, 'complete_survey') and dispatch == 'problem_check':
+            if hasattr(instance,'complete_survey') and dispatch == 'problem_check':
                 if instance.complete_survey and dispatch == 'problem_check':
                     student = request.user
                     course_descriptor = get_course_by_id(course_id)
-                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id,
-                                                                                       student,
-                                                                                       course_descriptor,
-                                                                                       depth=None)
-                    course_instance = get_module(student,
-                                                 request,
-                                                 course_descriptor.location,
-                                                 field_data_cache,
-                                                 course_id,
-                                                 grade_bucket_type='ajax')
-                    percent = grade(student, request, course_descriptor, field_data_cache)['percent']
+                    field_data_cache = FieldDataCache.cache_for_descriptor_descendents(course_id, student, course_descriptor, depth=None)
+                    course_instance = get_module(student, request, course_descriptor.location, field_data_cache, course_id, grade_bucket_type='ajax')
+                    percent = grade(student,request,course_descriptor,field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
                     if ajax_return_json['success'] == u'correct':
                         completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
@@ -664,7 +656,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                     # Save any fields that have changed to the underlying KeyValueStore
                     instance.save()
             else:
-                instance.save()
+                    instance.save()
         except ItemNotFoundError:
             instance.save()
         #@end

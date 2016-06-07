@@ -138,9 +138,9 @@ class State(models.Model):
 class District(models.Model):
     class Meta:
         db_table = 'district'
-    state = models.ForeignKey(State, on_delete=models.PROTECT)
-    code = models.CharField(blank=True, max_length=50, db_index=True, unique=True)
-    name = models.CharField(blank=True, max_length=255, db_index=False)
+    state = models.ForeignKey(State,on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True)         
+    name= models.CharField(blank=True, max_length=255, db_index=False)
 
 class Cohort(models.Model):
     class Meta:
@@ -157,7 +157,7 @@ class School(models.Model):
     district = models.ForeignKey(District,on_delete=models.PROTECT)
     code = models.CharField(blank=True, max_length=50, db_index=True) 
     name = models.CharField(blank=False, max_length=255, db_index=True) 
-    #district_id = models.CharField(blank=False, max_length=255, db_index=True)
+    # district_id = models.CharField(blank=False, max_length=255, db_index=True) 
 
 # todo: Remove functions no use 
 def dictfetchall(cursor):
@@ -271,10 +271,6 @@ class UserProfile(models.Model):
     sso_type = models.CharField(blank=True, max_length=50, null=True)
     sso_idp = models.CharField(blank=True, max_length=255, null=True)
     sso_user_id = models.CharField(blank=True, max_length=255, null=True)
-
-    skype_username = models.CharField(blank=True, max_length=255, null=True)
-
-    last_activity = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
 
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.

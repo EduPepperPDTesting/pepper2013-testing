@@ -220,6 +220,7 @@ def saml_redirect(request, sp_name, ms):
         else:
             parsed_data[mapped_name] = ['']
 
+
     # ** Get the X509Certificate string from sp.xml
     sign = IDP.metadata.certs(entity_id, "any", "signing")
 
@@ -251,4 +252,5 @@ def saml_redirect(request, sp_name, ms):
     resp = "\n".join(http_args["data"])
     resp = resp.replace("<body>", "<body style='display:none'>")
     return HttpResponse(resp)
+
 

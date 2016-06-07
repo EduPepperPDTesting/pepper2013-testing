@@ -879,6 +879,7 @@ def community_in_state(community_id, user_id_val):
     except:
         return False
 
+
 def user_in_community(community_id, user_id):
     try:
         user_val = User.objects.get(id=user_id)

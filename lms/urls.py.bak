@@ -1,0 +1,671 @@
+from django.conf import settings
+from django.conf.urls import patterns, include, url
+from ratelimitbackend import admin
+from django.conf.urls.static import static
+
+import django.contrib.auth.views
+
+# Uncomment the next two lines to enable the admin:
+if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
+    admin.autodiscover()
+
+urlpatterns = (
+    '',  # nopep8
+
+####### Ancestor
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+    
+
+    # === sso begin ===
+    url(r'^genericsso/$', 'sso.sp.genericsso'),
+    url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
+
+    # edit idp
+    url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
+    url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
+    url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
+
+    # edit sp
+    url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
+    url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
+    url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
+
+    url(r'^sso/sp_metadata/download/saml_federation_metadata$',
+        'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
+
+    url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
+
+    url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+    # === sso end ===
+
+    url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
+    url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
+    url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+
+    url(r'^study_time/$', 'study_time.views.create_report', name="create_report"),
+    url(r'^record_time/$', 'study_time.views.record_time', name="record_time"),
+    url(r'^record_time/course_time_load$', 'study_time.views.get_course_time', name="get_course_time"),
+    url(r'^record_time/course_time_save$', 'study_time.views.save_course_time', name="save_course_time"),
+
+    url(r'^record_time/external_time_load$', 'study_time.views.get_external_time', name="get_external_time"),
+    url(r'^record_time/external_time_save$', 'study_time.views.save_external_time', name="save_external_time"),
+    url(r'^record_time/external_time_del$', 'study_time.views.del_external_time', name="del_external_time"),
+
+    url(r'^study_time/get_info_range$', 'study_time.views.get_study_time_range', name="get_study_time_range"),
+    url(r'^configuration/$', 'administration.configuration.main', name="configuration"),
+    url(r'^configuration/drop_association_type$', 'administration.configuration.drop_association_type', name="drop_association_type"),
+    url(r'^configuration/drop_association$', 'administration.configuration.drop_association', name="drop_association"),
+    url(r'^configuration/drop_publish_association$', 'administration.configuration.drop_publish_association', name="drop_publish_association"),
+    url(r'^configuration/certificate/table$', 'administration.configuration.certificate_table', name="configuration_certificate_table"),
+    url(r'^configuration/certificate/delete$', 'administration.configuration.certificate_delete', name="configuration_certificate_delete"),
+    url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
+    url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
+
+    url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
+
+    url(r'^pepconn/$', 'administration.pepconn.main', name="pepconn"),
+    url(r'^pepconn/import_user/submit/$', 'administration.pepconn.import_user_submit', name="pepconn_import_user_submit"),
+    url(r'^pepconn/import_user/progress/$', 'administration.pepconn.import_user_progress', name="pepconn_import_user_progress"),
+    url(r'^pepconn/import_user/tasks$', 'administration.pepconn.import_user_tasks', name="pepconn_import_user_tasks"),
+    url(r'^pepconn/tasks/close$', 'administration.pepconn.task_close', name="pepconn_task_close"),
+
+    url(r'^pepconn/cohort/submit/$', 'administration.pepconn.cohort_submit', name="pepconn_cohort_submit"),
+    url(r'^pepconn/import_district/single_submit/$', 'administration.pepconn.single_district_submit', name="pepconn_single_district_submit"),
+    url(r'^pepconn/import_school/single_submit/$', 'administration.pepconn.single_school_submit', name="pepconn_single_school_submit"),
+    url(r'^pepconn/import_user/single_submit/$', 'administration.pepconn.single_user_submit', name="pepconn_single_user_submit"),
+
+    url(r'^pepconn/import_district/submit/$', 'administration.pepconn.import_district_submit', name="pepconn_import_district_submit"),
+    url(r'^pepconn/import_district/progress/$', 'administration.pepconn.import_district_progress', name="pepconn_import_district_progress"),
+    url(r'^pepconn/import_district/tasks/$', 'administration.pepconn.import_district_tasks', name="pepconn_import_district_tasks"),
+
+    url(r'^pepconn/import_school/submit/$', 'administration.pepconn.import_school_submit', name="pepconn_import_school_submit"),
+    url(r'^pepconn/import_school/progress/$', 'administration.pepconn.import_school_progress', name="pepconn_import_school_progress"),
+    url(r'^pepconn/import_school/tasks/$', 'administration.pepconn.import_school_tasks', name="pepconn_import_school_tasks"),
+
+    url(r'^pepconn/drop_districts$', 'administration.pepconn.drop_districts', name="pepconn_drop_districts"),
+    url(r'^pepconn/drop_states$', 'administration.pepconn.drop_states', name="pepconn_drop_states"),
+    url(r'^pepconn/drop_schools$', 'administration.pepconn.drop_schools', name="pepconn_drop_schools"),
+    url(r'^pepconn/drop_cohorts$', 'administration.pepconn.drop_cohorts', name="pepconn_drop_cohorts"),
+
+    url(r'^pepconn/favorite_filter_load$', 'administration.pepconn.favorite_filter_load', name="pepconn_favorite_filter_load"),
+    url(r'^pepconn/favorite_filter_save$', 'administration.pepconn.favorite_filter_save', name="pepconn_favorite_filter_save"),
+    url(r'^pepconn/favorite_filter_delete$', 'administration.pepconn.favorite_filter_delete', name="pepconn_favorite_filter_delete"),
+
+    url(r'^pepconn/registration/table$', 'administration.pepconn.registration_table', name="pepconn_registration_table"),
+    url(r'^pepconn/registration/send_email$', 'administration.pepconn.registration_send_email', name="pepconn_registration_send_email"),
+    url(r'^pepconn/registration/email_progress$', 'administration.pepconn.registration_email_progress', name="pepconn_registration_email_progress"),
+    url(r'^pepconn/registration/invite_count/$', 'administration.pepconn.registration_invite_count', name="pepconn_registration_invite_count"),
+    url(r'^pepconn/registration/delete_users/$', 'administration.pepconn.registration_delete_users', name="pepconn_registration_delete_users"),
+    url(r'^pepconn/registration/download_csv/$', 'administration.pepconn.registration_download_csv', name="pepconn_registration_download_csv"),
+    url(r'^pepconn/registration/download_excel/$', 'administration.pepconn.registration_download_excel', name="pepconn_registration_download_excel"),
+    url(r'^pepconn/registration/modify_user_status/$', 'administration.pepconn.registration_modify_user_status', name="pepconn_registration_modify_user_status"),
+
+
+    url(r'^pepconn/tables/get_user_rows/$', 'administration.pepconn.get_user_rows', name="pepconn_get_user_rows"),
+    url(r'^pepconn/tables/get_district_rows/$', 'administration.pepconn.get_district_rows', name="pepconn_get_district_rows"),
+    url(r'^pepconn/tables/get_school_rows/$', 'administration.pepconn.get_school_rows', name="pepconn_get_school_rows"),
+    url(r'^pepconn/tables/get_cohort_rows/$', 'administration.pepconn.get_cohort_rows', name="pepconn_get_cohort_rows"),
+
+    url(r'^time_report/$', 'administration.time_report.main', name="time_report"),
+    url(r'^time_report/drop_districts$', 'administration.time_report.drop_districts', name="time_report_drop_districts"),
+    url(r'^time_report/drop_states$', 'administration.time_report.drop_states', name="time_report_drop_states"),
+    url(r'^time_report/drop_schools$', 'administration.time_report.drop_schools', name="time_report_drop_schools"),
+    url(r'^time_report/time_table$', 'administration.time_report.time_table', name="time_report_time_table"),
+    url(r'^time_report/download_excel/$', 'administration.time_report.time_report_download_excel', name="time_report_download_excel"),
+    url(r'^time_report/time_table/progress/$', 'administration.time_report.time_table_progress', name="time_report_time_table_progress"),
+    url(r'^time_report/time_table/get_result$', 'administration.time_report.get_time_table_result', name="time_report_get_time_table_result"),
+    url(r'^time_report/drop_courses$', 'administration.time_report.drop_courses', name="time_report_drop_courses"),
+    url(r'^time_report/drop_enroll_courses$', 'administration.time_report.drop_enroll_courses', name="time_report_drop_enroll_courses"),
+    url(r'^time_report/adjustment_time_save$', 'administration.time_report.save_adjustment_time', name="time_report_adjustment_time_save"),
+    url(r'^time_report/adjustment_time_load$', 'administration.time_report.load_adjustment_time', name="time_report_adjustment_time_load"),
+    url(r'^time_report/single_user_time_load$', 'administration.time_report.load_single_user_time', name="time_report_single_user_time_load"),
+    url(r'^time_report/enrollment_courses_load$', 'administration.time_report.load_enrollment_courses', name="time_report_enrollment_courses_load"),
+    url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
+    url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
+
+    url(r'^sso/$', 'student.views.sso', name="sso"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
+    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
+    
+    url(r'^more_courses_available/$', 'student.views.more_courses_available', name="more_courses_available"),
+    url(r'^reg_kits/$', 'reg_kits.views.district', name="reg_kits"),
+    url(r'^reg_kits/course_permission/$', 'reg_kits.views.course_permission', name="course_permission"),
+    url(r'^reg_kits/course_permission_save/$', 'reg_kits.views.course_permission_save', name="course_permission_save"),
+    url(r'^reg_kits/download_course_permission_csv/$', 'reg_kits.views.download_course_permission_csv', name="download_course_permission_csv"),
+    url(r'^reg_kits/download_course_permission_excel/$', 'reg_kits.views.download_course_permission_excel', name="download_course_permission_excel"),
+
+    url(r'^request_course_access$', 'student.views.request_course_access_ajax', name="request_course_access"),
+
+    url(r'^reg_kits/drop_districts$', 'reg_kits.views.drop_districts', name="drop_districts"),
+    url(r'^reg_kits/drop_states$', 'reg_kits.views.drop_states', name="drop_states"),
+    url(r'^reg_kits/drop_schools$', 'reg_kits.views.drop_schools', name="drop_schools"),
+    url(r'^reg_kits/drop_cohorts$', 'reg_kits.views.drop_cohorts', name="drop_cohorts"),
+    
+    url(r'^reg_kits/district/$', 'reg_kits.views.district', name="district"),
+    url(r'^reg_kits/district/form/$', 'reg_kits.views.district_form', name="district_form"),
+    url(r'^reg_kits/district/form/(?P<district_id>\d+)$', 'reg_kits.views.district_form', name="district_form"),
+    url(r'^reg_kits/district/delete/$', 'reg_kits.views.district_delete', name="district_delete"),
+    url(r'^reg_kits/district/submit/$', 'reg_kits.views.district_submit', name="district_submit"),
+    
+    url(r'^reg_kits/transaction/$', 'reg_kits.views.transaction', name="transaction"),
+    url(r'^reg_kits/transaction/form$', 'reg_kits.views.transaction_form', name="transaction_form"),
+    url(r'^reg_kits/transaction/form/h(?P<transaction_id>\d+)$', 'reg_kits.views.transaction_form', name="transaction_modify"),
+    url(r'^reg_kits/transaction/submit$', 'reg_kits.views.transaction_submit', name="transaction_submit"),
+    url(r'^reg_kits/transaction/delete/$', 'reg_kits.views.transaction_delete', name="transaction_delete"), 
+
+    url(r'^reg_kits/cohort/$', 'reg_kits.views.cohort', name="cohort"),
+    url(r'^reg_kits/cohort/form/$', 'reg_kits.views.cohort_form', name="cohort_form"),
+    url(r'^reg_kits/cohort/form/(?P<cohort_id>\d+)$', 'reg_kits.views.cohort_form', name="cohort_form"),
+    url(r'^reg_kits/cohort/delete/$', 'reg_kits.views.cohort_delete', name="cohort_delete"),
+    url(r'^reg_kits/cohort/submit/$', 'reg_kits.views.cohort_submit', name="cohort_submit"),
+
+    url(r'^reg_kits/school/$', 'reg_kits.views.school', name="school"),
+    url(r'^reg_kits/school/form/$', 'reg_kits.views.school_form', name="school_form"),
+    url(r'^reg_kits/school/form/(?P<school_id>\d+)$', 'reg_kits.views.school_form', name="school_form"),
+    url(r'^reg_kits/school/delete/$', 'reg_kits.views.school_delete', name="school_delete"),
+    url(r'^reg_kits/school/submit/$', 'reg_kits.views.school_submit', name="school_submit"),
+    
+    url(r'^reg_kits/school/import_school_submit/$', 'reg_kits.views.import_school_submit', name="import_school_submit"),
+    url(r'^reg_kits/district/import_district_submit/$', 'reg_kits.views.import_district_submit', name="import_district_submit"),
+    url(r'^reg_kits/cohort/import_cohort_submit/$', 'reg_kits.views.import_cohort_submit', name="import_cohort_submit"),
+    
+    url(r'^reg_kits/user/$', 'reg_kits.views.user', name="user"),
+    url(r'^reg_kits/user/form/$', 'reg_kits.views.user_form', name="user_form"),
+    url(r'^reg_kits/user/form/(?P<user_id>\d+)$', 'reg_kits.views.user_form', name="user_form"),
+    url(r'^reg_kits/user/delete/$', 'reg_kits.views.user_delete', name="user_delete"),
+    url(r'^reg_kits/user/submit/$', 'reg_kits.views.user_submit', name="user_submit"),
+    url(r'^reg_kits/user/send_invite_email/$', 'reg_kits.views.send_invite_email', name="send_invite_email"),
+    url(r'^reg_kits/user/modify_status$', 'reg_kits.views.user_modify_status', name="user_modify_status"),
+    
+    url(r'^reg_kits/import_user_submit/$', 'reg_kits.views.import_user_submit', name="import_user_submit"),
+
+    url(r'^reg_kits/download_user_csv/$', 'reg_kits.views.download_user_csv', name="download_user_csv"),
+    url(r'^reg_kits/download_user_excel/$', 'reg_kits.views.download_user_excel', name="download_user_excel"),
+
+    url(r'^reg_kits/download_school_csv/$', 'reg_kits.views.download_school_csv', name="download_school_csv"),
+    url(r'^reg_kits/download_school_excel/$', 'reg_kits.views.download_school_excel', name="download_school_excel"),
+
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/people/$', 'people.views.people', name="people"),
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/my_people/$', 'people.views.my_people', name="my_people"),
+
+    # url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/chat/$', 'chat.views.index', name="chat"),
+    
+    url(r'^research_pedagogy$', 'branding.views.intro_research', name="intro_research"),
+    url(r'^our_team$', 'branding.views.intro_ourteam', name="intro_ourteam"),
+    url(r'^what_is_pepper$', 'branding.views.what_is', name="what_is"),
+
+    url(r'^people/$', 'people.views.people', name="people"),
+    url(r'^my_people/$', 'people.views.my_people', name="my_people"),
+    url(r'^add_people/$', 'people.views.add_people', name="add_people"),
+    url(r'^remove_people/$', 'people.views.del_people', name="del_people"),
+
+    url(r'^resource_library_global$', 'access_resource_library.views.index_list', name="access_resource_library_list"),
+    url(r'^course_libraries$', 'access_resource_library.views.index', name="access_resource_library"),
+
+    url(r'^contact_us_submit/$', 'branding.views.contact_us_submit', name="contact_us_submit"),
+    
+    url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_discussions/(?P<user_id>[^/]+)$',
+             'portfolio.views.my_discussions', name="portfolio_my_discussions"),
+
+    #url(r'^download_certificate/$', 'student.views.download_certificate', name="download_certificate"),
+    url(r'^latest_news/$', 'student.views.latest_news', name="latest_news"),
+    url(r'^access_resource_library/$', 'access_resource_library.views.index', name="access_resource_library"),
+    # certificate view
+    url(r'^update_certificate$', 'certificates.views.update_certificate'),
+    url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
+    url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
+    url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
+
+    url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
+    url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
+    url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
+    url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
+
+    url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
+
+    url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
+    url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
+
+    url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
+    url(r'^login$', 'student.views.signin_user', name="signin_user"),
+
+    url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
+    url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
+    url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),
+    url(r'^interactive_update/set_info$', 'notifications.views.set_interactive_update', name="set_interactive_update"),
+    url(r'^interactive_update/del_info$', 'notifications.views.del_interactive_update', name="del_interactive_update"),
+    url(r'^message_board/get_info$', 'notifications.views.get_message', name="get_message"),
+    url(r'^message_board/save_info$', 'notifications.views.save_message', name="save_message"),
+    url(r'^message_board/upload_image$', 'notifications.views.upload_image', name="upload_message_image"),
+    url(r'^my_chunks$', 'my_chunks.views.mychunks', name="mychunks"),
+    url(r'^my_chunks/get_info_range$', 'my_chunks.views.get_mychunks_range', name="get_mychunks_range"),
+    url(r'^my_chunks/get_info$', 'my_chunks.views.get_mychunk', name="get_mychunk"),
+    url(r'^my_chunks/save_info$', 'my_chunks.views.save_mychunk', name="save_mychunk"),
+    url(r'^my_chunks/del_info$', 'my_chunks.views.del_mychunk', name="del_mychunk"),
+    url(r'^my_chunks/set_rate$', 'my_chunks.views.set_rate', name="set_rate"),
+    url(r'^my_chunks/get_integrate_rate$', 'my_chunks.views.get_integrate_rate', name="get_integrate_rate"),
+    url(r'^register/$', 'student.views.register_user', name="register_user"),
+    url(r'^register/(?P<activation_key>[^/]*)/$', 'student.views.register_user', name="register_user"),
+
+    url(r'^admin_dashboard$', 'dashboard.views.dashboard'),
+    url(r'^change_email$', 'student.views.change_email_request', name="change_email"),
+    url(r'^email_confirm/(?P<key>[^/]*)$', 'student.views.confirm_email_change'),
+
+    url(r'^change_percent_lunch$', 'student.views.change_percent_lunch', name="change_percent_lunch"),
+    url(r'^change_percent_iep$', 'student.views.change_percent_iep', name="change_percent_iep"),
+    url(r'^change_percent_eng_learner$', 'student.views.change_percent_eng_learner', name="change_percent_eng_learner"),
+
+    url(r'^change_name$', 'student.views.change_name_request', name="change_name"),
+    url(r'^change_school$', 'student.views.change_school_request', name="change_school"),
+    url(r'^change_change_grade_level$', 'student.views.change_grade_level_request', name="change_grade_level"),
+    url(r'^change_major_subject_area$', 'student.views.change_major_subject_area_request', name="change_major_subject_area"),
+    url(r'^change_bio$', 'student.views.change_bio_request', name="change_bio"),
+
+    url(r'^change_years_in_education$', 'student.views.change_years_in_education_request', name="change_years_in_education"),
+
+    url(r'^accept_name_change$', 'student.views.accept_name_change'),
+    url(r'^reject_name_change$', 'student.views.reject_name_change'),
+    url(r'^pending_name_changes$', 'student.views.pending_name_changes'),
+    url(r'^event$', 'track.views.user_track'),
+    url(r'^t/(?P<template>[^/]*)$', 'static_template_view.views.index'),   # TODO: Is this used anymore? What is STATIC_GRAB?
+    url(r'^accounts/login$', 'student.views.accounts_login', name="accounts_login"),
+    url(r'^login_ajax$', 'student.views.login_user', name="login"),
+    url(r'^login_ajax/(?P<error>[^/]*)$', 'student.views.login_user'),
+    url(r'^logout$', 'student.views.logout_user', name='logout'),
+    url(r'^create_account$', 'student.views.create_account', name='create_account'),
+    url(r'^activate/(?P<key>[^/]*)$', 'student.views.activate_account', name="activate"),
+    url(r'^begin_exam_registration/(?P<course_id>[^/]+/[^/]+/[^/]+)$', 'student.views.begin_exam_registration', name="begin_exam_registration"),
+    url(r'^create_exam_registration$', 'student.views.create_exam_registration'),
+    url(r'^password_reset/$', 'student.views.password_reset', name='password_reset'),
+    ## Obsolete Django views for password resets
+    ## TODO: Replace with Mako-ized views
+    url(r'^password_change/$', django.contrib.auth.views.password_change,
+        name='auth_password_change'),
+    url(r'^password_change_done/$', django.contrib.auth.views.password_change_done,
+        name='auth_password_change_done'),
+    url(r'^password_reset_confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$',
+        'student.views.password_reset_confirm_wrapper',
+        name='auth_password_reset_confirm'),
+    url(r'^password_reset_complete/$', django.contrib.auth.views.password_reset_complete,
+        name='auth_password_reset_complete'),
+    url(r'^password_reset_done/$', django.contrib.auth.views.password_reset_done,
+        name='auth_password_reset_done'),
+    url(r'^heartbeat$', include('heartbeat.urls')),
+    url(r'^user_api/', include('user_api.urls')),
+)
+js_info_dict = {
+    'domain': 'djangojs',
+    'packages': ('lms',),
+}
+urlpatterns += (
+    # Serve catalog of localized strings to be rendered by Javascript
+    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+)
+#Semi-static views (these need to be rendered and have the login bar, but don't change)
+urlpatterns += (
+    url(r'^404$', 'static_template_view.views.render',
+        {'template': '404.html'}, name="404"),
+)
+# Semi-static views only used by edX, not by themes
+if not settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
+    urlpatterns += (
+        url(r'^jobs$', 'static_template_view.views.render',
+            {'template': 'jobs.html'}, name="jobs"),
+        url(r'^press$', 'student.views.press', name="press"),
+        url(r'^media-kit$', 'static_template_view.views.render',
+            {'template': 'media-kit.html'}, name="media-kit"),
+        url(r'^faq$', 'static_template_view.views.render',
+            {'template': 'faq.html'}, name="faq_edx"),
+        url(r'^help$', 'static_template_view.views.render',
+            {'template': 'help.html'}, name="help_edx"),
+        # TODO: (bridger) The copyright has been removed until it is updated for edX
+        # url(r'^copyright$', 'static_template_view.views.render',
+        #     {'template': 'copyright.html'}, name="copyright"),
+        #Press releases
+        url(r'^press/([_a-zA-Z0-9-]+)$', 'static_template_view.views.render_press_release', name='press_release'),
+        # Favicon
+        (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
+        url(r'^submit_feedback$', 'util.views.submit_feedback'),
+        url(r'^notifications$', 'notifications.views.notifications', name="notifications"),
+        
+    )
+# Only enable URLs for those marketing links actually enabled in the
+# settings. Disable URLs by marking them as None.
+for key, value in settings.MKTG_URL_LINK_MAP.items():
+    # Skip disabled URLs
+    if value is None:
+        continue
+    # These urls are enabled separately
+    if key == "ROOT" or key == "COURSES" or key == "FAQ":
+        continue
+    # Make the assumptions that the templates are all in the same dir
+    # and that they all match the name of the key (plus extension)
+    template = "%s.html" % key.lower()
+    # To allow theme templates to inherit from default templates,
+    # prepend a standard prefix
+    if settings.MITX_FEATURES["USE_CUSTOM_THEME"]:
+        template = "theme-" + template
+    # Make the assumption that the URL we want is the lowercased
+    # version of the map key
+    urlpatterns += (url(r'^%s' % key.lower(),
+                        'static_template_view.views.render',
+                        {'template': template}, name=value),)
+if settings.PERFSTATS:
+    urlpatterns += (url(r'^reprofile$', 'perfstats.views.end_profile'),)
+# Multicourse wiki (Note: wiki urls must be above the courseware ones because of
+# the custom tab catch-all)
+if settings.WIKI_ENABLED:
+    from wiki.urls import get_pattern as wiki_pattern
+    from django_notify.urls import get_pattern as notify_pattern
+    # Note that some of these urls are repeated in course_wiki.course_nav. Make sure to update
+    # them together.
+    urlpatterns += (
+        # First we include views from course_wiki that we use to override the default views.
+        # They come first in the urlpatterns so they get resolved first
+        url('^wiki/create-root/$', 'course_wiki.views.root_create', name='root_create'),
+        url(r'^wiki/', include(wiki_pattern())),
+        url(r'^notify/', include(notify_pattern())),
+        # These urls are for viewing the wiki in the context of a course. They should
+        # never be returned by a reverse() so they come after the other url patterns
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/course_wiki/?$',
+            'course_wiki.views.course_wiki_redirect', name="course_wiki"),
+        url(r'^courses/(?:[^/]+/[^/]+/[^/]+)/wiki/', include(wiki_pattern())),
+    )
+if settings.COURSEWARE_ENABLED:
+    urlpatterns += (
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/jump_to/(?P<location>.*)$',
+            'courseware.views.jump_to', name="jump_to"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/jump_to_id/(?P<module_id>.*)$',
+            'courseware.views.jump_to_id', name="jump_to_id"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/modx/(?P<location>.*?)/(?P<dispatch>[^/]*)$',
+            'courseware.module_render.modx_dispatch',
+            name='modx_dispatch'),
+        # Software Licenses
+        # TODO: for now, this is the endpoint of an ajax replay
+        # service that retrieve and assigns license numbers for
+        # software assigned to a course. The numbers have to be loaded
+        # into the database.
+        url(r'^software-licenses$', 'licenses.views.user_software_license', name="user_software_license"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/xqueue/(?P<userid>[^/]*)/(?P<mod_id>.*?)/(?P<dispatch>[^/]*)$',
+            'courseware.module_render.xqueue_callback',
+            name='xqueue_callback'),
+        url(r'^change_setting$', 'student.views.change_setting',
+            name='change_setting'),
+        # TODO: These views need to be updated before they work
+        url(r'^calculate$', 'util.views.calculate'),
+        # TODO: We should probably remove the circuit package. I believe it was only used in the old way of saving wiki circuits for the wiki
+        # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
+        # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
+        url(r'^courses/?$', 'branding.views.courses', name="courses"),
+		# url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        # url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
+        url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
+        url(r'^what_is$', 'branding.views.what_is', name="what_is"),
+        url(r'^demo1$', 'branding.views.demo1', name="demo1"),
+        url(r'^demo2$', 'branding.views.demo2', name="demo2"),
+        url(r'^demo3$', 'branding.views.demo3', name="demo3"),
+        url(r'^demo4$', 'branding.views.demo4', name="demo4"),
+        url(r'^districts$', 'branding.views.districts', name="districts"),
+        url(r'^contact$', 'branding.views.contact', name="contact_us"),
+        url(r'^intro$', 'branding.views.intro', name="intro"),
+        url(r'^intro_research$', 'branding.views.intro_research', name="intro_research"),
+        url(r'^intro_ourteam$', 'branding.views.intro_ourteam', name="intro_ourteam"),
+        url(r'^intro_faq$', 'branding.views.intro_faq', name="intro_faq"),
+        url(r'^change_enrollment$',
+            'student.views.change_enrollment', name="change_enrollment"),
+        url(r'^change_email_settings$', 'student.views.change_email_settings', name="change_email_settings"),
+        #About the course
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/about$',
+            'courseware.views.course_about', name="about_course"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cabout$',
+            'courseware.views.cabout', name="cabout"),
+        #View for mktg site (kept for backwards compatibility TODO - remove before merge to master)
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/mktg-about$',
+            'courseware.views.mktg_course_about', name="mktg_about_course"),
+        #View for mktg site
+        url(r'^mktg/(?P<course_id>.*)$',
+            'courseware.views.mktg_course_about', name="mktg_about_course"),
+        #Inside the course
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
+            'courseware.views.course_info', name="course_root"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/info$',
+            'courseware.views.course_info', name="info"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/syllabus$',
+            'courseware.views.syllabus', name="syllabus"),   # TODO arjun remove when custom tabs in place, see courseware/courses.py
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/book/(?P<book_index>\d+)/$',
+            'staticbook.views.index', name="book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/book/(?P<book_index>\d+)/(?P<page>\d+)$',
+            'staticbook.views.index', name="book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/$',
+            'staticbook.views.pdf_index', name="pdf_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/(?P<page>\d+)$',
+            'staticbook.views.pdf_index', name="pdf_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/$',
+            'staticbook.views.pdf_index', name="pdf_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/pdfbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/(?P<page>\d+)$',
+            'staticbook.views.pdf_index', name="pdf_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/htmlbook/(?P<book_index>\d+)/$',
+            'staticbook.views.html_index', name="html_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/htmlbook/(?P<book_index>\d+)/chapter/(?P<chapter>\d+)/$',
+            'staticbook.views.html_index', name="html_book"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/?$',
+            'courseware.views.index', name="courseware"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/(?P<chapter>[^/]*)/$',
+            'courseware.views.index', name="courseware_chapter"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/(?P<chapter>[^/]*)/(?P<section>[^/]*)/$',
+            'courseware.views.index', name="courseware_section"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/courseware/(?P<chapter>[^/]*)/(?P<section>[^/]*)/(?P<position>[^/]*)/?$',
+            'courseware.views.index', name="courseware_position"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress$',
+            'courseware.views.progress', name="progress"),
+        # Takes optional student_id for instructor use--shows profile as that student sees it.
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/progress/(?P<student_id>[^/]*)/$',
+            'courseware.views.progress', name="student_progress"),
+        # For the instructor
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor$',
+            'instructor.views.legacy.instructor_dashboard', name="instructor_dashboard"),
+        
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me$',
+            'portfolio.views.about_me', name="portfolio_about_me"),
+
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/about_me/(?P<user_id>[^/]+)$',
+            'portfolio.views.about_me', name="portfolio_about_me"),        
+        
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)$',
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),  
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/my_coursework/(?P<user_id>[^/]+)/(?P<chapter_id>[^/]+)$',
+            'portfolio.views.journal_and_reflections', name="portfolio_journal_and_reflections"),            
+  
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/portfolio/uploads$',
+            'portfolio.views.uploads', name="portfolio_uploads"), 
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/resource_library$',
+            'courseware.views.resource_library', name="resource_library"),        
+        # see ENABLE_INSTRUCTOR_BETA_DASHBOARD section for more urls
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/gradebook$',
+            'instructor.views.legacy.gradebook', name='gradebook'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/grade_summary$',
+            'instructor.views.legacy.grade_summary', name='grade_summary'),
+
+        url(r'^instructor/dashboard/progress/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<username>[^/]*)$',
+             'instructor.views.instructor_dashboard.student_course_progress', name="view_student_process"),
+
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading$',
+            'open_ended_grading.views.staff_grading', name='staff_grading'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading/get_next$',
+            'open_ended_grading.staff_grading_service.get_next', name='staff_grading_get_next'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading/save_grade$',
+            'open_ended_grading.staff_grading_service.save_grade', name='staff_grading_save_grade'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading/save_grade$',
+            'open_ended_grading.staff_grading_service.save_grade', name='staff_grading_save_grade'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/staff_grading/get_problem_list$',
+            'open_ended_grading.staff_grading_service.get_problem_list', name='staff_grading_get_problem_list'),
+        # Open Ended problem list
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_problems$',
+            'open_ended_grading.views.student_problem_list', name='open_ended_problems'),
+        # Open Ended flagged problem list
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_flagged_problems$',
+            'open_ended_grading.views.flagged_problem_list', name='open_ended_flagged_problems'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_flagged_problems/take_action_on_flags$',
+            'open_ended_grading.views.take_action_on_flags', name='open_ended_flagged_problems_take_action'),
+        # Cohorts management
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts$',
+            'course_groups.views.list_cohorts', name="cohorts"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/add$',
+            'course_groups.views.add_cohort',
+            name="add_cohort"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/(?P<cohort_id>[0-9]+)$',
+            'course_groups.views.users_in_cohort',
+            name="list_cohort"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/(?P<cohort_id>[0-9]+)/add$',
+            'course_groups.views.add_users_to_cohort',
+            name="add_to_cohort"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/(?P<cohort_id>[0-9]+)/delete$',
+            'course_groups.views.remove_user_from_cohort',
+            name="remove_from_cohort"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/cohorts/debug$',
+            'course_groups.views.debug_cohort_mgmt',
+            name="debug_cohort_mgmt"),
+        # Open Ended Notifications
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/open_ended_notifications$',
+            'open_ended_grading.views.combined_notifications', name='open_ended_notifications'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/peer_grading$',
+            'open_ended_grading.views.peer_grading', name='peer_grading'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/notes$', 'notes.views.notes', name='notes'),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/notes/', include('notes.urls')),
+    )
+    # allow course staff to change to student view of courseware
+    if settings.MITX_FEATURES.get('ENABLE_MASQUERADE'):
+        urlpatterns += (
+            url(r'^masquerade/(?P<marg>.*)$', 'courseware.masquerade.handle_ajax', name="masquerade-switch"),
+        )
+    # discussion forums live within courseware, so courseware must be enabled first
+    if settings.MITX_FEATURES.get('ENABLE_DISCUSSION_SERVICE'):
+        urlpatterns += (
+            url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/news$',
+                'courseware.views.news', name="news"),
+            url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/discussion/',
+                include('django_comment_client.urls')),
+            url(r'^notification_prefs/enable/', 'notification_prefs.views.ajax_enable'),
+            url(r'^notification_prefs/disable/', 'notification_prefs.views.ajax_disable'),
+            url(r'^notification_prefs/status/', 'notification_prefs.views.ajax_status'),
+            url(r'^notification_prefs/unsubscribe/(?P<token>[a-zA-Z0-9-_=]+)/', 'notification_prefs.views.unsubscribe'),
+        )
+    urlpatterns += (
+        # This MUST be the last view in the courseware--it's a catch-all for custom tabs.
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/$',
+        'courseware.views.static_tab', name="static_tab"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<tab_slug>[^/]+)/(?P<is_global>global)/$',
+        'courseware.views.static_tab', name="static_tab"),        
+    )
+    if settings.MITX_FEATURES.get('ENABLE_STUDENT_HISTORY_VIEW'):
+        urlpatterns += (
+            url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/submission_history/(?P<student_username>[^/]*)/(?P<location>.*?)$',
+                'courseware.views.submission_history',
+                name='submission_history'),
+        )
+if settings.COURSEWARE_ENABLED and settings.MITX_FEATURES.get('ENABLE_INSTRUCTOR_BETA_DASHBOARD'):
+    urlpatterns += (
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor_dashboard$',
+            'instructor.views.instructor_dashboard.instructor_dashboard_2', name="instructor_dashboard_2"),
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/instructor_dashboard/api/',
+            include('instructor.views.api_urls'))
+    )
+
+if settings.DEBUG or settings.MITX_FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
+    ## Jasmine and admin
+    urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
+
+if not settings.DEBUG:
+    admin.autodiscover()
+    urlpatterns += (url(r'^prod_admin/', include(admin.site.urls)),)
+    
+if settings.MITX_FEATURES.get('AUTH_USE_OPENID'):
+    urlpatterns += (
+        url(r'^openid/login/$', 'django_openid_auth.views.login_begin', name='openid-login'),
+        url(r'^openid/complete/$', 'external_auth.views.openid_login_complete', name='openid-complete'),
+        url(r'^openid/logo.gif$', 'django_openid_auth.views.logo', name='openid-logo'),
+    )
+if settings.MITX_FEATURES.get('AUTH_USE_SHIB'):
+    urlpatterns += (
+        url(r'^shib-login/$', 'external_auth.views.shib_login', name='shib-login'),
+    )
+if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
+    urlpatterns += (
+        url(r'^cas-auth/login/$', 'external_auth.views.cas_login', name="cas-login"),
+        url(r'^cas-auth/logout/$', 'django_cas.views.logout', {'next_page': '/'}, name="cas-logout"),
+    )
+if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD'):
+    urlpatterns += (
+        url(r'^course_specific_login/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
+            'external_auth.views.course_specific_login', name='course-specific-login'),
+        url(r'^course_specific_register/(?P<course_id>[^/]+/[^/]+/[^/]+)/$',
+            'external_auth.views.course_specific_register', name='course-specific-register'),
+    )
+# Shopping cart
+urlpatterns += (
+    url(r'^shoppingcart/', include('shoppingcart.urls')),
+)
+if settings.MITX_FEATURES.get('AUTH_USE_OPENID_PROVIDER'):
+    urlpatterns += (
+        url(r'^openid/provider/login/$', 'external_auth.views.provider_login', name='openid-provider-login'),
+        url(r'^openid/provider/login/(?:.+)$', 'external_auth.views.provider_identity', name='openid-provider-login-identity'),
+        url(r'^openid/provider/identity/$', 'external_auth.views.provider_identity', name='openid-provider-identity'),
+        url(r'^openid/provider/xrds/$', 'external_auth.views.provider_xrds', name='openid-provider-xrds')
+    )
+if settings.MITX_FEATURES.get('ENABLE_PEARSON_LOGIN', False):
+    urlpatterns += url(r'^testcenter/login$', 'external_auth.views.test_center_login'),
+if settings.MITX_FEATURES.get('ENABLE_LMS_MIGRATION'):
+    urlpatterns += (
+        url(r'^migrate/modules$', 'lms_migration.migrate.manage_modulestores'),
+        url(r'^migrate/reload/(?P<reload_dir>[^/]+)$', 'lms_migration.migrate.manage_modulestores'),
+        url(r'^migrate/reload/(?P<reload_dir>[^/]+)/(?P<commit_id>[^/]+)$', 'lms_migration.migrate.manage_modulestores'),
+        url(r'^gitreload$', 'lms_migration.migrate.gitreload'),
+        url(r'^gitreload/(?P<reload_dir>[^/]+)$', 'lms_migration.migrate.gitreload'),
+    )
+if settings.MITX_FEATURES.get('ENABLE_SQL_TRACKING_LOGS'):
+    urlpatterns += (
+        url(r'^event_logs$', 'track.views.view_tracking_log'),
+        url(r'^event_logs/(?P<args>.+)$', 'track.views.view_tracking_log'),
+    )
+if settings.MITX_FEATURES.get('ENABLE_SERVICE_STATUS'):
+    urlpatterns += (
+        url(r'^status/', include('service_status.urls')),
+    )
+if settings.MITX_FEATURES.get('ENABLE_INSTRUCTOR_BACKGROUND_TASKS'):
+    urlpatterns += (
+        url(r'^instructor_task_status/$', 'instructor_task.views.instructor_task_status', name='instructor_task_status'),
+    )
+if settings.MITX_FEATURES.get('RUN_AS_ANALYTICS_SERVER_ENABLED'):
+    urlpatterns += (
+        url(r'^edinsights_service/', include('edinsights.core.urls')),
+    )
+    import edinsights.core.registry
+# FoldIt views
+urlpatterns += (
+    # The path is hardcoded into their app...
+    url(r'^comm/foldit_ops', 'foldit.views.foldit_ops', name="foldit_ops"),
+)
+if settings.MITX_FEATURES.get('ENABLE_DEBUG_RUN_PYTHON'):
+    urlpatterns += (
+        url(r'^debug/run_python', 'debug.views.run_python'),
+    )
+# Crowdsourced hinting instructor manager.
+if settings.MITX_FEATURES.get('ENABLE_HINTER_INSTRUCTOR_VIEW'):
+    urlpatterns += (
+        url(r'^courses/(?P<course_id>[^/]+/[^/]+/[^/]+)/hint_manager$',
+            'instructor.hint_manager.hint_manager', name="hint_manager"),
+    )
+# enable automatic login
+if settings.MITX_FEATURES.get('AUTOMATIC_AUTH_FOR_TESTING'):
+    urlpatterns += (
+        url(r'^auto_auth$', 'student.views.auto_auth'),
+    )
+urlpatterns = patterns(*urlpatterns)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#Custom error pages
+handler404 = 'static_template_view.views.render_404'
+handler500 = 'static_template_view.views.render_500'
+

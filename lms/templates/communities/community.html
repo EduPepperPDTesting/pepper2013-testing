@@ -7,7 +7,7 @@ from administration.configuration import has_hangout_perms
 from communities.utils import is_facilitator, is_member
 from file_uploader.utils import get_file_url
 from django.utils import timezone
-import datetime
+from datetime import date
 %>
 <%namespace name='static' file='../static_content.html'/>
 <%block name="title">
@@ -17,31 +17,6 @@ import datetime
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <style type="text/css" media="screen">
-    .remove_skype_span:hover{
-        cursor: pointer;
-    }
-    .remove_skype_span{
-        padding-left:5px;
-        padding-bottom:2px;
-    }
-    .circle {
-      width: 20px;
-      height: 20px;
-      position:absolute;
-      right:0;
-    }
-    .redcircle{
-      width: 20px;
-      height: 20px;
-      background: red;
-      border-radius: 10px;
-      position:absolute;
-      right:0;
-    }
-    #dlg-user-photo{
-         width:140px;
-         height:140px;
-     }
     #community-main {
         width: 1185px;
         margin: 30px auto;
@@ -509,7 +484,7 @@ import datetime
     .discussion-error-box {
         border-color: red !important;
     }
-    #create-skype, #create-skype-online {
+    #create-skype {
         float: left;
         margin: 0 20px 0 0;
     }
@@ -520,7 +495,7 @@ import datetime
         background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
         height: 20px;
     }
-</style><script src="https://apis.google.com/js/platform.js" async defer></script>
+</style>
 <link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
@@ -600,7 +575,7 @@ import datetime
                 </div>
             </div>
         </div>
-
+        
         <div id="members-title">Members</div>
         <table id="table-members" cellspacing="" cellpadding="" border="0">
             <tr>
@@ -609,29 +584,11 @@ import datetime
                 </td>
                 <td class="member-column">
                     <div id="members">
-                      %for u in users:
-                      <%
-                      use = u.user
-                      utc_month=datetime.datetime.utcnow().strftime("%m")
-                      utc_day=datetime.datetime.utcnow().strftime("%d")
-                      utc_h=datetime.datetime.utcnow().strftime("%H")
-                      utc_m=datetime.datetime.utcnow().strftime("%M")
-                      d_min = 60*int(utc_h) + int(utc_m)
-                      if use.profile.last_activity:
-                        usr=use.profile.last_activity
-                        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 10
-                        active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
-                      else:
-                        active_recent = False
-                      %>
-                      <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
-                        %if active_recent:
-                            <img src="/static/images/online-3.png" class="circle" id="${user.profile.id}" data-email="${user.email}" data-fname="${user.first_name}" data-lname="${user.last_name}" data-skypename="${user.profile.skype_username}" data-id="${user.id}" data-username="${user.username}"></img>
-                        %endif
-                        <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                      </a>
-                      %endfor
+                        %for u in users:
+                            <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank">
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
+                            </a>
+                        %endfor
                     </div>
                 </td>
                 <td class="member-arrows">
@@ -704,32 +661,6 @@ import datetime
         <div class="content"></div>
     </div>
 </div>
-<div style="" id="online_dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
-    </div>
-    <div style="color:#000;text-align:center;padding:10px;">
-      <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <div id="google_hangout"></div>
-        <g:hangout render="createhangout" id="google_hangout" invites="[{id:'pcgedu@pepperpd.com', invite_type:'EMAIL'}]"></g:hangout>
-      </div>
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
-        <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
-      </div><br><br><a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
-                  <div class="message_board_btn" id="message_board_data" data-fullname="" data-name="${user.username}" data-id="${user.user_id}" onclick="imessage_click(this);">
-                    <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
-                    <div id="" style="display:none;"></div>
-                  </div>
-                </a>
-
-    </div>
-  </div>
-</div>
 <div style="" id="fixed-dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -747,16 +678,7 @@ import datetime
         </div>
         <div class="content">
             <form>
-                <label>Select Skype Usernames from the below list to add to call.</label><br>
-                <select id = "skype_usernames_select">
-                    <option id = "uname_null" val="">Select Username</option>
-                    %for u in users:
-                        %if u.user.profile.skype_username != "NULL":
-                            <option class='skype_uname_option' id="${u.user.username}" val="${u.user.profile.skype_username}">${u.user.profile.skype_username}</option>
-                        %endif
-                    %endfor
-                </select>
-                <span id="selected_skype_names"></span><br>
+                <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">
                 <div class="skype-container">
@@ -765,88 +687,6 @@ import datetime
                             var skype_button = Skype.ui(params);
                             if (skype_button) {
                                 var id = $('.skype-container').attr('id');
-                                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
-                            }
-                        }
-                    </script>
-                </div>
-            </form>
-            <div class="community-clear"></div>
-        </div>
-    </div>
-</div>
-<section id="show_personalmessage" class="modal modal-wide">
-            <div class="inner-wrapper" style="width:578px;padding-bottom:0 !important;">
-                <header>
-                    <h2 class="message_board_full_name"></h2>
-                    <hr/>
-                </header>
-                <div class="message_board_listCon" style="height:350px;overflow-y:auto;overflow-x:hidden;"><div class="message_board_list"></div></div>
-                <form id="" method="post" style="padding:0px;line-height:18px;">
-
-                    <div style="width:520px;margin:10px;">
-                        <div class="message_board_content" contenteditable="true" style="width:530px;height:150px;background-color:#fff;color:black;padding:10px;border:1px solid #ccc;overflow-y:auto;"><p class="message_board_txt_prompt">Type Your Message Here</p></div>
-
-                        <div style="color:black;font-size:12px;color:#aaa;">
-                            Maximum to 1000 Characters  (<span id="curr_char_num">0</span>)
-                        </div>
-                        <div style="width:530px;height:30px;">
-                            <table width="530" border="0" cellpadding="0" cellspacing="0">
-                                <tr height="30" style="color:#000;">
-                                    <td widht="265" style="vertical-align:middle;">
-                  <span class="message_board_uploadBtn" style="width:110px;cursor:pointer;">
-                    <img src="/static/images/personalmsg_upload.png" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Add Photos</span>
-                  </span>
-
-                  <span class="message_board_linkBtn" style="width:100px;cursor:pointer;margin-left:5px;">
-                    <img src="/static/images/personalmsg_link.jpg" width="22" height="22"/>
-                    <span style="padding-left:2px;font-size:14px;color:#aaa;">Link</span>
-                  </span>
-
-                                    </td>
-                                    <td align="right" style="vertical-align:middle;">
-                                        <div class="ftg_button ftg_yellow" style="cursor:pointer;">Send</div>
-                                    </td>
-                                </tr>
-                                <tr><td><div id="multiplayer_send_div" style="width:300px;color:#000;margin-left:5px;display:none;"><label><input type="checkbox"/>Send to All Users</label></div></td></tr>
-                            </table>
-                        </div>
-                    </div>
-                    <input id="message_board_browseFile" type="file" onchange="message_board_upload_file()" style="width:0px;"/>
-                </form>
-                <br/>
-                <!--
-                <div style="width:500px;height:40px;margin:0 auto;text-align:center;">
-                <a href="/dashboard" id="view_all_note" class="dashboard_link" style="color:#fff !important;font-size:18px;">
-                <div style="display:inline-block;text-align:center;width:250px;">Dashboard</div>
-                </a>
-                </div>
-                -->
-                <div class="close-modal" id="message_board_close">
-                    <div class="inner">
-                        <p>&#10005;</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-<div style="" id="skype-dialog-online" class="modal">
-    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-        <div class="titlebar">
-            <h3 class="dialog-title">Start Skype Call</h3>
-            <div class="close-modal" id="dialog_close">✕</div>
-        </div>
-        <div class="content">
-            <form>
-                <label id="skype-name-exists">Begin a call with: </label><span id="skype-online-name"></span><br>
-                <span id ="skype-name-exists-toggle"><label>Topic (optional):<input type="text" name="skype-topic"></label>
-                <input type="button" value="Create" id="create-skype-online">
-                <div class="skype-container-online">
-                    <script type="text/javascript">
-                        function startSkypeOnline(params) {
-                            var skype_button_online = Skype.ui(params);
-                            if (skype_button_online) {
-                                var id = $('.skype-container-online').attr('id');
                                 $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
                             }
                         }
@@ -1067,13 +907,6 @@ import datetime
         // return ((elemRight <= docViewRight) && (elemLeft >= docViewLeft)); // partly visible
         return ((docViewLeft < elLeft) && (docViewRight > elRight));
     }
-    function imessage_click(obj)
-      {
-        var userInfo=[];
-        userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-        userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
-        message_board(userInfo);
-      }
     function left(){
         var lastHideLeft = null;
         var n=-1;
@@ -1112,31 +945,6 @@ import datetime
         }
     }
     $(document).ready(function() {
-        $("#message_board_close").click(function(){
-            $(".lean-overlay").remove();
-        });
-        $(".circle").click(function(event){
-            event.preventDefault();
-            scroll(0,0);
-            $("#google_hangout").html("<g:hangout render=\"createhangout\" id=\"google_hangout\" invites=\"[{id:'"+$(this).attr("data-email")+"', invite_type:'EMAIL'}]\"></g:hangout>");
-            $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
-            $("#skype-online-name").text("");
-            $("#skype-name-exists").text("Begin a call with: ");
-            $("#skype-name-exists-toggle").show();
-            $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
-            $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("id"));
-            $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
-            $("#message_board_data").attr("data-name", $(this).attr("data-username"));
-            $("#message_board_data").attr("data-id", $(this).attr("data-id"));
-            if($(this).attr("data-skypename") == "None"){
-                $("#skype-name-exists").text("This user does not have their skype name set.");
-                $("#skype-name-exists-toggle").hide();
-            }else{
-                $("#skype-online-name").text($(this).attr("data-skypename"));
-            }            main_dlg=new Dialog($('#online_dialog'));
-            main_dlg.show("Error", "");
-            return false;
-        });
         $("#members").scrollLeft(0);
         $('.card-link').attr('target', '_blank');
         $('.delete-icon').click(function(event) {
@@ -1150,19 +958,6 @@ import datetime
                 window.location.href = continue_url;
             });
         });
-        $("#skype_usernames_select").change(function(){
-           if($(this).val() != "Select Username"){
-               toggleSkypeAddition($(this).attr("id"));
-           }
-        });
-        $(document).on("click", "img.remove_skype_span", function(){
-            $(this).parent().remove();
-        });
-        $(".skype_uname_option").each(function(){
-            if($(this).val() == "None"){
-                $(this).remove();
-            }
-        })
         $("#newDiscussionButton").click(function(e){
             e.preventDefault();
             scroll(0,0)
@@ -1176,10 +971,7 @@ import datetime
             dialog.showOverlay();
             dialog.$ei.fadeIn(200);
             $('#create-skype').click(function() {
-                var participants = [];
-                $(".skype_username_list").each(function(i){
-                    participants.push($(this).text());
-                });
+                var participants = $("input[name='skype-participants']").val().split(/, ?/);
                 var topic = $("input[name='skype-topic']").val();
                 var skype_params = {
                     name: "call",
@@ -1196,32 +988,6 @@ import datetime
                 startSkype(skype_params);
             });
         });
-        $('#skype-start-online').click(function(e) {
-            e.preventDefault();
-            if(main_dlg)main_dlg.hide();
-            var dialog = new Dialog('#skype-dialog-online');
-            dialog.showOverlay();
-            dialog.$ei.fadeIn(200);
-            $('#create-skype-online').click(function() {
-              var participants = $("span[id='skype-online-name']").text().split(/, ?/);;
-              var topic = $("input[name='skype-topic-online']").val();
-              var skype_params = {
-                name: "call",
-                element: "SkypeButton_Call_" + participants[0] + "_1",
-                participants: participants,
-                imageSize: 24,
-                imageColor: "skype",
-                video: "true",
-                topic: topic
-              };
-              $('.skype-container-online').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
-              startSkypeOnline(skype_params);
-            });
-          });
     });
-    function toggleSkypeAddition(id){
-        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
-        $("#skype_usernames_select").val('');
-    }
 </script>
 </body>
