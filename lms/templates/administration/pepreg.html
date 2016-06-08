@@ -42,7 +42,7 @@ from permissions.utils import check_access_level, check_user_perms
           %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
           <option value="">Select State</option>
           %for item in State.objects.all().order_by("name"):
-          <option class="${item.name}" value="${item.name}">${item.name}</option>
+          <option class="${item.id}" value="${item.name}">${item.name}</option>
           %endfor
           %else:
           <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>  
@@ -52,7 +52,7 @@ from permissions.utils import check_access_level, check_user_perms
           %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
           <option value="">Select District</option>
           %for item in District.objects.all().order_by("name"):
-          <option value="${item.name}">${item.name}</option>
+          <option value="${item.name}" class="${item.state.id}">${item.name}</option>
           %endfor
           %else:
           <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>  
