@@ -13,6 +13,7 @@
     # app that handles site status messages
     from status.status import get_site_status_msg
     from permissions.utils import check_user_perms
+    from django.core.urlresolvers import resolve
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -365,12 +366,13 @@
         </ol>
             <!--@end-->
 
-            <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-            <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+        <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+        <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
         <ol class="user admin" >
             %if show_extended:
+                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
@@ -409,7 +411,9 @@
                                     $(".admin-dropdown-menu").hide();
                                 }
                             });
-
+                        </script>
+                      %endif
+                       <script type="text/javascript">
                             url_studio = ["https://studio0.pepperpd.com",
                                           "https://studio-staging.pepperpd.com",
                                           "https://studio-demo.pepperpd.com",
