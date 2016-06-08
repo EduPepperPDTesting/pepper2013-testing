@@ -67,6 +67,12 @@ from courseware.courses import get_course_by_id
 from study_time.models import record_time_store
 from administration.models import site_setting_store
 
+#@begin:add pd_time to total_time
+#@date:2016-06-06
+from django.db.models import Sum
+from administration.models import PepRegStudent
+#@end
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -522,6 +528,19 @@ def dashboard(request, user_id=None):
     except ExternalAuthMap.DoesNotExist:
         pass
 
+    #@begin:add pd_time to total_time
+    #@date:2016-06-06
+    id_of_user = ''
+    if user_id:
+        id_of_user = user_id
+    else:
+        id_of_user = request.user.id
+    pd_time = 0;
+    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
+    if pd_time_tmp:
+        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+    #@end
+
     if user.is_superuser:
 
         course_time = 0
@@ -536,7 +555,11 @@ def dashboard(request, user_id=None):
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        #@begin:add pd_time to total_time
+        #@date:2016-06-06
+        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
+        #@end
 
     #20160413 load alert_message
     #begin
@@ -2268,6 +2291,16 @@ def get_pepper_stats(request):
         except ItemNotFoundError:
             log.error("User {0} enrolled in non-existent course {1}"
                       .format(user.username, enrollment.course_id))
+
+    #@begin:add pd_time to total_time
+    #@date:2016-06-06
+    id_of_user = request.POST.get('user_id')
+    pd_time = 0;
+    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
+    if pd_time_tmp:
+        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+    #@end
+    
     if user.is_superuser:
         course_times = {course.id: 0 for course in courses}
 
@@ -2286,7 +2319,11 @@ def get_pepper_stats(request):
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
         adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        #@begin:add pd_time to total_time
+        #@date:2016-06-06
+        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
+        #@end
 
     context = {
         'all_course_time': study_time_format(all_course_time),
