@@ -1,5 +1,6 @@
 var db = connect("localhost:37017/reporting")
 
+db.UserCourseView.remove({'school_year':'current'});
 db.student_courseenrollment.aggregate({
     $match: {
         'is_active': 1
@@ -39,9 +40,9 @@ db.student_courseenrollment.aggregate({
         subscription_status: {
             $arrayElemAt: ['$user_info.subscription_status', 0]
         },
-        state_id: '$user_info.state_id',
-        distric_id: '$user_info.distric_id',
-        school_id: '$user_info.school_id',
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
     }
 }, {
     $lookup: {
@@ -104,6 +105,9 @@ db.student_courseenrollment.aggregate({
         school: 1,
         subscription_status: 1,
         enrollment_date: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         course_number: {
             $arrayElemAt: ['$course_info.metadata.display_coursenumber', 0]
         },
@@ -211,7 +215,9 @@ db.student_courseenrollment.aggregate({
         state: 1,
         district: 1,
         school: 1,
-        activate_date: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         subscription_status: 1,
         course_number: 1,
         course_name: 1,
@@ -240,6 +246,10 @@ db.student_courseenrollment.aggregate({
         },
         total_time: {
             $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']
-        }
+        },
+        school_year:{$substr: [ "current", 0, -1 ]}
     }
-},{$out:'UserCourseView'})
+}).forEach(function(x){
+    delete x._id;
+    db.UserCourseView.save(x);
+})

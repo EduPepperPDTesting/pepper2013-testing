@@ -395,10 +395,34 @@ echo '-----------------------------------------------'
 echo 'Clear cache collections complete!'
 echo '-----------------------------------------------'
 
+#exit 0;
+
+echo '###########################################'
+
+echo '-----------------------------------------------'
+echo 'Create superuser views'
+echo '-----------------------------------------------'
+
+sync
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+/usr/local/mongodb3/mongo --port=37017 <<EOF
+
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/user.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/course.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/user-course.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/course-assignments.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/aggregate-timer.js');
+load('/home/tahoe/pepper/edx-platform/lms/scripts/reporting/create_superuser_views/aggregate-grades.js');
+
+EOF
+echo '-----------------------------------------------'
+echo 'Create superuser views complete!'
+echo '-----------------------------------------------'
+
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 exit 0;
-
 
 

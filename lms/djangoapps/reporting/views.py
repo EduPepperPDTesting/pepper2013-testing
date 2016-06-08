@@ -20,7 +20,7 @@ import gevent
 from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
-
+from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 
 def postpone(function):
     """
@@ -369,9 +369,15 @@ def report_view(request, report_id):
         filters.append(f)
 
     create_report_collection(request, report, selected_view, columns, filters)
+
+    school_year_item = []
+    if report_has_school_year(selected_columns):
+        school_year_item = get_school_year_item()
+
     data = {
         'report': report,
         'display_columns': selected_columns,
+        'school_year_item': school_year_item
     }
     return render_to_response('reporting/view-report.html', data)
 
@@ -475,7 +481,7 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     :param out: Whether to generate aggregate collection.
     :return: The formatted query.
     """
-    query = query_ref_variable(query, request.user, report, columns, filters)
+    query = query_ref_variable(query, request, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '').replace(' ', '')
     if out:
         query += ',{"$out":"' + get_cache_collection(request) + '"}'
@@ -483,23 +489,25 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     return query
 
 
-def query_ref_variable(query, user, report, columns, filters):
+def query_ref_variable(query, request, report, columns, filters):
     """
     Replace the placeholders.
     :param query: Mongo query
-    :param user: The user object.
+    :param request: Request object.
     :param columns: The columns to show in the report.
     :param filters: The filters to use in the report.
     :return: The replaced query.
     """
-    domain = get_query_user_domain(user)
+    domain = get_query_user_domain(request.user)
+    school_year = get_query_school_year(request, report, columns)
     distinct = get_query_distinct(report.distinct, columns)
     columns = get_query_display_columns(columns)
     filters = get_query_filters(filters)
     return query.replace('{user_domain}', domain)\
         .replace('{display_columns}', columns)\
         .replace('{filters}', filters)\
-        .replace('{distinct}', distinct)
+        .replace('{distinct}', distinct)\
+        .replace('{school_year}', school_year)
 
 
 def get_query_user_domain(user):
