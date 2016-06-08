@@ -257,7 +257,62 @@ def newgroup_courses(request):
 # end
 
 
-def course_filter(course, subject_index, currSubject, g_courses, currGrades):
+def course_filter(course, subject_index, currSubject, g_courses, currGrades, more_subjects_courses):
+    #@begin:change the type of display_subject to list 
+    #@date:2016-05-31
+    # 20151130 modify the courses shown in different course grade after press All button
+    # begin
+    if course.display_grades == 'K-5':
+        if len(course.display_subject) > 1:
+            more_subjects_courses[0].append(course)
+        else:
+            if course.display_subject != currSubject[0]:
+                currSubject[0] = course.display_subject
+                subject_index[0] += 1
+                g_courses[0].append([])
+            g_courses[0][subject_index[0]].append(course)
+    if (course.display_grades == '6-8' or course.display_grades == '6-12') and currGrades != '9-12':
+        if len(course.display_subject) > 1:
+            more_subjects_courses[1].append(course)
+        else:
+            if course.display_subject != currSubject[1]:
+                currSubject[1] = course.display_subject
+                subject_index[1] += 1
+                g_courses[1].append([])
+            g_courses[1][subject_index[1]].append(course)
+    if (course.display_grades == '9-12' or course.display_grades == '6-12') and currGrades != '6-8':
+        if len(course.display_subject) > 1:
+            more_subjects_courses[2].append(course)
+        else:
+            if course.display_subject != currSubject[2]:
+                currSubject[2] = course.display_subject
+                subject_index[2] += 1
+                g_courses[2].append([])
+            g_courses[2][subject_index[2]].append(course)
+    if course.display_grades == 'K-12':
+        if len(course.display_subject) > 1:
+            more_subjects_courses[3].append(course)
+        else:
+            if course.display_subject != currSubject[3]:
+                currSubject[3] = course.display_subject
+                subject_index[3] += 1
+                g_courses[3].append([])
+            g_courses[3][subject_index[3]].append(course)
+    # end
+
+    # 20160322 add "Add new grade 'PreK-3'"
+    # begin
+    if course.display_grades == 'PreK-3':
+        if len(course.display_subject) > 1:
+            more_subjects_courses[4].append(course)
+        else:
+            if course.display_subject != currSubject[4]:
+                currSubject[4] = course.display_subject
+                subject_index[4] += 1
+                g_courses[4].append([])
+            g_courses[4][subject_index[4]].append(course)
+    #@end
+    '''
     # 20151130 modify the courses shown in different course grade after press All button
     # begin
     if course.display_grades == 'K-5':
@@ -295,7 +350,7 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades):
             g_courses[4].append([])
         g_courses[4][subject_index[4]].append(course)
     # end
-
+    '''
 
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -369,7 +424,7 @@ def course_list(request):
     if credit != '':
         filterDic['metadata.display_credit'] = True
 
-    items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
+    items = modulestore().collection.find(filterDic).sort("metadata.display_subject.0", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
     # 20160322 modify "Add new grade 'PreK-3'"
     # begin
@@ -378,10 +433,26 @@ def course_list(request):
     g_courses = [[], [], [], [], []]
     # end 
 
+    #@begin:change the type of display_subject to list 
+    #@date:2016-05-31
+    more_subjects_courses = [[], [], [], [], []]
+    #@end
+
     for course in courses:
         if (is_new == '' or course.is_newish) and is_state_district_show(request.user, course, is_member) and \
                 custom_collection_visibility(request.user, course, collection):
-            course_filter(course, subject_index, currSubject, g_courses, grade_id)
+            #@begin:change the type of display_subject to list 
+            #@date:2016-05-31
+            #course_filter(course, subject_index, currSubject, g_courses, grade_id)
+            course_filter(course, subject_index, currSubject, g_courses, grade_id, more_subjects_courses)
+            #@end
+
+    #@begin:add the course which subject more than 1 to g_courses 
+    #@date:2016-05-31
+    for i in range(0,len(more_subjects_courses)):
+        if len(more_subjects_courses[i]) > 0:
+            g_courses[i].append(more_subjects_courses[i])
+    #@end
 
     for gc in g_courses:
         for sc in gc:

@@ -395,7 +395,12 @@ def more_courses_available(request):
             pass
 
     # sort courses
-    courses.sort(cmp=lambda x, y: cmp(x.display_subject.lower(), y.display_subject.lower()))
+    #@begin:change the type of display_subject to list 
+    #@date:2016-05-31
+    #courses.sort(cmp=lambda x, y: cmp(x.display_subject.lower(), y.display_subject.lower()))
+    courses.sort(cmp=lambda x, y: cmp(x.display_subject[0].lower(), y.display_subject[0].lower()))
+    more_subjects_courses = [[], [], [], [], []]
+    #@end
 
     # 20160322 modify "Add new grade 'PreK-3'"
     # begin
@@ -405,7 +410,14 @@ def more_courses_available(request):
     # end 
 
     for course in courses:
-        course_filter(course, subject_index, currSubject, g_courses, '')
+        course_filter(course, subject_index, currSubject, g_courses, '', more_subjects_courses)
+
+    #@begin:add the course which subject more than 1 to g_courses 
+    #@date:2016-05-31
+    for i in range(0,len(more_subjects_courses)):
+        if len(more_subjects_courses[i]) > 0:
+            g_courses[i].append(more_subjects_courses[i])
+    #@end
 
     for gc in g_courses:
         for sc in gc:
