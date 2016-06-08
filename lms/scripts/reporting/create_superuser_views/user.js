@@ -1,5 +1,6 @@
 var db = connect("localhost:37017/reporting")
 
+db.UserView.remove({'school_year':'current'});
 db.user_info.aggregate({
     $lookup: {
         from: 'course_time',
@@ -46,7 +47,7 @@ db.user_info.aggregate({
     $project: {
         user_id: 1,
         email: 1,
-        user_name: 1,
+        user_name: '$username',
         first_name: 1,
         last_name: 1,
         state: 1,
@@ -54,6 +55,9 @@ db.user_info.aggregate({
         school: 1,
         activate_date: 1,
         subscription_status: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         external_time: {
             $sum: '$external_time.r_time'
         },
@@ -103,6 +107,9 @@ db.user_info.aggregate({
         state: 1,
         district: 1,
         school: 1,
+        state_id: 1,
+        district_id: 1,
+        school_id: 1,
         activate_date: 1,
         subscription_status: 1,
         current_course: 1,
@@ -116,6 +123,10 @@ db.user_info.aggregate({
         },
         total_time: {
             $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']
-        }
+        },
+        school_year:{$substr: [ "current", 0, -1 ]}
     }
-},{$out:'UserView'})
+}).forEach(function(x){
+    delete x._id;
+    db.UserView.save(x);
+})
