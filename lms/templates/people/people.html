@@ -317,7 +317,7 @@
               if usr.profile.last_activity:
                 u=usr.profile.last_activity
                 u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
-                close = int(d_min) - int(u_min) < 10
+                close = int(d_min) - int(u_min) < 1
                 active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
               else:
                 active_recent = False

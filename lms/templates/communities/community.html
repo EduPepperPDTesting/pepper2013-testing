@@ -620,7 +620,7 @@ import datetime
                       if use.profile.last_activity:
                         usr=use.profile.last_activity
                         u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 10
+                        close = int(d_min) - int(u_min) < 1
                         active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
                       else:
                         active_recent = False
