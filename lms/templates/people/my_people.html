@@ -474,6 +474,11 @@
 </div>
 
 <script type="text/javascript">
+    $(document).ready(function(){
+       $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+    });
   var main_dlg=null;
   function show_active_user(id, fname, lname){
     $("#dlg-name-title").html(fname+" "+lname);

@@ -475,6 +475,11 @@
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
+    $(document).ready(function(){
+       $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+    });
   $("#text_pre_page").val("${pager['size']}")
     $("#text_pre_page").bind('change', function(e){
       var f=$("#search_form");
