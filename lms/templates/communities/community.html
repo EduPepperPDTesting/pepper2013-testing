@@ -38,6 +38,14 @@ import datetime
       position:absolute;
       right:0;
     }
+    .skype_username_list{
+        display: inline-block;
+        background-color: #5A9BD5;
+        font-weight:bold;
+        margin: 4px;
+        border-radius: 4px;
+        padding: 3px;
+    }
     #dlg-user-photo{
          width:140px;
          height:140px;
@@ -755,10 +763,10 @@ import datetime
                     <option id = "uname_null" val="">Select Username</option>
                     %for u in users:
                         %if u.user.profile.skype_username != "NULL":
-                            <option class='skype_uname_option' id="${u.user.username}" val="${u.user.profile.skype_username}">${u.user.profile.skype_username}</option>
+                            <option class='skype_uname_option' id="${u.user.username}" data-src="${reverse('user_photo',args=[u.id])}" val="${u.user.profile.skype_username}">${u.user.first_name} ${u.user.last_name}</option>
                         %endif
                     %endfor
-                </select>
+                </select><br>
                 <span id="selected_skype_names"></span><br>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">
@@ -1223,7 +1231,9 @@ import datetime
           });
     });
     function toggleSkypeAddition(id){
-        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+        var selected = $("#"+id).find('option:selected');
+        var src = selected.data('src');
+        $("#selected_skype_names").append("<div class='skype_username_list'><img src='"+src+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
         $("#skype_usernames_select").val('');
     }
 </script>
