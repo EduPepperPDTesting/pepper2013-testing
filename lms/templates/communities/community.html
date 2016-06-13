@@ -374,6 +374,9 @@ import datetime
     #members a img {
         vertical-align: middle;
     }
+    #skype_usernames_select{
+        min-width:100px;
+    }
     .modal {
         position: absolute;
         opacity: 1;
@@ -758,9 +761,8 @@ import datetime
         </div>
         <div class="content">
             <form>
-                <label>Select Skype Usernames from the below list to add to call.</label><br>
+                <label>Select from the below list to add to call.</label><br>
                 <select id = "skype_usernames_select" multiple>
-                    <option id = "uname_null" val="">Select Username</option>
                     %for u in users:
                         %if u.user.profile.skype_username:
                             <option class='skype_uname_option' id="${u.user.username}" data-src="${reverse('user_photo',args=[u.id])}" val="${u.user.profile.skype_username}" data-skype="${u.user.profile.skype_username}">${u.user.first_name} ${u.user.last_name}</option>
@@ -1233,9 +1235,13 @@ import datetime
     });
     function toggleSkypeAddition(id){
         var selected = $("#"+id).find('option:selected');
-        var src = selected.data('src');
-        $("#selected_skype_names").append("<div class='skype_username_list' data-skype='"+selected.data('skype')+"'><img src='"+src+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
-        $("#"+id).find('option:selected').hide();
+        val = $("#"+id).val()+'';
+        vals = val.split(",");
+        $.each(vals,function(i){
+            j=$("option:contains("+vals[i]+")");
+            j.hide();
+            $("#selected_skype_names").append("<div class='skype_username_list' data-skype='"+j.data('skype')+"'><img src='"+ j.data('src')+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+vals[i]+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+        });
         $("#skype_usernames_select").val('');
     }
 </script>
