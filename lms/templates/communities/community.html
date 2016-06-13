@@ -762,8 +762,8 @@ import datetime
                 <select id = "skype_usernames_select">
                     <option id = "uname_null" val="">Select Username</option>
                     %for u in users:
-                        %if u.user.profile.skype_username != "NULL":
-                            <option class='skype_uname_option' id="${u.user.username}" data-src="${reverse('user_photo',args=[u.id])}" val="${u.user.profile.skype_username}">${u.user.first_name} ${u.user.last_name}</option>
+                        %if u.user.profile.skype_username:
+                            <option class='skype_uname_option' id="${u.user.username}" data-src="${reverse('user_photo',args=[u.id])}" val="${u.user.profile.skype_username}" data-skype="${u.user.profile.skype_username}">${u.user.first_name} ${u.user.last_name}</option>
                         %endif
                     %endfor
                 </select><br>
@@ -1189,7 +1189,7 @@ import datetime
             $('#create-skype').click(function() {
                 var participants = [];
                 $(".skype_username_list").each(function(i){
-                    participants.push($(this).text());
+                    participants.push($(this).data('skype'));
                 });
                 var topic = $("input[name='skype-topic']").val();
                 var skype_params = {
@@ -1233,7 +1233,7 @@ import datetime
     function toggleSkypeAddition(id){
         var selected = $("#"+id).find('option:selected');
         var src = selected.data('src');
-        $("#selected_skype_names").append("<div class='skype_username_list'><img src='"+src+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+        $("#selected_skype_names").append("<div class='skype_username_list' data-skype='"+selected.data('skype')+"'><img src='"+src+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
         $("#skype_usernames_select").val('');
     }
 </script>
