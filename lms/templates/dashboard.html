@@ -84,7 +84,7 @@
     .side-button {
         color: white !important;
         display: block;
-        padding: 10px;
+        padding: 7px;
         border-width: 1px;
         border-style: solid;
         text-align: center;
@@ -97,6 +97,9 @@
     .green-button {
         border-color: #595;
         background: #8cbe41;
+    }
+    .hangout-button{
+        margin-top: 5px;
     }
     .red-button {
         border-color: #df0000;
@@ -1642,8 +1645,8 @@ Add info that you would like to share about yourself here:
       <img src="" class="" alt="" id="dlg-user-photo" /><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <g:hangout render="createhangout" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
-      </div>
+        <div class="hangout-button"><g:hangout render="createhangout" class="side-button blue-button skype-button" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
+     </div> </div>
 
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>

@@ -435,10 +435,13 @@ import datetime
     .side-button {
         color: white !important;
         display: block;
-        padding: 10px;
+        padding: 7px;
         border-width: 1px;
         border-style: solid;
         text-align: center;
+        margin-top: 5px;
+    }
+    .hangout-button{
         margin-top: 5px;
     }
     .blue-button {
@@ -715,7 +718,7 @@ import datetime
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
         <div id="google_hangout"></div>
-        <g:hangout render="createhangout" id="google_hangout" invites="[{id:'pcgedu@pepperpd.com', invite_type:'EMAIL'}]"></g:hangout>
+        <div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'pcgedu@pepperpd.com', invite_type:'EMAIL'}]"></g:hangout></div>
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
