@@ -689,7 +689,7 @@ import datetime
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
-                %if request.user.is_superuser:
+                %if request.user.is_superuser or is_facilitator(request.user, community):
                     <div class="skype-button">
                         <a href="#" id="skype-start" class="side-button blue-button">Start Skype Call</a>
                     </div>
