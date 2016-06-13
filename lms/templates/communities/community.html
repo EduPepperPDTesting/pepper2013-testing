@@ -1238,9 +1238,11 @@ import datetime
         val = $("#"+id).val()+'';
         vals = val.split(",");
         $.each(vals,function(i){
-            j=$("option:contains("+vals[i]+")");
-            j.hide();
-            $("#selected_skype_names").append("<div class='skype_username_list' data-skype='"+j.data('skype')+"'><img src='"+ j.data('src')+"' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>"+vals[i]+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+            if(vals[i] != null) {
+                j = $("option:contains(" + vals[i] + ")");
+                j.hide();
+                $("#selected_skype_names").append("<div class='skype_username_list' data-skype='" + j.data('skype') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+            }
         });
         $("#skype_usernames_select").val('');
     }
