@@ -36,6 +36,13 @@ db.user_info.aggregate({
         as: 'external_time'
     }
 }, {
+    $lookup: {
+        from: 'pd_time',
+        localField: 'user_id',
+        foreignField: 'user_id',
+        as: 'pd_time'
+    }
+}, {
     $project: {
         user_id: 1,
         course_time: {
@@ -49,7 +56,10 @@ db.user_info.aggregate({
         },
         portfolio_time: {
             $sum: '$portfolio_time.time'
-        }
+        },
+        pd_time: {
+            $sum: '$pd_time.credit'
+        },
     }
 }, {
     $project: {
@@ -58,11 +68,12 @@ db.user_info.aggregate({
         external_time: 1,
         discussion_time: 1,
         portfolio_time: 1,
+        pd_time: 1,
         collaboration_time: {
             $add: ['$discussion_time', '$portfolio_time']
         },
         total_time: {
-            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']
+            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time', '$pd_time']
         }
     }
 

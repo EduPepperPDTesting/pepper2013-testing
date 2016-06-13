@@ -88,6 +88,13 @@ db.student_courseenrollment.aggregate({
     }
 }, {
     $lookup: {
+        from: 'pd_time',
+        localField: 'user_id',
+        foreignField: 'user_id',
+        as: 'pd_time'
+    }
+}, {
+    $lookup: {
         from: 'user_course_progress',
         localField: 'user_id',
         foreignField: 'user_id',
@@ -191,6 +198,9 @@ db.student_courseenrollment.aggregate({
         portfolio_time: {
             $sum: '$portfolio_time.time'
         },
+        pd_time: {
+            $sum: '$pd_time.credit'
+        },
         progress: {
             $sum: {
                 $map: {
@@ -241,11 +251,12 @@ db.student_courseenrollment.aggregate({
         external_time: 1,
         discussion_time: 1,
         portfolio_time: 1,
+        pd_time: 1,
         collaboration_time: {
             $add: ['$discussion_time', '$portfolio_time']
         },
         total_time: {
-            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']
+            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time', '$pd_time']
         },
         school_year:{$substr: [ "current", 0, -1 ]}
     }

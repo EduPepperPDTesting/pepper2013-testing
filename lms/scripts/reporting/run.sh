@@ -57,6 +57,12 @@ echo '-------------------------------------------'
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
+sudo rm -f /tmp/pd_time.csv;
+mysql -upepper -plebbeb <<EOF
+use pepper;
+select student_id as user_id,sum(student_credit)*3600 as credit from pepreg_student group by user_id into outfile '/tmp/pd_time.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
+EOF
+
 mongoexport -d assist -c page_time -o /tmp/page_time.json
 mongoexport -d assist -c discussion_time -o /tmp/discussion_time.json
 mongoexport -d assist -c portfolio_time -o /tmp/portfolio_time.json
@@ -70,6 +76,8 @@ db.portfolio_time.drop()
 db.external_time.drop()
 db.adjustment_time.drop()
 db.t_external_time.drop()
+db.course_time.drop()
+db.pd_time.drop()
 EOF
 /usr/local/mongodb3/mongoimport -d reporting -c page_time /tmp/page_time.json --port 37017
 /usr/local/mongodb3/mongoimport -d reporting -c discussion_time /tmp/discussion_time.json --port 37017
@@ -81,6 +89,9 @@ sudo rm -f /tmp/discussion_time.json;
 sudo rm -f /tmp/portfolio_time.json;
 sudo rm -f /tmp/external_time.json;
 sudo rm -f /tmp/adjustment_time.json;
+
+/usr/local/mongodb3/mongoimport -d "reporting" -c "pd_time" --port 37017 -f "user_id,credit" --type=csv --file=/tmp/pd_time.csv
+sudo rm -f /tmp/pd_time.csv;
 
 sudo /usr/local/mongodb3/mongo --port=37017 <<EOF
 use reporting

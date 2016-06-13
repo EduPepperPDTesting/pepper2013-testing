@@ -88,6 +88,9 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
         },
         "total_time": {
             "$sum": "$total_time"
+        },
+        "pd_time": {
+            "$sum": "$pd_time"
         }
     }
 }, {
@@ -133,7 +136,8 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
         "discussion_time": 1,
         "portfolio_time": 1,
         "collaboration_time": 1,
-        "total_time": 1
+        "total_time": 1,
+        "pd_time": 1
     }
 }{filters}{display_columns}{distinct}
 '''
@@ -218,6 +222,9 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         },
         "total_time": {
             "$sum": "$total_time"
+        },
+        "pd_time": {
+            "$sum": "$pd_time"
         }
     }
 }, {
@@ -281,7 +288,8 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         "discussion_time": 1,
         "portfolio_time": 1,
         "collaboration_time": 1,
-        "total_time": 1
+        "total_time": 1,
+        "pd_time": 1
     }
 }{filters}{display_columns}{distinct}'''
 
@@ -741,6 +749,19 @@ AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
                     }
                 }
             }
+        },
+        "pd_time": {
+            "$sum": {
+                "$map": {
+                    "input": "$user_view",
+                    "as": "item",
+                    "in": {
+                        "$cond": [{
+                           "$eq": {school_year}
+                        }, "$$item.pd_time", 0]
+                    }
+                }
+            }
         }
     }
 }, {
@@ -750,11 +771,12 @@ AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
         "external_time": 1,
         "discussion_time": 1,
         "portfolio_time": 1,
+        "pd_time": 1,
         "collaboration_time": {
             "$add": ["$discussion_time", "$portfolio_time"]
         },
         "total_time": {
-            "$add": ["$course_time", "$external_time", "$discussion_time", "$portfolio_time"]
+            "$add": ["$course_time", "$external_time", "$discussion_time", "$portfolio_time", "$pd_time"]
         }
     }
 
@@ -778,6 +800,9 @@ AggregationConfig["AggregateTimerView"]["query"] = '''{user_domain}{
         },
         "total_time": {
             "$sum": "$total_time"
+        },
+        "pd_time": {
+            "$sum": "$pd_time"
         }
     }
 }{filters}{display_columns}{distinct}'''
