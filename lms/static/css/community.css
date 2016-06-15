@@ -352,7 +352,7 @@
     width: 17px !important;
     line-height: 24px;
     height: 20px;
-    background: url(/static/tmp-resource/image/up_page.png) no-repeat;
+    background: url(../tmp-resource/image/up_page.png) no-repeat;
     border: none;
     vertical-align: middle;
 }
@@ -360,7 +360,7 @@
     display: inline-block;
     width: 17px !important;
     height: 20px;
-    background: url(/static/tmp-resource/image/next_page.png) no-repeat;
+    background: url(../tmp-resource/image/next_page.png) no-repeat;
     border: none;
     margin-left: 13px;
     vertical-align: middle;
@@ -579,10 +579,10 @@ div.card-bottom table tr:nth-child(2) {
     height: 20px;
 }
 .member-arrow-left {
-    background: url(/static/tmp-resource/image/up_page.png);
+    background: url(../tmp-resource/image/up_page.png);
 }
 .member-arrow-right {
-    background: url(/static/tmp-resource/image/next_page.png);
+    background: url(../tmp-resource/image/next_page.png);
 }
 .member-column {
     white-space: nowrap;
