@@ -22,6 +22,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 
+
 def postpone(function):
     """
     Decorator for processing in a separate thread through gevent.
@@ -70,7 +71,14 @@ def reports_view(request):
     # Add uncategorized (unpublished) reports for admins.
     if admin_rights or create_rights:
         report_list = list()
-        category_reports = reports.filter(category__isnull=True)
+        qs = Q(category__isnull=True)
+        if access_level == 'School':
+            qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
+        elif access_level == 'District':
+            qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
+        elif access_level == 'State':
+            qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
                                 'name': category_report.name,
