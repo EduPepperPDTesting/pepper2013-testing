@@ -73,7 +73,7 @@ class AdjustmentTimeLog(models.Model):
     adjustment_time = models.IntegerField(blank=False, default=0)
     create_date = models.DateTimeField(auto_now_add=True, db_index=False)
     course_number = models.CharField(blank=False, null=True, max_length=100, db_index=True)
-    comments = models.CharField(blank=False, null=True, max_length=1000, db_index=True)
+    comments = models.CharField(blank=False, null=True, max_length=756, db_index=True)
 
 
 class TimeReportPerm(models.Model):

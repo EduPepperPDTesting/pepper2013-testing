@@ -25,7 +25,7 @@ class Migration(SchemaMigration):
             ('adjustment_time', self.gf('django.db.models.fields.IntegerField')(default=0)),
             ('create_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('course_number', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, db_index=True)),
-            ('comments', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True, db_index=True)),
+            ('comments', self.gf('django.db.models.fields.CharField')(max_length=756, null=True, db_index=True)),
         ))
         db.send_create_signal('administration', ['AdjustmentTimeLog'])
 
