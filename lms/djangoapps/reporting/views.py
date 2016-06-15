@@ -72,12 +72,13 @@ def reports_view(request):
     if admin_rights or create_rights:
         report_list = list()
         qs = Q(category__isnull=True)
-        if access_level == 'School':
-            qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
-        elif access_level == 'District':
-            qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
-        elif access_level == 'State':
-            qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        if not admin_rights:
+            if access_level == 'School':
+                qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
+            elif access_level == 'District':
+                qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
+            elif access_level == 'State':
+                qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
         category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
