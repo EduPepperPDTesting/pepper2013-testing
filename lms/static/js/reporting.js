@@ -116,6 +116,7 @@ function filterLines() {
         var line_number = getLineNumber($(this).attr('name'));
         $('#where-row\\[' + line_number + '\\]').remove();
         renumberLines('where-row');
+        markDirty();
     });
     $('.plus').off('click');
     $('.plus').click(function () {
@@ -144,6 +145,8 @@ function filterLines() {
         renumberLines('where-row');
         filterLines();
         fieldTypeUpdater();
+        dirtyReportHandler();
+        markDirty();
     });
 }
 
@@ -699,7 +702,8 @@ function columnOrdering() {
 
 function dirtyReportHandler() {
     var is_dirty = false;
-    $('input, select, textarea').change(function () {
+    $('input, select, textarea').off('change.dirty input.dirty propertychange.dirty paste.dirty');
+    $('input, select, textarea').on('change.dirty input.dirty propertychange.dirty paste.dirty', function () {
         markDirty();
     });
 }
