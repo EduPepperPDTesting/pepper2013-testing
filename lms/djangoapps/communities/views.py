@@ -7,7 +7,7 @@ import json
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies
+from .models import CommunityComments, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
 from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
@@ -889,3 +889,61 @@ def user_in_community(community_id, user_id):
             return False
     except:
         return False
+
+
+def get_posts(request):
+    c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    html = ""
+    posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')
+    id=-1
+    usr_img=reverse('user_photo', args=[request.user.id])
+    for post in posts:
+        img = reverse('user_photo', args=[post.user.id])
+        id=post.user.first_name
+        comments = CommunityComments.objects.filter(post=post)
+        likes = len(CommunityLikes.objects.filter(post=post))
+        user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
+        html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
+        html+="<img src='"+img+"' class='post-profile-image'></img></td><td class='post-content-right'>"
+        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
+        if user_like == 1:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/thumbs_up_icon.png' class='like-button-image'></img>Unlike "+str(likes)+"</a><br>"
+        else:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/thumbs_up_icon.png' class='like-button-image'></img>Like "+str(likes)+"</a><br>"
+        for comment in comments:
+            comment_img = reverse('user_photo', args=[comment.user.id])
+            html+="<a href='/dashboard/"+str(comment.user.id)+"'><img class='comment-profile-image' src='"+comment_img+"'></img></a><span>"+comment.comment+"</span><br>"
+        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...'></input>"
+        html+="</td></tr>"
+    return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def submit_new_comment(request):
+    comment = CommunityComments()
+    comment.post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    comment.user = User.objects.get(id=request.user.id)
+    comment.comment = request.POST.get('content')
+    comment.save()
+    return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
+
+def submit_new_like(request):
+    post = CommunityPosts.objects.filter(id=request.POST.get('post_id'))
+    found=len(CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    if found == 1:
+        CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')).delete()
+        return HttpResponse(json.dumps({'Success': 'True', 'Liked':'Removed'}), content_type='application/json')
+    else:
+        like = CommunityLikes()
+        like.post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+        like.user = User.objects.get(id=request.user.id)
+        like.save()
+        return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
+
+
+def submit_new_post(request):
+    post = CommunityPosts()
+    post.community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    post.user = User.objects.get(id=request.user.id)
+    post.post = request.POST.get('post')
+    post.save()
+    return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')

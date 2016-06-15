@@ -61,3 +61,27 @@ class CommunityDiscussionReplies(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
     attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
+
+
+class CommunityPosts(models.Model):
+    class Meta:
+        db_table = 'community_posts'
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+class CommunityComments(models.Model):
+    class Meta:
+        db_table = 'community_posts_comments'
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+class CommunityLikes(models.Model):
+    class Meta:
+        db_table = 'community_posts_likes'
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
