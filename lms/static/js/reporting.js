@@ -180,17 +180,22 @@ function expandTitle() {
     });
 }
 
-function submitHandler(form, callback) {
+function submitHandler(form, callback, errorChecker) {
     $(form).submit(function (e) {
         e.preventDefault();
-        // TODO: add the error checking here.
-        $.post($(this).attr('action'), $(this).serialize(), function (data) {
-            if (data.success) {
-                callback(data)
-            } else {
-                alert('The operation was not successful. The error was: ' + data.error);
-            }
-        });
+        var valid = true;
+        if ($.isFunction(errorChecker)) {
+            valid = errorChecker();
+        }
+        if (valid) {
+            $.post($(this).attr('action'), $(this).serialize(), function (data) {
+                if (data.success) {
+                    callback(data)
+                } else {
+                    alert('The operation was not successful. The error was: ' + data.error);
+                }
+            });
+        }
     });
 }
 
@@ -348,7 +353,7 @@ function addView() {
             content += '<input data-name="column_name" class="column_name" name="column_name[0]" type="text" placeholder="Name">';
             content += '<input data-name="column_description" class="column_description" name="column_description[0]" type="text" placeholder="Description">';
             content += '<input data-name="column_source" class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+            content += '<select data-name="column_type" class="column_type" name="column_type[0]">';
             $.each(data_types, function (i, v) {
                 content += '    <option value="' + v + '">' + v + '</option>';
             });
