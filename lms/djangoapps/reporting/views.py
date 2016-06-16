@@ -133,7 +133,7 @@ def category_save(request):
             data = {'success': False, 'error': '{0}'.format(e)}
             transaction.rollback()
         else:
-            data = {'success': True, 'name': category.name}
+            data = {'success': True, 'name': category.name, 'id': category.id}
             transaction.commit()
     else:
         data = {'success': False, 'error': 'No name submitted.'}

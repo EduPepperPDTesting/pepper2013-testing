@@ -506,9 +506,17 @@ function checkCategoryStatus() {
     });
 }
 
-function manageHandler() {
+function manageDragInit() {
     var $categories = $("ul#categories");
     var $reports = $("ul.reports");
+
+    if ($categories.hasOwnProperty('sortable')) {
+        $categories.sortable('destroy');
+    }
+    if ($reports.hasOwnProperty('sortable')) {
+        $reports.sortable('destroy');
+    }
+
     $categories.sortable({
         group: 'categories',
         nested: false,
@@ -530,6 +538,14 @@ function manageHandler() {
             afterDrop($item, container, _super, event);
         }
     });
+}
+
+function manageHandler() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
+    manageDragInit();
+
     $categories.sortable('disable');
     $reports.sortable('disable');
     $('.manage').click(function (e) {
@@ -553,6 +569,9 @@ function manageHandler() {
 }
 
 function addCategoryHandler() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
     $('.new-category').click(function (e) {
         e.preventDefault();
         var dialog = new Dialog('#dialog');
@@ -564,7 +583,7 @@ function addCategoryHandler() {
         submitHandler('#category-save', function (data) {
             dialog.hide();
             if (data.success) {
-                var category = '<li class="main hidden-category">';
+                var category = '<li class="main hidden-category" data-name="' + data.name + '" data-id="' + data.id + '">';
                 category += '    <div class="expand_title expand_title_collapse">';
                 category += '        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>';
                 category += '        <img class="move" src="/static/images/icons/move.png">' + data.name;
@@ -579,8 +598,8 @@ function addCategoryHandler() {
                 $new_category.show().find(':hidden').show();
                 $new_category.children('.expand_title').addClass('expand_title_expanded');
                 expandTitle();
-                $("ul#categories").sortable('refresh');
-                $("ul.reports").sortable('refresh');
+                manageDragInit();
+                deleteCategoryHandler();
             } else {
                 alert('The category was not saved successfully. The error was: ' + data.error);
             }
@@ -646,6 +665,7 @@ function deleteReportHandler() {
 }
 
 function deleteCategoryHandler() {
+    $('.delete-category').off('click');
     $('.delete-category').click(function (e) {
         e.preventDefault();
         var $parent = $(this).parents('.main');
