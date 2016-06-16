@@ -24,7 +24,7 @@ def midfixToPostfix(_midfixStr):
     }
 
     string = _midfixStr
-    inputList = string.split(' ')
+    inputList = string.split('##')
     inputLen = len(inputList)
 
     tempList = list()   #stack
