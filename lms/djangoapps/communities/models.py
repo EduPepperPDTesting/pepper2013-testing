@@ -82,6 +82,7 @@ class CommunityComments(models.Model):
 class CommunityLikes(models.Model):
     class Meta:
         db_table = 'community_posts_likes'
-    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE, null=True, default=None, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(CommunityComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)

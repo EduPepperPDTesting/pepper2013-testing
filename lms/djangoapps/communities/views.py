@@ -901,19 +901,27 @@ def get_posts(request):
         img = reverse('user_photo', args=[post.user.id])
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
-        likes = len(CommunityLikes.objects.filter(post=post))
+        likes = len(CommunityLikes.objects.filter(post=post, comment=None))
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
         html+="<img src='"+img+"' class='post-profile-image'></img></td><td class='post-content-right'>"
         html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
         if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/thumbs_up_icon.png' class='like-button-image'></img>Unlike "+str(likes)+"</a><br>"
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
         else:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/thumbs_up_icon.png' class='like-button-image'></img>Like "+str(likes)+"</a><br>"
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
+        html+="<a data-id='"+str(post.id)+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br><div class='comment-section'>"
         for comment in comments:
+            c_likes = len(CommunityLikes.objects.filter(comment=comment))
+            c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
-            html+="<a href='/dashboard/"+str(comment.user.id)+"'><img class='comment-profile-image' src='"+comment_img+"'></img></a><span>"+comment.comment+"</span><br>"
-        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...'></input>"
+            c_like_html=""
+            if c_user_like == 1:
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
+            else:
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
+            html+="<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
+        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
 
@@ -926,15 +934,32 @@ def submit_new_comment(request):
     comment.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
 
+
 def submit_new_like(request):
-    post = CommunityPosts.objects.filter(id=request.POST.get('post_id'))
-    found=len(CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    pid=request.POST.get('post_id')
+    comment = None
+    post = None
+    try:
+        post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    except:
+        None
+    try:
+        comment = CommunityComments.objects.get(id=request.POST.get('comment_id'))
+    except:
+        None
+    if post:
+        found=len(CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    else:
+        found=len(CommunityLikes.objects.filter(comment=comment, user__id=request.POST.get('user_id')))
     if found == 1:
-        CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')).delete()
+        CommunityLikes.objects.filter(post=post, comment=comment, user__id=request.user.id).delete()
         return HttpResponse(json.dumps({'Success': 'True', 'Liked':'Removed'}), content_type='application/json')
     else:
         like = CommunityLikes()
-        like.post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+        if comment:
+            like.comment = comment
+        if post:
+            like.post = post
         like.user = User.objects.get(id=request.user.id)
         like.save()
         return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
