@@ -180,17 +180,22 @@ function expandTitle() {
     });
 }
 
-function submitHandler(form, callback) {
+function submitHandler(form, callback, errorChecker) {
     $(form).submit(function (e) {
         e.preventDefault();
-        // TODO: add the error checking here.
-        $.post($(this).attr('action'), $(this).serialize(), function (data) {
-            if (data.success) {
-                callback(data)
-            } else {
-                alert('The operation was not successful. The error was: ' + data.error);
-            }
-        });
+        var valid = true;
+        if ($.isFunction(errorChecker)) {
+            valid = errorChecker();
+        }
+        if (valid) {
+            $.post($(this).attr('action'), $(this).serialize(), function (data) {
+                if (data.success) {
+                    callback(data)
+                } else {
+                    alert('The operation was not successful. The error was: ' + data.error);
+                }
+            });
+        }
     });
 }
 
