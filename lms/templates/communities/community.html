@@ -382,6 +382,7 @@ import datetime
     </div>
 </div>
 <script type="text/javascript">
+    var size=0;
     function joinMe(){
         var user_id = "${request.user.id}";
         $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
@@ -638,11 +639,20 @@ import datetime
     function getPosts(){
         filter = "New";
         var community=${community.id};
-        $.post("${reverse('community_get_posts')}", {community_id: community}, function (data){
+        $.post("${reverse('community_get_posts')}", {community_id: community, size:size}, function (data){
             $("#post_content_table").find("tr:gt(0)").remove();
             $('#post_content_table tr:last').after(data.post);
             $(".post-like-text").click(function(){
-                $.post("${reverse('community_submit_new_like')}", {post_id: $(this).data('id'), user_id:'${request.user.id}'},function(data){
+                $.post("${reverse('community_submit_new_like')}", {post_id: $(this).data('id'), comment_id: '-1', user_id:'${request.user.id}'},function(data){
+                    getPosts();
+                });
+            });
+            $(".post-comment-text").click(function(){
+                id=$(this).data('id');
+                $("#focus"+id).focus();
+            });
+            $(".comment-like-text").click(function(){
+                $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
                     getPosts();
                 });
             });
@@ -658,6 +668,7 @@ import datetime
         });
     }
     $(document).ready(function(){
+        size=10;
         getPosts();
         $(".post-button").click(function(){
             var post=$("#new_post_textarea").val();
@@ -667,7 +678,12 @@ import datetime
                 getPosts();
             });
         });
-
+        $('#community_content_posts').on('scroll', function() {
+            if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+                size+=10;
+                getPosts();
+            }
+        });
         $("#community_content_discussions").hide();
         $("#community_content_header_posts").click(function(){
             $("#community_content_discussions").hide();

@@ -491,7 +491,7 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     :return: The formatted query.
     """
     query = query_ref_variable(query, request, report, columns, filters)
-    query = query.replace('\n', '').replace('\r', '').replace(' ', '')
+    query = query.replace('\n', '').replace('\r', '')
     if out:
         query += ',{"$out":"' + get_cache_collection(request) + '"}'
     query = eval(query)
@@ -563,14 +563,14 @@ def get_query_filters(filters):
     filter_str = ''
     if len(filters) > 0:
         for filter in filters:
-            conjunction = ' '
+            conjunction = '##'
             value = filter.value
             if filter.conjunction is not None:
-                conjunction += filter.conjunction.lower() + ' '
+                conjunction += filter.conjunction.lower() + '##'
             if filter.value.isdigit() is False:
-                value = '"' + filter.value + '"'
+                value = "'" + filter.value + "'"
             filter_str += conjunction + filter.column.column + filter.operator + value
-        sql = get_mongo_filters(filter_str[1:])
+        sql = get_mongo_filters(filter_str[2:])
         return ',{"$match":' + sql + '}'
     return filter_str
 
