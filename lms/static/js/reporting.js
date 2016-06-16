@@ -353,7 +353,7 @@ function addView() {
             content += '<input data-name="column_name" class="column_name" name="column_name[0]" type="text" placeholder="Name">';
             content += '<input data-name="column_description" class="column_description" name="column_description[0]" type="text" placeholder="Description">';
             content += '<input data-name="column_source" class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+            content += '<select data-name="column_type" class="column_type" name="column_type[0]">';
             $.each(data_types, function (i, v) {
                 content += '    <option value="' + v + '">' + v + '</option>';
             });
