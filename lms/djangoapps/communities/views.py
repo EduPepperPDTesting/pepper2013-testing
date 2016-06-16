@@ -892,9 +892,10 @@ def user_in_community(community_id, user_id):
 
 
 def get_posts(request):
+    size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     html = ""
-    posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')
+    posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
     id=-1
     usr_img=reverse('user_photo', args=[request.user.id])
     for post in posts:
