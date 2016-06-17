@@ -14,6 +14,7 @@ class CommunityCommunities(models.Model):
     state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, blank=True)
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
+    discussion_priority = models.BooleanField(blank=False, default=0)
 
 
 class CommunityUsers(models.Model):
@@ -77,6 +78,7 @@ class CommunityComments(models.Model):
     post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField(blank=False, max_length=255, db_index=False)
+    sub_comment = models.ForeignKey("self", on_delete=models.CASCADE, default=None, null=True, blank=True)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
 
 class CommunityLikes(models.Model):

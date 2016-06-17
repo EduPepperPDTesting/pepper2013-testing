@@ -917,11 +917,14 @@ def get_posts(request):
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
             c_like_html=""
+            html+="<table><tr><td>"
             if c_user_like == 1:
                 c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
             else:
                 c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
-            html+="<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
+            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
+            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
+            html += "<a data-id='"+str(post.id)+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a></td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
@@ -965,6 +968,17 @@ def submit_new_like(request):
         like.save()
         return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
 
+
+def change_content_prioirty(request):
+    community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    community.discussion_priority = int(request.POST.get('priority_id'))
+    community.save()
+    return HttpResponse(json.dumps({'Success': 'True',  'result': community.discussion_priority}), content_type='application/json')
+
+
+def check_content_priority(request):
+    community = CommunityCommunities.objects.filter(id=request.POST.get('community_id'))
+    return HttpResponse(json.dumps({'Success': 'True',  'result': community[0].discussion_priority}), content_type='application/json')
 
 def submit_new_post(request):
     post = CommunityPosts()

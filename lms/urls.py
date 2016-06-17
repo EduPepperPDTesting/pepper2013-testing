@@ -314,6 +314,8 @@ urlpatterns = (
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
     url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
 
+    url(r'^community/post/priority$', 'communities.views.change_content_prioirty', name='community_change_content_prioirty'),
+    url(r'^community/post/check$', 'communities.views.check_content_priority', name='community_check_content_priority'),
     url(r'^community/post/like$', 'communities.views.submit_new_like', name='community_submit_new_like'),
     url(r'^community/post/new$', 'communities.views.submit_new_post', name='community_submit_new_post'),
     url(r'^community/post/get$', 'communities.views.get_posts', name='community_get_posts'),
