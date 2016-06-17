@@ -8,11 +8,18 @@
   from xmodule.modulestore.django import modulestore
   from student.models import State,District,Transaction,Cohort,School,SubjectArea,GradeLevel,YearsInEducation
   from baseinfo.models import Enum
+  from django.contrib.auth.models import User
+  from django.utils import timezone
+  from datetime import date
+  import datetime
 %>
 <%! import json%>
 <%namespace name='static' file='/static_content.html'/>
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -21,6 +28,7 @@
 %endif
 </%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/people.css"/>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <%block name="headextra">
 %if course:
   <%static:css group='course'/>
@@ -34,27 +42,53 @@
   % endif
 %endif
 </%block>
-<style>
-/* Button 1 */
-.btn-1 {
-	border: 3px solid #ccc;
-	color: #fff;
-	background-image: -webkit-linear-gradient(bottom, #199700, #79d664);
-	background-image: -moz-linear-gradient(bottom, #199700, #79d664);
-	background-image: -o-linear-gradient(bottom, #199700, #79d664);
-	background-image: linear-gradient(to top, #199700, #79d664);
-}
-/* Button 1a */
-.btn-1a:hover, .btn-1a:active {
-	color: #0e83cd;
-	background-image: -webkit-linear-gradient(bottom, #f93, #e0862c, #f93);
-	background-image: -moz-linear-gradient(bottom, #f93, #e0862c, #f93);
-	background-image: -o-linear-gradient(bottom, #f93, #e0862c, #f93);
-	background-image: linear-gradient(to top, #f93, #e0862c, #f93);
-}
-section.course-index{
-padding-bottom:50px !important;
-}
+    <style>
+
+     .modal{position:fixed}
+     /* Button 1 */
+     .btn-1 {
+	   border: 3px solid #ccc;
+	   color: #fff;
+	   background-image: -webkit-linear-gradient(bottom, #199700, #79d664);
+	   background-image: -moz-linear-gradient(bottom, #199700, #79d664);
+	   background-image: -o-linear-gradient(bottom, #199700, #79d664);
+	   background-image: linear-gradient(to top, #199700, #79d664);
+     }
+     /* Button 1a */
+     .btn-1a:hover, .btn-1a:active {
+	   color: #0e83cd;
+	   background-image: -webkit-linear-gradient(bottom, #f93, #e0862c, #f93);
+	   background-image: -moz-linear-gradient(bottom, #f93, #e0862c, #f93);
+	   background-image: -o-linear-gradient(bottom, #f93, #e0862c, #f93);
+	   background-image: linear-gradient(to top, #f93, #e0862c, #f93);
+     }
+     section.course-index{
+       padding-bottom:50px !important;
+     }
+     .blue-button {
+       border-color: #45719E;
+       background: #5A9BD5;
+     }
+     .green-button {
+       border-color: #595;
+       background: #8cbe41;
+     }
+     .side-button {
+       color: white !important;
+       display: inline-block;
+       padding: 10px;
+       border-width: 1px;
+       border-style: solid;
+       text-align: center;
+       margin-top: 5px;
+     }
+     .skype-button{
+       background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
+       padding-left:45px;
+     }
+     .hangout-button{
+        margin-top: 5px;
+     }
 </style>
 %if course:
   <%include file="/courseware/course_navigation.html" args="active_page='people'" />
@@ -272,6 +306,24 @@ padding-bottom:50px !important;
             <div class="people_tit">People</div>
           %endif
           %for profile in profiles:
+
+            <%
+              usr = User.objects.get(id=profile['user_id'])
+              utc_month=datetime.datetime.utcnow().strftime("%m")
+              utc_day=datetime.datetime.utcnow().strftime("%d")
+              utc_h=datetime.datetime.utcnow().strftime("%H")
+              utc_m=datetime.datetime.utcnow().strftime("%M")
+              d_min = 60*int(utc_h) + int(utc_m)
+              if usr.profile.last_activity:
+                u=usr.profile.last_activity
+                u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
+                close = int(d_min) - int(u_min) < 1
+                active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
+              else:
+                active_recent = False
+              endif
+            %>
+
           %if profile['is_active']=='0':
           <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
@@ -280,9 +332,9 @@ padding-bottom:50px !important;
             <span class="name_container2">
               <span class="full_name">
                 <span style="color:rgb(52, 97, 173);line-height:100%" onclick="return false;">This user is not available for now.</span>
-              </span> 
+              </span>
             </span>
-          </div>            
+          </div>
           %else:
           <div id="" style="height:130px;" class="people_content">
             <span class="head_photo" style="background:transparent;">
@@ -306,9 +358,7 @@ padding-bottom:50px !important;
                   ${district.name}
                 %endif
               </span>
-              %if 0:
-              <span class="name_text" style="color:#DC9926;font-weight:bold;">Online Now!</span>              
-              %endif
+
             </span>
             %if request.user.id in profile['people_of']:
             <div class="btn_container btn_container_del">
@@ -317,13 +367,27 @@ padding-bottom:50px !important;
                 <div>In My Network</div>
               </a>
               <a class="button-del" onclick="del_people('${profile['user_id']}',this);return false;"></a>
-              <a href="#show_personalmessage" rel="leanModal">
-                  <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
-                    <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
-                    <div id="" style="display:none;"></div>
-                  </div>
+
+
+              <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
+                %if active_recent:
+                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}', '${usr.profile.skype_username}', '${usr.email}')">
+                  <img src="/static/images/online-3.png" width="50px" height="50px" class="" alt="" />
                 </a>
+                %endif
+                  %if not active_recent:
+                      <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+                      <div class="message_board_btn" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+                        <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                        <div id="" style="display:none;"></div>
+                      </div>
+                    </a>
+                  %endif
+
               </div>
+
+
+            </div>
             %else:
             <div class="btn_container btn_container_add">
               <a href="#" class="button_default button-ondark button-icon icon icon-add button-status"
@@ -331,12 +395,22 @@ padding-bottom:50px !important;
                 <div>Add to My Network</div>
               </a>
               <a class="button-del"></a>
-              <a href="#show_personalmessage" rel="leanModal">
-                <div class="message_board_btn" style="width:50px;height:50px;padding-top:20px;padding-left:75px;" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
-                  <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
-                  <div id="" style="display:none;"></div>
-                </div>
-              </a>
+              <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
+                %if active_recent:
+                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}', '${usr.profile.skype_username}', '${usr.email}')">
+                  <img src="/static/images/online-3.png" class="" alt="" width="50" height="50"/>
+                </a>
+                %endif
+                  %if not active_recent:
+                      <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+                          <div class="message_board_btn" data-fullname="${profile['first_name']} ${profile['last_name']}" data-name="${profile['username']}" data-id="${profile['user_id']}" onclick="imessage_click(this);">
+                            <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+                            <div id="" style="display:none;"></div>
+                          </div>
+                        </a>
+                  %endif
+
+              </div>
             </div>
             %endif
           </div>
@@ -401,6 +475,11 @@ padding-bottom:50px !important;
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
+    $(document).ready(function(){
+       $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+    });
   $("#text_pre_page").val("${pager['size']}")
     $("#text_pre_page").bind('change', function(e){
       var f=$("#search_form");
@@ -479,4 +558,75 @@ padding-bottom:50px !important;
     userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
     message_board(userInfo);
   }
+</script>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 style="padding:20px;display:block;text-align:center;" id="dlg-name-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div style="color:#000;text-align:center;padding:10px;">
+      <img src="" class="" alt="" id="dlg-user-photo" width="110"/><br/>
+      <div style="display:inline-block;vertical-align:bottom;">
+        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
+        %for profile in profiles:
+            <%
+              usr = User.objects.get(id=profile['user_id'])
+            %>
+            <span class='hangout-profile-span' id="hangout_span_${usr.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${usr.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
+        %endfor
+      </div>
+      <div style="display:inline-block;vertical-align:bottom;">
+        <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
+        <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
+      </div><br><br>
+        <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
+          <div class="message_board_btn" id="online_popup_data" data-fullname="" data-name="" data-id="" onclick="imessage_click(this);">
+            <img src="/static/images/ppd-iMessage-none.jpg" width="50" height="50"/>
+            <div id="" style="display:none;"></div>
+          </div>
+        </a>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  var main_dlg=null;
+  function show_active_user(id, fname, lname,uname, skype, email){
+    $("#dlg-name-title").html(fname+" "+lname);
+    $("#dlg-user-photo").attr("src", "/user_photo/"+id);
+    $("#skype-online-username").attr("href", "skype:"+skype+"?call")
+    $("#online_popup_data").attr("data-fullname", fname + " " + lname);
+    $(".hangout-profile-span").hide();
+    $("#hangout_span_"+id).show();
+    $("#online_popup_data").attr("data-id", id);
+    $("#online_popup_data").attr("data-name", uname);
+    main_dlg=new Dialog($('#dialog'));
+    main_dlg.show("Error", "");
+    return false;
+  }
+  $('#skype-start').click(function(e) {
+    e.preventDefault();
+    if(main_dlg)main_dlg.hide();
+    var dialog = new Dialog('#skype-dialog');
+    dialog.showOverlay();
+    dialog.$ei.fadeIn(200);
+    $('#create-skype').click(function() {
+      var participants = $("input[name='skype-participants']").val().split(/, ?/);
+      var topic = $("input[name='skype-topic']").val();
+      var skype_params = {
+        name: "call",
+        element: "SkypeButton_Call_" + participants[0] + "_1",
+        participants: participants,
+        imageSize: 24,
+        imageColor: "skype",
+        video: "true",
+        topic: topic
+      };
+      $('.skype-container').attr('id', "SkypeButton_Call_" + participants[0] + "_1");
+      startSkype(skype_params);
+    });
+  });
 </script>
