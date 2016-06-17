@@ -239,8 +239,13 @@ import datetime
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
+          %for u in users:
+          <%
+            use = u.user
+          %>
+             <span class="hangout-span" id="hangout_span_${use.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${use.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
+          %endfor
         <div id="google_hangout"></div>
-        <div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'pcgedu@pepperpd.com', invite_type:'EMAIL'}]"></g:hangout></div>
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
@@ -703,7 +708,8 @@ import datetime
         $(".circle").click(function(event){
             event.preventDefault();
             scroll(0,0);
-            $("#google_hangout").html("<g:hangout render=\"createhangout\" id=\"google_hangout\" invites=\"[{id:'"+$(this).attr("data-email")+"', invite_type:'EMAIL'}]\"></g:hangout>");
+            $(".hangout-span").hide();
+            $("#hangout_span_"+$(this).data('id')).show();
             $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
             $("#skype-online-name").text("");
             $("#skype-name-exists").text("Begin a call with: ");
