@@ -1748,6 +1748,14 @@ def confirm_email_change(request, key):
         transaction.rollback()
         raise
 
+
+@ensure_csrf_cookie
+def change_skype_name(request):
+    user = UserProfile.objects.get(user_id=request.user.id)
+    user.skype_username = request.POST['username']
+    user.save()
+    return HttpResponse(json.dumps({'success?': True}))
+
 @ensure_csrf_cookie
 def change_name_request(request):
     """ Log a request for a new name. """
@@ -2312,7 +2320,7 @@ def get_pepper_stats(request):
     if pd_time_tmp:
         pd_time = pd_time_tmp[0]['credit_sum'] * 3600
     #@end
-    
+
     if user.is_superuser:
         course_times = {course.id: 0 for course in courses}
 
