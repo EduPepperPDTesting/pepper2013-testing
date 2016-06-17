@@ -272,6 +272,10 @@ class UserProfile(models.Model):
     sso_idp = models.CharField(blank=True, max_length=255, null=True)
     sso_user_id = models.CharField(blank=True, max_length=255, null=True)
 
+    skype_username = models.CharField(blank=True, max_length=255, null=True)
+
+    last_activity = models.DateTimeField(auto_now_add=False, db_index=False, null=True)
+
     # [03/21/2013] removed these, but leaving comment since there'll still be
     # p_se and p_oth in the existing data in db.
     # ('p_se', 'Doctorate in science or engineering'),
