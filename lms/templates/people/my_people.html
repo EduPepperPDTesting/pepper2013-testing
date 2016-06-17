@@ -52,6 +52,7 @@
 <%inherit file="/main.html" />
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -311,7 +312,7 @@
           <a class="button-del" style="cursor:pointer;" onclick="del_people('${profile['user_id']}');return false;"></a>
           <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
             %if active_recent:
-            <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}')">
+            <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${user.profile.skype_name}')">
               <img src="/static/images/online-3.png" class="" alt="" width="50" height="50"/>
             </a> 
             %endif
@@ -435,11 +436,16 @@
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button hangout-button">Join Hangout</a>
+        %for profile in profiles:
+            <%
+              usr = User.objects.get(id=profile['user_id'])
+            %>
+            <span class='hangout-profile-span' id="hangout_span_${usr.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${usr.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
+        %endfor
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
-        <a href="#" id="skype-start" class="side-button blue-button skype-button">Start Skype Call</a>
+        <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
       </div>
     </div>
   </div>
@@ -480,8 +486,11 @@
         });
     });
   var main_dlg=null;
-  function show_active_user(id, fname, lname){
+  function show_active_user(id, fname, lname, skype){
     $("#dlg-name-title").html(fname+" "+lname);
+    $("#skype-online-username").attr("href", "skype:"+skype+"?call");
+    $(".hangout-profile-span").hide();
+    $("#hangout_span_"+id).show();
     $("#dlg-user-photo").attr("src", "/user_photo/"+id);
     main_dlg=new Dialog($('#dialog'));
     main_dlg.show("Error", "");
