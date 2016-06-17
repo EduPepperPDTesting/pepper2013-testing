@@ -9,7 +9,7 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         # Adding unique constraint on 'District', fields ['code']
-        db.create_unique('district', ['code'])
+        #db.create_unique('district', ['code'])
 
         # Adding field 'UserProfile.last_activity'
         db.add_column('auth_userprofile', 'last_activity',
@@ -19,7 +19,7 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         # Removing unique constraint on 'District', fields ['code']
-        db.delete_unique('district', ['code'])
+        #db.delete_unique('district', ['code'])
 
         # Deleting field 'UserProfile.last_activity'
         db.delete_column('auth_userprofile', 'last_activity')
@@ -99,7 +99,7 @@ class Migration(SchemaMigration):
         },
         'student.district': {
             'Meta': {'object_name': 'District', 'db_table': "'district'"},
-            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'unique': 'True', 'max_length': '50', 'blank': 'True'}),
+            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'state': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.State']", 'on_delete': 'models.PROTECT'})
