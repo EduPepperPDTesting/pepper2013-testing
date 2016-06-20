@@ -4,10 +4,12 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
+import re
 import logging
+import datetime
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityCommunities, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies
+from .models import CommunityComments, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
 from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
@@ -744,6 +746,7 @@ def community_edit_process(request):
             logo = None
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
+        priority_id = request.POST.get('priority_id',0)
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_array(request.POST, 'course')
         resource_names = get_post_array(request.POST, 'resource_name')
@@ -764,6 +767,7 @@ def community_edit_process(request):
         community_object.private = int(private)
         community_object.district = district
         community_object.state = state
+        community_object.discussion_priority = int(priority_id)
         community_object.save()
 
         # Load the main user object for the facilitator user.
@@ -797,12 +801,24 @@ def community_edit_process(request):
         else:
             raise Exception('A valid facilitator is required to create a community.')
 
+        # Init lists for notification
+        _courses_add = []
+        _courses_del = list(CommunityCourses.objects.filter(community=community_object).values_list('course', flat=True))
+        _resources_add = []
+        _resources_del = list(CommunityResources.objects.filter(community=community_object).values_list('links', flat=True))
+
         # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
         CommunityCourses.objects.filter(community=community_object).delete()
         # Go through the courses and add them to the DB.
         for key, course in courses.iteritems():
             # We only want to save an entry if there's something in it.
             if course:
+                # Record notification about modify courses
+                if course in _courses_del:
+                    _courses_del = filter(lambda a: a != course, _courses_del)
+                else:
+                    _courses_add.append(course)
+                # Assign properties
                 course_object = CommunityCourses()
                 course_object.community = community_object
                 course_object.course = course
@@ -814,6 +830,12 @@ def community_edit_process(request):
         for key, resource_link in resource_links.iteritems():
             # We only want to save an entry if there's something in it.
             if resource_link:
+                # Record notification about modify resources
+                if resource_link in _resources_del:
+                    _resources_del = filter(lambda a: a != resource_link, _resources_del)
+                else:
+                    _resources_add.append(resource_link)
+                # Assign properties
                 resource_object = CommunityResources()
                 resource_object.community = community_object
                 resource_object.link = resource_link
@@ -837,6 +859,8 @@ def community_edit_process(request):
                 if logo:
                     resource_object.logo = logo
                 resource_object.save()
+
+        send_notification(request.user, _courses_add, _courses_del, _resources_add, _resources_del)
 
         return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
@@ -889,3 +913,227 @@ def user_in_community(community_id, user_id):
             return False
     except:
         return False
+
+
+def get_full_likes(request):
+    comment_id = request.POST.get('comment')
+    post_id = request.POST.get('post')
+    html = "<table>"
+    if comment_id != '':
+        likes = CommunityLikes.objects.filter(comment__id=comment_id)
+    else:
+        likes = CommunityLikes.objects.filter(post__id=post_id)
+    for like in likes:
+        html += " <tr><td><img src='"+reverse('user_photo', args=[like.user.id])+"' width='24px'></img></td><td>"+like.user.first_name + " " + like.user.last_name + "</td></tr>"
+    html += "</table>"
+    return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
+
+
+def get_posts(request):
+    size=request.POST.get('size')
+    c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    html = ""
+    posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
+    id=-1
+    usr_img=reverse('user_photo', args=[request.user.id])
+    for post in posts:
+        img = reverse('user_photo', args=[post.user.id])
+        active = active_recent(post.user)
+        id=post.user.first_name
+        comments = CommunityComments.objects.filter(post=post)
+        likes = CommunityLikes.objects.filter(post=post, comment=None)
+        user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
+        html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
+        if active and not (request.user == post.user):
+            html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+            if post.user.profile.skype_username:
+                skype_username = post.user.profile.skype_username
+            else:
+                skype_username = "Not Set."
+            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+        else:
+           html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
+
+        if len(likes) > 0:
+            like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.jpg' class='like-button-image'></img>"
+            if user_like == 1:
+                like_text += "You, "
+            if len(likes) > 2:
+                for like in likes[:2]:
+                    if like.user.username != request.user.username:
+                        like_text += like.user.username+", "
+                if len(likes) == 3 and user_like == 1:
+                    like_text = like_text[:-2]
+                else:
+                    like_text += " and " + str(len(c_likes)-2) + "more."
+            else:
+                for like in likes:
+                    if like.user.username != request.user.username:
+                        like_text += like.user.username + ", "
+                like_text = like_text[:-2]
+            like_text += "</a>"
+        else:
+            like_text = ""
+        if user_like == 1:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
+        else:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
+        html+="<a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
+        for comment in comments:
+            active = active_recent(comment.user)
+            c_likes = CommunityLikes.objects.filter(comment=comment)
+            c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
+            comment_img = reverse('user_photo', args=[comment.user.id])
+            c_like_html=""
+            html+="<table><tr><td>"
+            if c_user_like == 1:
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
+            else:
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+            if len(c_likes) > 0:
+                like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.jpg' class='like-button-image'></img>"
+                if c_user_like == 1:
+                    like_text += "You, "
+                if len(c_likes) > 2:
+                    for like in c_likes[:2]:
+                        if like.user.username != request.user.username:
+                            like_text += like.user.username+", "
+                    if len(c_likes) == 3 and c_user_like == 1:
+                        like_text = like_text[:-2]
+                    else:
+                        like_text += " and " + str(len(c_likes)-2) + "more."
+                else:
+                    for like in c_likes:
+                        if like.user.username != request.user.username:
+                            like_text += like.user.username + ", "
+                    like_text = like_text[:-2]
+                like_text += "</a>"
+            else:
+                like_text = ""
+            if active and not (request.user == post.user):
+                html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+                if comment.user.profile.skype_username:
+                    skype_username = comment.user.profile.skype_username
+                else:
+                    skype_username = "Not Set."
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+            else:
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
+        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
+        html+="</td></tr>"
+    return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def submit_new_comment(request):
+    comment = CommunityComments()
+    comment.post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    comment.user = User.objects.get(id=request.user.id)
+    comment.comment = request.POST.get('content')
+    comment.save()
+    return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
+
+
+def submit_new_like(request):
+    pid=request.POST.get('post_id')
+    comment = None
+    post = None
+    try:
+        post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    except:
+        None
+    try:
+        comment = CommunityComments.objects.get(id=request.POST.get('comment_id'))
+    except:
+        None
+    if post:
+        found=len(CommunityLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    else:
+        found=len(CommunityLikes.objects.filter(comment=comment, user__id=request.POST.get('user_id')))
+    if found == 1:
+        CommunityLikes.objects.filter(post=post, comment=comment, user__id=request.user.id).delete()
+        return HttpResponse(json.dumps({'Success': 'True', 'Liked':'Removed'}), content_type='application/json')
+    else:
+        like = CommunityLikes()
+        if comment:
+            like.comment = comment
+        if post:
+            like.post = post
+        like.user = User.objects.get(id=request.user.id)
+        like.save()
+        return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
+
+
+def check_content_priority(request):
+    community = CommunityCommunities.objects.filter(id=request.POST.get('community_id'))
+    return HttpResponse(json.dumps({'Success': 'True',  'result': community[0].discussion_priority}), content_type='application/json')
+
+
+def submit_new_post(request):
+    post = CommunityPosts()
+    post.community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    post.user = User.objects.get(id=request.user.id)
+    post.post = request.POST.get('post')
+    post.save()
+    return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def lookup_name(request):
+    name = request.POST.get("name").split()
+    if len(name) > 1:
+        fname = name[0]
+        lname = name[1]
+    else:
+        fname = name[0]
+        lname = ""
+    users = User.objects.filter(first_name__istartswith=fname).filter(last_name__istartswith=lname)
+    str = []
+    for user in users:
+        str.append(user.first_name + " " + user.last_name)
+    return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
+
+
+def filter_at(content):
+    at = content.find("@")
+    final = content
+    tests=" Tests: "
+    if at >= 0:
+        string = content[at:]
+        while string.find("@") > -1:
+            s=string[1:]
+            x=s.find("@")
+            try:
+                if x > -1:
+                    working = s[:x].split(' ', 2)
+                else:
+                    working = s.split(' ', 2)
+                working[1] = re.sub('[!.?,:)(]', '', working[1])
+                try:
+                    user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
+                    addition = "<a class='in-comment-link' target='_blank' href = '../dashboard/"+str(user.id)+"'>"+working[0]+" "+working[1]+"</a>"
+                    final=final.replace("@"+working[0]+" "+working[1], addition)
+                except Exception as e:
+                    tests+="Failed: "+str(e)
+            except:
+                None
+            string = s[x:]
+    return final
+
+def active_recent(user):
+    use = user
+    utc_month=datetime.datetime.utcnow().strftime("%m")
+    utc_day=datetime.datetime.utcnow().strftime("%d")
+    utc_h=datetime.datetime.utcnow().strftime("%H")
+    utc_m=datetime.datetime.utcnow().strftime("%M")
+    d_min = 60*int(utc_h) + int(utc_m)
+    if use.profile.last_activity:
+        usr=use.profile.last_activity
+        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+        close = int(d_min) - int(u_min) < 1
+        active = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+    else:
+        active = False
+    return active

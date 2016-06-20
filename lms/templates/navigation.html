@@ -372,7 +372,7 @@
         %if curr_user==request.user:
         <ol class="user admin" >
             %if show_extended:
-                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]:
+                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message", "communities_notification_config"]:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
@@ -403,6 +403,7 @@
                         %if check_user_perms(curr_user, 'alert_message'):
                             <li><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
+                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>    
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {

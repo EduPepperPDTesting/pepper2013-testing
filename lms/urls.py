@@ -18,26 +18,41 @@ urlpatterns = (
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
+    
+    # === notification config begin ===
+    url(r'^confignotification/$', 'communities.notification.configuration', name="communities_notification_index"),
+    url(r'^communities/notification/groups$', 'communities.notification.groups', name="communities_notification_groups"),
+    url(r'^communities/notification/all_groups$', 'communities.notification.all_groups', name="communities_notification_all_groups"),
+    url(r'^communities/notification/types$', 'communities.notification.types', name="communities_notification_types"),
+    url(r'^communities/notification/groups/save$', 'communities.notification.save_group', name="communities_notification_save_group"),
+    url(r'^communities/notification/types/save$', 'communities.notification.save_type', name="communities_notification_save_type"),
 
+    url(r'^communities/notification/groups/delete$', 'communities.notification.delete_group', name="communities_notification_delete_group"),
+    url(r'^communities/notification/types/delete$', 'communities.notification.delete_type', name="communities_notification_delete_type"),
+
+    url(r'^communities/notification/groups/edit$', 'communities.notification.edit_group', name="communities_notification_edit_group"),
+    url(r'^communities/notification/types/edit$', 'communities.notification.edit_type', name="communities_notification_edit_type"),
+
+    url(r'^communities/notification/config$', 'communities.notification.config', name="communities_notification_config"),
+    url(r'^communities/notification/config_other$', 'communities.notification.config_other', name="communities_notification_config_other"),
+    url(r'^communities/notification/configs/save$', 'communities.notification.save_config', name="communities_notification_save_config"),
+        url(r'^communities/notification/configs/saveother$', 'communities.notification.save_other_config', name="communities_notification_save_other_config"),
+    # === notification config end ===
+    
     # === sso begin ===
     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
-
     # edit idp
     url(r'^sso/idp_metadata/edit/$', 'sso.idp_metadata.edit', name="sso_idp_metadata_edit"),
     url(r'^sso/idp_metadata/all_json/$', 'sso.idp_metadata.all_json', name="sso_idp_metadata_all_json"),
     url(r'^sso/idp_metadata/save/$', 'sso.idp_metadata.save', name="sso_idp_metadata_save"),
-
     # edit sp
     url(r'^sso/sp_metadata/edit/$', 'sso.sp_metadata.edit', name="sso_sp_metadata_edit"),
     url(r'^sso/sp_metadata/all_json/$', 'sso.sp_metadata.all_json', name="sso_sp_metadata_all_json"),
     url(r'^sso/sp_metadata/save/$', 'sso.sp_metadata.save', name="sso_sp_metadata_save"),
-
     url(r'^sso/sp_metadata/download/saml_federation_metadata$',
         'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
-
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
-
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
     # === sso end ===
 

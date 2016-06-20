@@ -490,10 +490,12 @@ Dialog.prototype.show=function(title,content){
     if((typeof content) != "undefined")
         this.setContent(content);
     this.$ei.fadeIn(200);
+    return this;
 };
 Dialog.prototype.lift=function(n){
     this.$overlay.css('z-index',this.$overlay.css('z-index')+n);
     this.$ei.css('z-index',this.$ei.css('z-index')+n);
+    return this;
 };
 Dialog.prototype.showOverlay=function(){
     if(!this.$overlay){
@@ -501,24 +503,29 @@ Dialog.prototype.showOverlay=function(){
         this.$overlay.appendTo(document.body);
     }
     this.$overlay.css('display','block');
+    return this;
 };
 Dialog.prototype.hideOverlay=function(){
     if(this.$overlay){
         this.$overlay.remove();
         this.$overlay=null;
     }
+    return this;
 };
 Dialog.prototype.hide=function(){
     this.$ei.css('display','none');
     this.hideOverlay();
     this.$ei.trigger("hide");
+    return this;
 };
 Dialog.prototype.setTitle=function(title){
     this.$ei.find('.dialog-title').html(title);
+    return this;
 };
 Dialog.prototype.setContent=function(content){
     this.$ei.find('.content').html("");
-    this.$ei.find('.content').append(content);  
+    this.$ei.find('.content').append(content);
+    return this;
 };
 Dialog.prototype.showYesNo=function(title,content,callback){
     var self=this;
@@ -531,11 +538,13 @@ Dialog.prototype.showYesNo=function(title,content,callback){
     $("<input type='button' value='No'>").appendTo($buttons).click(function(){
         callback.apply(self,[false]);
     });
+    return this;
 };
 Dialog.prototype.showProgress=function(title,content,name){
     var self=this;
     this.show(title,content);
     this.addProgress(name);
+    return this;
 };
 Dialog.prototype.addProgress=function(name){
     var self=this;
@@ -559,6 +568,7 @@ Dialog.prototype.addProgress=function(name){
         return ret;
     };
     set($progress,0);
+    return this;
 };
 Dialog.prototype.showButtons=function(title,content,labels,callback){
     var self=this;
@@ -570,6 +580,7 @@ Dialog.prototype.showButtons=function(title,content,labels,callback){
             callback.apply(self,[i]);
         });  
     });
+    return this;
 };
 Dialog.prototype.isOn=function(){
     return !this.$ei.is(":hidden");
