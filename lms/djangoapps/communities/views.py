@@ -911,7 +911,7 @@ def get_posts(request):
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
         else:
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
-        html+="<a data-id='"+str(post.id)+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br><div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br><div class='comment-section'>"
         for comment in comments:
             c_likes = len(CommunityLikes.objects.filter(comment=comment))
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
@@ -919,12 +919,12 @@ def get_posts(request):
             c_like_html=""
             html+="<table><tr><td>"
             if c_user_like == 1:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(c_likes)+"</a>"
             else:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(c_likes)+"</a><br>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(c_likes)+"</a>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a></td></tr></table>"
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a></td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
