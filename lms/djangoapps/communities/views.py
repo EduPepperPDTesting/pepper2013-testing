@@ -891,6 +891,20 @@ def user_in_community(community_id, user_id):
         return False
 
 
+def get_full_likes(request):
+    comment_id = request.POST.get('comment')
+    post_id = request.POST.get('post')
+    html = "<table>"
+    if comment_id != '':
+        likes = CommunityLikes.objects.filter(comment__id=comment_id)
+    else:
+        likes = CommunityLikes.objects.filter(post__id=post_id)
+    for like in likes:
+        html += " <tr><td><img src='"+reverse('user_photo', args=[like.user.id])+"' width='24px'></img></td><td>"+like.user.first_name + " " + like.user.last_name + "</td></tr>"
+    html += "</table>"
+    return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
+
+
 def get_posts(request):
     size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
@@ -902,29 +916,70 @@ def get_posts(request):
         img = reverse('user_photo', args=[post.user.id])
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
-        likes = len(CommunityLikes.objects.filter(post=post, comment=None))
+        likes = CommunityLikes.objects.filter(post=post, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
-        html+="<img src='"+img+"' class='post-profile-image'></img></td><td class='post-content-right'>"
+        html+="<img src='"+img+"' class='post-profile-image' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
         html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
-        if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
+
+        if len(likes) > 0:
+            like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.jpg' class='like-button-image'></img>"
+            if user_like == 1:
+                like_text += "You, "
+            if len(likes) > 2:
+                for like in likes[:2]:
+                    if like.user.username != request.user.username:
+                        like_text += like.user.username+", "
+                if len(likes) == 3 and user_like == 1:
+                    like_text = like_text[:-2]
+                else:
+                    like_text += " and " + str(len(c_likes)-2) + "more."
+            else:
+                for like in likes:
+                    if like.user.username != request.user.username:
+                        like_text += like.user.username + ", "
+                like_text = like_text[:-2]
+            like_text += "</a>"
         else:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(likes)+"</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br><div class='comment-section'>"
+            like_text = ""
+        if user_like == 1:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
+        else:
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br>"+like_text+"<div class='comment-section'>"
         for comment in comments:
-            c_likes = len(CommunityLikes.objects.filter(comment=comment))
+            c_likes = CommunityLikes.objects.filter(comment=comment)
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
             c_like_html=""
             html+="<table><tr><td>"
             if c_user_like == 1:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>"+str(c_likes)+"</a>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
             else:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>"+str(c_likes)+"</a>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+            if len(c_likes) > 0:
+                like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.jpg' class='like-button-image'></img>"
+                if c_user_like == 1:
+                    like_text += "You, "
+                if len(c_likes) > 2:
+                    for like in c_likes[:2]:
+                        if like.user.username != request.user.username:
+                            like_text += like.user.username+", "
+                    if len(c_likes) == 3 and c_user_like == 1:
+                        like_text = like_text[:-2]
+                    else:
+                        like_text += " and " + str(len(c_likes)-2) + "more."
+                else:
+                    for like in c_likes:
+                        if like.user.username != request.user.username:
+                            like_text += like.user.username + ", "
+                    like_text = like_text[:-2]
+                like_text += "</a>"
+            else:
+                like_text = ""
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a></td></tr></table>"
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
