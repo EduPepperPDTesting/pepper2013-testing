@@ -163,6 +163,12 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         "user_name": {
             "$push": "$user_name"
         },
+        "first_name": {
+            "$push": "$first_name"
+        },
+        "last_name": {
+            "$push": "$last_name"
+        },
         "state": {
             "$push": "$state"
         },
@@ -240,6 +246,12 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
         },
         "user_name": {
             "$arrayElemAt": ["$user_name", 0]
+        },
+        "first_name": {
+            "$arrayElemAt": ["$first_name", 0]
+        },
+        "last_name": {
+            "$arrayElemAt": ["$last_name", 0]
         },
         "state": {
             "$arrayElemAt": ["$state", 0]

@@ -25,8 +25,11 @@ db.student_courseenrollment.aggregate({
         email: {
             $arrayElemAt: ['$user_info.email', 0]
         },
-        user_name: {
-            $arrayElemAt: ['$user_info.username', 0]
+        first_name: {
+            $arrayElemAt: ['$user_info.first_name', 0]
+        },
+        last_name: {
+            $arrayElemAt: ['$user_info.last_name', 0]
         },
         state: {
             $arrayElemAt: ['$user_info.state', 0]
@@ -107,6 +110,8 @@ db.student_courseenrollment.aggregate({
         user_progress: 1,
         email: 1,
         user_name: 1,
+        first_name: 1,
+        last_name: 1,
         state: 1,
         district: 1,
         school: 1,
@@ -222,6 +227,8 @@ db.student_courseenrollment.aggregate({
         course_id: 1,
         email: 1,
         user_name: 1,
+        first_name: 1,
+        last_name: 1,
         state: 1,
         district: 1,
         school: 1,

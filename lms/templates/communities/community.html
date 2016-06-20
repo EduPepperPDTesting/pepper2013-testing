@@ -657,6 +657,9 @@ import datetime
             });
             $(".post-comment-text").click(function(){
                 id=$(this).data('id');
+                if($(this).data('name') != ''){
+                    $("#focus"+id).val("@"+$(this).data('name'));
+                }
                 $("#focus"+id).focus();
             });
             $(".comment-like-text").click(function(){
@@ -671,6 +674,10 @@ import datetime
                     $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
                         getPosts();
                     });
+                    var datainfo={'info':JSON.stringify({'user_id':4,'interviewer_id':4,'interviewer_name':'mike','type':'add_network','location':'/dashboard/','course_number':4,'date':(new Date()).toISOString(),'activate':'false'})}
+                    $.post("${reverse('save_interactive_update')}",datainfo,function(){});
+
+
                 }
             });
         });
