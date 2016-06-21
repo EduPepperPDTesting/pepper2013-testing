@@ -744,6 +744,7 @@ def community_edit_process(request):
             logo = None
         facilitator = request.POST.get('facilitator', '')
         private = request.POST.get('private', 0)
+        priority_id = request.POST.get('priority_id',0)
         # These all have multiple values, so we'll use the get_post_array function to grab all the values.
         courses = get_post_array(request.POST, 'course')
         resource_names = get_post_array(request.POST, 'resource_name')
@@ -764,6 +765,7 @@ def community_edit_process(request):
         community_object.private = int(private)
         community_object.district = district
         community_object.state = state
+        community_object.discussion_priority = int(priority_id)
         community_object.save()
 
         # Load the main user object for the facilitator user.

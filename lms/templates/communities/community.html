@@ -216,9 +216,6 @@ import datetime
                         <a href="#" id="skype-start" class="side-button blue-button">Start Skype Call</a>
                     </div>
                 %endif
-                %if request.user.is_superuser or is_facilitator(request.user, community):
-                    <a href="#" id="priority_button" class="side-button green-button">Set Discussion Priority</a>
-                %endif
             </div>
         </div>
     </section>
@@ -721,34 +718,7 @@ import datetime
                 getPosts();
             }
         });
-        var change_var = 0;
-        $.post("${reverse('community_check_content_priority')}", {community_id: ${community.id}}, function (data){4
-           if(data.result==0){
-                $("#community_content_discussions").hide();
-                $("#community_content_header_posts").addClass("selected");
-                $("#community_content_header_discussions").removeClass("selected");
-                $("#priority_button").html("Set Discussion Priority");
-                change_var = 1;
-           }else{
-                $("#community_content_posts").hide();
-                $("#community_content_header_posts").removeClass("selected");
-                $("#community_content_header_discussions").addClass("selected");
-                $("#priority_button").html("Set Post Priority");
-                change_var = 0;
-           }
-        });
-        $("#priority_button").click(function(e){
-            e.preventDefault();
-            $.post("${reverse('community_change_content_prioirty')}", {community_id: ${community.id}, priority_id: change_var}, function(data){
-                if(change_var == 1){
-                    $("#priority_button").html("Set Post Priority");
-                    change_var = 0;
-                } else{
-                    $("#priority_button").html("Set Discussion Priority");
-                    change_var = 1;
-                }
-            });
-        });
+
         //$("#community_content_discussions").hide();
         $("#community_content_header_posts").click(function(){
             $("#community_content_discussions").hide();
