@@ -1004,7 +1004,7 @@ Add info that you would like to share about yourself here:
                <!-- hide email settings -->
               <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
-              -->
+
               % if course.hide_timer == False:
                 % if course.show_external_timer == False:
                   <div class="course-time" time_type="course" course_id="${course.id}">Course Time: <span></span></div>
@@ -1012,6 +1012,20 @@ Add info that you would like to share about yourself here:
                   <div class="course-time" time_type="external" course_id="${course.id}">External Time: <span></span></div>
                 % endif
               % endif
+              -->
+          <!--20160621 change to current year course time and total_time-->
+          <!--begin-->
+          % if course.hide_timer == False:
+              <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                  % if course.show_external_timer == False:
+                      <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:0px;"><b>Current Year</b> Course Time: <span></span></div>
+                  % else:
+                      <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:0px;"><b>Current Year</b> External Time: <span></span></div>
+                  % endif
+                  <div class="total-course-time" course_id="${course.id}" style="margin-top:15px;"><b>Total</b> Course Time: <span></span></div>
+              </div>
+          % endif
+          <!--end-->
 	    % endif
            %endif
           </section>

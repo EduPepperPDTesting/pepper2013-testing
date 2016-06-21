@@ -656,6 +656,11 @@
                      $(this).children('span').html(data.external_times[course_id]);
                    }
                  });
+    
+                 $(".total-course-time").each(function() {
+                    var course_id = $(this).attr('course_id');
+                    $(this).children('span').html(data.total_course_times[course_id]);
+                 });
                });
             }
         }

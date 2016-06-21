@@ -73,6 +73,11 @@ from django.db.models import Sum
 from administration.models import PepRegStudent
 #@end
 
+#@begin:change to current year course time and total_time
+#@date:2016-06-21
+from reporting.models import reporting_store
+#@end
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -446,6 +451,9 @@ def dashboard(request, user_id=None):
     external_time = 0
     external_times = {}
     exists = 0
+
+    total_course_times = {}
+
     # get none enrolled course count for current login user
     rts = record_time_store()
     if user_id != request.user.id:
@@ -530,8 +538,22 @@ def dashboard(request, user_id=None):
     exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
     if user.is_superuser:
         course_times = {course.id: 0 for course in courses}
+        total_course_times = {course.id: 0 for course in courses}
     else:
         course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+
+        #@begin:change to current year course time and total_time
+        #@date:2016-06-21
+        rs = reporting_store()
+        rs.set_collection('UserCourseView')
+        for course in courses:
+            results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+            total_time_user = 0
+            for v in results:
+                total_time_user = total_time_user + v['total_time']
+           
+            total_course_times[course.id] = study_time_format(total_time_user) 
+        #@end
 
     # get info w.r.t ExternalAuthMap
     external_auth_map = None
@@ -611,7 +633,8 @@ def dashboard(request, user_id=None):
         'external_times': external_times,
         'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
         'alert_text':al_text,
-        'alert_enabled':al_enabled
+        'alert_enabled':al_enabled,
+        'total_course_times':total_course_times
     }
 
     return render_to_response('dashboard.html', context)
@@ -2291,6 +2314,7 @@ def get_pepper_stats(request):
     external_time = 0
     external_times = {}
     orig_external_times = {}
+    total_course_times = {}
     rts = record_time_store()
 
     for enrollment in CourseEnrollment.enrollments_for_user(user):
@@ -2323,6 +2347,7 @@ def get_pepper_stats(request):
 
     if user.is_superuser:
         course_times = {course.id: 0 for course in courses}
+        total_course_times = {course.id: 0 for course in courses}
 
         course_time = 0
         discussion_time = 0
@@ -2345,13 +2370,26 @@ def get_pepper_stats(request):
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
         #@end
 
+        #@begin:change to current year course time and total_time
+        #@date:2016-06-21
+        rs = reporting_store()
+        rs.set_collection('UserCourseView')
+        for course in courses:
+            results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+            total_time_user = 0
+            for v in results:
+                total_time_user = total_time_user + v['total_time']
+           
+            total_course_times[course.id] = study_time_format(total_time_user) 
+        #@end
+
     context = {
         'all_course_time': study_time_format(all_course_time),
         'collaboration_time': study_time_format(collaboration_time),
         'total_time_in_pepper': study_time_format(total_time_in_pepper),
         'course_times': course_times,
         'external_times': external_times,
-        'totle_adjustment_time': study_time_format(adjustment_time_totle, True)
-
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
+        'total_course_times':total_course_times
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
