@@ -718,8 +718,21 @@ import datetime
                 getPosts();
             }
         });
+        var change_var = 0;
+        $.post("${reverse('community_check_content_priority')}", {community_id: ${community.id}}, function (data){4
+           if(data.result==0){
+                $("#community_content_discussions").hide();
+                $("#community_content_header_posts").addClass("selected");
+                $("#community_content_header_discussions").removeClass("selected");
+                change_var = 1;
+           }else{
+                $("#community_content_posts").hide();
+                $("#community_content_header_posts").removeClass("selected");
+                $("#community_content_header_discussions").addClass("selected");
+                change_var = 0;
+           }
+        });
 
-        //$("#community_content_discussions").hide();
         $("#community_content_header_posts").click(function(){
             $("#community_content_discussions").hide();
             $("#community_content_posts").show();

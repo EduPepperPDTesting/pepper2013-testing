@@ -1026,16 +1026,10 @@ def submit_new_like(request):
         return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
 
 
-def change_content_prioirty(request):
-    community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
-    community.discussion_priority = int(request.POST.get('priority_id'))
-    community.save()
-    return HttpResponse(json.dumps({'Success': 'True',  'result': community.discussion_priority}), content_type='application/json')
-
-
 def check_content_priority(request):
     community = CommunityCommunities.objects.filter(id=request.POST.get('community_id'))
     return HttpResponse(json.dumps({'Success': 'True',  'result': community[0].discussion_priority}), content_type='application/json')
+
 
 def submit_new_post(request):
     post = CommunityPosts()
