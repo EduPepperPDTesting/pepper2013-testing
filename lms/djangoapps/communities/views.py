@@ -948,7 +948,7 @@ def get_posts(request):
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
         else:
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br>"+like_text+"<div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             c_likes = CommunityLikes.objects.filter(comment=comment)
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
@@ -982,7 +982,7 @@ def get_posts(request):
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
             html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
-        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
+        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
 
@@ -1038,3 +1038,18 @@ def submit_new_post(request):
     post.post = request.POST.get('post')
     post.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def lookup_name(request):
+    name = request.POST.get("name").split()
+    if len(name) > 1:
+        fname = name[0]
+        lname = name[1]
+    else:
+        fname = name[0]
+        lname = ""
+    users = User.objects.filter(first_name__istartswith=fname).filter(last_name__istartswith=lname)
+    str = []
+    for user in users:
+        str.append(user.first_name + " " + user.last_name)
+    return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
