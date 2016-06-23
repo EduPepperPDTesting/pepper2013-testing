@@ -183,9 +183,7 @@
         filterLines();
         filterEnabler();
         submitHandler('#report-edit', function (data) {
-            // TODO: Disabling this for now, since this page isn't done yet. Will redirect to the main reports page for now.
-            //window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
-            window.location = '${reverse('reporting_reports')}';
+            window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
         }, function () {
             $('.error-box').removeClass('error-box');
             var valid = true;
