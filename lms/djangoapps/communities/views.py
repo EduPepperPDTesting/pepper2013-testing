@@ -1070,11 +1070,13 @@ def filter_at(content):
                 working = s.split(' ', 2)
 
             done = False
-            while not done:
+            safety=0
+            while not done or safety < 2:
                 if working[1][-1:].isnumeric() or working[1][-1:].isalpha():
                     done = True
                 else:
                     working[1] = working[1][:-1]
+                safety += 1
             try:
                 user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
                 addition = "<a class='in-comment-link' href = '../dashboard/"+str(user.id)+"'>@"+working[0]+" "+working[1]+"</a>"
