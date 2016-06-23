@@ -643,6 +643,7 @@ function saveOrderHandler() {
                 if (data.success) {
                     markClean();
                     checkCategoryStatus();
+                    alert('Category order saved successfully');
                 } else {
                     alert('There was a problem saving the order. The error was: ' + data.error);
                 }
