@@ -980,8 +980,8 @@ def get_posts(request):
             else:
                 like_text = ""
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
-            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
+            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
@@ -1053,3 +1053,26 @@ def lookup_name(request):
     for user in users:
         str.append(user.first_name + " " + user.last_name)
     return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
+
+
+def filter_at(content):
+    at = content.find("@")
+    final = content
+    tests=" Tests: "
+    if at >= 0:
+        string = content[at:]
+        while string.find("@") > -1:
+            s=string[1:]
+            x=s.find("@")
+            if x > -1:
+                working = s[:x].split(' ', 2)
+            else:
+                working = s.split(' ', 2)
+            try:
+                user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1][:-1])
+                addition = "<a class='in-comment-link' href = '../dashboard/"+str(user.id)+"'>@"+working[0]+" "+working[1]+"</a>"
+                final=final.replace("@"+working[0]+" "+working[1], addition)
+            except Exception as e:
+                tests+="Failed: "+str(e)
+            string = s[x:]
+    return final

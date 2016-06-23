@@ -657,13 +657,12 @@ import datetime
         var focused = $(':focus');
         var code = "<div id='select_name'>"
         for (i=0; i < data.length; i++){
-            code+="<a href='#' data-parent='"+focused.data('id')+"' data-content='"+data[i]+"' class='selection_name'>" + data[i] + "</a><br>";
+            code+="<div class='anchor-container-select selection_name' data-parent='"+focused.data('id')+"' data-content='"+data[i]+"'>" + data[i] + "</div>";
         }
         code+="</div>";
         $("#select_name").remove();
         focused.after(code);
         $(".selection_name").click(function(e){
-            e.preventDefault();
             var change = $(this).parent().prev();
             var str = change.val().substr(0, change.val().lastIndexOf("@")+1);
             change.val(str+$(this).data("content") + " ");
