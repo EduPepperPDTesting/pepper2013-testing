@@ -82,7 +82,7 @@ class ReportFilters(models.Model):
 
 class MongoReportingStore(object):
 
-    def __init__(self, host, db, port=37017, user=None, password=None,
+    def __init__(self, host, db, port=27018, user=None, password=None,
                  mongo_options=None, **kwargs):
 
         super(MongoReportingStore, self).__init__(**kwargs)

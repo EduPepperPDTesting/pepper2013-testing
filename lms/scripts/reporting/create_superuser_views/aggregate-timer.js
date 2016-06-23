@@ -1,4 +1,4 @@
-var db = connect("localhost:37017/reporting")
+var db = connect("localhost:27018/reporting")
 
 db.user_info.aggregate({
     $project: {
