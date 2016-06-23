@@ -184,12 +184,12 @@
                   <!--begin-->
                   % if course.hide_timer == False:
                       <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                          <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
                           % if course.show_external_timer == False:
-                              <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:0px;"><b>Current Year</b> Course Time: <span></span></div>
+                              <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
                           % else:
-                              <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:0px;"><b>Current Year</b> External Time: <span></span></div>
+                              <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
                           % endif
-                          <div class="total-course-time" course_id="${course.id}" style="margin-top:4px;"><b>Total</b> Course Time: <span></span></div>
                       </div>
                   % endif
                   <!--end-->
