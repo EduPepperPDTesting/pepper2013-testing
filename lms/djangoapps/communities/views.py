@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
+import re
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
@@ -1068,15 +1069,7 @@ def filter_at(content):
                 working = s[:x].split(' ', 2)
             else:
                 working = s.split(' ', 2)
-
-            done = False
-            safety=0
-            while not done or safety < 2:
-                if working[1][-1:].isnumeric() or working[1][-1:].isalpha():
-                    done = True
-                else:
-                    working[1] = working[1][:-1]
-                safety += 1
+            working[1] = re.sub('[!.?,:)(]', '', working[1])
             try:
                 user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
                 addition = "<a class='in-comment-link' href = '../dashboard/"+str(user.id)+"'>@"+working[0]+" "+working[1]+"</a>"
