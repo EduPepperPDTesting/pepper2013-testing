@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django_future.csrf import ensure_csrf_cookie
 import json
+import re
 import logging
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
@@ -948,7 +949,7 @@ def get_posts(request):
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
         else:
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a><br>"+like_text+"<div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             c_likes = CommunityLikes.objects.filter(comment=comment)
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
@@ -980,9 +981,9 @@ def get_posts(request):
             else:
                 like_text = ""
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
-            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+comment.comment+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.username+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
-        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><input type='text' class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></input></div>"
+            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
+        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
 
@@ -1038,3 +1039,42 @@ def submit_new_post(request):
     post.post = request.POST.get('post')
     post.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def lookup_name(request):
+    name = request.POST.get("name").split()
+    if len(name) > 1:
+        fname = name[0]
+        lname = name[1]
+    else:
+        fname = name[0]
+        lname = ""
+    users = User.objects.filter(first_name__istartswith=fname).filter(last_name__istartswith=lname)
+    str = []
+    for user in users:
+        str.append(user.first_name + " " + user.last_name)
+    return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
+
+
+def filter_at(content):
+    at = content.find("@")
+    final = content
+    tests=" Tests: "
+    if at >= 0:
+        string = content[at:]
+        while string.find("@") > -1:
+            s=string[1:]
+            x=s.find("@")
+            if x > -1:
+                working = s[:x].split(' ', 2)
+            else:
+                working = s.split(' ', 2)
+            working[1] = re.sub('[!.?,:)(]', '', working[1])
+            try:
+                user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
+                addition = "<a class='in-comment-link' href = '../dashboard/"+str(user.id)+"'>@"+working[0]+" "+working[1]+"</a>"
+                final=final.replace("@"+working[0]+" "+working[1], addition)
+            except Exception as e:
+                tests+="Failed: "+str(e)
+            string = s[x:]
+    return final
