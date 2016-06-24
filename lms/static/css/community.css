@@ -11,6 +11,13 @@
   position:absolute;
   right:0;
 }
+.smallcircle {
+  width: 18px;
+  height: 18px;
+  position:absolute;
+  right:6px;
+    top: 6px;  
+}
 .discussions{
     margin-top:10px;
 }
@@ -654,6 +661,7 @@ div.card-bottom table tr:nth-child(2) {
 }
 .post-content-left{
     width:80px;
+    position: relative;
 }
 .post-profile-image{
     width:72px;

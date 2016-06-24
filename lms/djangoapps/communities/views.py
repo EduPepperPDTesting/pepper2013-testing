@@ -6,6 +6,7 @@ from django_future.csrf import ensure_csrf_cookie
 import json
 import re
 import logging
+import datetime
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
 from .models import CommunityComments, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
@@ -917,12 +918,21 @@ def get_posts(request):
     usr_img=reverse('user_photo', args=[request.user.id])
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
+        active = active_recent(post.user)
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
-        html+="<img src='"+img+"' class='post-profile-image' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+        if active and not (request.user == post.user):
+            html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+            if post.user.profile.skype_username:
+                skype_username = post.user.profile.skype_username
+            else:
+                skype_username = "Not Set."
+            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+        else:
+           html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
         html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
 
         if len(likes) > 0:
@@ -1072,9 +1082,25 @@ def filter_at(content):
             working[1] = re.sub('[!.?,:)(]', '', working[1])
             try:
                 user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
-                addition = "<a class='in-comment-link' href = '../dashboard/"+str(user.id)+"'>@"+working[0]+" "+working[1]+"</a>"
+                addition = "<a class='in-comment-link' target='_blank' href = '../dashboard/"+str(user.id)+"'>"+working[0]+" "+working[1]+"</a>"
                 final=final.replace("@"+working[0]+" "+working[1], addition)
             except Exception as e:
                 tests+="Failed: "+str(e)
             string = s[x:]
     return final
+
+def active_recent(user):
+    use = user
+    utc_month=datetime.datetime.utcnow().strftime("%m")
+    utc_day=datetime.datetime.utcnow().strftime("%d")
+    utc_h=datetime.datetime.utcnow().strftime("%H")
+    utc_m=datetime.datetime.utcnow().strftime("%M")
+    d_min = 60*int(utc_h) + int(utc_m)
+    if use.profile.last_activity:
+        usr=use.profile.last_activity
+        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+        close = int(d_min) - int(u_min) < 1
+        active = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+    else:
+        active = False
+    return active

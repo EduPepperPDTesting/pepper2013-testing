@@ -727,8 +727,11 @@ import datetime
 
                 }
             });
-            $(".post-profile-image").hover(function(event) {
+            $(".hoverable-profile").hover(function(event) {
                 $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+                if ($(this).data("skype") !== undefined){
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img>"+$(this).data('skype'))
+                }
                 $("#user_info_div").css({top: event.clientY, left: event.clientX}).show();
             }, function() {
                 if(!$("#user_info_div").is(":hover"))
