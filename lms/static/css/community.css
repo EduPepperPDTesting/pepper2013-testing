@@ -151,7 +151,7 @@
 }
 #community-content-area h1 {
     color: #006EBF;
-    padding: 20px 3px;
+    padding: 10px 3px 18px;
     font-size: 20px;
     font-weight: bold;
     text-align: left;
@@ -180,25 +180,24 @@
     margin-top: -89px;
     height: 700px;
     float: left;
+    margin-left: 8px;
 }
 #community-content-scroller {
     width: 270px;
-    height: 640px;
+    height: 703px;
     overflow-y: scroll;
     overflow-x: hidden;
 }
 .community-content-header{
-    width: 576px;
+    width: 574px;
     margin-top: 27px;
-    padding-top: 10px;
     height: 52px;
     border: 1px solid lightgrey;
     background-color: whitesmoke;
     float:left;
+    padding-left: 4px;
 }
 .community-content-header-object{
-    background-color:whitesmoke;
-    color: #006EBF !important;
     border-top:1px solid gray;
     border-left:1px solid gray;
     border-right:1px solid gray;
@@ -206,6 +205,11 @@
 .community-content-header-object:hover{
     background-color:#fff;
     cursor:pointer;
+}
+#content-collection-header{
+    padding-bottom: 8px !important;
+    padding-top: 26px !important;
+    font-size: 24px !important;
 }
 .post-button {
     background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #7892c2), color-stop(1, #476e9e));
@@ -250,6 +254,7 @@
 
 .selected{
     background-color:white;
+    padding-top: 16px !important;
 }
 .community-content-header-object{
     border-bottom:none !important;
@@ -609,6 +614,43 @@ div.card-bottom table tr:nth-child(2) {
     margin:10px;
     background-color:#f5f5f5;
     min-height:700px;
+}
+.section-tab.discussion-tab {
+    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
+    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
+    background-color: rgb(47, 167, 229);
+    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
+    text-shadow: 0 -1px 1px rgb(47, 87, 169);
+    padding-top: 10px;
+}
+.section-tab.posts-tab {
+    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
+    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
+    background-color: rgb(234, 110, 7);
+    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
+    text-shadow: 0 -1px 1px rgb(154, 30, 7);
+}
+
+.section-tab {
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 0 0 5px 5px;
+    color: #FFF !important;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
+    letter-spacing: 1px;
+    padding: 4px 20px;
+    text-transform: uppercase;
+    vertical-align: top;
+    margin-left: 5px;
+    font-weight: 400 !important;
 }
 .post-content-left{
     width:80px;

@@ -41,8 +41,8 @@ import datetime
         <div id="community-content-area">
             <div id = "community_content_panel">
                 <div id="community_content_header" class="community-content-header">
-                    <h1 id="community_content_header_posts" class="community-content-header-object selected">Posts</h1>
-                    <h1 id="community_content_header_discussions" class="community-content-header-object">Discussions</h1>
+                    <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
+                    <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -106,7 +106,7 @@ import datetime
 
             </div> -->
             <div id="community-content">
-                <h1>Content Collections</h1>
+                <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
                         <% c=course_from_id(cc.course) %>
