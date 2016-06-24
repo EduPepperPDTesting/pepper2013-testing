@@ -1075,17 +1075,20 @@ def filter_at(content):
         while string.find("@") > -1:
             s=string[1:]
             x=s.find("@")
-            if x > -1:
-                working = s[:x].split(' ', 2)
-            else:
-                working = s.split(' ', 2)
-            working[1] = re.sub('[!.?,:)(]', '', working[1])
             try:
-                user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
-                addition = "<a class='in-comment-link' target='_blank' href = '../dashboard/"+str(user.id)+"'>"+working[0]+" "+working[1]+"</a>"
-                final=final.replace("@"+working[0]+" "+working[1], addition)
-            except Exception as e:
-                tests+="Failed: "+str(e)
+                if x > -1:
+                    working = s[:x].split(' ', 2)
+                else:
+                    working = s.split(' ', 2)
+                working[1] = re.sub('[!.?,:)(]', '', working[1])
+                try:
+                    user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
+                    addition = "<a class='in-comment-link' target='_blank' href = '../dashboard/"+str(user.id)+"'>"+working[0]+" "+working[1]+"</a>"
+                    final=final.replace("@"+working[0]+" "+working[1], addition)
+                except Exception as e:
+                    tests+="Failed: "+str(e)
+            except:
+                None
             string = s[x:]
     return final
 
