@@ -1,0 +1,271 @@
+<%!
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    from django.utils.html import escape
+    from permissions.utils import check_user_perms
+%>
+
+<%inherit file="../main.html"/>
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css">
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<script src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<!-- Tablesorter: optional -->
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<style>
+    .lean-overlay .loading {
+        width: 128px;
+        height: 128px;
+        display: block;
+        border-radius: 100px;
+        position: absolute;
+        left: 50%;
+        top: 300px;
+        margin-left: -64px;
+    }
+</style>
+<div id="reporting">
+    <div id="back">
+        <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
+        <a href="${reverse('reporting_reports')}">
+            Back to Reports
+        </a>
+    </div>
+    <h1>${report.name}</h1>
+    <div class="table">
+        <div class="" style="padding:5px;"></div>
+        <div class="body table_scroll">
+            <table class="tblReport tablesorter" ajaxUrl="${reverse('reporting_report_get_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}&report_id=${report.id}">
+                <thead>
+                    %for col in display_columns:
+                        %if col.column.data_type in ['url', 'time']:
+                            <th class="filter-false">${col.column.name}</th>
+                        %else:
+                            <th>${col.column.name}</th>
+                        %endif
+                    %endfor
+                <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+        <div class="columnSelectorWrapper">
+            <input id="colSelect1" type="checkbox" class="hidden">
+
+            <div id="columnSelector" class="columnSelector">
+                <!-- this div is where the column selector is added -->
+            </div>
+        </div>
+        <span class="footer">
+            <div class="pager">
+                <span class="report_download" style="font-size:16px;margin-right:20px;">
+                    Export as:
+                    <img src='/static/images/xls-icon.png' id="btnDownloadReportExcel"/>
+                </span>
+                <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                <select class="pagesize" title="Select page size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                </select>
+                <select class="gotoPage" title="Select page number"></select>
+                <div style="float:right;">
+                    %if len(school_year_item) > 0:
+                        <span>School Year:</span>
+                        <select class="school_year_select" title="Select school year" style="width:200px;font-size:14px;">
+                            <option value="all">Select School Year</option>
+                            %for item in school_year_item:
+                                <option value=${item}>${item}</option>
+                            %endfor
+                        </select>
+                    %endif
+                    %if check_user_perms(request.user, 'reporting',['administer', 'create_reports']):
+                        <input type="button" id="btnEditReport" value="EDIT REPORT" name="" style="font-size:14px;">
+                    %endif
+               </div>
+            </div>
+        </span>
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="background-color:#fff;border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var pagerOptions = {
+        container: $(".pager"),
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        cssGoto: '.gotoPage',
+        ajaxUrl: '',
+        ajaxProcessing: function(data){
+            return [data.total, data.rows]
+        },
+        processAjaxOnInit: true,
+        page: 0,
+        size: 10,
+        savePages: false
+    };
+    var tablesorterOptions = {
+        debug: false,
+        theme: 'blue',
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output","columnSelector"],
+        widgetOptions: {
+            filter_external: '',
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false,
+            filter_reset: '.reset',
+            filter_serversideFiltering: true,
+            output_saveFileName: 'data.csv',
+            columnSelector_container : $('#columnSelector'),
+            columnSelector_columns : { '${len(display_columns)}': 'disable'},
+            columnSelector_mediaqueryName: 'All: '
+        }
+    };
+    function safeJSON(j){
+        j.csrfmiddlewaretoken="${csrf_token}";
+        return j;
+    }
+
+    function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+
+    $(document).ready(function () {
+
+        //----------- tablesorter init----------//
+
+        $(".tblReport").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        report_view.init();
+
+        //----------- column selector event----------//
+
+        $('.columnSelectorButton').click(function(e){
+            if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+                $('.columnSelector').show();
+            }
+            else {
+                $('.columnSelector').hide();
+            }
+        })
+
+        $(document).click(function(e){
+            var isout = !$('.columnSelectorWrapper').find(e.target).length;
+            if($('.columnSelector').is(":visible")){
+                if(isout && e.target.className != 'columnSelectorButton') {
+                    $('.columnSelector').hide();
+                }
+            }
+
+        })
+
+    });
+
+    var report_view = {
+        timeID:null,
+        dialog:null,
+        init:function(){
+            var self = this;
+            clearInterval(self.timeID);
+            loadwin = new LoadingWin();
+            self.timeID = setInterval(self.show_progress, 4000, self);
+            $("#btnEditReport").click(function(){
+                window.location.href = "${reverse('reporting_report_edit',args=[report.id])}";
+            });
+            $("#btnDownloadReportExcel").click(function(){
+                self.downloadReportExcel();
+            });
+            self.selectSchoolYear();
+        },
+        show_progress: function(obj){
+            var self = this;
+            $.post("${reverse('reporting_report_get_progress')}", function(data) {
+                if (data != null) {
+                    if(data.success)
+                    {
+                        obj.reloadTable()
+                        clearInterval(obj.timeID);
+                        loadwin.hide();
+                    }
+                }
+            });
+        },
+        reloadTable: function(){
+            var t = $(".tblReport")[0];
+            var c = t.config;
+            var p = c.pager;
+            p = $.extend(p, p.last);
+            p.ajaxUrl = $(t).attr("ajaxUrl")+"&timestamp="+new Date();
+            p.reload();
+        },
+        postToNewTab: function(url, params) {
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", url);
+            form.setAttribute("target", "_blank");
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        },
+        downloadReportExcel: function(){
+            this.postToNewTab("${reverse('report_download_excel',args=[report.id])}",safeJSON({}));
+        },
+        selectSchoolYear: function(){
+            $(".school_year_select").change(function(){
+                window.location.href = "${reverse('reporting_report',args=[report.id])}?school_year=" + $(this).val();
+            });
+            var request_school_year = "${request.GET.get('school_year','')}";
+            $(".school_year_select").val(request_school_year);
+            if("${school_year_item}".indexOf('current') >= 0 && request_school_year == ''){
+                $(".school_year_select").val("current");
+            }
+        }
+    }
+</script>

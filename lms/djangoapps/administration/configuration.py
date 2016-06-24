@@ -14,6 +14,14 @@ import urllib
 from django.core.paginator import Paginator
 
 from permissions.decorators import user_has_perms
+from study_time.models import record_time_store
+from reporting.models import reporting_store
+from threading import Thread
+import gevent
+import time
+from pytz import UTC
+from datetime import datetime
+from reporting.school_year import school_year_collection
 log = logging.getLogger("tracking")
 
 
@@ -197,10 +205,10 @@ def favorite_filter_delete(request):
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
-def send_registration_email(request):
-    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+# @login_required
+# @user_passes_test(lambda u: u.is_superuser)
+# def send_registration_email(request):
+#     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 @user_has_perms('certificate', 'delete')
@@ -267,3 +275,77 @@ def has_hangout_perms(user):
         permission = 1
         
     return permission
+
+
+@login_required
+def get_user_info(request):
+    json_return = {'first_name': request.user.first_name,
+                   'last_name': request.user.last_name,
+                   'email': request.user.email,
+                   'secret': 'La2aiphaab2gaeB'
+                   }
+    return HttpResponse(json.dumps(json_return), content_type="application/json")
+
+
+# -------------------------------------#
+#    End of Year Roll Over             #
+# -------------------------------------#
+
+def postpone(function):
+    def decorator(*args, **kwargs):
+        t = Thread(target=function, args=args, kwargs=kwargs)
+        t.daemon = True
+        t.start()
+    return decorator
+
+
+@user_has_perms('end_of_year_roll_over', ['administer'], exclude_superuser=True)
+def roll_over(request):
+    task = ImportTask()
+    task.filename = 'School Year'
+    task.total_lines = len(school_year_collection)
+    task.user = request.user
+    task.save()
+    db.transaction.commit()
+
+    from django.db import connection
+    connection.close()
+    save_school_year(task, request)
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+
+
+@postpone
+def save_school_year(task, request):
+    gevent.sleep(0)
+    count_success = 0
+    rs = reporting_store()
+    try:
+        year = time.strftime('%Y', time.localtime(time.time()))
+        year = str(int(year) - 1) + '-' + year
+        i = 0
+        for collection in school_year_collection:
+            rs.set_collection(collection)
+            rs.collection.update({'school_year': 'current'}, {'$set': {"school_year": year}}, multi=True)
+            i += 1
+            task.process_lines = i
+        remove_time()
+    except Exception as e:
+            db.transaction.rollback()
+            log.debug("import error %s" % e)
+
+    finally:
+        count_success += 1
+        task.success_lines = count_success
+        task.update_time = datetime.now(UTC)
+        task.save()
+        db.transaction.commit()
+
+
+def remove_time():
+    rts = record_time_store()
+    rts.collection.remove()
+    rts.collection_page.remove()
+    rts.collection_discussion.remove()
+    rts.collection_portfolio.remove()
+    rts.collection_external.remove()
+    rts.collection_adjustment.remove()

@@ -1,0 +1,518 @@
+#reporting .list {
+    padding: 0 5px;
+}
+#reporting .list li {
+    list-style-type: none;
+}
+#reporting div.filter {
+    padding: 10px 5px;
+    border: 1px solid #999;
+}
+#reporting div.filter.empty {
+    padding: 0;
+    border: 0;
+    /*border-top: 1px solid #ddd;*/
+}
+#reporting div.filter h2 {
+    color: #f90
+}
+#reporting div.expand_title {
+    color: #08a;
+    font-size: 20px;
+    padding: 5px 5px 10px 5px;
+    cursor: pointer;
+    background-color: #ccc;
+    box-shadow: 0 1px 0 0 #fff inset;
+    background-image: linear-gradient(to bottom, #fff 0%, #ddd 50%, #ccc 50%, #ccc 100%);
+    text-shadow: 0 -1px 1px #aaa;
+}
+#reporting div.expand_title .icon {
+    display: inline-block;
+    position: relative;
+    top: 5px;
+    width: 23px;
+    height: 23px;
+    background: url(../images/arrows.png) no-repeat 0 0;
+}
+#reporting div.expand_title_expanded {
+    border-bottom: 1px solid #999;
+}
+#reporting div.expand_title_expanded .icon {
+    background: url(../images/arrows.png)no-repeat 0 -23px;
+}
+#reporting div.expand_div {
+    display: none;
+}
+#reporting .lean_overlay {
+    background: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)) repeat scroll 0% 0% transparent;
+    display: block;
+    height: 100%;
+    left: 0px;
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    z-index: 100;
+}
+#reporting .modal {
+    display: block;
+    position: absolute;
+    opacity: 1;
+    z-index: 11000;
+    left: 50%;
+    margin-left: -249px;
+    top: 120px;
+    background: none repeat scroll 0% 0% rgba(255, 255, 255, 1);
+    /* border: 1px solid rgba(150, 150, 150, 0.9); */
+    border-radius: 5px;
+    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    padding: 0 0 8px 0;
+    width: 480px;
+    display: none;
+}
+#reporting .modal .close-modal {
+    border-radius: 2px;
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: baseline;
+    padding: 10px;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+    z-index: 3;
+    color: #333;
+}
+#reporting .modal .titlebar {
+    height: 70px;
+    background: #ccc;
+}
+#reporting td.label {
+    text-align: right;
+    padding-right: 10px;
+    width: 45px;
+    vertical-align: top;
+    padding-top: 13px;
+}
+#reporting .modal .dialog-title {
+    margin: 0;
+    padding: 20px 0 0 30px;
+    color: #666;
+}
+#reporting .modal .content {
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+    padding: 20px 10px;
+    line-height: 20px;
+}
+#reporting .modal .progressbar {
+    height: 30px;
+    background: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+#reporting .modal .progressbar_flow {
+    height: 30px;
+    background: #2a5;
+    border-radius: 5px;
+    width: 0px;
+}
+#reporting #view-dialog {
+    width: 680px;
+    margin-left: -349px;
+}
+#reporting #view-dialog .content {
+    text-align: left;
+}
+#reporting #add-view-wrapper .view-submit {
+    clear: both;
+    display: block;
+}
+#reporting .column-row {
+    clear: both;
+}
+#reporting .column-row input {
+    margin-right: 5px;
+    float: left;
+    width: 25%;
+}
+#reporting .column-row select {
+    margin-right: 5px;
+    float: left;
+    height: 45px;
+}
+#reporting .column-row input.plus, #reporting .column-row input.minus {
+    width: auto;
+}
+#reporting #add-relationship-wrapper select {
+    display: block;
+}
+#reporting #add-relationship-wrapper label {
+    float: left;
+    margin-right: 20px;
+}
+#reporting #add-relationship-wrapper div {
+    clear: both;
+}
+#reporting #add-relationship-wrapper input {
+    clear: both;
+    display: block;
+}
+#reporting #categories {
+    padding: 0;
+    margin: 0;
+}
+#reporting .main {
+    margin: 20px auto;
+    width: 1180px;
+    border: 1px solid #999;
+    padding: 0;
+    list-style: none;
+}
+#reporting input.form_submit, input.form_submit:hover {
+    border-color: #777 #777 #555;
+    box-shadow: 0 1px 0 0 #aaa inset;
+    background-color: #888;
+    background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
+    text-shadow: 0 -1px 1px #555;
+}
+#reporting .expand_div ul {
+    list-style: none;
+    margin: 10px 0 20px 0;
+    padding: 0;
+}
+#reporting .expand_div ul li {
+    border-bottom: 1px solid rgb(204, 204, 204);
+    padding: 10px 0;
+    margin: 0 30px 10px 30px;
+}
+#reporting #iconarea {
+    margin: 20px auto 20px auto;
+    width: 1180px;
+}
+#reporting .iconbutton {
+    color: black;
+    display: inline-block;
+    text-align: center;
+    font: normal .8rem/1rem "Open Sans", Verdana, Geneva, sans-serif;
+    padding: 35px 5px 5px 5px;
+    text-decoration: none;
+    outline: none;
+}
+#reporting .add-new {
+    background: transparent url(../images/icons/add_new.png) center top/32px 32px no-repeat;
+}
+#reporting .add-new:hover {
+    background: transparent url(../images/icons/add_new_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .manage {
+    background: transparent url(../images/icons/manage.png) center top/32px 32px no-repeat;
+}
+#reporting .manage:hover, #reporting .manage.enabled {
+    background: transparent url(../images/icons/manage_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .new-category {
+    display: none;
+    background: transparent url(../images/icons/add_category.png) center top/32px 32px no-repeat;
+}
+#reporting .new-category:hover {
+    background: transparent url(../images/icons/add_category_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .edit-views {
+    float: right;
+    background: transparent url(../images/icons/edit_view.png) center top/32px 32px no-repeat;
+}
+#reporting .edit-views:hover {
+    background: transparent url(../images/icons/edit_view_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .delete {
+    float: right;
+    background: transparent url(../images/icons/delete.png) center top/32px 32px no-repeat;
+}
+#reporting .delete:hover {
+    background: transparent url(../images/icons/delete_mo.png) center top/32px 32px no-repeat;
+}
+#reporting .add-new-view, #reporting .add-new-relationship {
+    float: right;
+}
+
+/* New report specific */
+#reporting .add-area {
+    display: inline-block;
+    font-weight: bold;
+    padding: 5px 0 0 10px;
+}
+#reporting .add-area span {
+    color: #aa5500;
+}
+#reporting {
+    margin: auto;
+    width: 1180px;
+    padding: 20px 0;
+}
+#reporting input.form_submit, input.form_submit:hover {
+    border-color: #777 #777 #555;
+    box-shadow: 0 1px 0 0 #aaa inset;
+    background-color: #888;
+    background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%);
+    text-shadow: 0 -1px 1px #555;
+}
+#reporting .description {
+    width: 650px;
+}
+#reporting .view-selector label {
+    display: block;
+}
+#reporting div#dirty-message {
+    padding: 10px 0 0 0;
+    text-align: right;
+}
+#reporting #order-title {
+    font-weight: bold;
+    padding-bottom: 15px;
+}
+#reporting #order-title label {
+    font-weight: normal;
+    font-size: 90%;
+}
+#reporting #order-title div {
+    width: 360px;
+    float: right;
+}
+#reporting #selected-columns {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #fff;
+    width: 360px;
+    float: right;
+}
+#reporting #selected-columns li {
+    margin: 7px 0;
+}
+#reporting #selected-columns .move {
+    display: inline-block;
+    padding-right: 5px;
+}
+#reporting ul li.ui-sortable-placeholder {
+    position: relative;
+    height: 5px;
+    display: block;
+    background-color: #56a033;
+    opacity: .5;
+}
+#reporting .column-selector ul {
+    list-style: none;
+    display: block;
+    float: left;
+    padding: 0 20px 0 0;
+    width: 360px;
+    margin: 0;
+}
+#reporting .column-selector ul li {
+    height: 1.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#reporting .column-selector ul li.mouseover {
+    overflow: visible;
+}
+#reporting .column-selector li {
+    position: relative;
+}
+#reporting .column-description {
+    display: none;
+}
+#reporting .column-mouseover {
+    position: absolute;
+    background-color: #fff;
+    color: #555;
+    padding: 0 5px;
+    margin-left: -5px;
+    z-index: 999;
+    overflow: visible;
+    white-space: nowrap;
+    box-shadow: 2px 2px 4px #000;
+}
+#reporting .edit-block {
+    clear: both;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #ccc;
+}
+#reporting .edit-block h2 {
+    border-radius: 10px 10px 0 0;
+    padding: 5px 20px;
+    margin: -20px -20px 20px -20px;
+    background-color: #444;
+    color: #ccc;
+}
+#reporting .sql-area {
+    display: none;
+}
+#reporting .report-button {
+    float: right;
+    margin-left: 20px;
+}
+#reporting .plus, .minus {
+    padding: 0 6px !important;
+    margin-right: 5px;
+}
+#reporting #filter-enable, #reporting #distinct-enable {
+    float: right;
+}
+#reporting .filter-value {
+    height: 28px !important;
+    width: 200px !important;
+}
+#reporting .where-row {
+    padding-top: 10px;
+}
+#reporting .sql-area textarea {
+    height: 65px;
+    width: 89%;
+}
+#reporting .sql-area input {
+    float: right;
+}
+#reporting .hidden-category {
+    display: none;
+}
+.view-edit img, .relationship-edit img {
+    height: 16px;
+    width: 16px;
+}
+
+body.dragging, body.dragging * {
+    cursor: move !important;
+}
+.dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+}
+#reporting ul li.placeholder {
+    position: relative;
+    height: 10px;
+    display: block;
+    background-color: #56a033;
+    opacity: .5;
+}
+#reporting .move, #reporting .imove {
+    display: none;
+    width: 16px;
+    height: 16px;
+    padding-right: 10px;
+}
+#reporting #save-report-order {
+    text-align: right;
+    display: none;
+}
+#reporting #dirty-message {
+    color: red;
+    padding-right: 20px;
+    display: none;
+}
+#reporting .delete-report,
+#reporting .edit-report,
+#reporting .delete-category {
+    float: right;
+    display: none;
+}
+#reporting .delete-report img,
+#reporting .edit-report img,
+#reporting .delete-category img {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+}
+#reporting #back {
+    margin-bottom: 10px;
+}
+#reporting .up_page {
+    display: inline-block;
+    width: 17px !important;
+    line-height: 24px;
+    height: 20px;
+    background: url(../tmp-resource/image/up_page.png) no-repeat;
+    border: none;
+    vertical-align: middle;
+}
+
+
+#reporting .table_scroll{
+    height:600px;
+    width:auto;
+    overflow-x:auto;
+}
+
+#reporting .table-menu .tablesorter-header-inner div{
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url('../images/configuration/table_menu.png');
+    background-origin: padding-box;
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: auto auto;
+}
+
+#reporting .columnSelectorWrapper {
+    float: right
+}
+
+#reporting .columnSelector, .hidden {
+    margin-top: 60px;
+    display: none;
+}
+
+#reporting .columnSelectorButton {
+    padding: 10px;
+}
+
+#reporting #colSelect1:checked + label {
+    background: #5797d7;
+    border-color: #555;
+}
+
+#reporting #colSelect1:checked ~ #columnSelector {
+    display: block;
+}
+
+#reporting .columnSelector {
+    width: 220px;
+    position: absolute;
+    top: 30px;
+    padding: 10px;
+    background: #fff;
+    border: #99bfe6 1px solid;
+    border-radius: 5px;
+}
+
+#reporting .columnSelector label {
+    display: block;
+    font-size:14px;
+}
+
+#reporting .columnSelector label:nth-child(1) {
+    border-bottom: #99bfe6 solid 1px;
+    margin-bottom: 5px;
+}
+
+#reporting .columnSelector input {
+    margin-right: 5px;
+}
+
+#reporting .columnSelector .disabled {
+    color: #ddd;
+}
+
+#reporting #tabs li a{
+  clear: both;
+  padding: 12px;
+  font-size: 12px;
+}
+
+#reporting .error-box {
+    background-color: pink !important;
+}
