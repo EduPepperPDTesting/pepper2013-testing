@@ -396,7 +396,7 @@ import datetime
     </div>
 </div>
 <div id = 'user_info_div' class="user-info-div">
-    <span id='user_info' class="user_info_span">
+    <span id='user_info' class="user_info_span"></span>
 </div>
 <script type="text/javascript">
     var size=0;
@@ -728,11 +728,15 @@ import datetime
                 }
             });
             $(".post-profile-image").hover(function(event) {
-                $("#user_info").html(""+$(this).data('name')+"<br>"+$(this).data('uname')+"<br>"+$(this).data('email'));
+                $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
                 $("#user_info_div").css({top: event.clientY, left: event.clientX}).show();
             }, function() {
-                $("#user_info_div").hide();
+                if(!$("#user_info_div").is(":hover"))
+                    $("#user_info_div").hide();
             });
+            $("#user_info_div").hover(function(e){}, function(){
+                $(this).hide()
+            })
             $(".like-members-anchor").click(function(){
                 var post = $(this).data('post');
                 var comment = $(this).data('comment');
