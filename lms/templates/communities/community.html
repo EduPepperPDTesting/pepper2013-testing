@@ -278,6 +278,15 @@ import datetime
         <div class="content"></div>
     </div>
 </div>
+<div style="" id="fixed-dialog-share" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
 <div style="" id="skype-dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -688,6 +697,18 @@ import datetime
                 }
                 $("#focus"+id).focus();
             });
+            $(".post-share-text").click(function(){
+                content = $(this).data('content');
+                community = $(this).data('community');
+                poster = $(this).data("poster");
+                options = "<select id='share_id_selector'>"
+                %for u in users:
+                    options+= "<option value = '${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>"
+                %endfor
+                options+="</select>"
+                html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
+                new Dialog($('#fixed-dialog-share')).show("Share Post", "<center>"+html+"</center>");
+            });
             $(".comment-like-text").click(function(){
                 $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
                     getPosts();
@@ -920,6 +941,38 @@ import datetime
         });
         $("#skype_usernames_select").val('');
         $(".skype_username_list:contains('null')").remove();
+    }
+    function sharePost(content, community, poster){
+        share_id = $("#share_id_selector").val();
+        message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following post by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
+        message += "<p style='text-align:left; float-left'>View the full comment here: <a href='/community/"+community+"'>Community</a></p>"
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': share_id,
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){
+            var messageinfo = {
+                'info': JSON.stringify({
+                    'user_id': share_id,
+                    'interviewer_id': '${request.user.id}',
+                    'interviewer_name': '${request.user.first_name}',
+                    'interviewer_fullname': '${request.user.first_name} ${request.user.last_name}',
+                    'type': 'message',
+                    'body': '',
+                    'date': (new Date()).toISOString(),
+                    'activate': 'false'
+                })
+            };
+            $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+            $("#share_message").html("Message Shared!")
+            $("#share_message").css("color", "green");
+            $("#share_message").show()
+        });
+
     }
 </script>
 </body>

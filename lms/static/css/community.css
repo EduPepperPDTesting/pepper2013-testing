@@ -16,7 +16,7 @@
   height: 18px;
   position:absolute;
   right:6px;
-    top: 6px;  
+    top: 6px;
 }
 .discussions{
     margin-top:10px;
@@ -195,6 +195,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
     margin-top: -26px;
+    margin-left: 20px;
 }
 .community-content-header{
     width: 574px;
@@ -469,7 +470,7 @@ div.card-bottom table tr:nth-child(2) {
     width: 680px;
     display: none;
 }
-#fixed-dialog, #fixed-dialog-likes,#skype-dialog {
+#fixed-dialog, #fixed-dialog-likes, #fixed-dialog-share, #skype-dialog {
     position: fixed;
 }
 #fixed-dialog-likes{
@@ -709,14 +710,14 @@ div.card-bottom table tr:nth-child(2) {
     font-weight: bold !important;
     font-size: 14px !important;
 }
-.post-comment-text{
-    margin-left: 10px;
+.post-comment-text, .post-share-text{
+    margin-left: 8px;
     color: #365899 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
 
-.post-comment-text:hover{
+.post-comment-text:hover, .post-share-text:hover{
     cursor: pointer;
 }
 .comment-image{
@@ -724,6 +725,11 @@ div.card-bottom table tr:nth-child(2) {
     height: 12px;
     padding-bottom: 2px;
     padding-right: 3px;
+}
+.share-image{
+    width:16px;
+    height: 14px;
+    padding-bottom: 2px;
 }
 .post-like-text:hover{
     cursor: pointer;
