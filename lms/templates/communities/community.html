@@ -49,9 +49,9 @@ import datetime
                         <table id="post_content_table">
                             <tr class="post-content-row" id="post_content_new_row">
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
-                                <td class="post-content-right">
+                                <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <a class="post-button">Post</a>
+                                    <a class="post-button" style="position: relative;">Post</a>
                                 </td>
                             </tr>
                             <!--<tr class="post-content-row">
@@ -727,19 +727,23 @@ import datetime
 
                 }
             });
+            safety=0;
             $(".hoverable-profile").hover(function(event) {
+                safety++;
                 $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
                 if ($(this).data("skype") !== undefined){
                     $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img>"+$(this).data('skype'))
                 }
                 $("#user_info_div").css({top: event.clientY, left: event.clientX}).show();
             }, function() {
-                if(!$("#user_info_div").is(":hover"))
+                if (!$("#user_info_div").is(":hover") && safety > 1){
                     $("#user_info_div").hide();
+                    safety = 0;
+                }
             });
             $("#user_info_div").hover(function(e){}, function(){
                 $(this).hide()
-            })
+            });
             $(".like-members-anchor").click(function(){
                 var post = $(this).data('post');
                 var comment = $(this).data('comment');
