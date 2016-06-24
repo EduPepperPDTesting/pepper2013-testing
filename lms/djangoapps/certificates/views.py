@@ -49,8 +49,13 @@ from xmodule.modulestore.django import modulestore
 from django.contrib.auth.models import User
 #@end
 
-logger = logging.getLogger(__name__) 
+#@begin:change the Total Course Time
+#@date:2016-06-21
+from reporting.models import reporting_store
+#@end
 
+#logger = logging.getLogger(__name__) 
+log = logging.getLogger("tracking") 
 @csrf_exempt
 def update_certificate(request):
     """
@@ -447,7 +452,10 @@ def download_certificate(request, course_id, completed_time):
 
     #@begin:get course-time for certificate
     #@date:2016-05-04
-    all_course_time = get_allcoursetime(user_id, course_id)
+    #all_course_time = get_allcoursetime(user_id, course_id)
+    all_course_time = get_total_course_time(user_id, course_id) #2016-06-21 change the Total Course Time
+    log.debug("all_course_time------------------")
+    log.debug(all_course_time)
 
     estimated_effort_list = estimated_effort.split()
     estimated_effort_new_list = []
@@ -486,6 +494,23 @@ def download_certificate(request, course_id, completed_time):
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return HttpResponse('There was an error when generating your certificate: <pre>%s</pre>' % escape(html))
+
+#@begin:change the Total Course Time
+#@date:2016-06-21
+def get_total_course_time(user_id, course_id):
+    total_course_time = 0
+
+    rs = reporting_store()
+    rs.set_collection('UserCourseView')
+    results = rs.collection.find({"user_id":user_id,"course_id":course_id},{"_id":0,"total_time":1})
+    total_time_user = 0
+    for v in results:
+        total_time_user = total_time_user + v['total_time']
+           
+    total_course_time = recorded_time_format(total_time_user) 
+    
+    return total_course_time
+#@end
 
 #@begin:get course-time for certificate
 #@date:2016-05-04
@@ -549,3 +574,5 @@ def recorded_time_format(t, is_sign=False):
         hour_full = ''
     return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
 #@end
+
+
