@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Q, Max
 import sys
 import json
+import time
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
@@ -434,8 +435,10 @@ def build_sorts_and_filters(columns, sorts, filters):
     :return: Sorts and filters for mongo.
     """
     column = []
+    data_type = {}
     for i, col in enumerate(columns):
         column.append(col.column.column)
+        data_type[col.column.column] = col.column.data_type
 
     order = ['$natural', 1]
     for col, sort in sorts.iteritems():
@@ -447,7 +450,7 @@ def build_sorts_and_filters(columns, sorts, filters):
     filter = {}
     for col, f in filters.iteritems():
         # TODO: Temporary scheme (Mongo Int type).
-        if f.isdigit():
+        if data_type[column[int(col)]] == 'int':
             filter[column[int(col)]] = int(f)
         else:
             reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
@@ -611,6 +614,8 @@ def data_format(col, data, is_excel=False):
             return settings.LMS_BASE + data[col.column]
         else:
             return '<a href="{0}" target="_blank">Link</a>'.format(data[col.column])
+    if col.data_type == 'date':
+        return time.strftime('%m-%d-%Y', time.strptime(data[col.column], '%Y-%m-%d'))
     return data[col.column]
 
 
