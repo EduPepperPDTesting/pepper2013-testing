@@ -449,12 +449,8 @@ def build_sorts_and_filters(columns, sorts, filters):
 
     filter = {}
     for col, f in filters.iteritems():
-        # TODO: Temporary scheme (Mongo Int type).
-        if data_type[column[int(col)]] == 'int':
-            filter[column[int(col)]] = int(f)
-        else:
-            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-            filter[column[int(col)]] = reg
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        filter[column[int(col)]] = reg
     return order, filter
 
 
@@ -550,7 +546,10 @@ def get_query_display_columns(columns):
     """
     column_str = ''
     for col in columns:
-        column_str += '"' + col.column.column + '":1,'
+        if col.column.data_type == 'int':
+            column_str += '"' + col.column.column + '":{"$substr":["$' + col.column.column + '", 0,-1]},'
+        else:
+            column_str += '"' + col.column.column + '":1,'
     if column_str != '':
         return ',{"$project": {' + column_str[:-1] + '}}'
     else:
