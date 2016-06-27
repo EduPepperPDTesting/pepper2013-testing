@@ -253,6 +253,8 @@ def save_training(request):
         training.classroom = request.POST.get("classroom", "")
         training.geo_location = request.POST.get("geo_location", "")
         training.geo_props = request.POST.get("geo_props", "")
+        training.geo_destination = request.POST.get("geo_destination", "")
+        training.geo_props2 = request.POST.get("geo_props2", "")
         
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
@@ -323,7 +325,9 @@ def training_json(request):
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
-        "arrive": arrive
+        "arrive": arrive,
+        "geo_destination": item.geo_destination,
+        "geo_props2": item.geo_props2
         }
     
     return HttpResponse(json.dumps(data), content_type="application/json")
