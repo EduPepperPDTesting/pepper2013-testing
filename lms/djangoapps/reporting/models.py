@@ -3,6 +3,7 @@ from student.models import User
 from django.conf import settings
 import pymongo
 import logging
+import json
 log = logging.getLogger("tracking")
 
 
@@ -118,9 +119,12 @@ class MongoReportingStore(object):
     #         set()
     #     )
 
-    def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1]):
+    def get_page(self, collection, start, num, db_filter={}, db_sort=['$natural', 1, 0]):
         self.set_collection(collection)
-        return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
+        if db_sort[0] != '$natural' and db_sort[2] == 1:
+            return self.get_page_int_sort(collection, db_filter, db_sort, start, num)
+        else:
+            return self.collection.find(db_filter).sort(db_sort[0], db_sort[1]).skip(start).limit(num)
 
     def get_count(self, collection, db_filter={}):
         self.set_collection(collection)
@@ -139,6 +143,21 @@ class MongoReportingStore(object):
         self.db.command({'aggregate': collection,
                          'pipeline': pipeline,
                          'allowDiskUse': disk})
+
+    def get_page_int_sort(self, collection, db_filter, db_sort, start, num):
+        field = db_sort[0]
+        order = db_sort[1]
+        db_filter = json.dumps(db_filter)
+        a = 'c1'
+        b = 'c2'
+        if order < 0:
+            a = 'c2'
+            b = 'c1'
+        val = 'return db.' + collection + '.find(' + db_filter + ').toArray()\
+        .sort(function(c1, c2){return {a}.' + field + ' - {b}.' + field + '})'
+        val = val.replace('{a}', a).replace('{b}', b)
+        cursor = list(self.db.eval(val))
+        return cursor[start:start + num]
 
 
 def reporting_store():
