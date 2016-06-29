@@ -20,7 +20,7 @@
     
     <script>
 		var geo_location='${training.geo_location}';		
-		var geo_destination='${training.geo_destination}';		
+		//var geo_destination='${training.geo_destination}';		
 		var geo_props = $.trim('${training.geo_props}');		
 		
 		var data = JSON.parse(geo_props);
@@ -42,8 +42,9 @@
 		map.setCenter(new mapboxgl.LngLat(Number(data.lon), Number(data.lat)));
 		
 		map.on('style.load', function() {
-		  	directions.setOrigin(geo_location);
-		  	directions.setDestination(geo_destination);
+		  	//directions.setOrigin(geo_location);
+		  	//directions.setDestination(geo_destination);
+			directions.setDestination(geo_location);
 		});
 		
 		function funLoad(){window.print();}

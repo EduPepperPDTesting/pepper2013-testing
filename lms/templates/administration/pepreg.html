@@ -30,6 +30,19 @@ from permissions.utils import check_access_level, check_user_perms
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
 <link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type = "text/css" media = "screen"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
+
+<script type="text/javascript" src="/static/js/mapbox-gl.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl.css" />
+<script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl-directions.css" /> 
+
+<style>
+	input[type="button"],button,.button{box-shadow:none !important;}
+	#dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl { margin:0 0 50px 10px !important; }
+	.mapbox-directions-route-summary {position:absolute !important;}
+	.directions-control.directions-control-inputs {left:5px !important; top:5px !important;}
+</style>
+
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -158,9 +171,9 @@ from permissions.utils import check_access_level, check_user_perms
 <div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
     <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
-    <div class="content" id="map_show" style="height:500px;position:relative;background:#fff;padding:10px;border-radius:0;"></div>
+    <div class="content" id="map_show" style="widt1h:800px; height:500px;position:relative;background:#fff;paddin1g:10px;border-radius:0;"></div>
     <input type="hidden" name="training_id" value="" style="width:400px"/>
-    <a href="#" class="print-map">Print</a>
+    <a href="#" class="print-map" st1yle="margin-left:30px;">Print</a>
   </div>
 </div>
 <div class="modal" id="dlg-students" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
@@ -301,7 +314,11 @@ from permissions.utils import check_access_level, check_user_perms
               <span class="label" style="width:220px">Please Select Training Address:</span>
               <input type="" name="geo_location" value="" style="width:400px" placeholder="Type in address and select location as it appears"/>
             </div>
-            <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
+            <!--<div class="form-row">
+              <span class="label" style="width:220px">Please Select Destination Address:</span>
+              <input type="" name="geo_destination" value="" style="width:400px" placeholder="Type in address and select location as it appears"/>
+            </div>-->
+            <div id="map_edit" name="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
             <input type="hidden" name="geo_props" value="" style="width:400px"/>
           </div>
         </div>
@@ -373,25 +390,41 @@ from permissions.utils import check_access_level, check_user_perms
 </script>
 %endif
 <script type="text/javascript">
+	var map_show = null, map_show_directions = null;
+	
   function PepReg($content){
     var self=this;
     this.$content=$content;
     this.initContent();
     // *** maps ***
+	
     var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
-    this.map_edit = L.map('map_edit');
+	
+	this.map_edit = L.map('map_edit');
     L.tileLayer(url_tile_layer, {
       trackResize: true,
 	  maxZoom: 18,
 	  attribution: '',
 	  id: 'mapbox.streets'
     }).addTo(this.map_edit);
-    this.map_show = L.map('map_show');
+    
+	mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
+	map_show = new mapboxgl.Map({
+	  container: 'map_show',
+	  style: 'mapbox://styles/mapbox/streets-v8',
+	  zoom: 18
+	});
+	map_show_directions = new mapboxgl.Directions({
+	  container: 'map_show'
+	});
+	map_show.addControl(map_show_directions);	//控件
+	map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
+	/*this.map_show = L.map('map_show');
     L.tileLayer(url_tile_layer, {
 	  maxZoom: 18,
 	  attribution: '',
 	  id: 'mapbox.streets'
-    }).addTo(this.map_show);
+    }).addTo(this.map_show);*/
   }
   PepReg.prototype.initContent=function(){
     this.initFilter();
@@ -412,6 +445,7 @@ from permissions.utils import check_access_level, check_user_perms
       training_time_end: ($form.find("input[name=training_time_end]").val()),
       classroom: $.trim($form.find("input[name=classroom]").val()),
       geo_location: $form.find("input[name=geo_location]").val(),
+	  geo_destination: $form.find("input[name=geo_destination]").val(),
       geo_props: $form.find("input[name=geo_props]").val(),
       instructor_emails: this.getInstructors().join(","),
       credits: $form.find("input[name=credits]").val() || 0,
@@ -598,6 +632,27 @@ from permissions.utils import check_access_level, check_user_perms
         });
       }
     });
+	hits={};
+    $('input[name=geo_destination]').autocomplete({
+      select: function(e,item){
+        var hit = hits[item.item.value];
+        if(hit){
+          //self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
+        }
+      },
+      source: function(request, response){
+        $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
+                  {q: $('input[name=geo_destination]').val()}, function(r){
+          var data=[];
+          hits = r;
+          $.each(r, function(i, v){
+            data.push(v.display_name);
+            hits[v.display_name] = v;
+          });
+          response(data);
+        });
+      }
+    });
     // ************* input instructors
     $(".btn-add-instructor").unbind("click").bind("click", function(){
       var email = $("#complete-email").val();
@@ -663,8 +718,6 @@ from permissions.utils import check_access_level, check_user_perms
     }
   }
   PepReg.prototype.markPlace=function(map, lat, lon, zoom, training_id) {
-    $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat:lat, lon:lon}));
-    $(map._container).next("input[name=training_id]").val(training_id);
     var self = this;
     map.marks = map.marks || [];
     $.each(map.marks, function(i, m){
@@ -932,8 +985,18 @@ from permissions.utils import check_access_level, check_user_perms
     });
   }
   PepReg.prototype.showMap=function(props, training_id){
-    this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
-    new Dialog($("#dlg-map")).show();
+  	new Dialog($("#dlg-map")).show();
+    //this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
+	$(map_show._container).next("input[name=geo_props]").val(JSON.stringify({lat:props.lat, lon:props.lon}));
+	$(map_show._container).next("input[name=training_id]").val(training_id);
+	map_show.resize();
+	map_show.setZoom(12);
+	$("#map_show").find(".mapboxgl-canvas").css("left", 0);
+	$("#map_show").find(".mapboxgl-canvas").css("top", 0);
+	
+	map_show.setCenter([props.lon, props.lat]);
+	map_show_directions.setDestination(props.geo_location);
+	//map_show_directions.setOrigin(props.geo_location);  
   }
   PepReg.prototype.initTable=function(){
     var self=this;
@@ -1002,6 +1065,9 @@ from permissions.utils import check_access_level, check_user_perms
           $(this).css("cursor","pointer");
           $(this).click(function(){
             var props = JSON.parse($(this).find("input").val());
+			props.geo_location = $(this).find("input[name='row_geo_location']").val();
+			//props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
+			
             self.showMap(props, training_id);  
           });
         }
