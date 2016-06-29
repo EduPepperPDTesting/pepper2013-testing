@@ -164,6 +164,14 @@ if Backbone?
     edit: (event) ->
       @trigger "thread:edit", event
 
+    #2016
+    actionRating: (event) ->
+      @trigger "thread:actionRating", event
+
+    #2016
+    seeResults: (event) ->
+      @trigger "thread:seeResults", event
+
     _delete: (event) ->
       @trigger "thread:_delete", event
 
