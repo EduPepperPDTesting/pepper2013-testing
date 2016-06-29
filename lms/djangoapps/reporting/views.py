@@ -315,7 +315,7 @@ def report_save(request, report_id):
                 report_filter.report = report
                 report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
                 report_filter.column = ViewColumns.objects.get(id=int(column))
-                report_filter.value = filter_values[i]
+                report_filter.value = filter_values[i].strip()
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
