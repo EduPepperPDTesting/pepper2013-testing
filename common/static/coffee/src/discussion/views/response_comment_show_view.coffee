@@ -5,6 +5,8 @@ if Backbone?
       "click .discussion-flag-abuse": "toggleFlagAbuse"
       "click .action-edit": "edit"
       "click .action-delete": "_delete"
+      "click .action-rating": "actionRating" #201606
+      "click .see-results": "seeResults" #201606
 
     tagName: "li"
 
@@ -28,7 +30,35 @@ if Backbone?
       @$el.find('a.profile-link').css('color','#366094')
       @convertMath()
       @addReplyLink()
+      @renderRating() #201606
       @
+
+    #201606
+    renderRating: ->
+      ratingTemp = "0"
+      url = DiscussionUtil.urlFor('get_rating', @model.id)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              option_type: 'get_rating'
+
+          #error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              ratingTemp = response.rating
+              @$el.find('.action-rating').raty({
+                    starOn:'star-on-orange.png',
+                    starHalf:'star-half-orange.png',
+                    hints: ['Poor', 'Fair', 'Average', 'Good', 'Great'],
+                    path:"/static/js/vendor/raty/lib/img",
+                    click: (score, evt) ->
+                      $(@).attr('data-rating',score)
+                    score: ->
+                      ratingTemp
+                  })
 
     addReplyLink: () ->
       if @model.hasOwnProperty('parent')
@@ -85,6 +115,55 @@ if Backbone?
       @createEditView()
       @renderEditView()
       @hideCommentForm()
+
+    #201606
+    actionRating: (event) =>
+      rating = @$el.find('.action-rating').attr("data-rating")
+      url = DiscussionUtil.urlFor('set_rating', @model.id)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              rating: rating
+              option_type: 'update_rating'
+
+          error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              @model.set('rating', response.rating)
+      
+    #201606
+    seeResults: (event) =>
+      url = DiscussionUtil.urlFor('get_rating', @model.id)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              option_type: 'get_avg_rating'
+
+          #error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              avg_ratingTemp = response.avg_rating
+              $("#rate_results").find('.avg-rating').raty({
+                  starOn:'star-on-blue.png',
+                  starHalf:'star-half-blue.png',
+                  hints: ['Poor', 'Fair', 'Average', 'Good', 'Great'],
+                  path:"/static/js/vendor/raty/lib/img",
+                  click: (score, evt) ->
+                      $(@).attr('data-rating',score)
+                  readOnly: true
+                  score: ->
+                      avg_ratingTemp
+              })
+              $("#rate_results").find('#hq_rate_num').html(response.avg_rating_count)
+              $("#rate_results").show();
+              $("#lean_overlay").show();
+              $(window).scrollTop(0);
 
     _delete: (event) =>
       event.preventDefault()
