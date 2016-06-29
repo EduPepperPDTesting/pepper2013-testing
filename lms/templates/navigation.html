@@ -366,54 +366,51 @@
         </ol>
             <!--@end-->
 
-            <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-            <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+        <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+        <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 
         %if curr_user==request.user:
-            <ol class="user admin" >
-
-                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]:
-              
+        <ol class="user admin" >
+            %if show_extended:
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(curr_user, 'certificate'):
-                            <li><a href="${reverse('configuration')}">Configuration</a></li>
-                        %endif
-                        <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>    
-                        %if check_user_perms(curr_user, 'pepconn'):
-                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'permissions'):
-                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'time_report'):
-                            <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        %endif
-                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
-                        %if check_user_perms(curr_user, 'sso'):
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'tnl'):
-                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'studio'):
-                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'alert_message'):
-                            <li><a href="${reverse('alert_message')}">Alert</a></li>
-                        %endif
-                        <script type="text/javascript">
-                            $(document).on('click', function(event) {
-                                if (!$(event.target).closest('.admin-menu-holder').length) {
-                                    $(".admin-dropdown-menu").hide();
-                                } else if ($(event.target).closest(".outside_menu").length) {
-                                    $(".admin-dropdown-menu").hide();
-                                }
-                            });
-                        </script>
-                      %endif
+                           <li><a href="${reverse('configuration')}">Configuration</a></li>
+                       %endif
+                       <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
+                       %if check_user_perms(curr_user, 'pepconn'):
+                           <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                       %endif
+                       %if check_user_perms(curr_user, 'permissions'):
+                           <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                       %endif
+                       %if check_user_perms(curr_user, 'time_report'):
+                           <li><a href="${reverse('time_report')}">Time Report</a></li>
+                       %endif
+                       <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                       %if check_user_perms(curr_user, 'sso'):
+                           <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                       %endif
+                       %if check_user_perms(curr_user, 'tnl'):
+                           <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                       %endif
+                       %if check_user_perms(curr_user, 'studio'):
+                           <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                       %endif
+                       %if check_user_perms(curr_user, 'alert_message'):
+                           <li><a href="${reverse('alert_message')}">Alert</a></li>
+                       %endif
+                       <script type="text/javascript">
+                           $(document).on('click', function(event) {
+                               if (!$(event.target).closest('.admin-menu-holder').length) {
+                                   $(".admin-dropdown-menu").hide();
+                               } else if ($(event.target).closest(".outside_menu").length) {
+                                   $(".admin-dropdown-menu").hide();
+                               }
+                           });
+                       </script>
                        <script type="text/javascript">
                             url_studio = ["https://studio0.pepperpd.com",
                                           "https://studio-staging.pepperpd.com",
@@ -461,7 +458,7 @@
                         </script>
                     </ul>
                 </li>
-  
+            %endif
             %if show_extended:
                 <!-- Notifications -->
                 <li class="imessage_style" style="margin-right:5px;">
@@ -547,7 +544,7 @@
             <ol class="right nav-courseware">
                 <!--@begin:Add Paypal-->
                 <!--@date:2016-05-19-->
-                <!--<li class="nav-courseware-01">
+                <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
                             <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}" target="_blank" style="margin-right:30px;"><img src="/static/images/paypal.png" width="100" height="27"/></a>
@@ -555,7 +552,7 @@
                             <a  class="main-link" href="/contact" target="_blank" ><img src="/static/images/paypal.png" width="100" height="27"/></a>        
                         % endif
                     % endif
-                </li>-->
+                </li>
                 <!--@end-->
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
@@ -657,13 +654,6 @@
                      $(this).children('span').html(data.external_times[course_id]);
                    }
                  });
-
-                 //--20160624 add total time
-                 $(".total-course-time").each(function() {
-                    var course_id = $(this).attr('course_id');
-                    $(this).children('span').html(data.total_course_times[course_id]);
-                 });
-
                });
             }
         }
