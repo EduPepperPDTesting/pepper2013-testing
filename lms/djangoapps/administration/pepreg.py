@@ -223,6 +223,7 @@ def rows(request):
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
+
 def save_training(request):
     try:
         id = request.POST.get("id", None)
