@@ -249,11 +249,7 @@ db.student_courseenrollment.aggregate({
             }, 0, 10]
         },
         portfolio_url: 1,
-        progress: {
-            $concat: [{
-                $substr: ['$progress', 0, -1]
-            }, '%']
-        },
+        progress: 1,
         course_time: 1,
         external_time: 1,
         discussion_time: 1,
