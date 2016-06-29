@@ -135,12 +135,13 @@ a.btnx:normal{
       % endif
       
       
-      ${'<% if (obj.courseware_url) { %>'}
+      
       <div class="post-context" style="font-size:14px;padding-top:5px;">
-          (this topic is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'} Welcome to Pepper</a>)
+          ${'<% if (obj.courseware_url) { %>'}
+            (this topic is about <a href="${'<%- courseware_url%>'}">${'<%- courseware_title %>'} Welcome to Pepper</a>)
+          ${'<% } %>'}
       </div>
-      ${'<% } %>'}
-
+      
       <table>
         <tr >
           <td width="255">
