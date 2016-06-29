@@ -436,16 +436,20 @@ def build_sorts_and_filters(columns, sorts, filters):
     """
     column = []
     data_type = {}
+    int_type = ['int', 'time']
     for i, col in enumerate(columns):
         column.append(col.column.column)
         data_type[col.column.column] = col.column.data_type
 
-    order = ['$natural', 1]
+    order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
         pre = 1
         if bool(int(sort)):
             pre = -1
-        order = [column[int(col)], pre]
+        if data_type[column[int(col)]] in int_type:
+            order = [column[int(col)], pre, 1]
+        else:
+            order = [column[int(col)], pre, 0]
 
     filter = {}
     for col, f in filters.iteritems():
