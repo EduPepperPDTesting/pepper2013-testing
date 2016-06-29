@@ -141,14 +141,15 @@ if Backbone?
               rating: rating
               option_type: 'update_rating'
 
-          error: console.log("fail!")
+          #error: console.log("fail!")
           success: (response, textStatus) =>
             if textStatus == 'success'
-              @model.set('rating', response.rating)
+              console.log("success")
       
     #201606
     seeResults: (event) =>
       url = DiscussionUtil.urlFor('get_rating', @model.id)
+      console.log(url)
       DiscussionUtil.safeAjax
           url: url
           type: "POST"
