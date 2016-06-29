@@ -14,7 +14,7 @@
       	.directions-control.directions-control-inputs {left:15px;}
     </style>
   </head>
-  <body>
+  <body onLoad="funLoad()">
     <div id='map' class='map'></div>
     
     <script>
@@ -44,6 +44,8 @@
 		  	directions.setOrigin(geo_location);
 		  	directions.setDestination(geo_destination);
 		});
+		
+		function funLoad(){window.print();}
     </script>
   </body>
 </html>

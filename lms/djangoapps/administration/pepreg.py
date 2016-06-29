@@ -205,7 +205,7 @@ def rows(request):
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
             str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
             str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
-            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'><input type='hidden' name='geo_location' value='%s'><input type='hidden' name='geo_destination' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props, item.geo_location, item.geo_destination),
+            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'><input type='hidden' name='row_geo_location' value='%s'> <input type='hidden' name='row_geo_destination' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props, item.geo_location, item.geo_destination),
             item.credits,
             "<br>".join(instructor_names(item)),
             "%s %s" % (item.user_create.first_name, item.user_create.last_name),
