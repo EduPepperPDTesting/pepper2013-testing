@@ -325,8 +325,7 @@ def training_json(request):
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
         "arrive": arrive
-        }
-    
+        }    
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 

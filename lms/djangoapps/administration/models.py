@@ -200,7 +200,6 @@ class PepRegTraining(models.Model):
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=False, db_index=False)
 
-
 class PepRegInstructor(models.Model):
     class Meta:
         db_table = 'pepreg_instructor'
