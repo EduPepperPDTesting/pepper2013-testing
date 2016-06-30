@@ -702,11 +702,12 @@ import datetime
                 community = $(this).data('community');
                 poster = $(this).data("poster");
                 options = "<select id='share_id_selector'>"
+                type= $(this).data("type");
                 %for u in users:
                     options+= "<option value = '${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>"
                 %endfor
                 options+="</select>"
-                html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
+                html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"', '"+type+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
                 new Dialog($('#fixed-dialog-share')).show("Share Post", "<center>"+html+"</center>");
             });
             $(".comment-like-text").click(function(){
@@ -942,10 +943,10 @@ import datetime
         $("#skype_usernames_select").val('');
         $(".skype_username_list:contains('null')").remove();
     }
-    function sharePost(content, community, poster){
+    function sharePost(content, community, poster, type){
         share_id = $("#share_id_selector").val();
-        message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following post by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
-        message += "<p style='text-align:left; float-left'>View the full comment here: <a href='/community/"+community+"'>Community</a></p>"
+        message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following "+type+" by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
+        message += "<p style='text-align:left; float-left'>View the full discussion here: <a href='/community/"+community+"'>Community</a></p>"
         var datainfo = {
             'info': JSON.stringify({
                 'sender_id': '${user.id}',

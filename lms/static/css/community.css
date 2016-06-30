@@ -632,11 +632,11 @@ div.card-bottom table tr:nth-child(2) {
     padding-top: 10px;
 }
 .section-tab.posts-tab {
-    border-color: rgb(174, 50, 7) rgb(174, 50, 7) rgb(154, 30, 7);
-    box-shadow: 0 1px 0 0 rgb(294, 170, 67) inset;
-    background-color: rgb(234, 110, 7);
-    background-image: linear-gradient(to bottom, rgb(294, 170, 67) 0%, rgb(234, 110, 7) 50%, rgb(214, 90, 7) 50%, rgb(214, 90, 7) 100%);
-    text-shadow: 0 -1px 1px rgb(154, 30, 7);
+    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
+    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
+    background-color: rgb(123, 181, 51);
+    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
+    text-shadow: 0 -1px 1px rgb(83, 121, 11);
 }
 
 .section-tab {
