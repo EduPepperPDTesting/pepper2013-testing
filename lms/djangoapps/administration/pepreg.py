@@ -328,13 +328,11 @@ def training_json(request):
         }    
     return HttpResponse(json.dumps(data), content_type="application/json")
 
-
 def remove_student(student):
     if student.training.type == "pepper_course":
         CourseEnrollment.unenroll(student.student, student.training.pepper_course)
         CourseEnrollmentAllowed.objects.filter(email=student.student.email, course_id=student.training.pepper_course).delete()
     student.delete()
-
     
 def register(request):
     try:

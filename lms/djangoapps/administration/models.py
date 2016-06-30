@@ -208,7 +208,6 @@ class PepRegInstructor(models.Model):
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
 
-
 class PepRegStudent(models.Model):
     class Meta:
         db_table = 'pepreg_student'
