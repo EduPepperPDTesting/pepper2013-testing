@@ -73,7 +73,7 @@ class AdjustmentTimeLog(models.Model):
     adjustment_time = models.IntegerField(blank=False, default=0)
     create_date = models.DateTimeField(auto_now_add=True, db_index=False)
     course_number = models.CharField(blank=False, null=True, max_length=100, db_index=True)
-    comments = models.CharField(blank=False, null=True, max_length=1000, db_index=True)
+    comments = models.CharField(blank=False, null=True, max_length=756, db_index=True)
 
 
 class TimeReportPerm(models.Model):
@@ -173,7 +173,6 @@ def site_setting_store():
     options.update(settings.SITESETTINGSSTORE['OPTIONS'])
     return MongoSiteSettingsStore(**options)
 
-
 class PepRegTraining(models.Model):
     class Meta:
         db_table = 'pepreg_training'
@@ -188,6 +187,8 @@ class PepRegTraining(models.Model):
     training_time_end = models.TimeField(auto_now_add=False, db_index=False, blank=True, null=True)
     geo_location = models.CharField(blank=False, max_length=255, db_index=False)
     geo_props = models.TextField(blank=False, null=True)
+    geo_destination = models.CharField(blank=False, max_length=255, db_index=False)
+    geo_props2 = models.TextField(blank=False, null=True)
     classroom = models.CharField(blank=False, max_length=255, db_index=False)
     credits = models.FloatField(blank=False, default=0)
     attendancel_id = models.CharField(blank=False, max_length=255, db_index=False)

@@ -14,6 +14,7 @@ class CommunityCommunities(models.Model):
     state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, blank=True)
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, blank=True)
     private = models.BooleanField(blank=False, default=0)
+    discussion_priority = models.BooleanField(blank=False, default=0)
 
 
 class CommunityUsers(models.Model):
@@ -99,4 +100,32 @@ class NotificationAudit(models.Model):
     body = models.TextField(blank=False, db_index=False)
     createor = models.ForeignKey(User, on_delete=models.PROTECT)
     creat_date = models.DateTimeField(auto_now_add=True, db_index=False)
-    
+
+
+class CommunityPosts(models.Model):
+    class Meta:
+        db_table = 'community_posts'
+    community = models.ForeignKey(CommunityCommunities, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.TextField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+
+class CommunityComments(models.Model):
+    class Meta:
+        db_table = 'community_posts_comments'
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField(blank=False, max_length=255, db_index=False)
+    sub_comment = models.ForeignKey("self", on_delete=models.CASCADE, default=None, null=True, blank=True)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+
+class CommunityLikes(models.Model):
+    class Meta:
+        db_table = 'community_posts_likes'
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(CommunityComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+

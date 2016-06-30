@@ -19,6 +19,7 @@
 <script type="text/javascript" src="/static/js/reg_kits.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
 <%block name="title">
 %if course:
 <title>${_("{course_number} People").format(course_number=course.display_number_with_default) | h}</title>
@@ -86,8 +87,7 @@
        padding-left:45px;
      }
      .hangout-button{
-       background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
-       padding-left:45px;
+        margin-top: 5px;
      }
 </style>
 %if course:
@@ -317,7 +317,7 @@
               if usr.profile.last_activity:
                 u=usr.profile.last_activity
                 u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
-                close = int(d_min) - int(u_min) < 10
+                close = int(d_min) - int(u_min) < 1
                 active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
               else:
                 active_recent = False
@@ -371,7 +371,7 @@
 
               <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
                 %if active_recent:
-                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}')">
+                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}', '${usr.profile.skype_username}', '${usr.email}')">
                   <img src="/static/images/online-3.png" width="50px" height="50px" class="" alt="" />
                 </a>
                 %endif
@@ -397,7 +397,7 @@
               <a class="button-del"></a>
               <div style="width:175px;padding:20px 10px 10px 10px;text-align:center;">
                 %if active_recent:
-                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}')">
+                <a href="" style="display:inline-block" onclick="return show_active_user(${profile['user_id']}, '${profile['first_name']}', '${profile['last_name']}', '${profile['username']}', '${usr.profile.skype_username}', '${usr.email}')">
                   <img src="/static/images/online-3.png" class="" alt="" width="50" height="50"/>
                 </a>
                 %endif
@@ -475,6 +475,11 @@
 </section>
 <div style="height:20px; width:100%; clear:both;"></div>
 <script type="text/javascript">
+    $(document).ready(function(){
+       $("#message_board_close").click(function(){
+            $(".lean-overlay").remove();
+        });
+    });
   $("#text_pre_page").val("${pager['size']}")
     $("#text_pre_page").bind('change', function(e){
       var f=$("#search_form");
@@ -565,11 +570,16 @@
       <img src="" class="" alt="" id="dlg-user-photo" width="110"/><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <a href="https://plus.google.com/hangouts/_/aqd2g5oysfdkvdova5mt5qmqaae" target="_blank" class="green-button side-button hangout-button">Join Hangout</a>
+        %for profile in profiles:
+            <%
+              usr = User.objects.get(id=profile['user_id'])
+            %>
+            <span class='hangout-profile-span' id="hangout_span_${usr.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${usr.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
+        %endfor
       </div>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
-        <a href="#" id="skype-start" class="side-button blue-button skype-button">Start Skype Call</a>
+        <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
       </div><br><br>
         <a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
           <div class="message_board_btn" id="online_popup_data" data-fullname="" data-name="" data-id="" onclick="imessage_click(this);">
@@ -581,40 +591,16 @@
   </div>
 </div>
 
-<div style="" id="skype-dialog" class="modal">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
-    <div class="titlebar">
-      <h3 class="dialog-title">Start Skype Call</h3>
-      <div class="close-modal" id="dialog_close">✕</div>
-    </div>
-    <div class="content">
-      <form>
-        <label>Participants (comma separated):<input type="text" name="skype-participants"></label>
-        <label>Topic (optional):<input type="text" name="skype-topic"></label>
-        <input type="button" value="Create" id="create-skype">
-        <div class="skype-container">
-          <script type="text/javascript">
-            function startSkype(params) {
-              var skype_button = Skype.ui(params);
-              if (skype_button) {
-                var id = $('.skype-container').attr('id');
-                $('#' + id + '_paraElement img').css({'margin': '0', 'vertical-align': '0'});
-              }
-            }
-          </script>
-        </div>
-      </form>
-      <div class="community-clear"></div>
-    </div>
-  </div>
-</div>
 
 <script type="text/javascript">
   var main_dlg=null;
-  function show_active_user(id, fname, lname,uname){
+  function show_active_user(id, fname, lname,uname, skype, email){
     $("#dlg-name-title").html(fname+" "+lname);
     $("#dlg-user-photo").attr("src", "/user_photo/"+id);
+    $("#skype-online-username").attr("href", "skype:"+skype+"?call")
     $("#online_popup_data").attr("data-fullname", fname + " " + lname);
+    $(".hangout-profile-span").hide();
+    $("#hangout_span_"+id).show();
     $("#online_popup_data").attr("data-id", id);
     $("#online_popup_data").attr("data-name", uname);
     main_dlg=new Dialog($('#dialog'));

@@ -170,14 +170,29 @@
   	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
   	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
               %if curr_user==request.user:      
-              <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
-               % if course.hide_timer == False:
-                % if course.show_external_timer == False:
-                  <div class="course-time-completed" time_type="course" course_id="${course.id}">Course Time: <span>${course_times[course.id]}</span></div>
-                % else:
-                  <div class="course-time-completed" time_type="external" course_id="${course.id}">External Time: <span>${external_times[course.id]}<span></div>
-                % endif
-              % endif
+                  <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
+                  <!--
+                   % if course.hide_timer == False:
+                    % if course.show_external_timer == False:
+                      <div class="course-time-completed" time_type="course" course_id="${course.id}">Course Time: <span>${course_times[course.id]}</span></div>
+                    % else:
+                      <div class="course-time-completed" time_type="external" course_id="${course.id}">External Time: <span>${external_times[course.id]}<span></div>
+                    % endif
+                  % endif
+                  -->
+                  <!--20160621 change to current year course time and total_time-->
+                  <!--begin-->
+                  % if course.hide_timer == False:
+                      <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                          <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
+                          % if course.show_external_timer == False:
+                              <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
+                          % else:
+                              <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
+                          % endif
+                      </div>
+                  % endif
+                  <!--end-->
               %endif
   	    % endif
             </section>

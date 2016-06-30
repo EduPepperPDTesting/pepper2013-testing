@@ -80,7 +80,7 @@
                 <select class="gotoPage" title="Select page number"></select>
                 <div style="float:right;">
                     %if len(school_year_item) > 0:
-                        <label>School Year:</label>
+                        <span>School Year:</span>
                         <select class="school_year_select" title="Select school year" style="width:200px;font-size:14px;">
                             <option value="all">Select School Year</option>
                             %for item in school_year_item:
@@ -261,7 +261,11 @@
             $(".school_year_select").change(function(){
                 window.location.href = "${reverse('reporting_report',args=[report.id])}?school_year=" + $(this).val();
             });
-            $(".school_year_select").val("${request.GET.get('school_year','')}");
+            var request_school_year = "${request.GET.get('school_year','')}";
+            $(".school_year_select").val(request_school_year);
+            if("${school_year_item}".indexOf('current') >= 0 && request_school_year == ''){
+                $(".school_year_select").val("current");
+            }
         }
     }
 </script>

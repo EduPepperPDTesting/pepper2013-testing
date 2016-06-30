@@ -185,7 +185,7 @@
     }
 
     #show_notifications_link:focus { outline: none!important;}
-    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+ [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
@@ -253,6 +253,7 @@
         top: -6px;
         width: 0px;
     }
+  .sequence-list-wrapper{z-index:2 !important}
 </style>
 
 % if course:
@@ -372,7 +373,7 @@
         %if curr_user==request.user:
         <ol class="user admin" >
             %if show_extended:
-                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message", "communities_notification_config"]:
+          <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
@@ -413,7 +414,7 @@
                                 }
                             });
                         </script>
-                      %endif
+                        <!-- endif -->
                        <script type="text/javascript">
                             url_studio = ["https://studio0.pepperpd.com",
                                           "https://studio-staging.pepperpd.com",
@@ -547,7 +548,7 @@
             <ol class="right nav-courseware">
                 <!--@begin:Add Paypal-->
                 <!--@date:2016-05-19-->
-                <li class="nav-courseware-01">
+                <!--<li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
                             <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}" target="_blank" style="margin-right:30px;"><img src="/static/images/paypal.png" width="100" height="27"/></a>
@@ -555,7 +556,7 @@
                             <a  class="main-link" href="/contact" target="_blank" ><img src="/static/images/paypal.png" width="100" height="27"/></a>        
                         % endif
                     % endif
-                </li>
+                </li>-->
                 <!--@end-->
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
@@ -656,6 +657,11 @@
                    } else {
                      $(this).children('span').html(data.external_times[course_id]);
                    }
+                 });
+    
+                 $(".total-course-time").each(function() {
+                    var course_id = $(this).attr('course_id');
+                    $(this).children('span').html(data.total_course_times[course_id]);
                  });
                });
             }

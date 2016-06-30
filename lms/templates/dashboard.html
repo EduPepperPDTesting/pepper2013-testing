@@ -84,7 +84,7 @@
     .side-button {
         color: white !important;
         display: block;
-        padding: 10px;
+        padding: 7px;
         border-width: 1px;
         border-style: solid;
         text-align: center;
@@ -97,6 +97,9 @@
     .green-button {
         border-color: #595;
         background: #8cbe41;
+    }
+    .hangout-button{
+        margin-top: 5px;
     }
     .red-button {
         border-color: #df0000;
@@ -477,7 +480,7 @@
           if user.profile.last_activity:
             u=user.profile.last_activity
             u_min = 60*int(u.strftime("%H")) + int(u.strftime("%M"))
-            close = int(d_min) - int(u_min) < 10
+            close = int(d_min) - int(u_min) < 1
             active_recent = u.strftime("%d") == utc_day and u.strftime("%m") == utc_month and close
           else:
             active_recent = False
@@ -1001,7 +1004,7 @@ Add info that you would like to share about yourself here:
                <!-- hide email settings -->
               <!--
               <a href="#email-settings-modal" class="email-settings" rel="leanModal" data-course-id="${course.id}" data-course-number="${course.number}" data-optout="${course.id in course_optouts}">${_('Email Settings')}</a>
-              -->
+
               % if course.hide_timer == False:
                 % if course.show_external_timer == False:
                   <div class="course-time" time_type="course" course_id="${course.id}">Course Time: <span></span></div>
@@ -1009,6 +1012,20 @@ Add info that you would like to share about yourself here:
                   <div class="course-time" time_type="external" course_id="${course.id}">External Time: <span></span></div>
                 % endif
               % endif
+              -->
+          <!--20160621 change to current year course time and total_time-->
+          <!--begin-->
+          % if course.hide_timer == False:
+              <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                  <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
+                  % if course.show_external_timer == False:
+                      <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
+                  % else:
+                      <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
+                  % endif
+              </div>
+          % endif
+          <!--end-->
 	    % endif
            %endif
           </section>
@@ -1642,8 +1659,8 @@ Add info that you would like to share about yourself here:
       <img src="" class="" alt="" id="dlg-user-photo" /><br/>
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
-        <g:hangout render="createhangout" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
-      </div>
+        <div class="hangout-button"><g:hangout render="createhangout" class="side-button blue-button skype-button" invites="[{id:'${curr_user.email}', invite_type:'EMAIL'}]"></g:hangout>
+     </div> </div>
 
       <div style="display:inline-block;vertical-align:bottom;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>

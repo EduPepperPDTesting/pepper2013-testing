@@ -183,9 +183,31 @@
         filterLines();
         filterEnabler();
         submitHandler('#report-edit', function (data) {
-            // TODO: Disabling this for now, since this page isn't done yet. Will redirect to the main reports page for now.
-            //window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
-            window.location = '${reverse('reporting_reports')}';
+            window.location = '${reverse('reporting_report', args=['placeholder'])}'.replace('placeholder', data.report_id);
+        }, function () {
+            $('.error-box').removeClass('error-box');
+            var valid = true;
+            var errors = ['The following errors occurred:\n'];
+            if (!/[A-Za-z0-9]/.test($("input[name='report_name']").val())) {
+                valid = false;
+                errors.push('Name is required.');
+                $(".report-name").addClass('error-box');
+            }
+            if ($("select[name='view[0]']").val() == 'none') {
+                valid = false;
+                errors.push('At least one view must be selected.');
+                $(".view-selector").addClass('error-box');
+            }
+            if (!$('.column-check:checked').length) {
+                valid = false;
+                errors.push('You must select at least one column.');
+                $('.column-selector').addClass('error-box');
+            }
+            if (!valid) {
+                var error = errors.join('\n');
+                alert(error);
+            }
+            return valid;
         });
         $('#report-cancel').click(function (e) {
             e.preventDefault();

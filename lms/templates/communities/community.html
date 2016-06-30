@@ -16,512 +16,9 @@ import datetime
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
-<style type="text/css" media="screen">
-    .remove_skype_span:hover{
-        cursor: pointer;
-    }
-    .remove_skype_span{
-        padding-left:5px;
-        padding-bottom:2px;
-    }
-    .circle {
-      width: 20px;
-      height: 20px;
-      position:absolute;
-      right:0;
-    }
-    .redcircle{
-      width: 20px;
-      height: 20px;
-      background: red;
-      border-radius: 10px;
-      position:absolute;
-      right:0;
-    }
-    #dlg-user-photo{
-         width:140px;
-         height:140px;
-     }
-    #community-main {
-        width: 1185px;
-        margin: 30px auto;
-        text-align: left;
-    }
-    #community-main-content {
-        width: 880px;
-        float: left;
-    }
-    #community-main-sidebar {
-        width: 266px;
-        float: right;
-        top: 0;
-        text-align: center;
-    }
-    #community-sidebar-header {
-        border: 2px solid #ddd;
-        height: 53px;
-        text-align: center;
-        vertical-align: middle;
-        font: 700 1.2em/2.4em "Open Sans",Verdana,Geneva,sans-serif;
-    }
-    #community-sidebar {
-        width: 208px;
-        padding: 20px 20px 0 20px;
-        border: 2px solid #ddd;
-        margin: auto;
-        border-top: 0;
-        text-align: left;
-    }
-    .sidebar-section {
-        margin: 0 0 20px 0;
-    }
-    #community-member {
-        margin-top: 10px;
-    }
-    .sidebar-section h2 {
-        border-bottom: 2px solid #90BF70;
-        padding-bottom: 5px;
-        margin: 0 0 10px 0;
-        color: #006EBF;
-        font-weight: bold;
-        text-transform: none;
-        font-size: 1em;
-        line-height: 1em;
-    }
-    .sidebar-sub-section {
-        margin: 0 10px;
-    }
-    .trending-title {
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .trending-name {
-        font-size: 80%;
-        display: block;
-        margin-bottom: 5px;
-    }
-    .trending-name span {
-        font-weight: bold;
-    }
-    .status-name {
-        display: block;
-        margin-bottom: 5px;
-    }
-    #community-header {
-        border: 2px solid #ddd;
-        width: 100%;
-        position: relative;
-        min-height: 260px;
-    }
-    #community-header h1 {
-        text-align: left;
-        color: #006EBF;
-        margin: 15px 0 0 20px;
-        font-weight: bold;
-        font-size: 160%;
-    }
-    #community-header h2 {
-        margin: 15px 0 0 20px;
-        text-transform: none;
-        font-weight: bold;
-    }
-    #community-header h3 {
-        color: #006EBF;
-        padding: 10px 0;
-    }
-    #community-header h4 {
-        font-weight: bold;
-    }
-    #community-avatar {
-        width: 100px;
-        float: left;
-        margin: 0 15px 0 0;
-    }
-    #community-logo {
-        float: right;
-        width: 380px;
-        height: 260px;
-        overflow: hidden;
-        margin: 15px;
-        text-align: center;
-        background-color: white;
-    }
-    #community-logo img {
-        height: 260px;
-    }
-    .facilitator-wrap {
-        position: absolute;
-        width: 450px;
-        bottom: 20px;
-        left: 20px;
-    }
-    #community-content-area h1 {
-        color: #006EBF;
-        padding: 20px 3px;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: left;
-        border-bottom: 2px solid #90BF70;
-        display: inline-block;
-    }
-    #community-content h1 {
-        width: 100%;
-    }
-    #community-content, #community-discussions {
-        color: #000;
-        padding: 20px 3px;
-    }
-    #community-content-area label {
-        font-style: normal;
-        display: inline-block;
-        width: 3.5em;
-        text-align: left;
-        font-weight: bold;
-    }
-    #community-content-area span {
-        /*font-size: 12px;*/
-    }
-    #community-content {
-        width: 270px;
-        height: 700px;
-        float: left;
-    }
-    #community-content-scroller {
-        width: 270px;
-        height: 640px;
-        overflow-y: scroll;
-        overflow-x: hidden;
-    }
-    #community-discussions {
-        width: 578px;
-        margin-right: 20px;
-        float: left;
-    }
-    .discussion {
-        clear: both;
-        position: relative;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        padding: 15px 20px 15px 94px;
-        background-color: #fff;
-        margin-bottom: 15px;
-    }
-    .discussion h2 {
-        margin-bottom: 5px;
-        width: 370px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .discussion-post-info-header {
-        float: left;
-        width: 463px;
-    }
-    .discussion-post-info div {
-        display: inline-block;
-    }
-    .discussion-post-info span {
-        font-weight: bold;
-    }
-    .discussion-byline {
-        overflow: hidden;
-        height: 1.5em;
-        width: 370px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .discussion-stats-header {
-        float: left;
-        width: 100px;
-    }
-    .discussion-stats {
-        float: right;
-        width: 80px;
-    }
-    .discussion-stats span {
-        display: block;
-    }
-    .discussion-avatar {
-        position: absolute;
-        width: 64px;
-        display: block;
-        top: 15px;
-        left: 20px;
-    }
-    .community-clear {
-        clear: both;
-        height: 1px;
-        margin-top: -1px;
-    }
-    #discussion-pager {
-        text-align: center;
-        line-height: 24px;
-        clear: both;
-        margin: 20px 0;
-    }
-    #discussion-pager a {
-        width: auto;
-        line-height: 24px;
-        padding: 2px 5px;
-        color: #333;
-        border: 1px solid #ccc;
-        margin-left: 3px;
-    }
-    #discussion-pager a:hover {
-        color: #ff6600;
-    }
-    #discussion-pager .up_page {
-        display: inline-block;
-        width: 17px !important;
-        line-height: 24px;
-        height: 20px;
-        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
-        border: none;
-        vertical-align: middle;
-    }
-    #discussion-pager .next_page {
-        display: inline-block;
-        width: 17px !important;
-        height: 20px;
-        background: url(/static/tmp-resource/image/next_page.png) no-repeat;
-        border: none;
-        margin-left: 13px;
-        vertical-align: middle;
-    }
-    #discussion-pager .page_active {
-        color: #ff6600 !important;
-    }
-    #discussion-pager .page_active:hover {
-        color: #ff9933 !important;
-    }
-    #discussion-pager .page_num {
-        display: inline-block;
-        padding: 2px 5px;
-    }
-    div.cke{
-        width:580px;
-    }
-    .community-resource {
-        display: block;
-        clear: both;
-        margin-bottom: 20px;
-        border: 0 solid #f0870c;
-        height: 160px;
-        width: 242px;
-        box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
-        border-radius: 6px;
-        overflow: hidden;
-        position: relative;
-    }
-    .community-resource img {
-        display: block;
-        width: 242px;
-        border-radius: 6px;
-    }
-    .community-resource a {
-        display: block;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 60px;
-        background: #f0870c;
-        color: #fff;
-        font-size: 14px;
-        border-radius: 0 0 6px 6px;
-    }
-    .community-resource div {
-        display: table-cell;
-        height: 60px;
-        vertical-align: middle;
-        width: 242px;
-        text-align: center;
-    }
-    #table-members th {
-        color: #006EBF;
-        padding: 20px 3px;
-        font-size: 20px;
-    }
-    .card-link span {
-        color: #FFFFFF;
-    }
-    .course-card {
-        margin: 0 0 20px 0 !important
-    }
-    div.card-bottom table tr:nth-child(2) {
-        display: none;
-    }
-    #members {
-        display: inline-block;
-        overflow-x: hidden;
-        padding: 10px 0;
-        width: 100%;
-        position: relative;
-    }
-    #members a {
-        margin-right: 5px;
-        display: inline-block;
-    }
-    #members a img {
-        vertical-align: middle;
-    }
-    .modal {
-        position: absolute;
-        opacity: 1;
-        z-index: 101;
-        left: 50%;
-        margin-left: -349px;
-        top: 40px;
-        background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
-        border-radius: 5px;
-        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
-        padding: 0 0 8px 0;
-        width: 680px;
-        display: none;
-    }
-    #fixed-dialog, #skype-dialog {
-        position: fixed;
-    }
-    .modal .close-modal {
-        border-radius: 2px;
-        cursor: pointer;
-        display: inline-block;
-        vertical-align: baseline;
-        padding: 10px;
-        position: absolute;
-        right: 2px;
-        top: 0;
-        z-index: 3;
-        color: #333;
-    }
-    .modal .titlebar {
-        height: 70px;
-        background: #ccc;
-    }
-    .modal .dialog-title {
-        margin: 0;
-        padding: 20px 0 0 30px;
-        color: #666;
-    }
-    .modal .content {
-        color: #333;
-        text-align: left;
-        font-size: 16px;
-        padding: 20px 10px;
-        line-height: 20px;
-    }
-    .modal .discussion-error {
-        color: #f00;
-        font-weight: bold;
-        font-size: 120%;
-        line-height: 120%;
-    }
-    .modal .inner-wrapper form textarea {
-        height: 100px;
-    }
-    .hangout_container {
-        text-align: center;
-        padding-top: 20px;
-    }
-    .hangout_container img {
-        width: 120px;
-        vertical-align: top;
-    }
-    .hangout_container .side-button {
-        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
-        height: 20px;
-    }
-    .side-button {
-        color: white !important;
-        display: block;
-        padding: 10px;
-        border-width: 1px;
-        border-style: solid;
-        text-align: center;
-        margin-top: 5px;
-    }
-    .blue-button {
-        border-color: #45719E;
-        background: #5A9BD5;
-    }
-    .green-button {
-        border-color: #595;
-        background: #8cbe41;
-    }
-    .red-button {
-        border-color: #df0000;
-        background: #ED2828;
-    }
-    #poll-form {
-        display: none;
-        margin-top: 15px;
-        clear: both;
-    }
-    .poll-answer-input {
-        width: 80% !important;
-        display: inline !important;
-    }
-    .discussion-attachment {
-        float: left;
-        padding-top: 16px;
-    }
-    .discussion-poll {
-        float: right;
-        display: block;
-        vertical-align: middle;
-        padding-top: 16px;
-    }
-    #members-title {
-        border-bottom: 2px solid #90BF70;
-        color: #006EBF;
-        font-size: 20px;
-        padding: 20px 3px;
-        font-weight: bold;
-        clear: both;
-    }
-    #table-members {
-        width: 100%;
-        table-layout: fixed;
-        margin-bottom: 20px;
-    }
-    #table-members tr {
-        border-bottom: 2px solid #90BF70;
-    }
-    .member-arrows {
-        width: 20px;
-        vertical-align: middle;
-    }
-    .member-arrows div {
-        cursor: pointer;
-        width: 17px;
-        height: 20px;
-    }
-    .member-arrow-left {
-        background: url(/static/tmp-resource/image/up_page.png);
-    }
-    .member-arrow-right {
-        background: url(/static/tmp-resource/image/next_page.png);
-    }
-    .member-column {
-        white-space: nowrap;
-    }
-    .discussion-error-box {
-        border-color: red !important;
-    }
-    #create-skype, #create-skype-online {
-        float: left;
-        margin: 0 20px 0 0;
-    }
-    .skype-container {
-        float: left;
-    }
-    .skype-button .side-button {
-        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
-        height: 20px;
-    }
-</style><script src="https://apis.google.com/js/platform.js" async defer></script>
-<link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/community.css" />
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
     <section id="community-main-content">
@@ -542,46 +39,74 @@ import datetime
         </div>
 
         <div id="community-content-area">
-            <div id="community-discussions">
+            <div id = "community_content_panel">
+                <div id="community_content_header" class="community-content-header">
+                    <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
+                    <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
+                </div>
+                <div id="community_content_posts" class="community-content-section">
+                    <div id="post_content" class="post-content">
+                        <table id="post_content_table">
+                            <tr class="post-content-row" id="post_content_new_row">
+                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
+                                <td class="post-content-right" style="padding-bottom: 8px;">
+                                    <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
+                                    <a class="post-button" style="position: relative;">Post</a>
+                                </td>
+                            </tr>
+                            <!--<tr class="post-content-row">
+                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
+                                <td class="post-content-right">
+                                    <textarea id="post_textarea" class="post-textarea" placeholder="" readonly></textarea>
+                                </td>
+                            </tr>-->
+                        </table>
+                    </div>
+                </div>
+                <div id="community_content_discussions" class="community-content-section">
+                    <div class="discussions">
+                    %for i,d in enumerate(discussions):
+                        <div class="discussion">
+                            <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
+                            <div class="discussion-stats">
+                                <span>Replies: ${d.replies}</span>
+                                <span>Views: ${d.views}</span>
+                            </div>
+                            <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
+                            <div class="discussion-post-info">
+                                <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
+                                <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
+                            </div>
+                            <div class="community-clear"></div>
+                        </div>
+                    %endfor
+                    </div>
+                    <div id="discussion-pager">
+                        <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
+                        %if pager['page'] > 1:
+                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']-1})" class="up_page"></a>
+                        %endif
+                        %for p in pager['jumps']:
+                            %if p=='c':
+                                <a href="#discussions" onclick="replaceDiscussions(${pager['page']})" class="page_active">${pager['page']}</a>
+                            %else:
+                                <a href="#discussions" onclick="replaceDiscussions(${p})">${p}</a>
+                            %endif
+                        %endfor
+                        %if pager['pages'] > pager['page']:
+                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
+                        %endif
+                    </div>
+                </div>
+            </div>
+            <!--<div id="community-discussions">
                 <a name="discussions"></a>
                 <h1 class="discussion-post-info-header">Community Discussion</h1>
                 <h1 class="discussion-stats-header">Activity</h1>
-                <div class="discussions">
-                %for i,d in enumerate(discussions):
-                    <div class="discussion">
-                        <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
-                        <div class="discussion-stats">
-                            <span>Replies: ${d.replies}</span>
-                            <span>Views: ${d.views}</span>
-                        </div>
-                        <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
-                        <div class="discussion-post-info">
-                            <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
-                            <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
-                        </div>
-                        <div class="community-clear"></div>
-                    </div>
-                %endfor
-                </div>
-                <div id="discussion-pager">
-                    <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
-                    %if pager['page'] > 1:
-                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']-1})" class="up_page"></a>
-                    %endif
-                    %for p in pager['jumps']:
-                        %if p=='c':
-                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']})" class="page_active">${pager['page']}</a>
-                        %else:
-                            <a href="#discussions" onclick="replaceDiscussions(${p})">${p}</a>
-                        %endif
-                    %endfor
-                    %if pager['pages'] > pager['page']:
-                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
-                    %endif
-                </div>
-            </div>
+
+            </div> -->
             <div id="community-content">
-                <h1>Content Collections</h1>
+                <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
                         <% c=course_from_id(cc.course) %>
@@ -620,14 +145,14 @@ import datetime
                       if use.profile.last_activity:
                         usr=use.profile.last_activity
                         u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 10
+                        close = int(d_min) - int(u_min) < 1
                         active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
                       else:
                         active_recent = False
                       %>
                       <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
                         %if active_recent:
-                            <img src="/static/images/online-3.png" class="circle" id="${user.profile.id}" data-email="${user.email}" data-fname="${user.first_name}" data-lname="${user.last_name}" data-skypename="${user.profile.skype_username}" data-id="${user.id}" data-username="${user.username}"></img>
+                            <img src="/static/images/online-3.png" class="circle" id="${use.profile.id}" data-email="${use.email}" data-fname="${use.first_name}" data-lname="${use.last_name}" data-skypename="${use.profile.skype_username}" data-id="${use.id}" data-username="${use.username}"></img>
                         %endif
                         <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
                       </a>
@@ -686,7 +211,7 @@ import datetime
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
-                %if request.user.is_superuser:
+                %if request.user.is_superuser or is_facilitator(request.user, community) or is_member(request.user, community):
                     <div class="skype-button">
                         <a href="#" id="skype-start" class="side-button blue-button">Start Skype Call</a>
                     </div>
@@ -713,11 +238,16 @@ import datetime
     <div style="color:#000;text-align:center;padding:10px;">
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
       <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/community_google_hangouts.png" class="" alt="" /><br/>
+        <img src="/static/images/community_google_hangouts.png" class="" alt="" style="padding-bottom:5px;"/><br/>
+          %for u in users:
+          <%
+            use = u.user
+          %>
+             <span class="hangout-span" id="hangout_span_${use.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${use.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
+          %endfor
         <div id="google_hangout"></div>
-        <g:hangout render="createhangout" id="google_hangout" invites="[{id:'pcgedu@pepperpd.com', invite_type:'EMAIL'}]"></g:hangout>
       </div>
-      <div style="display:inline-block;vertical-align:bottom;">
+      <div style="display:inline-block;vertical-align:top;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
       </div><br><br><a href="#show_personalmessage" rel="leanModal" style="display:inline-block">
@@ -739,6 +269,24 @@ import datetime
         <div class="content"></div>
     </div>
 </div>
+<div style="" id="fixed-dialog-likes" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="fixed-dialog-share" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
 <div style="" id="skype-dialog" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
@@ -747,15 +295,14 @@ import datetime
         </div>
         <div class="content">
             <form>
-                <label>Select Skype Usernames from the below list to add to call.</label><br>
-                <select id = "skype_usernames_select">
-                    <option id = "uname_null" val="">Select Username</option>
+                <label>Select from the below list to add to call.</label><br>
+                <select id = "skype_usernames_select" multiple>
                     %for u in users:
-                        %if u.user.profile.skype_username != "NULL":
-                            <option class='skype_uname_option' id="${u.user.username}" val="${u.user.profile.skype_username}">${u.user.profile.skype_username}</option>
+                        %if u.user.profile.skype_username:
+                            <option class='skype_uname_option' id="${u.user.username}" data-src="${reverse('user_photo',args=[u.id])}" val="${u.user.profile.skype_username}" data-skype="${u.user.profile.skype_username}">${u.user.first_name} ${u.user.last_name}</option>
                         %endif
                     %endfor
-                </select>
+                </select><br>
                 <span id="selected_skype_names"></span><br>
                 <label>Topic (optional):<input type="text" name="skype-topic"></label>
                 <input type="button" value="Create" id="create-skype">
@@ -857,7 +404,11 @@ import datetime
         </div>
     </div>
 </div>
+<div id = 'user_info_div' class="user-info-div">
+    <span id='user_info' class="user_info_span"></span>
+</div>
 <script type="text/javascript">
+    var size=0;
     function joinMe(){
         var user_id = "${request.user.id}";
         $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
@@ -1111,14 +662,171 @@ import datetime
                     - $("#members").width() + $(firstHideRight).width() + 1);
         }
     }
-    $(document).ready(function() {
+    function displayOptions(data){
+        var focused = $(':focus');
+        var code = "<div id='select_name'>"
+        for (i=0; i < data.length; i++){
+            code+="<div class='anchor-container-select selection_name' data-parent='"+focused.data('id')+"' data-content='"+data[i]+"'>" + data[i] + "</div>";
+        }
+        code+="</div>";
+        $("#select_name").remove();
+        focused.after(code);
+        $(".selection_name").click(function(e){
+            var change = $(this).parent().prev();
+            var str = change.val().substr(0, change.val().lastIndexOf("@")+1);
+            change.val(str+$(this).data("content") + " ");
+            change.focus();
+            $("#select_name").remove();
+        });
+    }
+    function getPosts(){
+        filter = "New";
+        var community=${community.id};
+        $.post("${reverse('community_get_posts')}", {community_id: community, size:size}, function (data){
+            $("#post_content_table").find("tr:gt(0)").remove();
+            $('#post_content_table tr:last').after(data.post);
+            $(".post-like-text").click(function(){
+                $.post("${reverse('community_submit_new_like')}", {post_id: $(this).data('id'), comment_id: '-1', user_id:'${request.user.id}'},function(data){
+                    getPosts();
+                });
+            });
+            $(".post-comment-text").click(function(){
+                id=$(this).data('id');
+                if($(this).data('name') != ''){
+                    $("#focus"+id).val("@"+$(this).data('name')+" ");
+                }
+                $("#focus"+id).focus();
+            });
+            $(".post-share-text").click(function(){
+                content = $(this).data('content');
+                community = $(this).data('community');
+                poster = $(this).data("poster");
+                options = "<select id='share_id_selector'>"
+                %for u in users:
+                    options+= "<option value = '${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>"
+                %endfor
+                options+="</select>"
+                html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
+                new Dialog($('#fixed-dialog-share')).show("Share Post", "<center>"+html+"</center>");
+            });
+            $(".comment-like-text").click(function(){
+                $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
+                    getPosts();
+                });
+            });
+            $('.add-comment-text').keyup(function (e) {
+                $("#select_name").remove();
+                if (e.keyCode === 13) {
+                    content=$(this).val();
+                    post_id=$(this).data('id')
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                        getPosts();
+                    });
+                }
+                var n = $(this)[0].selectionStart;
+                var at = $(this).val().indexOf("@");
+                if(at > -1){
+                    var str = $(this).val().substr(at);
+                    var x = str.length;
+                    for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+
+                        s = s.substr(1);
+                        x = s.indexOf("@");
+                        if(x>-1)
+                            working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+                        else
+                            working = s.substr(0).split(' ').slice(0,2).join(' ');
+                    }
+                    loc = $(this).val().indexOf(working);
+                    if(n > loc && n <= working.length+loc) {
+                        $.post("${reverse('community_lookup_name')}", {name: working}, function(data){
+                            if(data.content.length > 0) {
+                                displayOptions(data.content);
+                            }
+                        });
+                    }
+
+                }
+            });
+            safety=0;
+            $(".hoverable-profile").hover(function(event) {
+                safety++;
+                $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+                if ($(this).data("skype") !== undefined){
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img>"+$(this).data('skype'))
+                }
+                $("#user_info_div").css({top: event.clientY, left: event.clientX}).show();
+            }, function() {
+                if (!$("#user_info_div").is(":hover") && safety > 1){
+                    $("#user_info_div").hide();
+                    safety = 0;
+                }
+            });
+            $("#user_info_div").hover(function(e){}, function(){
+                $(this).hide()
+            });
+            $(".like-members-anchor").click(function(){
+                var post = $(this).data('post');
+                var comment = $(this).data('comment');
+                $.post('${reverse('community_get_full_likes')}', {'post': post, 'comment': comment}, function (data){
+                    new Dialog($('#fixed-dialog-likes')).show("Likes", "<center>"+data.html+"</center>");
+                });
+            });
+        });
+    }
+    $(document).ready(function(){
+        size=10;
+        getPosts();
+
+        $(".post-button").click(function(){
+            var post=$("#new_post_textarea").val();
+            var community=${community.id};
+            $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community}, function (data) {
+                $("#new_post_textarea").val("");
+                getPosts();
+            });
+        });
+        $('#community_content_posts').on('scroll', function() {
+            if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+                size+=10;
+                getPosts();
+            }
+        });
+        var change_var = 0;
+        $.post("${reverse('community_check_content_priority')}", {community_id: ${community.id}}, function (data){4
+           if(data.result==0){
+                $("#community_content_discussions").hide();
+                $("#community_content_header_posts").addClass("selected");
+                $("#community_content_header_discussions").removeClass("selected");
+                change_var = 1;
+           }else{
+                $("#community_content_posts").hide();
+                $("#community_content_header_posts").removeClass("selected");
+                $("#community_content_header_discussions").addClass("selected");
+                change_var = 0;
+           }
+        });
+
+        $("#community_content_header_posts").click(function(){
+            $("#community_content_discussions").hide();
+            $("#community_content_posts").show();
+            $("#community_content_header_posts").addClass("selected");
+            $("#community_content_header_discussions").removeClass("selected");
+        });
+        $("#community_content_header_discussions").click(function(){
+            $("#community_content_posts").hide();
+            $("#community_content_discussions").show();
+            $("#community_content_header_posts").removeClass("selected");
+            $("#community_content_header_discussions").addClass("selected");
+        });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();
         });
         $(".circle").click(function(event){
             event.preventDefault();
             scroll(0,0);
-            $("#google_hangout").html("<g:hangout render=\"createhangout\" id=\"google_hangout\" invites=\"[{id:'"+$(this).attr("data-email")+"', invite_type:'EMAIL'}]\"></g:hangout>");
+            $(".hangout-span").hide();
+            $("#hangout_span_"+$(this).data('id')).show();
             $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
             $("#skype-online-name").text("");
             $("#skype-name-exists").text("Begin a call with: ");
@@ -1157,6 +865,7 @@ import datetime
         });
         $(document).on("click", "img.remove_skype_span", function(){
             $(this).parent().remove();
+            $("option:contains("+$(this).parent().text()+")").show();
         });
         $(".skype_uname_option").each(function(){
             if($(this).val() == "None"){
@@ -1178,7 +887,7 @@ import datetime
             $('#create-skype').click(function() {
                 var participants = [];
                 $(".skype_username_list").each(function(i){
-                    participants.push($(this).text());
+                    participants.push($(this).data('skype'));
                 });
                 var topic = $("input[name='skype-topic']").val();
                 var skype_params = {
@@ -1220,8 +929,50 @@ import datetime
           });
     });
     function toggleSkypeAddition(id){
-        $("#selected_skype_names").append("<div class='skype_username_list'>"+$("#"+id).val()+"<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+        var selected = $("#"+id).find('option:selected');
+        val = $("#"+id).val()+'';
+        vals = val.split(",");
+        $.each(vals,function(i){
+            if(vals[i] != null) {
+                j = $("option:contains(" + vals[i] + ")");
+                j.hide();
+                $("#selected_skype_names").append("<div class='skype_username_list' data-skype='" + j.data('skype') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+            }
+        });
         $("#skype_usernames_select").val('');
+        $(".skype_username_list:contains('null')").remove();
+    }
+    function sharePost(content, community, poster){
+        share_id = $("#share_id_selector").val();
+        message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following post by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
+        message += "<p style='text-align:left; float-left'>View the full comment here: <a href='/community/"+community+"'>Community</a></p>"
+        var datainfo = {
+            'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': share_id,
+                'date': (new Date()).toISOString(),
+                'body': message
+            })
+        };
+        $.post("${reverse('save_message')}", datainfo, function(data){
+            var messageinfo = {
+                'info': JSON.stringify({
+                    'user_id': share_id,
+                    'interviewer_id': '${request.user.id}',
+                    'interviewer_name': '${request.user.first_name}',
+                    'interviewer_fullname': '${request.user.first_name} ${request.user.last_name}',
+                    'type': 'message',
+                    'body': '',
+                    'date': (new Date()).toISOString(),
+                    'activate': 'false'
+                })
+            };
+            $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+            $("#share_message").html("Message Shared!")
+            $("#share_message").css("color", "green");
+            $("#share_message").show()
+        });
+
     }
 </script>
 </body>

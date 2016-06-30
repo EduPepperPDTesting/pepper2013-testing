@@ -22,10 +22,23 @@ def get_school_year_item():
     return sorted(data, cmp=None, key=None, reverse=True)
 
 
+def get_default_school_year_item(school_year_item):
+    if school_year_item == '':
+        rs = reporting_store()
+        rs.set_collection(school_year_collection[0])
+        result = list(rs.collection.find({'school_year': 'current'}))
+        if result:
+            school_year_item = 'current'
+        else:
+            school_year_item = 'all'
+    return school_year_item
+
+
 def get_query_school_year(request, report, columns):
     selected_view = ReportViews.objects.filter(report=report)[0]
     if report_has_school_year(columns):
-        school_year_item = request.GET.get('school_year', 'all')
+        school_year_item = request.GET.get('school_year', '')
+        school_year_item = get_default_school_year_item(school_year_item)
         if selected_view.view.collection in school_year_collection:
             if school_year_item != 'all':
                 return '{"$match":{"school_year":"' + school_year_item + '"}},'

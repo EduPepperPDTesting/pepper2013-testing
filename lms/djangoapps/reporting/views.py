@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import Q, Max
 import sys
 import json
+import time
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
@@ -21,6 +22,7 @@ from StringIO import StringIO
 from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
+
 
 def postpone(function):
     """
@@ -70,7 +72,15 @@ def reports_view(request):
     # Add uncategorized (unpublished) reports for admins.
     if admin_rights or create_rights:
         report_list = list()
-        category_reports = reports.filter(category__isnull=True)
+        qs = Q(category__isnull=True)
+        if not admin_rights:
+            if access_level == 'School':
+                qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
+            elif access_level == 'District':
+                qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
+            elif access_level == 'State':
+                qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
                                 'name': category_report.name,
@@ -124,7 +134,7 @@ def category_save(request):
             data = {'success': False, 'error': '{0}'.format(e)}
             transaction.rollback()
         else:
-            data = {'success': True, 'name': category.name}
+            data = {'success': True, 'name': category.name, 'id': category.id}
             transaction.commit()
     else:
         data = {'success': False, 'error': 'No name submitted.'}
@@ -305,7 +315,7 @@ def report_save(request, report_id):
                 report_filter.report = report
                 report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
                 report_filter.column = ViewColumns.objects.get(id=int(column))
-                report_filter.value = filter_values[i]
+                report_filter.value = filter_values[i].strip()
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
@@ -425,24 +435,26 @@ def build_sorts_and_filters(columns, sorts, filters):
     :return: Sorts and filters for mongo.
     """
     column = []
+    data_type = {}
+    int_type = ['int', 'time']
     for i, col in enumerate(columns):
         column.append(col.column.column)
+        data_type[col.column.column] = col.column.data_type
 
-    order = ['$natural', 1]
+    order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
         pre = 1
         if bool(int(sort)):
             pre = -1
-        order = [column[int(col)], pre]
+        if data_type[column[int(col)]] in int_type:
+            order = [column[int(col)], pre, 1]
+        else:
+            order = [column[int(col)], pre, 0]
 
     filter = {}
     for col, f in filters.iteritems():
-        # TODO: Temporary scheme (Mongo Int type).
-        if f.isdigit():
-            filter[column[int(col)]] = int(f)
-        else:
-            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-            filter[column[int(col)]] = reg
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        filter[column[int(col)]] = reg
     return order, filter
 
 
@@ -482,7 +494,7 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     :return: The formatted query.
     """
     query = query_ref_variable(query, request, report, columns, filters)
-    query = query.replace('\n', '').replace('\r', '').replace(' ', '')
+    query = query.replace('\n', '').replace('\r', '')
     if out:
         query += ',{"$out":"' + get_cache_collection(request) + '"}'
     query = eval(query)
@@ -538,7 +550,10 @@ def get_query_display_columns(columns):
     """
     column_str = ''
     for col in columns:
-        column_str += '"' + col.column.column + '":1,'
+        if col.column.data_type == 'int':
+            column_str += '"' + col.column.column + '":{"$substr":["$' + col.column.column + '", 0,-1]},'
+        else:
+            column_str += '"' + col.column.column + '":1,'
     if column_str != '':
         return ',{"$project": {' + column_str[:-1] + '}}'
     else:
@@ -554,14 +569,14 @@ def get_query_filters(filters):
     filter_str = ''
     if len(filters) > 0:
         for filter in filters:
-            conjunction = ' '
+            conjunction = '##'
             value = filter.value
             if filter.conjunction is not None:
-                conjunction += filter.conjunction.lower() + ' '
+                conjunction += filter.conjunction.lower() + '##'
             if filter.value.isdigit() is False:
-                value = '"' + filter.value + '"'
+                value = "'" + filter.value + "'"
             filter_str += conjunction + filter.column.column + filter.operator + value
-        sql = get_mongo_filters(filter_str[1:])
+        sql = get_mongo_filters(filter_str[2:])
         return ',{"$match":' + sql + '}'
     return filter_str
 
@@ -602,6 +617,8 @@ def data_format(col, data, is_excel=False):
             return settings.LMS_BASE + data[col.column]
         else:
             return '<a href="{0}" target="_blank">Link</a>'.format(data[col.column])
+    if col.data_type == 'date':
+        return time.strftime('%m-%d-%Y', time.strptime(data[col.column], '%Y-%m-%d'))
     return data[col.column]
 
 

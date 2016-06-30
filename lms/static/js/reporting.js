@@ -116,6 +116,7 @@ function filterLines() {
         var line_number = getLineNumber($(this).attr('name'));
         $('#where-row\\[' + line_number + '\\]').remove();
         renumberLines('where-row');
+        markDirty();
     });
     $('.plus').off('click');
     $('.plus').click(function () {
@@ -144,6 +145,8 @@ function filterLines() {
         renumberLines('where-row');
         filterLines();
         fieldTypeUpdater();
+        dirtyReportHandler();
+        markDirty();
     });
 }
 
@@ -177,17 +180,22 @@ function expandTitle() {
     });
 }
 
-function submitHandler(form, callback) {
+function submitHandler(form, callback, errorChecker) {
     $(form).submit(function (e) {
         e.preventDefault();
-        // TODO: add the error checking here.
-        $.post($(this).attr('action'), $(this).serialize(), function (data) {
-            if (data.success) {
-                callback(data)
-            } else {
-                alert('The operation was not successful. The error was: ' + data.error);
-            }
-        });
+        var valid = true;
+        if ($.isFunction(errorChecker)) {
+            valid = errorChecker();
+        }
+        if (valid) {
+            $.post($(this).attr('action'), $(this).serialize(), function (data) {
+                if (data.success) {
+                    callback(data)
+                } else {
+                    alert('The operation was not successful. The error was: ' + data.error);
+                }
+            });
+        }
     });
 }
 
@@ -345,7 +353,7 @@ function addView() {
             content += '<input data-name="column_name" class="column_name" name="column_name[0]" type="text" placeholder="Name">';
             content += '<input data-name="column_description" class="column_description" name="column_description[0]" type="text" placeholder="Description">';
             content += '<input data-name="column_source" class="column_source" name="column_source[0]" type="text" placeholder="Source">';
-            content += '<select data-name="column_type" class="column_type" name="column_type[' + index + ']">';
+            content += '<select data-name="column_type" class="column_type" name="column_type[0]">';
             $.each(data_types, function (i, v) {
                 content += '    <option value="' + v + '">' + v + '</option>';
             });
@@ -503,9 +511,17 @@ function checkCategoryStatus() {
     });
 }
 
-function manageHandler() {
+function manageDragInit() {
     var $categories = $("ul#categories");
     var $reports = $("ul.reports");
+
+    if ($categories.hasOwnProperty('sortable')) {
+        $categories.sortable('destroy');
+    }
+    if ($reports.hasOwnProperty('sortable')) {
+        $reports.sortable('destroy');
+    }
+
     $categories.sortable({
         group: 'categories',
         nested: false,
@@ -527,6 +543,14 @@ function manageHandler() {
             afterDrop($item, container, _super, event);
         }
     });
+}
+
+function manageHandler() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
+    manageDragInit();
+
     $categories.sortable('disable');
     $reports.sortable('disable');
     $('.manage').click(function (e) {
@@ -550,6 +574,9 @@ function manageHandler() {
 }
 
 function addCategoryHandler() {
+    var $categories = $("ul#categories");
+    var $reports = $("ul.reports");
+
     $('.new-category').click(function (e) {
         e.preventDefault();
         var dialog = new Dialog('#dialog');
@@ -561,7 +588,7 @@ function addCategoryHandler() {
         submitHandler('#category-save', function (data) {
             dialog.hide();
             if (data.success) {
-                var category = '<li class="main hidden-category">';
+                var category = '<li class="main hidden-category" data-name="' + data.name + '" data-id="' + data.id + '">';
                 category += '    <div class="expand_title expand_title_collapse">';
                 category += '        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>';
                 category += '        <img class="move" src="/static/images/icons/move.png">' + data.name;
@@ -576,8 +603,8 @@ function addCategoryHandler() {
                 $new_category.show().find(':hidden').show();
                 $new_category.children('.expand_title').addClass('expand_title_expanded');
                 expandTitle();
-                $("ul#categories").sortable('refresh');
-                $("ul.reports").sortable('refresh');
+                manageDragInit();
+                deleteCategoryHandler();
             } else {
                 alert('The category was not saved successfully. The error was: ' + data.error);
             }
@@ -616,6 +643,7 @@ function saveOrderHandler() {
                 if (data.success) {
                     markClean();
                     checkCategoryStatus();
+                    alert('Category order saved successfully');
                 } else {
                     alert('There was a problem saving the order. The error was: ' + data.error);
                 }
@@ -643,6 +671,7 @@ function deleteReportHandler() {
 }
 
 function deleteCategoryHandler() {
+    $('.delete-category').off('click');
     $('.delete-category').click(function (e) {
         e.preventDefault();
         var $parent = $(this).parents('.main');
@@ -699,7 +728,8 @@ function columnOrdering() {
 
 function dirtyReportHandler() {
     var is_dirty = false;
-    $('input, select, textarea').change(function () {
+    $('input, select, textarea').off('change.dirty input.dirty propertychange.dirty paste.dirty');
+    $('input, select, textarea').on('change.dirty input.dirty propertychange.dirty paste.dirty', function () {
         markDirty();
     });
 }

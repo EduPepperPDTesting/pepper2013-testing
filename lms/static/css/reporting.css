@@ -512,3 +512,7 @@ body.dragging, body.dragging * {
   padding: 12px;
   font-size: 12px;
 }
+
+#reporting .error-box {
+    background-color: pink !important;
+}

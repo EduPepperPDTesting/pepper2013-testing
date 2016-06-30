@@ -1,4 +1,4 @@
-var db = connect("localhost:37017/reporting")
+var db = connect("localhost:27018/reporting")
 
 db.UserCourseView.remove({'school_year':'current'});
 db.student_courseenrollment.aggregate({
@@ -25,8 +25,11 @@ db.student_courseenrollment.aggregate({
         email: {
             $arrayElemAt: ['$user_info.email', 0]
         },
-        user_name: {
-            $arrayElemAt: ['$user_info.username', 0]
+        first_name: {
+            $arrayElemAt: ['$user_info.first_name', 0]
+        },
+        last_name: {
+            $arrayElemAt: ['$user_info.last_name', 0]
         },
         state: {
             $arrayElemAt: ['$user_info.state', 0]
@@ -88,6 +91,13 @@ db.student_courseenrollment.aggregate({
     }
 }, {
     $lookup: {
+        from: 'pd_time',
+        localField: 'user_id',
+        foreignField: 'user_id',
+        as: 'pd_time'
+    }
+}, {
+    $lookup: {
         from: 'user_course_progress',
         localField: 'user_id',
         foreignField: 'user_id',
@@ -100,6 +110,8 @@ db.student_courseenrollment.aggregate({
         user_progress: 1,
         email: 1,
         user_name: 1,
+        first_name: 1,
+        last_name: 1,
         state: 1,
         district: 1,
         school: 1,
@@ -191,6 +203,9 @@ db.student_courseenrollment.aggregate({
         portfolio_time: {
             $sum: '$portfolio_time.time'
         },
+        pd_time: {
+            $sum: '$pd_time.credit'
+        },
         progress: {
             $sum: {
                 $map: {
@@ -212,6 +227,8 @@ db.student_courseenrollment.aggregate({
         course_id: 1,
         email: 1,
         user_name: 1,
+        first_name: 1,
+        last_name: 1,
         state: 1,
         district: 1,
         school: 1,
@@ -232,20 +249,17 @@ db.student_courseenrollment.aggregate({
             }, 0, 10]
         },
         portfolio_url: 1,
-        progress: {
-            $concat: [{
-                $substr: ['$progress', 0, -1]
-            }, '%']
-        },
+        progress: 1,
         course_time: 1,
         external_time: 1,
         discussion_time: 1,
         portfolio_time: 1,
+        pd_time: 1,
         collaboration_time: {
             $add: ['$discussion_time', '$portfolio_time']
         },
         total_time: {
-            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time']
+            $add: ['$course_time', '$external_time', '$discussion_time', '$portfolio_time', '$pd_time']
         },
         school_year:{$substr: [ "current", 0, -1 ]}
     }

@@ -329,6 +329,14 @@ urlpatterns = (
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
     url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
 
+    url(r'^community/post/showlikes', 'communities.views.get_full_likes', name='community_get_full_likes'),
+    url(r'^community/post/check$', 'communities.views.check_content_priority', name='community_check_content_priority'),
+    url(r'^community/post/like$', 'communities.views.submit_new_like', name='community_submit_new_like'),
+    url(r'^community/post/new$', 'communities.views.submit_new_post', name='community_submit_new_post'),
+    url(r'^community/post/get$', 'communities.views.get_posts', name='community_get_posts'),
+    url(r'^community/post/comment', 'communities.views.submit_new_comment', name='community_submit_new_comment'),
+    url(r'^community/post/lookup', 'communities.views.lookup_name', name='community_lookup_name'),
+
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
     url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),
