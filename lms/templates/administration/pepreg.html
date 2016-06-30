@@ -396,8 +396,8 @@ from permissions.utils import check_access_level, check_user_perms
     var self=this;
     this.$content=$content;
     this.initContent();
-    // *** maps ***
 	
+    // *** maps ***	
     var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
 	
 	this.map_edit = L.map('map_edit');
@@ -407,7 +407,7 @@ from permissions.utils import check_access_level, check_user_perms
 	  attribution: '',
 	  id: 'mapbox.streets'
     }).addTo(this.map_edit);
-    
+    // ***map_show***
 	mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
 	map_show = new mapboxgl.Map({
 	  container: 'map_show',
@@ -632,7 +632,7 @@ from permissions.utils import check_access_level, check_user_perms
         });
       }
     });
-	hits={};
+	/*hits={};
     $('input[name=geo_destination]').autocomplete({
       select: function(e,item){
         var hit = hits[item.item.value];
@@ -652,7 +652,7 @@ from permissions.utils import check_access_level, check_user_perms
           response(data);
         });
       }
-    });
+    });*/
     // ************* input instructors
     $(".btn-add-instructor").unbind("click").bind("click", function(){
       var email = $("#complete-email").val();
@@ -718,6 +718,8 @@ from permissions.utils import check_access_level, check_user_perms
     }
   }
   PepReg.prototype.markPlace=function(map, lat, lon, zoom, training_id) {
+    $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat:lat, lon:lon}));
+    $(map._container).next("input[name=training_id]").val(training_id);
     var self = this;
     map.marks = map.marks || [];
     $.each(map.marks, function(i, m){
@@ -995,8 +997,11 @@ from permissions.utils import check_access_level, check_user_perms
 	$("#map_show").find(".mapboxgl-canvas").css("top", 0);
 	
 	map_show.setCenter([props.lon, props.lat]);
+
+	$(".js-destination-clear,.js-origin-clear").click();
 	map_show_directions.setDestination(props.geo_location);
 	//map_show_directions.setOrigin(props.geo_location);  
+	//map_show_directions.setOrigin(null);  
   }
   PepReg.prototype.initTable=function(){
     var self=this;
@@ -1066,7 +1071,7 @@ from permissions.utils import check_access_level, check_user_perms
           $(this).click(function(){
             var props = JSON.parse($(this).find("input").val());
 			props.geo_location = $(this).find("input[name='row_geo_location']").val();
-			//props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
+			props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
 			
             self.showMap(props, training_id);  
           });

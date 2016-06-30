@@ -1,12 +1,12 @@
   <head>
     <title>Training Location</title>
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
     <script type="text/javascript" src="/static/js/vendor/jquery.min.js" charset="utf-8"></script>
     
-    <script src='/static/js/mapbox-gl.js'></script>
-    <link href='/static/css/mapbox-gl.css' rel='stylesheet' />
-    <script src='/static/js/mapbox-gl-directions.js'></script>
-    <link href='/static/css/mapbox-gl-directions.css' rel='stylesheet' />
+    <script src="/static/js/mapbox-gl.js"></script>
+    <link href="/static/css/mapbox-gl.css" rel="stylesheet" />
+    <script src="/static/js/mapbox-gl-directions.js"></script>
+    <link href="/static/css/mapbox-gl-directions.css" rel="stylesheet" />
     <style>
       	body {margin:0;padding:0;}
       	#map {position:absolute; width:100%; height:100%; top:0;right:0;bottom:0;left:0;}
@@ -20,10 +20,9 @@
     <script>
 		var geo_location='${training.geo_location}';		
 		//var geo_destination='${training.geo_destination}';		
-		var geo_props = $.trim('${training.geo_props}');		
-		
+		var geo_props = $.trim('${training.geo_props}');
 		var data = JSON.parse(geo_props);
-	
+
 		mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
 		
 		var map = new mapboxgl.Map({
