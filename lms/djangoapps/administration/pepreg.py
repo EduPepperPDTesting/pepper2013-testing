@@ -205,7 +205,7 @@ def rows(request):
             str('{d:%m/%d/%Y}'.format(d=item.training_date)),
             str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
             str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
-            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props),
+            "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'><input type='hidden' name='row_geo_location' value='%s'>" % (item.classroom, geo_location_shorter, item.geo_props, item.geo_location),
             item.credits,
             "<br>".join(instructor_names(item)),
             "%s %s" % (item.user_create.first_name, item.user_create.last_name),
@@ -221,6 +221,7 @@ def rows(request):
         rows.append(row)
     json_out.append(rows)
     return HttpResponse(json.dumps(json_out), content_type="application/json")
+
 
 
 def save_training(request):
@@ -324,17 +325,14 @@ def training_json(request):
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
         "arrive": arrive
-        }
-    
+        }    
     return HttpResponse(json.dumps(data), content_type="application/json")
-
 
 def remove_student(student):
     if student.training.type == "pepper_course":
         CourseEnrollment.unenroll(student.student, student.training.pepper_course)
         CourseEnrollmentAllowed.objects.filter(email=student.student.email, course_id=student.training.pepper_course).delete()
     student.delete()
-
     
 def register(request):
     try:

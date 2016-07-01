@@ -315,7 +315,7 @@ def report_save(request, report_id):
                 report_filter.report = report
                 report_filter.conjunction = filter_conjunctions[i] if int(i) > 0 else None
                 report_filter.column = ViewColumns.objects.get(id=int(column))
-                report_filter.value = filter_values[i]
+                report_filter.value = filter_values[i].strip()
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
@@ -436,25 +436,25 @@ def build_sorts_and_filters(columns, sorts, filters):
     """
     column = []
     data_type = {}
+    int_type = ['int', 'time']
     for i, col in enumerate(columns):
         column.append(col.column.column)
         data_type[col.column.column] = col.column.data_type
 
-    order = ['$natural', 1]
+    order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
         pre = 1
         if bool(int(sort)):
             pre = -1
-        order = [column[int(col)], pre]
+        if data_type[column[int(col)]] in int_type:
+            order = [column[int(col)], pre, 1]
+        else:
+            order = [column[int(col)], pre, 0]
 
     filter = {}
     for col, f in filters.iteritems():
-        # TODO: Temporary scheme (Mongo Int type).
-        if data_type[column[int(col)]] == 'int':
-            filter[column[int(col)]] = int(f)
-        else:
-            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-            filter[column[int(col)]] = reg
+        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+        filter[column[int(col)]] = reg
     return order, filter
 
 
@@ -550,7 +550,10 @@ def get_query_display_columns(columns):
     """
     column_str = ''
     for col in columns:
-        column_str += '"' + col.column.column + '":1,'
+        if col.column.data_type == 'int':
+            column_str += '"' + col.column.column + '":{"$substr":["$' + col.column.column + '", 0,-1]},'
+        else:
+            column_str += '"' + col.column.column + '":1,'
     if column_str != '':
         return ',{"$project": {' + column_str[:-1] + '}}'
     else:

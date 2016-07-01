@@ -36,6 +36,8 @@ import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
 from datetime import datetime
 from pytz import UTC
+from models import *
+
 log = logging.getLogger(__name__)
 
 s3_interface = {
@@ -809,3 +811,52 @@ def upload_to_s3(file_to_upload, keyname, s3_interface):
     public_url = k.generate_url(60 * 60 * 24 * 1825) # URL timeout in seconds.
 
     return public_url
+
+#@begin:add get and set discussion rating
+#@date:2016-06-29
+@require_POST
+@login_required
+#@permitted
+def set_rating(request, course_id, thread_id):
+    userid = str(request.user.id)
+    post_param = extract(request.POST, ['rating', 'option_type'])
+
+    discussion_rating = discussion_rating_store()
+    discussion_rating.set_rating(thread_id, userid, post_param['rating'])
+  
+    return JsonResponse({})
+
+@require_POST
+@login_required
+#@permitted
+def get_rating(request, course_id, thread_id):
+    userid = str(request.user.id)
+    ratingDict = extract(request.POST, ['option_type']) #dict
+    ratingDict['rating'] = '0'
+    ratingDict['avg_rating'] = '0'
+    ratingDict['avg_rating_count'] = '0'
+
+    discussion_rating = discussion_rating_store()
+
+    if ratingDict['option_type'] == 'get_rating':
+        try:
+            rating = discussion_rating.get_rating(thread_id, userid)['rating']
+            if(rating):
+                ratingDict['rating'] = rating
+        except Exception as e:
+            pass    
+    elif ratingDict['option_type'] == 'get_avg_rating':
+        try:
+            avg_rating = discussion_rating.get_avg_rating(thread_id, userid)
+            avg_rating_count = avg_rating.count()
+            if(avg_rating_count > 0):
+                rating_temp = 0
+                for value in avg_rating:
+                    log.debug(float(value['rating']))
+                    rating_temp = rating_temp + float(value['rating'])
+                ratingDict['avg_rating'] = str(rating_temp/avg_rating_count)
+                ratingDict['avg_rating_count'] = avg_rating_count
+        except Exception as e:
+            pass  
+    return JsonResponse(ratingDict)
+#@end

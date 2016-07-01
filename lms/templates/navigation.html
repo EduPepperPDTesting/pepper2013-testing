@@ -185,7 +185,7 @@
     }
 
     #show_notifications_link:focus { outline: none!important;}
-    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+ [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
@@ -253,6 +253,7 @@
         top: -6px;
         width: 0px;
     }
+  .sequence-list-wrapper{z-index:2 !important}
 </style>
 
 % if course:
@@ -372,7 +373,7 @@
         %if curr_user==request.user:
         <ol class="user admin" >
             %if show_extended:
-                %if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]:
+          <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                 <!-- Administration -->
                 <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
@@ -412,7 +413,7 @@
                                 }
                             });
                         </script>
-                      %endif
+                        <!-- endif -->
                        <script type="text/javascript">
                             url_studio = ["https://studio0.pepperpd.com",
                                           "https://studio-staging.pepperpd.com",

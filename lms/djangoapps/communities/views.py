@@ -959,8 +959,10 @@ def get_posts(request):
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
         else:
             html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"+like_text+"<br><div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
+        html+="<a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
+            active = active_recent(comment.user)
             c_likes = CommunityLikes.objects.filter(comment=comment)
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
@@ -990,9 +992,17 @@ def get_posts(request):
                 like_text += "</a>"
             else:
                 like_text = ""
-            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image' src='"+comment_img+"'></img></a></td><td>"
+            if active and not (request.user == post.user):
+                html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+                if comment.user.profile.skype_username:
+                    skype_username = comment.user.profile.skype_username
+                else:
+                    skype_username = "Not Set."
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+            else:
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a><a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-type='comment' data-content='"+comment.comment+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
