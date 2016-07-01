@@ -128,44 +128,77 @@
 		.ui-state-active a,
 		.ui-state-active a: link,
 		.ui-state-active a: visited{color: #212121;text-decoration: none;}		
+		
+		.print-map{display:block; position:absolute; left:50px; bottom:10px; background-color:#37B6E9; color:#fff !important; padding:5px 10px; font-size:20px !important;}
+
     </style>
 
   </head>
   <body>
     <div id='map' class='map'></div>
-    
+    <a href="#" class="print-map" onClick="mapPrint()">Print</a>
     <script>
+		var origin_val = "";
+		
+		function GetQueryString(name){
+     		var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     		var r = window.location.search.substr(1).match(reg);
+     		if(r!=null)return  unescape(r[2]); return null;
+		}
+		
+		function mapPrint(){
+			$(".print-map").hide();
+			$(".directions-control-directions").hide();
+			window.print();
+			$(".print-map").show();
+			$(".directions-control-directions").show();
+		}
 		var geo_location='${training.geo_location}';		
 		var geo_props = $.trim('${training.geo_props}');
 		var data = JSON.parse(geo_props);
 		
 		mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
+		var zoom = 12, lng = Number(data.lon), lat = Number(data.lat);
+		
+		/*var tmp_zoom = Number(GetQueryString("zoom"));
+		var tmp_lng = Number(GetQueryString("lng"));
+		var tmp_lat = Number(GetQueryString("lat"));
+		
+		if(!isNaN(tmp_zoom))	zoom = tmp_zoom;
+		if(!isNaN(tmp_lng))		lng = tmp_lng;
+		if(!isNaN(tmp_lat))		lat = tmp_lat;*/
+		
 		
 		var map = new mapboxgl.Map({
 		  	container: 'map',
 		  	style: 'mapbox://styles/mapbox/streets-v8',
-		  	zoom: 12
+		  	zoom: zoom
 		});
 		var directions = new mapboxgl.Directions({
 		  	container: 'map'
 		});
-		
+				
 		map.addControl(directions);
 		//map.scrollZoom.disable();
 		map.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
-		map.setCenter(new mapboxgl.LngLat(Number(data.lon), Number(data.lat)));
-		
+		map.setCenter(new mapboxgl.LngLat(lng, lat));
+
 		map.on('style.load', function() {
-		  	//directions.setOrigin(geo_location);
-		  	//directions.setDestination(geo_destination);
+			/*var tmp1 = GetQueryString("origin");
+			if(tmp1 && tmp1 != ""){
+				var geo_origin = unescape(tmp1);
+			  	directions.setOrigin(geo_origin);		  
+			}*/			
 			directions.setDestination(geo_location);
 			
 			var input_js_origin = $("input[class=js-origin]");
-			
+			var i = 0;
 			var hits={};
 			$(input_js_origin).autocomplete({
-			  select: function(e,item){
-			  	directions.setOrigin($(input_js_origin).val());
+			  select: function(e, item){
+			    origin_val = item.item.value;//$(input_js_origin).val();
+			  	directions.setOrigin(origin_val);
+				
 			  },
 			  source: function(request, response){
 				$.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
@@ -182,9 +215,9 @@
 			});			
 		});
 		
-		$(function(){
+		/*setTimeout(function () {
 			window.print();
-		});
+		}, 3000);*/
     </script>
   </body>
 </html>
