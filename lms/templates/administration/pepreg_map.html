@@ -1,8 +1,12 @@
   <head>
     <title>Training Location</title>
     <meta charset="utf-8" />
-    <script type="text/javascript" src="/static/js/vendor/jquery.min.js" charset="utf-8"></script>
+   	<script type="text/javascript" src="/static/js/vendor/jquery.min.js" charset="utf-8"></script>
     
+    <link rel="stylesheet" href="/static/css/jquery-ui.css">
+  	<script src="/static/js/jquery-ui.js"></script>
+
+
     <script src="/static/js/mapbox-gl.js"></script>
     <link href="/static/css/mapbox-gl.css" rel="stylesheet" />
     <script src="/static/js/mapbox-gl-directions.js"></script>
@@ -13,8 +17,9 @@
       	.mb-watermark {position:absolute; bottom:10px; left:10px; z-index:1;}
       	.directions-control.directions-control-inputs {left:15px;}		
     </style>
+
   </head>
-  <body onLoad="funLoad()">
+  <body>
     <div id='map' class='map'></div>
     
     <script>
@@ -42,9 +47,32 @@
 		  	//directions.setOrigin(geo_location);
 		  	//directions.setDestination(geo_destination);
 			directions.setDestination(geo_location);
+			
+			var input_js_origin = $("input[class=js-origin]");
+			
+			var hits={};
+			$(input_js_origin).autocomplete({
+			  select: function(e,item){
+			  	directions.setOrigin($(input_js_origin).val());
+			  },
+			  source: function(request, response){
+				$.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
+						  {q: $(input_js_origin).val()}, function(r){				
+				  var data=[];
+				  hits = r;
+				  $.each(r, function(i, v){
+					data.push(v.display_name);
+					hits[v.display_name] = v;
+				  });
+				  response(data);
+				});
+			  }
+			});			
 		});
 		
-		function funLoad(){window.print();}
+		$(function(){
+			window.print();
+		});
     </script>
   </body>
 </html>
