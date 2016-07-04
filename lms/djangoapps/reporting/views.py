@@ -529,14 +529,14 @@ def get_query_user_domain(user):
     :return: Mongo query
     """
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
-    if check_user_perms(user, 'reporting', ['view']):
-        level = check_access_level(user, 'reporting', ['view'])
+    if check_user_perms(user, 'reporting', ['view', 'administer']):
+        level = check_access_level(user, 'reporting', ['view', 'administer'])
         if level == 'System':
             domain = ''
         elif level == 'State':
             domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
         elif level == 'District':
-            domain = '{"$match":{"district_id":"' + str(user.profile.district.code) + '"}},'
+            domain = '{"$match":{"district_id":' + str(user.profile.district.id) + '}},'
         elif level == 'School':
             domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
     return domain
