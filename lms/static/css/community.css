@@ -29,7 +29,7 @@
   position:absolute;
   right:0;
 }
-.skype_username_list{
+.skype_username_list, .share_username_list{
     display: inline-block;
     background-color: #5A9BD5;
     font-weight:bold;
