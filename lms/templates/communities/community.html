@@ -17,6 +17,7 @@ import datetime
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/community.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -51,7 +52,7 @@ import datetime
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <a class="post-button" style="position: relative;">Post</a>
+                                    <input type="button" class="small" style="float: right;position: relative;" value="Post"></input>
                                 </td>
                             </tr>
                             <!--<tr class="post-content-row">
@@ -785,7 +786,7 @@ import datetime
         size=10;
         getPosts();
 
-        $(".post-button").click(function(){
+        $(".small").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
             $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community}, function (data) {
