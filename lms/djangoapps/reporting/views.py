@@ -217,9 +217,16 @@ def report_edit(request, report_id):
             admin_rights = check_user_perms(request.user, 'reporting', 'administer')
             create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
             access_level = check_access_level(request.user, 'reporting', 'create_reports')
+            user_access_id = None
+            if access_level == 'State':
+                user_access_id = request.user.profile.district.state.id
+            elif access_level == 'District':
+                user_access_id = request.user.profile.district.id
+            elif access_level == 'School':
+                user_access_id = request.user.profile.school.id
             if admin_rights or (create_rights and
                                 access_level == report.access_level and
-                                request.user.profile.district.id == report.access_id):
+                                user_access_id == report.access_id):
                 selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
                 selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
                 selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
@@ -363,32 +370,51 @@ def report_view(request, report_id):
     :param report_id: The ID of the report to be edited.
     :return: The Report page.
     """
-    rs = reporting_store()
-    collection = get_cache_collection(request)
-    rs.del_collection(collection)
-    report = Reports.objects.get(id=report_id)
-    selected_view = ReportViews.objects.filter(report=report)[0]
-    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-    report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+    try:
+        allowed = False
+        report = Reports.objects.get(id=report_id)
 
-    columns = []
-    filters = []
-    for col in selected_columns:
-        columns.append(col)
-    for f in report_filters:
-        filters.append(f)
+        if report.access_level == 'System':
+            allowed = True
+        elif report.access_level == 'State' and request.user.profile.district.state.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'District' and request.user.profile.district.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'School' and request.user.profile.school.id == report.access_id:
+            allowed = True
 
-    create_report_collection(request, report, selected_view, columns, filters)
+        if allowed:
+            rs = reporting_store()
+            collection = get_cache_collection(request)
+            rs.del_collection(collection)
+            selected_view = ReportViews.objects.filter(report=report)[0]
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+            report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-    school_year_item = []
-    if report_has_school_year(selected_columns):
-        school_year_item = get_school_year_item()
+            columns = []
+            filters = []
+            for col in selected_columns:
+                columns.append(col)
+            for f in report_filters:
+                filters.append(f)
 
-    data = {
-        'report': report,
-        'display_columns': selected_columns,
-        'school_year_item': school_year_item
-    }
+            create_report_collection(request, report, selected_view, columns, filters)
+
+            school_year_item = []
+            if report_has_school_year(selected_columns):
+                school_year_item = get_school_year_item()
+        else:
+            raise Exception('Not allowed.')
+    except:
+        data = {'error_title': 'Report Not Found',
+                'error_message': '''No report found with this ID. If you believe this is in error, please contact
+                        site support.''',
+                'window_title': 'Report Not Found'}
+        return render_to_response('error.html', data, status=404)
+
+    data = {'report': report,
+            'display_columns': selected_columns,
+            'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
 
 
