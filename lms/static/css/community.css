@@ -29,7 +29,7 @@
   position:absolute;
   right:0;
 }
-.skype_username_list{
+.skype_username_list, .share_username_list{
     display: inline-block;
     background-color: #5A9BD5;
     font-weight:bold;
@@ -217,6 +217,16 @@
     padding-bottom: 8px !important;
     padding-top: 26px !important;
     font-size: 24px !important;
+}
+.postbutton{
+    display: inline-block;
+    float: right;
+    margin-bottom: 4px;font-family:Arial;
+    font-size:19px;
+    cursor: pointer;
+}
+.small{
+    margin-top: 2px;
 }
 .post-button {
     background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #7892c2), color-stop(1, #476e9e));

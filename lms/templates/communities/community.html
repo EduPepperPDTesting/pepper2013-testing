@@ -17,6 +17,7 @@ import datetime
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/community.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
@@ -51,7 +52,7 @@ import datetime
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <a class="post-button" style="position: relative;">Post</a>
+                                    <input type="button" class="small" style="float: right;position: relative;" value="Post"></input>
                                 </td>
                             </tr>
                             <!--<tr class="post-content-row">
@@ -701,14 +702,20 @@ import datetime
                 content = $(this).data('content');
                 community = $(this).data('community');
                 poster = $(this).data("poster");
-                options = "<select id='share_id_selector'>"
                 type= $(this).data("type");
+                options = "<label>Select from the below list to share.</label><br>";
+                options += '<select id = "share_usernames_select" multiple>';
                 %for u in users:
-                    options+= "<option value = '${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>"
+                    options += "<option class='skype_uname_option' id='${u.user.username}' data-id='${u.user.id}' data-src='${reverse('user_photo',args=[u.id])}' val='${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>";
                 %endfor
-                options+="</select>"
+                options+="</select><br><br><span id='selected_share_names'></span>";
                 html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"', '"+type+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
                 new Dialog($('#fixed-dialog-share')).show("Share Post", "<center>"+html+"</center>");
+                $("#share_usernames_select").change(function(){
+                   if($(this).val() != "Select Username"){
+                       toggleShareAddition($(this).attr("id"));
+                   }
+                });
             });
             $(".comment-like-text").click(function(){
                 $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
@@ -779,7 +786,7 @@ import datetime
         size=10;
         getPosts();
 
-        $(".post-button").click(function(){
+        $(".small").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
             $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community}, function (data) {
@@ -929,13 +936,27 @@ import datetime
             });
           });
     });
-    function toggleSkypeAddition(id){
+    function toggleShareAddition(id){
         var selected = $("#"+id).find('option:selected');
         val = $("#"+id).val()+'';
         vals = val.split(",");
         $.each(vals,function(i){
             if(vals[i] != null) {
                 j = $("option:contains(" + vals[i] + ")");
+                j.hide();
+                $("#selected_share_names").append("<div class='share_username_list' data-id='" + j.data('id') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+            }
+        });
+        $("#share_usernames_select").val('');
+        $(".share_username_list:contains('null')").remove();
+    }
+    function toggleSkypeAddition(id){
+        var selected = $("#"+id).find('option:selected');
+        val = $("#"+id).val()+'';
+        vals = val.split(",");
+        $.each(vals,function(i){
+            if(vals[i] != null) {
+                j = $("#skype_usernames_select:contains(" + vals[i] + ")");
                 j.hide();
                 $("#selected_skype_names").append("<div class='skype_username_list' data-skype='" + j.data('skype') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
             }
@@ -944,18 +965,19 @@ import datetime
         $(".skype_username_list:contains('null')").remove();
     }
     function sharePost(content, community, poster, type){
-        share_id = $("#share_id_selector").val();
         message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following "+type+" by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
         message += "<p style='text-align:left; float-left'>View the full discussion here: <a href='/community/"+community+"'>Community</a></p>"
-        var datainfo = {
-            'info': JSON.stringify({
+        $(".share_username_list").each(function(i){
+            share_id = $(this).data("id").toString();
+            var datainfo = {
+                'info': JSON.stringify({
                 'sender_id': '${user.id}',
                 'recipient_id': share_id,
                 'date': (new Date()).toISOString(),
                 'body': message
-            })
-        };
-        $.post("${reverse('save_message')}", datainfo, function(data){
+                })
+            };
+            $.post("${reverse('save_message')}", datainfo, function(data){});
             var messageinfo = {
                 'info': JSON.stringify({
                     'user_id': share_id,
@@ -969,11 +991,10 @@ import datetime
                 })
             };
             $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
-            $("#share_message").html("Message Shared!")
-            $("#share_message").css("color", "green");
-            $("#share_message").show()
         });
-
+        $("#share_message").html("Message Shared!")
+        $("#share_message").css("color", "green");
+        $("#share_message").show()
     }
 </script>
 </body>
