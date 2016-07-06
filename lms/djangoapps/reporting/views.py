@@ -217,9 +217,16 @@ def report_edit(request, report_id):
             admin_rights = check_user_perms(request.user, 'reporting', 'administer')
             create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
             access_level = check_access_level(request.user, 'reporting', 'create_reports')
+            user_access_id = None
+            if access_level == 'State':
+                user_access_id = request.user.profile.district.state.id
+            elif access_level == 'District':
+                user_access_id = request.user.profile.district.id
+            elif access_level == 'School':
+                user_access_id = request.user.profile.school.id
             if admin_rights or (create_rights and
                                 access_level == report.access_level and
-                                request.user.profile.district.id == report.access_id):
+                                user_access_id == report.access_id):
                 selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
                 selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
                 selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
@@ -368,10 +375,17 @@ def report_view(request, report_id):
         admin_rights = check_user_perms(request.user, 'reporting', 'administer')
         create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
         access_level = check_access_level(request.user, 'reporting', 'create_reports')
+        user_access_id = None
+        if access_level == 'State':
+            user_access_id = request.user.profile.district.state.id
+        elif access_level == 'District':
+            user_access_id = request.user.profile.district.id
+        elif access_level == 'School':
+            user_access_id = request.user.profile.school.id
 
         if admin_rights or (create_rights and
                             access_level == report.access_level and
-                            request.user.profile.district.id == report.access_id):
+                            user_access_id == report.access_id):
             rs = reporting_store()
             collection = get_cache_collection(request)
             rs.del_collection(collection)
