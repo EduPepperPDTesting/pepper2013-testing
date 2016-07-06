@@ -371,21 +371,19 @@ def report_view(request, report_id):
     :return: The Report page.
     """
     try:
+        allowed = False
         report = Reports.objects.get(id=report_id)
-        admin_rights = check_user_perms(request.user, 'reporting', 'administer')
-        create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
-        access_level = check_access_level(request.user, 'reporting', 'create_reports')
-        user_access_id = None
-        if access_level == 'State':
-            user_access_id = request.user.profile.district.state.id
-        elif access_level == 'District':
-            user_access_id = request.user.profile.district.id
-        elif access_level == 'School':
-            user_access_id = request.user.profile.school.id
 
-        if admin_rights or (create_rights and
-                            access_level == report.access_level and
-                            user_access_id == report.access_id):
+        if report.access_level == 'System':
+            allowed = True
+        elif report.access_level == 'State' and request.user.profile.district.state.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'District' and request.user.profile.district.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'School' and request.user.profile.school.id == report.access_id:
+            allowed = True
+
+        if allowed:
             rs = reporting_store()
             collection = get_cache_collection(request)
             rs.del_collection(collection)
