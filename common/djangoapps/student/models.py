@@ -17,27 +17,28 @@ import json
 import logging
 import uuid
 
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ModelForm, forms
-from django.db import connection
+# from django.db import connection
 
 import comment_client as cc
 from pytz import UTC
 
+from people import people_in_es
+
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
 
-from django.db import connection
 
 class CmsLoginInfo(models.Model):
     class Meta:
         db_table = 'cms_login_info'
+
     ip_address = models.CharField(blank=False, max_length=20)
     user_name = models.CharField(blank=False, max_length=30)
     log_type_login = models.BooleanField(blank=False)
@@ -46,13 +47,15 @@ class CmsLoginInfo(models.Model):
     def __unicode__(self):
         return (
             "[CmsLoginInfo] {} {} {}"
-        ).format(self.user_name, 'login' if self.log_type_login else 'logout', self.login_or_logout_time)    
+        ).format(self.user_name, 'login' if self.log_type_login else 'logout', self.login_or_logout_time)
+
 
 class ResourceLibrarySubclassSite(models.Model):
     class Meta:
         db_table = 'student_resourcelibrarysubclasssite'
-    display = models.CharField(max_length=255,blank=False)
-    link = models.TextField(max_length=255,blank=False)
+
+    display = models.CharField(max_length=255, blank=False)
+    link = models.TextField(max_length=255, blank=False)
     display_order = models.IntegerField(blank=False)
 
     def __unicode__(self):
@@ -60,104 +63,120 @@ class ResourceLibrarySubclassSite(models.Model):
             "[ResourceLibrarySubclassSite] {}"
         ).format(self.display)
 
+
 class ResourceLibrarySubclass(models.Model):
     class Meta:
         db_table = 'student_resourcelibrarysubclass'
+
     # items = models.ManyToManyField(ResourceLibrarySubclassItem, blank=True)
     sites = models.ManyToManyField(ResourceLibrarySubclassSite, blank=True)
-    display = models.CharField(blank=False,max_length=255)
+    display = models.CharField(blank=False, max_length=255)
     display_order = models.IntegerField(blank=False)
 
     def __unicode__(self):
         return (
             "[ResourceLibrarySubclass] {}"
-            ).format(self.display)
+        ).format(self.display)
+
 
 class ResourceLibraryCategory(models.Model):
     class Meta:
         db_table = 'student_resourcelibrarycategory'
-    display = models.CharField(blank=False,max_length=255)
+
+    display = models.CharField(blank=False, max_length=255)
     display_order = models.IntegerField(blank=False)
 
     def __unicode__(self):
         return (
-                "[ResourceLibraryCategory] {}"
-            ).format(self.display)
+            "[ResourceLibraryCategory] {}"
+        ).format(self.display)
+
 
 class ResourceLibrary(models.Model):
     class Meta:
         db_table = 'student_resourcelibrary'
+
     category = models.ForeignKey(ResourceLibraryCategory)
-    subclass = models.ForeignKey(ResourceLibrarySubclass, blank=True,null=True)
-    display  = models.CharField(blank=False, max_length=255)
+    subclass = models.ForeignKey(ResourceLibrarySubclass, blank=True, null=True)
+    display = models.CharField(blank=False, max_length=255)
     link = models.TextField(blank=False, max_length=512)
     display_order = models.IntegerField(blank=False)
 
     def __unicode__(self):
         return (
-                "[ResourceLibrary] {}"
-            ).format(self.display)
-# create table student_staticcontent( 
-#     id int(11) not null auto_increment,
-#     name varchar(255) not null,
-#     content text,
-#     primary key(id),
-#     unique key(name)
-#     )
+            "[ResourceLibrary] {}"
+        ).format(self.display)
+
+
 class StaticContent(models.Model):
     class Meta:
         db_table = 'student_staticcontent'
-    name = models.CharField(blank=False,max_length=255)
+
+    name = models.CharField(blank=False, max_length=255)
     content = models.TextField(blank=False)
-#@end
+
 
 class YearsInEducation(models.Model):
     class Meta:
         db_table = 'years_in_education'
+
     name = models.CharField(blank=False, max_length=20, db_index=False)
-    so=models.IntegerField(blank=False, null=False, db_index=False)
+    so = models.IntegerField(blank=False, null=False, db_index=False)
+
 
 class GradeLevel(models.Model):
     class Meta:
         db_table = 'grade_level'
+
     name = models.CharField(blank=False, max_length=20, db_index=False)
-    so=models.IntegerField(blank=False, null=False, db_index=False)
+    so = models.IntegerField(blank=False, null=False, db_index=False)
+
 
 class SubjectArea(models.Model):
     class Meta:
         db_table = 'subject_area'
+
     name = models.CharField(blank=False, max_length=20, db_index=False)
-    so=models.IntegerField(blank=False, null=False, db_index=False)
+    so = models.IntegerField(blank=False, null=False, db_index=False)
+
 
 class State(models.Model):
     class Meta:
         db_table = 'state'
+
     name = models.CharField(blank=False, max_length=20, db_index=False)
-    so=models.IntegerField(blank=False, null=False, db_index=False)
-    
+    so = models.IntegerField(blank=False, null=False, db_index=False)
+
+
 class District(models.Model):
     class Meta:
         db_table = 'district'
+
     state = models.ForeignKey(State, on_delete=models.PROTECT)
     code = models.CharField(blank=True, max_length=50, db_index=True, unique=True)
     name = models.CharField(blank=True, max_length=255, db_index=False)
 
+
 class Cohort(models.Model):
     class Meta:
         db_table = 'cohort'
-    district = models.ForeignKey(District,on_delete=models.PROTECT)
-    code = models.CharField(blank=True, max_length=50, db_index=True) 
-    licences=models.IntegerField(blank=False, null=False, db_index=False)
-    term_months=models.IntegerField(blank=False, null=False, db_index=False)
-    start_date=models.DateTimeField(blank=False, db_index=False)
-    
+
+    district = models.ForeignKey(District, on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True)
+    licences = models.IntegerField(blank=False, null=False, db_index=False)
+    term_months = models.IntegerField(blank=False, null=False, db_index=False)
+    start_date = models.DateTimeField(blank=False, db_index=False)
+
+
 class School(models.Model):
     class Meta:
         db_table = 'school'
-    district = models.ForeignKey(District,on_delete=models.PROTECT)
-    code = models.CharField(blank=True, max_length=50, db_index=True) 
-    name = models.CharField(blank=False, max_length=255, db_index=True) 
-    #district_id = models.CharField(blank=False, max_length=255, db_index=True)
+
+    district = models.ForeignKey(District, on_delete=models.PROTECT)
+    code = models.CharField(blank=True, max_length=50, db_index=True)
+    name = models.CharField(blank=False, max_length=255, db_index=True)
+    # district_id = models.CharField(blank=False, max_length=255, db_index=True)
+
 
 # todo: Remove functions no use 
 def dictfetchall(cursor):
@@ -168,35 +187,39 @@ def dictfetchall(cursor):
     # table.append([col[0] for col in desc])
     # ensure response from db is a list, not a tuple (which is returned
     # by MySQL backed django instances)
-    rows_from_cursor=cursor.fetchall()
+    rows_from_cursor = cursor.fetchall()
     table = table + [list(row) for row in rows_from_cursor]
-    b=[]
+    b = []
     for r in table:
-        t={}
-        for i,d in enumerate(desc):
-            t[d[0]]=r[i]
+        t = {}
+        for i, d in enumerate(desc):
+            t[d[0]] = r[i]
         b.append(t)
     return b
 
+
 def query_list(cursor, query_string):
     cursor.execute(query_string)
-    raw_result=dictfetchall(cursor)
+    raw_result = dictfetchall(cursor)
     return raw_result
+
 
 def query_dict(cursor, query_string):
     cursor.execute(query_string)
-    raw_result=dictfetchall(cursor)
+    raw_result = dictfetchall(cursor)
     if len(raw_result):
         return raw_result[0]
+
 
 class People(models.Model):
     """
     This is where to store peoples in the network of each students
     """
-    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="user_id")
-    people = models.ForeignKey(User,on_delete=models.CASCADE,related_name="people_id")
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_id")
+    people = models.ForeignKey(User, on_delete=models.CASCADE, related_name="people_id")
+
     created = models.DateTimeField(auto_now_add=True, db_index=False)
+
 
 class UserProfile(models.Model):
     """
@@ -311,8 +334,10 @@ class UserProfile(models.Model):
     def set_meta(self, js):
         self.meta = json.dumps(js)
 
+
 TEST_CENTER_STATUS_ACCEPTED = "Accepted"
 TEST_CENTER_STATUS_ERROR = "Error"
+
 
 class Transaction(models.Model):
     class Meta:
@@ -328,14 +353,15 @@ class Transaction(models.Model):
     # subscription_type = models.ForeignKey(ContentType)
     subscription_type = models.CharField(blank=False, max_length=20, db_index=False)
     # owner_id = models.IntegerField(blank=False, null=False, db_index=True)
-    
-    owner = models.ForeignKey(Cohort,on_delete=models.PROTECT,db_column='owner_id')
-    
+
+    owner = models.ForeignKey(Cohort, on_delete=models.PROTECT, db_column='owner_id')
+
     # owner_object = generic.GenericForeignKey('subscription_type', 'owner_id')
     code = models.CharField(blank=True, max_length=50, db_index=True)
     start_date = models.DateTimeField(blank=False, db_index=False)
     term_months = models.IntegerField(blank=False, null=False, db_index=False)
     # status = models.CharField(blank=True, max_length=255, db_index=False)
+
 
 class TestCenterUser(models.Model):
     """This is our representation of the User for in-person testing, and
@@ -467,12 +493,13 @@ class TestCenterUser(models.Model):
     def is_pending(self):
         return not self.is_accepted and not self.is_rejected
 
+
 class TestCenterUserForm(ModelForm):
     class Meta:
         model = TestCenterUser
         fields = ('first_name', 'middle_name', 'last_name', 'suffix', 'salutation',
-                'address_1', 'address_2', 'address_3', 'city', 'state', 'postal_code', 'country',
-                'phone', 'extension', 'phone_country_code', 'fax', 'fax_country_code', 'company_name')
+                  'address_1', 'address_2', 'address_3', 'city', 'state', 'postal_code', 'country',
+                  'phone', 'extension', 'phone_country_code', 'fax', 'fax_country_code', 'company_name')
 
     def update_and_save(self):
         new_user = self.save(commit=False)
@@ -480,7 +507,8 @@ class TestCenterUserForm(ModelForm):
         new_user.user_updated_at = datetime.now(UTC)
         new_user.upload_status = ''
         new_user.save()
-        log.info("Updated demographic information for user's test center exam registration: username \"{}\" ".format(new_user.user.username))
+        log.info("Updated demographic information for user's test center exam registration: username \"{}\" ".format(
+            new_user.user.username))
 
     # add validation:
 
@@ -512,7 +540,8 @@ class TestCenterUserForm(ModelForm):
                     self._errors['postal_code'] = self.error_class([u'Required if country is USA or CAN.'])
                     del cleaned_data['postal_code']
 
-        if 'fax' in cleaned_data and len(cleaned_data['fax']) > 0 and 'fax_country_code' in cleaned_data and len(cleaned_data['fax_country_code']) == 0:
+        if 'fax' in cleaned_data and len(cleaned_data['fax']) > 0 and 'fax_country_code' in cleaned_data and len(
+                cleaned_data['fax_country_code']) == 0:
             self._errors['fax_country_code'] = self.error_class([u'Required if fax is specified.'])
             del cleaned_data['fax_country_code']
 
@@ -520,11 +549,13 @@ class TestCenterUserForm(ModelForm):
         cleaned_data_fields = [fieldname for fieldname in cleaned_data]
         for fieldname in cleaned_data_fields:
             if not _can_encode_as_latin(cleaned_data[fieldname]):
-                self._errors[fieldname] = self.error_class([u'Must only use characters in Latin-1 (iso-8859-1) encoding'])
+                self._errors[fieldname] = self.error_class(
+                    [u'Must only use characters in Latin-1 (iso-8859-1) encoding'])
                 del cleaned_data[fieldname]
 
         # Always return the full collection of cleaned data.
         return cleaned_data
+
 
 # our own code to indicate that a request has been rejected.
 ACCOMMODATION_REJECTED_CODE = 'NONE'
@@ -544,6 +575,7 @@ ACCOMMODATION_CODES = (
 )
 
 ACCOMMODATION_CODE_DICT = {code: name for (code, name) in ACCOMMODATION_CODES}
+
 
 class TestCenterRegistration(models.Model):
     """
@@ -688,7 +720,8 @@ class TestCenterRegistration(models.Model):
 
     @property
     def accommodation_is_accepted(self):
-        return len(self.accommodation_request) > 0 and len(self.accommodation_code) > 0 and self.accommodation_code != ACCOMMODATION_REJECTED_CODE
+        return len(self.accommodation_request) > 0 and len(
+            self.accommodation_code) > 0 and self.accommodation_code != ACCOMMODATION_REJECTED_CODE
 
     @property
     def accommodation_is_rejected(self):
@@ -763,6 +796,7 @@ class TestCenterRegistration(models.Model):
         else:
             return "Pending"
 
+
 class TestCenterRegistrationForm(ModelForm):
     class Meta:
         model = TestCenterRegistration
@@ -780,7 +814,9 @@ class TestCenterRegistrationForm(ModelForm):
         registration.user_updated_at = datetime.now(UTC)
         registration.upload_status = ''
         registration.save()
-        log.info("Updated registration information for user's test center exam registration: username \"{}\" course \"{}\", examcode \"{}\"".format(registration.testcenter_user.user.username, registration.course_id, registration.exam_series_code))
+        log.info(
+            "Updated registration information for user's test center exam registration: username \"{}\" course \"{}\", examcode \"{}\"".format(
+                registration.testcenter_user.user.username, registration.course_id, registration.exam_series_code))
 
     def clean_accommodation_code(self):
         code = self.cleaned_data['accommodation_code']
@@ -792,16 +828,20 @@ class TestCenterRegistrationForm(ModelForm):
                     raise forms.ValidationError(u'Invalid accommodation code specified: "{}"'.format(codeval))
         return code
 
+
 def get_testcenter_registration(user, course_id, exam_series_code):
     try:
         tcu = TestCenterUser.objects.get(user=user)
     except TestCenterUser.DoesNotExist:
         return []
-    return TestCenterRegistration.objects.filter(testcenter_user=tcu, course_id=course_id, exam_series_code=exam_series_code)
+    return TestCenterRegistration.objects.filter(testcenter_user=tcu, course_id=course_id,
+                                                 exam_series_code=exam_series_code)
+
 
 # nosetests thinks that anything with _test_ in the name is a test.
 # Correct this (https://nose.readthedocs.org/en/latest/finding_tests.html)
 get_testcenter_registration.__test__ = False
+
 
 def unique_id_for_user(user):
     """
@@ -815,6 +855,7 @@ def unique_id_for_user(user):
     h.update(str(user.id))
     return h.hexdigest()
 
+
 # TODO: Should be renamed to generic UserGroup, and possibly
 # Given an optional field for type of group
 class UserTestGroup(models.Model):
@@ -822,11 +863,13 @@ class UserTestGroup(models.Model):
     name = models.CharField(blank=False, max_length=32, db_index=True)
     description = models.TextField(blank=True)
 
+
 class Registration(models.Model):
     ''' Allows us to wait for e-mail before user is registered. A
         registration profile is created when the user creates an
         account, but that account is inactive. Once the user clicks
         on the activation key, it becomes active. '''
+
     class Meta:
         db_table = "auth_registration"
 
@@ -845,20 +888,23 @@ class Registration(models.Model):
         self.user.is_active = True
         self.user.save()
 
+
 class PendingNameChange(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True)
     new_name = models.CharField(blank=True, max_length=255)
-#@begin:When changing username in dashboard, add the field in student_pendingnamechange
-#@date:2013-11-02        
+    # @begin:When changing username in dashboard, add the field in student_pendingnamechange
+    # @date:2013-11-02
     new_first_name = models.CharField(blank=True, max_length=255)
     new_last_name = models.CharField(blank=True, max_length=255)
-#@end        
+    # @end
     rationale = models.CharField(blank=True, max_length=1024)
+
 
 class PendingEmailChange(models.Model):
     user = models.OneToOneField(User, unique=True, db_index=True)
     new_email = models.CharField(blank=True, max_length=255, db_index=True)
     activation_key = models.CharField(('activation key'), max_length=32, unique=True, db_index=True)
+
 
 class CourseEnrollment(models.Model):
     """
@@ -1076,6 +1122,7 @@ class CourseEnrollment(models.Model):
             self.is_active = False
             self.save()
 
+
 class CourseEnrollmentAllowed(models.Model):
     """
     Table of users (specified by email address strings) who are allowed to enroll in a specified course.
@@ -1085,7 +1132,7 @@ class CourseEnrollmentAllowed(models.Model):
     email = models.CharField(max_length=255, db_index=True)
     course_id = models.CharField(max_length=255, db_index=True)
     auto_enroll = models.BooleanField(default=0)
-    is_active=models.BooleanField(default=0)
+    is_active = models.BooleanField(default=0)
 
     created = models.DateTimeField(auto_now_add=True, null=True, db_index=True)
 
@@ -1094,6 +1141,7 @@ class CourseEnrollmentAllowed(models.Model):
 
     def __unicode__(self):
         return "[CourseEnrollmentAllowed] %s: %s (%s)" % (self.email, self.course_id, self.created)
+
 
 # cache_relation(User.profile)
 
@@ -1112,10 +1160,12 @@ def get_user_by_username_or_email(username_or_email):
     else:
         return User.objects.get(username=username_or_email)
 
+
 def get_user(email):
     u = User.objects.get(email=email)
     up = UserProfile.objects.get(user=u)
     return u, up
+
 
 def user_info(email):
     u, up = get_user(email)
@@ -1127,23 +1177,28 @@ def user_info(email):
     print "Language", up.language
     return u, up
 
+
 def change_email(old_email, new_email):
     u = User.objects.get(email=old_email)
     u.email = new_email
     u.save()
+
 
 def change_name(email, new_name):
     u, up = get_user(email)
     up.name = new_name
     up.save()
 
+
 def user_count():
     print "All users", User.objects.all().count()
     print "Active users", User.objects.filter(is_active=True).count()
     return User.objects.all().count()
 
+
 def active_user_count():
     return User.objects.filter(is_active=True).count()
+
 
 def create_group(name, description):
     utg = UserTestGroup()
@@ -1151,20 +1206,24 @@ def create_group(name, description):
     utg.description = description
     utg.save()
 
+
 def add_user_to_group(user, group):
     utg = UserTestGroup.objects.get(name=group)
     utg.users.add(User.objects.get(username=user))
     utg.save()
+
 
 def remove_user_from_group(user, group):
     utg = UserTestGroup.objects.get(name=group)
     utg.users.remove(User.objects.get(username=user))
     utg.save()
 
+
 default_groups = {'email_future_courses': 'Receive e-mails about future MITx courses',
                   'email_helpers': 'Receive e-mails about how to help with MITx',
                   'mitx_unenroll': 'Fully unenrolled -- no further communications',
                   '6002x_unenroll': 'Took and dropped 6002x'}
+
 
 def add_user_to_default_group(user, group):
     try:
@@ -1176,6 +1235,7 @@ def add_user_to_default_group(user, group):
         utg.save()
     utg.users.add(User.objects.get(username=user))
     utg.save()
+
 
 @receiver(post_save, sender=User)
 def update_user_information(sender, instance, created, **kwargs):
@@ -1190,6 +1250,7 @@ def update_user_information(sender, instance, created, **kwargs):
         log.error(unicode(e))
         log.error("update user info to discussion failed for user with id: " + str(instance.id))
 
+
 # Define login and logout handlers here in the models file, instead of the views file,
 # so that they are more likely to be loaded when a Studio user brings up the Studio admin
 # page to login.  These are currently the only signals available, so we need to continue
@@ -1200,52 +1261,46 @@ def log_successful_login(sender, request, user, **kwargs):
     """Handler to log when logins have occurred successfully."""
     AUDIT_LOG.info(u"Login success - {0} ({1})".format(user.username, user.email))
 
+
 @receiver(user_logged_out)
 def log_successful_logout(sender, request, user, **kwargs):
     """Handler to log when logouts have occurred successfully."""
     AUDIT_LOG.info(u"Logout - {0}".format(request.user))
 
-#@begin:Add new functions used in People pages (Global and Course)
-#@date:2013-11-02
+
+# @begin:Add new functions used in People pages (Global and Course)
+# @date:2013-11-02
 def get_user_by_id(user_id):
     u = User.objects.get(id=user_id)
-    up=None
+    up = None
     up = UserProfile.objects.get(user=u)
     return u, up
-#@end
+# @end
 
-from django.db.models import signals
-
-from people import people_in_es
 
 # alter table auth_user add last_modify datetime;
-
 # def update_user_information(sender, instance, created, **kwargs):
-
+@receiver(post_save, sender=User)
 def on_user_save(sender, instance, created, **kwargs):
-    user=instance
+    user = instance
     people_in_es.update_user_es_info(user)
 
-    # import logging
-    # log = logging.getLogger("tracking")
     # log.debug("============modified user===============:%s id: %s" % (sender,instance.id))
 
+
+@receiver(post_save, sender=UserProfile)
 def on_profile_save(sender, instance, signal, *args, **kwargs):
-    profile=instance
-    import logging
-    log = logging.getLogger("tracking")
-    log.debug("============modified user profile===============:%s user_id: %s" % (sender,profile.user_id))
+    profile = instance
+
+    log.debug("============modified user profile===============:%s user_id: %s" % (sender, profile.user_id))
 
     people_in_es.update_user_es_info(profile.user)
 
+
+@receiver(post_delete, sender=User)
 def on_user_delete(sender, instance, signal, *args, **kwargs):
-    user=instance
-    # import logging
-    # log = logging.getLogger("tracking")
+    user = instance
+
     # log.debug("============delete user profile===============:%s user_id: %s" % (sender,instance.user_id))
 
     people_in_es.del_user(user.id)
-
-signals.post_save.connect(on_user_save, sender=User)
-signals.post_save.connect(on_profile_save, sender=UserProfile)
-signals.post_delete.connect(on_user_delete, sender=User)
