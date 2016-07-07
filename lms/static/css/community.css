@@ -844,7 +844,7 @@ div.card-bottom table tr:nth-child(2) {
     font-size: 16px !important;
 }
 .user-info-div{
-    position: fixed;
+    position: absolute;
     background-color:white;
     border: 2px solid black;
     -webkit-border-radius: 4px;
@@ -852,6 +852,7 @@ div.card-bottom table tr:nth-child(2) {
     border-radius: 4px;
 }
 .user_info_span{
+    position: relative;
     float:left;
     text-align: left;
     padding: 4px 4px 4px 4px;

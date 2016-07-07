@@ -151,7 +151,11 @@ import datetime
                       else:
                         active_recent = False
                       %>
-                      <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
+                      %if not active_recent:
+                          <a href="${reverse('dashboard',args=[u.user.id])}" data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                      %else:
+                          <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                      %endif
                         %if active_recent:
                             <img src="/static/images/online-3.png" class="circle" id="${use.profile.id}" data-email="${use.email}" data-fname="${use.first_name}" data-lname="${use.last_name}" data-skypename="${use.profile.skype_username}" data-id="${use.id}" data-username="${use.username}"></img>
                         %endif
@@ -761,9 +765,10 @@ import datetime
                 safety++;
                 $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
                 if ($(this).data("skype") !== undefined){
-                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img>"+$(this).data('skype'))
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img><a href='skype:"+$(this).data('skype')+"?call'>"+$(this).data('skype')+"</a>")
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/hangout_icon.png' width=16px height=16px></img><span style='float:right; padding-right:46px;'>"+$('#hangout_span_'+$(this).data("id")).html()+"</span>");
                 }
-                $("#user_info_div").css({top: event.clientY, left: event.clientX}).show();
+                $("#user_info_div").css({top: $(this).offset().top+20, left: $(this).offset().left}).show();
             }, function() {
                 if (!$("#user_info_div").is(":hover") && safety > 1){
                     $("#user_info_div").hide();
