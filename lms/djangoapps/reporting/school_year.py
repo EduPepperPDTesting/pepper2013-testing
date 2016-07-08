@@ -13,13 +13,10 @@ def report_has_school_year(columns):
 
 
 def get_school_year_item():
-    data = []
     rs = reporting_store()
     rs.set_collection(school_year_collection[0])
-    result = rs.collection.group({'school_year': 1}, {}, {}, 'function(obj,prev){}')
-    for item in result:
-        data.append(item['school_year'])
-    return sorted(data, cmp=None, key=None, reverse=True)
+    result = rs.collection.distinct('school_year')
+    return sorted(result, cmp=None, key=None, reverse=True)
 
 
 def get_default_school_year_item(school_year_item):
