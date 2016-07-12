@@ -21,15 +21,13 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.forms import ModelForm, forms
 # from django.db import connection
 
 import comment_client as cc
 from pytz import UTC
-
-from people import people_in_es
 
 log = logging.getLogger(__name__)
 AUDIT_LOG = logging.getLogger("audit")
@@ -1280,27 +1278,38 @@ def get_user_by_id(user_id):
 
 # alter table auth_user add last_modify datetime;
 # def update_user_information(sender, instance, created, **kwargs):
+from people import people_in_es
+
+
+@receiver(pre_save, sender=User)
+def before_user_save(sender, instance, **kwargs):
+    if instance.id is not None:
+        current_user = User.objects.get(id=instance.id)
+        if current_user.email != instance.email:
+            try:
+                CourseEnrollmentAllowed.objects.filter(email=current_user.email).update(email=instance.email)
+            except:
+                pass
+
+
 @receiver(post_save, sender=User)
 def on_user_save(sender, instance, created, **kwargs):
-    user = instance
-    people_in_es.update_user_es_info(user)
-
-    # log.debug("============modified user===============:%s id: %s" % (sender,instance.id))
+    people_in_es.update_user_es_info(instance)
+    # log.debug("============modified user===============:%s user_id: %s" % (sender, instance.id))
 
 
 @receiver(post_save, sender=UserProfile)
 def on_profile_save(sender, instance, signal, *args, **kwargs):
-    profile = instance
-
-    log.debug("============modified user profile===============:%s user_id: %s" % (sender, profile.user_id))
-
-    people_in_es.update_user_es_info(profile.user)
+    # log.debug("============modified user profile===============:%s user_id: %s" % (sender, instance.user_id))
+    people_in_es.update_user_es_info(instance.user)
 
 
 @receiver(post_delete, sender=User)
 def on_user_delete(sender, instance, signal, *args, **kwargs):
-    user = instance
+    # log.debug("============delete user profile===============:%s user_id: %s" % (sender, instance.id))
+    people_in_es.del_user(instance.id)
 
-    # log.debug("============delete user profile===============:%s user_id: %s" % (sender,instance.user_id))
-
-    people_in_es.del_user(user.id)
+    try:
+        CourseEnrollmentAllowed.objects.filter(email=instance.email).delete()
+    except:
+        pass
