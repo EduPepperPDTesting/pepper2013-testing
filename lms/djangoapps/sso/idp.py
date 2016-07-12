@@ -142,10 +142,13 @@ def auth(request):
     if sp_name == "":
         raise Exception("error: No SP name passed")
 
+    # Get the RelayState
+    relay_state = request.GET.get('RelayState', '')
+
     # ** Get config of the sp
     metadata_setting = metadata.sp_by_name(sp_name)
     if metadata_setting is None:
-        raise Exception("error: Unkonwn SP")
+        raise Exception("error: Unknown SP")
     
     # ** User haven't loged in, redirect to login page
     # BTW, use @login_required cause a problem
@@ -155,10 +158,10 @@ def auth(request):
 
     # ** Now call a relative direction function
     if metadata_setting.get('sso_type') == 'SAML':
-        return saml_redirect(request, sp_name, metadata_setting)
+        return saml_redirect(request, sp_name, metadata_setting, relay_state)
 
 
-def saml_redirect(request, sp_name, ms):
+def saml_redirect(request, sp_name, ms, rs):
     '''
     Redirect to a saml sp acs
     '''
@@ -246,11 +249,9 @@ def saml_redirect(request, sp_name, ms):
         binding=binding,
         msg_str=resp,
         destination=destination,
-        relay_state="",
+        relay_state=rs,
         response=True)
 
     resp = "\n".join(http_args["data"])
     resp = resp.replace("<body>", "<body style='display:none'>")
     return HttpResponse(resp)
-
-
