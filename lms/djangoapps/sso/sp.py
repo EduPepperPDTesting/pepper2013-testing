@@ -1,36 +1,32 @@
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from pytz import UTC
-from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth import login
 from django.utils.translation import ugettext as _
-from django.core.validators import validate_email, validate_slug, ValidationError
+from django.core.validators import validate_slug, ValidationError
 import datetime
 import json
 import random
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, Http404
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
 from saml2.client import Saml2Client
 from cache import IdentityCache, OutstandingQueriesCache
-from saml2 import BINDING_HTTP_REDIRECT, BINDING_HTTP_POST
+from saml2 import BINDING_HTTP_POST
 from saml2.config import SPConfig
 import copy
 from os import path
 import saml2
 from saml2 import saml
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib import auth
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed, CourseEnrollment
-from mitxmako.shortcuts import render_to_response, render_to_string
-import time
-import calendar
+from student.models import District, SubjectArea, GradeLevel, YearsInEducation, School
+from mitxmako.shortcuts import render_to_response
 from student.views import upload_user_photo
 import idp_metadata as metadata
 import logging
-from student.models import State, District, SubjectArea, GradeLevel, YearsInEducation, School
 from baseinfo.models import Enum
 from django import db
 import requests
@@ -49,6 +45,7 @@ else:
 
 SSO_DIR = settings.PROJECT_HOME + "/sso"
 BASEDIR = SSO_DIR + "/idp"
+LMS_BASE = settings.LMS_BASE
 
 log = logging.getLogger("tracking")
 
@@ -176,19 +173,19 @@ def saml_acs(request, idp_name, ms):
             # we are just a lonely SP
             'sp': {
                 "allow_unsolicited": True,
-                'name': 'Federated Django sample SP',
+                'name': 'PepperPD',
                 'name_id_format': saml.NAMEID_FORMAT_PERSISTENT,
                 'endpoints': {
-                    # url and binding to the assetion consumer service view
+                    # url and binding to the assertion consumer service view
                     # do not change the binding or service name
                     'assertion_consumer_service': [
-                        ('https://59.45.37.54/genericsso/', saml2.BINDING_HTTP_POST),
+                        ('https://{0}/genericsso/'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
                         ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
-                        ('https://59.45.37.54/saml2/ls/', saml2.BINDING_HTTP_REDIRECT),
-                        ('https://59.45.37.54/saml2/ls/post', saml2.BINDING_HTTP_POST),
+                        ('https://{0}/saml2/ls/'.format(LMS_BASE), saml2.BINDING_HTTP_REDIRECT),
+                        ('https://{0}/saml2/ls/post'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
                       ]
                     },
                 # attributes that this project need to identify a user
@@ -267,11 +264,11 @@ def saml_acs(request, idp_name, ms):
     for k, v in session_info['ava'].items():
         data[k] = v[0]
     
-    return post_acs(request,  ms, data)
+    return post_acs(request, ms, data)
 
 
 def post_acs(request, ms, data):
-    # Fetch email
+    # Fetch attributes
     attribute_setting = ms.get('attributes')
     parsed_data = {}
 
@@ -280,20 +277,18 @@ def post_acs(request, ms, data):
         if attr['name']:
             parsed_data[mapped_name] = data.get(attr['name'])    
     
-    email = parsed_data.get('email')
+    uid = parsed_data.get('ID')
 
-    users = User.objects.filter(email=email)
-
-    if users.exists():
-        user = users.all()[0]
-        if not user.is_active:
-            registration = Registration.objects.get(user_id=user.id)
+    try:
+        user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid)
+        if not user_profile.user.is_active:
+            registration = Registration.objects.get(user_id=user_profile.user.id)
             return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
         else:
-            user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
-            auth.login(request, user)
+            user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+            auth.login(request, user_profile.user)
             return https_redirect(request, "/dashboard")
-    else:
+    except:
         return create_unknown_user(request, ms, data)
 
     
