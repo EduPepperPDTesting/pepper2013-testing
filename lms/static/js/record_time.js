@@ -257,9 +257,9 @@ CourseTimer.prototype.save = function() {
     self.time = self.time != 0 ? self.time : stime;
 
     var isCollaboration = RecordTime.getSessionCourseType()!= 'courseware' && RecordTime.getSessionCourseType()!= '';
-    console.log(startTime,RecordTime.getSessionCourseID(),RecordTime.getSessionCourseType())
+    //console.log(startTime,RecordTime.getSessionCourseID(),RecordTime.getSessionCourseType());
     if (startTime > 0 && RecordTime.getSessionCourseID() != '' && isCollaboration) {
-        console.log('time:' + self.time)
+        // console.log('time:' + self.time);
         /*
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
