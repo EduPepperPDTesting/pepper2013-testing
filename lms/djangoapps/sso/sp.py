@@ -72,7 +72,7 @@ def genericsso(request):
         raise Exception("error: Unkonwn IDP")
         # log.error("error: Unkonwn IDP")
         # raise Http404()
-    
+
     # Call different type of ACS seperatly
     if metadata_setting.get('sso_type') == 'SAML':
         log.debug("message: it's SAML")
@@ -83,10 +83,10 @@ def genericsso(request):
 
 def flat_dict(var, prefix=""):
     out = {}
-    if isinstance(var,dict):
-        for k,v in var.items():
-            p = (prefix+".") if prefix else ""
-            out.update(flat_dict(v, p+k))
+    if isinstance(var, dict):
+        for k, v in var.items():
+            p = (prefix + ".") if prefix else ""
+            out.update(flat_dict(v, p + k))
     else:
         out[prefix] = var
 
@@ -114,32 +114,32 @@ def oauth2_acs(request, idp_name, ms):
         me_url = ms.get('typed').get("oauth2_me_url")
         api_url = ms.get('typed').get("oauth2_api_url")
         # tokeninfo_url = ms.get('typed').get("oauth2_tokeninfo_url")
-        
+
         # -----------------------
         # req = requests.request('GET', tokeninfo_url, timeout=15,
         #                        headers={'Authorization': 'Bearer '+content.get('access_token')})
         # # {"client_id":"172ddae01da8b5f08e6b","scopes":["read:teachers","read:students","read:school_admins","read:district_admins","read:user_id"]}
         # print req.text
         # tokeninfo = json.loads(req.text)
-        
+
         # -----------------------
-        req = requests.request('GET', api_url+me_url, timeout=15,
-                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        req = requests.request('GET', api_url + me_url, timeout=15,
+                               headers={'Authorization': 'Bearer ' + content.get('access_token')})
         me = json.loads(req.text)
-        
+
         # -----------------------
         profile_url = ""
         for link in me.get("links"):
             if link["rel"] == "canonical":
                 profile_url = link["uri"]
 
-        req = requests.request('GET', api_url+profile_url, timeout=15,
-                               headers={'Authorization': 'Bearer '+content.get('access_token')})
+        req = requests.request('GET', api_url + profile_url, timeout=15,
+                               headers={'Authorization': 'Bearer ' + content.get('access_token')})
 
         profile = json.loads(req.text)
     except Exception as e:
         return HttpResponse(str(e))
-    
+
     data = flat_dict(profile)
     return post_acs(request, ms, data)
 
@@ -180,14 +180,14 @@ def saml_acs(request, idp_name, ms):
                     # do not change the binding or service name
                     'assertion_consumer_service': [
                         ('https://{0}/genericsso/'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
-                        ],
+                    ],
                     # url and binding to the single logout service view
                     # do not change the binding or service name
                     'single_logout_service': [
                         ('https://{0}/saml2/ls/'.format(LMS_BASE), saml2.BINDING_HTTP_REDIRECT),
                         ('https://{0}/saml2/ls/post'.format(LMS_BASE), saml2.BINDING_HTTP_POST),
-                      ]
-                    },
+                    ]
+                },
                 # attributes that this project need to identify a user
                 'required_attributes': ['uid'],
                 # attributes that may be useful to have but not required
@@ -206,15 +206,15 @@ def saml_acs(request, idp_name, ms):
                     #         saml2.BINDING_HTTP_REDIRECT: 'https://idp.example.com/simplesaml/saml2/idp/SingleLogoutService.php',
                     #         },
                     #     },
-                    },
                 },
             },
+        },
         # where the remote metadata is stored
         'metadata': {
             'local': [
                 path.join(BASEDIR, idp_name, 'FederationMetadata.xml')
-                ],
-            },
+            ],
+        },
         # set to 1 to output debugging information
         'debug': 1,
         # ===  CERTIFICATE ===
@@ -246,7 +246,7 @@ def saml_acs(request, idp_name, ms):
         'valid_for': 24,  # how long is our metadata valid
     }
 
-    #** load IDP config and parse the saml response
+    # ** load IDP config and parse the saml response
     conf = SPConfig()
     conf.load(copy.deepcopy(setting))
 
@@ -263,7 +263,7 @@ def saml_acs(request, idp_name, ms):
     data = {}
     for k, v in session_info['ava'].items():
         data[k] = v[0]
-    
+
     return post_acs(request, ms, data)
 
 
@@ -275,23 +275,31 @@ def post_acs(request, ms, data):
     for attr in attribute_setting:
         mapped_name = attr['map'] if 'map' in attr else attr['name']
         if attr['name']:
-            parsed_data[mapped_name] = data.get(attr['name'])    
-    
-    uid = parsed_data.get('ID')
+            parsed_data[mapped_name] = data.get(attr['name'])
+
+    uid = parsed_data.get('ID', False)
+    email = parsed_data.get('email', False)
 
     try:
-        user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid)
-        if not user_profile.user.is_active:
-            registration = Registration.objects.get(user_id=user_profile.user.id)
-            return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
+        if uid and email:
+            user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid)
+            if email != user_profile.user.email:
+                user_profile.user.email = email
+                user_profile.user.save()
+
+            if not user_profile.user.is_active:
+                registration = Registration.objects.get(user_id=user_profile.user.id)
+                return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
+            else:
+                user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
+                auth.login(request, user_profile.user)
+                return https_redirect(request, "/dashboard")
         else:
-            user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
-            auth.login(request, user_profile.user)
-            return https_redirect(request, "/dashboard")
+            raise Exception('Invalid ID or Email')
     except:
         return create_unknown_user(request, ms, data)
 
-    
+
 def https_redirect(request, url):
     '''Force redirect to a https address'''
     absolute_URL = request.build_absolute_uri(url)
@@ -300,15 +308,16 @@ def https_redirect(request, url):
 
 
 def random_mark(length):
-    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
+    return "".join(
+        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
 def create_unknown_user(request, ms, data):
-    '''Create the sso user who\'s not exists in pepper'''
+    """Create the sso user who does not exist in pepper"""
 
     try:
         attribute_setting = ms.get('attributes')
-        
+
         # Parse to mapped attribute
         parsed_data = {}
         for attr in attribute_setting:
@@ -316,9 +325,9 @@ def create_unknown_user(request, ms, data):
             if attr['name']:
                 parsed_data[mapped_name] = data.get(attr['name'])
 
-        print attribute_setting
-        print data
-        print parsed_data
+        # print attribute_setting
+        # print data
+        # print parsed_data
 
         # Generate username if not provided
         if not parsed_data.get('username'):
@@ -326,7 +335,8 @@ def create_unknown_user(request, ms, data):
         else:
             username = parsed_data['username']
 
-        # Email must be profided
+        # Email and ID must be provided
+        uid = parsed_data['ID']
         email = parsed_data['email']
 
         user = User(username=username, email=email, is_active=False)
@@ -340,6 +350,7 @@ def create_unknown_user(request, ms, data):
         profile.subscription_status = "Imported"
         profile.sso_type = ms.get('sso_type')
         profile.sso_idp = ms.get('sso_name')
+        profile.sso_user_id = uid
 
         # Save mapped attributes
         for k, v in parsed_data.items():
@@ -347,17 +358,17 @@ def create_unknown_user(request, ms, data):
                 user.first_name = parsed_data['first_name']
             elif k == 'last_name':
                 user.last_name = parsed_data['last_name']
-            elif k == 'sso_user_id':
-                profile.sso_user_id = parsed_data['sso_user_id']
             elif k == 'district':
                 profile.district = District.object.get(name=parsed_data['district'])
             elif k == 'school':
                 profile.school = School.object.get(name=parsed_data['school'])
             elif k == 'grade_level':
-                ids = GradeLevel.object.filter(name__in=parsed_data['grade_level'].split(',')).values_list('id', flat=True)
+                ids = GradeLevel.object.filter(name__in=parsed_data['grade_level'].split(',')).values_list(
+                    'id', flat=True)
                 profile.grade_level = ','.join(ids)
             elif k == 'major_subject_area':
-                ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list('id', flat=True)
+                ids = SubjectArea.object.filter(name__in=parsed_data['major_subject_area'].split(',')).values_list(
+                    'id', flat=True)
                 profile.major_subject_area = ','.join(ids)
             elif k == 'years_in_education':
                 profile.years_in_education = YearsInEducation.object.get(name=parsed_data['years_in_education'])
@@ -366,7 +377,8 @@ def create_unknown_user(request, ms, data):
             elif k == 'percent_iep':
                 profile.percent_iep = Enum.object.get(name='percent_iep', content=parsed_data['percent_iep'])
             elif k == 'percent_eng_learner':
-                profile.percent_eng_learner = Enum.object.get(name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
+                profile.percent_eng_learner = Enum.object.get(
+                    name='percent_eng_learner', content=parsed_data['percent_eng_learner'])
 
         user.save()
         profile.save()
@@ -378,9 +390,9 @@ def create_unknown_user(request, ms, data):
         return https_redirect(request, reverse('register_sso_user', args=[registration.activation_key]))
 
     except Exception as e:
-        raise e
         db.transaction.rollback()
-        log.error("error: failed to create SSO user: %s" % e)
+        log.error("error: failed to create SSO user: {0}".format(e))
+        raise e
 
 
 def register_sso(request, activation_key):
@@ -406,15 +418,15 @@ def register_sso(request, activation_key):
 
 
 def activate_account(request):
-    '''Process posted data from registeration form'''
+    '''Process posted data from registration form'''
     vars = request.POST
 
-    #** fetch user by activation_key
+    # ** fetch user by activation_key
     registration = Registration.objects.get(activation_key=vars.get('activation_key', ''))
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
 
-    #** validate username
+    # ** validate username
     try:
         validate_slug(vars['username'])
     except ValidationError:
@@ -423,14 +435,15 @@ def activate_account(request):
         js['field'] = 'username'
         return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate if user exists
+    # ** validate if user exists
     if User.objects.filter(username=vars['username']).exclude(email=profile.user.email).exists():
         js = {'success': False}
-        js['value'] = _("An account with the Public Username '{username}' already exists.").format(username=vars['username'])
+        js['value'] = _("An account with the Public Username '{username}' already exists.").format(
+            username=vars['username'])
         js['field'] = 'username'
         return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate fields
+    # ** validate fields
     required_post_vars_dropdown = [
         'state_id',
         'district_id',
@@ -458,7 +471,7 @@ def activate_account(request):
             js['field'] = a
             return HttpResponse(json.dumps(js), content_type="application/json")
 
-    #** validate terms_of_service
+    # ** validate terms_of_service
     if vars.get('terms_of_service', 'false') != u'true':
         js = {'success': False}
         js['value'] = _("You must accept the terms of service.")
@@ -466,12 +479,12 @@ def activate_account(request):
         return HttpResponse(json.dumps(js), content_type="application/json")
 
     try:
-        #** update user
+        # ** update user
         profile.user.username = vars.get('username', '')
         profile.user.is_active = True
         profile.user.save()
 
-        #** update profile
+        # ** update profile
         profile.district_id = vars.get('district_id', '')
         profile.school_id = vars.get('school_id', '')
         profile.subscription_status = 'Registered'
@@ -485,23 +498,23 @@ def activate_account(request):
         profile.activate_date = datetime.datetime.now(UTC)
         profile.save()
 
-        #** upload photo
+        # ** upload photo
         photo = request.FILES.get("photo")
         upload_user_photo(profile.user.id, photo)
 
-        #** auto enroll courses
+        # ** auto enroll courses
         ceas = CourseEnrollmentAllowed.objects.filter(email=profile.user.email)
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-        
+
         js = {'success': True}
     except Exception as e:
         transaction.rollback()
         js = {'success': False}
         js['error'] = "%s" % e
 
-    #** log the user in
+    # ** log the user in
     profile.user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, profile.user)
 
