@@ -453,14 +453,16 @@ body.dragging, body.dragging * {
     background-size: auto auto;
 }
 #reporting .columnSelectorWrapper {
-    float: right
+    position: absolute;
+    right: 0;
+    top: 0;
 }
-#reporting .columnSelector, .hidden {
-    margin-top: 60px;
+#reporting .columnSelector.hidden {
     display: none;
 }
 #reporting .columnSelectorButton {
     padding: 10px;
+    position: relative;
 }
 #reporting #colSelect1:checked + label {
     background: #5797d7;

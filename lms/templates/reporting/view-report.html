@@ -51,18 +51,22 @@
                             <th>${col.column.name}</th>
                         %endif
                     %endfor
-                <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
+                    <th class="sorter-false filter-false table-menu" style="width:30px;">
+                        <div style="width:18px;height:20px;">
+                            <label class="columnSelectorButton" for="colSelect1">
+                                <div class="columnSelectorWrapper">
+                                    <input id="colSelect1" type="checkbox" class="hidden">
+                                    <div id="columnSelector" class="columnSelector">
+                                        <!-- this div is where the column selector is added -->
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </th>
                 </thead>
                 <tbody></tbody>
             </table>
 
-        </div>
-        <div class="columnSelectorWrapper">
-            <input id="colSelect1" type="checkbox" class="hidden">
-
-            <div id="columnSelector" class="columnSelector">
-                <!-- this div is where the column selector is added -->
-            </div>
         </div>
         <span class="footer">
             <div class="pager">
