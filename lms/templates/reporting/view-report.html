@@ -53,14 +53,11 @@
                     %endfor
                     <th class="sorter-false filter-false table-menu" style="width:30px;">
                         <div style="width:18px;height:20px;">
-                            <label class="columnSelectorButton" for="colSelect1">
-                                <div class="columnSelectorWrapper">
-                                    <input id="colSelect1" type="checkbox">
-                                    <div id="columnSelector" class="columnSelector">
-                                        <!-- this div is where the column selector is added -->
-                                    </div>
+                            <a href="#" class="columnSelectorButton">
+                                <div id="columnSelector" class="columnSelector">
+                                    <!-- this div is where the column selector is added -->
                                 </div>
-                            </label>
+                            </a>
                         </div>
                     </th>
                 </thead>
@@ -212,7 +209,7 @@
         //----------- column selector event----------//
 
         $('.columnSelectorButton').click(function(){
-            $('.columnSelectorWrapper').toggle();
+            $('.columnSelector').toggle();
         });
     });
 

@@ -442,15 +442,17 @@ body.dragging, body.dragging * {
     width: auto;
     overflow-x:auto;
 }
-#reporting .table-menu .tablesorter-header-inner div{
-
-}
-#reporting .columnSelectorWrapper {
+#reporting .columnSelector {
     position: absolute;
     right: 0;
-    top: 0;
+    top: 20px;
+    z-index: 9999;
     display: none;
     width: 220px;
+    padding: 10px;
+    background: #fff;
+    border: #99bfe6 1px solid;
+    border-radius: 5px;
 }
 #reporting .columnSelectorButton {
     position: relative;
@@ -458,19 +460,6 @@ body.dragging, body.dragging * {
     background: rgba(0, 0, 0, 0) url('../images/configuration/table_menu.png') 0 0 no-repeat;
     width: 20px;
     height: 20px;
-}
-#reporting #colSelect1:checked + label {
-    background: #5797d7;
-    border-color: #555;
-}
-#reporting #colSelect1:checked ~ #columnSelector {
-    display: block;
-}
-#reporting .columnSelector {
-    padding: 10px;
-    background: #fff;
-    border: #99bfe6 1px solid;
-    border-radius: 5px;
 }
 #reporting .columnSelector label {
     display: block;
