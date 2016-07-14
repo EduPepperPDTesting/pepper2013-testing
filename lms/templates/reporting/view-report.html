@@ -55,7 +55,7 @@
                         <div style="width:18px;height:20px;">
                             <label class="columnSelectorButton" for="colSelect1">
                                 <div class="columnSelectorWrapper">
-                                    <input id="colSelect1" type="checkbox" class="hidden">
+                                    <input id="colSelect1" type="checkbox">
                                     <div id="columnSelector" class="columnSelector">
                                         <!-- this div is where the column selector is added -->
                                     </div>
@@ -212,23 +212,23 @@
         //----------- column selector event----------//
 
         $('.columnSelectorButton').click(function(e){
-            if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
-                $('.columnSelector').show();
+            if(e.target.className == $(this).prop("class") && !$('.columnSelectorWrapper').is(":visible")) {
+                $('.columnSelectorWrapper').show();
             }
             else {
-                $('.columnSelector').hide();
+                $('.columnSelectorWrapper').hide();
             }
-        })
+        });
 
         $(document).click(function(e){
             var isout = !$('.columnSelectorWrapper').find(e.target).length;
-            if($('.columnSelector').is(":visible")){
+            if($('.columnSelectorWrapper').is(":visible")){
                 if(isout && e.target.className != 'columnSelectorButton') {
-                    $('.columnSelector').hide();
+                    $('.columnSelectorWrapper').hide();
                 }
             }
 
-        })
+        });
 
     });
 

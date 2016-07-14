@@ -456,13 +456,13 @@ body.dragging, body.dragging * {
     position: absolute;
     right: 0;
     top: 0;
-}
-#reporting .columnSelector, #reporting .hidden {
     display: none;
+    width: 220px;
 }
 #reporting .columnSelectorButton {
     padding: 10px;
     position: relative;
+    display: block;
 }
 #reporting #colSelect1:checked + label {
     background: #5797d7;
@@ -472,9 +472,6 @@ body.dragging, body.dragging * {
     display: block;
 }
 #reporting .columnSelector {
-    width: 220px;
-    position: absolute;
-    top: 30px;
     padding: 10px;
     background: #fff;
     border: #99bfe6 1px solid;
