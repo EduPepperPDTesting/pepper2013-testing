@@ -457,7 +457,7 @@ body.dragging, body.dragging * {
     right: 0;
     top: 0;
 }
-#reporting .columnSelector.hidden {
+#reporting .columnSelector, #reporting .hidden {
     display: none;
 }
 #reporting .columnSelectorButton {
