@@ -52,18 +52,14 @@
                         %endif
                     %endfor
                     <th class="sorter-false filter-false table-menu" style="width:30px;">
-                        <div style="width:18px;height:20px;">
-                            <a href="#" class="columnSelectorButton">
-                                <div id="columnSelector" class="columnSelector">
-                                    <!-- this div is where the column selector is added -->
-                                </div>
-                            </a>
-                        </div>
+                        <a href="#" class="columnSelectorButton"></a>
                     </th>
                 </thead>
                 <tbody></tbody>
             </table>
-
+            <div id="columnSelector" class="columnSelector">
+                <!-- this div is where the column selector is added -->
+            </div>
         </div>
         <span class="footer">
             <div class="pager">
@@ -210,6 +206,7 @@
 
         $('.columnSelectorButton').click(function(){
             $('.columnSelector').toggle();
+            return false;
         });
     });
 

@@ -440,12 +440,12 @@ body.dragging, body.dragging * {
 }
 #reporting .table_scroll{
     width: auto;
-    overflow-x:auto;
+    position: relative;
 }
 #reporting .columnSelector {
     position: absolute;
-    right: 0;
-    top: 20px;
+    right: 10px;
+    top: 60px;
     z-index: 9999;
     display: none;
     width: 220px;
@@ -453,6 +453,7 @@ body.dragging, body.dragging * {
     background: #fff;
     border: #99bfe6 1px solid;
     border-radius: 5px;
+    box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.3);
 }
 #reporting .columnSelectorButton {
     position: relative;
