@@ -211,25 +211,9 @@
 
         //----------- column selector event----------//
 
-        $('.columnSelectorButton').click(function(e){
-            if(e.target.className == $(this).prop("class") && !$('.columnSelectorWrapper').is(":visible")) {
-                $('.columnSelectorWrapper').show();
-            }
-            else {
-                $('.columnSelectorWrapper').hide();
-            }
+        $('.columnSelectorButton').click(function(){
+            $('.columnSelectorWrapper').toggle();
         });
-
-        $(document).click(function(e){
-            var isout = !$('.columnSelectorWrapper').find(e.target).length;
-            if($('.columnSelectorWrapper').is(":visible")){
-                if(isout && e.target.className != 'columnSelectorButton') {
-                    $('.columnSelectorWrapper').hide();
-                }
-            }
-
-        });
-
     });
 
     var report_view = {
