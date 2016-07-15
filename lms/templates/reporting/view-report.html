@@ -290,7 +290,12 @@
         for(var i = 0; i < data.length; i++)
         {   
             for(var j = 0; j < data[i].items.length; j++){
-                data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                try{
+                    data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                }
+                catch(e){
+                    data[i].items[j] = "'" + data[i].items[j] + "'";
+                }
             }
            eval("selectSource[" + data[i].index + "] = function(table, column) {return [" + data[i].items + "]}")
         }
