@@ -117,8 +117,8 @@
     width: 0px;
 }
 #reporting #view-dialog {
-    width: 680px;
-    margin-left: -349px;
+    width: 800px;
+    margin-left: -400px;
 }
 #reporting #view-dialog .content {
     text-align: left;
@@ -483,4 +483,12 @@ body.dragging, body.dragging * {
 }
 #reporting .error-box {
     background-color: pink !important;
+}
+#reporting .column-row .filter-select-columns-check{
+    width: 30px;
+    margin-top: 10px;
+}
+#reporting .custom_filter_title {
+    float: right;
+    margin-right: 45px;
 }

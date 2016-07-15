@@ -325,7 +325,7 @@ function addView() {
             content += '<label>View Description:<input name="view_description" type="text"></label>';
             content += '<label>View Source:<input name="view_source" type="text"></label>';
         }
-        content += '<label>Columns:';
+        content += '<label>Columns:<div class="custom_filter_title">Custom</div>';
         if (current_data) {
             $.each(current_data.columns, function (index, value) {
                 content += '<div data-name="column-row" class="column-row" id="column-row[' + index + ']">';
@@ -342,6 +342,14 @@ function addView() {
                 });
                 content += '</select>';
                 content += '<input type="hidden" data-name="column_id" class="column_id" name="column_id[' + index + ']" value="' + value.id + '">';
+                if (value.custom_filter == 1) {
+                    content += '<input class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0" checked="checked">';
+                    content += '<input class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1" checked="checked">';
+                }
+                else{
+                    content += '<input class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0">';
+                    content += '<input class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1">';
+                }
                 content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[' + index + ']">';
                 if (index > 0) {
                     content += '<input type="button" value="-" data-name="minus" class="minus" name="minus[' + index + ']">';
@@ -358,6 +366,8 @@ function addView() {
                 content += '    <option value="' + v + '">' + v + '</option>';
             });
             content += '</select>';
+            content += '<input class="filter-select-columns-check" type="hidden" name="custom_filter_column[0]" value="0">';
+            content += '<input class="filter-select-columns-check" type="checkbox" name="custom_filter_column[0]" value="0">';
             content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[0]">';
             content += '</div>';
         }
