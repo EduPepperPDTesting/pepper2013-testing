@@ -164,6 +164,8 @@
 
                 %if curr_user == request.user and not course.close_course:      
                     <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %else:
+                    <div style="width:150px;height:40px;float:left;margin-top:16px;"></div>
                 %endif                      
             %endif
 
