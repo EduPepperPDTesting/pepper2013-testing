@@ -295,6 +295,10 @@ from permissions.utils import check_access_level, check_user_perms
       "<input type='checkbox' value='' class='select-row'>&nbsp;" +
       "<a href='' class='edit-row'>" +
       "<img src='/static/images/portal-icons/pencil-icon.png'></a>");
+    $(table).find(".select-row").each(function(){
+      var id = $(this).prev("input[type=hidden]").val();
+      $(this).val(id);
+    });    
     $(table).find(".edit-row").click(function(e){
       e.preventDefault();
       var id = $(this).parent().find("input").val();
