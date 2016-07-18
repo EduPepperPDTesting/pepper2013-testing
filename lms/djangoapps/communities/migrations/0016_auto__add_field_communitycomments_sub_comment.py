@@ -8,119 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting model 'NotificationConfig'
-        db.delete_table('community_notification_config')
-
-        # Deleting model 'NotificationGroup'
-        db.delete_table('community_notification_group')
-
-        # Deleting model 'NotificationAudit'
-        db.delete_table('community_notification_audit')
-
-        # Deleting model 'NotificationType'
-        db.delete_table('community_notification_type')
-
-        # Adding model 'CommunityNotificationGroup'
-        db.create_table('community_notification_group', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('description', self.gf('django.db.models.fields.TextField')(max_length=255)),
-        ))
-        db.send_create_signal('communities', ['CommunityNotificationGroup'])
-
-        # Adding model 'CommunityNotificationAudit'
-        db.create_table('community_notification_audit', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('subject', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=255, null=True, blank=True)),
-            ('body', self.gf('django.db.models.fields.TextField')()),
-            ('creater', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], on_delete=models.PROTECT)),
-            ('creat_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('send_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('sent', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('communities', ['CommunityNotificationAudit'])
-
-        # Adding model 'CommunityNotificationType'
-        db.create_table('community_notification_type', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('description', self.gf('django.db.models.fields.TextField')(max_length=255)),
-            ('group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['communities.CommunityNotificationGroup'], on_delete=models.PROTECT)),
-            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('body', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('action', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-        ))
-        db.send_create_signal('communities', ['CommunityNotificationType'])
-
-        # Adding model 'CommunityNotificationConfig'
-        db.create_table('community_notification_config', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('via_pepper', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('via_email', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['communities.CommunityNotificationType'], on_delete=models.PROTECT)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], on_delete=models.PROTECT)),
-            ('frequency', self.gf('django.db.models.fields.CharField')(default='', max_length=20)),
-            ('self_config', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('communities', ['CommunityNotificationConfig'])
+        # Adding field 'CommunityComments.sub_comment'
+        db.add_column('community_posts_comments', 'sub_comment',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['communities.CommunityComments'], null=True, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding model 'NotificationConfig'
-        db.create_table('community_notification_config', (
-            ('via_email', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('frequency', self.gf('django.db.models.fields.CharField')(default='', max_length=20)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], on_delete=models.PROTECT)),
-            ('via_pepper', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('self_config', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['communities.NotificationType'], on_delete=models.PROTECT)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('communities', ['NotificationConfig'])
-
-        # Adding model 'NotificationGroup'
-        db.create_table('community_notification_group', (
-            ('description', self.gf('django.db.models.fields.TextField')(max_length=255)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-        ))
-        db.send_create_signal('communities', ['NotificationGroup'])
-
-        # Adding model 'NotificationAudit'
-        db.create_table('community_notification_audit', (
-            ('body', self.gf('django.db.models.fields.TextField')()),
-            ('creater', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], on_delete=models.PROTECT)),
-            ('send_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('creat_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sent', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('subject', self.gf('django.db.models.fields.CharField')(blank=True, max_length=255, null=True, db_index=True)),
-        ))
-        db.send_create_signal('communities', ['NotificationAudit'])
-
-        # Adding model 'NotificationType'
-        db.create_table('community_notification_type', (
-            ('body', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['communities.NotificationGroup'], on_delete=models.PROTECT)),
-            ('description', self.gf('django.db.models.fields.TextField')(max_length=255)),
-            ('action', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('subject', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=20, null=True, blank=True)),
-        ))
-        db.send_create_signal('communities', ['NotificationType'])
-
-        # Deleting model 'CommunityNotificationGroup'
-        db.delete_table('community_notification_group')
-
-        # Deleting model 'CommunityNotificationAudit'
-        db.delete_table('community_notification_audit')
-
-        # Deleting model 'CommunityNotificationType'
-        db.delete_table('community_notification_type')
-
-        # Deleting model 'CommunityNotificationConfig'
-        db.delete_table('community_notification_config')
+        # Deleting field 'CommunityComments.sub_comment'
+        db.delete_column('community_posts_comments', 'sub_comment_id')
 
 
     models = {
@@ -208,42 +104,6 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['communities.CommunityPosts']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
-        },
-        'communities.communitynotificationaudit': {
-            'Meta': {'object_name': 'CommunityNotificationAudit', 'db_table': "'community_notification_audit'"},
-            'body': ('django.db.models.fields.TextField', [], {}),
-            'creat_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'creater': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'send_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'subject': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'})
-        },
-        'communities.communitynotificationconfig': {
-            'Meta': {'object_name': 'CommunityNotificationConfig', 'db_table': "'community_notification_config'"},
-            'frequency': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '20'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'self_config': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityNotificationType']", 'on_delete': 'models.PROTECT'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'}),
-            'via_email': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'via_pepper': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        },
-        'communities.communitynotificationgroup': {
-            'Meta': {'object_name': 'CommunityNotificationGroup', 'db_table': "'community_notification_group'"},
-            'description': ('django.db.models.fields.TextField', [], {'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'})
-        },
-        'communities.communitynotificationtype': {
-            'Meta': {'object_name': 'CommunityNotificationType', 'db_table': "'community_notification_type'"},
-            'action': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'body': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'max_length': '255'}),
-            'group': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityNotificationGroup']", 'on_delete': 'models.PROTECT'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'subject': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'communities.communityposts': {
             'Meta': {'object_name': 'CommunityPosts', 'db_table': "'community_posts'"},

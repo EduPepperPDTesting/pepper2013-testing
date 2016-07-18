@@ -8,31 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'CommunityNotificationAudit.creat_date'
-        db.delete_column('community_notification_audit', 'creat_date')
-
-        # Adding field 'CommunityNotificationAudit.receiver'
-        db.add_column('community_notification_audit', 'receiver',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='+', on_delete=models.PROTECT, to=orm['auth.User']),
-                      keep_default=False)
-
-        # Adding field 'CommunityNotificationAudit.create_date'
-        db.add_column('community_notification_audit', 'create_date',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2016, 7, 14, 0, 0)),
+        # Adding field 'CommunityLikes.comment'
+        db.add_column('community_posts_likes', 'comment',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['communities.CommunityComments'], null=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Adding field 'CommunityNotificationAudit.creat_date'
-        db.add_column('community_notification_audit', 'creat_date',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2016, 7, 14, 0, 0)),
-                      keep_default=False)
-
-        # Deleting field 'CommunityNotificationAudit.receiver'
-        db.delete_column('community_notification_audit', 'receiver_id')
-
-        # Deleting field 'CommunityNotificationAudit.create_date'
-        db.delete_column('community_notification_audit', 'create_date')
+        # Deleting field 'CommunityLikes.comment'
+        db.delete_column('community_posts_likes', 'comment_id')
 
 
     models = {
@@ -71,12 +55,10 @@ class Migration(SchemaMigration):
             'date_create': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'post': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityPosts']"}),
-            'sub_comment': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['communities.CommunityComments']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'communities.communitycommunities': {
             'Meta': {'object_name': 'CommunityCommunities', 'db_table': "'community_communities'"},
-            'discussion_priority': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'district': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.District']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
             'hangout': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -115,48 +97,11 @@ class Migration(SchemaMigration):
         },
         'communities.communitylikes': {
             'Meta': {'object_name': 'CommunityLikes', 'db_table': "'community_posts_likes'"},
-            'comment': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['communities.CommunityComments']", 'null': 'True', 'blank': 'True'}),
+            'comment': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityComments']", 'null': 'True'}),
             'date_create': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'post': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['communities.CommunityPosts']", 'null': 'True', 'blank': 'True'}),
+            'post': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityPosts']"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
-        },
-        'communities.communitynotificationaudit': {
-            'Meta': {'object_name': 'CommunityNotificationAudit', 'db_table': "'community_notification_audit'"},
-            'body': ('django.db.models.fields.TextField', [], {}),
-            'create_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'creater': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'receiver': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'on_delete': 'models.PROTECT', 'to': "orm['auth.User']"}),
-            'send_date': ('django.db.models.fields.DateTimeField', [], {}),
-            'sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'subject': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '255', 'null': 'True', 'blank': 'True'})
-        },
-        'communities.communitynotificationconfig': {
-            'Meta': {'object_name': 'CommunityNotificationConfig', 'db_table': "'community_notification_config'"},
-            'frequency': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '20'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'self_config': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityNotificationType']", 'on_delete': 'models.PROTECT'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'}),
-            'via_email': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'via_pepper': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
-        },
-        'communities.communitynotificationgroup': {
-            'Meta': {'object_name': 'CommunityNotificationGroup', 'db_table': "'community_notification_group'"},
-            'description': ('django.db.models.fields.TextField', [], {'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'})
-        },
-        'communities.communitynotificationtype': {
-            'Meta': {'object_name': 'CommunityNotificationType', 'db_table': "'community_notification_type'"},
-            'action': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'body': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'max_length': '255'}),
-            'group': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['communities.CommunityNotificationGroup']", 'on_delete': 'models.PROTECT'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
-            'subject': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'})
         },
         'communities.communityposts': {
             'Meta': {'object_name': 'CommunityPosts', 'db_table': "'community_posts'"},
