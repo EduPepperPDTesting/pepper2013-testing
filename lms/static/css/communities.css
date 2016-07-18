@@ -1,9 +1,10 @@
-/static.modal {
+.modal {
     position: fixed;
     opacity: 1;
-    z-index: 10000;
+    z-index: 10000 !important;
     left: 50%;
-    margin-left: -349px;
+    margin-left: -450px;
+    width:900px !important;
     top: 40px;
     background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
     border-radius: 5px;
