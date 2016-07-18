@@ -1,4 +1,4 @@
-.modal {
+/static.modal {
     position: fixed;
     opacity: 1;
     z-index: 10000;
@@ -114,18 +114,18 @@
     height: 52px;
 }
 #delete-types, #delete-groups {
-    background: transparent url(/static/images/icons/delete.png) center top no-repeat;
+    background: transparent url(../images/icons/delete.png) center top no-repeat;
 }
 #delete-types:hover,
 #delete-groups:hover {
-    background: transparent url(/static/images/icons/delete_mo.png) center top no-repeat;
+    background: transparent url(../images/icons/delete_mo.png) center top no-repeat;
 }
 #new-type, #new-group {
-    background: transparent url(/static/images/icons/add_new.png) center top no-repeat;
+    background: transparent url(../images/icons/add_new.png) center top no-repeat;
 }
 #new-type:hover,
 #new-group:hover{
-    background: transparent url(/static/images/icons/add_new_mo.png) center top no-repeat;
+    background: transparent url(../images/icons/add_new_mo.png) center top no-repeat;
 }
 #group-actions, #type-actions {
     padding: 10px 0;
