@@ -64,42 +64,45 @@ class CommunityDiscussionReplies(models.Model):
     attachment = models.ForeignKey(FileUploads, on_delete=models.PROTECT, null=True, default=None, blank=True)
 
 
-class NotificationGroup(models.Model):
+class CommunityNotificationGroup(models.Model):
     class Meta:
         db_table = 'community_notification_group'
     name = models.CharField(blank=True, null=True, max_length=20, db_index=False)
     description = models.TextField(blank=False, max_length=255, db_index=False)
 
 
-class NotificationType(models.Model):
+class CommunityNotificationType(models.Model):
     class Meta:
         db_table = 'community_notification_type'
     name = models.CharField(blank=True, null=True, max_length=20, db_index=False)
-    description = models.TextField(blank=False, max_length=255, db_index=False)    
-    group = models.ForeignKey(NotificationGroup, on_delete=models.PROTECT)
+    description = models.TextField(blank=False, max_length=255, db_index=False)
+    group = models.ForeignKey(CommunityNotificationGroup, on_delete=models.PROTECT)
     subject = models.CharField(blank=True, null=True, max_length=255, db_index=False)
     body = models.TextField(blank=True, null=True, db_index=False)
     action = models.CharField(blank=True, null=True, max_length=255, db_index=False)
 
 
-class NotificationConfig(models.Model):
+class CommunityNotificationConfig(models.Model):
     class Meta:
         db_table = 'community_notification_config'
     via_pepper = models.BooleanField(blank=False, default=0)
     via_email = models.BooleanField(blank=False, default=0)
-    type = models.ForeignKey(NotificationType, on_delete=models.PROTECT)
+    type = models.ForeignKey(CommunityNotificationType, on_delete=models.PROTECT)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     frequency = models.CharField(max_length=20, db_index=False, default="")
     self_config = models.BooleanField(blank=False, default=0)
 
 
-class NotificationAudit(models.Model):
+class CommunityNotificationAudit(models.Model):
     class Meta:
         db_table = 'community_notification_audit'
     subject = models.CharField(blank=True, null=True, max_length=255, db_index=True)
     body = models.TextField(blank=False, db_index=False)
-    createor = models.ForeignKey(User, on_delete=models.PROTECT)
-    creat_date = models.DateTimeField(auto_now_add=True, db_index=False)
+    creator = models.ForeignKey(User, on_delete=models.PROTECT)
+    receiver = models.ForeignKey(User, on_delete=models.PROTECT, related_name='+')
+    create_date = models.DateTimeField(auto_now_add=False, db_index=False)
+    send_date = models.DateTimeField(auto_now_add=False, db_index=False)
+    sent = models.BooleanField(blank=False, default=0)
 
 
 class CommunityPosts(models.Model):

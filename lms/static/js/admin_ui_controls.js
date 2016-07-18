@@ -598,7 +598,6 @@ function ContextMenu($container,$trigger){
         self.toggle();
     });
 }
-//////////////////////////////////////////////////////////////////
 ContextMenu.prototype.createItem=function($el){
     var $li=$("<li></li>").appendTo(this.$container);
     $li.append($el);
@@ -606,6 +605,7 @@ ContextMenu.prototype.createItem=function($el){
 ContextMenu.prototype.toggle=function(){
     this.$container.toggle();
 };
+//////////////////////////////////////////////////////////////////
 function StepsForm($ei, colors){
     this.$ei=$ei;
     this.$eis=$ei.find("div.content>div");

@@ -1,13 +1,20 @@
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django import db
 import json
 from mitxmako.shortcuts import render_to_response, render_to_string
 from django.contrib.auth.decorators import login_required
-from models import NotificationConfig, NotificationGroup, NotificationType, NotificationAudit
+from models import CommunityNotificationConfig, CommunityNotificationGroup, CommunityNotificationType, CommunityNotificationAudit
 from django.http import HttpResponse
-
+import re
 from .models import CommunityCommunities, CommunityUsers
+from notifications.views import save_interactive_info
+from datetime import datetime, timedelta
+import sys
+import logging
+from xmodule.course_module import CourseDescriptor
 
+log = logging.getLogger("tracking")
 
 @login_required
 def configuration(request):
@@ -17,7 +24,7 @@ def configuration(request):
 
 
 def groups(request):
-    al = NotificationGroup.objects.all()
+    al = CommunityNotificationGroup.objects.all()
     json_out = [al.count()]
     rows = list()
 
@@ -39,7 +46,7 @@ def groups(request):
 
 
 def all_groups(request):
-    al = NotificationGroup.objects.all()
+    al = CommunityNotificationGroup.objects.all()
   
     rows = list()
 
@@ -58,9 +65,9 @@ def save_group(request):
     try:
         id = request.POST.get("id")
         if id:
-            group = NotificationGroup.objects.get(id=id)
+            group = CommunityNotificationGroup.objects.get(id=id)
         else:
-            group = NotificationGroup()
+            group = CommunityNotificationGroup()
         group.name = request.POST.get("name")
         group.description = request.POST.get("description")
         group.save()
@@ -71,7 +78,7 @@ def save_group(request):
 
 
 def types(request):
-    al = NotificationType.objects.all()
+    al = CommunityNotificationType.objects.all()
     json_out = [al.count()]
     rows = list()
 
@@ -96,9 +103,9 @@ def save_type(request):
     try:
         id = request.POST.get("id")
         if id:
-            type = NotificationType.objects.get(id=id)
+            type = CommunityNotificationType.objects.get(id=id)
         else:
-            type = NotificationType()
+            type = CommunityNotificationType()
         type.name = request.POST.get("name")
         type.group_id = request.POST.get("group")
         type.description = request.POST.get("description")
@@ -115,14 +122,14 @@ def save_type(request):
 
 def edit_group(request):
     id = request.POST.get("id")
-    group = NotificationGroup.objects.get(id=id)
+    group = CommunityNotificationGroup.objects.get(id=id)
     json_out = {'id': group.id, 'name': group.name, 'description': group.description}
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
 
 def edit_type(request):
     id = request.POST.get("id")
-    type = NotificationType.objects.get(id=id)
+    type = CommunityNotificationType.objects.get(id=id)
     json_out = {'id': type.id,
                 'name': type.name,
                 'description': type.description,
@@ -135,7 +142,7 @@ def edit_type(request):
 
 
 def config(request):
-    al = NotificationType.objects.all()
+    al = CommunityNotificationType.objects.all()
     json_out = [al.count()]
     rows = list()
 
@@ -146,12 +153,12 @@ def config(request):
     
     for item in al[start:end]:
         try:
-            config = NotificationConfig.objects.get(type=item, user=request.user)
+            config = CommunityNotificationConfig.objects.get(type=item, user=request.user)
         except:
-            config = NotificationConfig()
+            config = CommunityNotificationConfig()
   
         row = [
-            "<input type=hidden name=type_id value=%s>%s" % (item.id, item.action),
+            "<input type=hidden name=type_id value=%s>%s" % (item.id, item.name),
             config.via_pepper,
             config.via_email,
             config.frequency,
@@ -163,7 +170,7 @@ def config(request):
 
 
 def config_other(request):
-    al = NotificationType.objects.all()
+    al = CommunityNotificationType.objects.all()
     json_out = [al.count()]
     rows = list()
 
@@ -174,7 +181,7 @@ def config_other(request):
     
     for item in al[start:end]:
         row = [
-            "<input type=hidden name=type_id value=%s>%s" % (item.id, item.action),
+            "<input type=hidden name=type_id value=%s>%s" % (item.id, item.name),
             False,
             False,
             ""]
@@ -198,13 +205,14 @@ def save_other_config(request):
         users = users.filter(cohort_id=filter.get("cohort_id"))
 
     if filter.get("community_id"):
-        facilitator_ids = CommunityUsers.objects.filter(community_id=filter.get("community_id"), facilitator=True).values_list('user_id', flat=True)
+        # facilitator=True
+        facilitator_ids = CommunityUsers.objects.filter(community_id=filter.get("community_id")).values_list('user_id', flat=True)
         users = users.filter(id__in=facilitator_ids)
     
     try:
         for d in data:
             for u in users:
-                config, created = NotificationConfig.objects.get_or_create(type_id=d["type_id"], user=u)
+                config, created = CommunityNotificationConfig.objects.get_or_create(type_id=d["type_id"], user=u)
                 if created or (not config.self_config):
                     config.type_id = d["type_id"]
                     config.via_pepper = d["via_pepper"]
@@ -223,7 +231,7 @@ def save_config(request):
 
     try:
         for d in data:
-            config, created = NotificationConfig.objects.get_or_create(type_id=d["type_id"], user=request.user)
+            config, created = CommunityNotificationConfig.objects.get_or_create(type_id=d["type_id"], user=request.user)
             config.type_id = d["type_id"]
             config.via_pepper = d["via_pepper"]
             config.via_email = d["via_email"]
@@ -241,7 +249,7 @@ def delete_group(request):
     ids = request.POST.getlist("ids[]")
     try:
         for id in ids:
-            NotificationGroup.objects.get(id=id).delete()
+            CommunityNotificationGroup.objects.get(id=id).delete()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -253,10 +261,118 @@ def delete_type(request):
     ids = request.POST.getlist("ids[]")
     try:
         for id in ids:
-            NotificationType.objects.get(id=id).delete()
+            CommunityNotificationType.objects.get(id=id).delete()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
+
+def send_notification(action_user, community_id, courses_add=[], courses_del=[], resources_add=[],
+                      resources_del=[], members_add=[], members_del=[], discussions_new=[],
+                      discussions_reply=[], discussions_delete=[], replies_delete=[]):
+    # sys.stdout.flush()
+
+    # log.debug("=========")
+    # log.debug(replies_delete)
+
+    community = CommunityCommunities.objects.get(id=community_id)
+
+    def replace_values(body, values):
+        return re.sub("{([\w ]*?)}", lambda x: values.get(x.group(1)), body)
+
+    def get_class_attrs(obj, cls, attr_names):
+        attrs = {}
+        if obj.__class__.__name__ == cls:
+            for n, k in attr_names.items():
+                attrs[n] = getattr(obj, k, '')
+        return attrs
+    
+    def process(user, type_name, list):
+        if not len(list):
+            return
+
+        type = CommunityNotificationType.objects.get(name=type_name)
+        
+        for item in list:
+            config = CommunityNotificationConfig.objects.filter(user=member.user, type=type)
+
+            if config.exists():
+                config = config[0]
+
+            # log.debug("==========777=================")
+            # log.debug(item)
+            
+            values = {
+                "Community Name": community.name,
+                "Sender First Name": action_user.first_name,
+                "Sender Last Name": action_user.last_name,
+                "Receiver First Name": user.first_name,
+                "Receiver Last Name": user.last_name}
+
+            if type_name == "Delete Course" or type_name == "Add Course":
+                values["Course Name"] = item.display_name
+                values["Course Number"] = item.display_coursenumber
+                
+            if type_name == "Delete Resource" or type_name == "Add Resource":
+                values["Resource Title"] = item.name
+                    
+            if type_name == "Delete Member" or type_name == "Add Member":
+                values["Member List"] = item
+                                        
+            if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
+                values["Subject"] = item.subject
+                values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
+
+            # values.update(get_class_attrs(item, "CourseDescriptorWithMixins", {"Course Name": "display_name", "Course Number": "display_coursenumber"}))
+            # values.update(get_class_attrs(item, "CommunityResources", {"Resource Title": "name"}))
+
+            # if item.__class__.__name__ == "CommunityUsers":
+            #     values["Member List"] = ""
+                
+            # log.debug("===========================")
+            # # log.debug(item.__class__.__name__)
+            # log.debug(values)
+
+            # Send the notification
+            body = replace_values(type.body or "", values)
+            subject = replace_values(type.subject or "", values)
+
+            if config and config.via_pepper:
+                save_interactive_info({
+                    "user_id": str(user.id),
+                    "interviewer_id": action_user.id,
+                    "interviewer_name": action_user.username,
+                    "interviewer_fullname": "%s %s" % (action_user.first_name, action_user.last_name),
+                    "type": type.name,
+                    "body": body,
+                    "subject": subject,
+                    "location": reverse("community_view", args=[community_id])
+                    })
+                
+            # Save none instant notification to audit
+            days = {"Daily": 0, "Weekly": 7}
+            if config and config.via_email and config.frequency != 'Instant':
+                audit = CommunityNotificationAudit()
+                audit.subject = subject
+                audit.body = body
+                audit.receiver = user
+                audit.creator = action_user
+                audit.create_date = datetime.utcnow()
+                audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+                audit.save()
+
+    for member in CommunityUsers.objects.filter(community=community_id):
+        process(member.user, "Delete Course", courses_del)
+        process(member.user, "Add Course", courses_add)
+        process(member.user, "Delete Resource", resources_del)
+        process(member.user, "Add Resource", resources_add)
+        if len(members_del):
+            process(member.user, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
+        if len(members_add):
+            process(member.user, "Add Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_add))])
+        process(member.user, "New Discussion", discussions_new)
+        process(member.user, "Reply Discussion", discussions_reply)
+        process(member.user, "Delete Discussion", discussions_delete)
+        process(member.user, "Delete Reply", replies_delete)

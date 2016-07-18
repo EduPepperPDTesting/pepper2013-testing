@@ -1,3 +1,4 @@
+from courseware.courses import get_course_by_id
 from mitxmako.shortcuts import render_to_response, render_to_string, reverse
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseForbidden
@@ -20,6 +21,9 @@ from people.views import get_pager
 from view_counter.models import view_counter_store
 from polls.models import poll_store
 from polls.views import poll_data
+from notification import send_notification
+# from student.views import course_from_id
+from courseware.courses import get_course_by_id
 
 log = logging.getLogger("tracking")
 
@@ -300,20 +304,23 @@ def get_remove_user_rows(request, community_id):
 @login_required
 def community_join(request, community_id):
     community = CommunityCommunities.objects.get(id=community_id)
-
+    users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
             continue
         try:
             user = User.objects.get(id=int(user_id))
+            users.append(user)
             mems = CommunityUsers.objects.filter(user=user, community=community)
             if not mems.exists():
                 cu = CommunityUsers()
                 cu.user = user
                 cu.community = community
                 cu.save()
+                
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+    send_notification(request.user, community.id, members_add=users)
         
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
@@ -321,16 +328,18 @@ def community_join(request, community_id):
 @login_required
 def community_leave(request, community_id):
     community = CommunityCommunities.objects.get(id=community_id)
-    
+    users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
             continue
         try:
             user = User.objects.get(id=int(user_id))
+            users.append(user)
             mems = CommunityUsers.objects.filter(user=user, community=community)
             mems.delete()
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+    send_notification(request.user, community.id, members_del=users)
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
@@ -504,6 +513,7 @@ def discussion_add(request):
             discussion.save()
         success = True
         discussion_id = discussion.id
+        send_notification(request.user, community.id, discussions_new=[discussion])
     except Exception as e:
         error = e
         success = False
@@ -534,6 +544,7 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
+    send_notification(request.user, discussion.community.id, discussions_reply=[reply])
     discussion.date_reply = reply.date_create
     discussion.save()
     return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
@@ -552,6 +563,8 @@ def discussion_delete(request, discussion_id):
         poll_connect.delete_poll('discussion', discussion_id)
 
     discussion.delete()
+
+    send_notification(request.user, discussion.community_id, discussions_delete=[discussion])
     # except Exception as e:
     #     log.warning('There was an error deleting a discussion: {0}'.format(e))
 
@@ -564,9 +577,9 @@ def discussion_reply_delete(request, reply_id):
     redirect_url = reverse('community_discussion_view', args=[reply.discussion.id])
     try:
         reply.delete()
+        send_notification(request.user, reply.discussion.community_id, replies_delete=[reply])
     except Exception as e:
         log.warning('There was an error deleting a reply: {0}'.format(e))
-
     return redirect(redirect_url)
 
 
@@ -802,10 +815,10 @@ def community_edit_process(request):
             raise Exception('A valid facilitator is required to create a community.')
 
         # Init lists for notification
-        _courses_add = []
-        _courses_del = list(CommunityCourses.objects.filter(community=community_object).values_list('course', flat=True))
-        _resources_add = []
-        _resources_del = list(CommunityResources.objects.filter(community=community_object).values_list('links', flat=True))
+        courses_add = []
+        courses_cur = dict((x.course, get_course_by_id(x.course)) for x in CommunityCourses.objects.filter(community=community_object))
+        resources_add = []
+        resources_cur = dict((x.link, x) for x in CommunityResources.objects.filter(community=community_object))
 
         # Drop all of the courses before adding those in the form. Otherwise there is a lot of expensive checking.
         CommunityCourses.objects.filter(community=community_object).delete()
@@ -813,16 +826,18 @@ def community_edit_process(request):
         for key, course in courses.iteritems():
             # We only want to save an entry if there's something in it.
             if course:
-                # Record notification about modify courses
-                if course in _courses_del:
-                    _courses_del = filter(lambda a: a != course, _courses_del)
-                else:
-                    _courses_add.append(course)
+
                 # Assign properties
                 course_object = CommunityCourses()
                 course_object.community = community_object
                 course_object.course = course
                 course_object.save()
+                
+                # Record notification about modify courses
+                if courses_cur.get(course):
+                    del courses_cur[course]
+                else:
+                    courses_add.append(get_course_by_id(course_object.course))
 
         # Drop all of the resources before adding those  in the form. Otherwise there is a lot of expensive checking.
         CommunityResources.objects.filter(community=community_object).delete()
@@ -830,11 +845,7 @@ def community_edit_process(request):
         for key, resource_link in resource_links.iteritems():
             # We only want to save an entry if there's something in it.
             if resource_link:
-                # Record notification about modify resources
-                if resource_link in _resources_del:
-                    _resources_del = filter(lambda a: a != resource_link, _resources_del)
-                else:
-                    _resources_add.append(resource_link)
+
                 # Assign properties
                 resource_object = CommunityResources()
                 resource_object.community = community_object
@@ -860,7 +871,18 @@ def community_edit_process(request):
                     resource_object.logo = logo
                 resource_object.save()
 
-        send_notification(request.user, _courses_add, _courses_del, _resources_add, _resources_del)
+                # Record notification about modify resources
+                if resources_cur.get(resource_link):
+                    del resources_cur[resource_link]
+                else:
+                    resources_add.append(resource_object)
+
+        send_notification(request.user,
+                          community_id,
+                          courses_add=courses_add,
+                          courses_del=courses_cur.values(),
+                          resources_add=resources_add,
+                          resources_del=resources_cur.values())
 
         return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:

@@ -21,7 +21,7 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
-
+<script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -102,13 +102,13 @@ from permissions.utils import check_access_level, check_user_perms
     </div>
     <div class="expand_div" style="padding:10px;">
       %if check_user_perms(request.user, 'community_notification', 'config_other'):
-      <div style="margin-bottom:10px;">
-        <input type="button" id="btnMyNotifications" value="My Notifications" class="flatbutton"/>
-        <input type="button" id="btnOtherNotifications" value="Other Notifications" class="flatbutton"/>
+      <div style="margin-bottom:10px;margin-top:-10px;">
+        <span type="button" id="btnMyNotifications" class="section-tab my active">My Notifications</span>
+        %if check_access_level(request.user, 'notification', 'admin') == "System":
+        <span type="button" id="btnOtherNotifications" class="section-tab other">Other Notifications</span>
+        %endif
       </div>
       %endif
-
-      
       <div class="table-box" id="config-table-box">
         <table role="grid" class="data-table"
                ajaxUrl="${reverse('communities_notification_config')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
@@ -141,6 +141,7 @@ from permissions.utils import check_access_level, check_user_perms
         </div>
       </div>
 
+      %if check_access_level(request.user, 'notification', 'admin') == "System":
       <div class="table-box" id="config-other-table-box">
         <div style="margin-bottom:10px;">
           %if check_access_level(request.user, 'community_notification', 'config_other') == "State" or 1:
@@ -203,6 +204,7 @@ from permissions.utils import check_access_level, check_user_perms
           <input type="button" name="" value="Save" id="btnSaveOtherConfig"/> <span class="">You MUST click save to keep these changes.</span>
         </div>        
       </div>
+      %endif
     </div>
   </div>
 </div>
@@ -234,17 +236,22 @@ from permissions.utils import check_access_level, check_user_perms
         <label>Type Name:<input type="text" name="name" value=""/></label>
         <label>Type Description:<input type="text" name="description" value=""/></label>
         <label>Type Action:<input type="text" name="action" value=""/></label>
-        <h2>Email:</h2>
         <label>Type Group:
           <select id="" name="group" autocomplate="off">
             <option value=""></option>
           </select>
         </label>
-        <label>Subject:<input type="text" name="action" value=""/></label>
-        <div class="editor_view">
-          <textarea id="editor" class="certificate_editor" cols="10" name="body"></textarea>
-        </div>        
-        <input value="Save" type="submit">
+        <h2>Email:</h2>
+        <label>Subject:
+          <span class="check-mark" alt="Valid only before the training date."></span>
+          <span class="baloon-content">
+            <h2>Variables</h2>
+          </span>
+          <input type="text" name="subject" value="" style="margin-top:10px;"/></label>
+          <div class="editor_view">
+            <textarea id="editor" class="certificate_editor" cols="10" name="body"></textarea>
+          </div>
+          <input value="Save" type="submit">
       </form>
     </div>
   </div>
@@ -330,7 +337,7 @@ from permissions.utils import check_access_level, check_user_perms
   }  
   function fillForm(form, data){
     data = data || {};
-    $(form).find("input,select").each(function(){
+    $(form).find("input,select,textarea").each(function(){
       var name;
       if(name = $(this).attr("name")){
         $(this).val(data[name]);
@@ -367,6 +374,7 @@ from permissions.utils import check_access_level, check_user_perms
         });
       }
       fillForm("#dlg-type form", data);
+      CKEDITOR.instances['editor'].setData($("#editor").val());
       var dialog = new Dialog('#dlg-type').show(title);
       $("#dlg-type").find("input[type=submit]").off("click").click(function(e){
         $("textarea[name=body]").val(CKEDITOR.instances['editor'].getData());
@@ -497,12 +505,17 @@ from permissions.utils import check_access_level, check_user_perms
           // Configure available tokens
           config.availableTokens = [
             ["", ""],
-            ["CommunityName", "CommunityName"],
-            ["FirstName", "FirstName"],
-            ["LastName", "LastName"],
-            ["Body", "Body"],
-            ["EmailFirstName", "EmailFirstName"],
-            ["EmailLastName", "EmailLastName"],
+            ["Community Name", "Community Name"],
+            ["Sender First Name", "Sender First Name"],
+            ["Sender Last Name", "Sender Last Name"],
+            ["Receiver First Name", "Receiver First Name"],
+            ["Receiver Last Name", "Receiver Last Name"],
+            ["Course Name", "Course Name"],
+            ["Course Number", "Course Number"],
+            ["Resource Title", "Resource Title"],
+            ["Member List", "Member List"],
+            ["Subject", "Subject"],
+            ["Posted By", "Posted By"],
           ];
           config.tokenStart = '{';
           config.tokenEnd = '}';
@@ -536,10 +549,18 @@ from permissions.utils import check_access_level, check_user_perms
     $("#btnMyNotifications").click(function(){
       $("#config-table-box").show();
       $("#config-other-table-box").hide();
+
+      $(".section-tab").removeClass("active");
+      $(".section-tab.my").addClass("active");
+      
     });
     $("#btnOtherNotifications").click(function(){                      
       $("#config-table-box").hide();
       $("#config-other-table-box").show();
+
+      $(".section-tab").removeClass("active");
+      $(".section-tab.other").addClass("active");
+      
     });
     $("#delete-groups").click(function(){
       var ids = getCheckedIds("#group-table-box");
@@ -569,5 +590,16 @@ from permissions.utils import check_access_level, check_user_perms
         }
       });
     });
+  });
+</script>
+<script type="text/javascript">
+  $(".check-mark").each(function(){
+    var b = $(this).next(".baloon-content").html();
+    $(this).balloon({position:"bottom right", css: {maxWidth: "300px"}, offsetX: -20, offsetY: -15, contents: this.alt || b});
+  });
+  $(".check-mark").on("mouseenter",function(){
+    $(this).addClass("on");
+  }).on("mouseleave",function(){
+    $(this).removeClass("on");
   });
 </script>
