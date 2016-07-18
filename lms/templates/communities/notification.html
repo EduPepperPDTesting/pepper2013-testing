@@ -148,7 +148,7 @@ from permissions.utils import check_access_level, check_user_perms
           <select id="state_select" autocomplate="off" class="search" data-column="1">
             <option value="">Select State</option>
             %for item in State.objects.all().order_by("name"):
-            <option class="${item.id}" value="${item.id}">${item.name}</option>
+            <option value="${item.id}">${item.name}</option>
             %endfor
           </select>
           %endif
@@ -156,7 +156,7 @@ from permissions.utils import check_access_level, check_user_perms
           <select id="district_select" autocomplate="off" class="search" data-column="2">
             <option value="">Select District</option>
             %for item in District.objects.all().order_by("name"):
-            <option value="${item.name}" class="${item.id}">${item.name}</option>
+            <option value="${item.id}" class="${item.state_id}">${item.name}</option>
             %endfor
           </select>
           %endif
@@ -164,7 +164,7 @@ from permissions.utils import check_access_level, check_user_perms
           <select id="cohort_select" autocomplate="off" class="search" data-column="2">
             <option value="">Select Cohort</option>
             %for item in Cohort.objects.all().order_by("code"):
-            <option value="${item.code}" class="${item.id}">${item.code}</option>
+            <option value="${item.id}" class="${item.district_id}">${item.code}</option>
             %endfor
           </select>
           %endif
@@ -595,6 +595,37 @@ from permissions.utils import check_access_level, check_user_perms
       });
     });
   });
+
+
+
+  function filterOptions(item, id) {
+    if ($(item).attr("class") != id) {
+      $(item).css("display", "none");
+    } else {
+      $(item).css("display", "");
+    }
+    if (id == "null_case" || $(item).attr("class") == "null_case") {
+      $(this).css("display", "");
+    }
+  }
+
+  $("#state_select").change(function () {
+    var id = $(this).val();
+    $("#district_select > option").each(function (i) {
+      if(i>0)filterOptions(this, id)
+    });
+  });
+
+  $("#district_select").change(function () {
+    var id = $(this).val();
+    $("#cohort_select > option").each(function (i) {
+      if(i>0)filterOptions(this, id)
+    });
+  });
+
+  $("#state_select").change();
+  $("#district_select").change();
+  
 </script>
 <script type="text/javascript">
   $(".check-mark").each(function(){

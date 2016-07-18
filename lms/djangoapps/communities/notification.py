@@ -196,13 +196,13 @@ def save_other_config(request):
 
     users = User.objects.all()
     if filter.get("state_id"):
-        users = users.filter(district__state_id=filter.get("state_id"))
+        users = users.filter(profile__district__state_id=filter.get("state_id"))
 
     if filter.get("district_id"):
-        users = users.filter(district_id=filter.get("district_id"))
+        users = users.filter(profile__district_id=filter.get("district_id"))
 
     if filter.get("cohort_id"):
-        users = users.filter(cohort_id=filter.get("cohort_id"))
+        users = users.filter(profile__cohort_id=filter.get("cohort_id"))
 
     if filter.get("community_id"):
         # facilitator=True
@@ -272,10 +272,6 @@ def delete_type(request):
 def send_notification(action_user, community_id, courses_add=[], courses_del=[], resources_add=[],
                       resources_del=[], members_add=[], members_del=[], discussions_new=[],
                       discussions_reply=[], discussions_delete=[], replies_delete=[]):
-    # sys.stdout.flush()
-
-    # log.debug("=========")
-    # log.debug(replies_delete)
 
     community = CommunityCommunities.objects.get(id=community_id)
 
@@ -301,9 +297,6 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
             if config.exists():
                 config = config[0]
 
-            # log.debug("==========777=================")
-            # log.debug(item)
-            
             values = {
                 "Community Name": community.name,
                 "Sender First Name": action_user.first_name,
@@ -324,16 +317,6 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
             if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
                 values["Subject"] = item.subject
                 values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
-
-            # values.update(get_class_attrs(item, "CourseDescriptorWithMixins", {"Course Name": "display_name", "Course Number": "display_coursenumber"}))
-            # values.update(get_class_attrs(item, "CommunityResources", {"Resource Title": "name"}))
-
-            # if item.__class__.__name__ == "CommunityUsers":
-            #     values["Member List"] = ""
-                
-            # log.debug("===========================")
-            # # log.debug(item.__class__.__name__)
-            # log.debug(values)
 
             # Send the notification
             body = replace_values(type.body or "", values)
