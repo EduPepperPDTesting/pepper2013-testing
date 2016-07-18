@@ -117,8 +117,8 @@
     width: 0px;
 }
 #reporting #view-dialog {
-    width: 680px;
-    margin-left: -349px;
+    width: 800px;
+    margin-left: -400px;
 }
 #reporting #view-dialog .content {
     text-align: left;
@@ -438,81 +438,57 @@ body.dragging, body.dragging * {
     border: none;
     vertical-align: middle;
 }
-
-
 #reporting .table_scroll{
-    height:600px;
-    width:auto;
-    overflow-x:auto;
+    width: auto;
+    position: relative;
 }
-
-#reporting .table-menu .tablesorter-header-inner div{
-    background-attachment: scroll;
-    background-clip: border-box;
-    background-color: rgba(0, 0, 0, 0);
-    background-image: url('../images/configuration/table_menu.png');
-    background-origin: padding-box;
-    background-position: 0 0;
-    background-repeat: repeat;
-    background-size: auto auto;
-}
-
-#reporting .columnSelectorWrapper {
-    float: right
-}
-
-#reporting .columnSelector, .hidden {
-    margin-top: 60px;
-    display: none;
-}
-
-#reporting .columnSelectorButton {
-    padding: 10px;
-}
-
-#reporting #colSelect1:checked + label {
-    background: #5797d7;
-    border-color: #555;
-}
-
-#reporting #colSelect1:checked ~ #columnSelector {
-    display: block;
-}
-
 #reporting .columnSelector {
-    width: 220px;
     position: absolute;
-    top: 30px;
+    right: 10px;
+    top: 60px;
+    z-index: 9999;
+    display: none;
+    width: 220px;
     padding: 10px;
     background: #fff;
     border: #99bfe6 1px solid;
     border-radius: 5px;
+    box-shadow: 0 2px 24px 0 rgba(0, 0, 0, 0.3);
 }
-
+#reporting .columnSelectorButton {
+    position: relative;
+    display: block;
+    background: rgba(0, 0, 0, 0) url('../images/configuration/table_menu.png') 0 0 no-repeat;
+    width: 20px;
+    height: 20px;
+}
 #reporting .columnSelector label {
     display: block;
     font-size:14px;
 }
-
 #reporting .columnSelector label:nth-child(1) {
     border-bottom: #99bfe6 solid 1px;
     margin-bottom: 5px;
 }
-
 #reporting .columnSelector input {
     margin-right: 5px;
 }
-
 #reporting .columnSelector .disabled {
     color: #ddd;
 }
-
 #reporting #tabs li a{
   clear: both;
   padding: 12px;
   font-size: 12px;
 }
-
 #reporting .error-box {
     background-color: pink !important;
+}
+#reporting .column-row .filter-select-columns-check{
+    width: 30px;
+    margin-top: 10px;
+}
+#reporting .custom_filter_title {
+    float: right;
+    margin-right: 45px;
 }

@@ -157,6 +157,7 @@
                 <select name="author_id" class="form-select">
                     <option value="all">All Authors</option>
                     <option value="A.L.L.">Accelerated Literacy Learning (A.L.L.)</option>
+                    <option value="Common Sense Education">Common Sense Education</option>
                     <option value="PCG Education">PCG Education</option>
                     <option value="Understanding Language Initiative at Stanford">Understanding Language Initiative at Stanford</option>
                     <option value="WestEd">WestEd</option>
@@ -310,9 +311,11 @@
                             <div class="grade_title">PreK-3 Courses</div>
                         %endif
                         %for course in courses[4]:
-                        %for c in course:
-                            <%include file="../course.html" args="course=c" />
-                        %endfor
+                            %for c in course:
+                                %if not c.close_course:
+                                    <%include file="../course.html" args="course=c" />
+                                %endif
+                            %endfor
                             <div style="float:left;width:900px;"></div>
                         %endfor
                     %endif
@@ -321,9 +324,11 @@
                             <div class="grade_title">K-5 Courses</div>
                         %endif
                         %for course in courses[0]:
-                        %for c in course:
-                            <%include file="../course.html" args="course=c" />
-                        %endfor
+                            %for c in course:
+                                %if not c.close_course:
+                                    <%include file="../course.html" args="course=c" />
+                                %endif
+                            %endfor
                             <div style="float:left;width:900px;"></div>
                         %endfor
                     %endif
@@ -332,9 +337,11 @@
                             <div class="grade_title">6-8 Courses</div>
                         %endif
                         %for course in courses[1]:
-                        %for c in course:
-                            <%include file="../course.html" args="course=c" />
-                        %endfor
+                            %for c in course:
+                                %if not c.close_course:
+                                    <%include file="../course.html" args="course=c" />
+                                %endif
+                            %endfor
                             <div style="float:left;width:900px;"></div>
                         %endfor
                     %endif
@@ -343,9 +350,11 @@
                             <div class="grade_title">9-12 Courses</div>
                         %endif
                         %for course in courses[2]:
-                        %for c in course:
-                            <%include file="../course.html" args="course=c" />
-                        %endfor
+                            %for c in course:
+                                %if not c.close_course:
+                                    <%include file="../course.html" args="course=c" />
+                                %endif
+                            %endfor
                             <div style="float:left;width:900px;"></div>
                         %endfor
                     %endif
@@ -354,9 +363,11 @@
                             <div class="grade_title">K-12 Courses</div>
                         %endif
                         %for course in courses[3]:
-                        %for c in course:
-                            <%include file="../course.html" args="course=c" />
-                        %endfor
+                            %for c in course:
+                                %if not c.close_course:
+                                    <%include file="../course.html" args="course=c" />
+                                %endif
+                            %endfor
                             <div style="float:left;width:900px;"></div>
                         %endfor
                     %endif

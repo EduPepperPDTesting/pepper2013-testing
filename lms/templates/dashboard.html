@@ -843,7 +843,7 @@ Add info that you would like to share about yourself here:
             course_target = reverse('courseware', args=[course.id])
           %>
           % if course.id in show_courseware_links_for:
-          %if curr_user==request.user:
+          %if curr_user == request.user and not course.close_course:
             <a href="${course_target}" class="cover">
           %else:
             <a href="" class="cover" style="cursor:default;" onclick="return false;">
@@ -881,7 +881,7 @@ Add info that you would like to share about yourself here:
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
                 % if course.id in show_courseware_links_for:
-                %if curr_user==request.user:
+                %if curr_user == request.user and not course.close_course:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
                   <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
@@ -989,17 +989,17 @@ Add info that you would like to share about yourself here:
             % endif
             <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
             % if course.id in show_courseware_links_for:
-      		%if curr_user==request.user:              
-			<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-			%else:
-            <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
-            %endif
-            %if curr_user==request.user:      
-            <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
-            %endif
+      		      %if curr_user == request.user and not course.close_course:              
+			              <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+			          %else:
+                    <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                %endif
+                %if curr_user == request.user and not course.close_course:      
+                    <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %endif
             % endif
             %if curr_user==request.user:
-	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+	              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
 	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
                <!-- hide email settings -->
               <!--
@@ -1015,19 +1015,19 @@ Add info that you would like to share about yourself here:
               -->
           <!--20160621 change to current year course time and total_time-->
           <!--begin-->
-          % if course.hide_timer == False:
-              <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
-                  <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
-                  % if course.show_external_timer == False:
-                      <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
-                  % else:
-                      <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
-                  % endif
-              </div>
-          % endif
+                    % if course.hide_timer == False:
+                        <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
+                            <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
+                            % if course.show_external_timer == False:
+                                <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
+                            % else:
+                                <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
+                            % endif
+                        </div>
+                    % endif
           <!--end-->
-	    % endif
-           %endif
+	              % endif
+            %endif
           </section>
         </article>
       % endfor

@@ -36,40 +36,40 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
     "$group": {
         "_id": "$user_id",
         "user_id": {
-            "$push": "$user_id"
+            "$last": "$user_id"
         },
         "email": {
-            "$push": "$email"
+            "$last": "$email"
         },
         "user_name": {
-            "$push": "$user_name"
+            "$last": "$user_name"
         },
         "first_name": {
-            "$push": "$first_name"
+            "$last": "$first_name"
         },
         "last_name": {
-            "$push": "$last_name"
+            "$last": "$last_name"
         },
         "state": {
-            "$push": "$state"
+            "$last": "$state"
         },
         "district": {
-            "$push": "$district"
+            "$last": "$district"
         },
         "school": {
-            "$push": "$school"
+            "$last": "$school"
         },
         "activate_date": {
-            "$push": "$activate_date"
+            "$last": "$activate_date"
         },
         "subscription_status": {
-            "$push": "$subscription_status"
+            "$last": "$subscription_status"
         },
         "current_course": {
-            "$push": "$current_course"
+            "$last": "$current_course"
         },
         "complete_course": {
-            "$push": "$complete_course",
+            "$last": "$complete_course",
         },
         "course_time": {
             "$sum": "$course_time"
@@ -95,43 +95,19 @@ AggregationConfig["UserView"]["query"] = '''{school_year}{user_domain}
     }
 }, {
     "$project": {
-        "user_id": {
-            "$arrayElemAt": ["$user_id", 0]
-        },
-        "email": {
-            "$arrayElemAt": ["$email", 0]
-        },
-        "user_name": {
-            "$arrayElemAt": ["$user_name", 0]
-        },
-        "first_name": {
-            "$arrayElemAt": ["$first_name", 0]
-        },
-        "last_name": {
-            "$arrayElemAt": ["$last_name", 0]
-        },
-        "state": {
-            "$arrayElemAt": ["$state", 0]
-        },
-        "district": {
-            "$arrayElemAt": ["$district", 0]
-        },
-        "school": {
-            "$arrayElemAt": ["$school", 0]
-        },
-        "activate_date": {
-            "$arrayElemAt": ["$activate_date", 0]
-        },
-        "subscription_status": {
-            "$arrayElemAt": ["$subscription_status", 0]
-        },
-        "current_course": {
-            "$arrayElemAt": ["$current_course", 0]
-        },
-        "complete_course": {
-            "$arrayElemAt": ["$complete_course", 0]
-        },
-        "course_time":1,
+        "user_id": 1,
+        "email": 1,
+        "user_name": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "state": 1,
+        "district": 1,
+        "school": 1,
+        "activate_date": 1,
+        "subscription_status": 1,
+        "current_course": 1,
+        "complete_course": 1,
+        "course_time": 1,
         "external_time": 1,
         "discussion_time": 1,
         "portfolio_time": 1,
@@ -152,64 +128,64 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
             "course_id": "$course_id"
         },
         "user_id": {
-            "$push": "$user_id"
+            "$last": "$user_id"
         },
         "course_id": {
-            "$push": "$course_id"
+            "$last": "$course_id"
         },
         "email": {
-            "$push": "$email"
+            "$last": "$email"
         },
         "user_name": {
-            "$push": "$user_name"
+            "$last": "$user_name"
         },
         "first_name": {
-            "$push": "$first_name"
+            "$last": "$first_name"
         },
         "last_name": {
-            "$push": "$last_name"
+            "$last": "$last_name"
         },
         "state": {
-            "$push": "$state"
+            "$last": "$state"
         },
         "district": {
-            "$push": "$district"
+            "$last": "$district"
         },
         "school": {
-            "$push": "$school"
+            "$last": "$school"
         },
         "subscription_status": {
-            "$push": "$subscription_status"
+            "$last": "$subscription_status"
         },
         "course_number": {
-            "$push": "$course_number"
+            "$last": "$course_number"
         },
         "course_name": {
-            "$push": "$course_name"
+            "$last": "$course_name"
         },
         "course_run": {
-            "$push": "$course_run"
+            "$last": "$course_run"
         },
         "start_date": {
-            "$push": "$start_date"
+            "$last": "$start_date"
         },
         "end_date": {
-            "$push": "$end_date"
+            "$last": "$end_date"
         },
         "organization": {
-            "$push": "$organization"
+            "$last": "$organization"
         },
         "enrollment_date": {
-            "$push": "$enrollment_date"
+            "$last": "$enrollment_date"
         },
         "complete_date": {
-            "$push": "$complete_date"
+            "$last": "$complete_date"
         },
         "portfolio_url": {
-            "$push": "$portfolio_url"
+            "$last": "$portfolio_url"
         },
         "progress": {
-            "$push": "$progress"
+            "$last": "$progress"
         },
         "course_time": {
             "$sum": "$course_time"
@@ -235,66 +211,26 @@ AggregationConfig["UserCourseView"]["query"] = '''{school_year}{user_domain}
     }
 }, {
     "$project": {
-        "user_id": {
-            "$arrayElemAt": ["$user_id", 0]
-        },
-        "course_id": {
-            "$arrayElemAt": ["$course_id", 0]
-        },
-        "email": {
-            "$arrayElemAt": ["$email", 0]
-        },
-        "user_name": {
-            "$arrayElemAt": ["$user_name", 0]
-        },
-        "first_name": {
-            "$arrayElemAt": ["$first_name", 0]
-        },
-        "last_name": {
-            "$arrayElemAt": ["$last_name", 0]
-        },
-        "state": {
-            "$arrayElemAt": ["$state", 0]
-        },
-        "district": {
-            "$arrayElemAt": ["$district", 0]
-        },
-        "school": {
-            "$arrayElemAt": ["$school", 0]
-        },
-        "subscription_status": {
-            "$arrayElemAt": ["$subscription_status", 0]
-        },
-        "course_number": {
-            "$arrayElemAt": ["$course_number", 0]
-        },
-        "course_name": {
-            "$arrayElemAt": ["$course_name", 0]
-        },
-        "course_run": {
-            "$arrayElemAt": ["$course_run", 0]
-        },
-        "start_date": {
-            "$arrayElemAt": ["$start_date", 0]
-        },
-        "end_date": {
-            "$arrayElemAt": ["$end_date", 0]
-        },
-        "organization": {
-            "$arrayElemAt": ["$organization", 0]
-        },
-        "enrollment_date": {
-            "$arrayElemAt": ["$enrollment_date", 0]
-        },
-        "complete_date": {
-            "$arrayElemAt": ["$complete_date", 0]
-        },
-        "portfolio_url": {
-            "$arrayElemAt": ["$portfolio_url", 0]
-        },
-        "progress": {
-            "$arrayElemAt": ["$progress", 0]
-        },
+        "user_id": 1,
+        "course_id": 1,
+        "email": 1,
+        "user_name": 1,
+        "first_name":1,
+        "last_name": 1,
+        "state": 1,
+        "district": 1,
+        "school": 1,
+        "subscription_status": 1,
+        "course_number": 1,
+        "course_name": 1,
+        "course_run": 1,
+        "start_date": 1,
+        "end_date": 1,
+        "organization": 1,
+        "enrollment_date": 1,
+        "complete_date": 1,
+        "portfolio_url": 1,
+        "progress": 1,
         "course_time": 1,
         "external_time": 1,
         "discussion_time": 1,

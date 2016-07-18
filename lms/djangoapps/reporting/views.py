@@ -217,9 +217,16 @@ def report_edit(request, report_id):
             admin_rights = check_user_perms(request.user, 'reporting', 'administer')
             create_rights = check_user_perms(request.user, 'reporting', 'create_reports')
             access_level = check_access_level(request.user, 'reporting', 'create_reports')
+            user_access_id = None
+            if access_level == 'State':
+                user_access_id = request.user.profile.district.state.id
+            elif access_level == 'District':
+                user_access_id = request.user.profile.district.id
+            elif access_level == 'School':
+                user_access_id = request.user.profile.school.id
             if admin_rights or (create_rights and
                                 access_level == report.access_level and
-                                request.user.profile.district.id == report.access_id):
+                                user_access_id == report.access_id):
                 selected_views = ReportViews.objects.filter(report=report).order_by('order').values_list('view__id', flat=True)
                 selected_views_columns = ViewColumns.objects.filter(view__id__in=selected_views).order_by('view', 'name')
                 selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order').values_list('column__id', flat=True)
@@ -363,32 +370,51 @@ def report_view(request, report_id):
     :param report_id: The ID of the report to be edited.
     :return: The Report page.
     """
-    rs = reporting_store()
-    collection = get_cache_collection(request)
-    rs.del_collection(collection)
-    report = Reports.objects.get(id=report_id)
-    selected_view = ReportViews.objects.filter(report=report)[0]
-    selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-    report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+    try:
+        allowed = False
+        report = Reports.objects.get(id=report_id)
 
-    columns = []
-    filters = []
-    for col in selected_columns:
-        columns.append(col)
-    for f in report_filters:
-        filters.append(f)
+        if report.access_level == 'System':
+            allowed = True
+        elif report.access_level == 'State' and request.user.profile.district.state.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'District' and request.user.profile.district.id == report.access_id:
+            allowed = True
+        elif report.access_level == 'School' and request.user.profile.school.id == report.access_id:
+            allowed = True
 
-    create_report_collection(request, report, selected_view, columns, filters)
+        if allowed:
+            rs = reporting_store()
+            collection = get_cache_collection(request)
+            rs.del_collection(collection)
+            selected_view = ReportViews.objects.filter(report=report)[0]
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+            report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-    school_year_item = []
-    if report_has_school_year(selected_columns):
-        school_year_item = get_school_year_item()
+            columns = []
+            filters = []
+            for col in selected_columns:
+                columns.append(col)
+            for f in report_filters:
+                filters.append(f)
 
-    data = {
-        'report': report,
-        'display_columns': selected_columns,
-        'school_year_item': school_year_item
-    }
+            create_report_collection(request, report, selected_view, columns, filters)
+
+            school_year_item = []
+            if report_has_school_year(selected_columns):
+                school_year_item = get_school_year_item()
+        else:
+            raise Exception('Not allowed.')
+    except:
+        data = {'error_title': 'Report Not Found',
+                'error_message': '''No report found with this ID. If you believe this is in error, please contact
+                        site support.''',
+                'window_title': 'Report Not Found'}
+        return render_to_response('error.html', data, status=404)
+
+    data = {'report': report,
+            'display_columns': selected_columns,
+            'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
 
 
@@ -412,7 +438,7 @@ def report_get_rows(request):
     rs = reporting_store()
     collection = get_cache_collection(request)
     data = rs.get_page(collection, start, size, filters, sorts)
-    total = rs.get_count(collection)
+    total = rs.get_count(collection, filters)
 
     for d in data:
         row = []
@@ -436,10 +462,12 @@ def build_sorts_and_filters(columns, sorts, filters):
     """
     column = []
     data_type = {}
+    custom_filter = {}
     int_type = ['int', 'time']
     for i, col in enumerate(columns):
         column.append(col.column.column)
         data_type[col.column.column] = col.column.data_type
+        custom_filter[col.column.column] = col.column.custom_filter
 
     order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
@@ -453,8 +481,11 @@ def build_sorts_and_filters(columns, sorts, filters):
 
     filter = {}
     for col, f in filters.iteritems():
-        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-        filter[column[int(col)]] = reg
+        if custom_filter[column[int(col)]] > 0:
+            filter[column[int(col)]] = f
+        else:
+            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+            filter[column[int(col)]] = reg
     return order, filter
 
 
@@ -529,14 +560,14 @@ def get_query_user_domain(user):
     :return: Mongo query
     """
     domain = '{"$match":{"user_id":' + str(user.id) + '}},'
-    if check_user_perms(user, 'reporting', ['view']):
-        level = check_access_level(user, 'reporting', ['view'])
+    if check_user_perms(user, 'reporting', ['view', 'administer']):
+        level = check_access_level(user, 'reporting', ['view', 'administer'])
         if level == 'System':
             domain = ''
         elif level == 'State':
             domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
         elif level == 'District':
-            domain = '{"$match":{"district_id":"' + str(user.profile.district.code) + '"}},'
+            domain = '{"$match":{"district_id":' + str(user.profile.district.id) + '}},'
         elif level == 'School':
             domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
     return domain
@@ -672,6 +703,27 @@ def report_get_progress(request):
     return render_json_response({'success': stats})
 
 
+def report_get_custom_filters(request, report_id):
+    """
+    Return the options of custom filters.
+    :param request: Request object.
+    :param Report object.
+    """
+    data = []
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    rs.set_collection(collection)
+    report = Reports.objects.get(id=report_id)
+    selected_columns = ReportViewColumns.objects.filter(report=report, column__custom_filter=1).order_by('order')
+    for col in selected_columns:
+        result = rs.collection.distinct(col.column.column)
+        data.append({
+            'items': sorted(result, cmp=None, key=None, reverse=True),
+            'index': col.order
+        })
+    return render_json_response({'data': data})
+
+
 @user_has_perms('reporting', ['administer', 'create_reports'])
 def related_views(request):
     """
@@ -763,7 +815,8 @@ def view_data(request):
                                         'name': column.name,
                                         'description': column.description,
                                         'source': column.column,
-                                        'type': column.data_type})
+                                        'type': column.data_type,
+                                        'custom_filter': column.custom_filter})
     else:
         data = {'success': False}
 
@@ -830,6 +883,7 @@ def view_add(request):
     column_sources = get_request_array(request.POST, 'column_source')
     column_types = get_request_array(request.POST, 'column_type')
     column_ids = get_request_array(request.POST, 'column_id')
+    column_custom_filter = get_request_array(request.POST, 'column_custom_filter')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -862,6 +916,7 @@ def view_add(request):
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]
                 column.data_type = column_types[i]
+                column.custom_filter = column_custom_filter[i]
                 column.view = view
                 column.save()
         except Exception as e:

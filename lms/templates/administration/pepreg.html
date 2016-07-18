@@ -1,15 +1,15 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%!
-from django.core.urlresolvers import reverse
-from courseware.courses import course_image_url, get_course_about_section
-from courseware.access import has_access
-from certificates.models import CertificateStatuses
-from xmodule.modulestore import MONGO_MODULESTORE_TYPE
-from xmodule.modulestore.django import modulestore
-import json
-from student.models import State,District,School,Cohort,User,UserProfile
-from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
-from permissions.utils import check_access_level, check_user_perms
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    import json
+    from student.models import State,District,School,Cohort,User,UserProfile
+    from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+    from permissions.utils import check_access_level, check_user_perms
 %>
 <%inherit file="../main.html"/>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
@@ -24,109 +24,147 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript" src="/static/js/timedropper/timedropper.js"></script>
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
-<link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media = "screen" />
-<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media="screen"/>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
-<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen" />
-<link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type = "text/css" media = "screen"/>
-<link rel="stylesheet" href="/static/css/pepreg.css" type = "text/css" media = "screen"/>
-<div class = "data_import_bottom">
-  <div class="main, data_import_content">
-    <div class="expand_title expand_title_collapse">
-      Pepper PD Planner <div class="icon"></div>
-    </div>
-    <div class="expand_div" style="padding:10px;">
-      <div class="table-filter">
-        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-        <select id="state_select" autocomplate="off" class="search" data-column="1">
-          %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-          <option value="">Select State</option>
-          %for item in State.objects.all().order_by("name"):
-          <option class="${item.id}" value="${item.name}">${item.name}</option>
-          %endfor
-          %else:
-          <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>  
-          %endif
-        </select>
-        <select id="district_select" autocomplate="off" class="search" data-column="2">
-          %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-          <option value="">Select District</option>
-          %for item in District.objects.all().order_by("name"):
-          <option value="${item.name}" class="${item.state.id}">${item.name}</option>
-          %endfor
-          %else:
-          <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>  
-          %endif
-        </select>
-        %endif
-        <select id="filter-suject-drop" name="" autocomplete="off">
-          <option value="">Select Subject</option>
-          <option value="AR">Assessments and Reporting</option>
-          <option value="DC">Digital Citizenship</option>
-          <option value="ELA">English Language Arts</option>
-          <option value="ELL">English Language Learners</option>
-          <option value="MA">Mathematics</option>
-          <option value="PEP">Pepper</option>
-          <option value="POW">Pepper's Online Workshops!</option>
-          <option value="SC">Science</option>
-          <option value="SE">Special Education</option>
-          <option value="TECH">Technology</option>
-          <option value="WR">Writing and Poetry</option>
-          <option value="Other">Other</option>   
-        </select>
-        <input type="" name="" value="" class="search" data-column="3" autocomplete="off" style="display:none;"/>
-        %if check_user_perms(request.user, 'pepreg'):
-        <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
-          <a href="#"><div class="icon"></div><div>Add New</div></a>
+<link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
+<link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+
+<!--<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
+
+<script type="text/javascript" src="/static/js/mapbox-gl.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl.css"/>
+<script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl-directions.css"/>
+
+<style>
+    input[type="button"], button, .button {
+        box-shadow: none !important;
+    }
+
+    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
+        margin: 0 0 50px 10px !important;
+    }
+
+    .mapbox-directions-route-summary {
+        position: absolute !important;
+    }
+
+    .directions-control.directions-control-inputs {
+        left: 5px !important;
+        top: 5px !important;
+    }
+
+    .ui-autocomplete {
+        z-index: 100000 !important;
+    }
+</style>
+
+<div class="data_import_bottom">
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse">
+            Pepper PD Planner
+            <div class="icon"></div>
         </div>
-        %endif
-        <br>
-        <select id="" name="" autocomplate="off" class="search" data-column="4">
-          <option value="">Select Pepper Courses</option>
-          %for item in courses:
-          <option value="${item.id}">${item.display_name}</option>
-          %endfor               
-        </select>
-        <input type="text" name="training_data" value="" class="search" data-column="7" placeholder="Select Date" readonly='true'/>
-      </div>
-      <div class="add_table-section table-section clearfix">
-        <table id="data-table" class="tablesorter-blue user_table_init"
-               width="" cellspacing="" cellpadding="" border=""
-               ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
-          <thead>
-            <tr>
-              <th class="sorter-false filter-false">Edit/Delete</th>
-              <th>State</th>
-              <th>District</th>
-              <th>Subject</th>
-              <th>Course</th>
-              <th>Training Name</th>
-              <th>Description</th>
-              <th>Training Date</th>
-              <th>Training Start Time</th>
-              <th>Training End Time</th>
-              <th>Training Location</th>
-              <th>Hours</th>
-              <th class="sorter-false">Instructors</th>
-              <th class="sorter-false">Creator</th>
-              <th class="sorter-false">Register/Record Attendance</th>
-              <th class="sorter-false filter-false table-menu" style="width:10px;">
-                <div style="width:18px;height:20px;">
-                  <label class="columnSelectorButton" for="colSelect1"></label>
+        <div class="expand_div" style="padding:10px;">
+            <div class="table-filter">
+                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                    <select id="state_select" autocomplate="off" class="search" data-column="1">
+                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                            <option value="">Select State</option>
+                        %for item in State.objects.all().order_by("name"):
+                            <option class="${item.id}" value="${item.name}">${item.name}</option>
+                        %endfor
+                        %else:
+                            <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>
+                        %endif
+                    </select>
+                    <select id="district_select" autocomplate="off" class="search" data-column="2">
+                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                            <option value="">Select District</option>
+                        %for item in District.objects.all().order_by("name"):
+                            <option value="${item.name}" class="${item.state.id}">${item.name}</option>
+                        %endfor
+                        %else:
+                            <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>
+                        %endif
+                    </select>
+                %endif
+                <select id="filter-suject-drop" name="" autocomplete="off">
+                    <option value="">Select Subject</option>
+                    <option value="AR">Assessments and Reporting</option>
+                    <option value="DC">Digital Citizenship</option>
+                    <option value="ELA">English Language Arts</option>
+                    <option value="ELL">English Language Learners</option>
+                    <option value="MA">Mathematics</option>
+                    <option value="PEP">Pepper</option>
+                    <option value="POW">Pepper's Online Workshops!</option>
+                    <option value="SC">Science</option>
+                    <option value="SE">Special Education</option>
+                    <option value="TECH">Technology</option>
+                    <option value="WR">Writing and Poetry</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="" name="" value="" class="search" data-column="3" autocomplete="off"
+                       style="display:none;"/>
+                %if check_user_perms(request.user, 'pepreg'):
+                    <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
+                        <a href="#">
+                            <div class="icon"></div>
+                            <div>Add New</div>
+                        </a>
+                    </div>
+                %endif
+                <br>
+                <select id="" name="" autocomplate="off" class="search" data-column="4">
+                    <option value="">Select Pepper Courses</option>
+                    %for item in courses:
+                        <option value="${item.id}">${item.display_name}</option>
+                    %endfor
+                </select>
+                <input type="text" name="training_data" value="" class="search" data-column="7"
+                       placeholder="Select Date" readonly='true'/>
+            </div>
+            <div class="add_table-section table-section clearfix">
+                <table id="data-table" class="tablesorter-blue user_table_init"
+                       width="" cellspacing="" cellpadding="" border=""
+                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+                    <thead>
+                    <tr>
+                        <th class="sorter-false filter-false">Edit/Delete</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Subject</th>
+                        <th>Course</th>
+                        <th>Training Name</th>
+                        <th>Description</th>
+                        <th>Training Date</th>
+                        <th>Training Start Time</th>
+                        <th>Training End Time</th>
+                        <th>Training Location</th>
+                        <th>Hours</th>
+                        <th class="sorter-false">Instructors</th>
+                        <th class="sorter-false">Creator</th>
+                        <th class="sorter-false">Register/Record Attendance</th>
+                        <th class="sorter-false filter-false table-menu" style="width:10px;">
+                            <div style="width:18px;height:20px;">
+                                <label class="columnSelectorButton" for="colSelect1"></label>
+                            </div>
+                        </th>
+                    </tr>
+                    </thread>
+                    <tbody id="user_data_tbody"></tbody>
+                </table>
+            </div>
+            <div class="columnSelectorWrapper">
+                <input id="colSelect1" type="checkbox" class="hidden">
+                <div id="columnSelector" class="columnSelector">
+                    <!-- this div is where the column selector is added -->
                 </div>
-              </th>
-            </tr>
-          </thread>
-          <tbody id="user_data_tbody"></tbody>
-        </table>
-      </div>
-      <div class="columnSelectorWrapper">
-        <input id="colSelect1" type="checkbox" class="hidden">
-        <div id="columnSelector" class="columnSelector">
-          <!-- this div is where the column selector is added -->
-        </div>
-      </div>      
-      <span id="user-pager" class="pager clearfix">
+            </div>
+            <span id="user-pager" class="pager clearfix">
         <form style="float:left;">
           <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
           <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
@@ -143,1092 +181,1204 @@ from permissions.utils import check_access_level, check_user_perms
         </form>
         <span style="float:right;"></span>
       </span>
+        </div>
     </div>
-  </div>
 </div>
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
-    <div class="titlebar">
-      <h3 class="dialog-title"></h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"
+             style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
-    <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
-  </div>
 </div>
 <div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
-    <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
-    <div class="content" id="map_show" style="height:500px;position:relative;background:#fff;padding:10px;border-radius:0;"></div>
-    <input type="hidden" name="training_id" value="" style="width:400px"/>
-    <a href="#" class="print-map">Print</a>
-  </div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
+        <div class="content" id="map_show"
+             style="width:800px; height:500px;position:relative;background:#fff;padding:10px;border-radius:0;"></div>
+        <input type="hidden" name="training_id" value="" style="width:400px"/>
+        <a href="#" class="print-map" st1yle="margin-left:30px;">Print</a>
+    </div>
 </div>
 <div class="modal" id="dlg-students" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
-    <div class="titlebar">
-      <h3 class="dialog-title">Students</h3>
-      <div class="close-modal" id="dialog_close">✕</div>
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title">Students</h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"
+             style="height:360px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+            <table width="100%" cellspacing="" cellpadding="" border="1" class="students">
+                <thead>
+                <tr>
+                    <th align="left">User</th>
+                    <th>Status</th>
+                    <th>Attendance</th>
+                    <th>Validation</th>
+                    <th>Credits</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="padding:10px;text-align:right;">
+            <input type="button" name="" value="Download Excel" class="small download-students-excel"/>
+        </div>
     </div>
-    <div class="content" style="height:360px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
-      <table width="100%" cellspacing="" cellpadding="" border="1" class="students">
-        <thead>
-          <tr><th align="left">User</th><th>Status</th><th>Attendance</th><th>Validation</th><th>Credits</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div style="padding:10px;text-align:right;">
-        <input type="button" name="" value="Download Excel" class="small download-students-excel"/>
-    </div>
-  </div>
 </div>
 <div class="modal" id="dlg-add-training" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
-  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
-    <!-- <div class="titlebar">
-    <h3 class="dialog-title">Add Training</h3>
-    <div class="close-modal" id="dialog_close">✕</div>
-    </div> -->
-    <input type="hidden" name="id" value="" />
-    <div class="content" style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
-      <div class="" style="width:100%;height:100%;overflow:hidden;">
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 1 of 6</h5>
-            <h4>What type of training would you like to create?</h4>
-            <div class="form-row" style="font-size:12px;position:relative;">
-              <input type="radio" name="type" value="pepper_course" autocomplete="off"/>
-              <span style="font-weight:bold;">Training with a Current Pepper Course</span>
-              <div style="padding-left:2em;">
-                Choosing this option will allow you to create <br>a training using a current Pepper course.<br>
-                <i style="margin-top:10px;display:block;">Example:  Select PEP101 Course for New Teachers, <br>Enrollment Limited to 30 </i>
-              </div>
-            </div>
-            <div class="form-row" style="font-size:12px;">
-              <input type="radio" name="type" value="pd_training" autocomplete="off"/>
-              <span style="font-weight:bold;">District/School Training or PD Event</span>
-              <div style="padding-left:2em;">
-                Choosing this option will allow you to create a custom training<br> or PD event specific for your District/School staff.<br/>
-                <i style="margin-top:10px;display:block;">Example: Schedule a District-sponsored, <br> on-site PD event for ELL Teachers</i> 
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 2 of 6</h5>
-            <h4>General Training Information</h4>
-            <div class="form-row">
-              <span class="label">District:</span>
-              <select name="district_id" autocomplate="off">
-                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                  <option value=""></option>
-                  %for item in District.objects.all().order_by("name"):
-                  <option value="${item.id}">${item.name}</option>
-                  %endfor
-                %else:
-                  <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>  
-                %endif
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="label">Training Name:</span>
-              <input type="text" name="name" value="" />
-            </div>
-            <div class="form-row">
-              <span class="label">Description:</span>
-              <textarea style="width:500px;height:100px;" name="description" id="" rows="" cols="" tabindex=""></textarea>
-            </div>
-            <div class="form-row">
-              <span class="label">Pepper Course:</span>
-              <select name="pepper_course" autocomplate="off">
-                <option value=""></option>
-                %for item in courses:
-                <option value="${item.id}">${item.display_name}</option>
-                %endfor
-              </select>
-            </div>
-            <div class="form-row">
-              <span class="label">Subject Area:</span>
-              <select name="subject" autocomplate="off">
-                <option value=""></option>
-                <option value="AR">Assessments and Reporting</option>
-                <option value="DC">Digital Citizenship</option>
-                <option value="ELA">English Language Arts</option>
-                <option value="ELL">English Language Learners</option>
-                <option value="MA">Mathematics</option>
-                <option value="PEP">Pepper</option>
-                <option value="POW">Pepper's Online Workshops!</option>
-                <option value="SC">Science</option>
-                <option value="SE">Special Education</option>
-                <option value="TECH">Technology</option>
-                <option value="WR">Writing and Poetry</option>
-                <option value="Other">Other</option>
-              </select>
-              <input type="text" name="subject-other" value="" />
-            </div>
-          </div>
-        </div>
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 3 of 6</h5>
-            <h4>Training or PD Event Schedule</h4>            
-            <div class="form-row">
-              <span class="label" style="width:180px">Please Select the Training Date:</span>
-              <input type="" name="training_date" class="datePickText lock_past" value="" readonly='true' />
-              <img src="/static/images/calendar-icon-2.png" class="" alt="" width="24"/>
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:180px">Please Select Start Time:</span>
-              <input type="" name="training_time_start" value="" class="timePickText"/>
-              <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:180px">Please Select End Time:</span>
-              <input type="" name="training_time_end" value="" class="timePickText"/>
-              <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
-            </div>            
-          </div>
-        </div>
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 4 of 6</h5>
-            <h4>Training or PD Event Location</h4>
-            <div class="form-row">
-              <span class="label" style="width:220px">Please Fill-in Room # or Location:</span>
-              <input type="" name="classroom" value="" style="width:400px"/>
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:220px">Please Select Training Address:</span>
-              <input type="" name="geo_location" value="" style="width:400px" placeholder="Type in address and select location as it appears"/>
-            </div>
-            <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
-            <input type="hidden" name="geo_props" value="" style="width:400px"/>
-          </div>
-        </div>
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 5 of 6</h5>
-            <h4>Add/Remove Instructors</h4>
-            <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;" id="instructor_emails"></div>
-            <div class="form-row">
-              <i>Select a training instructor by searching email (start typing and select email of instructor):</i>
-              <input type="text" name="member" id="complete-email" autocomplete="off">
-              <input type="button" name="" value="Add" class="btn-add-instructor"/><br>
-              <i>You may add more instructors after selecting the first one.</i>  
-            </div>
-          </div>
-        </div>
-        <div class="step-page">
-          <div class="step-content">
-            <h5>Create Your Training or PD Event: Step 6 of 6 - Almost There!</h5>
-            <h4>Registration & Attendance Tracking</h4>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
-              <input type="" name="credits" value="" />
-              <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
-              <input type="checkbox" name="allow_registration" value="true" />
-              <span class="check-mark" alt="Valid only before the training date."></span>
-            </div>
-            <div class="form-row">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <!-- <div class="titlebar">
+        <h3 class="dialog-title">Add Training</h3>
+        <div class="close-modal" id="dialog_close">✕</div>
+        </div> -->
+        <input type="hidden" name="id" value=""/>
+        <div class="content"
+             style="height:508px;overflow:hidden;position:relative;background:#fff;padding:0;border-radius:0;">
+            <div class="" style="width:100%;height:100%;overflow:hidden;">
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 1 of 6</h5>
+                        <h4>What type of training would you like to create?</h4>
+                        <div class="form-row" style="font-size:12px;position:relative;">
+                            <input type="radio" name="type" value="pepper_course" autocomplete="off"/>
+                            <span style="font-weight:bold;">Training with a Current Pepper Course</span>
+                            <div style="padding-left:2em;">
+                                Choosing this option will allow you to create <br>a training using a current Pepper
+                                course.<br>
+                                <i style="margin-top:10px;display:block;">Example: Select PEP101 Course for New
+                                    Teachers, <br>Enrollment Limited to 30 </i>
+                            </div>
+                        </div>
+                        <div class="form-row" style="font-size:12px;">
+                            <input type="radio" name="type" value="pd_training" autocomplete="off"/>
+                            <span style="font-weight:bold;">District/School Training or PD Event</span>
+                            <div style="padding-left:2em;">
+                                Choosing this option will allow you to create a custom training<br> or PD event specific
+                                for your District/School staff.<br/>
+                                <i style="margin-top:10px;display:block;">Example: Schedule a District-sponsored, <br>
+                                    on-site PD event for ELL Teachers</i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 2 of 6</h5>
+                        <h4>General Training Information</h4>
+                        <div class="form-row">
+                            <span class="label">District:</span>
+                            <select name="district_id" autocomplate="off">
+                                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                                    <option value=""></option>
+                                %for item in District.objects.all().order_by("name"):
+                                    <option value="${item.id}">${item.name}</option>
+                                %endfor
+                                %else:
+                                    <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>
+                                %endif
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">Training Name:</span>
+                            <input type="text" name="name" value=""/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">Description:</span>
+                            <textarea style="width:500px;height:100px;" name="description" id="" rows="" cols=""
+                                      tabindex=""></textarea>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">Pepper Course:</span>
+                            <select name="pepper_course" autocomplate="off">
+                                <option value=""></option>
+                                %for item in courses:
+                                    <option value="${item.id}">${item.display_name}</option>
+                                %endfor
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">Subject Area:</span>
+                            <select name="subject" autocomplate="off">
+                                <option value=""></option>
+                                <option value="AR">Assessments and Reporting</option>
+                                <option value="DC">Digital Citizenship</option>
+                                <option value="ELA">English Language Arts</option>
+                                <option value="ELL">English Language Learners</option>
+                                <option value="MA">Mathematics</option>
+                                <option value="PEP">Pepper</option>
+                                <option value="POW">Pepper's Online Workshops!</option>
+                                <option value="SC">Science</option>
+                                <option value="SE">Special Education</option>
+                                <option value="TECH">Technology</option>
+                                <option value="WR">Writing and Poetry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <input type="text" name="subject-other" value=""/>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 3 of 6</h5>
+                        <h4>Training or PD Event Schedule</h4>
+                        <div class="form-row">
+                            <span class="label" style="width:180px">Please Select the Training Date:</span>
+                            <input type="" name="training_date" class="datePickText lock_past" value=""
+                                   readonly='true'/>
+                            <img src="/static/images/calendar-icon-2.png" class="" alt="" width="24"/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:180px">Please Select Start Time:</span>
+                            <input type="" name="training_time_start" value="" class="timePickText"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:180px">Please Select End Time:</span>
+                            <input type="" name="training_time_end" value="" class="timePickText"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 4 of 6</h5>
+                        <h4>Training or PD Event Location</h4>
+                        <div class="form-row">
+                            <span class="label" style="width:220px">Please Fill-in Room # or Location:</span>
+                            <input type="" name="classroom" value="" style="width:400px"/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:220px">Please Select Training Address:</span>
+                            <input type="" name="geo_location" value="" style="width:400px"
+                                   placeholder="Type in address and select location as it appears"/>
+                        </div>
+                        <!--<div class="form-row">
+                          <span class="label" style="width:220px">Please Select Destination Address:</span>
+                          <input type="" name="geo_destination" value="" style="width:400px" placeholder="Type in address and select location as it appears"/>
+                        </div>-->
+                        <div id="map_edit" name="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
+                        <input type="hidden" name="geo_props" value="" style="width:400px"/>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 5 of 6</h5>
+                        <h4>Add/Remove Instructors</h4>
+                        <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;"
+                             id="instructor_emails"></div>
+                        <div class="form-row">
+                            <i>Select a training instructor by searching email (start typing and select email of
+                                instructor):</i>
+                            <input type="text" name="member" id="complete-email" autocomplete="off">
+                            <input type="button" name="" value="Add" class="btn-add-instructor"/><br>
+                            <i>You may add more instructors after selecting the first one.</i>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-page">
+                    <div class="step-content">
+                        <h5>Create Your Training or PD Event: Step 6 of 6 - Almost There!</h5>
+                        <h4>Registration & Attendance Tracking</h4>
+                        <div class="form-row">
+                            <span class="label"
+                                  style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
+                            <input type="" name="credits" value=""/>
+                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
+                            <input type="checkbox" name="allow_registration" value="true"/>
+                            <span class="check-mark" alt="Valid only before the training date."></span>
+                        </div>
+                        <div class="form-row">
               <span class="label" style="width:230px;text-align:left;padding-left:20px;">
                 <i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
               </span>
-              <input type="" name="max_registration" value="" size="10"/>
+                            <input type="" name="max_registration" value="" size="10"/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
+                            <input type="checkbox" name="allow_student_attendance" value="true"/>
+                            <span class="check-mark"
+                                  alt="This should only be used for trainings or PD events that do not have an instructor."></span>
+                        </div>
+                        <div class="form-row">
+                            <span class="label"
+                                  style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
+                            <input type="" name="attendancel_id" value=""/>
+                            <span class="check-mark"
+                                  alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
+                            <input type="checkbox" name="allow_attendance" value="true"/>
+                        </div>
+                        <div class="form-row">
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+                            <input type="checkbox" name="allow_validation" value="true"/>
+                            <span class="check-mark"
+                                  alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
-              <input type="checkbox" name="allow_student_attendance" value="true" />
-              <span class="check-mark" alt="This should only be used for trainings or PD events that do not have an instructor."></span>              
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
-              <input type="" name="attendancel_id" value="" />
-              <span class="check-mark" alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
-            </div>
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
-              <input type="checkbox" name="allow_attendance" value="true" />
-            </div>            
-            <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
-              <input type="checkbox" name="allow_validation" value="true" />
-              <span class="check-mark" alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 %if request.user.is_superuser:
-<script type="text/javascript">
-  var is_superuser=true;
-</script>
+    <script type="text/javascript">
+        var is_superuser = true;
+    </script>
 %else:
-<script type="text/javascript">
-  var is_superuser=false;
-</script>
+    <script type="text/javascript">
+        var is_superuser = false;
+    </script>
 %endif
 <script type="text/javascript">
-  function PepReg($content){
-    var self=this;
-    this.$content=$content;
-    this.initContent();
-    // *** maps ***
-    var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
-    this.map_edit = L.map('map_edit');
-    L.tileLayer(url_tile_layer, {
-      trackResize: true,
-	  maxZoom: 18,
-	  attribution: '',
-	  id: 'mapbox.streets'
-    }).addTo(this.map_edit);
-    this.map_show = L.map('map_show');
-    L.tileLayer(url_tile_layer, {
-	  maxZoom: 18,
-	  attribution: '',
-	  id: 'mapbox.streets'
-    }).addTo(this.map_show);
-  }
-  PepReg.prototype.initContent=function(){
-    this.initFilter();
-    this.initTable();
-  }
-  PepReg.prototype.getInput=function(){
-    var $form = $("#dlg-add-training");
-    var json= {
-      id: $form.find("input[name=id]").val(),
-      type: $form.find("input[name=type]:checked").val(),
-      district_id: $form.find("select[name=district_id]").val(),
-      name: $.trim($form.find("input[name=name]").val()),
-      description: $form.find("textarea[name=description]").val(),
-      pepper_course: $form.find("select[name=pepper_course]").val(),
-      subject: $form.find("select[name=subject]").val(),
-      training_date: $form.find("input[name=training_date]").val(),
-      training_time_start: ($form.find("input[name=training_time_start]").val()),
-      training_time_end: ($form.find("input[name=training_time_end]").val()),
-      classroom: $.trim($form.find("input[name=classroom]").val()),
-      geo_location: $form.find("input[name=geo_location]").val(),
-      geo_props: $form.find("input[name=geo_props]").val(),
-      instructor_emails: this.getInstructors().join(","),
-      credits: $form.find("input[name=credits]").val() || 0,
-      attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
-      allow_registration: $form.find("input[name=allow_registration]:checked").val(),
-      max_registration: $form.find("input[name=max_registration]").val() || 0,
-      allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
-      allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
-      allow_validation: $form.find("input[name=allow_validation]:checked").val()
-    }
-    if(json.subject == "Other"){
-      json.subject = $form.find("input[name=subject-other]").val();
-    }
-    if(json.training_time_start){
-      var apart = json.training_time_start.split(/[ :]/);
-      if(apart.pop() == "PM")
-        apart[0]=parseInt(apart[0]) + 12;
-      json.training_time_start=apart.join(":");
-    }
-    if(json.training_time_end){
-      var apart = json.training_time_end.split(/[ :]/);
-      if(apart.pop() == "PM")
-        apart[0]=parseInt(apart[0]) + 12;
-      json.training_time_end=apart.join(":");
-    }    
-    if(json.training_date){
-      var apart = json.training_date.split("/");
-      json.training_date = [apart[2], apart[0], apart[1]].join("-");
-    }
-    return json;
-  }
-  PepReg.prototype.validateAllPage=function(data){
-    var self = this;
-    var r = null;
-    $("#dlg-add-training").find(".step-page").each(function(i){
-      if(error = self.validatePage(i, data)){
-        r = {id: i, error: error};
-      }
-    });
-    return r;
-  }
-  PepReg.prototype.confirm=function(message, dlgFlyOn, callback) {
-    var dlgWarn = new Dialog("#dlg-warning");
-    dlgFlyOn.hideOverlay();
-    $("#dlg-warning").bind("hide",function(){
-      $(this).unbind('hide');
-      dlgFlyOn.showOverlay();
-    });
-    dlgWarn.showYesNo("Warning",message, function(r){
-      this.hide();
-      callback(r);
-    });
-    dlgWarn.lift(100);
-  }  
-  PepReg.prototype.warning=function(s, dlgFlyOn){
-    var self=this;
-    if(dlgFlyOn)
-      dlgFlyOn.hideOverlay();
-    var dlg = new Dialog($("#dlg-warning"));
-    dlg.show("Warning", s);
-    dlg.lift(100);
-    $("#dlg-warning").bind("hide",function(){
-      $(this).unbind('hide');
-      if(dlgFlyOn)dlgFlyOn.showOverlay();
-    });
-  }
-  PepReg.prototype.validatePage=function(page, data){
-    if(page==0){
-      if(!data.type){
-        return ["type","Please select type"];
-      }
-    }else if(page==1){
-      if(!data.district_id){
-        return ["district_id", "Please select district"];
-      }
-      if(!data.name){
-        return ["name", "Please input name"];
-      }
-      if(data.type == "pepper_course" && !data.pepper_course){
-        return ["pepper_course", "Please select pepper course"];
-      }      
-      if(!data.subject){
-        return ["subject", "Please select subject"];
-      }
-    }else if(page == 2){
-      if(!data.training_date){
-        return ["training_date", "Please select training date"];
-      }
-      if(!data.training_time_start){
-        return ["training_time_start", "Please select training start time"];
-      }
-      if(!data.training_time_end){
-        return ["training_time_end", "Please select training end time"];
-      }
-      function todate(d, t){
-        var d = d.split("-");
-        var t = t.split(":")
-        return new Date(d[0],d[1],d[2],t[0],t[1],0);
-      }
-      if(todate(data.training_date, data.training_time_end) < todate(data.training_date, data.training_time_start)){
-        return ["training_time_end", "Please select time that after the Start Time."];
-      }
-    }else if(page == 3){
-    }else if(page == 4){
-    }else if(page == 5){
-      if(!/^\d*(\.[05]*)?$/.test(data.credits)){
-        return ["credits", "Please input a valid credits"];
-      }
-      if(!/^\d*(\.\d*)?$/.test(data.max_registration)){
-        return ["max_registration", "Please input a valid Maximum Registration Cap"];
-      }
-    }
-  }
-  /* PepReg.prototype.markInvalid=function(name, message){
-     var $input = $("#dlg-add-training").find("*[name="+ name +"]");
-     var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
-     $mark.addClass("on");
-     $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
-     $input.one('focus', function(){
-     $mark.removeClass("on").hideBalloon();
-     });
-     } */
-  PepReg.prototype.initForm=function(data, finishCallback){
-    var self = this;
-    var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
-    dlg.show();
-    var steps = this.steps = new StepsForm($("#dlg-add-training"),
-                                           ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
-    // ************* add dlg close button to each step
-    $("#dlg-add-training").find(".close-modal").remove();
-    $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function(){
-      dlg.hide();
-    });
-    // ************* before switch to another page
-    steps.onBeforeSwitch=function(curr, dest){
-      var $content = this.getContent(curr);
-      var data = self.getInput();
-      if(!this.visited(dest) && (error = self.validatePage(curr, data))){
-        return self.warning(error[1], self.dlgForm);
-      }
-      if(curr==0){
-        if(data.type == "pepper_course"){
-          $("select[name=pepper_course]").parents(".form-row").show();
-          $("input[name=attendancel_id]").parents(".form-row").hide();
-          $("input[name=credits]").parents(".form-row").hide();
-        }else{
-          $("select[name=pepper_course]").parents(".form-row").hide();
-          $("input[name=attendancel_id]").parents(".form-row").show();
-          $("input[name=credits]").parents(".form-row").show();
+    var map_show = null, map_show_directions = null, flag_input_js_origin = true;
+    function toTwentyFour(time) {
+        var apart = time.split(/[ :]/);
+        var meridian = apart.pop();
+        if (meridian == "PM" && apart[0] != 12) {
+            apart[0] = parseInt(apart[0]) + 12;
         }
-      }
-      return dest==0 || this.visited(dest-1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
-    }
-    // ************* when finish form
-    steps.onFinish=function() {
-      finishCallback && finishCallback(self.getInput());
-    }
-    // ************* unlock all pages when editing 
-    if(data && data.id){
-      steps.unlockAll();
-    }else{
-      self.clearData();
-    }
-    self.fillData(data);
-    // ************* input map
-    var hits={};
-    $('input[name=geo_location]').autocomplete({
-      select: function(e,item){
-        var hit = hits[item.item.value];
-        if(hit){
-          self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
+        if (meridian == "AM" && apart[0] == 12) {
+            apart[0] = 0;
         }
-      },
-      source: function(request, response){
-        $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
-                  {q: $('input[name=geo_location]').val()}, function(r){
-          var data=[];
-          hits = r;
-          $.each(r, function(i, v){
-            data.push(v.display_name);
-            hits[v.display_name] = v;
-          });
-          response(data);
+        return apart.join(":");
+    }
+    function PepReg($content) {
+        var self = this;
+        this.$content = $content;
+        this.initContent();
+
+        // *** maps ***
+        var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
+
+        this.map_edit = L.map('map_edit');
+        L.tileLayer(url_tile_layer, {
+            trackResize: true,
+            maxZoom: 18,
+            attribution: '',
+            id: 'mapbox.streets'
+        }).addTo(this.map_edit);
+        // ***map_show***
+        mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
+        map_show = new mapboxgl.Map({
+            container: 'map_show',
+            style: 'mapbox://styles/mapbox/streets-v8',
+            zoom: 18
         });
-      }
-    });
-    // ************* input instructors
-    $(".btn-add-instructor").unbind("click").bind("click", function(){
-      var email = $("#complete-email").val();
-      $.get("${reverse('pepper_utilities_user_email_exists')}", {email:email}, function(exists){
-        var $ta=$("textarea[name=instructor_emails]")
-        if(exists){
-          self.appendInstructors(email);
-          $("#complete-email").val("");
-        }else{
-          self.warning("User not exists.", self.dlgForm);
+        map_show_directions = new mapboxgl.Directions({
+            container: 'map_show'
+        });
+        map_show.addControl(map_show_directions);	//控件
+        map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
+
+        /*this.map_show = L.map('map_show');
+        L.tileLayer(url_tile_layer, {
+          maxZoom: 18,
+          attribution: '',
+          id: 'mapbox.streets'
+        }).addTo(this.map_show);*/
+    }
+    PepReg.prototype.initContent = function () {
+        this.initFilter();
+        this.initTable();
+    };
+    PepReg.prototype.getInput = function () {
+        var $form = $("#dlg-add-training");
+        var json = {
+            id: $form.find("input[name=id]").val(),
+            type: $form.find("input[name=type]:checked").val(),
+            district_id: $form.find("select[name=district_id]").val(),
+            name: $.trim($form.find("input[name=name]").val()),
+            description: $form.find("textarea[name=description]").val(),
+            pepper_course: $form.find("select[name=pepper_course]").val(),
+            subject: $form.find("select[name=subject]").val(),
+            training_date: $form.find("input[name=training_date]").val(),
+            training_time_start: ($form.find("input[name=training_time_start]").val()),
+            training_time_end: ($form.find("input[name=training_time_end]").val()),
+            classroom: $.trim($form.find("input[name=classroom]").val()),
+            geo_location: $form.find("input[name=geo_location]").val(),
+            geo_destination: $form.find("input[name=geo_destination]").val(),
+            geo_props: $form.find("input[name=geo_props]").val(),
+            instructor_emails: this.getInstructors().join(","),
+            credits: $form.find("input[name=credits]").val() || 0,
+            attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
+            allow_registration: $form.find("input[name=allow_registration]:checked").val(),
+            max_registration: $form.find("input[name=max_registration]").val() || 0,
+            allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
+            allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
+            allow_validation: $form.find("input[name=allow_validation]:checked").val()
+        };
+        if (json.subject == "Other") {
+            json.subject = $form.find("input[name=subject-other]").val();
         }
-      });
-    });
-    // ************* change credits after training data arrived
-    if(data.arrive == "1"){
-      var warn = true;
-      $("input[name=credits]").off("focusin").on("focusin", function(){
-        $(this).data('val', this.value);
-      }).off("keyup").on("keyup", function(){
-        var me=this;
-        var message = "Please note that you have edited Credit Hours to a training that is past. \
+        if (json.training_time_start) {
+            json.training_time_start = toTwentyFour(json.training_time_start);
+        }
+        if (json.training_time_end) {
+            json.training_time_end = toTwentyFour(json.training_time_end);
+        }
+        if (json.training_date) {
+            var apart = json.training_date.split("/");
+            json.training_date = [apart[2], apart[0], apart[1]].join("-");
+        }
+        return json;
+    };
+    PepReg.prototype.validateAllPage = function (data) {
+        var self = this;
+        var r = null;
+        $("#dlg-add-training").find(".step-page").each(function (i) {
+            if (error = self.validatePage(i, data)) {
+                r = {id: i, error: error};
+            }
+        });
+        return r;
+    };
+    PepReg.prototype.confirm = function (message, dlgFlyOn, callback) {
+        var dlgWarn = new Dialog("#dlg-warning");
+        dlgFlyOn.hideOverlay();
+        $("#dlg-warning").bind("hide", function () {
+            $(this).unbind('hide');
+            dlgFlyOn.showOverlay();
+        });
+        dlgWarn.showYesNo("Warning", message, function (r) {
+            this.hide();
+            callback(r);
+        });
+        dlgWarn.lift(100);
+    };
+    PepReg.prototype.warning = function (s, dlgFlyOn) {
+        var self = this;
+        if (dlgFlyOn)
+            dlgFlyOn.hideOverlay();
+        var dlg = new Dialog($("#dlg-warning"));
+        dlg.show("Warning", s);
+        dlg.lift(100);
+        $("#dlg-warning").bind("hide", function () {
+            $(this).unbind('hide');
+            if (dlgFlyOn)dlgFlyOn.showOverlay();
+        });
+    };
+    PepReg.prototype.validatePage = function (page, data) {
+        if (page == 0) {
+            if (!data.type) {
+                return ["type", "Please select type"];
+            }
+        } else if (page == 1) {
+            if (!data.district_id) {
+                return ["district_id", "Please select district"];
+            }
+            if (!data.name) {
+                return ["name", "Please input name"];
+            }
+            if (data.type == "pepper_course" && !data.pepper_course) {
+                return ["pepper_course", "Please select pepper course"];
+            }
+            if (!data.subject) {
+                return ["subject", "Please select subject"];
+            }
+        } else if (page == 2) {
+            if (!data.training_date) {
+                return ["training_date", "Please select training date"];
+            }
+            if (!data.training_time_start) {
+                return ["training_time_start", "Please select training start time"];
+            }
+            if (!data.training_time_end) {
+                return ["training_time_end", "Please select training end time"];
+            }
+            function todate(d, t) {
+                var d = d.split("-");
+                var t = t.split(":");
+                return new Date(d[0], d[1], d[2], t[0], t[1], 0);
+            }
+
+            if (todate(data.training_date, data.training_time_end) < todate(data.training_date, data.training_time_start)) {
+                return ["training_time_end", "Please select time that after the Start Time."];
+            }
+        } else if (page == 3) {
+        } else if (page == 4) {
+        } else if (page == 5) {
+            if (!/^\d*(\.[05]*)?$/.test(data.credits)) {
+                return ["credits", "Please input a valid credits"];
+            }
+            if (!/^\d*(\.\d*)?$/.test(data.max_registration)) {
+                return ["max_registration", "Please input a valid Maximum Registration Cap"];
+            }
+        }
+    };
+    /* PepReg.prototype.markInvalid=function(name, message){
+       var $input = $("#dlg-add-training").find("*[name="+ name +"]");
+       var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
+       $mark.addClass("on");
+       $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
+       $input.one('focus', function(){
+       $mark.removeClass("on").hideBalloon();
+       });
+       } */
+    PepReg.prototype.initForm = function (data, finishCallback) {
+        var self = this;
+        var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
+        dlg.show();
+        var steps = this.steps = new StepsForm($("#dlg-add-training"),
+                ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
+        // ************* add dlg close button to each step
+        $("#dlg-add-training").find(".close-modal").remove();
+        $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
+            dlg.hide();
+        });
+        // ************* before switch to another page
+        steps.onBeforeSwitch = function (curr, dest) {
+            var $content = this.getContent(curr);
+            var data = self.getInput();
+            if (!this.visited(dest) && (error = self.validatePage(curr, data))) {
+                return self.warning(error[1], self.dlgForm);
+            }
+            if (curr == 0) {
+                if (data.type == "pepper_course") {
+                    $("select[name=pepper_course]").parents(".form-row").show();
+                    $("input[name=attendancel_id]").parents(".form-row").hide();
+                    $("input[name=credits]").parents(".form-row").hide();
+                } else {
+                    $("select[name=pepper_course]").parents(".form-row").hide();
+                    $("input[name=attendancel_id]").parents(".form-row").show();
+                    $("input[name=credits]").parents(".form-row").show();
+                }
+            }
+            return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
+        };
+        // ************* when finish form
+        steps.onFinish = function () {
+            finishCallback && finishCallback(self.getInput());
+        };
+        // ************* unlock all pages when editing
+        if (data && data.id) {
+            steps.unlockAll();
+        } else {
+            self.clearData();
+        }
+        self.fillData(data);
+        // ************* input map
+        var hits = {};
+        $('input[name=geo_location]').autocomplete({
+            select: function (e, item) {
+                var hit = hits[item.item.value];
+                if (hit) {
+                    self.markPlace(self.map_edit, hit.lat, hit.lon, 15);
+                }
+            },
+            source: function (request, response) {
+                $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
+                        {q: $('input[name=geo_location]').val()}, function (r) {
+                            var data = [];
+                            hits = r;
+                            $.each(r, function (i, v) {
+                                data.push(v.display_name);
+                                hits[v.display_name] = v;
+                            });
+                            response(data);
+                        });
+            }
+        });
+        // ************* input instructors
+        $(".btn-add-instructor").unbind("click").bind("click", function () {
+            var email = $("#complete-email").val();
+            $.get("${reverse('pepper_utilities_user_email_exists')}", {email: email}, function (exists) {
+                var $ta = $("textarea[name=instructor_emails]")
+                if (exists) {
+                    self.appendInstructors(email);
+                    $("#complete-email").val("");
+                } else {
+                    self.warning("User not exists.", self.dlgForm);
+                }
+            });
+        });
+        // ************* change credits after training data arrived
+        if (data.arrive == "1") {
+            var warn = true;
+            $("input[name=credits]").off("focusin").on("focusin", function () {
+                $(this).data('val', this.value);
+            }).off("keyup").on("keyup", function () {
+                var me = this;
+                var message = "Please note that you have edited Credit Hours to a training that is past. \
                       This change is not retroactive for users who have already received credit. \
                       Please refer to the user guide for more information.<br>Continue?";
-        $(this).blur();
-        warn && self.confirm(message, self.dlgForm, function(r){
-          if(!r){
-            $(me).val($(me).data('val'));
-          }else{
-            $(me).off("keyup");
-          }
-          $(me).focus();
-        });
-      });
-    }
-    // ************* change subject
-    $("#dlg-add-training").find("select[name=subject]").off('change').change(function(){
-      if($(this).val() == "Other"){
-        $(this).next("input").show();
-      }else{
-        $(this).next("input").hide();
-      }
-    }).change();
-    return steps;
-  }
-  PepReg.prototype.getInstructors=function(emails) {
-    var ar=[];
-    $("#instructor_emails").find("div").each(function(){
-      ar.push($(this).find("span").text());
-    });
-    return ar;
-  }  
-  PepReg.prototype.appendInstructors=function(emails) {
-    if(emails){
-      var curr = this.getInstructors();
-      $.each(emails.split(","), function(i,email){
-        if(email && curr.indexOf(email) < 0){
-          $("<div><span>"+email+"</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function(e){
-            e.preventDefault();
-            $(this).parent().remove();
-          });
-        }
-      });
-    }
-  }
-  PepReg.prototype.markPlace=function(map, lat, lon, zoom, training_id) {
-    $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat:lat, lon:lon}));
-    $(map._container).next("input[name=training_id]").val(training_id);
-    var self = this;
-    map.marks = map.marks || [];
-    $.each(map.marks, function(i, m){
-      map.removeLayer(m);
-    });
-    map.setView([lat, lon], zoom, {
-      reset: true
-    });
-    map._onResize()
-    var marker = L.marker([lat, lon]).addTo(map);
-    map.marks.push(marker);
-  }
-  PepReg.prototype.showPlace=function(map, place) {
-    $(map._container).hide();
-    var self = this;
-    if(place){
-      $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1', {q: place}, function(r){
-        if(r.length){
-          var data = r[0];
-          $.each(r, function(i, d){
-            if(d.display_name == place){
-              data = d;
-            }
-          });
-          self.markPlace(map, data.lat, data.lon, 15);
-        }else{
-          self.markPlace(map, 38.68551, -99.22852, 3); // to USA
-        }
-      });
-    }else{
-      self.markPlace(map, 38.68551, -99.22852, 3); // to USA
-    }
-    setTimeout(function(){
-      $(map._container).show();
-    }, 1000);
-  }
-  PepReg.prototype.fillData=function(data) {
-    var self=this;
-    data = data || {};
-    var state='${request.user.profile.district.state.name} United States';
-    if(data.geo_props){
-      var props = JSON.parse(data.geo_props);
-      this.markPlace(this.map_edit, props.lat, props.lon, 15);
-    }else{
-      this.showPlace(this.map_edit, state);
-    }
-    $.each(data,function(k, v){
-      var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
-      if($entry.prop("tagName") == "INPUT" && ($entry.attr("type")=="radio" ||  $entry.attr("type")=="checkbox")){
-        $entry.prop('checked', false);
-        $entry.filter("*[value=" + v + "]").prop('checked', true);
-      }else if(k=="instructor_emails"){
-        $("#instructor_emails").html("");
-        self.appendInstructors(v);
-      }else{
-        $entry.val(v);
-      }
-    });
-    var $subject = $("#dlg-add-training").find("select[name=subject]");
-    if(data.subject){
-      var $opts = $subject.find("option[value=" + data.subject + "]");
-      if(!$opts.length){
-        $subject.next("input[name=subject-other]").show().val(data.subject);
-        $subject.val("Other");
-      }
-    }else{
-      $subject.next("input[name=subject-other]").val("");
-    }
-  }
-  PepReg.prototype.clearData=function() {
-    var empty = {};
-    $.each(this.getInput(), function(k, v){
-      empty[k] = "";
-    });
-    this.fillData(empty);
-  }
-  PepReg.prototype.deleteTraining=function(id){
-    var self=this;
-    new Dialog("#dlg-warning").showYesNo("Confirm", "Are you sure you want to delete the training?", function(r){
-      this.hide();
-      if(r){
-        $.post("${reverse('pepreg_delete_training')}", {id:id}, function(r){
-          if(r.success)
-            self.reloadTable();
-        });
-      }
-    });
-  }
-  PepReg.prototype.editTraining=function(id){
-    var self=this;
-    $.get("${reverse('pepreg_training_json')}",{id:id},function(r){
-      r.instructor_emails = r.instructor_emails.join(",");
-      self.initForm(r, function(data){
-        if(einfo = self.validateAllPage(data)){
-          self.warning(einfo.error[1], self.dlgForm);
-          self.steps.switchTo(einfo.id);
-          return;
-        }
-        $.post("${reverse('pepreg_save_training')}", data, function(r){
-          if(r.success){
-            $("#dlg-add-training").hide();
-            $(".lean-overlay").hide();
-            self.reloadTable();
-          }
-        });
-      });
-    });
-  }
-  PepReg.prototype.reloadTable=function(){
-    var t=this.$content.find('#data-table')[0];
-    var c=t.config;
-    var p=c.pager;
-    p=$.extend(p, p.last);
-    p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
-    p.reload();
-  };  
-  PepReg.prototype.addTraining=function(){
-    var self = this;
-    var steps = this.initForm({district_id:${request.user.profile.district_id}}, function(data){
-      // submit
-      if(einfo = self.validateAllPage(data)){
-        self.warning(einfo.error[1], self.dlgForm);
-        self.steps.switchTo(einfo.id);
-        return;
-      }
-      $.post("${reverse('pepreg_save_training')}", data, function(r){
-        if(r.success){
-          $("#dlg-add-training").hide();
-          $(".lean-overlay").hide();
-          self.reloadTable();
-        }
-      });
-    });
-    return false;
-  }
-  PepReg.prototype.registerUser=function(training_id, join, cb){
-    var self = this;
-    $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join  }, function(r){
-      if(r.success){
-        cb(join);
-        //self.reloadTable();
-      }
-    });
-  }
-  PepReg.prototype.setStudentAttended=function(student_id, training_id, yn, cb){
-    var self = this;
-    $.post("${reverse('pepreg_set_student_attended')}", {student_id:student_id, training_id: training_id, yn: yn}, function(r){
-      if(r.success){
-        cb && cb(r.data);
-      }
-    });
-  }
-  PepReg.prototype.setStudentValidated=function(student_id, training_id, yn, cb){
-    var self = this;
-    $.post("${reverse('pepreg_set_student_validated')}", {student_id:student_id, training_id: training_id, yn: yn}, function(r){
-      if(r.success){
-        cb && cb(r.data);
-      }
-    });
-  }
-  PepReg.prototype.deleteStudent=function(id, cb){
-    var self = this;
-    $.post("${reverse('pepreg_delete_student')}", {id:id}, function(r){
-      if(r.success){
-        cb && cb(r.data);
-      }
-    });
-  }  
-  PepReg.prototype.fillString=function(s, data){
-    return s.replace(/\{(.+?)\}/g, function(a, b){
-      return data[b];
-    });
-  }
-  PepReg.prototype.initFilter=function(){
-    var self=this;
-    function filterOptions(item, id) {
-      if ($(item).attr("class") != id) {
-        $(item).css("display", "none");
-      } else {
-        $(item).css("display", "");
-      }
-      if (id == "null_case" || $(item).attr("class") == "null_case") {
-        $(this).css("display", "");
-      }
-    }
-    $("#state_select").change(function () {
-      var id = $(this).children(":selected").attr("class");
-      $("#district_select > option").each(function() {
-        filterOptions(this, id)
-      });
-    });
-    $("#filter-suject-drop").change(function(){
-      var val = $(this).val();
-      var $input = $(this).next("input");
-      if(val == "Other"){
-        $input.show().val("");
-      }else{
-        $input.hide();
-        $input.val(val);
-      }
-      $input.change();
-    });    
-  };
-  PepReg.prototype.showStudents=function(training_id){
-    var self = this;
-    $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function(r){
-      if(r.success){
-        var dlg = new Dialog($("#dlg-students"));
-        dlg.show("Student Information for " + r.training_name);
-        $tbody = $("#dlg-students").find("tbody").empty();
-        function fillRow($r, data){
-          data.is_attended=data.is_attended?"checked":"";
-          data.is_validated=data.is_validated?"checked":"";
-          data.student_credit=data.student_credit?data.student_credit+" hours":"0";
-          var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
-<td><input type='checkbox' name='is_attended' {is_attended}/></td>\
-<td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>",data));
-          if($r)$r.replaceWith($row);
-          if(!r.allow_attendance || !r.arrive)
-            $row.find("input[name=is_attended").remove();
-          if(!r.allow_validation || !r.arrive)
-            $row.find("input[name=is_validated").remove();
-          if(r.allow_attendance){
-            if(data.is_attended)
-              $row.find("input[name=is_validated]").show();
-            else
-              $row.find("input[name=is_validated]").hide();
-          }
-          $row.find("a").css("color", "red");
-          $row.find("a").css("cursor", "pointer");
-          $row.find("a").click(function(e){
-            e.preventDefault();
-            self.confirm("Really delete the student?", dlg, function(r){
-              if(r){
-                self.deleteStudent(data.id, function(){
-                  $row.remove();
+                $(this).blur();
+                warn && self.confirm(message, self.dlgForm, function (r) {
+                    if (!r) {
+                        $(me).val($(me).data('val'));
+                    } else {
+                        $(me).off("keyup");
+                    }
+                    $(me).focus();
                 });
-              }
             });
-          });
-          $row.find("input[name=is_attended]").change(function(){
-            var me=this;
-            self.setStudentAttended(data.student_id, r.training_id, this.checked, function(data){
-              if(data)
-                fillRow($row, data);
-              else
-                $row.remove();
-            });
-          });
-          $row.find("input[name=is_validated]").change(function(){
-            var me=this;
-            self.setStudentValidated(data.student_id, r.training_id, this.checked, function(data){
-              fillRow($row, data);
-            });
-          });
-          return $row;
         }
-        $.each(r.rows, function(i, data){
-          fillRow(null, data).appendTo($tbody);
-        });
-        $(".download-students-excel").unbind("click").click(function(){
-          window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
-        });
-      }
-    });
-  }
-  PepReg.prototype.showMap=function(props, training_id){
-    this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
-    new Dialog($("#dlg-map")).show();
-  }
-  PepReg.prototype.initTable=function(){
-    var self=this;
-    var pagerOptions = {
-      container: '',
-      output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
-      fixedHeight: false,
-      removeRows: false,
-      cssGoto: '.gotoPage',
-      ajaxUrl: '',
-      ajaxProcessing: function(data){
-        return data;
-      },
-      processAjaxOnInit: true,
-      page: 0,
-      savePages: false,
-      size: 10
-    };
-    var tablesorterOptions = {
-      debug: false,
-      theme: 'blue',
-      widthFixed: true,
-      widgets: ["zebra", "filter", "output", "columnSelector"],
-      widgetOptions: {
-        filter_external: '',
-        filter_columnFilters: false,
-        filter_placeholder: {search: 'Search...'},
-        filter_saveFilters: false,
-        filter_reset: '.reset',
-        filter_serversideFiltering: true,
-        output_saveFileName: 'data.csv',
-        columnSelector_container: $('#columnSelector'),
-        columnSelector_columns: {0: 'disable',  15: 'disable'},
-        columnSelector_mediaqueryName: 'All: '
-      }
-    };
-    tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
-    pagerOptions.container = this.$content.find("#user-pager");
-    pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
-    this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
-    $("#data-table").bind("pagerComplete", function() {
-      var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
-      if(is_superuser){
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
-      }else if(is_admin){
-        $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
-      }else{
-        $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12, 14]]);
-      }
-      if(is_admin){
-        $(this).find("th:nth-child(1)").show();
-        $(this).find("td:nth-child(1)").show();
-        $(this).find("th:nth-child(16)").show();
-        $(this).find("td:nth-child(16)").show();
-      }else{
-        $(this).find("th:nth-child(1)").hide();
-        $(this).find("td:nth-child(1)").hide();
-        $(this).find("th:nth-child(16)").hide();
-        $(this).find("td:nth-child(16)").hide();
-      }
-      // location
-      $(this).find("td:nth-child(11)").each(function(){
-        var training_id = $(this).parent().find("input[name=id]").val();
-        if($(this).find("span.geo_location").html()){
-          $(this).find('span.geo_location').css("color","#1d9dd9");
-          $(this).css("cursor","pointer");
-          $(this).click(function(){
-            var props = JSON.parse($(this).find("input").val());
-            self.showMap(props, training_id);  
-          });
-        }
-        // var state='${request.user.profile.district.state.name} United States';
-        // self.showPlace(self.map_show, state);
-      });
-      // each row
-      $(this).find("tr").each(function(){
-        var training_id = $(this).find("input[name=id]").val();
-        if(!training_id)
-          return; // continue
-        var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
-        var apart = $(this).find("input[name=status]").val().split(",");
-        var arrive = apart[0];
-        var status = apart[1];
-        var allow = apart[2];
-        var attendancel_id = apart[3];
-        var reach_limit = apart[4];
-        var allow_student_attendance = apart[5];
-        var remain = parseInt(apart[6]);
-        if(is_row_admin){
-          $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function(e){
-            e.preventDefault();
-            self.editTraining(training_id);
-          });
-          $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function(e){
-            e.preventDefault();
-            self.deleteTraining(training_id);
-          });
-        }
-        // Register/Record Attendance
-        $(this).find("td:nth-child(15)").each(function(){
-          if(arrive == "0" && allow == "0"){
-            $(this).html("The training date has not arrived yet.");
-          }else if (arrive == "0" && allow == "1"){
-            if(status=="" && reach_limit=="1"){
-              // not reigistered and reach limit
-              $(this).html("Maximum number of users have registered for this training.");
-            }else{
-              var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
-              if(remain > -1){
-                $("<span style='line-height:16px;'> (" + remain + " seats available).</span>").appendTo($(this).find("span"));
-              }
-              $check.prop('checked', status == "Registered");
-              $check.click(function(){
-                self.registerUser(training_id, this.checked, function(reg){
-                  // self.reloadTable();
-                  if(reg)
-                    self.warning("Thank you for registering/recording attendance for this training!");
-                  else
-                    self.warning("Thank you! You are no longer registered for this training.");
-                });
-              });            
+        // ************* change subject
+        $("#dlg-add-training").find("select[name=subject]").off('change').change(function () {
+            if ($(this).val() == "Other") {
+                $(this).next("input").show();
+            } else {
+                $(this).next("input").hide();
             }
-          }else if (arrive == "1" && status == "" && allow == "1"){
-            $(this).html("The registration date has passed for this training");
-          }else if (arrive == "1" && allow_student_attendance == "0"){
-            $(this).html("Instructor records attendance.");
-          }else if (arrive == "1" && allow_student_attendance == "1"){
-            var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
-            $check.prop('checked', status == "Attended" || status == "Validated");
-            if(attendancel_id.length){
-              $check.change(function(){
-                if(this.checked){
-                  $input.show();
-                  $button.show();
-                }else{
-                  if(!$input.is(":visible")){
-                    self.setStudentAttended(${request.user.id},training_id, false, function(){
-                      self.warning("Thank you! You are no longer registered for this training.");
+        }).change();
+        return steps;
+    };
+    PepReg.prototype.getInstructors = function (emails) {
+        var ar = [];
+        $("#instructor_emails").find("div").each(function () {
+            ar.push($(this).find("span").text());
+        });
+        return ar;
+    };
+    PepReg.prototype.appendInstructors = function (emails) {
+        if (emails) {
+            var curr = this.getInstructors();
+            $.each(emails.split(","), function (i, email) {
+                if (email && curr.indexOf(email) < 0) {
+                    $("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
+                        e.preventDefault();
+                        $(this).parent().remove();
                     });
-                  }
-                  $input.hide();
-                  $button.hide();
                 }
-              });
-              var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
-              /// $input.val(attendancel_id);
-              var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
-              $button.click(function(){
-                if(attendancel_id==$input.val()){
-                  self.setStudentAttended(${request.user.id},training_id, true, function(){
-                    $input.hide();
-                    $button.hide();                
-                    self.warning("Thank you for registering/recording attendance for this training!");
-                  });
-                }else{
-                  self.warning("It's a wrong ID.");
-                }
-              });
-            }else{
-              $check.change(function(){
-                self.setStudentAttended(${request.user.id},training_id, this.checked, function(data){
-                  if(data && data.is_attended)
-                    self.warning("Thank you for registering/recording attendance for this training!");
-                  else
-                    self.warning("Thank you! You are no longer registered for this training.");
-                });
-              });
-            }
-          }else{
-            $(this).html("");
-          }
-        });
-         $(this).find("td:nth-child(12)").css("white-space", "nowrap");
-        // Training Name
-        if(is_row_admin){
-          $(this).find("td:nth-child(6)").each(function(){
-            var training_id = $(this).parent().find("input[name=id]").val();
-            $(this).css("color","#1d9dd9");
-            $(this).css("cursor","pointer");
-            $(this).click(function(){
-              self.showStudents(training_id);
             });
-          });
         }
-      });
+    };
+    PepReg.prototype.markPlace = function (map, lat, lon, zoom, training_id) {
+        $(map._container).next("input[name=geo_props]").val(JSON.stringify({lat: lat, lon: lon}));
+        $(map._container).next("input[name=training_id]").val(training_id);
+        var self = this;
+        map.marks = map.marks || [];
+        $.each(map.marks, function (i, m) {
+            map.removeLayer(m);
+        });
+        map.setView([lat, lon], zoom, {
+            reset: true
+        });
+        map._onResize();
+        var marker = L.marker([lat, lon]).addTo(map);
+        map.marks.push(marker);
+    };
+    PepReg.prototype.showPlace = function (map, place) {
+        $(map._container).hide();
+        var self = this;
+        if (place) {
+            $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1', {q: place}, function (r) {
+                if (r.length) {
+                    var data = r[0];
+                    $.each(r, function (i, d) {
+                        if (d.display_name == place) {
+                            data = d;
+                        }
+                    });
+                    self.markPlace(map, data.lat, data.lon, 15);
+                } else {
+                    self.markPlace(map, 38.68551, -99.22852, 3); // to USA
+                }
+            });
+        } else {
+            self.markPlace(map, 38.68551, -99.22852, 3); // to USA
+        }
+        setTimeout(function () {
+            $(map._container).show();
+        }, 1000);
+    };
+    PepReg.prototype.fillData = function (data) {
+        var self = this;
+        data = data || {};
+        var state = '${request.user.profile.district.state.name} United States';
+        if (data.geo_props) {
+            var props = JSON.parse(data.geo_props);
+            this.markPlace(this.map_edit, props.lat, props.lon, 15);
+        } else {
+            this.showPlace(this.map_edit, state);
+        }
+        $.each(data, function (k, v) {
+            var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
+            if ($entry.prop("tagName") == "INPUT" && ($entry.attr("type") == "radio" || $entry.attr("type") == "checkbox")) {
+                $entry.prop('checked', false);
+                $entry.filter("*[value=" + v + "]").prop('checked', true);
+            } else if (k == "instructor_emails") {
+                $("#instructor_emails").html("");
+                self.appendInstructors(v);
+            } else {
+                $entry.val(v);
+            }
+        });
+        var $subject = $("#dlg-add-training").find("select[name=subject]");
+        if (data.subject) {
+            var $opts = $subject.find("option[value=" + data.subject + "]");
+            if (!$opts.length) {
+                $subject.next("input[name=subject-other]").show().val(data.subject);
+                $subject.val("Other");
+            }
+        } else {
+            $subject.next("input[name=subject-other]").val("");
+        }
+    };
+    PepReg.prototype.clearData = function () {
+        var empty = {};
+        $.each(this.getInput(), function (k, v) {
+            empty[k] = "";
+        });
+        this.fillData(empty);
+    };
+    PepReg.prototype.deleteTraining = function (id) {
+        var self = this;
+        new Dialog("#dlg-warning").showYesNo("Confirm", "Are you sure you want to delete the training?", function (r) {
+            this.hide();
+            if (r) {
+                $.post("${reverse('pepreg_delete_training')}", {id: id}, function (r) {
+                    if (r.success)
+                        self.reloadTable();
+                });
+            }
+        });
+    };
+    PepReg.prototype.editTraining = function (id) {
+        var self = this;
+        $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
+            r.instructor_emails = r.instructor_emails.join(",");
+            self.initForm(r, function (data) {
+                if (einfo = self.validateAllPage(data)) {
+                    self.warning(einfo.error[1], self.dlgForm);
+                    self.steps.switchTo(einfo.id);
+                    return;
+                }
+                $.post("${reverse('pepreg_save_training')}", data, function (r) {
+                    if (r.success) {
+                        $("#dlg-add-training").hide();
+                        $(".lean-overlay").hide();
+                        self.reloadTable();
+                    }
+                });
+            });
+        });
+    };
+    PepReg.prototype.reloadTable = function () {
+        var t = this.$content.find('#data-table')[0];
+        var c = t.config;
+        var p = c.pager;
+        p = $.extend(p, p.last);
+        p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date();
+        p.reload();
+    };
+    PepReg.prototype.addTraining = function () {
+        var self = this;
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
+            // submit
+            if (einfo = self.validateAllPage(data)) {
+                self.warning(einfo.error[1], self.dlgForm);
+                self.steps.switchTo(einfo.id);
+                return;
+            }
+            $.post("${reverse('pepreg_save_training')}", data, function (r) {
+                if (r.success) {
+                    $("#dlg-add-training").hide();
+                    $(".lean-overlay").hide();
+                    self.reloadTable();
+                }
+            });
+        });
+        return false;
+    };
+    PepReg.prototype.registerUser = function (training_id, join, cb) {
+        var self = this;
+        $.post("${reverse('pepreg_register')}", {training_id: training_id, join: join}, function (r) {
+            if (r.success) {
+                cb(join);
+                //self.reloadTable();
+            }
+        });
+    };
+    PepReg.prototype.setStudentAttended = function (student_id, training_id, yn, cb) {
+        var self = this;
+        $.post("${reverse('pepreg_set_student_attended')}", {
+            student_id: student_id,
+            training_id: training_id,
+            yn: yn
+        }, function (r) {
+            if (r.success) {
+                cb && cb(r.data);
+            }
+        });
+    };
+    PepReg.prototype.setStudentValidated = function (student_id, training_id, yn, cb) {
+        var self = this;
+        $.post("${reverse('pepreg_set_student_validated')}", {
+            student_id: student_id,
+            training_id: training_id,
+            yn: yn
+        }, function (r) {
+            if (r.success) {
+                cb && cb(r.data);
+            }
+        });
+    };
+    PepReg.prototype.deleteStudent = function (id, cb) {
+        var self = this;
+        $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
+            if (r.success) {
+                cb && cb(r.data);
+            }
+        });
+    };
+    PepReg.prototype.fillString = function (s, data) {
+        return s.replace(/\{(.+?)\}/g, function (a, b) {
+            return data[b];
+        });
+    };
+    PepReg.prototype.initFilter = function () {
+        var self = this;
+
+        function filterOptions(item, id) {
+            if ($(item).attr("class") != id) {
+                $(item).css("display", "none");
+            } else {
+                $(item).css("display", "");
+            }
+            if (id == "null_case" || $(item).attr("class") == "null_case") {
+                $(this).css("display", "");
+            }
+        }
+
+        $("#state_select").change(function () {
+            var id = $(this).children(":selected").attr("class");
+            $("#district_select > option").each(function () {
+                filterOptions(this, id)
+            });
+        });
+        $("#filter-suject-drop").change(function () {
+            var val = $(this).val();
+            var $input = $(this).next("input");
+            if (val == "Other") {
+                $input.show().val("");
+            } else {
+                $input.hide();
+                $input.val(val);
+            }
+            $input.change();
+        });
+    };
+    PepReg.prototype.showStudents = function (training_id) {
+        var self = this;
+        $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+            if (r.success) {
+                var dlg = new Dialog($("#dlg-students"));
+                dlg.show("Student Information for " + r.training_name);
+                $tbody = $("#dlg-students").find("tbody").empty();
+                function fillRow($r, data) {
+                    data.is_attended = data.is_attended ? "checked" : "";
+                    data.is_validated = data.is_validated ? "checked" : "";
+                    data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
+                    var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+<td><input type='checkbox' name='is_attended' {is_attended}/></td>\
+<td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
+                    if ($r)$r.replaceWith($row);
+                    if (!r.allow_attendance || !r.arrive)
+                        $row.find("input[name=is_attended").remove();
+                    if (!r.allow_validation || !r.arrive)
+                        $row.find("input[name=is_validated").remove();
+                    if (r.allow_attendance) {
+                        if (data.is_attended)
+                            $row.find("input[name=is_validated]").show();
+                        else
+                            $row.find("input[name=is_validated]").hide();
+                    }
+                    $row.find("a").css("color", "red");
+                    $row.find("a").css("cursor", "pointer");
+                    $row.find("a").click(function (e) {
+                        e.preventDefault();
+                        self.confirm("Really delete the student?", dlg, function (r) {
+                            if (r) {
+                                self.deleteStudent(data.id, function () {
+                                    $row.remove();
+                                });
+                            }
+                        });
+                    });
+                    $row.find("input[name=is_attended]").change(function () {
+                        var me = this;
+                        self.setStudentAttended(data.student_id, r.training_id, this.checked, function (data) {
+                            if (data)
+                                fillRow($row, data);
+                            else
+                                $row.remove();
+                        });
+                    });
+                    $row.find("input[name=is_validated]").change(function () {
+                        var me = this;
+                        self.setStudentValidated(data.student_id, r.training_id, this.checked, function (data) {
+                            fillRow($row, data);
+                        });
+                    });
+                    return $row;
+                }
+
+                $.each(r.rows, function (i, data) {
+                    fillRow(null, data).appendTo($tbody);
+                });
+                $(".download-students-excel").unbind("click").click(function () {
+                    window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
+                });
+            }
+        });
+    };
+    PepReg.prototype.showMap = function (props, training_id) {
+        new Dialog($("#dlg-map")).show();
+        //this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
+        $(map_show._container).next("input[name=geo_props]").val(JSON.stringify({lat: props.lat, lon: props.lon}));
+        $(map_show._container).next("input[name=training_id]").val(training_id);
+        map_show.resize();
+        map_show.setZoom(12);
+        $("#map_show").find(".mapboxgl-canvas").css("left", 0);
+        $("#map_show").find(".mapboxgl-canvas").css("top", 0);
+
+        map_show.setCenter([props.lon, props.lat]);
+
+        $(".js-destination-clear,.js-origin-clear").click();
+        map_show_directions.setDestination(props.geo_location);
+        //map_show_directions.setOrigin(props.geo_location);
+        //map_show_directions.setOrigin(null);
+
+        //-----------------------
+        if (flag_input_js_origin) {
+            flag_input_js_origin = false;
+
+            var input_js_origin = $("#dlg-map").find("input[class=js-origin]");
+            var input_js_origin_hits = {};
+            $(input_js_origin).autocomplete({
+                select: function (e, item) {
+                    map_show_directions.setOrigin($(input_js_origin).val());
+                },
+                source: function (request, response) {
+                    $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1', {q: $(input_js_origin).val()}, function (r) {
+                        var data = [];
+                        input_js_origin_hits = r;
+                        $.each(r, function (i, v) {
+                            data.push(v.display_name);
+                            input_js_origin_hits[v.display_name] = v;
+                        });
+                        response(data);
+                    });
+                }
+            });
+        }
+    };
+    PepReg.prototype.initTable = function () {
+        var self = this;
+        var pagerOptions = {
+            container: '',
+            output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+            fixedHeight: false,
+            removeRows: false,
+            cssGoto: '.gotoPage',
+            ajaxUrl: '',
+            ajaxProcessing: function (data) {
+                return data;
+            },
+            processAjaxOnInit: true,
+            page: 0,
+            savePages: false,
+            size: 10
+        };
+        var tablesorterOptions = {
+            debug: false,
+            theme: 'blue',
+            widthFixed: true,
+            widgets: ["zebra", "filter", "output", "columnSelector"],
+            widgetOptions: {
+                filter_external: '',
+                filter_columnFilters: false,
+                filter_placeholder: {search: 'Search...'},
+                filter_saveFilters: false,
+                filter_reset: '.reset',
+                filter_serversideFiltering: true,
+                output_saveFileName: 'data.csv',
+                columnSelector_container: $('#columnSelector'),
+                columnSelector_columns: {0: 'disable', 15: 'disable'},
+                columnSelector_mediaqueryName: 'All: '
+            }
+        };
+        tablesorterOptions.widgetOptions.filter_external = ".table-filter .search";
+        pagerOptions.container = this.$content.find("#user-pager");
+        pagerOptions.ajaxUrl = this.$content.find("#data-table").attr("ajaxUrl");
+        this.$content.find("#data-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        $("#data-table").bind("pagerComplete", function () {
+            var is_admin = $(this).find("input[name=managing][value=true]").length > 0;
+            if (is_superuser) {
+                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]]);
+            } else if (is_admin) {
+                $(this).trigger('refreshColumnSelector', [[0, 5, 6, 7, 8, 9, 10, 11, 12, 14]]);
+            } else {
+                $(this).trigger('refreshColumnSelector', [[5, 6, 7, 8, 9, 10, 11, 12, 14]]);
+            }
+            if (is_admin) {
+                $(this).find("th:nth-child(1)").show();
+                $(this).find("td:nth-child(1)").show();
+                $(this).find("th:nth-child(16)").show();
+                $(this).find("td:nth-child(16)").show();
+            } else {
+                $(this).find("th:nth-child(1)").hide();
+                $(this).find("td:nth-child(1)").hide();
+                $(this).find("th:nth-child(16)").hide();
+                $(this).find("td:nth-child(16)").hide();
+            }
+            // location
+            $(this).find("td:nth-child(11)").each(function () {
+                var training_id = $(this).parent().find("input[name=id]").val();
+                if ($(this).find("span.geo_location").html()) {
+                    $(this).find('span.geo_location').css("color", "#1d9dd9");
+                    $(this).css("cursor", "pointer");
+                    $(this).click(function () {
+                        //var training_id = $(this).parent().find("input[name=training_id]").val();
+                        //var origin = escape($("#map_show").find("input:first").val());
+                        //var zoom = 12;
+                        //var center = map_show.getCenter();
+                        window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
+                        //var props = JSON.parse($(this).find("input").val());
+                        //props.geo_location = $(this).find("input[name='row_geo_location']").val();
+                        //props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
+
+                        //self.showMap(props, training_id);
+                    });
+                }
+                // var state='${request.user.profile.district.state.name} United States';
+                // self.showPlace(self.map_show, state);
+            });
+            // each row
+            $(this).find("tr").each(function () {
+                var training_id = $(this).find("input[name=id]").val();
+                if (!training_id)
+                    return; // continue
+                var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
+                var apart = $(this).find("input[name=status]").val().split(",");
+                var arrive = apart[0];
+                var status = apart[1];
+                var allow = apart[2];
+                var attendancel_id = apart[3];
+                var reach_limit = apart[4];
+                var allow_student_attendance = apart[5];
+                var remain = parseInt(apart[6]);
+                if (is_row_admin) {
+                    $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+                        e.preventDefault();
+                        self.editTraining(training_id);
+                    });
+                    $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+                        e.preventDefault();
+                        self.deleteTraining(training_id);
+                    });
+                }
+                // Register/Record Attendance
+                $(this).find("td:nth-child(15)").each(function () {
+                    if (arrive == "0" && allow == "0") {
+                        $(this).html("The training date has not arrived yet.");
+                    } else if (arrive == "0" && allow == "1") {
+                        if (status == "" && reach_limit == "1") {
+                            // not reigistered and reach limit
+                            $(this).html("Maximum number of users have registered for this training.");
+                        } else {
+                            var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>I would like to register for this training</span>").appendTo($(this).empty());
+                            if (remain > -1) {
+                                $("<span style='line-height:16px;'> (" + remain + " seats available).</span>").appendTo($(this).find("span"));
+                            }
+                            $check.prop('checked', status == "Registered");
+                            $check.click(function () {
+                                self.registerUser(training_id, this.checked, function (reg) {
+                                    // self.reloadTable();
+                                    if (reg)
+                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                    else
+                                        self.warning("Thank you! You are no longer registered for this training.");
+                                });
+                            });
+                        }
+                    } else if (arrive == "1" && status == "" && allow == "1") {
+                        $(this).html("The registration date has passed for this training");
+                    } else if (arrive == "1" && allow_student_attendance == "0") {
+                        $(this).html("Instructor records attendance.");
+                    } else if (arrive == "1" && allow_student_attendance == "1") {
+                        var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
+                        $check.prop('checked', status == "Attended" || status == "Validated");
+                        if (attendancel_id.length) {
+                            $check.change(function () {
+                                if (this.checked) {
+                                    $input.show();
+                                    $button.show();
+                                } else {
+                                    if (!$input.is(":visible")) {
+                                        self.setStudentAttended(${request.user.id}, training_id, false, function () {
+                                            self.warning("Thank you! You are no longer registered for this training.");
+                                        });
+                                    }
+                                    $input.hide();
+                                    $button.hide();
+                                }
+                            });
+                            var $input = $("<input style='margin-right:5px;height:25px;'>").appendTo($(this)).hide();
+                            /// $input.val(attendancel_id);
+                            var $button = $("<input type=button class=small value=check>").appendTo($(this)).hide();
+                            $button.click(function () {
+                                if (attendancel_id == $input.val()) {
+                                    self.setStudentAttended(${request.user.id}, training_id, true, function () {
+                                        $input.hide();
+                                        $button.hide();
+                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                    });
+                                } else {
+                                    self.warning("It's a wrong ID.");
+                                }
+                            });
+                        } else {
+                            $check.change(function () {
+                                self.setStudentAttended(${request.user.id}, training_id, this.checked, function (data) {
+                                    if (data && data.is_attended)
+                                        self.warning("Thank you for registering/recording attendance for this training!");
+                                    else
+                                        self.warning("Thank you! You are no longer registered for this training.");
+                                });
+                            });
+                        }
+                    } else {
+                        $(this).html("");
+                    }
+                });
+                $(this).find("td:nth-child(12)").css("white-space", "nowrap");
+                // Training Name
+                if (is_row_admin) {
+                    $(this).find("td:nth-child(6)").each(function () {
+                        var training_id = $(this).parent().find("input[name=id]").val();
+                        $(this).css("color", "#1d9dd9");
+                        $(this).css("cursor", "pointer");
+                        $(this).click(function () {
+                            self.showStudents(training_id);
+                        });
+                    });
+                }
+            });
+        });
+    };
+    PepReg.prototype.reloadTable = function () {
+        var t = this.$content.find('#data-table')[0];
+        var c = t.config;
+        var p = c.pager;
+        p = $.extend(p, p.last);
+        p.ajaxUrl = $(t).attr("ajaxUrl") + "&timestamp=" + new Date();
+        p.reload();
+    };
+    PepReg.prototype.getSelectedIds = function () {
+        var ids = [];
+        this.$content.find("table .select_box:checked").each(function () {
+            ids.push($(this).val());
+        });
+        return ids;
+    };
+    $(document).ready(function () {
+        //** init controller
+        window.pepreg = new PepReg($(".expand_div").eq(0));
+        //** init expand title
+        $(".expand_title").click(function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
+                $div.slideUp();<
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $div.slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+        $(".expand_title").click();
+        $(".print-map").click(function (e) {
+            e.preventDefault();
+            /* var training_id = $(this).parent().find("input[name=training_id]").val();
+             var origin = escape($("#map_show").find("input:first").val());
+             var zoom = map_show.getZoom();
+             var center = map_show.getCenter();
+             window.open('${reverse('pepreg_map')}' + "?training_id="+training_id + "&origin=" + origin + "&zoom=" + zoom + "&lng=" + center.lng + "&lat=" + center.lat, '_blank');*/
+            /* var w = window.open();
+               var content = $('#map_show').html();
+               w.document.write('<html><head><title>Copy Printed</title></head><body>' + content  + '</body></html>');
+               // w.window.print();
+               w.document.close(); */
+            return false;
+        });
     });
-  };
-  PepReg.prototype.reloadTable=function(){
-    var t=this.$content.find('#data-table')[0];
-    var c=t.config;
-    var p=c.pager;
-    p=$.extend(p, p.last);
-    p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
-    p.reload();
-  };
-  PepReg.prototype.getSelectedIds=function(){
-    var ids = [];
-    this.$content.find("table .select_box:checked").each(function () {
-      ids.push($(this).val());
-    });
-    return ids;
-  };
-  $(document).ready(function(){
-    //** init controller
-    window.pepreg=new PepReg($(".expand_div").eq(0));
-    //** init expand title
-    $(".expand_title").click(function(){
-      var $div=$(this).next("div.expand_div");
-      if($div.is(':visible')){
-        $div.slideUp();
-        $(this).removeClass("expand_title_expanded");
-      }else{
-        $div.slideDown();
-        $(this).addClass("expand_title_expanded");
-      }
-    });
-    $(".expand_title").click();
-    $(".print-map").click(function(e){
-      e.preventDefault();
-      var training_id = $(this).parent().find("input[name=training_id]").val();
-      window.open('${reverse('pepreg_map')}' + "?training_id="+training_id, '_blank');
-      /* var w = window.open();
-         var content = $('#map_show').html();
-         w.document.write('<html><head><title>Copy Printed</title></head><body>' + content  + '</body></html>');
-         // w.window.print();
-         w.document.close(); */
-      return false;      
-    });
-  });
+
 </script>
 <script type="text/javascript">
-  $.datepicker.setDefaults({
-    showButtonPanel: true,
-    closeText: 'Clear',
-    currentText: 'Today',
-    beforeShow: function (input, inst) {
-      datepicker_CurrentInput = input;
-  }});  
-  $(".ui-datepicker-close").live("click", function () {  
-    $(datepicker_CurrentInput).val("");
-    $(datepicker_CurrentInput).change();
-  });
-  $('.datePickText,input[name=training_data]').each(function(){
-    var lock_past = $(this).hasClass("lock_past");
-    $(this).datepicker({ 
-      autoSize: true , 
-      gotoCurrent: true,       
-      firstDay: 0,             
-      minDate: new Date(),     
-      hideIfNoPrevNext: false,  
-      navigationAsDateFormat: true,
-      showOtherMonths: true,   
-      selectOtherMonths: false, 
-      stepMonths: 1,           
-      changeMonth: true,       
-      numberOfMonths: [1, 1],  
-      showCurrentAtPos: 0, 
-      showAnim: "",  
-      showWeek: true,
-      dateFormat: 'mm/dd/yy',
-      currentText: 'Today',
-      minDate: lock_past ? 0 : new Date("1999-9-9")
+    $.datepicker.setDefaults({
+        showButtonPanel: true,
+        closeText: 'Clear',
+        currentText: 'Today',
+        beforeShow: function (input, inst) {
+            datepicker_CurrentInput = input;
+        }
     });
-  });
+    $(".ui-datepicker-close").live("click", function () {
+        $(datepicker_CurrentInput).val("");
+        $(datepicker_CurrentInput).change();
+    });
+    $('.datePickText,input[name=training_data]').each(function () {
+        var lock_past = $(this).hasClass("lock_past");
+        $(this).datepicker({
+            autoSize: true,
+            gotoCurrent: true,
+            firstDay: 0,
+            minDate: new Date(),
+            hideIfNoPrevNext: false,
+            navigationAsDateFormat: true,
+            showOtherMonths: true,
+            selectOtherMonths: false,
+            stepMonths: 1,
+            changeMonth: true,
+            numberOfMonths: [1, 1],
+            showCurrentAtPos: 0,
+            showAnim: "",
+            showWeek: true,
+            dateFormat: 'mm/dd/yy',
+            currentText: 'Today',
+            minDate: lock_past ? 0 : new Date("1999-9-9")
+        });
+    });
 </script>
 <script type="text/javascript">
-  $('.timePickText').timeDropper({readonly:true, format: 'h:mm A', meridians: true});
-  $(document).ready(function(){
-    $('.columnSelectorButton').click(function(e){
-      if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
-        $('.columnSelector').show();
-      } else {
-        $('.columnSelector').hide();
-      }
+    $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
+    $(document).ready(function () {
+        $('.columnSelectorButton').click(function (e) {
+            if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+                $('.columnSelector').show();
+            } else {
+                $('.columnSelector').hide();
+            }
+        });
     });
-  });
-  $(document).click(function(e){
-    var isout = !$('.columnSelectorWrapper').find(e.target).length;
-    if($('.columnSelector').is(":visible")){
-      if(isout && e.target.className != 'columnSelectorButton') {
-        $('.columnSelector').hide();
-      }
-    }
-  });
-  $('#complete-email').autocomplete({
-    source: function(request, response){
-      $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
-    }
-  });
+    $(document).click(function (e) {
+        var isout = !$('.columnSelectorWrapper').find(e.target).length;
+        if ($('.columnSelector').is(":visible")) {
+            if (isout && e.target.className != 'columnSelectorButton') {
+                $('.columnSelector').hide();
+            }
+        }
+    });
+    $('#complete-email').autocomplete({
+        source: function (request, response) {
+            $.getJSON('/pepper-utilities/user/email-completion', {q: $('#complete-email').val()}, response);
+        }
+    });
 </script>
 <script type="text/javascript">
-  $(".check-mark").balloon({position:"bottom right", css: {maxWidth: "300px"}, offsetX: -20, offsetY: -15});
-  $(".check-mark").on("mouseenter",function(){
-    $(this).addClass("on");
-  }).on("mouseleave",function(){
-    $(this).removeClass("on");
-  });
+    $(".check-mark").balloon({position: "bottom right", css: {maxWidth: "300px"}, offsetX: -20, offsetY: -15});
+    $(".check-mark").on("mouseenter", function () {
+        $(this).addClass("on");
+    }).on("mouseleave", function () {
+        $(this).removeClass("on");
+    });
 </script>

@@ -972,13 +972,13 @@ def get_posts(request):
                 skype_username = post.user.profile.skype_username
             else:
                 skype_username = "Not Set."
-            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img></td><td class='post-content-right'>"
         else:
-           html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"'></img></td><td class='post-content-right'>"
+           html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img></td><td class='post-content-right'>"
         html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a><br>"
 
         if len(likes) > 0:
-            like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.jpg' class='like-button-image'></img>"
+            like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.png' class='like-button-image'></img>"
             if user_like == 1:
                 like_text += "You, "
             if len(likes) > 2:
@@ -998,11 +998,11 @@ def get_posts(request):
         else:
             like_text = ""
         if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
         else:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
         html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
-        html+="<a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             active = active_recent(comment.user)
             c_likes = CommunityLikes.objects.filter(comment=comment)
@@ -1011,11 +1011,11 @@ def get_posts(request):
             c_like_html=""
             html+="<table><tr><td>"
             if c_user_like == 1:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.jpg' class='like-button-image'></img>Unlike</a>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
             else:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.jpg' class='like-button-image'></img>Like</a>"
+                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
             if len(c_likes) > 0:
-                like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.jpg' class='like-button-image'></img>"
+                like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.png' class='like-button-image'></img>"
                 if c_user_like == 1:
                     like_text += "You, "
                 if len(c_likes) > 2:
@@ -1040,11 +1040,11 @@ def get_posts(request):
                     skype_username = comment.user.profile.skype_username
                 else:
                     skype_username = "Not Set."
-                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-id='"+str(post.user.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
             else:
-                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-id='"+str(post.user.id)+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a>"+like_text+"</td></tr></table>"
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a><a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-type='comment' data-content='"+comment.comment+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
@@ -1129,17 +1129,21 @@ def filter_at(content):
             x=s.find("@")
             try:
                 if x > -1:
-                    working = s[:x].split(' ', 2)
+                    working = s[:x].split(' ')
                 else:
-                    working = s.split(' ', 2)
+                    working = s.split(' ')
+                try:
+                    working.remove('')
+                except:
+                    None
                 working[1] = re.sub('[!.?,:)(]', '', working[1])
                 try:
-                    user = User.objects.get(first_name__startswith=working[0], last_name__startswith=working[1])
+                    user = User.objects.filter(first_name=working[0], last_name=working[1])[0]
                     addition = "<a class='in-comment-link' target='_blank' href = '../dashboard/"+str(user.id)+"'>"+working[0]+" "+working[1]+"</a>"
                     final=final.replace("@"+working[0]+" "+working[1], addition)
                 except Exception as e:
-                    tests+="Failed: "+str(e)
-            except:
+                    tests+="<br>Failed: "+str(e)
+            except Exception as e:
                 None
             string = s[x:]
     return final
