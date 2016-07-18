@@ -438,7 +438,7 @@ def report_get_rows(request):
     rs = reporting_store()
     collection = get_cache_collection(request)
     data = rs.get_page(collection, start, size, filters, sorts)
-    total = rs.get_count(collection)
+    total = rs.get_count(collection, filters)
 
     for d in data:
         row = []
@@ -462,10 +462,12 @@ def build_sorts_and_filters(columns, sorts, filters):
     """
     column = []
     data_type = {}
+    custom_filter = {}
     int_type = ['int', 'time']
     for i, col in enumerate(columns):
         column.append(col.column.column)
         data_type[col.column.column] = col.column.data_type
+        custom_filter[col.column.column] = col.column.custom_filter
 
     order = ['$natural', 1, 0]
     for col, sort in sorts.iteritems():
@@ -479,8 +481,11 @@ def build_sorts_and_filters(columns, sorts, filters):
 
     filter = {}
     for col, f in filters.iteritems():
-        reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
-        filter[column[int(col)]] = reg
+        if custom_filter[column[int(col)]] > 0:
+            filter[column[int(col)]] = f
+        else:
+            reg = {'$regex': '.*' + f + '.*', '$options': 'i'}
+            filter[column[int(col)]] = reg
     return order, filter
 
 
@@ -698,6 +703,27 @@ def report_get_progress(request):
     return render_json_response({'success': stats})
 
 
+def report_get_custom_filters(request, report_id):
+    """
+    Return the options of custom filters.
+    :param request: Request object.
+    :param Report object.
+    """
+    data = []
+    rs = reporting_store()
+    collection = get_cache_collection(request)
+    rs.set_collection(collection)
+    report = Reports.objects.get(id=report_id)
+    selected_columns = ReportViewColumns.objects.filter(report=report, column__custom_filter=1).order_by('order')
+    for col in selected_columns:
+        result = rs.collection.distinct(col.column.column)
+        data.append({
+            'items': sorted(result, cmp=None, key=None, reverse=True),
+            'index': col.order
+        })
+    return render_json_response({'data': data})
+
+
 @user_has_perms('reporting', ['administer', 'create_reports'])
 def related_views(request):
     """
@@ -789,7 +815,8 @@ def view_data(request):
                                         'name': column.name,
                                         'description': column.description,
                                         'source': column.column,
-                                        'type': column.data_type})
+                                        'type': column.data_type,
+                                        'custom_filter': column.custom_filter})
     else:
         data = {'success': False}
 
@@ -856,6 +883,7 @@ def view_add(request):
     column_sources = get_request_array(request.POST, 'column_source')
     column_types = get_request_array(request.POST, 'column_type')
     column_ids = get_request_array(request.POST, 'column_id')
+    column_custom_filter = get_request_array(request.POST, 'column_custom_filter')
     view_id = request.POST.get('view_id', False)
 
     error = list()
@@ -888,6 +916,7 @@ def view_add(request):
                 column.description = column_descriptions[i]
                 column.column = column_sources[i]
                 column.data_type = column_types[i]
+                column.custom_filter = column_custom_filter[i]
                 column.view = view
                 column.save()
         except Exception as e:

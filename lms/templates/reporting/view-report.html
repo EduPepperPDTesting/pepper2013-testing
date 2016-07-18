@@ -43,6 +43,8 @@
                     %for col in display_columns:
                         %if col.column.data_type in ['url', 'time']:
                             <th class="filter-false">${col.column.name}</th>
+                        %elif col.column.custom_filter > 0:
+                            <th class="filter-select" data-placeholder="Select an option">${col.column.name}</th>
                         %else:
                             <th>${col.column.name}</th>
                         %endif
@@ -226,6 +228,10 @@
                         obj.reloadTable()
                         clearInterval(obj.timeID);
                         loadwin.hide();
+                        $.post("${reverse('report_get_custom_filters',args=[report.id])}", function(data) {
+                            set_custome_filters($(".tblReport"), data.data);
+                        });
+
                     }
                 }
             });
@@ -269,5 +275,23 @@
                 $(".school_year_select").val("current");
             }
         }
+    }
+    
+    function set_custome_filters($table, data){
+        var selectSource = {};
+        for(var i = 0; i < data.length; i++)
+        {   
+            for(var j = 0; j < data[i].items.length; j++){
+                try{
+                    data[i].items[j] = "'" + data[i].items[j].replace(new RegExp("'","gm"),"&#39;") + "'";
+                }
+                catch(e){
+                    data[i].items[j] = "'" + data[i].items[j] + "'";
+                }
+            }
+           eval("selectSource[" + data[i].index + "] = function(table, column) {return [" + data[i].items + "]}")
+        }
+        $table[0].config.widgetOptions.filter_selectSource = selectSource;
+        $table.trigger("update");
     }
 </script>
