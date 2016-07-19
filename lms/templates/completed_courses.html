@@ -157,8 +157,8 @@
 
             %if course.id in show_courseware_links_for:
                 %if curr_user == request.user and not course.close_course:              
-				            <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-			          %else:
+                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+                %else:
                     <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
 
@@ -169,12 +169,10 @@
                 %endif                      
             %endif
 
-  	      % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+  	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
   	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
-              %if curr_user == request.user: 
-                  %if course.issue_certificate:     
-                      <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
-                  %endif
+              %if curr_user==request.user:      
+                  <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
                   <!--
                    % if course.hide_timer == False:
                     % if course.show_external_timer == False:
@@ -198,7 +196,7 @@
                   % endif
                   <!--end-->
               %endif
-  	      % endif
+  	    % endif
             </section>
           </article>
       % endfor
