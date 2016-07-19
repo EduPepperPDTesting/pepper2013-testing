@@ -269,6 +269,9 @@
     color:#ffffff;
 }
 
+.cke{
+    width: 100% !important;
+}
 .selected{
     background-color:white;
     padding-top: 16px !important;
@@ -472,13 +475,13 @@ div.card-bottom table tr:nth-child(2) {
     opacity: 1;
     z-index: 101;
     left: 50%;
-    margin-left: -349px;
+    margin-left: -349px !important;
     top: 40px;
     background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
     border-radius: 5px;
     box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
     padding: 0 0 8px 0;
-    width: 680px;
+    width: 680px !important;
     display: none;
 }
 #fixed-dialog, #fixed-dialog-likes, #fixed-dialog-share, #skype-dialog {
