@@ -1,3 +1,5 @@
+from django.conf import settings
+from mail import send_html_mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django import db
@@ -345,6 +347,8 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                 audit.create_date = datetime.utcnow()
                 audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
                 audit.save()
+            else:
+                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
     for member in CommunityUsers.objects.filter(community=community_id):
         process(member.user, "Delete Course", courses_del)
