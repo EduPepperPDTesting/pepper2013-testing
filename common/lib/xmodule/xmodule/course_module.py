@@ -411,6 +411,11 @@ class CourseFields(object):
     close_course = Boolean(help="True if this course closed", default=False, scope=Scope.settings)
     #@end
 
+    #@begin:Issue Certificate
+    #@date:2016-07-13
+    issue_certificate = Boolean(help="True issue the digital certificate", default=True, scope=Scope.settings)
+    #@end
+
     display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
     
     display_credit = Boolean(help="credit", default=True, scope=Scope.settings)
