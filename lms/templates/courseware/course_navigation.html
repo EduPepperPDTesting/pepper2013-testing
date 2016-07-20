@@ -74,50 +74,50 @@ def url_class(tab):
   <div class="inner-wrapper">
     <ol class="course-tabs">
       % for tab in get_course_tabs(user, course, active_page):
-      % if portfolio_user == user and request.GET.get('pf_id')==None or portfolio_user == None and request.GET.get('pf_id')==None or portfolio_user.id == user.id:
-          <!--20151124 use new parameter "hide_discussions" to judge whether show "Discussion" in course navigation-->
-          <!--begin-->
-          <li>
-            % if tab.name!='Discussion' or tab.name=='Discussion' and not course.hide_discussions:
-              <a href="${tab.link | h}" class="${url_class(tab)}">
-              ${tab.name | h}
-              % if tab.is_active == True:
-                  <span class="sr">, current location</span> 
+          % if (portfolio_user == user and request.GET.get('pf_id') == None or portfolio_user == None and request.GET.get('pf_id') == None or portfolio_user.id == user.id) and not course.close_course:
+              <!--20151124 use new parameter "hide_discussions" to judge whether show "Discussion" in course navigation-->
+              <!--begin-->
+              <li>
+              % if tab.name!='Discussion' or tab.name=='Discussion' and not course.hide_discussions:
+                  <a href="${tab.link | h}" class="${url_class(tab)}">
+                  ${tab.name | h}
+                  % if tab.is_active == True:
+                      <span class="sr">, current location</span> 
+                  %endif
+                  % if tab.has_img == True:
+                      <img src="${tab.img}"/> 
+                  %endif
+                  </a>
               %endif
-              % if tab.has_img == True:
-                  <img src="${tab.img}"/> 
+              </li>
+              <!--end-->
+          %else:
+              %if tab.name=='My Course Portfolio':
+                  <li>
+                  <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab)}">
+                  ${tab.name | h}
+                  % if tab.is_active == True:
+                      <span class="sr">, current location</span> 
+                  %endif
+                  % if tab.has_img == True:
+                      <img src="${tab.img}"/> 
+                  %endif
+                  </a>
+                  </li>
+              %else:
+                  <li>
+                  <a href="javascript:void(0);" disabled="disabled" style="color:#A4A4A4">
+                  ${tab.name | h}
+                  % if tab.is_active == True:
+                      <span class="sr">, current location</span> 
+                  %endif
+                  % if tab.has_img == True:
+                      <img src="${tab.img}"/> 
+                  %endif
+                  </a>
+                  </li>
               %endif
-              </a>
-            %endif
-          </li>
-          <!--end-->
-      %else:
-        %if tab.name=='My Course Portfolio':
-          <li>
-          <a href="${tab.link | h}?pf_id=${portfolio_user.id}" class="${url_class(tab)}">
-            ${tab.name | h}
-            % if tab.is_active == True:
-                <span class="sr">, current location</span> 
-            %endif
-            % if tab.has_img == True:
-                <img src="${tab.img}"/> 
-            %endif
-          </a>
-      </li>
-        %else:
-          <li>
-          <a href="javascript:void(0);" disabled="disabled" style="color:#A4A4A4">
-            ${tab.name | h}
-            % if tab.is_active == True:
-                <span class="sr">, current location</span> 
-            %endif
-            % if tab.has_img == True:
-                <img src="${tab.img}"/> 
-            %endif
-          </a>
-      </li>
-        %endif
-      %endif
+          %endif
       % endfor
     
     <%block name="extratabs" />

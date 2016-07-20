@@ -24,7 +24,7 @@
             course_target = reverse('courseware', args=[course.id])
           %>
           % if course.id in show_courseware_links_for:
-          %if curr_user==request.user:
+          %if curr_user == request.user and not course.close_course:
             <a href="${course_target}" class="cover">
           %else:
             <a href="" class="cover" style="cursor:default;" onclick="return false;">
@@ -44,7 +44,7 @@
               <h2 class="university">${get_course_about_section(course, 'university')}</h2>
               <h3>
                 % if course.id in show_courseware_links_for:
-                %if curr_user==request.user:
+                %if curr_user == request.user and not course.close_course:
                   <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
                 %else:
                   <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
@@ -156,21 +156,25 @@
                 <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
 
             %if course.id in show_courseware_links_for:
-                %if curr_user==request.user:              
-				<a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
-			    %else:
-                <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                %if curr_user == request.user:              
+                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
+                %else:
+                    <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
 
-                %if curr_user==request.user:      
-                <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %if curr_user == request.user and not course.close_course:      
+                    <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                %else:
+                    <div style="width:150px;height:40px;float:left;margin-top:16px;"></div>
                 %endif                      
             %endif
 
   	    % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
   	      <!-- Only show the Email Settings link/modal if this course has bulk email feature enabled -->
-              %if curr_user==request.user:      
-                  <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
+              %if curr_user==request.user:
+                  %if course.issue_certificate:      
+                      <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank" class="enter-course dashboard-btn1" style="margin-left:10px;float:right;">${_('Download Your PDF Certificate')}</a>
+                  %endif
                   <!--
                    % if course.hide_timer == False:
                     % if course.show_external_timer == False:
