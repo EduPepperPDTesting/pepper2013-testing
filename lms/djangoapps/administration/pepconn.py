@@ -15,7 +15,7 @@ from django.db.models import Q
 # from django.contrib.auth.models import User
 from student.models import UserProfile, Registration, CourseEnrollmentAllowed
 # from django import db
-import random
+from pepper_utilities.utils import random_mark
 import json
 # import time
 import logging
@@ -84,11 +84,6 @@ def render_from_string(template_string, dictionary, context=None, namespace='mai
     # fetch and render template
     raw_template = Template(template_string)
     return raw_template.render_unicode(**context_dictionary)
-
-
-def random_mark(length):
-    assert(length > 0)
-    return "".join(random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
 
 
 def paging(all, size, page):

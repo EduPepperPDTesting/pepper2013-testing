@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from django.core.validators import validate_slug, ValidationError
 import datetime
 import json
-import random
+from pepper_utilities.utils import random_mark
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from saml2.client import Saml2Client
@@ -307,11 +307,6 @@ def https_redirect(request, url):
     return HttpResponseRedirect(new_URL)
 
 
-def random_mark(length):
-    return "".join(
-        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))
-
-
 def create_unknown_user(request, ms, data):
     """Create the sso user who does not exist in pepper"""
 
@@ -324,10 +319,6 @@ def create_unknown_user(request, ms, data):
             mapped_name = attr['map'] if 'map' in attr else attr['name']
             if attr['name']:
                 parsed_data[mapped_name] = data.get(attr['name'])
-
-        # print attribute_setting
-        # print data
-        # print parsed_data
 
         # Generate username if not provided
         if not parsed_data.get('username'):
