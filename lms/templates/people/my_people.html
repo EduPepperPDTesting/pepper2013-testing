@@ -292,15 +292,16 @@
           </span> 
 
           <span class="name_text">${profile['username']}</span>
-          
-              %if profile['cohort_id'] and profile['school_id']:
-              <%
-              school=School.objects.get(id=profile['school_id'])
-              district=District.objects.get(id=profile['district_id'])
-              %>
-              <span class="name_text">${school.name} <br/> ${district.name}</span>
-              %endif
-
+          <span class="name_text">
+            %if profile['school_id']:
+              <% school=School.objects.get(id=profile['school_id']) %>
+              ${school.name}
+              <br/>
+            %endif
+            %if profile['district_id']:
+              <% district=District.objects.get(id=profile['district_id']) %>
+              ${district.name}
+            %endif
           </span>
         </span>
 		<div class="btn_container">
