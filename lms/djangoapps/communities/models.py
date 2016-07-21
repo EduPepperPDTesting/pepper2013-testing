@@ -112,6 +112,7 @@ class CommunityPosts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.TextField(blank=False, max_length=255, db_index=False)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+    date_update = models.DateTimeField(auto_now_add=True, db_index=False)
 
 
 class CommunityComments(models.Model):

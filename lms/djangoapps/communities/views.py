@@ -955,8 +955,20 @@ def get_posts(request):
     size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     html = ""
-    posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
-    id=-1
+    filter = request.POST.get('filter')
+    if filter == "newest_post":
+        posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
+    elif filter == "oldest_post":
+        posts = CommunityPosts.objects.filter(community=c).order_by('date_create')[0:size]
+    elif filter == "latest_reply":
+        posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:size]
+    elif filter == "oldest_reply":
+        posts = CommunityPosts.objects.filter(community=c).order_by('date_update')[0:size]
+    elif filter == "alphabetical":
+        posts = CommunityPosts.objects.filter(community=c).order_by('-user__last_name')[0:size]
+    elif filter == "reversealpha":
+        posts = CommunityPosts.objects.filter(community=c).order_by('user__last_name')[0:size]
+
     usr_img=reverse('user_photo', args=[request.user.id])
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
@@ -1052,7 +1064,10 @@ def get_posts(request):
 
 def submit_new_comment(request):
     comment = CommunityComments()
-    comment.post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
+    post.date_update = datetime.datetime.now()
+    post.save()
+    comment.post = post
     comment.user = User.objects.get(id=request.user.id)
     comment.comment = request.POST.get('content')
     comment.save()

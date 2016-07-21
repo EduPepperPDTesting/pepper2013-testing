@@ -47,6 +47,15 @@ import datetime
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
+                        Filter:
+                        <select id = "post_filter_select">
+                            <option value = 'newest_post'>Newest Posts</option>
+                            <option value = 'oldest_post'>Oldest Posts</option>
+                            <option value = 'latest_reply'>Latest Reply</option>
+                            <option value = 'oldest_reply'>Oldest Reply</option>
+                            <option value = 'alphabetical'>Name (A-Z)</option>
+                            <option value = 'reversealpha'>Name (Z-A)</option>
+                        </select>
                         <table id="post_content_table">
                             <tr class="post-content-row" id="post_content_new_row">
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
@@ -685,9 +694,10 @@ import datetime
         });
     }
     function getPosts(){
-        filter = "New";
+        filter = $("#post_filter_select").val()
+        console.log(filter)
         var community=${community.id};
-        $.post("${reverse('community_get_posts')}", {community_id: community, size:size}, function (data){
+        $.post("${reverse('community_get_posts')}", {community_id: community, size:size, filter:filter}, function (data){
             $("#post_content_table").find("tr:gt(0)").remove();
             $('#post_content_table tr:last').after(data.post);
             $(".post-like-text").click(function(){
@@ -789,6 +799,9 @@ import datetime
     }
     $(document).ready(function(){
         size=10;
+        $("#post_filter_select").change(function(){
+            getPosts();
+        });
         getPosts();
 
         $(".small").click(function(){
