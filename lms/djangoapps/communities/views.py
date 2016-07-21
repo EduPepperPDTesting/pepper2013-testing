@@ -8,6 +8,7 @@ import json
 import re
 import logging
 import datetime
+from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
 from .models import CommunityComments, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
@@ -949,6 +950,19 @@ def get_full_likes(request):
         html += " <tr><td><img src='"+reverse('user_photo', args=[like.user.id])+"' width='24px'></img></td><td>"+like.user.first_name + " " + like.user.last_name + "</td></tr>"
     html += "</table>"
     return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
+
+
+def email_expert(request):
+    sub = request.POST.get('subject')
+    message = request.POST.get('message')
+    to = request.POST.get('facilitator')
+    result=""
+    try:
+        send_mail(sub, message, 'from@example.com', ['mike.a.minnick@gmail.com', to], fail_silently=False)
+        result="Mail sent successfully!"
+    except:
+        result="There was a problem sending the message."
+    return HttpResponse(json.dumps({'Subject': sub, 'Message': message, 'result':result,'to':to}), content_type='application/json')
 
 
 def get_posts(request):

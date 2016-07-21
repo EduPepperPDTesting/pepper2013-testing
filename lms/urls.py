@@ -337,6 +337,7 @@ urlpatterns = (
     url(r'^community/post/get$', 'communities.views.get_posts', name='community_get_posts'),
     url(r'^community/post/comment', 'communities.views.submit_new_comment', name='community_submit_new_comment'),
     url(r'^community/post/lookup', 'communities.views.lookup_name', name='community_lookup_name'),
+    url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),

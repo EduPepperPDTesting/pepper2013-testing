@@ -61,7 +61,7 @@ import datetime
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <input type="button" class="small" style="float: right;position: relative;" value="Post"></input>
+                                    <input id = "submit_new_post_button" type="button" class="small" style="float: right;position: relative;" value="Post"></input>
                                 </td>
                             </tr>
                             <!--<tr class="post-content-row">
@@ -198,6 +198,13 @@ import datetime
                     <span class="status-name">Discussions: ${total_discussions}</span>
                     <!--<span class="trending-name">Messages: </span>-->
                     <span class="status-name">Members: ${users.count()}</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h2>Ask an Expert</h2>
+                <div class="sidebar-sub-section">
+                    <span class="status-name">Ask a question of your community facilitator.</span>
+                    <input type="button" class="small" id="ask_an_expert_button" onclick="askAnExpert()" value="Ask Question"></input>
                 </div>
             </div>
             <div class="sidebar-section">
@@ -473,6 +480,29 @@ import datetime
             alert(error);
         }
         return valid;
+    }
+    function askAnExpert(){
+
+        var content = '<form id="new-expert-submit" action="${reverse('community_ask_an_expert')}" method="post" enctype="multipart/form-data">';
+        content += '<label class="expert-subject">Subject:<input id="ask_expert_subject" type="text" name="subject"></label>';
+        content += '<label class="expert-message">Message:<textarea name="expert_message" id="expert_message"></textarea></label>';
+        content += '</div>';
+        content += '<input id="facilitator_email" type="hidden" value="${facilitator.user.email}" name="facilitator_email"><br>';
+        content += '<input type="submit" name="submit" value="Send Question">';
+        content += '</form><div class="expert-error"></div>';
+        var ask_dialog = new Dialog($('#dialog'));
+        ask_dialog.show('New Question', content);
+        CKEDITOR.replace('expert_message');
+         $('#new-expert-submit').submit(function(event) {
+            event.preventDefault();
+             for (var instanceName in CKEDITOR.instances) {
+                CKEDITOR.instances[instanceName].updateElement();
+            }
+             $.post("${reverse('community_ask_an_expert')}", {facilitator: $("#facilitator_email").val(), message:$("#expert_message").val(), subject: $("#ask_expert_subject").val()}, function(data){
+                $(".expert-error").html(data.result)
+             });
+         });
+
     }
     function newDiscussion() {
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
@@ -804,7 +834,8 @@ import datetime
         });
         getPosts();
 
-        $(".small").click(function(){
+        
+        $("#submit_new_post_button").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
             $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community}, function (data) {
