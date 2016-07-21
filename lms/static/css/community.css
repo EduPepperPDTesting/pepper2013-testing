@@ -308,6 +308,12 @@
     margin-right:4px;
     margin-left:4px;
 }
+.admin-dropdown-menu{
+    text-align: left;
+}
+.info_list{
+    text-align: left;
+}
 .filter-word-label{
     font-weight: bold;
 }
