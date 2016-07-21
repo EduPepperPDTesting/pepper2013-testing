@@ -308,6 +308,9 @@
     margin-right:4px;
     margin-left:4px;
 }
+.filter-word-label{
+    font-weight: bold;
+}
 .discussion h2 {
     margin-bottom: 5px;
     width: 350px;
