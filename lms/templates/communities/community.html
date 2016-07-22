@@ -44,7 +44,6 @@ import datetime
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
                     <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
-                    <h1 id="community_content_header_search" class="section-tab search-tab community-content-header-object">Search</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -113,17 +112,6 @@ import datetime
                             <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
                         %endif
                     </div>
-                </div>
-            </div>
-            <div id="community_content_search" class="community-content-section" style="display:none">
-                <div id="search_content" class="search-content-div">
-                    <label>Search: </label>
-                    <input type="text" id="search_query" class="search-text-input"></input>
-                    <button id="submit_search_query" class="search-submit-button">Submit</button>
-                    <br><br><br><hr>
-                </div>
-                <div id="search_results" class="search-results-div">
-
                 </div>
             </div>
             <!--<div id="community-discussions">
@@ -891,12 +879,8 @@ import datetime
            $("#add_images_div").toggle();
         });
         getPosts();
-        $("#submit_search_query").click(function(){
-            var query = $("#search_query").val();
-            $.post("${reverse('community_submit_new_search')}", {query: query, cid: '${community.id}'}, function (data) {
-                $("#search_results").html(data.result);
-            });
-        });
+
+        
         $("#submit_new_post_button").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
@@ -933,37 +917,19 @@ import datetime
                 $("#community_content_header_discussions").addClass("selected");
                 change_var = 0;
            }
-            $("#communiy_content_search").hide();
-            $("#community_content_header_search").removeClass("selected");
-
         });
 
         $("#community_content_header_posts").click(function(){
             $("#community_content_discussions").hide();
-            $("#community_content_search").hide();
             $("#community_content_posts").show();
             $("#community_content_header_posts").addClass("selected");
-            $("#community_content_header_search").css("margin-top", "12px");
             $("#community_content_header_discussions").removeClass("selected");
-            $("#community_content_header_discussions").css("margin-top", "4px");
         });
         $("#community_content_header_discussions").click(function(){
             $("#community_content_posts").hide();
             $("#community_content_discussions").show();
-            $("#community_content_search").hide();
             $("#community_content_header_posts").removeClass("selected");
-            $("#community_content_header_search").css("margin-top", "12px");
             $("#community_content_header_discussions").addClass("selected");
-            $("#community_content_header_discussions").css("margin-top", "4px");
-        });
-        $("#community_content_header_search").click(function(){
-            $("#community_content_posts").hide();
-            $("#community_content_discussions").hide();
-            $("#community_content_search").show();
-            $("#community_content_header_posts").removeClass("selected");
-            $("#community_content_header_discussions").removeClass("selected");
-            $("#community_content_header_search").css("margin-top", "4px");
-            $("#community_content_header_discussions").css("margin-top", "12px");
         });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();
