@@ -1024,9 +1024,9 @@ def get_posts(request):
         else:
             like_text = ""
         if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
         else:
-            html+="<div id='post_textarea' class='post-textarea'>"+post.post+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
         html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
         html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:

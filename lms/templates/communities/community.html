@@ -766,6 +766,42 @@ import datetime
                     getPosts();
                 });
             });
+            $('.new-post-textarea').keyup(function (e) {
+                $("#select_name").remove();
+                if (e.keyCode === 13) {
+                    content=$(this).val();
+                    post_id=$(this).data('id')
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                        getPosts();
+                    });
+                }
+                var n = $(this)[0].selectionStart;
+                var at = $(this).val().indexOf("@");
+                if(at > -1){
+                    var str = $(this).val().substr(at);
+                    var x = str.length;
+                    for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+
+                        s = s.substr(1);
+                        x = s.indexOf("@");
+                        if(x>-1)
+                            working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+                        else
+                            working = s.substr(0).split(' ').slice(0,2).join(' ');
+                    }
+                    loc = $(this).val().indexOf(working);
+                    if(n > loc && n <= working.length+loc) {
+                        $.post("${reverse('community_lookup_name')}", {name: working}, function(data){
+                            if(data.content.length > 0) {
+                                displayOptions(data.content);
+                            }
+                        });
+                    }
+
+                }
+            });
+
+
             $('.add-comment-text').keyup(function (e) {
                 $("#select_name").remove();
                 if (e.keyCode === 13) {
