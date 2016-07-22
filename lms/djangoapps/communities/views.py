@@ -11,7 +11,7 @@ import datetime
 from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
-from .models import CommunityComments, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
 from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
@@ -1023,10 +1023,17 @@ def get_posts(request):
             like_text += "</a>"
         else:
             like_text = ""
+        images = CommunityPostsImages.objects.filter(post=post)
+        img_code = ""
+        for img in images:
+            if img.embed:
+                img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
+            else:
+                img_code += "<p><a style='word-wrap: break-word;' href='" + img.link + "'>" + img.link + "</a></p>"
         if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
         else:
-            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
+            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
         html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
         html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
@@ -1129,6 +1136,14 @@ def submit_new_post(request):
     post.user = User.objects.get(id=request.user.id)
     post.post = request.POST.get('post')
     post.save()
+    if request.POST.get('include_images') == "yes":
+        images = request.POST.get('images').split(',')
+        for image in images:
+            img = CommunityPostsImages()
+            img.post = post
+            img.link = image
+            img.embed = int(request.POST.get('embed'))
+            img.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
 
 
@@ -1192,3 +1207,27 @@ def active_recent(user):
     else:
         active = False
     return active
+
+
+def submit_new_search(request):
+    text = request.POST.get('query')
+    posts_t = ""
+    comments_t = ""
+    disc_t = ""
+    subs_t = ""
+    cid = CommunityCommunities.objects.get(id=request.POST.get('cid'))
+    result = ""
+    posts = CommunityPosts.objects.filter(community=cid,post__icontains=text)
+    for post in posts:
+        result += "Post ID: " + str(post.id) + "<br>"
+        posts_t += "<a href = '"
+        comments = CommunityComments.objects.filter(post=post)
+        for comment in comments:
+            result += "Comment ID: " + str(comment.id) + "<br>"
+    discussions = CommunityDiscussions.objects.filter(community=cid,post__icontains=text)
+    for disc in discussions:
+        result += "Disc Content Match ID: " + str(disc.id) + "<br>"
+    subjects = CommunityDiscussions.objects.filter(community=cid,subject__icontains=text)
+    for sub in subjects:
+        result += "Disc Subject Match ID: " + str(sub.id) + "<br>"
+    return HttpResponse(json.dumps({'Success': 'True', 'result': result}), content_type='application/json')

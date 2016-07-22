@@ -115,6 +115,14 @@ class CommunityPosts(models.Model):
     date_update = models.DateTimeField(auto_now_add=True, db_index=False)
 
 
+class CommunityPostsImages(models.Model):
+    class Meta:
+        db_table = 'community_posts_images'
+    post = models.ForeignKey(CommunityPosts, on_delete=models.CASCADE)
+    link = models.TextField(blank=False, max_length=1024, null=False)
+    embed = models.BooleanField(blank=False, default=1)
+
+
 class CommunityComments(models.Model):
     class Meta:
         db_table = 'community_posts_comments'
