@@ -44,6 +44,7 @@ import datetime
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
                     <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
+                    <h1 id="community_content_header_search" class="section-tab search-tab community-content-header-object">Search</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -61,7 +62,12 @@ import datetime
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <input id = "submit_new_post_button" type="button" class="small" style="float: right;position: relative;" value="Post"></input>
+                                    <a href = "#" id = "add_post_image">Add Image Links</a><input id = "submit_new_post_button" type="button" class="small" style="float: right;position: relative;" value="Post"></input>
+                                    <div style="display:none" id = "add_images_div">
+                                        <br>
+                                        <input id="image_link_input" type="text" placeholder = "Enter Image Link Here">
+                                        <input id="embed_checkbox" style = "margin-top:10px" type = "checkbox">Embed
+                                    </div>
                                 </td>
                             </tr>
                             <!--<tr class="post-content-row">
@@ -107,6 +113,17 @@ import datetime
                             <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
                         %endif
                     </div>
+                </div>
+            </div>
+            <div id="community_content_search" class="community-content-section" style="display:none">
+                <div id="search_content" class="search-content-div">
+                    <label>Search: </label>
+                    <input type="text" id="search_query" class="search-text-input"></input>
+                    <button id="submit_search_query" class="search-submit-button">Submit</button>
+                    <br><br><br><hr>
+                </div>
+                <div id="search_results" class="search-results-div">
+
                 </div>
             </div>
             <!--<div id="community-discussions">
@@ -869,13 +886,30 @@ import datetime
         $("#post_filter_select").change(function(){
             getPosts();
         });
+        $("#add_post_image").click(function(e){
+            e.preventDefault();
+           $("#add_images_div").toggle();
+        });
         getPosts();
-
-        
+        $("#submit_search_query").click(function(){
+            var query = $("#search_query").val();
+            $.post("${reverse('community_submit_new_search')}", {query: query, cid: '${community.id}'}, function (data) {
+                $("#search_results").html(data.result);
+            });
+        });
         $("#submit_new_post_button").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
-            $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community}, function (data) {
+            var images = $("#image_link_input").val()
+            var include_var = "no"
+            if (images != ""){
+                include_var = "yes";
+            }
+            var embed = 0;
+            if ($("#embed_checkbox").is(":checked")){
+                embed = 1;
+            }
+            $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community, include_images:include_var, embed:embed, images:images }, function (data) {
                 $("#new_post_textarea").val("");
                 getPosts();
             });
@@ -899,19 +933,37 @@ import datetime
                 $("#community_content_header_discussions").addClass("selected");
                 change_var = 0;
            }
+            $("#communiy_content_search").hide();
+            $("#community_content_header_search").removeClass("selected");
+
         });
 
         $("#community_content_header_posts").click(function(){
             $("#community_content_discussions").hide();
+            $("#community_content_search").hide();
             $("#community_content_posts").show();
             $("#community_content_header_posts").addClass("selected");
+            $("#community_content_header_search").css("margin-top", "12px");
             $("#community_content_header_discussions").removeClass("selected");
+            $("#community_content_header_discussions").css("margin-top", "4px");
         });
         $("#community_content_header_discussions").click(function(){
             $("#community_content_posts").hide();
             $("#community_content_discussions").show();
+            $("#community_content_search").hide();
             $("#community_content_header_posts").removeClass("selected");
+            $("#community_content_header_search").css("margin-top", "12px");
             $("#community_content_header_discussions").addClass("selected");
+            $("#community_content_header_discussions").css("margin-top", "4px");
+        });
+        $("#community_content_header_search").click(function(){
+            $("#community_content_posts").hide();
+            $("#community_content_discussions").hide();
+            $("#community_content_search").show();
+            $("#community_content_header_posts").removeClass("selected");
+            $("#community_content_header_discussions").removeClass("selected");
+            $("#community_content_header_search").css("margin-top", "4px");
+            $("#community_content_header_discussions").css("margin-top", "12px");
         });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();

@@ -328,6 +328,9 @@
     float: left;
     width: 463px;
 }
+.img-span-code > img{
+    margin-top: 10px;
+}
 .discussion-post-info div {
     display: inline-block;
 }
@@ -766,6 +769,7 @@ div.card-bottom table tr:nth-child(2) {
     padding-bottom: 8px;
     margin-bottom: 2px;
     width: 100%;
+    max-width: 440px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
