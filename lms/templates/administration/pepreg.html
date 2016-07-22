@@ -30,6 +30,35 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+
+<script type="text/javascript" src="/static/js/mapbox-gl.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl.css"/>
+<script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="/static/css/mapbox-gl-directions.css"/>
+
+<style>
+    input[type="button"], button, .button {
+        box-shadow: none !important;
+    }
+
+    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
+        margin: 0 0 50px 10px !important;
+    }
+
+    .mapbox-directions-route-summary {
+        position: absolute !important;
+    }
+
+    .directions-control.directions-control-inputs {
+        left: 5px !important;
+        top: 5px !important;
+    }
+
+    .ui-autocomplete {
+        z-index: 100000 !important;
+    }
+</style>
+
 <div class="data_import_bottom">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse">
@@ -166,9 +195,9 @@
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
         <div class="content" id="map_show"
-             style="height:500px;position:relative;background:#fff;padding:10px;border-radius:0;"></div>
+             style="width:800px; height:500px;position:relative;background:#fff;padding:10px;border-radius:0;"></div>
         <input type="hidden" name="training_id" value="" style="width:400px"/>
-        <a href="#" class="print-map">Print</a>
+        <a href="#" class="print-map" st1yle="margin-left:30px;">Print</a>
     </div>
 </div>
 <div class="modal" id="dlg-students" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
@@ -403,6 +432,7 @@
     </script>
 %endif
 <script type="text/javascript">
+	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);
         var meridian = apart.pop();
@@ -427,12 +457,25 @@
             attribution: '',
             id: 'mapbox.streets'
         }).addTo(this.map_edit);
-        this.map_show = L.map('map_show');
+         // ***map_show***
+        mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
+        map_show = new mapboxgl.Map({
+            container: 'map_show',
+            style: 'mapbox://styles/mapbox/streets-v8',
+            zoom: 18
+        });
+        map_show_directions = new mapboxgl.Directions({
+            container: 'map_show'
+        });
+        map_show.addControl(map_show_directions);	//控件
+        map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
+		
+		/*this.map_show = L.map('map_show');
         L.tileLayer(url_tile_layer, {
             maxZoom: 18,
             attribution: '',
             id: 'mapbox.streets'
-        }).addTo(this.map_show);
+        }).addTo(this.map_show);*/
     }
     PepReg.prototype.initContent = function () {
         this.initFilter();
@@ -979,8 +1022,45 @@
         });
     };
     PepReg.prototype.showMap = function (props, training_id) {
-        this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
         new Dialog($("#dlg-map")).show();
+        //this.markPlace(this.map_show, props.lat, props.lon, 15, training_id);
+        $(map_show._container).next("input[name=geo_props]").val(JSON.stringify({lat: props.lat, lon: props.lon}));
+        $(map_show._container).next("input[name=training_id]").val(training_id);
+        map_show.resize();
+        map_show.setZoom(12);
+        $("#map_show").find(".mapboxgl-canvas").css("left", 0);
+        $("#map_show").find(".mapboxgl-canvas").css("top", 0);
+
+        map_show.setCenter([props.lon, props.lat]);
+
+        $(".js-destination-clear,.js-origin-clear").click();
+        map_show_directions.setDestination(props.geo_location);
+        //map_show_directions.setOrigin(props.geo_location);
+        //map_show_directions.setOrigin(null);
+
+        //-----------------------
+        if (flag_input_js_origin) {
+            flag_input_js_origin = false;
+
+            var input_js_origin = $("#dlg-map").find("input[class=js-origin]");
+            var input_js_origin_hits = {};
+            $(input_js_origin).autocomplete({
+                select: function (e, item) {
+                    map_show_directions.setOrigin($(input_js_origin).val());
+                },
+                source: function (request, response) {
+                    $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1', {q: $(input_js_origin).val()}, function (r) {
+                        var data = [];
+                        input_js_origin_hits = r;
+                        $.each(r, function (i, v) {
+                            data.push(v.display_name);
+                            input_js_origin_hits[v.display_name] = v;
+                        });
+                        response(data);
+                    });
+                }
+            });
+        }
     };
     PepReg.prototype.initTable = function () {
         var self = this;
@@ -1048,8 +1128,9 @@
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
                     $(this).click(function () {
-                        var props = JSON.parse($(this).find("input").val());
-                        self.showMap(props, training_id);
+						window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
+                        //var props = JSON.parse($(this).find("input").val());
+                        //self.showMap(props, training_id);
                     });
                 }
                 // var state='${request.user.profile.district.state.name} United States';
@@ -1200,8 +1281,8 @@
         $(".expand_title").click();
         $(".print-map").click(function (e) {
             e.preventDefault();
-            var training_id = $(this).parent().find("input[name=training_id]").val();
-            window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
+           /* var training_id = $(this).parent().find("input[name=training_id]").val();
+            window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');*/
             /* var w = window.open();
                var content = $('#map_show').html();
                w.document.write('<html><head><title>Copy Printed</title></head><body>' + content  + '</body></html>');
