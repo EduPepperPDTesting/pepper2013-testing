@@ -760,6 +760,17 @@ div.card-bottom table tr:nth-child(2) {
 .post-like-text:hover{
     cursor: pointer;
 }
+.delete-something{
+    float: right;
+    margin-right: 10px;
+}
+.comment-delete{
+    float:none;
+    margin-left:10px !important;
+}
+.delete-something:hover{
+    cursor: pointer;
+}
 .post-textarea{
     border: none;
     resize: none;

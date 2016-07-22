@@ -338,6 +338,8 @@ urlpatterns = (
     url(r'^community/post/comment', 'communities.views.submit_new_comment', name='community_submit_new_comment'),
     url(r'^community/post/lookup', 'communities.views.lookup_name', name='community_lookup_name'),
     url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
+    url(r'^community/delete/comment', 'communities.views.delete_comment', name='community_delete_comment'),
+    url(r'^community/delete/post', 'communities.views.delete_post', name='community_delete_post'),
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
