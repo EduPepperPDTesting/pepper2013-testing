@@ -979,10 +979,13 @@ def get_posts(request):
     elif filter == "oldest_reply":
         posts = CommunityPosts.objects.filter(community=c).order_by('date_update')[0:size]
     elif filter == "alphabetical":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-user__last_name')[0:size]
-    elif filter == "reversealpha":
         posts = CommunityPosts.objects.filter(community=c).order_by('user__last_name')[0:size]
-
+    elif filter == "reversealpha":
+        posts = CommunityPosts.objects.filter(community=c).order_by('-user__last_name')[0:size]
+    elif filter == "alphauname":
+        posts = CommunityPosts.objects.filter(community=c).order_by('user__username')[0:size]
+    elif filter == "ralphauname":
+        posts = CommunityPosts.objects.filter(community=c).order_by('-user__username')[0:size]
     usr_img=reverse('user_photo', args=[request.user.id])
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
@@ -1207,27 +1210,3 @@ def active_recent(user):
     else:
         active = False
     return active
-
-
-def submit_new_search(request):
-    text = request.POST.get('query')
-    posts_t = ""
-    comments_t = ""
-    disc_t = ""
-    subs_t = ""
-    cid = CommunityCommunities.objects.get(id=request.POST.get('cid'))
-    result = ""
-    posts = CommunityPosts.objects.filter(community=cid,post__icontains=text)
-    for post in posts:
-        result += "Post ID: " + str(post.id) + "<br>"
-        posts_t += "<a href = '"
-        comments = CommunityComments.objects.filter(post=post)
-        for comment in comments:
-            result += "Comment ID: " + str(comment.id) + "<br>"
-    discussions = CommunityDiscussions.objects.filter(community=cid,post__icontains=text)
-    for disc in discussions:
-        result += "Disc Content Match ID: " + str(disc.id) + "<br>"
-    subjects = CommunityDiscussions.objects.filter(community=cid,subject__icontains=text)
-    for sub in subjects:
-        result += "Disc Subject Match ID: " + str(sub.id) + "<br>"
-    return HttpResponse(json.dumps({'Success': 'True', 'result': result}), content_type='application/json')
