@@ -1047,7 +1047,9 @@ def get_posts(request):
         images = CommunityPostsImages.objects.filter(post=post)
         img_code = ""
         for img in images:
-            if img.embed:
+            if "youtube" in img.link:
+                img_code += "<br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+            elif img.embed:
                 img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
             else:
                 img_code += "<p><a style='word-wrap: break-word;' href='" + img.link + "'>" + img.link + "</a></p>"
@@ -1164,11 +1166,13 @@ def submit_new_post(request):
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
         for image in images:
-            img = CommunityPostsImages()
-            img.post = post
-            img.link = image
-            img.embed = int(request.POST.get('embed'))
-            img.save()
+            ext = image[-3:]
+            if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image):
+                img = CommunityPostsImages()
+                img.post = post
+                img.link = image
+                img.embed = int(request.POST.get('embed'))
+                img.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
 
 
