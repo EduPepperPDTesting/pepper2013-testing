@@ -482,7 +482,7 @@ import datetime
         return valid;
     }
     function askAnExpert(){
-
+        window.scrollTo(0,110);
         var content = '<form id="new-expert-submit" action="${reverse('community_ask_an_expert')}" method="post" enctype="multipart/form-data">';
         content += '<label class="expert-subject">Subject:<input id="ask_expert_subject" type="text" name="subject"></label>';
         content += '<label class="expert-message">Message:<textarea name="expert_message" id="expert_message"></textarea></label>';
@@ -500,6 +500,7 @@ import datetime
             }
              $.post("${reverse('community_ask_an_expert')}", {facilitator: $("#facilitator_email").val(), message:$("#expert_message").val(), subject: $("#ask_expert_subject").val()}, function(data){
                 $(".expert-error").html(data.result)
+                 ask_dialog.hide();
              });
          });
 
