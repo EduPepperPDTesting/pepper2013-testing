@@ -63,7 +63,7 @@ import datetime
                                 <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
                                 <td class="post-content-right" style="padding-bottom: 8px;">
                                     <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
-                                    <a href = "#" style="color:#06e !important;" id = "add_post_image">Add Image Links</a><input id = "submit_new_post_button" type="button" class="small" style="float: right;position: relative;" value="Post"></input>
+                                    <a href = "#" style="color:#06e !important;" id = "add_post_image">Add Image/Video Links</a><input id = "submit_new_post_button" type="button" class="small" style="float: right;position: relative;" value="Post"></input>
                                     <div style="display:none" id = "add_images_div">
                                         <br>
                                         <input id="image_link_input" type="text" placeholder = "Enter Image Link Here">
@@ -913,6 +913,7 @@ import datetime
             }
             $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community, include_images:include_var, embed:embed, images:images }, function (data) {
                 $("#new_post_textarea").val("");
+                $("#image_link_input").val("");
                 getPosts();
             });
         });

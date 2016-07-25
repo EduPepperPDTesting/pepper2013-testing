@@ -1047,8 +1047,10 @@ def get_posts(request):
         images = CommunityPostsImages.objects.filter(post=post)
         img_code = ""
         for img in images:
-            if "youtube" in img.link:
-                img_code += "<br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+            if "youtube" in img.link and img.embed:
+                img_code += "<br><br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+            elif "youtube" in img.link:
+                img_code += "<p><a style='word-wrap:break-word;' href='"+img.link+"'>"+img.link+"</a></p>"
             elif img.embed:
                 img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
             else:
