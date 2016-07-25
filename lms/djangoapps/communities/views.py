@@ -879,7 +879,7 @@ def community_edit_process(request):
                     resources_add.append(resource_object)
 
         send_notification(request.user,
-                          community_id,
+                          community_object.id,
                           courses_add=courses_add,
                           courses_del=courses_cur.values(),
                           resources_add=resources_add,
