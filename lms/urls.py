@@ -54,6 +54,11 @@ urlpatterns = (
         'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+
+    url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
+    url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
+    url(r'^sso/course_assignments/save$', 'sso.idp_metadata.course_assignment_save', name="sso_course_assignment_save"),
+    url(r'^sso/course_assignments/delete$', 'sso.idp_metadata.course_assignment_delete', name="sso_course_assignment_delete"),
     # === sso end ===
 
     # === pepreg begin ==

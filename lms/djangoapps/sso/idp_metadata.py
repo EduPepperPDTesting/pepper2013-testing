@@ -6,9 +6,12 @@ from collections import defaultdict
 import logging
 import os
 from os import path
+from courseware.courses import get_courses, get_course_about_section
+from .models import CourseAssignment, CourseAssignmentCourse
 from pepper_utilities.utils import render_json_response
 from permissions.decorators import user_has_perms
 from django_future.csrf import ensure_csrf_cookie
+from django.db import transaction
 
 log = logging.getLogger("tracking")
 
@@ -65,6 +68,65 @@ def save(request):
     xmlfile.write(content)
 
     return render_json_response({})
+
+
+def _get_course_assignment_data():
+    data = []
+    assignments = CourseAssignment.objects.all()
+    courses = CourseAssignmentCourse.objects.all()
+    for assignment in assignments:
+        course_list = []
+        for course in courses.filter(assignment=assignment.id):
+            course_list.append(course.course)
+        data.append({'id': assignment.id,
+                     'type': assignment.sso_type,
+                     'param': assignment.param_name,
+                     'param_value': assignment.param_value,
+                     'courses': course_list})
+    return data
+
+
+@ensure_csrf_cookie
+@user_has_perms('sso', 'administer')
+def course_assignment(request):
+    courses_drop = get_courses(request.user)
+    data = {'courses_drop': [], 'assignments': []}
+    for course in courses_drop:
+        data['courses_drop'].append({'id': course.id,
+                                     'name': get_course_about_section(course, 'title')})
+    data['assignments'].append(_get_course_assignment_data())
+
+    return render_to_response('sso.manage/course_selection.html', data)
+
+
+@ensure_csrf_cookie
+@user_has_perms('sso', 'administer')
+def course_assignment_list():
+    return render_json_response(_get_course_assignment_data())
+
+
+@ensure_csrf_cookie
+@user_has_perms('sso', 'administer')
+@transaction.commit_manually
+def course_assignment_save(request):
+    pass
+
+
+@ensure_csrf_cookie
+@user_has_perms('sso', 'administer')
+@transaction.commit_manually
+def course_assignment_delete(request):
+    assignment_id = int(request.POST.get('assignment_id', False))
+    try:
+        if assignment_id:
+            CourseAssignment.objects.get(id=assignment_id).delete()
+            data = {'success': True}
+        else:
+            raise Exception('No Assignment selected.')
+    except Exception as e:
+        data = {'success': False, 'error': ''.format(e)}
+
+    render_json_response(data)
 
 
 def idp_by_name(name):

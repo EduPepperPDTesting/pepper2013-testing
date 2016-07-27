@@ -1,0 +1,149 @@
+<%!
+    from django.core.urlresolvers import reverse
+%>
+
+<%inherit file="/main.html" />
+
+<script type="text/javascript" src="/static/js/jquery-ui.js"></script>
+<link rel="stylesheet" href="/static/css/sso_courses.css" type="text/css" media="screen" />
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-uitheme.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.jui.css" media="screen" />
+<link rel="stylesheet" href="/static/css/vendor/cupertino/jquery-ui.css" media="screen" />
+
+<section id="iconarea">
+    <a class="iconbutton add-new" href="#">Add New</a>
+</section>
+<section id="data-table">
+    <table id="course-table">
+        <thead>
+            <tr>
+                <th>SSO Type</th>
+                <th>Additional Parameter</th>
+                <th>Assigned Courses</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            %for assignment in assignments:
+                <tr>
+                    <td>${assignment['type']}</td>
+                    <td>${assignment['param']} = ${assignment['param_value']}</td>
+                    <td>
+                        %for course in assignment['courses']:
+                            ${course}<br/>
+                        %endfor
+                    </td>
+                    <td><a href="#" id="id-${assignment['id']}" class="delete-button"><img src="/static/images/icons/Delete-64.png"/></a></td>
+                </tr>
+            %endfor
+        </tbody>
+    </table>
+    <div class="pager">
+        <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+        <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+        <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+        <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+        <select class="pagesize" title="Select page size">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+        </select>
+        <select class="gotoPage" title="Select page number"></select>
+    </div>
+</section>
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="background-color:#fff;border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<script type="text/javascript">
+    $.extend($.tablesorter.themes.jui, {
+        // change default jQuery uitheme icons - find the full list of icons at
+        // http://jqueryui.com/themeroller/ (hover over them for their name)
+        table        : 'ui-widget ui-widget-content ui-corner-all', // table classes
+        caption      : 'ui-widget-content',
+        // header class names
+        header       : 'ui-widget-header ui-corner-all ui-state-default', // header classes
+        sortNone     : '',
+        sortAsc      : '',
+        sortDesc     : '',
+        active       : 'ui-state-active', // applied when column is sorted
+        hover        : 'ui-state-hover',  // hover class
+        // icon class names
+        icons        : 'ui-icon', // icon class added to the <i> in the header
+        iconSortNone : 'ui-icon-carat-2-n-s', // class name added to icon when column is not sorted
+        iconSortAsc  : 'ui-icon-carat-1-n', // class name added to icon when column has ascending sort
+        iconSortDesc : 'ui-icon-carat-1-s', // class name added to icon when column has descending sort
+        filterRow    : '',
+        footerRow    : '',
+        footerCells  : '',
+        even         : 'ui-widget-content', // even row zebra striping
+        odd          : 'ui-state-default'   // odd row zebra striping
+    });
+    var pagerOptions = {
+        container: $(".pager"),
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        cssGoto: '.gotoPage',
+        page: 0,
+        size: 10,
+        savePages: false
+    };
+    var tablesorterOptions = {
+        debug: false,
+        theme: 'jui',
+        headerTemplate : '{content} {icon}', // needed to add icon for jui theme
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output", "columnSelector", "uitheme"],
+        widgetOptions: {
+            filter_columnFilters: true,
+            filter_placeholder: {search: 'Search...'},
+            filter_saveFilters: false,
+            filter_reset: '.reset',
+            filter_serversideFiltering: false
+        }
+    };
+    $(document).ready(function () {
+        $("#course-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+        $(".add-new").click(function (e) {
+            // Pop up the form to add the assignment
+            return false;
+        });
+        $(".delete-button").click(function (e) {
+            $.post('${reverse('sso_course_assignment_delete')}', {assignment_id: $(this).attr('id').slice(3)}, function (data) {
+                if (!data.success) {
+                    alert('Error deleting assignment: ' + data.error);
+                } else {
+                    $.get('${reverse('sso_course_assignment_list')}', function (d) {
+                        var content = '';
+                        $.each(d, function (key, value) {
+                            content += '<tr>';
+                            content += '    <td>' + value.type + '</td>';
+                            content += '    <td>' + value.param + ' = ' + value.param_value + '</td>';
+                            content += '    <td>';
+                            $.each(value.courses, function (k, v) {
+                                content += v + '<br/>';
+                            });
+                            content += '    </td>';
+                            content += '    <td><a href="#" id="id-' + value.id + '" class="delete-button"><img src="/static/images/icons/Delete-64.png"/></a></td>';
+                            content += '</tr>';
+                        });
+                        $("#course-table").html(content);
+                        $("#course-table").trigger("update");
+                    });
+                }
+            });
+            return false;
+        });
+    });
+</script>
