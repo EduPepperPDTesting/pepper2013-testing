@@ -647,12 +647,14 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 tnl_instance.register_completion(student, course_id, percent)
                         else:
                             course_instance.complete_course = False
-                            course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                            #course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                            course_instance.complete_date = None
                             ajax_return_json['contents'] = uncompleted_course_prompt + ajax_return_json['contents']
                         ajax_return = json.dumps(ajax_return_json)
                     else:
                         course_instance.complete_course = False
-                        course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                        #course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                        course_instance.complete_date = None
                         instance.save()
                     course_instance.save()
                 else:
