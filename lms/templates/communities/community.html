@@ -218,9 +218,15 @@ import datetime
                 <h2>Trending</h2>
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %if hasattr(d, "subject"):
+                            <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %else:
+                            <span class="trending-title"><a href="#" class="clickable-post" data-id="${d.id}">${d.post}</a></span>
+                        %endif
                         <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
+
+
                 </div>
             </div>
             <div class="sidebar-section">
@@ -822,7 +828,15 @@ import datetime
 
                 }
             });
-
+            $(".clickable-post").click(function(e){
+                e.preventDefault();
+                post_id = $(this).data("id");
+                console.log($("#post_content_new_row_"+post_id));
+                console.log(post_id);
+                offset = $("#community_content_posts").offset().top;
+                console.log(offset)
+                $("#community_content_posts").animate({scrollTop:$("#post_content_new_row_"+post_id).position().top-offset}, 2000);
+            });
 
             $('.add-comment-text').keyup(function (e) {
                 $("#select_name").remove();

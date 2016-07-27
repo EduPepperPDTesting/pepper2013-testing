@@ -501,7 +501,11 @@
                 <h2>Trending</h2>
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %if hasattr(d, "subject"):
+                            <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %else:
+                            <span class="trending-title"><a href="../${community.id}" class="clickable-post" data-id="${d.id}">${d.post}</a></span>
+                        %endif
                         <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
                 </div>

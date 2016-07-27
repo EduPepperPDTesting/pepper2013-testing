@@ -348,8 +348,15 @@ def get_trending(community_id):
     views_connect = view_counter_store()
     trending_views = views_connect.get_most_viewed('discussion', 5, {'community': str(community_id)})
     trending = list()
+    c = CommunityCommunities.objects.get(id=community_id)
+    posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:5]
     for tv in trending_views:
         trending.append(CommunityDiscussions.objects.get(id=tv['identifier']))
+    for post in posts:
+        trending.append(post)
+    trending = list(trending)
+    trending = sorted(trending, key=lambda x: x.date_create, reverse=True)
+    trending = trending[0:5]
     return trending
 
 
@@ -1008,7 +1015,7 @@ def get_posts(request):
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
-        html+="<tr class='post-content-row' id='post_content_new_row'><td class='post-content-left'>"
+        html+="<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td class='post-content-left'>"
         if active and not (request.user == post.user):
             html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
             if post.user.profile.skype_username:
