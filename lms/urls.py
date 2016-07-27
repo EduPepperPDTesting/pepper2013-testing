@@ -40,6 +40,11 @@ urlpatterns = (
     # === notification config end ===
     
     # === sso begin ===
+    # easyiep
+    url(r'^sso/$', 'sso.sp.genericsso', name="sso"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
+    url(r'^activate_easyiep_account$', 'sso.sp.activate_easyiep_account', name="activate_easyiep_account"),
+
     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
     # edit idp
@@ -238,9 +243,6 @@ urlpatterns = (
     url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
     url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
 
-    url(r'^sso/$', 'student.views.sso', name="sso"),
-    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
-    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
     url(r'^alert_message/$', 'administration.alert_message.main', name="alert_message"),#20160411 add
     url(r'^alert_message_post/$', 'administration.alert_message.alert_message_post', name="alert_message_post"),#20160411 add
 
