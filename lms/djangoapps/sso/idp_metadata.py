@@ -1,37 +1,41 @@
 from mitxmako.shortcuts import render_to_response
 import xmltodict
-from django.http import HttpResponse
 import json
 from django.conf import settings
 from collections import defaultdict
-from django.contrib.auth.decorators import login_required
 import logging
 import os
 from os import path
+from pepper_utilities.utils import render_json_response
+from permissions.decorators import user_has_perms
+from django_future.csrf import ensure_csrf_cookie
 
 log = logging.getLogger("tracking")
 
 SSO_DIR = path.join(settings.PROJECT_HOME, "sso")
 BASEDIR = SSO_DIR + "/idp"
 
-@login_required
+
+@user_has_perms('sso', 'administer')
 def edit(request):
     return render_to_response('sso/manage/idp_metadata.html')
 
 
+@ensure_csrf_cookie
+@user_has_perms('sso', 'administer')
 def save(request):
     data = json.loads(request.POST.get('data'))
 
     entities = []
     for d in data:
         name = d.get('sso_name', '')
-        path = BASEDIR + "/" + name
-        if not os.path.isdir(path):
-            os.makedirs(path)
+        xml_path = BASEDIR + "/" + name
+        if not os.path.isdir(xml_path):
+            os.makedirs(xml_path)
 
         typed = d.get('typed')
         if typed.get('saml_metadata'):
-            mdfile = open(path + "/FederationMetadata.xml", "w")
+            mdfile = open(xml_path + "/FederationMetadata.xml", "w")
             mdfile.write(typed.get('saml_metadata'))
             del typed['saml_metadata']
 
@@ -60,7 +64,7 @@ def save(request):
     xmlfile = open(BASEDIR + "/metadata.xml", "w")
     xmlfile.write(content)
 
-    return HttpResponse("{}", content_type="application/json")
+    return render_json_response({})
 
 
 def idp_by_name(name):
@@ -90,10 +94,10 @@ def parse_one_idp(entity):
         for attribute in entity['setting']:
             typed_setting[attribute['@name']] = attribute['#text']
 
-    path = BASEDIR + "/" + entity['@name'] + "/FederationMetadata.xml"
+    xml_path = BASEDIR + "/" + entity['@name'] + "/FederationMetadata.xml"
 
-    if os.path.isfile(path):
-        mdfile = open(path, "r")
+    if os.path.isfile(xml_path):
+        mdfile = open(xml_path, "r")
         typed_setting['saml_metadata'] = mdfile.read()
 
     return {
@@ -104,6 +108,7 @@ def parse_one_idp(entity):
         }
 
 
+@user_has_perms('sso', 'administer')
 def all_json(request):
     xmlfile = open(BASEDIR + "/metadata.xml", "r")
     parsed_data = xmltodict.parse(xmlfile.read(),
@@ -114,4 +119,4 @@ def all_json(request):
         for entity in parsed_data['entities'][0]['entity']:
             entity_list.append(parse_one_idp(entity))
 
-    return HttpResponse(json.dumps(entity_list), content_type="application/json")
+    return render_json_response(entity_list)
