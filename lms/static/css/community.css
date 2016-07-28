@@ -183,7 +183,7 @@
     /*font-size: 12px;*/
 }
 #community-content {
-    width: 270px;
+    width: 220px;
     margin-top: -89px;
     height: 700px;
     float: left;
@@ -191,11 +191,12 @@
 }
 #community-content-scroller {
     width: 270px;
+    padding-right: 10px;
     height: 703px;
     overflow-y: scroll;
     overflow-x: hidden;
     margin-top: -26px;
-    margin-left: 20px;
+    margin-left: -38px;
 }
 .community-content-header{
     width: 574px;
@@ -215,8 +216,8 @@
 }
 #content-collection-header{
     padding-bottom: 8px !important;
-    padding-top: 26px !important;
-    font-size: 24px !important;
+    padding-top: 34px !important;
+    font-size: 20px !important;
 }
 .postbutton{
     display: inline-block;
@@ -283,7 +284,7 @@
     height: 10px;
 }
 .community-content-section{
-    width: 576px;
+    width: 624px;
     border: 2px solid lightgrey;
     border-top:1px solid lightgrey;
     min-height: 700px;
@@ -422,7 +423,8 @@ div.cke{
     margin-bottom: 10px;
     border: 0 solid #f0870c;
     height: 160px;
-    width: 242px;
+    width: 200px;
+    float:right;
     box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
     border-radius: 6px;
     overflow: hidden;
@@ -430,7 +432,8 @@ div.cke{
 }
 .community-resource img {
     display: block;
-    width: 242px;
+    width: 200px;
+    float: right;
     border-radius: 6px;
 }
 .community-resource a {
@@ -448,7 +451,7 @@ div.cke{
     display: table-cell;
     height: 60px;
     vertical-align: middle;
-    width: 242px;
+    width: 200px;
     text-align: center;
 }
 #table-members th {
@@ -856,6 +859,9 @@ div.card-bottom table tr:nth-child(2) {
     width:34px;
     margin-top:5px;
     height:34px;
+}
+.image-style{
+    width:200px !important;
 }
 .add-comment-text{
     margin-top: 9px;
