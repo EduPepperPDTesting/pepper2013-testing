@@ -79,9 +79,9 @@ def _get_course_assignment_data():
         for course in courses.filter(assignment=assignment.id):
             course_list.append(course.course)
         data.append({'id': assignment.id,
-                     'type': assignment.sso_type,
-                     'param': assignment.param_name,
-                     'param_value': assignment.param_value,
+                     'type': assignment.sso_name,
+                     # 'param': assignment.param_name,
+                     # 'param_value': assignment.param_value,
                      'courses': course_list})
     return data
 
@@ -90,18 +90,16 @@ def _get_course_assignment_data():
 @user_has_perms('sso', 'administer')
 def course_assignment(request):
     courses_drop = get_courses(request.user)
-    data = {'courses_drop': [], 'assignments': []}
+    data = {'sso_names': _get_metadata(), 'courses_drop': [], 'assignments': _get_course_assignment_data()}
     for course in courses_drop:
         data['courses_drop'].append({'id': course.id,
                                      'name': get_course_about_section(course, 'title')})
-    data['assignments'].append(_get_course_assignment_data())
+    # raise Exception('{0}'.format(sso_metadata))
+    return render_to_response('sso/manage/course_selection.html', data)
 
-    return render_to_response('sso.manage/course_selection.html', data)
 
-
-@ensure_csrf_cookie
 @user_has_perms('sso', 'administer')
-def course_assignment_list():
+def course_assignment_list(request):
     return render_json_response(_get_course_assignment_data())
 
 
@@ -109,24 +107,44 @@ def course_assignment_list():
 @user_has_perms('sso', 'administer')
 @transaction.commit_manually
 def course_assignment_save(request):
-    pass
+    # ca_id = request.POST.get('ca_id', False)
+    courses = request.POST.getlist('courses', False)
+    sso_name = request.POST.get('sso_name', False)
+    try:
+        ca = CourseAssignment()
+        ca.sso_name = sso_name
+        ca.save()
+        for course in courses:
+            cac = CourseAssignmentCourse()
+            cac.assignment = ca
+            cac.course = course
+            cac.save()
+    except Exception as e:
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        data = {'success': True}
+        transaction.commit()
+    return render_json_response(data)
 
 
 @ensure_csrf_cookie
 @user_has_perms('sso', 'administer')
 @transaction.commit_manually
 def course_assignment_delete(request):
-    assignment_id = int(request.POST.get('assignment_id', False))
+    assignment_id = request.POST.get('assignment_id', False)
     try:
         if assignment_id:
-            CourseAssignment.objects.get(id=assignment_id).delete()
-            data = {'success': True}
+            CourseAssignment.objects.get(id=int(assignment_id)).delete()
         else:
             raise Exception('No Assignment selected.')
     except Exception as e:
-        data = {'success': False, 'error': ''.format(e)}
-
-    render_json_response(data)
+        data = {'success': False, 'error': '{0}'.format(e)}
+        transaction.rollback()
+    else:
+        data = {'success': True}
+        transaction.commit()
+    return render_json_response(data)
 
 
 def idp_by_name(name):
@@ -170,8 +188,7 @@ def parse_one_idp(entity):
         }
 
 
-@user_has_perms('sso', 'administer')
-def all_json(request):
+def _get_metadata():
     xmlfile = open(BASEDIR + "/metadata.xml", "r")
     parsed_data = xmltodict.parse(xmlfile.read(),
                                   dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
@@ -181,4 +198,9 @@ def all_json(request):
         for entity in parsed_data['entities'][0]['entity']:
             entity_list.append(parse_one_idp(entity))
 
-    return render_json_response(entity_list)
+    return entity_list
+
+
+@user_has_perms('sso', 'administer')
+def all_json(request):
+    return render_json_response(_get_metadata())

@@ -530,7 +530,7 @@ class GenericSSO:
 
             courses = ['PCG_Education/PEP101.1/S2016']
             try:
-                cas = CourseAssignmentCourse.objects.filter(assignment__sso_type=self.sso_type)
+                cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user_profile.sso_idp)
                 for course in cas:
                     courses.append(course.course)
             except:
