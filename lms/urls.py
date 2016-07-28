@@ -43,7 +43,7 @@ urlpatterns = (
     # easyiep
     url(r'^sso/$', 'sso.sp.genericsso', name="sso"),
     url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
-    url(r'^activate_easyiep_account$', 'sso.sp.activate_easyiep_account', name="activate_easyiep_account"),
+    url(r'^activate_easyiep_account$', 'sso.sp.activate_account', name="activate_easyiep_account"),
 
     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
