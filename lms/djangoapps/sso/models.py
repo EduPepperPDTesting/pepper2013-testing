@@ -6,7 +6,7 @@ log = logging.getLogger("tracking")
 class CourseAssignment(models.Model):
     class Meta:
         db_table = 'sso_course_assignments'
-    sso_type = models.CharField(blank=False, max_length=255, db_index=True)
+    sso_name = models.CharField(blank=False, max_length=255, db_index=True)
     # param_name = models.CharField(blank=True, null=True, max_length=255, db_index=True)
     # param_value = models.CharField(blank=True, null=True, max_length=255, db_index=False)
 
