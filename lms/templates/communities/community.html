@@ -902,7 +902,7 @@ import datetime
     $(document).ready(function(){
 
 
-        size=10;
+        size=5;
         $("#post_filter_select").change(function(){
             getPosts();
         });
@@ -933,7 +933,7 @@ import datetime
         });
         $('#community_content_posts').on('scroll', function() {
             if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
-                size+=10;
+                size+=5;
                 getPosts();
             }
         });
