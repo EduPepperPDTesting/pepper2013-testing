@@ -134,10 +134,11 @@ class GenericSSO:
                 raise Exception("error: Unknown IDP")
 
             # Call different type of ACS separately
-            if self.metadata_setting.get('sso_type') == 'SAML':
+            self.sso_type = self.metadata_setting.get('sso_type')
+            if self.sso_type == 'SAML':
                 log.debug("message: it's SAML")
                 self.acs_processor = self.saml_acs
-            elif self.metadata_setting.get('sso_type') == 'OAuth2':
+            elif self.sso_type == 'OAuth2':
                 self.acs_processor = self.oauth2_acs
             else:
                 raise Exception("error: No SSO Type set.")
@@ -475,28 +476,28 @@ class GenericSSO:
             elif k == 'email':
                 self.user.email = self.parsed_data['email']
             elif k == 'district':
-                self.user_profile.district = District.object.get(name=self.parsed_data['district'])
+                self.user_profile.district = District.objects.get(name=self.parsed_data['district'])
             elif k == 'school':
-                self.user_profile.school = School.object.get(name=self.parsed_data['school'])
+                self.user_profile.school = School.objects.get(name=self.parsed_data['school'])
             elif k == 'grade_level':
-                ids = GradeLevel.object.filter(name__in=self.parsed_data['grade_level'].split(',')).values_list(
+                ids = GradeLevel.objects.filter(name__in=self.parsed_data['grade_level'].split(',')).values_list(
                     'id', flat=True)
                 self.user_profile.grade_level = ','.join(ids)
             elif k == 'major_subject_area':
-                ids = SubjectArea.object.filter(name__in=self.parsed_data['major_subject_area'].split(',')).values_list(
+                ids = SubjectArea.objects.filter(name__in=self.parsed_data['major_subject_area'].split(',')).values_list(
                     'id', flat=True)
                 self.user_profile.major_subject_area = ','.join(ids)
             elif k == 'years_in_education':
-                self.user_profile.years_in_education = YearsInEducation.object.get(
+                self.user_profile.years_in_education = YearsInEducation.objects.get(
                     name=self.parsed_data['years_in_education'])
             elif k == 'percent_lunch':
-                self.user_profile.percent_lunch = Enum.object.get(name='percent_lunch',
-                                                                  content=self.parsed_data['percent_lunch'])
+                self.user_profile.percent_lunch = Enum.objects.get(name='percent_lunch',
+                                                                   content=self.parsed_data['percent_lunch'])
             elif k == 'percent_iep':
-                self.user_profile.percent_iep = Enum.object.get(name='percent_iep',
-                                                                content=self.parsed_data['percent_iep'])
+                self.user_profile.percent_iep = Enum.objects.get(name='percent_iep',
+                                                                 content=self.parsed_data['percent_iep'])
             elif k == 'percent_eng_learner':
-                self.user_profile.percent_eng_learner = Enum.object.get(
+                self.user_profile.percent_eng_learner = Enum.objects.get(
                     name='percent_eng_learner', content=self.parsed_data['percent_eng_learner'])
 
             self.user.save()
