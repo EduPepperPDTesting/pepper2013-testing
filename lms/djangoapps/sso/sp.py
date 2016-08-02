@@ -529,7 +529,7 @@ class GenericSSO:
 
             self.update_user()
 
-            courses = ['PCG_Education/PEP101.1/S2016']
+            courses = []
             try:
                 cas = CourseAssignmentCourse.objects.filter(assignment__sso_name=self.user_profile.sso_idp)
                 for course in cas:
@@ -542,6 +542,8 @@ class GenericSSO:
                 cea.auto_enroll = True
                 cea.save()
 
+            if self.sso_type == 'EasyIEP':
+                return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
             return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
 
         except Exception as e:
@@ -621,7 +623,7 @@ def register_user_easyiep(request, activation_key):
 
 
 def register_sso(request, activation_key):
-    '''Register page for not acitved sso auto created user.'''
+    '''Register page for non-activated sso auto created user.'''
     registration = Registration.objects.get(activation_key=activation_key)
     user_id = registration.user_id
     profile = UserProfile.objects.get(user_id=user_id)
