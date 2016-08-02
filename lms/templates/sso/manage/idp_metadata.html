@@ -156,9 +156,9 @@
         if ($.trim(idp.sso_name) == '') {
             throw {"message": "SSO Name can't be empty."}
         }
-        if ($.trim(idp.attributes[0].name == '')) {
+        /*if ($.trim(idp.attributes[0].name == '')) {
             throw {"message": "The ID attribute must be mapped to the unique identifier field from the IDP."}
-        }
+        }*/
         $.each(this.data, function (i, v) {
             if (v.sso_name == idp.sso_name) {
                 if (++n > 1) throw {"message": "Same SSO Name already exists."}
