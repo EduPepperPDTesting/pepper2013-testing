@@ -152,12 +152,12 @@
     $(document).ready(function () {
         $("#course-table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
         $(".add-new").click(function (e) {
-            var sso_names = $.parseJSON('${json.dumps(sso_names)}');
-            var courses = $.parseJSON('${json.dumps(courses_drop)}');
+            var sso_names = $.parseJSON('${json.dumps(sso_names).replace("'", "\\'")}');
+            var courses = $.parseJSON('${json.dumps(courses_drop).replace("'", "\\'")}');
             var dialog = new Dialog('#dialog');
             var content = '<form id="assignment-add"><label>SSO Type: <select name="sso_name">';
             $.each(sso_names, function (k, v) {
-                content += '<option value="' + v.sso_name + '">' + v.sso_name + '</option>';
+                content += '<option value="' + v + '">' + v + '</option>';
             });
             content += '</select></label>';
             content += '<label>Courses<select name="courses" multiple>';

@@ -90,7 +90,11 @@ def _get_course_assignment_data():
 @user_has_perms('sso', 'administer')
 def course_assignment(request):
     courses_drop = get_courses(request.user)
-    data = {'sso_names': _get_metadata(), 'courses_drop': [], 'assignments': _get_course_assignment_data()}
+    md = _get_metadata()
+    sso_names = []
+    for d in md:
+        sso_names.append(d['sso_name'])
+    data = {'sso_names': sso_names, 'courses_drop': [], 'assignments': _get_course_assignment_data()}
     for course in courses_drop:
         data['courses_drop'].append({'id': course.id,
                                      'name': get_course_about_section(course, 'title')})
