@@ -103,7 +103,7 @@ class GenericSSO:
     idp_name = ''
     token = ''
     url = ''
-    metadata_setting = None
+    metadata_setting = {}
     acs_processor = None
     data = None
     parsed_data = {}
@@ -123,6 +123,7 @@ class GenericSSO:
             raise Exception("error: No IDP name passed")
         elif not self.idp_name and self.token:
             self.idp_name = 'EasyIEP'
+            self.sso_type = 'EasyIEP'
 
         if self.idp_name == 'EasyIEP':
             self.acs_processor = self.easyiep_acs
