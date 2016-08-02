@@ -525,8 +525,8 @@ class GenericSSO:
 
             self.user_profile = UserProfile(user=self.user)
             self.user_profile.subscription_status = "Imported"
-            self.user_profile.sso_type = self.metadata_setting.get('sso_type')
-            self.user_profile.sso_idp = self.metadata_setting.get('sso_name')
+            self.user_profile.sso_type = self.sso_type
+            self.user_profile.sso_idp = self.idp_name
             self.user_profile.sso_user_id = uid
 
             self.update_user()
