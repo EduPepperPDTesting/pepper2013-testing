@@ -859,6 +859,9 @@ INSTALLED_APPS = (
 
     # Reporting
     'reporting',
+
+    # SSO
+    'sso',
     
 )
 

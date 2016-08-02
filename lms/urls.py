@@ -40,6 +40,11 @@ urlpatterns = (
     # === notification config end ===
     
     # === sso begin ===
+    # easyiep
+    url(r'^sso/$', 'sso.sp.genericsso', name="sso"),
+    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'sso.sp.register_user_easyiep', name="register_user_easyiep"),
+    url(r'^activate_easyiep_account$', 'sso.sp.activate_account', name="activate_easyiep_account"),
+
     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
     # edit idp
@@ -54,6 +59,11 @@ urlpatterns = (
         'sso.sp_metadata.download_saml_federation_metadata', name="sso_download_saml_federation_metadata"),
     url(r'^register_sso_user/(?P<activation_key>[^/]*)/$', 'sso.sp.register_sso', name="register_sso_user"),
     url(r'^sso/idp/auth/$', 'sso.idp.auth'),
+
+    url(r'^sso/course_assignments$', 'sso.idp_metadata.course_assignment', name="sso_course_assignment"),
+    url(r'^sso/course_assignments/list$', 'sso.idp_metadata.course_assignment_list', name="sso_course_assignment_list"),
+    url(r'^sso/course_assignments/save$', 'sso.idp_metadata.course_assignment_save', name="sso_course_assignment_save"),
+    url(r'^sso/course_assignments/delete$', 'sso.idp_metadata.course_assignment_delete', name="sso_course_assignment_delete"),
     # === sso end ===
 
     # === pepreg begin ==
@@ -233,9 +243,6 @@ urlpatterns = (
     url(r'^time_report/adjustment_log_load$', 'administration.time_report.load_adjustment_log', name="time_report_adjustment_log_load"),
     url(r'^time_report/import_adjustment_time/submit/$', 'administration.time_report.import_adjustment_time_submit', name="time_report_import_adjustment_time_submit"),
 
-    url(r'^sso/$', 'student.views.sso', name="sso"),
-    url(r'^register_easyiep/(?P<activation_key>[^/]*)/$', 'student.views.register_user_easyiep', name="register_user_easyiep"),
-    url(r'^activate_easyiep_account$', 'student.views.activate_easyiep_account', name="activate_easyiep_account"),
     url(r'^alert_message/$', 'administration.alert_message.main', name="alert_message"),#20160411 add
     url(r'^alert_message_post/$', 'administration.alert_message.alert_message_post', name="alert_message_post"),#20160411 add
 
