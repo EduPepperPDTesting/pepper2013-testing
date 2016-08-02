@@ -91,7 +91,7 @@ def _get_course_assignment_data():
 def course_assignment(request):
     courses_drop = get_courses(request.user)
     md = _get_metadata()
-    sso_names = []
+    sso_names = ['EasyIEP']
     for d in md:
         sso_names.append(d['sso_name'])
     data = {'sso_names': sso_names, 'courses_drop': [], 'assignments': _get_course_assignment_data()}
