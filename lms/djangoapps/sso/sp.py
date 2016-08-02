@@ -453,6 +453,8 @@ class GenericSSO:
 
                 if not self.user_profile.user.is_active:
                     registration = Registration.objects.get(user_id=self.user_profile.user.id)
+                    if self.sso_type == 'EasyIEP':
+                        return https_redirect(self.request, reverse('register_user_easyiep', args=[registration.activation_key]))
                     return https_redirect(self.request, reverse('register_sso_user', args=[registration.activation_key]))
                 else:
                     self.user_profile.user.backend = ''  # 'django.contrib.auth.backends.ModelBackend'
