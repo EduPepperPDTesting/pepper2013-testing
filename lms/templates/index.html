@@ -8,163 +8,332 @@
 
 <%namespace name='static' file='static_content.html'/>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
-<style type="text/css" media="screen">
-  #btn-logged-user{display:none;}
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/indexscroll.css"/>
+<script type="text/javascript" src="/static/js/indexscroll.js"></script>
 
-  /*@ mouser up */
-  a.btnxf:hover {
-  background:#6e8194;
-  transition-delay: 0s, 0s, 0s;
-  transition-duration: 0.25s, 0.25s, 0.25s;
-  transition-property:color, background,​ box-shadow;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  transition-duration:0.25s,​ 0.25s,​ 0.25s;
-  color:#fff;
-  }
-  
-  /*@ background */
-  a.btnxf {
-  background-color:#556370;
-  text-decoration: none;
-  padding-bottom: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 7px;
-  cursor: pointer;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  box-shadow: 0px 0px 0px 2px #fff;
-  color:#fff;
-  transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  
-  a.btnxf:normal {
-  background-color:#126F9A;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
+<style type="text/css" media="screen">
+#btn-logged-user{display:none;}
+
+/*@ mouser up */
+a.btnxf:hover {
+	background:#6e8194;
+	transition-delay: 0s, 0s, 0s;
+	transition-duration: 0.25s, 0.25s, 0.25s;
+	transition-property:color, background,​ box-shadow;
+	transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+	transition-duration:0.25s,​ 0.25s,​ 0.25s;
+	color:#fff;
+}
+
+/*@ background */
+a.btnxf {
+	background-color:#556370;
+  	text-decoration: none;
+  	padding-bottom: 7px;
+  	padding-left: 10px;
+  	padding-right: 10px;
+  	padding-top: 7px;
+  	cursor: pointer;
+  	font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  	box-shadow: 0px 0px 0px 2px #fff;
+  	color:#fff;
+  	transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+a.btnxf:normal {
+  	background-color:#126F9A;
+  	text-decoration: none;
+  	cursor: pointer;
+  	font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  	color:#fff;
+  	transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+a.join_btn{
+  	font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+  	color:#fff !important;;
+  	font-size:23px !important;
+ 	background-color:#5b9bd5;
+  	border:2px solid #41719c;
+  	/*box-shadow: inset 0 1px 0 0 #61b8e1;*/
+  	text-decoration: none;
+  	padding:7px 37px 8px 37px;
+  	border-bottom-left-radius: 8px;
+  	border-bottom-right-radius: 8px;
+  	border-top-left-radius: 8px;
+  	border-top-right-radius: 8px;
+  	cursor: pointer;
+}
+a.join_btn:hover{
+    text-decoration: none;
+    background-color:#72ace1;
+}
+.mainlogo{
+  	text-align:center;
+  	border-bottom:1px solid #ccc;
+  	padding-bottom:1px;
+}
+.maintitle{
+  text-align:center;
+  background:#fff;
+  border-bottom:1px solid #666;
+  color:#7f7f7f;
+  font-size:26px;
+  line-height:50px;
+}
+.main_div{
+    text-align:center;
+	background:#f7f7f7;
+	padding:25px 0 25px 0;
+}
+.sub_div_1{
+	width:963px;
+	height:225px;
+	border:1px solid #666;
+	margin:auto;
+	text-align:left;
+	background:#fff;
+}
+.sub_div_1_left{
+  	width:376px;
+  	height:225px;
+  	float:left;
+}
+.carousel-inner table{
+  	width:376px;
+  	height:225px;
+}
+.carousel-inner td{
+  	vertical-align: middle;
+  	text-align:center;
+}
+.sub_div_1_right{
+  	width:587px;
+  	height:225px;
+  	float:right;
+  	background:url(/static/images/ppd-index-banner-right01.jpg);
+}
+.sub_div_1_right-title{
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:34px;
+  color:#000;
+  line-height:32px;
+  text-align:left;
+  width:500px;
+  padding-left:32px;
+  padding-top:26px;
+}
+.sub_div_2{
+  	width:963px;
+  	margin:auto;
+  	text-align:left;
+  	background:#fff;
+  	margin-top:35px;
+}
+.sub_div_2_1-title{
+  	font-size:30px;
+  	text-align:center;
+  	height:55px;
+  	font-weight:bold;
+  	color:#0070c0;
+  	line-height:45px;
+}
+.tdlogo{
+  	width:110px;
+  	height:110px;
+  	vertical-align: middle;
+  	text-align:center;
+}
+.tdlogo img{
+  	width:90px;
+  	height:90px;
+}
+.tdtitle{
+  	padding:0px;
+  	font-size:23px;
+  	line-height:34px;
+  	color:#7f7f7f;
+  	font-weight:bold;
+}
+.tdcontent{
+    padding:15px;
+    font-size:23px;
+    line-height:32px;
+    color:#595959;
+}
+.sub_div_2_3-btn{
+  	font-size:30px;
+  	text-align:center;
+  	height:55px;
+  	font-weight:bold;
+  	color:#0070c0;
+  	line-height:45px;
+  	border:0px solid;
+}
 </style>
-<!--@end-->
 
 <!--@begin:Show two horizontal pages on the top-->
 <!--@date:2013-11-02-->
-<div style="text-align:center;border-bottom:1px solid #ccc;padding-bottom:1px;">
-	<img src="static/images/ppd-index-mainlogo.jpg" width="720" height="205" style="maring:auto"/>
+<div class="mainlogo">
+	<img src="static/images/ppd-index-mainlogo.jpg" width="720" height="205"/>
 </div>
-<div style="text-align:center; background:#fff;border-bottom:1px solid #666;">
-  <img src="static/images/ppd-index-maintitle.jpg" width="720" height="62" style="maring:auto"/>
+<div class="maintitle">
+  	Teaching & Learning Network
 </div>
 <!--@end-->
 
 <%block name="js_extra">
    <script type="text/javascript">
-      $(window).load(function() {
-         if(getParameterByName('next')) {
-              $('#login').trigger("click");
-         }
-      })
-   </script>
+      	$(window).load(function() {
+      		if(getParameterByName('next')) {
+              	$('#login').trigger("click");
+         	}
+      	})
+   	</script>
 </%block>
+
 % if show_signup_immediately is not UNDEFINED:
-  ## NOTE: This won't work in production, because anonymous views are cached, so it will
-  ## show either with or without this extra js for 3 minutes at a time.
-<script type="text/javascript">
-  $(window).load(function() {$('#signup_action').trigger("click");});
-</script>
+  	## NOTE: This won't work in production, because anonymous views are cached, so it will
+  	## show either with or without this extra js for 3 minutes at a time.
+	<script type="text/javascript">
+	W$(window).load(function() {$('#signup_action').trigger("click");});
+	</script>
 % endif
 
-<!--@begin:Two illustrations-->
-<!--@date:2013-11-02-->
-<div id="blocks" style="text-align:center;background:#f7f7f7;padding:25px 0 25px 0;">
-  <div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;background:#fff;">
-	<!--@begin:add the video-->
-	<!--@date:2013-11-15-->
-	<div id="ppd_video_main" style=" width:950px; height:530px; z-index:99; position:fixed;margin:auto;left:0; right:0; top:0; bottom:0;display:none;">
-      <div id="ppd_video_close" style="width:20px;height:20px;position:absolute;right:0px;cursor:pointer;z-index:1;">
-        <img src="static/images/ppd-video-close01.png" width="20" height="20" onclick="$('#frmVideo')[0].src+=''"/>
-      </div>
-	  <iframe src="//player.vimeo.com/video/80954694" id="frmVideo" width="950" height="530" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-	</div>
-	<!--@end-->
-	<img style="float:left;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left01.jpg" width="376" height="225"/>
-	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right01.jpg);">
-
-	  <!--@begin:change font color-->
-	  <!--@date:2013-11-02-->
-	  <div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:26px;">PROFESSIONAL DEVELOPMENT COURSES</div>
-	  <!--@end-->
-	  
-	  <!--@begin:add code(class="_body_content_font") to modify font style-->
-	  <!--@date:2013-11-02-->
-	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
-		Explore our ever-expanding Mathematics and English Language Arts catalog of courses.  
-	  </div>	
-
-	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
-		Find a PD course and let’s start building…together. 
-	  </div>	
-	  <!--@end-->
-	  
-	  <!--@begin:modify button position-->
-	  <!--@date:2013-11-02-->
-	  <div style="width:500px;padding-left:32px;padding-top:19px;">
-		<a href="/courses" class="btnxf" style="color:#fff;font-size:11px;text-decoration:none;">VIEW ALL COURSES</a>
-	  </div>
-	  <!--@end-->
-	</div>
-  </div>
-  
-  <div style="width:963px;height:225px;border:1px solid #666;margin:auto;text-align:left;margin-top:25px;background:#fff;">
-	<img style="float:left;" src="${MITX_ROOT_URL}/static/images/ppd-index-banner-left02.jpg" width="376" height="225"/>
-	<div style="width:587px;height:225px;float:right;background:url(/static/images/ppd-index-banner-right02.jpg);">
-	  
-	  <!--@begin:change font color-->
-	  <!--@date:2013-11-02-->
-	  <div class="_banner_index_title_font" style="width:500px;padding-left:32px;padding-top:41px;">WHAT IS PEPPER?</div>
-	  <!--@end-->
-	  
-	  <!--@begin:add code(class="_body_content_font") to modify font style-->
-	  <!--@date:2013-11-02-->
-	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
-		Use the latest in peer-to-peer social learning tools and connect with motivated and passionate educators - just like you - from around the nation.
-	  </div>
-	  <div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
-		Work at your own pace to become a Common Core specialist.
-	  </div>
-	  <!--@end-->
-
-	  <!--@begin:modify button position,button content-->
-	  <!--@date:2013-11-02-->
-	  <div id="ppd_btn_video" style="width:500px;padding-left:32px;padding-top:19px;">
-		<a href="javascript:void(0)" class="btnxf" style="color:#fff;font-size:11px !important;text-decoration:none;">WATCH PEPPER VIDEO</a>
-	  </div>
-	  <!--@end-->
-	</div>
-  </div>
-</div>
-<!--@end-->
-
-<!--@begin:add jq/js code to control the video-->
-<!--@date:2013-11-15-->
-<script>
-jQuery(function($){
-	var id_ppd_video_main = document.getElementById('ppd_video_main');
-	var id_ppd_btn_video = document.getElementById('ppd_btn_video');
-	var id_ppd_video_close = document.getElementById('ppd_video_close');
-	
-	id_ppd_btn_video.onmousedown = function()
-	{
-		$("#ppd_video_main").fadeIn(600);
-		//document.getElementById('sampleMovie').play();
-	}
-	
-	id_ppd_video_close.onmousedown = function()
-	{
-		$("#ppd_video_main").fadeOut(300);
-		//document.getElementById('sampleMovie').pause();
-		//document.getElementById('sampleMovie').currentTime = 0;
-	}
-});
+<script type="text/javascript">
+$(function(){
+    $(".carousel-inner a:first-child").addClass("active");
+}); 
 </script>
-<!--@end-->
+
+<div id="blocks" class="main_div">
+  	<div class="sub_div_1">
+  		<!------left------>
+        <div class="sub_div_1_left">
+            <!--Scrolling Start-->
+            <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner" role="listbox" style="height:100%">
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                            <tr><td><img src="/static/images/index_Pepper_PDF.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                            <tr><td><img src="/static/images/index_WestEd.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_Standford.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_CommonSense.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_Fuel.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_PCG.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_ALL.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                            <tr><td><img src="/static/images/index_CHADD.png"></td></tr>
+                        </table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                        <table>
+                           	<tr><td><img src="/static/images/index_SEADAE.png"></td></tr>
+                        </table>
+                    </a>
+                </div>
+        
+                <!-- Controls -->
+                <div class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                    <span class="glyphicon-chevron-left" aria-hidden="true" style="background-image:url(/static/images/index_jtl.png);"></span>
+                </div>
+                <div class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                    <span class="glyphicon-chevron-right" aria-hidden="true" style="background-image:url(/static/images/index_jtr.png);"></span>
+                </div>
+            </div>
+        </div>
+
+  		<!------right------>
+		<div class="sub_div_1_right">
+			<div class="sub_div_1_right-title">Best Content. Trusted Publishers.</div>
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:11px;">
+				Explore our ever-expanding catalog of courses and workshops from the nation’s most trusted professional learning organizations.  
+			</div>	
+			<div class="_banner_index_content_font" style="width:500px;padding-left:32px;padding-top:7px;">
+				Find a PD course and let’s start building…together. 
+			</div>	
+			<div style="width:500px;padding-left:32px;padding-top:19px;">
+				<a href="/static/resource/Pepper_Professional_Learning_Catalog_7_22_2016.pdf" target="_blank" class="btnxf" style="color:#fff;font-size:11px;text-decoration:none;">View Courses & Workshops</a>
+			</div>
+		</div>
+  	</div>
+  
+    <div class="sub_div_2">
+  		<div class="sub_div_2_1-title">Learning with Pepper</div>
+        <div class="sub_div_2_2">
+            <table border="0" width="100%" height="500">
+                <tr height="110">
+                    <td width="33%">
+                        <table border="0" width="100%">
+                            <tr>
+                                <td class="tdlogo"><img src="/static/images/index_Earn Badges_Certificates_Credentials.png"/></td>
+                                <td class="tdtitle">Earn Badges,  Certificates & Credentials</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="2%"></td>
+                    <td width="33%">
+                        <table border="0" width="100%">
+                            <tr>
+                                <td class="tdlogo"><img src="/static/images/index_Col_Coach-175679126.jpg"/></td>
+                                <td class="tdtitle">Collaborating & Coaching in Communities</td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td width="2%"></td>
+                    <td width="33%">
+                        <table border="0" width="100%">
+                            <tr>
+                                <td class="tdlogo"><img src="/static/images/index_Build_Your-497678728.jpg"/></td>
+                                <td class="tdtitle">“Build Your Own” Content Collections</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdcontent">Enroll in Pepper workshops and courses to earn completion awards to verify your achievements, renew or obtain teaching credentials, and increase your salary.  Certificates come from course authors with logos!
+                    </td>
+                    <td></td>
+                    <td class="tdcontent">Work with instructional coaches and peers in Pepper communities to share portfolios of your work.  Learning is social! Use our Google Hangouts, Skype Calls and join a facilitated Pepper Community to connect with motivated educators – just like you.
+                    </td>
+                    <td></td>
+                    <td class="tdcontent">Ever wanted to share your best ideas with passionate educators around the country? Using Pepper’s world-class content curation tools, you can design, upload and promote your own content resources.  Create a personal network to share and discuss.
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="sub_div_2_3-btn">
+            <a class="join_btn" href="/contact" target="_blank">Join the Pepper Network!</a>
+        </div>
+  	</div>  
+</div>
+
+
+

@@ -327,29 +327,21 @@
         %endif
 
         % if curr_user==request.user and not curr_user.is_authenticated():
-            <li><a href="/what_is_pepper" class="main-link">What is Pepper?</a></li>
+            <li><a href="/contact" target="_blank" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
+            <li><a href="/our_team" target="_blank" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
+            <li><a href="/press" target="_blank" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
         % endif
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
                 <li><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-            %else:
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses</a></li>
-            %endif
-        %endif
-
-        % if curr_user==request.user and not curr_user.is_authenticated():
-            <li><a href="/contact" class="main-link">Districts</a></li>
-        % endif
-
-        %if request.user.is_authenticated():
-            %if curr_user==request.user:
                 <li><a href="/communities" class="main-link">Communities</a></li>
                 <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
                 <li><a href="/resource_library_global" class="main-link">Resources</a></li>
                 <li><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
@@ -528,24 +520,9 @@
                 </li>
             % endif
         </%block>
-
-        % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-            % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                <!--@begin:Change Register Now to Become a Member-->
-                <!--@date:2013-11-02-->
-                <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
-            % else:
-                <li><a  class="main-link" href="/contact">Become a Member</a></li>
-                <!--@end-->
-            % endif
-        % endif
-            <!--@begin:Add tab About Us-->
-            <!--@date:2013-11-02-->
-            <li><a href="/about_pepper" class="main-link">About Us</a></li>
-            <!--@end-->
         </ol>
 
-            <ol class="right nav-courseware">
+            <ol class="right nav-courseware" style="margin-top:-5px;">
                 <!--@begin:Add Paypal-->
                 <!--@date:2016-05-19-->
                 <!--<li class="nav-courseware-01">
@@ -558,14 +535,15 @@
                     % endif
                 </li>-->
                 <!--@end-->
+                <li class="nav-courseware-0111"><a  class="main-link" href="/contact" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
                             <!--@begin:Change the text in Log in to Login-->
                             <!--@date:2013-11-02-->
-                            <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
+                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
                         % else:
-                            <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
+                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="/login${login_query()}">${_("Login")}</a>
                             <!--@end-->
                         % endif
                     % endif
