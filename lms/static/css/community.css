@@ -422,7 +422,7 @@ div.cke{
     margin-top: 10px;
     margin-bottom: 10px;
     border: 0 solid #f0870c;
-    height: 160px;
+    height: 124px;
     width: 200px;
     float:right;
     box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
@@ -463,7 +463,10 @@ div.cke{
     color: #FFFFFF;
 }
 .course-card {
-    margin: 10px 0 10px 0 !important
+    margin: 10px 0 10px 0 !important;
+    float: right !important;
+    width: 200px !important;
+    min-height: 180px !important;
 }
 div.card-bottom table tr:nth-child(2) {
     display: none;
