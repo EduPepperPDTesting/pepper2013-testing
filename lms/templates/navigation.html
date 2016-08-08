@@ -265,7 +265,7 @@
         <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:5px}
         </style>
-        <h1 class="logo" style="margin-top:-12px;">
+        <h1 class="logo" style="margin-top:-12px;margin-right:30px;">
             <!--@begin:Choose the link of the top logo according user's login status-->
             <!--@date:2013-11-02-->
 
@@ -334,11 +334,11 @@
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-                <li><a href="/communities" class="main-link">Communities</a></li>
-                <li><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li><a href="/resource_library_global" class="main-link">Resources</a></li>
-                <li><a href="${reverse('people')}" class="main-link">People</a></li>
+                <li style="margin-right:18px;"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
+                <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
+                <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
+                <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
+                <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
@@ -482,7 +482,7 @@
                     <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
                         <span class="avatar"></span>
                         <span class="sr">${_("Dashboard for:")} </span>
-                        <span style="display:block;max-width:90px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                     </a>
                 </li>
                 <li class="primary">
