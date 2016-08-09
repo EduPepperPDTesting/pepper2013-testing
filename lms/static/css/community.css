@@ -433,7 +433,7 @@ div.cke{
     margin-top: 10px;
     margin-bottom: 10px;
     border: 0 solid #f0870c;
-    height: 124px;
+    height: 100px;
     width: 200px;
     float:right;
     box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
@@ -472,6 +472,9 @@ div.cke{
 }
 .card-link span {
     color: #FFFFFF;
+}
+.course-card img{
+    height: 110px !important;
 }
 .course-card {
     margin: 10px 0 10px 0 !important;
