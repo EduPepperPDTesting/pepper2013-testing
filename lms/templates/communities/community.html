@@ -39,56 +39,12 @@ import datetime
             <div class="community-clear"></div>
         </div>
 
-        <div id = "members-content-area">
-            <table id="left_table_members" class="left-table-members" cellspacing="" cellpadding="" border="0">
-            <tr>
-                <td class="member-arrows-left">
-                    <center><div class="member-arrow-up" onclick="left()"> </div></center>
-                </td></tr><tr>
-                <td class="member-column">
-                    <div id="members">
-                      %for u in users:
-                          <tr><td>
-                      <%
-                      use = u.user
-                      utc_month=datetime.datetime.utcnow().strftime("%m")
-                      utc_day=datetime.datetime.utcnow().strftime("%d")
-                      utc_h=datetime.datetime.utcnow().strftime("%H")
-                      utc_m=datetime.datetime.utcnow().strftime("%M")
-                      d_min = 60*int(utc_h) + int(utc_m)
-                      if use.profile.last_activity:
-                        usr=use.profile.last_activity
-                        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 1
-                        active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
-                      else:
-                        active_recent = False
-                      %>
-                      %if not active_recent:
-                          <a href="${reverse('dashboard',args=[u.user.id])}" data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
-                      %else:
-                          <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
-                      %endif
-                        %if active_recent:
-                            <img src="/static/images/online-3.png" class="circle" id="${use.profile.id}" data-email="${use.email}" data-fname="${use.first_name}" data-lname="${use.last_name}" data-skypename="${use.profile.skype_username}" data-id="${use.id}" data-username="${use.username}"></img>
-                        %endif
-                        <img class="left-members-image" src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                      </a>
-                          </td></tr>
-                      %endfor
-                    </div>
-                </td></tr><tr>
-                <td class="member-arrows-left">
-                   <center><div class="member-arrow-down" onclick="right()"></div></center>
-                </td></tr>
-            </tr>
-        </table>
-        </div>
         <div id="community-content-area">
             <div id = "community_content_panel">
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
                     <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
+                    <h1 id="community_content_header_search" class="section-tab search-tab community-content-header-object">Search</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -187,49 +143,8 @@ import datetime
                 </div>
             </div>
         </div>
-    <!--
-        <div id="members-title">Members</div>
-        <table id="table-members" cellspacing="" cellpadding="" border="0">
-            <tr>
-                <td class="member-arrows">
-                    <div class="member-arrow-left" onclick="left()"> </div>
-                </td>
-                <td class="member-column">
-                    <div id="members">
-                      %for u in users:
-                      <%
-                      use = u.user
-                      utc_month=datetime.datetime.utcnow().strftime("%m")
-                      utc_day=datetime.datetime.utcnow().strftime("%d")
-                      utc_h=datetime.datetime.utcnow().strftime("%H")
-                      utc_m=datetime.datetime.utcnow().strftime("%M")
-                      d_min = 60*int(utc_h) + int(utc_m)
-                      if use.profile.last_activity:
-                        usr=use.profile.last_activity
-                        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 1
-                        active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
-                      else:
-                        active_recent = False
-                      %>
-                      %if not active_recent:
-                          <a href="${reverse('dashboard',args=[u.user.id])}" data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
-                      %else:
-                          <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
-                      %endif
-                        %if active_recent:
-                            <img src="/static/images/online-3.png" class="circle" id="${use.profile.id}" data-email="${use.email}" data-fname="${use.first_name}" data-lname="${use.last_name}" data-skypename="${use.profile.skype_username}" data-id="${use.id}" data-username="${use.username}"></img>
-                        %endif
-                        <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                      </a>
-                      %endfor
-                    </div>
-                </td>
-                <td class="member-arrows">
-                    <div class="member-arrow-right" onclick="right()"></div>
-                </td>
-            </tr>
-        </table>-->
+
+
     </section>
     <section id="community-main-sidebar">
         <div id="community-sidebar-header">
@@ -273,6 +188,49 @@ import datetime
 
 
                 </div>
+            </div>
+            <div class="sidebar-section">
+                <h2>Members</h2>
+
+
+
+                <div id="members_container" class="members-container">
+                <table id="" cellspacing="" cellpadding="" border="0">
+
+                              %for u in users:
+                              <%
+                              use = u.user
+                              utc_month=datetime.datetime.utcnow().strftime("%m")
+                              utc_day=datetime.datetime.utcnow().strftime("%d")
+                              utc_h=datetime.datetime.utcnow().strftime("%H")
+                              utc_m=datetime.datetime.utcnow().strftime("%M")
+                              d_min = 60*int(utc_h) + int(utc_m)
+                              if use.profile.last_activity:
+                                usr=use.profile.last_activity
+                                u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+                                close = int(d_min) - int(u_min) < 1
+                                active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+                              else:
+                                active_recent = False
+                              %>
+                                  <tr><td>
+                              %if not active_recent:
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                              %else:
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+
+                                %endif
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px"/> ${use.first_name} ${use.last_name}
+                              </a>
+                                  </td></tr>
+                              %endfor
+                </table>
+                </div>
+
+
+
+
+
             </div>
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>

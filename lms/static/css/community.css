@@ -156,15 +156,6 @@
     bottom: 20px;
     left: 20px;
 }
-.left-table-members{
-    width:80px;
-    float: left;
-    margin-top: 40px;
-    max-height: 700px;
-}
-.left-members-image{
-    width: 74px;
-}
 #community-content-area h1 {
     color: #006EBF;
     padding: 8px 10px 30px;
@@ -201,19 +192,18 @@
 #community-content-scroller {
     width: 270px;
     padding-right: 10px;
-    height: 703px;
+    height: 900px;
     overflow-y: scroll;
     overflow-x: hidden;
     margin-top: -26px;
     margin-left: -38px;
 }
 .community-content-header{
-    width: 534px;
+    width: 574px;
     margin-top: 27px;
     height: 52px;
     float:left;
     padding-left: 4px;
-    margin-left: 4px;
 }
 .community-content-header-object{
     border-top:1px solid gray;
@@ -294,15 +284,14 @@
     height: 10px;
 }
 .community-content-section{
-    width: 540px;
+    width: 624px;
     border: 2px solid lightgrey;
     border-top:1px solid lightgrey;
     min-height: 700px;
-    max-height: 700px;
+    max-height: 900px;
     overflow:auto;
     background-color: whitesmoke;
     float:left;
-    margin-left: 8px;
 }
 #community-discussions {
     width: 578px;
@@ -440,6 +429,10 @@ div.cke{
     border-radius: 6px;
     overflow: hidden;
     position: relative;
+}
+.members-container{
+    max-height: 300px;
+    overflow-y: scroll;
 }
 .community-resource img {
     display: block;
@@ -637,26 +630,11 @@ div.card-bottom table tr:nth-child(2) {
     width: 17px;
     height: 20px;
 }
-.member-arrows-left div{
-    cursor: pointer;
-    width: 20px;
-    height: 17px;
-}
 .member-arrow-left {
     background: url(../tmp-resource/image/up_page.png);
 }
 .member-arrow-right {
     background: url(../tmp-resource/image/next_page.png);
-}
-.member-arrow-up{
-    width: 20px;
-    height: 17px;
-    background: url(../tmp-resource/image/up-arrow.png);
-}
-.member-arrow-down{
-    width: 20px;
-    height: 17px;
-    background: url(../tmp-resource/image/down-arrow.png);
 }
 .member-column {
     white-space: nowrap;
@@ -897,7 +875,7 @@ div.card-bottom table tr:nth-child(2) {
 }
 .add-comment-text{
     margin-top: 9px;
-    width:91%;
+    width:92%;
     float:right;
     font: italic 300 16px Georgia, Cambria, "Times New Roman", Times, serif !important;
     font-style: italic;
