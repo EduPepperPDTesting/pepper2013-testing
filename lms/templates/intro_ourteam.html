@@ -10,8 +10,7 @@
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <!--@end-->
-<link rel="stylesheet" type="text/css" media="screen" href="/static/css/indexscroll.css"/>
-<script type="text/javascript" src="/static/js/indexscroll.js"></script>
+<script type="text/javascript" src="static/js/20160810/jcarousellite_1.0.1.js"></script>
 
 <style type="text/css" media="screen">
 ul.left {
@@ -73,15 +72,7 @@ div.gray_box div{
 .content_scroll{
     width:960px;
     margin-bottom:25px;
-}
-.carousel-inner td{
-  vertical-align: middle;
-  text-align:center;
-  width:250px;
-  height:225px;
-}
-.carousel-inner div{
-    margin:auto;
+    border:0px solid;
 }
 .content_scroll_title{
     text-align:center;
@@ -89,18 +80,33 @@ div.gray_box div{
     font-size:32px;
     color:#0070c0;
     font-weight:bold;
+    margin-top:20px;
 }
-.jCarouselLite table{
+.auto table{
     width:260px;
     height:226px;
     border:0px solid;
 }
+.auto td{
+   text-align:center;
+   vertical-align:middle;
+}
 </style>
+
 <script type="text/javascript">
-$(function(){
-    $(".carousel-inner a:first-child").addClass("active");
-}); 
+$(function() {
+    $(".auto").jCarouselLite({
+        auto: 3000,
+        speed: 1000,
+        visible: 3,
+        onMouse:true,
+        btnNext: ".next",
+        btnPrev: ".prev"
+    });
+});
 </script>
+
+
 <div class="main_container">
     <div class="banner_title">
         <section class="_banner_aboutus_title_font">Our Team</section>
@@ -111,95 +117,153 @@ $(function(){
             <hr />
         </div>
         <div class="org_card_container clearfix">
-                <div class="gray_box _body_content_font" style="margin-right:15px;">
-                    <a href="https://www.edx.org/about-us" target="_blank"><img src="static/images/logo_our_team/harvard_logo.jpg" width="250"/></a>
-                    <div id="">
-                        Pepper is delivered on the powerful edX learning platform,
-                        the Cambridge-based education partnership founded by
-                        Harvard University and M.I.T., to support two important
-                        missions: improving online education, and advancing
-                        teaching and learning through research.  
-                    </div>
+            <div class="gray_box _body_content_font" style="margin-right:15px;">
+                <a href="https://www.edx.org/about-us" target="_blank"><img src="static/images/logo_our_team/harvard_logo.jpg" width="250"/></a>
+                <div id="">
+                    Pepper is delivered on the powerful edX learning platform,
+                    the Cambridge-based education partnership founded by
+                    Harvard University and M.I.T., to support two important
+                    missions: improving online education, and advancing
+                    teaching and learning through research.  
                 </div>
-                <div class="gray_box _body_content_font" style="margin-right:15px;">
-                    <a href="http://www.publicconsultinggroup.com/education/" target="_blank"><img src="static/images/logo_our_team/pcg_logo.jpg" width="250"/></a>
-                    <div id="">
-                        PCG Education is a division of Public Consulting
-                        Group, currently works with more than 4,400
-                        school districts and has contracts with 14 state
-                        education agencies to provide services and
-                        software solutions that focus on student
-                        achievement.  
-                    </div>
+            </div>
+            <div class="gray_box _body_content_font" style="margin-right:15px;">
+                <a href="http://www.publicconsultinggroup.com/education/" target="_blank"><img src="static/images/logo_our_team/pcg_logo.jpg" width="250"/></a>
+                <div id="">
+                    PCG Education is a division of Public Consulting
+                    Group, currently works with more than 4,400
+                    school districts and has contracts with 14 state
+                    education agencies to provide services and
+                    software solutions that focus on student
+                    achievement.  
                 </div>
-                <div class="gray_box _body_content_font">
-                    <a href="http://www.education2000.com/" target="_blank"><img src="static/images/logo_our_team/education2000_logo.jpg" width="250"/></a>
-                    <div id="">
-                        Edu2000 develops interactive content for state
-                        departments of education, school districts, and
-                        educational publishers. Edu2000 is particularly strong in
-                        the delivery of online mathematics and science curriculum
-                        that includes interactive animations, simulations, and visual
-                        experiments that teach concepts to all learners.  
-                    </div>
+            </div>
+            <div class="gray_box _body_content_font">
+                <a href="http://www.education2000.com/" target="_blank"><img src="static/images/logo_our_team/education2000_logo.jpg" width="250"/></a>
+                <div id="">
+                    Edu2000 develops interactive content for state
+                    departments of education, school districts, and
+                    educational publishers. Edu2000 is particularly strong in
+                    the delivery of online mathematics and science curriculum
+                    that includes interactive animations, simulations, and visual
+                    experiments that teach concepts to all learners.  
                 </div>
+            </div>
         </div>
 
         <div class="content_scroll">
-                <div class="content_scroll_title">
-                    Best Content.  Trusted Partners.
-                </div>
-                <!--Scrolling Start-->
-                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
-                    <!-- Wrapper for slides -->
-                    <div class="carousel-inner" role="listbox" style="height:100%;">
-                        <a href="javascript:void(0)" class="item" style="cursor:default;">
-                            <table border="0" style="margin:auto;">
-                                <tr>
-                                    <td><a href="/static/resource/Pepper_Professional_Learning_Fall2016.pdf" target="_blank"><div style="width:156px;height:206px;background-image:url(/static/images/ourteam/ourteam_Pepper_PDF.png);"></div></a></td>
-                                    <td><a href="http://www.wested.org" target="_blank"><div style="width:250px;height:165px;background-image:url(/static/images/ourteam/ourteam_WestEd.png)"></div></a></td>
-                                    <td><a href="http://ell.stanford.edu" target="_blank"><div style="width:250px;height:50px;background-image:url(/static/images/ourteam/ourteam_Standford.png)"></div></a></td>
-                                </tr>
-                            </table>
-                        </a>
-                        <a href="javascript:void(0)" class="item" style="cursor:default;">
-                            <table border="0" style="margin:auto;">
-                                <tr>
-                                    <td><a href="https://www.commonsensemedia.org/educators/digital-citizenship" target="_blank"><div style="width:250px;height:97px;background-image:url(/static/images/ourteam/ourteam_CommonSense.png)"></div></a></td>
-                                    <td><a href="http://www.getfueled.com" target="_blank"><div style="width:250px;height:96px;background-image:url(/static/images/ourteam/ourteam_Fuel.png)"></div></a></td>
-                                    <td><a href="http://www.publicconsultinggroup.com/education2" target="_blank"><div style="width:250px;height:165px;background-image:url(/static/images/ourteam/ourteam_PCG.png)"></div></a></td>
-                                </tr>
-                            </table>
-                        </a>
-                        <a href="javascript:void(0)" class="item" style="cursor:default;">
-                            <table border="0" style="margin:auto;">
-                                <tr>
-                                    <td><a href="http://www.acceleratedliteracylearning.com" target="_blank"><div style="width:230px;height:115px;background-image:url(/static/images/ourteam/ourteam_ALL.png)"></div></a></td>
-                                    <td><a href="http://www.chadd.org" target="_blank"><div style="width:229px;height:121px;background-image:url(/static/images/ourteam/ourteam_CHADD.png)"></div></a></td>
-                                    <td><a href="http://www.seadae.org" target="_blank"><div style="width:112px;height:134px;background-image:url(/static/images/ourteam/ourteam_SEADAE.png)"></div></a></td>
-                                </tr>
-                            </table>
-                        </a>
-                        <a href="javascript:void(0)" class="item" style="cursor:default;">
-                            <table border="0" style="margin:auto;">
-                                <tr>
-                                    <td><a href="http://oneillseaodyssey.org" target="_blank"><div style="width:168px;height:79px;background-image:url(/static/images/ourteam/ourteam_Sea_Odyssey_Logo.jpg)"></div></a></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </table>
-                        </a>
-                    </div>
-            
-                    <!-- Controls -->
-                    <div class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-                        <span class="glyphicon-chevron-left" aria-hidden="true" style="background-image:url(/static/images/index_jtl.png);"></span>
-                    </div>
-                    <div class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-                        <span class="glyphicon-chevron-right" aria-hidden="true" style="background-image:url(/static/images/index_jtr.png);"></span>
-                    </div>
-                </div>
-                <!--Scrolling End-->
+            <div class="content_scroll_title">
+                Best Content.  Trusted Partners.
+            </div>
+
+            <!--Scrolling Start-->
+            <table width="960" border="0">
+                <tr>
+                    <td width="9%" align="right" style="vertical-align:middle;">
+                        <a class="prev" style="cursor:pointer;"><img src="static/images/index_jtl.png"></a>
+                    </td>
+                    <td width="82%" align="center">
+                        <div class="auto" style="border:0px solid #f00">
+                            <ul>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="/static/resource/Pepper_Professional_Learning_Fall2016.pdf" target="_blank"><img src="static/images/ourteam/ourteam_Pepper_PDF.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.wested.org" target="_blank"><img src="static/images/ourteam/ourteam_WestEd.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://ell.stanford.edu" target="_blank"><img src="static/images/ourteam/ourteam_Standford.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="https://www.commonsensemedia.org/educators/digital-citizenship" target="_blank"><img src="static/images/ourteam/ourteam_CommonSense.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.getfueled.com" target="_blank"><img src="static/images/ourteam/ourteam_Fuel.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.publicconsultinggroup.com/education2" target="_blank"><img src="static/images/ourteam/ourteam_PCG.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.acceleratedliteracylearning.com" target="_blank"><img src="static/images/ourteam/ourteam_ALL.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.chadd.org" target="_blank"><img src="static/images/ourteam/ourteam_CHADD.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.seadae.org" target="_blank"><img src="static/images/ourteam/ourteam_SEADAE.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://oneillseaodyssey.org" target="_blank"><img src="static/images/ourteam/ourteam_Sea_Odyssey_Logo.jpg"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td align="left" style="vertical-align:middle;">
+                        <a class="next" style="cursor:pointer;"><img src="static/images/index_jtr.png"></a>
+                    </td>
+                </tr>
+            </table>
+            <!--Scrolling End-->
         </div>
     </div>
 </div>
