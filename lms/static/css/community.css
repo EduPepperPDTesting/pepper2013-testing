@@ -431,7 +431,7 @@ div.cke{
     position: relative;
 }
 .members-container{
-    max-height: 300px;
+    max-height: 200px;
     overflow-y: scroll;
 }
 .community-resource img {
@@ -465,9 +465,6 @@ div.cke{
 }
 .card-link span {
     color: #FFFFFF;
-}
-.course-card img{
-    height: 110px !important;
 }
 .course-card {
     margin: 10px 0 10px 0 !important;
