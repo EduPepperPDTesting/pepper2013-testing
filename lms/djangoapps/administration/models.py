@@ -214,7 +214,7 @@ class PepRegStudent(models.Model):
     training = models.ForeignKey(PepRegTraining)
     student = models.ForeignKey(User, related_name='+')
     student_status = models.CharField(blank=False, max_length=50, db_index=False)
-    student_credit = models.IntegerField(blank=False, default=0)
+    student_credit = models.FloatField(blank=False, default=0)
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
