@@ -16,7 +16,7 @@ a._del_line
 
 ._banner_index_title_font
 {
-	font-family: 'Josefin Sans', sans-serif !important;
+	font-family: Arial, Helvetica, sans-serif !important;
 	font-size:35px;
 	font-weight:bold;
 	color:#000;
@@ -26,7 +26,7 @@ a._del_line
 }
 ._banner_index_content_font
 {
-	font-family:Arial, Helvetica, sans-serif !important;
+	font-family: Arial, Helvetica, sans-serif !important;
 	font-size:16px;
 	color:#fff;
 	
@@ -37,7 +37,7 @@ a._del_line
 /*@date:2013-11-13*/
 ._banner_whatis_title_font
 {
-	font-family: 'Josefin Sans', sans-serif !important;
+	font-family: Arial, Helvetica, sans-serif !important;
 	font-size:35px;
 	font-weight:bold;
 	color:#000;
@@ -63,7 +63,7 @@ a._del_line
 /*@date:2013-11-13*/
 ._banner_aboutus_title_font
 {
-	font-family: 'Josefin Sans', sans-serif !important;
+	font-family: Arial, Helvetica, sans-serif !important;
 	font-size:35px;
 	font-weight:bold;
 	color:#000;
