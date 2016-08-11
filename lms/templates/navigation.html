@@ -265,7 +265,7 @@
         <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:5px}
         </style>
-        <h1 class="logo">
+        <h1 class="logo" style="margin-top:-12px;margin-right:30px;">
             <!--@begin:Choose the link of the top logo according user's login status-->
             <!--@date:2013-11-02-->
 
@@ -521,7 +521,7 @@
         </%block>
         </ol>
 
-            <ol class="right nav-courseware">
+            <ol class="right nav-courseware" style="margin-top:-5px;">
                 <!--@begin:Add Paypal-->
                 <!--@date:2016-05-19-->
                 <!--<li class="nav-courseware-01">
@@ -534,14 +534,15 @@
                     % endif
                 </li>-->
                 <!--@end-->
+                <li><a class="main-link" href="/contact" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
                 <li class="nav-courseware-01">
                     % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
                         % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
                             <!--@begin:Change the text in Log in to Login-->
                             <!--@date:2013-11-02-->
-                            <a class="cta cta-login" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
+                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
                         % else:
-                            <a class="cta cta-login" href="/login${login_query()}">${_("Login")}</a>
+                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="/login${login_query()}">${_("Login")}</a>
                             <!--@end-->
                         % endif
                     % endif
