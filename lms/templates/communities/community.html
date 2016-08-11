@@ -220,7 +220,11 @@ import datetime
                                   <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
 
                                 %endif
-                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px"/> ${use.first_name} ${use.last_name}
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+                                %if active_recent:
+                                    <img src ="/static/images/online-3.png" width="" class="members-image"></img>
+                                %endif
+                                <span class="members-name">${use.first_name} ${use.last_name}</span>
                               </a>
                                   </td></tr>
                               %endfor
