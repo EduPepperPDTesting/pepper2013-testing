@@ -741,6 +741,21 @@ div.card-bottom table tr:nth-child(2) {
 .like-members-anchor:hover{
     cursor: pointer;
 }
+.members-name{
+    display: inline-block;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+    overflow-y: hidden;
+}
+.members-image{
+    margin-top: -20px;
+    position: relative;
+    right: 8px;
+    bottom: 7px;
+    width: 10px;
+}
 .post-like-text{
     color: #365899 !important;
     font-weight: bold !important;
