@@ -221,10 +221,10 @@ import datetime
 
                                 %endif
                                 <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+                                <span class="members-name">${use.first_name} ${use.last_name}</span>
                                 %if active_recent:
                                     <img src ="/static/images/online-3.png" width="" class="members-image"></img>
                                 %endif
-                                <span class="members-name">${use.first_name} ${use.last_name}</span>
                               </a>
                                   </td></tr>
                               %endfor
