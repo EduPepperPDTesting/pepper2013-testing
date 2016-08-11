@@ -519,21 +519,6 @@
                 </li>
             % endif
         </%block>
-
-        % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-            % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                <!--@begin:Change Register Now to Become a Member-->
-                <!--@date:2013-11-02-->
-                <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}">Become a Member</a>
-            % else:
-                <li><a  class="main-link" href="/contact">Become a Member</a></li>
-                <!--@end-->
-            % endif
-        % endif
-            <!--@begin:Add tab About Us-->
-            <!--@date:2013-11-02-->
-            <li><a href="/about_pepper" class="main-link">About Us</a></li>
-            <!--@end-->
         </ol>
 
             <ol class="right nav-courseware">
