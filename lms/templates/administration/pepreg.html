@@ -1246,6 +1246,10 @@
                         });
                     });
                 }
+                // instructors
+                $(this).find("td:nth-child(13)").each(function () {
+                  $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
+                });                
             });
         });
     };
