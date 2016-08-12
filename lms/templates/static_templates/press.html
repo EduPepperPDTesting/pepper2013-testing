@@ -4,6 +4,8 @@
 <%! from django.utils.translation import ugettext as _ %>
 <%! from django.core.urlresolvers import reverse %>
 <%namespace name='static' file='../static_content.html'/>
+<link rel="stylesheet" type="text/css" media="screen" href="/static/css/indexscroll.css"/>
+<script type="text/javascript" src="/static/js/inthenewsscroll.js"></script>
 
 <%inherit file="../main.html" />
 <%block name="title"><title>${_("Press")}</title></%block>
@@ -15,86 +17,216 @@
 <!--@end-->
 
 <style type="text/css" media="screen">
-  ul.left {
-  list-style:none;
-  }
-
-  ul.left li{
-  margin-top:30px;font-size:16px;
-  }
-  
-  ul.left a{
-  color:#666;
-  }  
+ul.left {
+  	list-style:none;
+}
+ul.left li{
+  	margin-top:30px;font-size:16px;
+}
+ul.left a{
+  	color:#666;
+}
+.main_container{
+	text-align:center;
+	background:#f5f5f5
+}
+.banner_title{
+	margin:auto;
+	width:960px;
+	height:195px;
+	background:url(static/images/ppd-aboutus-banner.jpg);
+}
+.main_content{
+	width:960px;
+	margin:auto;
+	background:#fff;
+}
+.main_title_div{
+	width:750px;
+	text-align:left;
+	padding-top:20px;
+	margin:auto;
+	border:0px solid;
+}
+.main_title{
+	font-size:32px;
+    color:#0070c0;
+    font-weight:bold;
+}
+.content_scroll{
+	width:935px;
+	/*height:530px;*/
+	text-align:left;
+	margin:auto;
+	padding-bottom:15px;
+	border:0px solid;
+}
+.carousel-inner a:hover{
+	text-decoration:none;
+	cursor:default;
+}
+.p_title{
+	font-size:19px;
+	font-weight:600;
+}
+.p_content
+{
+	font-size:16px;
+	/*color:#666;*/
+	color:#000;
+	line-height:25px;
+}
+.p_read_more{
+	text-align:right;
+}
+.p_read_more a:hover{
+	cursor:pointer !important;
+	text-decoration:none !important;
+}
 </style>
-<div style="text-align:center;background:#f5f5f5">
-	<!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
-	<!--@date:2013-11-02-->
-	<div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.jpg);">
-	<!--@end-->
-
-		<!--@begin:add code(class="_banner_aboutus_title_font") to modify font style-->
-		<!--@date:2013-11-02-->
-		<section class="_banner_aboutus_title_font">PRESS</section>
-		<!--@end-->
+<script type="text/javascript">
+$(function(){
+    $(".carousel-inner a:first-child").addClass("active");
+}); 
+</script>
+<div class="main_container">
+	<div class="banner_title">
+		<section class="_banner_aboutus_title_font">In The News</section>
 	</div>
   
-	<div style="width:960px;margin:auto;background:#fff;">
-	    <div style="float:left;width:217px;height:580px;background:#E6F4FB;text-align:left;">
-	    	<ul class="left">
-		        <li><a href="/about_pepper">ABOUT PEPPER</a></li>
-		        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
-		        <li><a href="/our_team">OUR TEAM</a></li>
-		        <li><a href="/faq">FAQ</a></li>
-				<li><a href="/contact">CONTACT US</a></li>
-
-				<!--@begin:add new url-->
-				<!--@date:2013-11-02-->
-				<li><a href="/press" style="color:#3461ad;">PRESS</a></li>
-				<!--@end-->
-	    	</ul>
+	<div class="main_content">
+    	<div class="main_title_div">
+	        <h2 class="main_title">Press Releases & White Papers</h2>
+	        <hr />
 	    </div>
 
-	    <!--@begin:add code(class="_...") to modify font style; new content-->
-		<!--@date:2013-11-02-->
-    	<div style="float:left;width:743px;height:580px;text-align:left;">
-    		<div style="padding:20px;">
-	        	<h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">IN THE NEWS</h2>
-	        	<hr />
-		        <div style="float:left;">
-					<div style="float:left;width:147px;">
-						<img style="padding-top:10px;" src="static/images/wested_logo.png"/>
-					</div>
-					<div style="float:right;width:540px;">
-						<section>
-		                    <span style="font-size:18px;">
-		                    	<a target="_blank" href="static/resource/PressRelease_Pepper_WestEd_13JAN2014.pdf">Lively Online Professional Development for the Common Core: Introducing Pepper</a>
-		                    </span>				
-		                    <br/><br/>
-		                    <span class="_body_content_font">By Matt Spaur</span>
-		                    <br/>
-		                    <span class="_body_content_font">WestEd News Release | January 13, 2014</span>
-		                    <br/><br/>
-		                    <span class="_body_content_font">WestEd and Public Consulting Group (PCG) today announced the launch of Pepper – self-paced, online professional development for
-educators implementing Common Core State Standards (CCSS). 
-		                    </span>
-		                    <br/><br/>
-		                    <span class="_body_content_font">To help teachers and districts successfully understand and implement the new rigorous standards, Pepper provides unlimited access to a series of online courses in Math and English Language Arts (ELA). The initial launch includes six courses, with additional courses 
-to be released throughout the school year. 
-		                    </span>
-		                    <br/><br/>
-		                    <span class="_body_content_font">"To prepare our students for college and careers, our teachers need to gain mastery in instruction aligned to the Common Core. We designed Pepper to help teachers across the nation become CCSS specialists, collaborating with other educators to create solutions 
-for 21st century learners," says Glen Harvey, WestEd CEO. 
-		                    </span>
-		                    <br/><br/>
-		                    <div style="text-align:right;" class="_body_content_font"><a href="static/resource/PressRelease_Pepper_WestEd_13JAN2014.pdf" target="_blank">Read More</a></div>
-		                </section>      
-					</div>
-				</div>
-      		</div>
-    	</div>
-    	<!--@end-->
-    	
-    	<br style="clear:both"/>
-  	</div>
+	    <div class="content_scroll">
+	    	<!--Scrolling Start-->
+	    	<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner" role="listbox" style="height:100%">
+                	<a href="javascript:void(0)" class="item">
+                    	<table border="0" width="660" height="450" style="margin:auto">
+                    		<tr>
+                    			<td style="vertical-align: middle;">
+                    				<table border="0" width="100%">
+							    		<tr>
+							    			<td width="160"><img style="padding-top:0px;" src="static/images/index_CHADD.png" width="130"/></td>
+							    			<td>
+							    				<p class="p_title _blue">CHADD and PCG Partner to Enhance Teachers Capacity for Supporting Students with ADHD</p>
+
+							    				<p class="p_content">PCG Education New Release | June 30, 2016</p>
+
+							    				<p class="p_content">Children and Adults with Attention-Deficit/Hyperactivity Disorder (CHADD), the leading national resource for individuals with Attention-Deficit/Hyperactivity Disorder, and Pepper, the nation’s fastest growing online, interactive professional learning platform, announced their new strategic partnership and the creation of CHADD’s first ADHD online learning solution for teachers, parents and providers.</p>
+
+							    				<p class="p_read_more p_content" ><a href="http://www.publicconsultinggroup.com/news/post/2016/06/30/CHADD-and-Public-Consulting-Group-Partner-to-Enhance-Teachers-Capacity-for-Supporting-Students-With-ADHD.aspx" target="_blank" class="_blue">Read More</a></p>
+							    			</td>
+							    		</tr>
+							    	</table>
+                    			</td>
+                    		</tr>
+                    	</table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                    	<table border="0" width="660" height="450" style="margin:auto">
+                    		<tr>
+                    			<td style="vertical-align: middle;">
+                    				<table border="0" width="100%">
+							    		<tr>
+							    			<td width="160"><img style="padding-top:0px;" src="static/images/index_PCG.png" width="160"/></td>
+							    			<td>
+							    				<p class="p_title _blue">The End of “Sit & Git” PD: Powerful Professional Learning Communities Fueled by Blended, Personalized Content Collections</p>
+
+							    				<p class="p_content">By Dr. Richard Vineyard & Dr. Jack McLaughlin<br/>PCG Education | March 2016</p>
+
+							    				<p class="p_content">In the landscape of the 21st Century, education is global in its reach and personal in its impact. In order to meet the needs of students, teachers and the lifelong learners of our current generation, educational systems will need to effectively use technology to allow the learners to access content that is relevant and useful for the questions they are trying to investigate.</p>
+
+							    				<p class="p_read_more p_content" ><a href="http://www.publicconsultinggroup.com/education2/library/white_papers/NoMoreSitGit_WhitePaper_FINAL_7MAR2016.pdf" target="_blank" class="_blue">Read More</a></p>
+							    			</td>
+							    		</tr>
+							    	</table>
+                    			</td>
+							</tr>
+						</table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                    	<table border="0" width="660" height="450" style="margin:auto">
+                    		<tr>
+                    			<td style="vertical-align: middle;">
+                    				<table border="0" width="100%">
+							    		<tr>
+							    			<td width="160"><img style="padding-top:0px;" src="static/images/index_PCG.png" width="160"/></td>
+							    			<td>
+							    				<p class="p_title _blue">“Build Your Own” – PCG Education and Pepper Introduce Digital Learning Services to Curate District-Owned Resources</p>
+
+							    				<p class="p_content">By Michael Weinraub<br/>PCG Education | February 2016</p>
+
+							    				<p class="p_content">PCG’s “Build Your Own” Digital Learning Solutions equip school districts and educational organizations with the resources they need to create and deliver powerful online and blended learning experiences for teachers. We leverage your existing materials, expertise, and vision to design and deliver interactive online learning that is personalized, cost-effective, and flexible.</p>
+
+							    				<p class="p_read_more p_content" ><a href="http://www.publicconsultinggroup.com/education2/library/data_sheets/Digital_Learning_Solutions.pdf" target="_blank" class="_blue">Read More</a></p>
+							    			</td>
+							    		</tr>
+							    	</table>
+                    			</td>
+							</tr>
+						</table>
+                    </a>
+                    <a href="javascript:void(0)" class="item">
+                    	<table border="0" width="660" height="450" style="margin:auto">
+                    		<tr>
+                    			<td style="vertical-align: middle;">
+                    				<table border="0" width="100%">
+							    		<tr>
+							    			<td width="160"><img style="padding-top:0px;" src="static/images/index_PCG.png" width="160"/></td>
+							    			<td>
+							    				<p class="p_title _blue">Next Generation Science in Support of Language Acquisition for All Students</p>
+
+							    				<p class="p_content">By Dr. Richard Vineyard & Dr. Jack McLaughlin<br/>PCG Education | November 2015</p>
+
+							    				<p class="p_content">Teaching science to every student, every day, will improve language learning while also increasing science content knowledge. This study makes the argument that including all students in science instruction will help all students, including English Language Learners, increase their abilities to understand and use language in general and their content knowledge and literacy in science. Learning language in the applied situations and real-world context of science, will help students remember and use both the language and information that they have learned.</p>
+
+							    				<p class="p_read_more p_content" ><a href="http://www.publicconsultinggroup.com/education2/library/white_papers/EDU_Next_Generation_Science_White_Paper.pdf" target="_blank" class="_blue">Read More</a></p>
+							    			</td>
+							    		</tr>
+							    	</table>
+                    			</td>
+							</tr>
+						</table>
+                    </a>
+               		<a href="javascript:void(0)" class="item">
+                    	<table border="0" width="660" height="450" style="margin:auto">
+                    		<tr>
+                    			<td style="vertical-align: middle;">
+                    				<table border="0" width="100%">
+							    		<tr>
+							    			<td width="160"><img style="padding-top:10px;" src="static/images/wested_logo.png"/></td>
+							    			<td>
+							    				<p class="p_title _blue">Lively Online Professional Development for the Common Core: Introducing Pepper</p>
+
+							    				<p class="p_content">By Matt Spaur<br/>WestEd News Release | January 13, 2014</p>
+
+							    				<p class="p_content">WestEd and Public Consulting Group (PCG) today announced the launch of Pepper – self-paced, online professional development for
+							    				educators implementing Common Core State Standards (CCSS).</p>
+
+							    				<p class="p_read_more p_content" ><a href="https://www.pepperpd.com/static/resource/PressRelease_Pepper_WestEd_13JAN2014.pdf" target="_blank" class="_blue">Read More</a></p>
+							    			</td>
+							    		</tr>
+							    	</table>
+                    			</td>
+							</tr>
+						</table>
+                    </a>
+                </div>
+        
+                <!-- Controls -->
+                <div class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                    <span class="glyphicon-chevron-left" aria-hidden="true" style="background-image:url(/static/images/index_jtl.png);"></span>
+                </div>
+                <div class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                    <span class="glyphicon-chevron-right" aria-hidden="true" style="background-image:url(/static/images/index_jtr.png);"></span>
+                </div>
+            </div>
+            <!--Scrolling End-->
+		</div>
+	</div>
 </div>
