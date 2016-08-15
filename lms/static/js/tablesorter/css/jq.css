@@ -1,5 +1,5 @@
 html { box-sizing: border-box; }
-*, *:before, *:after { box-sizing: inherit; }
+/**, *:before, *:after { box-sizing: inherit; }*/
 body,div,h1 {font-family:'trebuchet ms', verdana, arial;margin:0;padding:0;}
 body {background-color:#fff;color:#333;margin:0;padding:0;}
 h1,h2 {font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;margin:0;}
