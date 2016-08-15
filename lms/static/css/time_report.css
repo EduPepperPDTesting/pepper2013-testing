@@ -30,11 +30,9 @@ div.expand_div {
     width:auto;
     overflow-x:auto;
 }
-/*
 div{
     font-size:small;
 }
-*/
 .table-menu .tablesorter-header-inner div{
     background-attachment: scroll;
     background-clip: border-box;
