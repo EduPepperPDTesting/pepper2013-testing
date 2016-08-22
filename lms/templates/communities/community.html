@@ -24,18 +24,20 @@ import datetime
 <div id="community-main" class="clearfix">
     <section id="community-main-content">
         <div id="community-header">
-            %if community.logo:
-                <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
-            %endif
-            <h1>${community.name}</h1>
-            <h2>${community.motto}</h2>
-            %if facilitator:
-                <div class="facilitator-wrap">
-                    <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
-                    <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
-                    <h4>Community Facilitator</h4>
-                </div>
-            %endif
+            <table><tr><td>
+                <h1>${community.name}</h1>
+                <h2>${community.motto}</h2>
+            </td>
+            <td>
+                %if facilitator:
+                    <div class="facilitator-wrap">
+                        <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                        <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                        <h4>Community Facilitator</h4>
+                    </div>
+                %endif
+            </td></tr></table>
+
             <div class="community-clear"></div>
         </div>
 
@@ -44,7 +46,6 @@ import datetime
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
                     <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
-                    <h1 id="community_content_header_search" class="section-tab search-tab community-content-header-object">Search</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -152,7 +153,7 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                <img src="${get_file_url(community.logo)}" alt="PCG Logo" />
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                 %else:

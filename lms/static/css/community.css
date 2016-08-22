@@ -112,7 +112,7 @@
     border: 2px solid #ddd;
     width: 100%;
     position: relative;
-    min-height: 260px;
+    min-height: 120px;
 }
 #community-header h1 {
     text-align: left;
@@ -151,10 +151,9 @@
     height: 260px;
 }
 .facilitator-wrap {
-    position: absolute;
     width: 450px;
     bottom: 20px;
-    left: 20px;
+    margin-left: 200px;
 }
 #community-content-area h1 {
     color: #006EBF;
