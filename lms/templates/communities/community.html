@@ -145,15 +145,14 @@ import datetime
             </div>
         </div>
 
-
     </section>
     <section id="community-main-sidebar">
         <div id="community-sidebar-header">
             ${request.user.username}
         </div>
         <div id="community-sidebar">
-            <div class="sidebar-section" style="text-align: center;">
-                <img src="${get_file_url(community.logo)}" alt="PCG Logo" />
+            <div class="sidebar-section" style="text-align: center;">   
+                <img src="${get_file_url(community.logo)}" alt="PCG Logo" class="sidebar-logo"/>
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                 %else:
