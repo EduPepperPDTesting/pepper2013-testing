@@ -220,13 +220,14 @@ class PepRegStudent(models.Model):
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=True, db_index=False)
     
-class UserLogTime(models.Model):
+class UserLoginInfo(models.Model):
     class Meta:
-        db_table = 'user_log_time'
+        db_table = 'user_login_info'
     user_id = models.IntegerField(blank=False, max_length=11)
-    login_time = models.CharField(max_length=50)
-    logout_time = models.CharField(max_length=50)
+    login_time = models.CharField(max_length=30)
+    logout_time = models.CharField(max_length=30)
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
-    last_session =  models.IntegerField(blank=False, max_length=10)
-    total_session = models.IntegerField(blank=False, max_length=10)
+    last_session =  models.IntegerField(blank=False, max_length=15)
+    total_session = models.IntegerField(blank=False, max_length=30)
+    login_times = models.IntegerField(blank=False, max_length=15, default=1)

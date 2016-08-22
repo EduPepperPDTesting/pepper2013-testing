@@ -78,7 +78,7 @@ from administration.models import PepRegStudent
 from reporting.models import reporting_store
 #@end
 
-from administration.models import UserLogTime
+from administration.models import UserLoginInfo
 from datetime import timedelta
 
 log = logging.getLogger("mitx.student")
@@ -825,7 +825,7 @@ def login_user(request, error=""):
         utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         utctime_30m_str = (datetime.datetime.utcnow() + timedelta(seconds=30*60)).strftime('%Y-%m-%d %H:%M:%S')
 
-        user_log_info = UserLogTime.objects.filter(user_id=user.id)
+        user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
         if user_log_info:
             user_log_info[0].login_time = utctime_str
             user_log_info[0].logout_time = utctime_30m_str
@@ -833,9 +833,11 @@ def login_user(request, error=""):
             user_log_info[0].last_session = 60 * 30
             user_log_info[0].total_session = user_log_info[0].total_session + 60 * 30
 
+            user_log_info[0].login_times = user_log_info[0].login_times + 1
+
             user_log_info[0].save()
         else:
-            user_log_info = UserLogTime(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800)
+            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800)
             user_log_info.save();
         
         request.session['record_time'] = datetime.datetime.utcnow()
@@ -868,7 +870,7 @@ def logout_user(request):
     utctime = datetime.datetime.utcnow()
     utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
 
-    user_log_info = UserLogTime.objects.filter(user_id=user_id)
+    user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
     if user_log_info:
         user_log_info[0].logout_time = utctime_str
         db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')

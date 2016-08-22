@@ -4,7 +4,7 @@
 <%namespace name='static' file='static_content.html'/>
 <%namespace file='main.html' import="login_query, stanford_theme_enabled"/>
 
-<%! from administration.models import UserLogTime %>
+<%! from administration.models import UserLoginInfo %>
 <%! import datetime %>
 <%! from datetime import timedelta %>
 
@@ -1405,7 +1405,7 @@
 
         if time_diff_seconds > 60:
             request.session['record_time'] = utc_time
-            user_log_info = UserLogTime.objects.filter(user_id=request.user.id)
+            user_log_info = UserLoginInfo.objects.filter(user_id=request.user.id)
             if user_log_info:
                 utc_time_30m_str = (utc_time + timedelta(seconds=30*60)).strftime('%Y-%m-%d %H:%M:%S')
                 user_log_info[0].logout_time = utc_time_30m_str
