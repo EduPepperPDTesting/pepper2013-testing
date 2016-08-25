@@ -80,6 +80,7 @@ import datetime
                                 </td>
                             </tr>-->
                         </table>
+                        <center><img id="posts_loading_image" src="../static/images/posts-loading.gif"></img></center>
                     </div>
                 </div>
                 <div id="community_content_discussions" class="community-content-section">
@@ -230,11 +231,6 @@ import datetime
                               %endfor
                 </table>
                 </div>
-
-
-
-
-
             </div>
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
@@ -749,6 +745,9 @@ import datetime
         console.log(filter)
         var community=${community.id};
         $.post("${reverse('community_get_posts')}", {community_id: community, size:size, filter:filter}, function (data){
+            if(data.all =="DONE"){
+                $("#posts_loading_image").remove()
+            }
             $("#post_content_table").find("tr:gt(0)").remove();
             $('#post_content_table tr:last').after(data.post);
             $(".post-like-text").click(function(){
@@ -907,8 +906,6 @@ import datetime
         });
     }
     $(document).ready(function(){
-
-
         size=5;
         $("#post_filter_select").change(function(){
             getPosts();
@@ -942,6 +939,24 @@ import datetime
             if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
                 size+=5;
                 getPosts();
+            }
+        });
+        waiting = false;
+        $(window).scroll(function(){
+            if(!waiting) {
+                var a = $(this).scrollTop();
+                var b = $(this).innerHeight();
+                var body = document.body, html = document.documentElement;
+                var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+                console.log("A: " + a + "\nB: " + b + "\nHeight: " + height);
+                if (a + b >= height - 150) {
+                    size += 5;
+                    waiting = true;
+                    setTimeout(function(){
+                      waiting = false;
+                    }, 750);
+                    getPosts();
+                }
             }
         });
         var change_var = 0;

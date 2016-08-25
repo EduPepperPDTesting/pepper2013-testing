@@ -990,6 +990,13 @@ def get_posts(request):
     size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     html = ""
+    extra_data = ""
+    if int(CommunityPosts.objects.filter(community=c).count()) >= int(size):
+        all = "NO"
+        extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
+    else:
+        all = "DONE"
+        extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
     filter = request.POST.get('filter')
     if filter == "newest_post":
         posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
@@ -1116,7 +1123,7 @@ def get_posts(request):
             html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a><a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-type='comment' data-content='"+comment.comment+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+delete_code+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
-    return HttpResponse(json.dumps({'id':id, 'len': len(posts), 'Success': 'True', 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
+    return HttpResponse(json.dumps({'data': extra_data,'id':id, 'len': len(posts), 'Success': 'True', 'all':all, 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')
 
 
 def submit_new_comment(request):
