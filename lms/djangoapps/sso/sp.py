@@ -52,7 +52,7 @@ SSO_DIR = settings.PROJECT_HOME + "/sso"
 BASEDIR = SSO_DIR + "/idp"
 LMS_BASE = settings.LMS_BASE
 
-log = logging.getLogger("tracking")
+log = logging.getLogger("audit")
 
 
 def flat_dict(var, prefix=""):
