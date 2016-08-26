@@ -1,4 +1,11 @@
 #!/bin/bash
+
+
+mysql_
+
+
+
+
 echo -e "tahoe" | sudo -S netstat -tlnp
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mongo3_path="/home/tahoe/mongo321/mongodb-linux-x86_64-ubuntu1204-3.2.1/bin"

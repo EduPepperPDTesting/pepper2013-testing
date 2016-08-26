@@ -399,6 +399,7 @@ from permissions.utils import check_access_level, check_user_perms
     showTypeForm();
   });
   $("#btnSaveConfig").click(function(e){
+    var self = this;
     e.preventDefault();
     var data=[];
     $("#config-table-box table tbody tr").each(function(){
@@ -410,10 +411,11 @@ from permissions.utils import check_access_level, check_user_perms
       });
     });
     $.post("${reverse('communities_notification_save_config')}", {data: JSON.stringify(data)}, function(r){
-      alert(r.success)
+      $(self).next("span").html("Save successfully.");
     });
   });
   $("#btnSaveOtherConfig").click(function(e){
+    var self = this;
     e.preventDefault();
     var data=[];
     var filter={
@@ -433,7 +435,7 @@ from permissions.utils import check_access_level, check_user_perms
     $.post("${reverse('communities_notification_save_other_config')}",
            {data: JSON.stringify(data), filter: JSON.stringify(filter)},
            function(r){
-             alert(r.success);
+             $(self).next("span").html("Save successfully.");
            });
   });
   $(document).ready(function(){

@@ -128,6 +128,8 @@ urlpatterns = (
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
 
+    url(r'^usage_report/user_lastactive_save$', 'administration.usage_report.user_lastactive_save', name="user_lastactive_save"),
+
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
     url(r'^tnl/district/add$', 'tnl_integration.views.tnl_district_add', name="tnl_district_add"),
