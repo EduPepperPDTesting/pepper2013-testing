@@ -5,42 +5,42 @@
 <!--@begin:Show wireframes before implementing the functionalities of the page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-  #page-nav,#page-footer{width:1180px;}
+#page-nav,#page-footer{width:1180px;}
   
-  a.btnx:hover {
-  background:#638194;
-  transition-delay: 0s, 0s, 0s;
-  transition-duration: 0.25s, 0.25s, 0.25s;
-  transition-property:color, background,​ box-shadow;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  transition-duration:0.25s,​ 0.25s,​ 0.25s;
-  color:#fff;
-  }
-  a.btnx {
-  background-color:#556370;
-  text-decoration: none;
-  padding-bottom: 7px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 7px;
-  cursor: pointer;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  a.btnx:normal {
-  background-color:#126F9A;
-  text-decoration: none;
-  cursor: pointer;
-  font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-  color:#fff;
-  transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
-  }
-  #blocks *{font-family:'Open Sans',​Arial;}
-  #blocks p{margin-top:10px;}
+a.btnx:hover {
+    background:#638194;
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.25s, 0.25s, 0.25s;
+    transition-property:color, background,​ box-shadow;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+    transition-duration:0.25s,​ 0.25s,​ 0.25s;
+    color:#fff;
+}
+a.btnx {
+    background-color:#556370;
+    text-decoration: none;
+    padding-bottom: 7px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+a.btnx:normal {
+    background-color:#126F9A;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff;
+    transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+}
+#blocks *{font-family:'Open Sans',​Arial;}
+#blocks p{margin-top:10px;}
 /*@begin:tag 'p' sytle of short_description read from course_overview*/
 /*@date:2013-12-09*/
-  p{line-height:15px;}
+    p{line-height:15px;}
 /*@end*/
 </style>
 
@@ -50,18 +50,18 @@ from django.core.urlresolvers import reverse
 from courseware.courses import course_image_url, get_course_about_section
 %>
 <%!
-  correspondOrg={}
-  correspondOrg['CT Core Standards']='CT'
-  correspondOrg['Understanding Language Initiative at Stanford']='UL at Stanford'
-  correspondOrg['Manteca Unified School District']='MUSD'
-  correspondOrg['Common Sense Education']='Common Sense'
+    correspondOrg={}
+    correspondOrg['CT Core Standards']='CT'
+    correspondOrg['Understanding Language Initiative at Stanford']='UL at Stanford'
+    correspondOrg['Manteca Unified School District']='MUSD'
+    correspondOrg['Common Sense Education']='Common Sense'
 %>
 <%def name='format_courseOrg(orgStr)'>
-  % if correspondOrg.has_key(orgStr):
-    ${correspondOrg[orgStr]}
-  % else:
-    ${orgStr}
-  %endif
+    % if correspondOrg.has_key(orgStr):
+        ${correspondOrg[orgStr]}
+    % else:
+        ${orgStr}
+    %endif
 </%def>
 <%page args="course" />
 <style type="text/css" media="screen">
@@ -106,49 +106,67 @@ from courseware.courses import course_image_url, get_course_about_section
   }
 </style>
 <script>
-  $(function()
-  {
+$(function(){
     $(".card-link").hover(
-      function () {
-        $(this).find("span").html("<span style='margin-right:80px;'>Course Details</span><span>›</span>");
-      },
-      function () {
-        $(this).find("span").html($(this).attr("title"));
-      });
-      $(".card-link").each(function(){
-        if($(this).height()>60)
-        {
-          $(this).css("fontSize","12px");
-        }
+        function () {
+            $(this).find("span").html("<span style='margin-right:80px;'>Course Details</span><span>›</span>");
+        },
+        function () {
+            $(this).find("span").html($(this).attr("title"));
+        });
+        $(".card-link").each(function(){
+            if($(this).height()>60){
+                $(this).css("fontSize","12px");
+            }
     });
-  })
+})
 </script>
 
 <div class="course-card" style="cursor:pointer;margin-left:45px;">
-  <div class="card-top">
-    <div><div class="field-items"><figure><img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" width="242" height="150" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image"></figure></div></div>
-    <div class="course-title"><div class="field-content"><a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a></div></div>  
-  </div>
-    <div class="card-bottom" style="text-align:left;padding:10px 0 0 10px;">
-    <table><tr>
-    <td height="45"><div class="field-content"><span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${format_courseOrg(course.display_organization)}</span> | <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
-    <div class="course-grade" style="font-size:14px;font-weight:bold;margin-top:5px;">${course.display_grades}</div></td>
-    <td style="text-align:center;">
-      %if course.display_credit:
-      <img src="/static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit"/>
-      %endif
-    </td>
-    </tr>
-    <tr>
-    <td width="190">
-      %if course.display_prerequisite:
-        <span style="font-size:12px;">${_("Prerequisite Recommended")}</span>
-      %endif
-    </td>
-    <td width="40" style="text-align:center;">
-      %if course.is_newish:
-        <span style="font-size:10px;background:#99cc33;color:#fff;padding:2px;width:27px;">NEW</span>
-      %endif
-      </td></tr></table>
-</div>
+    <div class="card-top">
+        <div>
+            <div class="field-items">
+                <figure><img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" width="242" height="150" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image"></figure>
+            </div>
+        </div>
+        <div class="course-title">
+            <div class="field-content">
+                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+            </div>
+        </div>  
+    </div>
+    <div class="card-bottom" style="text-align:left;padding:10px 0 5px 10px;">
+        <table>
+            <tr>
+                <td height="45">
+                    <div class="field-content" style="height:17px;">
+                        <span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${format_courseOrg(course.display_organization)}</span>
+                    </div>
+                    <div class="course-grade" style="margin-top:5px;height:17px;">
+                        <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span>
+                    </div>
+                    <div class="course-grade" style="margin-top:5px;height:17px;">
+                        <span style="font-size:14px;font-weight:bold;">${course.display_grades}</span>
+                    </div>
+                </td>
+                <td style="text-align:center;">
+                    %if course.display_credit:
+                        <img src="/static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit" style="margin-top:30px;"/>
+                    %endif
+                </td>
+            </tr>
+            <tr height="23">
+                <td width="190">
+                    %if course.display_prerequisite:
+                        <span style="font-size:12px;">${_("Prerequisite Recommended")}</span>
+                    %endif
+                </td>
+                <td width="40" style="text-align:center;">
+                    %if course.is_newish:
+                        <span style="font-size:10px;background:#99cc33;color:#fff;padding:2px;width:27px;">NEW</span>
+                    %endif
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
