@@ -1015,6 +1015,7 @@ def get_posts(request):
     elif filter == "ralphauname":
         posts = CommunityPosts.objects.filter(community=c).order_by('-user__username')[0:size]
     usr_img=reverse('user_photo', args=[request.user.id])
+    c_likes = 0
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
         active = active_recent(post.user)
@@ -1077,7 +1078,10 @@ def get_posts(request):
         html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             active = active_recent(comment.user)
-            c_likes = CommunityLikes.objects.filter(comment=comment)
+            try:
+                c_likes = CommunityLikes.objects.filter(comment=comment)
+            except Exception as e:
+                c_likes = 0
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
             c_like_html=""
