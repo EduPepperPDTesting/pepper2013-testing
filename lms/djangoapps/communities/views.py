@@ -840,7 +840,7 @@ def community_edit_process(request):
                 course_object.community = community_object
                 course_object.course = course
                 course_object.save()
-                
+
                 # Record notification about modify courses
                 if courses_cur.get(course):
                     del courses_cur[course]
@@ -987,13 +987,18 @@ def email_expert(request):
 
 
 def get_posts(request):
+    id = 0
     size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     html = ""
     extra_data = ""
-    if int(CommunityPosts.objects.filter(community=c).count()) >= int(size):
+    total = int(CommunityPosts.objects.filter(community=c).count())
+    if total >= int(size):
         all = "NO"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
+    elif total == 0:
+        all="DONE"
+        extra_data += "No Posts"
     else:
         all = "DONE"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
