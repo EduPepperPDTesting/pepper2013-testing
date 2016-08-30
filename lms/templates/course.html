@@ -135,30 +135,35 @@ $(function(){
             </div>
         </div>  
     </div>
-    <div class="card-bottom" style="text-align:left;padding:10px 0 5px 10px;">
+    <div class="card-bottom" style="text-align:left;padding:10px 0 4px 3px;">
         <table>
             <tr>
-                <td height="45">
-                    <div class="field-content" style="height:17px;">
-                        <span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${format_courseOrg(course.display_organization)}</span>
+                <td colspan="2">
+                    <div class="field-content" style="height:17px;padding-left:7px;border:0px solid;">
+                        <span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99;">${format_courseOrg(course.display_organization)}</span>
                     </div>
-                    <div class="course-grade" style="margin-top:5px;height:17px;">
+                    <div style="height:6px;width:235px;background-color:#7092be;margin:auto;margin-top:5px;border-radius:6px;"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="course-grade" style="margin-top:5px;height:17px;padding-left:7px;">
                         <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span>
                     </div>
-                    <div class="course-grade" style="margin-top:5px;height:17px;">
+                    <div class="course-grade" style="margin-top:5px;height:17px;padding-left:7px;">
                         <span style="font-size:14px;font-weight:bold;">${course.display_grades}</span>
                     </div>
                 </td>
                 <td style="text-align:center;">
                     %if course.display_credit:
-                        <img src="/static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit" style="margin-top:30px;"/>
+                        <img src="/static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit" style="margin-top:11px;"/>
                     %endif
                 </td>
             </tr>
             <tr height="23">
                 <td width="190">
                     %if course.display_prerequisite:
-                        <span style="font-size:12px;">${_("Prerequisite Recommended")}</span>
+                        <span style="font-size:12px;padding-left:7px;">${_("Prerequisite Recommended")}</span>
                     %endif
                 </td>
                 <td width="40" style="text-align:center;">
