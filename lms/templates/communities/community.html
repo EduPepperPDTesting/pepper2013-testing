@@ -24,19 +24,19 @@ import datetime
 <div id="community-main" class="clearfix">
     <section id="community-main-content">
         <div id="community-header">
-            <table><tr><td>
-                <h1 class="community-name-header">${community.name}</h1>
-                <h2>${community.motto}</h2>
-            </td>
-            <td>
-                %if facilitator:
-                    <div class="facilitator-wrap">
-                        <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
-                        <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
-                        <h4>Community Facilitator</h4>
-                    </div>
-                %endif
-            </td></tr></table>
+             %if community.logo:
+                 <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
+             %endif
+             <h1>${community.name}</h1>
+             <h2>${community.motto}</h2>
+             %if facilitator:
+                 <div class="facilitator-wrap">
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                     <h4>Community Facilitator</h4>
+                 </div>
+             %endif
+
 
             <div class="community-clear"></div>
         </div>
@@ -153,11 +153,8 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                %if get_file_url(community.logo):
-                    <img src="${get_file_url(community.logo)}" alt="Logo" class="sidebar-logo"/>
-                %else:
-                    <img src="../static/images/pcg_columns_transparent.png" alt="PCG Logo" class="sidebar-logo"/>
-                %endif
+                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                 %else:
