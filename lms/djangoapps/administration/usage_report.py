@@ -22,26 +22,37 @@ def get_user_login_info(request):
 	local_utc_diff_m = request.POST.get("local_utc_diff_m")
 
 	user_log_info = UserLoginInfo.objects.filter() #Django model QuerySet
-
 	login_info_list = []
 	for d in user_log_info:
 		dict_tmp = {}
 		obj_user = User.objects.get(id=d.user_id)
+		dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
+		dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
+		
+		try:
+			if obj_user.profile.school.id:
+				dict_tmp['school'] = School.objects.get(id=obj_user.profile.school.id).name
+		except Exception as e:
+			dict_tmp['school'] = ''
 
-		dict_tmp['state'] = State.objects.get(id=d.user_id).name
-		dict_tmp['district'] = District.objects.get(id=d.user_id).name
-		dict_tmp['school'] = School.objects.get(id=d.user_id).name
 		dict_tmp['email'] = obj_user.email
 		dict_tmp['username'] = obj_user.username
 		dict_tmp['first_name'] = obj_user.first_name
 		dict_tmp['last_name'] = obj_user.last_name
 		dict_tmp['login_time'] = time_to_local(d.login_time, local_utc_diff_m)
-		dict_tmp['logout_time'] = time_to_local(d.logout_time, local_utc_diff_m)
-		dict_tmp['last_session'] = study_time_format(d.last_session)
+
+		if active_recent(obj_user):
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			dict_tmp['online_state'] = 'On'
+		else:
+			dict_tmp['logout_time'] = time_to_local(d.logout_time, local_utc_diff_m)
+			dict_tmp['last_session'] = study_time_format(d.last_session)
+			dict_tmp['online_state'] = 'Off'
+
 		dict_tmp['total_session'] = study_time_format(d.total_session)
 
 		login_info_list.append(dict_tmp)
-
 	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
 
 @ensure_csrf_cookie
