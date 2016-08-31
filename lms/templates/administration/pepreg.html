@@ -41,26 +41,34 @@
 <link rel="stylesheet" href="/static/css/mapbox-gl-directions.css"/>
 
 <style>
-    input[type="button"], button, .button {
-        box-shadow: none !important;
-    }
-
-    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
-        margin: 0 0 50px 10px !important;
-    }
-
-    .mapbox-directions-route-summary {
-        position: absolute !important;
-    }
-
-    .directions-control.directions-control-inputs {
-        left: 5px !important;
-        top: 5px !important;
-    }
-
-    .ui-autocomplete {
-        z-index: 100000 !important;
-    }
+    input[type="button"], button, .button {box-shadow: none !important;}
+    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
+    .mapbox-directions-route-summary {position: absolute !important;}
+    .directions-control.directions-control-inputs {left: 5px !important; top: 5px !important;}
+    .ui-autocomplete {z-index: 100000 !important;}
+	.ui-button-icon-primary{left:-1px !important; top:-1px !important;}
+	
+	#calendar-month{margin-top: 0 !important;}
+	#calendar-month tr th{ height:35px !important;}
+	#calendar-month tr td .alert{float:left; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+	#calendar-month tr td .al_3{ background-color:#22b14c;}
+	#calendar-month tr td .al_4{ background-color:#7f7f7f;}
+	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_6{ background-color:#ffc90e;}
+	#calendar-month tr td .al_7{ background-color:#fa0000; color:#FFFFFF !important;}
+	
+	#calendar-panel .calendar-panel-top{position:absolute; height:40px; padding-top:5px; left:0; right:0; top:0; background-color:#FFFFFF; border-bottom:2px solid #eeeeee;}
+	#calendar-panel .calendar-panel-center{position:absolute; left:0; right:0; top:50px; bottom:68px; overflow:auto; background-color:#FFFFFF}
+	#calendar-panel .calendar-panel-bottom{position:absolute; height:60px; left:0; right:0; bottom:0; padding-top:5px; background-color:#FFFFFF; border-top:2px solid #eeeeee;}
+	#calendar-panel .calendar-panel-bottom div{float:left; width:100%;}
+	#calendar-panel .calendar-panel-bottom .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
+	#calendar-panel .calendar-panel-bottom .calendar_exp .calendar_exp_txt{float:left; width:130px; height:20px; line-height:20px; font-weight:bold}
+	#calendar-panel .calendar-panel-bottom .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
+	#calendar-panel .calendar-panel-bottom .calendar_exp .c1{background-color:#22B14C;}
+	#calendar-panel .calendar-panel-bottom .calendar_exp .c2{background-color:#FFC90E;}
+	#calendar-panel .calendar-panel-bottom .calendar_exp .c3{background-color:#3F48CC;}
+	#calendar-panel .calendar-panel-bottom .calendar_exp .c4{background-color:#7F7F7F;}	
+	#calendar-panel .calendar-panel-bottom .calendar_exp .c5{background-color:#FA0000;}
 </style>
 
 <div class="data_import_bottom">
@@ -111,13 +119,7 @@
                 <input type="" name="" value="" class="search" data-column="3" autocomplete="off"
                        style="display:none;"/>
                        
-               	<div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
-                    <a href="#">
-                        <div class="icon"></div>
-                        <div>My Calendar</div>
-                    </a>
-                </div>
-                %if check_user_perms(request.user, 'pepreg'):
+               	%if check_user_perms(request.user, 'pepreg'):
                     <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
                         <a href="#">
                             <div class="icon"></div>
@@ -125,6 +127,13 @@
                         </a>
                     </div>
                 %endif
+                <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
+                    <a href="#">
+                        <div class="icon"></div>
+                        <div>My Calendar</div>
+                    </a>
+                </div>
+                
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
                     <option value="">Select Pepper Courses</option>
@@ -192,6 +201,41 @@
         </div>
     </div>
 </div>
+
+<div id="calendar-panel" style="display:none">
+	<div class="calendar-panel-top">
+        <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="Previous" />
+        <input class1="btn btn-default" type="button" id="calendar_btn_next" value="Next" />
+        <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
+        <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
+            <option value="0" selected="selected">All Categories</option>
+            <option value="1">Attended Training</option>
+            <option value="2">Register for Training</option>
+            <option value="3">Registered for Training</option>
+            <option value="4">Attend Training</option>
+            <option value="5">Training Full</option>
+        </select>
+    </div>
+    <div class="calendar-panel-center">
+        <table id="calendar-month" style="width:980px !important;">
+            <tr id="calendar-month-weekdays">
+                <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+            </tr>
+        </table>
+    </div>
+    <div class="calendar-panel-bottom">
+        <div>
+        	<span class="calendar_exp"><span class="calendar_exp_txt">Register for Training:</span><span class="calendar_exp_color c3"></span></span>
+        	<span class="calendar_exp"><span class="calendar_exp_txt">Registered Training:</span><span class="calendar_exp_color c2"></span></span>
+        	<span class="calendar_exp"><span class="calendar_exp_txt">Attended Training:</span><span class="calendar_exp_color c1"></span></span>	        
+        </div>
+        <div>
+        	<span class="calendar_exp"><span class="calendar_exp_txt">Training Full:</span><span class="calendar_exp_color c5"></span></span>
+            <span class="calendar_exp"><span class="calendar_exp_txt">Attend  Training:</span><span class="calendar_exp_color c4"></span></span>
+        </div>
+    </div>
+</div>
+
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -447,6 +491,62 @@
     </script>
 %endif
 <script type="text/javascript">
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_year_now, _sys_calendar_month_now;
+	
+	//-----------------------------------------------calendarOpen
+	function calendarOpen(){
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, catype: $("#calendar_select_categories").val()}, function(data){
+			$("#calendar-panel").dialog("open");
+			$(".calendar-tr-tmp").remove();
+			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+		});
+	}
+	
+	$(function(){
+		$("#calendar_select_categories").change(function(){
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------getCalendarInfo
+		$.getJSON("/pepreg/getCalendarInfo", function(data){	
+			$("#calendar-panel").dialog({title: data.title});			
+			_sys_calendar_year = data.year;
+			_sys_calendar_month = data.month;
+			_sys_calendar_year_now = data.year;
+			_sys_calendar_month_now = data.month;
+		});
+		
+		//-----------------------------------------------previous
+		$("#calendar_btn_previous").click(function(){
+			_sys_calendar_month -= 1;
+			if(_sys_calendar_month == 0){
+				_sys_calendar_month = 12;
+				_sys_calendar_year -= 1;
+			}
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------next
+		$("#calendar_btn_next").click(function(){
+			_sys_calendar_month += 1;
+			if(_sys_calendar_month == 13){
+				_sys_calendar_month = 1;
+				_sys_calendar_year += 1;
+			}
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------today
+		$("#calendar_btn_today").click(function(){
+			_sys_calendar_year = _sys_calendar_year_now;
+			_sys_calendar_month = _sys_calendar_month_now;
+			calendarOpen();
+		});
+	});
+	
+	//-----------------------------------------------dialogx
+	$( "#calendar-panel" ).dialog({autoOpen: false, width: 1000, height:610, modal: true});
+	
     var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);
@@ -896,6 +996,10 @@
             });
         });
         return false;
+    };
+	PepReg.prototype.openCalendar = function () {
+       //new Dialog($("#calendar-panel")).show();	
+	   calendarOpen();
     };
     PepReg.prototype.registerUser = function (training_id, join, cb) {
         var self = this;
