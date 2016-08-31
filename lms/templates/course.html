@@ -51,10 +51,11 @@ from courseware.courses import course_image_url, get_course_about_section
 %>
 <%!
     correspondOrg={}
-    correspondOrg['CT Core Standards']='CT'
-    correspondOrg['Understanding Language Initiative at Stanford']='UL at Stanford'
-    correspondOrg['Manteca Unified School District']='MUSD'
-    correspondOrg['Common Sense Education']='Common Sense'
+    correspondOrg['CT Core Standards'] = 'CT'
+    correspondOrg['Understanding Language Initiative at Stanford'] = 'UL at Stanford'
+    correspondOrg['Manteca Unified School District'] = 'MUSD'
+    correspondOrg['Common Sense Education'] = 'Common Sense'
+    #correspondOrg['O\'Neill Sea Odyssey'] = 'OSO'
 %>
 <%def name='format_courseOrg(orgStr)'>
     % if correspondOrg.has_key(orgStr):
