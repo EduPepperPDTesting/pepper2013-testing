@@ -127,13 +127,14 @@
                         </a>
                     </div>
                 %endif
+                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
                 <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
                     <a href="#">
                         <div class="icon"></div>
                         <div>My Calendar</div>
                     </a>
                 </div>
-                
+                %endif
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
                     <option value="">Select Pepper Courses</option>
@@ -498,6 +499,7 @@
 		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, catype: $("#calendar_select_categories").val()}, function(data){
 			$("#calendar-panel").dialog("open");
 			$(".calendar-tr-tmp").remove();
+			$("#calendar-panel").dialog({title: data.title});
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
 		});
 	}
