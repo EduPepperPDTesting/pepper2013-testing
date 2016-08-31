@@ -396,7 +396,8 @@
                         %if check_user_perms(curr_user, 'alert_message'):
                             <li><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
-                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>    
+                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                        <li><a href="${reverse('usage_report')}">Usage Report</a></li>    
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {
