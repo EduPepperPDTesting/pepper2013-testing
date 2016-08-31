@@ -433,8 +433,7 @@ div.cke{
     position: relative;
 }
 .members-container{
-    max-height: 200px;
-    overflow-y: scroll;
+    text-align: left;
 }
 .community-resource img {
     display: block;
@@ -748,7 +747,6 @@ div.card-bottom table tr:nth-child(2) {
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
-    max-width: 140px;
     overflow-y: hidden;
 }
 .members-image{
