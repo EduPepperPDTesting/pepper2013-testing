@@ -26,6 +26,20 @@
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<style>
+.online{
+    height:20px;
+    width:20px;
+    background-color:#6f6;
+    display:inline-block;
+}
+.offline{
+    height:20px;
+    width:20px;
+    background-color:#cdcdcd;
+    display:inline-block;
+}
+</style>
 
 <div class="data_import_top data_import_bottom">
     <div class="main, data_import_content">
@@ -263,7 +277,13 @@ var userTimeReport = {
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
             table_con += '<td>' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
             table_con += '<td>' + data[d].login_time + '</td><td>' + data[d].logout_time + '</td><td>' + data[d].last_session + '</td>';
-            table_con += '<td>' + data[d].total_session + '</td><td>' + data[d].online_state + '</td>';
+            table_con += '<td>' + data[d].total_session + '</td>';
+            if(data[d].online_state == 'On'){
+                table_con += '<td align=center style="vertical-align: middle;"><div class=online><span style="opacity:0;">' + data[d].online_state + '</span></div></td>';
+            }
+            else{
+                table_con += '<td align=center style="vertical-align: middle;"><div class=offline><span style="opacity:0;">' + data[d].online_state + '</span></div></td>';
+            }
             table_con += '<td></td></tr>';
         }
         $(".tblUserTime tbody").append(table_con);
