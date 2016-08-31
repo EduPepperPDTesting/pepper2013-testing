@@ -26,9 +26,19 @@ def get_user_login_info(request):
 	for d in user_log_info:
 		dict_tmp = {}
 		obj_user = User.objects.get(id=d.user_id)
-		dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
-		dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
 		
+		try:
+			if obj_user.profile.district.state.id:
+				dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
+		except Exception as e:
+			dict_tmp['state'] = ''
+
+		try:
+			if obj_user.profile.district.id:
+				dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
+		except Exception as e:
+			dict_tmp['district'] = ''
+
 		try:
 			if obj_user.profile.school.id:
 				dict_tmp['school'] = School.objects.get(id=obj_user.profile.school.id).name
