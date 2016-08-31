@@ -348,8 +348,6 @@ def getCalendarInfo(request):
 def getCalendarMonth(request):
     SHIFT_WEEKSTART = 0;
 
-    name_dict = {};
-
     _year = request.GET.get('year');
     _month = request.GET.get('month');
     _catype = request.GET.get('catype');
@@ -369,15 +367,29 @@ def getCalendarMonth(request):
     while firstweekday > 6:
         firstweekday -= 7
 
-    # ctx = self.get_category_context()  # all event category
-
     month = [[]]
     week = 0
     start = datetime(year=_year, month=_month, day=1, tzinfo=utc)  # 2016-08-01
     end = datetime(year=_year, month=_month, day=1, tzinfo=utc) + relativedelta(months=1)  # 2016-09-01
 
-    # all_occurrences = Event.objects.get_occurrences(start, end, ctx.get('current_category'))
-    all_occurrences = PepRegTraining.objects.prefetch_related().all();
+    name_dict = {"title": start.strftime("%B %Y")};
+
+    columns = {
+        # 1: ['district__state__name', '__iexact', 'str'],
+        2: ['district__name', '__iexact', 'str']
+    }
+    filters = get_post_array(request.GET, 'fcol')
+    #filters[1] = request.user.profile.district.state.name
+    filters[2] = request.user.profile.district.name
+    if len(filters):
+        args, kwargs = build_filters(columns, filters)
+        if args:
+            all_occurrences = PepRegTraining.objects.prefetch_related().filter(args, **kwargs)
+        else:
+            all_occurrences = PepRegTraining.objects.prefetch_related().filter(**kwargs)
+    else:
+        all_occurrences = PepRegTraining.objects.prefetch_related().all();
+
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
 
@@ -423,13 +435,6 @@ def getCalendarMonth(request):
                                 if (_catype == "0" or _catype == "2"):
                                     occurrences.append(
                                         "<span class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + item.name + "</span>");
-
-                     # elif(arrive == "1" and status == "1" and allow == "1"):
-                     #     occurrences.append(
-                     #         "<span class='alert' title='The registration date has passed for this training'>" + item.name + "</span>");
-                     # elif(arrive == "1" and allow_student_attendance == "0"):
-                     #     occurrences.append(
-                     #         "<span class='alert' title='&#x025A1;  &#x0221A; Instructor records attendance.'>" + item.name + "</span>");
 
                     elif (arrive == "1" and allow_student_attendance == "1"):
                         if (status == "Attended" or status == "Validated"):
@@ -478,22 +483,6 @@ def getCalendarMonth(request):
         table_tr_content += "</tr>";
 
     name_dict["table_tr_content"] = table_tr_content;
-
-    # calendar.setfirstweekday(firstweekday)
-    #
-    # trainings = PepRegTraining.objects.prefetch_related().all();
-    # count = trainings.count();
-    # json_out = [count];
-    # rows = list();
-    #
-    # for item in trainings:
-    #     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-    #     allow = "1" if item.allow_registration else "0"
-    #     rl = "1" if reach_limit(item) else "0"
-    #     remain = item.max_registration - PepRegStudent.objects.filter(
-    #         training=item).count() if item.max_registration > 0 else -1
-    #
-    #     status = ""
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json");
 
