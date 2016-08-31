@@ -757,13 +757,13 @@ div.card-bottom table tr:nth-child(2) {
     width: 10px;
 }
 .post-like-text{
-    color: #365899 !important;
+    color: #707070 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
 .post-comment-text, .post-share-text{
     margin-left: 8px;
-    color: #365899 !important;
+    color: #707070 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
@@ -894,7 +894,7 @@ div.card-bottom table tr:nth-child(2) {
     height: 30px;
 }
 .comment-like-text{
-    color: #365899 !important;
+    color: #707070 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
