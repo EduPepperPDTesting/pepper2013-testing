@@ -57,14 +57,14 @@ def get_user_login_info(request):
 		dict_tmp['username'] = obj_user.username
 		dict_tmp['first_name'] = obj_user.first_name
 		dict_tmp['last_name'] = obj_user.last_name
-		dict_tmp['login_time'] = time_to_local(d.login_time, local_utc_diff_m)
+		dict_tmp['login_time'] = d.login_time
 
 		if active_recent(obj_user):
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
 			dict_tmp['online_state'] = 'On'
 		else:
-			dict_tmp['logout_time'] = time_to_local(d.logout_time, local_utc_diff_m)
+			dict_tmp['logout_time'] = d.logout_time
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			dict_tmp['online_state'] = 'Off'
 
@@ -99,6 +99,7 @@ def user_lastactive_save(request):
 			user_log_info[0].save()
 	return HttpResponse(json.dumps({}), content_type="application/json")
 
+'''
 def time_to_local(user_time,time_diff_m):
 	user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
 	plus_sub = 1
@@ -110,6 +111,7 @@ def time_to_local(user_time,time_diff_m):
 	
 	user_time_str = (user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub).strftime('%Y-%m-%d %H:%M:%S')
 	return user_time_str
+'''
 
 def active_recent(user):
 	user_now = user

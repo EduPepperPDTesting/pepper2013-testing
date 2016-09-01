@@ -28,15 +28,10 @@
 <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
 <style>
 .online{
-    height:20px;
-    width:20px;
-    background-color:#6f6;
-    display:inline-block;
-}
-.offline{
-    height:20px;
-    width:20px;
-    background-color:#cdcdcd;
+    height:25px;
+    width:25px;
+    background-image:url(/static/images/online-3.png);
+    background-size:25px 25px;
     display:inline-block;
 }
 </style>
@@ -270,19 +265,28 @@ var userTimeReport = {
         var self = this;
         var table_con = "";
         $(".tblUserTime tbody").empty();
+
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset()
         
         for(d in data){
-            //console.log(data);
             table_con += '<tr role="row" user_id=' + data[d].id + '>';
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
             table_con += '<td>' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
-            table_con += '<td>' + data[d].login_time + '</td><td>' + data[d].logout_time + '</td><td>' + data[d].last_session + '</td>';
-            table_con += '<td>' + data[d].total_session + '</td>';
-            if(data[d].online_state == 'On'){
-                table_con += '<td align=center style="vertical-align: middle;"><div class=online><span style="opacity:0;">' + data[d].online_state + '</span></div></td>';
+            table_con += '<td>' + this.datetime_style(data[d].login_time,local_utc_diff_m) + '</td>';
+            if(data[d].logout_time == ''){
+                table_con += '<td>' + ' ' + '</td>';
             }
             else{
-                table_con += '<td align=center style="vertical-align: middle;"><div class=offline><span style="opacity:0;">' + data[d].online_state + '</span></div></td>';
+                table_con += '<td>' + this.datetime_style(data[d].logout_time,local_utc_diff_m) + '</td>';
+            }
+            table_con += '<td>' + data[d].last_session + '</td>';
+            table_con += '<td>' + data[d].total_session + '</td>';
+            if(data[d].online_state == 'On'){
+                table_con += '<td align=center style="vertical-align: middle;"><div class=online><span style="opacity:0;">On</span></div></td>';
+            }
+            else{
+                table_con += '<td align=center style="vertical-align: middle;"><span style="opacity:0;">Off</span></td>';
             }
             table_con += '<td></td></tr>';
         }
@@ -310,6 +314,25 @@ var userTimeReport = {
         );
     },
 
+    datetime_style:function(dt,time_diff){
+        var dt_obj = new Date(dt);
+        var dt_obj_local = new Date(Date.parse(dt_obj) + (60000 * time_diff));
+        var local_time_1 = dt_obj_local.toLocaleString().replace(/\//g,"-");
+        var local_time_1 = local_time_1.replace(/\b(\w)\b/g, '0$1');
+
+        var hours=dt_obj_local.getHours();
+        var am_pm = "AM";
+        if(hours>12){
+            am_pm = "PM";
+        }
+
+        arr = local_time_1.split(" ");
+        arr_date = arr[0].split("-");
+        str_time = arr[1].substring(2);
+        dt_result = arr_date[1] + "-" + arr_date[2] + "-" + arr_date[0] + " " + str_time + " " + am_pm;
+
+        return dt_result;
+    },
 
 
 
