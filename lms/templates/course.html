@@ -51,11 +51,10 @@ from courseware.courses import course_image_url, get_course_about_section
 %>
 <%!
     correspondOrg={}
-    correspondOrg['CT Core Standards'] = 'CT'
-    correspondOrg['Understanding Language Initiative at Stanford'] = 'UL at Stanford'
-    correspondOrg['Manteca Unified School District'] = 'MUSD'
-    correspondOrg['Common Sense Education'] = 'Common Sense'
-    #correspondOrg['O\'Neill Sea Odyssey'] = 'OSO'
+    correspondOrg['CT Core Standards']='CT'
+    correspondOrg['Understanding Language Initiative at Stanford']='UL at Stanford'
+    correspondOrg['Manteca Unified School District']='MUSD'
+    correspondOrg['Common Sense Education']='Common Sense'
 %>
 <%def name='format_courseOrg(orgStr)'>
     % if correspondOrg.has_key(orgStr):
@@ -66,8 +65,8 @@ from courseware.courses import course_image_url, get_course_about_section
 </%def>
 <%page args="course" />
 <style type="text/css" media="screen">
-  *{font-family: 'Open Sans'}
-  .course-card{
+*{font-family: 'Open Sans'}
+.course-card{
     background-color: #FFFFFF;
     border-radius: 6px;
     -moz-border-radius: 6px;
@@ -79,15 +78,15 @@ from courseware.courses import course_image_url, get_course_about_section
     margin: 20px;
     position: relative;
     cursor: auto!important;
-  }
-  .card-top{position: relative;}
-  .image-style{
+}
+.card-top{position: relative;}
+.image-style{
     border-radius: 6px 6px 0px 0px;
     -moz-border-radius: 6px 6px 0px 0px;
     -webkit-border-radius: 6px 6px 0px 0px;
     display: block;
-  }
-  .card-link{
+}
+.card-link{
     display: table-cell;
     width: 242px;
     height: 60px;
@@ -97,14 +96,22 @@ from courseware.courses import course_image_url, get_course_about_section
     color: #FFFFFF;
     background: rgba(18,111,154,0.95);
     text-decoration: none!important;
-  }
-  .course-title {
+}
+.course-title {
     display: table;
     height: 60px;
     position: absolute;
     bottom: 0;
     font-size:14px;
-  }
+}
+.card-line{
+    height:6px;
+    width:235px;
+    background-color:#146C99;
+    margin:auto;
+    margin-top:5px;
+    border-radius:6px;
+}
 </style>
 <script>
 $(function(){
@@ -114,11 +121,12 @@ $(function(){
         },
         function () {
             $(this).find("span").html($(this).attr("title"));
-        });
-        $(".card-link").each(function(){
-            if($(this).height()>60){
-                $(this).css("fontSize","12px");
-            }
+        }
+    );
+    $(".card-link").each(function(){
+        if($(this).height()>60){
+            $(this).css("fontSize","12px");
+        }
     });
 })
 </script>
@@ -143,7 +151,7 @@ $(function(){
                     <div class="field-content" style="height:17px;padding-left:7px;border:0px solid;">
                         <span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99;">${format_courseOrg(course.display_organization)}</span>
                     </div>
-                    <div style="height:6px;width:235px;background-color:#7092be;margin:auto;margin-top:5px;border-radius:6px;"></div>
+                    <div class="card-line"></div>
                 </td>
             </tr>
             <tr>
