@@ -53,6 +53,7 @@ from courseware.courses import course_image_url, get_course_about_section
     correspondOrg['Understanding Language Initiative at Stanford']='UL at Stanford'
     correspondOrg['Manteca Unified School District']='MUSD'
     correspondOrg['Common Sense Education']='Common Sense'
+    #correspondOrg['O\'Neill Sea Odyssey'] = 'OSO'
 %>
 <%def name='format_courseOrg(orgStr)'>
     % if correspondOrg.has_key(orgStr):
@@ -102,6 +103,14 @@ from courseware.courses import course_image_url, get_course_about_section
     bottom: 0;
     font-size:14px;
 }
+.card-line{
+    height:6px;
+    width:235px;
+    background-color:#146C99;
+    margin:auto;
+    margin-top:5px;
+    border-radius:6px;
+}
 </style>
 <script>
 $(function(){
@@ -111,7 +120,8 @@ $(function(){
         },
         function () {
             $(this).find("span").html($(this).attr("title"));
-    });
+        }
+    );
     $(".card-link").each(function(){
         if($(this).height()>60){
             $(this).css("fontSize","12px");
@@ -140,7 +150,7 @@ $(function(){
                     <div class="field-content" style="height:17px;padding-left:7px;border:0px solid;">
                         <span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99;">${format_courseOrg(course.display_organization)}</span>
                     </div>
-                    <div style="height:6px;width:235px;background-color:#7092be;margin:auto;margin-top:5px;border-radius:6px;"></div>
+                    <div class="card-line"></div>
                 </td>
             </tr>
             <tr>
