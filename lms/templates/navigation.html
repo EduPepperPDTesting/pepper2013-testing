@@ -397,7 +397,9 @@
                             <li><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
                         <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
-                        <li><a href="${reverse('usage_report')}">Usage Report</a></li>    
+                        %if curr_user.is_superuser:
+                            <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
+                        %endif
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {

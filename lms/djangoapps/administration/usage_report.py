@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django_future.csrf import ensure_csrf_cookie
 from django.contrib.auth.models import User
 from student.models import District, Cohort, School, State
+from django.http import HttpResponseForbidden
 
 import datetime
 from datetime import timedelta
@@ -13,9 +14,16 @@ from models import UserLoginInfo
 import logging
 log = logging.getLogger("tracking")
 
+@login_required
 def main(request):
-    return render_to_response('administration/usage_report.html', {})
-
+	if request.user.is_superuser:
+		return render_to_response('administration/usage_report.html', {})
+	else:
+		error_context = {'window_title': '403 Error - Access Denied',
+		 				 'error_title': '403 Error - Access Denied',
+		 				 'error_message': 'You do not have access to this are of the site. If you feel this is\
+                                           in error, please contact the site administrator for assistance.'}
+        return HttpResponseForbidden(render_to_response('error.html', error_context))
 
 @ensure_csrf_cookie
 def get_user_login_info(request):
