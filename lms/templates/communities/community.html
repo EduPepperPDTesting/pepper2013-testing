@@ -45,7 +45,7 @@ import datetime
             <div id = "community_content_panel">
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
-                    <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object">Discussions</h1>
+                    <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object not-selected">Discussions</h1>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -173,8 +173,8 @@ import datetime
                 <h2>Ask an Expert</h2>
                 <div class="sidebar-sub-section">
                     <textarea id="ask_expert_message" placeholder="Ask a question of your community facilitator." rows="3"></textarea>
-                    <input type="button" class="small" id="ask_an_expert_button" value="Ask Question"></input>
-                    <p style="padding-top: 4px;" id="expert_error"></p>
+                    <input type="button" class="small ask-expert" id="ask_an_expert_button" value="Ask"></input>
+                    <p style="padding-top: 28px;" id="expert_error"></p>
                 </div>
             </div>
             <div class="sidebar-section">
@@ -888,6 +888,7 @@ import datetime
             members_dialog.show('Members', $("#members_container").html());
 
         })
+        $(".card-line").remove();
         $("#ask_an_expert_button").click(function(){
             $.post("${reverse('community_ask_an_expert')}", {facilitator: "${facilitator.user.email}", message:$("#ask_expert_message").val(), subject: "New Question from ${request.user.first_name} ${request.user.last_name}"}, function(data){
                 $("#expert_error").text(data.result);
@@ -951,11 +952,15 @@ import datetime
                 $("#community_content_discussions").hide();
                 $("#community_content_header_posts").addClass("selected");
                 $("#community_content_header_discussions").removeClass("selected");
+                $("#community_content_header_posts").removeClass("not-selected");
+                $("#community_content_header_discussions").addClass("not-selected");
                 change_var = 1;
            }else{
                 $("#community_content_posts").hide();
                 $("#community_content_header_posts").removeClass("selected");
                 $("#community_content_header_discussions").addClass("selected");
+                $("#community_content_header_posts").addClass("not-selected");
+                $("#community_content_header_discussions").removeClass("not-selected");
                 change_var = 0;
            }
         });
@@ -965,12 +970,16 @@ import datetime
             $("#community_content_posts").show();
             $("#community_content_header_posts").addClass("selected");
             $("#community_content_header_discussions").removeClass("selected");
+            $("#community_content_header_posts").removeClass("not-selected");
+            $("#community_content_header_discussions").addClass("not-selected");
         });
         $("#community_content_header_discussions").click(function(){
             $("#community_content_posts").hide();
             $("#community_content_discussions").show();
             $("#community_content_header_posts").removeClass("selected");
             $("#community_content_header_discussions").addClass("selected");
+            $("#community_content_header_discussions").removeClass("not-selected");
+            $("#community_content_header_posts").addClass("not-selected");
         });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();

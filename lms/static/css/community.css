@@ -134,7 +134,7 @@
     font-weight: bold;
 }
 #community-avatar {
-    width: 66px;
+    width: 124px;
     float: left;
     margin: 0 15px 0 0;
     padding-top: 10px;
@@ -203,11 +203,13 @@
     margin-left: -38px;
 }
 .community-content-header{
-    width: 574px;
+    width: 622px;
     margin-top: 27px;
     height: 52px;
     float:left;
     padding-left: 4px;
+    background-color: #e4e4e4;
+    border: 1px solid lightgrey;
 }
 .community-content-header-object{
     border-top:1px solid gray;
@@ -215,7 +217,7 @@
     border-right:1px solid gray;
 }
 .community-content-header-object:hover{
-    background-color:#fff;
+    background-color:#ededed;
     cursor:pointer;
 }
 #content-collection-header{
@@ -280,6 +282,10 @@
 .selected{
     background-color:white;
     padding-top: 16px !important;
+}
+.not-selected{
+    background-color: #e4e4e4;
+    border: none !important;
 }
 .community-content-header-object{
     border-bottom:none !important;
@@ -660,41 +666,13 @@ div.card-bottom table tr:nth-child(2) {
     min-height:700px;
 }
 .section-tab.discussion-tab {
-    border-color: rgb(47, 107, 189) rgb(47, 107, 189) rgb(47, 87, 169);
-    box-shadow: 0 1px 0 0 rgb(47, 207, 269) inset;
-    background-color: rgb(47, 167, 229);
-    background-image: linear-gradient(to bottom, rgb(47, 207, 269) 0%, rgb(47, 167, 229) 50%, rgb(47, 147, 209) 50%, rgb(47, 147, 209) 100%);
-    text-shadow: 0 -1px 1px rgb(47, 87, 169);
-    padding-top: 10px;
+}
+.section-tab.search-tab{
 }
 .section-tab.posts-tab {
-    border-color: rgb(103, 141, 11) rgb(103, 141, 11) rgb(83, 121, 11);
-    box-shadow: 0 1px 0 0 rgb(123, 221, 91) inset;
-    background-color: rgb(123, 181, 51);
-    background-image: linear-gradient(to bottom, rgb(123, 221, 91) 0%, rgb(123, 181, 51) 50%, rgb(103, 161, 31) 50%, rgb(103, 161, 31) 100%);
-    text-shadow: 0 -1px 1px rgb(83, 121, 11);
 }
 
 .section-tab {
-    border-width: 1px 1px 1px 1px;
-    border-style: solid;
-    -moz-border-top-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-bottom-colors: none;
-    -moz-border-left-colors: none;
-    border-image: none;
-    border-radius: 5px 5px 0 0;
-    color: #FFF !important;
-    display: inline-block;
-    text-align: center;
-    text-decoration: none;
-    font: 1.2rem/1.6rem "Open Sans",Verdana,Geneva,sans-serif;
-    letter-spacing: 1px;
-    padding: 4px 20px;
-    text-transform: uppercase;
-    vertical-align: bottom;
-    margin-left: 5px;
-    font-weight: 400 !important;
 }
 .post-content-left{
     width:80px;
@@ -722,7 +700,8 @@ div.card-bottom table tr:nth-child(2) {
     width: 100%;
      -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
      -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    font:italic 300 16px Georgia, Cambria, "Times New Roman", Times, serif !important;
+    font-family: sans-serif !important;
+    font-style: inherit;;
      box-sizing: border-box;
 }
 .comment-area{
@@ -889,9 +868,15 @@ div.card-bottom table tr:nth-child(2) {
     margin-top: 9px;
     width:92%;
     float:right;
-    font: italic 300 16px Georgia, Cambria, "Times New Roman", Times, serif !important;
+    font: normal 300 16px Georgia, Cambria, "Times New Roman", Times, serif !important;
     font-style: italic;
     height: 30px;
+}
+.ask-expert{
+    float: right;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
 }
 .comment-like-text{
     color: #707070 !important;
