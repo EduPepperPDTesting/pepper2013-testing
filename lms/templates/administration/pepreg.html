@@ -32,9 +32,6 @@
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/calendar.css" type="text/css" media="screen"/>
 
-<!--<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
-
 <script type="text/javascript" src="/static/js/mapbox-gl.js"></script>
 <link rel="stylesheet" href="/static/css/mapbox-gl.css"/>
 <script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
@@ -491,12 +488,14 @@
         var is_superuser = false;
     </script>
 %endif
+
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_year_now, _sys_calendar_month_now;
-	
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now;
+	var _calendar_date = new Date();
+
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
-		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, catype: $("#calendar_select_categories").val()}, function(data){
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, catype: $("#calendar_select_categories").val()}, function(data){
 			$("#calendar-panel").dialog("open");
 			$(".calendar-tr-tmp").remove();
 			$("#calendar-panel").dialog({title: data.title});
@@ -509,14 +508,18 @@
 			calendarOpen();
 		});
 		
+		_sys_calendar_year = _calendar_date.getFullYear();
+		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_sys_calendar_day = _calendar_date.getDate();
+		
 		//-----------------------------------------------getCalendarInfo
-		$.getJSON("/pepreg/getCalendarInfo", function(data){	
+		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	
 			$("#calendar-panel").dialog({title: data.title});			
 			_sys_calendar_year = data.year;
 			_sys_calendar_month = data.month;
 			_sys_calendar_year_now = data.year;
 			_sys_calendar_month_now = data.month;
-		});
+		});*/
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
@@ -540,8 +543,10 @@
 		
 		//-----------------------------------------------today
 		$("#calendar_btn_today").click(function(){
-			_sys_calendar_year = _sys_calendar_year_now;
-			_sys_calendar_month = _sys_calendar_month_now;
+			_sys_calendar_year = _calendar_date.getFullYear();
+			_sys_calendar_month = _calendar_date.getMonth() + 1;
+			//_sys_calendar_year = _sys_calendar_year_now;
+			//_sys_calendar_month = _sys_calendar_month_now;
 			calendarOpen();
 		});
 	});
@@ -1000,8 +1005,9 @@
         return false;
     };
 	PepReg.prototype.openCalendar = function () {
-       //new Dialog($("#calendar-panel")).show();	
-	   calendarOpen();
+	   	_sys_calendar_year = _calendar_date.getFullYear();
+		_sys_calendar_month = _calendar_date.getMonth() + 1;
+	   	calendarOpen();
     };
     PepReg.prototype.registerUser = function (training_id, join, cb) {
         var self = this;

@@ -350,6 +350,7 @@ def getCalendarMonth(request):
 
     _year = request.GET.get('year');
     _month = request.GET.get('month');
+    _day = request.GET.get('day');
     _catype = request.GET.get('catype');
 
     if (_year):
@@ -357,6 +358,9 @@ def getCalendarMonth(request):
 
     if (_month):
         _month = int(_month);
+
+    if (_day):
+        _day = int(_day);
 
     if not(_catype):
         _catype = "0";
@@ -392,6 +396,8 @@ def getCalendarMonth(request):
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
+
+    current_day = datetime(year=_year, month=_month, day=_day, tzinfo=utc)  # 2016-08-01
 
     for day in cal.itermonthdays(_year, _month):
         current = False;
@@ -449,7 +455,7 @@ def getCalendarMonth(request):
                                 occurrences.append(
                                     "<span class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + item.name + "</span>");
 
-            if date.date() == now().date():
+            if date.__str__() == current_day.__str__():
                 current = True
 
         month[week].append((day, occurrences, current))
