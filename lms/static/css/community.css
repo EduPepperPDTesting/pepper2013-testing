@@ -6,10 +6,6 @@
     padding-bottom:2px;
 }
 .circle {
-  width: 20px;
-  height: 20px;
-  position:absolute;
-  right:0;
 }
 .smallcircle {
   width: 18px;
@@ -736,13 +732,13 @@ div.card-bottom table tr:nth-child(2) {
     width: 10px;
 }
 .post-like-text{
-    color: #707070 !important;
+        color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
 .post-comment-text, .post-share-text{
     margin-left: 8px;
-    color: #707070 !important;
+    color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
@@ -879,7 +875,7 @@ div.card-bottom table tr:nth-child(2) {
     border-radius: 0px;
 }
 .comment-like-text{
-    color: #707070 !important;
+    color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
@@ -897,7 +893,7 @@ div.card-bottom table tr:nth-child(2) {
 .user-info-div{
     position: absolute;
     background-color:white;
-    border: 2px solid black;
+    border: 2px solid lightgrey;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;

@@ -101,6 +101,7 @@ import datetime
                         </div>
                     %endfor
                     </div>
+                    <center><a onclick="newDiscussion()">New Discussion</a></center>
                     <div id="discussion-pager">
                         <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
                         %if pager['page'] > 1:
@@ -222,11 +223,11 @@ import datetime
 
                                 %endif
                                 <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
-                                <span class="members-name">${use.first_name} ${use.last_name}</span>
+                                <span class="members-name">${use.first_name} ${use.last_name}</span></a>
                                 %if active_recent:
-                                    <img src ="/static/images/online-3.png" width="" class="members-image"></img>
+                                    <img src ="/static/images/online-3.png" data-skypename='${use.profile.skype_username}' data-fname='${use.first_name}' data-lname="${use.last_name}" data-username='${use.username}' data-email='${use.email}' data-id='${use.id}' width="" class="members-image circle"></img>
+
                                 %endif
-                              </a>
                                   </td></tr>
                               %endfor
                 </table>
@@ -234,9 +235,7 @@ import datetime
             </div>
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                %if is_member(request.user, community) or request.user.is_superuser:
-                    <a href="#" class="blue-button side-button" id="newDiscussionButton" onclick="newDiscussion()">Start a New Discussion</a>
-                %endif
+                
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
@@ -498,6 +497,7 @@ import datetime
     }
 
     function newDiscussion() {
+        window.scrollTo(0, 10);
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
         content += '<label class="discussion-post">Discussion:<textarea name="post" id="post"></textarea></label>';
@@ -886,7 +886,29 @@ import datetime
             e.preventDefault();
             var members_dialog = new Dialog($('#dialog'));
             members_dialog.show('Members', $("#members_container").html());
-
+            $(".circle").click(function(event){
+                event.preventDefault();
+                scroll(0,0);
+                $(".hangout-span").hide();
+                $("#hangout_span_"+$(this).data('id')).show();
+                $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
+                $("#skype-online-name").text("");
+                $("#skype-name-exists").text("Begin a call with: ");
+                $("#skype-name-exists-toggle").show();
+                $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+                $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("data-id"));
+                $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
+                $("#message_board_data").attr("data-name", $(this).attr("data-username"));
+                $("#message_board_data").attr("data-id", $(this).attr("data-id"));
+                if($(this).attr("data-skypename") == "None"){
+                    $("#skype-name-exists").text("This user does not have their skype name set.");
+                    $("#skype-name-exists-toggle").hide();
+                }else{
+                    $("#skype-online-name").text($(this).attr("data-skypename"));
+                }            main_dlg=new Dialog($('#online_dialog'));
+                main_dlg.show("Error", "");
+                return false;
+            });
         })
         $(".card-line").remove();
         $("#ask_an_expert_button").click(function(){
