@@ -840,7 +840,7 @@ def community_edit_process(request):
                 course_object.community = community_object
                 course_object.course = course
                 course_object.save()
-                
+
                 # Record notification about modify courses
                 if courses_cur.get(course):
                     del courses_cur[course]
@@ -979,7 +979,7 @@ def email_expert(request):
     to = request.POST.get('facilitator')
     result=""
     try:
-        send_mail(sub, message, 'from@example.com', ['mike.a.minnick@gmail.com', to], fail_silently=False)
+        send_mail(sub, message, 'support@pepperpd.com', ['mike.a.minnick@gmail.com', to], fail_silently=False)
         result="Mail sent successfully!"
     except:
         result="There was a problem sending the message."
@@ -987,13 +987,18 @@ def email_expert(request):
 
 
 def get_posts(request):
+    id = 0
     size=request.POST.get('size')
     c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     html = ""
     extra_data = ""
-    if int(CommunityPosts.objects.filter(community=c).count()) >= int(size):
+    total = int(CommunityPosts.objects.filter(community=c).count())
+    if total >= int(size):
         all = "NO"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
+    elif total == 0:
+        all="DONE"
+        extra_data += "No Posts"
     else:
         all = "DONE"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
@@ -1015,6 +1020,7 @@ def get_posts(request):
     elif filter == "ralphauname":
         posts = CommunityPosts.objects.filter(community=c).order_by('-user__username')[0:size]
     usr_img=reverse('user_photo', args=[request.user.id])
+    c_likes = 0
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
         active = active_recent(post.user)
@@ -1077,7 +1083,10 @@ def get_posts(request):
         html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             active = active_recent(comment.user)
-            c_likes = CommunityLikes.objects.filter(comment=comment)
+            try:
+                c_likes = CommunityLikes.objects.filter(comment=comment)
+            except Exception as e:
+                c_likes = 0
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
             c_like_html=""

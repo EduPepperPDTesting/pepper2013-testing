@@ -52,7 +52,7 @@ SSO_DIR = settings.PROJECT_HOME + "/sso"
 BASEDIR = SSO_DIR + "/idp"
 LMS_BASE = settings.LMS_BASE
 
-log = logging.getLogger("tracking")
+log = logging.getLogger("audit")
 
 
 def flat_dict(var, prefix=""):
@@ -447,8 +447,11 @@ class GenericSSO:
 
         try:
             if uid:
-                self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid)
-                self.user = User.objects.get(id=self.user_profile.user.id)
+                self.user_profile = UserProfile.objects.prefetch_related('user').get(sso_user_id=uid,
+                                                                                     sso_type=self.sso_type,
+                                                                                     sso_idp=self.idp_name)
+                # self.user = User.objects.get(id=self.user_profile.user.id)
+                self.user = self.user_profile.user
 
                 self.update_user()
 

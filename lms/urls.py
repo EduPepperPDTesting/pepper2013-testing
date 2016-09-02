@@ -72,6 +72,8 @@ urlpatterns = (
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
     url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
+    url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
+    url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
@@ -128,7 +130,13 @@ urlpatterns = (
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
 
+    url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
     url(r'^usage_report/user_lastactive_save$', 'administration.usage_report.user_lastactive_save', name="user_lastactive_save"),
+    url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
+    url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
+    url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
+    url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
+    url(r'^usage_report/drop_courses$', 'administration.usage_report.drop_courses', name="usage_report_drop_courses"),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),

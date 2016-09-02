@@ -2080,6 +2080,7 @@ Request Date: {date_time}""".format(first_name=request.user.first_name,
             # "acoffman@pcgus.com",
             # "mmullen@pcgus.com",
             # "jmclaughlin@pcgus.com"
+            "pnayyer@gmail.com"
         ])
     except Exception as e:
         return HttpResponse(json.dumps({'success': False,'error':'%s' % e}))
