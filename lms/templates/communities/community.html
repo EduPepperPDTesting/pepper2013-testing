@@ -662,7 +662,7 @@ import datetime
       {
         var userInfo=[];
         userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-        userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
         message_board(userInfo);
       }
     function left(){
