@@ -22,6 +22,8 @@ from permissions.utils import check_access_level, check_user_perms
 <script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
+
+%if check_access_level(request.user, 'notification', 'admin') == "System":
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -95,13 +97,15 @@ from permissions.utils import check_access_level, check_user_perms
     </div>
   </div>
 </div>
+%endif
+
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
       Notifications <div class="icon"></div>
     </div>
     <div class="expand_div" style="padding:10px;">
-      %if check_user_perms(request.user, 'community_notification', 'config_other'):
+      %if check_user_perms(request.user, 'community_notification', 'admin'):
       <div style="margin-bottom:10px;margin-top:-10px;">
         <span type="button" id="btnMyNotifications" class="section-tab my active">My Notifications</span>
         %if check_access_level(request.user, 'notification', 'admin') == "System":
@@ -144,22 +148,18 @@ from permissions.utils import check_access_level, check_user_perms
       %if check_access_level(request.user, 'notification', 'admin') == "System":
       <div class="table-box" id="config-other-table-box">
         <div style="margin-bottom:10px;">
-          %if check_access_level(request.user, 'community_notification', 'config_other') == "State" or 1:
           <select id="state_select" autocomplate="off" class="search" data-column="1">
             <option value="">Select State</option>
             %for item in State.objects.all().order_by("name"):
             <option value="${item.id}">${item.name}</option>
             %endfor
           </select>
-          %endif
-          %if check_access_level(request.user, 'community_notification', 'config_other') == "District" or 1:
           <select id="district_select" autocomplate="off" class="search" data-column="2">
             <option value="">Select District</option>
             %for item in District.objects.all().order_by("name"):
             <option value="${item.id}" class="${item.state_id}">${item.name}</option>
             %endfor
           </select>
-          %endif
           %if request.user.is_superuser:
           <select id="cohort_select" autocomplate="off" class="search" data-column="2">
             <option value="">Select Cohort</option>
