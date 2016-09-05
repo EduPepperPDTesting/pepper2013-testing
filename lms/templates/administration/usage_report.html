@@ -49,7 +49,13 @@
                     <textarea class="setting">
                         {
                             "fields":{
-                                "state":{"display":"State","type":"drop","require":[],"url":"${reverse('usage_report_drop_states')}","format":"<option value='{id}'>{name}</option>"}
+                                "state":{"display":"State","type":"drop","require":[],"url":"${reverse('usage_report_drop_states')}","format":"<option value='{id}'>{name}</option>"},
+                                "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('usage_report_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
+                                "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('usage_report_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
+                            },
+                            "favorite":{
+                               "show":false,
+                               "urls":{}
                             }
                         }
                     </textarea>
@@ -233,26 +239,6 @@ $(function() {
             }
         }
     });
-        
-    //----------- time report permission UI init----------//
-    function timeReportPermInit(admin) {
-        if(!admin){
-            $('#fltUserTime')[0].control.getFieldArea('state').empty();
-            $('#fltUserTime')[0].control.getFieldArea('district').empty();
-        }
-
-        $.get("${reverse('usage_report_drop_states')}", {}, function(data) {
-            if (data) {
-                for(d in data){
-                    if(data[d].curr!= undefined){
-                        $('select[name="state"]').find('option[value='+ data[d].id +']').attr('selected',true);
-                    }
-                }
-            }
-        });
-    }
-
-    timeReportPermInit(true);
 });
 
 //----------- tablesorter data----------//
@@ -296,20 +282,19 @@ var userTimeReport = {
         
 
         $(".tblUserTime").trigger("update");
-        ////this.total_num = data.length;
-        ////$(".time_download .total").html(data.length);
+        this.total_num = data.length;
+        $(".time_download .total").html(data.length);
     },
 
     get_table_result:function(){
-        console.log("get_table_result");
         var self = this;
+        var filter = $('#fltUserTime')[0].control.getFilter();
         var local_time =  new Date();
-        var local_utc_diff_m = -1 * local_time.getTimezoneOffset()
-        console.log(local_utc_diff_m);
-        $.post("${reverse('get_user_login_info')}", {}, 
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+
+        $.post("${reverse('get_user_login_info')}", {'state': filter.state,'district': filter.district,'school': filter.school}, 
             function(data) {
                 if (data != null) {
-                    //self.dialog.hide();
                     self.createTimeTable(data.rows);
                 }
             }
@@ -318,11 +303,6 @@ var userTimeReport = {
 
 
 };
-//userTimeReport.init();
-
-
-
-
 
 
 

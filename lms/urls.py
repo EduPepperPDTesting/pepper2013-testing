@@ -136,7 +136,6 @@ urlpatterns = (
     url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
     url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
     url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
-    url(r'^usage_report/drop_courses$', 'administration.usage_report.drop_courses', name="usage_report_drop_courses"),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
