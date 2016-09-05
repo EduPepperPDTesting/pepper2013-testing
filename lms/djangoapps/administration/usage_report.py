@@ -6,6 +6,8 @@ from django_future.csrf import ensure_csrf_cookie
 from django.contrib.auth.models import User
 from student.models import District, Cohort, School, State
 from django.http import HttpResponseForbidden
+from django.db.models import Q
+from student.models import UserProfile
 
 import datetime
 from datetime import timedelta
@@ -25,11 +27,31 @@ def main(request):
                                            in error, please contact the site administrator for assistance.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
 
+def filter_user(vars, data):
+	if vars.get('state', None):
+		data = data.filter(Q(district__state_id=vars.get('state')))
+	if vars.get('district', None):
+		data = data.filter(Q(district_id=vars.get('district')))
+	if vars.get('school', None):
+		data = data.filter(Q(school_id=vars.get('school')))
+	data = data.filter(~Q(subscription_status='Imported'))
+	return data
+
 @ensure_csrf_cookie
 def get_user_login_info(request):
-	#local_utc_diff_m = request.POST.get("local_utc_diff_m")
+	user_log_info = []
+	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
+		data = UserProfile.objects.all()
+		data = filter_user(request.POST, data)
 
-	user_log_info = UserLoginInfo.objects.filter() #Django model QuerySet
+		user_array = []
+		for user in data:
+			user_array.append(user.user_id)
+
+		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array) #Django model QuerySet array. SQL:in operater
+	else:
+		user_log_info = UserLoginInfo.objects.filter()
+	
 	login_info_list = []
 	for d in user_log_info:
 		dict_tmp = {}
@@ -115,7 +137,6 @@ def time_to_local(user_time,time_diff_m):
 
 def active_recent(user):
 	user_now = user
-	log.debug(user_now)
 	utc_month = datetime.datetime.utcnow().strftime("%m")
 	utc_day = datetime.datetime.utcnow().strftime("%d")
 	utc_h = datetime.datetime.utcnow().strftime("%H")
@@ -204,38 +225,4 @@ def drop_schools(request):
                 r.append({"id": item.id, "name": item.name, 'curr': item.id})
             else:
                 r.append({"id": item.id, "name": item.name})
-    return HttpResponse(json.dumps(r), content_type="application/json")
-
-def drop_cohorts(request):
-    data = Cohort.objects.all()
-    if request.GET.get('district'):
-        data = data.filter(district=request.GET.get('district'))
-    elif request.GET.get('state'):
-        data = data.filter(district__state=request.GET.get('state'))
-    r = list()
-    for item in data:
-        r.append({"id": item.id, "code": item.code})
-    return HttpResponse(json.dumps(r), content_type="application/json")
-
-
-def drop_courses(request):
-    r = list()
-    courses = get_courses(None)
-    for course in courses:
-        course = course_from_id(course.id)
-        r.append({"id": course.id, "name": str(course.display_coursenumber) + ' ' + course.display_name})
-    r.sort(key=lambda x: x['name'], reverse=False)
-    return HttpResponse(json.dumps(r), content_type="application/json")
-
-
-def drop_enroll_courses(request):
-    r = list()
-    user = User.objects.get(id=request.GET.get('user_id'))
-    for enrollment in CourseEnrollment.enrollments_for_user(user):
-        try:
-            course = course_from_id(enrollment.course_id)
-            r.append({"id": course.id, "name": str(course.display_coursenumber) + ' ' + course.display_name})
-        except ItemNotFoundError:
-            log.error("User {0} enrolled in non-existent course {1}".format(user.username, enrollment.course_id))
-    r.sort(key=lambda x: x['name'], reverse=False)
     return HttpResponse(json.dumps(r), content_type="application/json")
