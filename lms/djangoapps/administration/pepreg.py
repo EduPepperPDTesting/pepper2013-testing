@@ -418,6 +418,7 @@ def getCalendarMonth(request):
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"
                     allow_student_attendance = "1" if item.allow_student_attendance else "0";
+                    attendancel_id = item.attendancel_id;
 
                     status = ""
                     try:
@@ -441,27 +442,41 @@ def getCalendarMonth(request):
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
                                     occurrences.append(
-                                        "<span class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + item.name + "</span>");
+                                        "<label class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
                                     occurrences.append(
-                                        "<span class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + item.name + "</span>");
+                                        "<label class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</label>");
+
+                    elif (arrive == "1" and status == "" and allow == "1"):
+                        #The registration date has passed for this training
+                        pass
+
+                    elif (arrive == "1" and allow_student_attendance == "0"):
+                        #Instructor records attendance.
+                        pass
 
                     elif (arrive == "1" and allow_student_attendance == "1"):
                         if (status == "Attended" or status == "Validated"):
                             # checked true
                             if (_catype == "0" or _catype == "1"):
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
+                                    item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
                                 occurrences.append(
-                                    "<span class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + item.name + "</span>");
+                                    "<label class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
                             if (_catype == "0" or _catype == "3"):
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
+                                    item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
                                 occurrences.append(
-                                    "<span class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + item.name + "</span>");
+                                    "<label class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True

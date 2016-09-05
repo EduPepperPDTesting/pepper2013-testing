@@ -46,13 +46,16 @@
 	.ui-button-icon-primary{left:-1px !important; top:-1px !important;}
 	
 	#calendar-month{margin-top: 0 !important;}
-	#calendar-month tr th{ height:35px !important;}
-	#calendar-month tr td .alert{float:left; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+	#calendar-month tr th{height:35px !important;}
+	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+	
 	#calendar-month tr td .al_3{ background-color:#22b14c;}
 	#calendar-month tr td .al_4{ background-color:#7f7f7f;}
 	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_5 span{color:#FFFFFF;}
 	#calendar-month tr td .al_6{ background-color:#ffc90e;}
 	#calendar-month tr td .al_7{ background-color:#fa0000; color:#FFFFFF !important;}
+	#calendar-month tr td .al_7 span{color:#FFFFFF;}
 	
 	#calendar-panel .calendar-panel-top{position:absolute; height:40px; padding-top:5px; left:0; right:0; top:0; background-color:#FFFFFF; border-bottom:2px solid #eeeeee;}
 	#calendar-panel .calendar-panel-center{position:absolute; left:0; right:0; top:50px; bottom:68px; overflow:auto; background-color:#FFFFFF}
@@ -500,6 +503,94 @@
 			$(".calendar-tr-tmp").remove();
 			$("#calendar-panel").dialog({title: data.title});
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+			$(".alert").each(function(){
+				if($(this).find("input").length > 0){
+					var tmp_span = $(this).find("span");
+					var tmp_span_txt = $(tmp_span).text();
+					if(tmp_span_txt.length > 10){
+						$(tmp_span).text(tmp_span_txt.substr(0,10) + "...");
+					}
+				}else{
+					var tmp1 = $(this).text();
+					if(tmp1.length > 10){
+						$(this).text(tmp1.substr(0,10) + "...");
+					}
+				}
+			});
+			$(".calendar_check_would").change(function(){
+				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+					if (reg)
+						pepreg.warning("Thank you for registering/recording attendance for this training!");
+					else
+						pepreg.warning("Thank you! You are no longer registered for this training.");
+						
+					pepreg.reloadTable();
+					calendarOpen();
+				})
+			});
+			
+			$(".calendar_check_attended").each(function(){
+				var attendancel_id = $(this).attr("attendancel_id");
+				if (attendancel_id.length) {
+					var training_id = $(this).attr("training_id");
+					var input = $("<input type='text' training_id='" + training_id + "' style='margin-right:5px;width:100px;height:25px;' >");
+					var button = $("<input type='button' training_id='" + training_id + "' class='small' value='check'>");
+					$(this).parent().after(button).after(input);
+					$(input).hide();
+					$(button).hide();
+					
+					button.click(function () {
+						if (attendancel_id == input.val()) {
+							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
+								input.hide();
+								button.hide();
+								pepreg.warning("Thank you for registering/recording attendance for this training!");
+								
+								pepreg.reloadTable();
+								calendarOpen();
+							});
+						} else {
+							pepreg.warning("It's a wrong ID.");
+						}
+					});
+				}
+			});
+			
+			$(".calendar_check_attended").change(function(){
+				var training_id = $(this).attr("training_id");
+				var attendancel_id = $(this).attr("attendancel_id");
+				var checked = ($(this).attr("checked")) ? true : false;
+				
+				if (attendancel_id.length) {
+					var tmp_text = $(this).parent().parent().find("input[type='text'][training_id='" + training_id + "']");
+					var tmp_button = $(this).parent().parent().find("input[type='button'][training_id='" + training_id + "']");
+					
+					if (checked) {
+						tmp_text.show();
+						tmp_button.show();
+					} else {
+						if (!tmp_text.is(":visible")) {
+							pepreg.setStudentAttended(${request.user.id}, training_id, false, function () {
+								pepreg.warning("Thank you! You are no longer registered for this training.");
+								pepreg.reloadTable();
+								calendarOpen();
+							});
+						}
+						tmp_text.hide();
+						tmp_button.hide();						
+					}
+				}else{
+					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
+						if (data && data.is_attended)
+							pepreg.warning("Thank you for registering/recording attendance for this training!");
+						else
+							pepreg.warning("Thank you! You are no longer registered for this training.");
+						
+						pepreg.reloadTable()
+						calendarOpen();
+					});
+				}
+			});
 		});
 	}
 	
@@ -1331,7 +1422,8 @@
                     } else if (arrive == "1" && allow_student_attendance == "1") {
                         var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
                         $check.prop('checked', status == "Attended" || status == "Validated");
-                        if (attendancel_id.length) {
+                        
+						if (attendancel_id.length) {
                             $check.change(function () {
                                 if (this.checked) {
                                     $input.show();

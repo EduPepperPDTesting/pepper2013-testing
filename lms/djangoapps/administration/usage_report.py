@@ -27,7 +27,7 @@ def main(request):
 
 @ensure_csrf_cookie
 def get_user_login_info(request):
-	local_utc_diff_m = request.POST.get("local_utc_diff_m")
+	#local_utc_diff_m = request.POST.get("local_utc_diff_m")
 
 	user_log_info = UserLoginInfo.objects.filter() #Django model QuerySet
 	login_info_list = []

@@ -216,10 +216,10 @@ import datetime
                               %>
                                   <tr><td>
                               %if not active_recent:
-                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
                               %else:
 
-                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name='${use.first_name} ${use.last_name}' data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
 
                                 %endif
                                 <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
@@ -662,7 +662,7 @@ import datetime
       {
         var userInfo=[];
         userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-        userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
         message_board(userInfo);
       }
     function left(){
@@ -1159,7 +1159,7 @@ import datetime
                     'user_id': share_id,
                     'interviewer_id': '${request.user.id}',
                     'interviewer_name': '${request.user.first_name}',
-                    'interviewer_fullname': '${request.user.first_name} ${request.user.last_name}',
+                    'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
                     'type': 'message',
                     'body': '',
                     'date': (new Date()).toISOString(),

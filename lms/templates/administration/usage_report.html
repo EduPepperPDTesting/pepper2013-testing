@@ -23,6 +23,7 @@
 <script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
 <script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
 <script src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<script src="/static/js/datetime/moment.js"></script>
 <!-- Tablesorter: optional -->
 <link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
 <script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
@@ -38,10 +39,10 @@
 
 <div class="data_import_top data_import_bottom">
     <div class="main, data_import_content">
-        <div class="expand_title expand_title_collapse">
+        <div class="expand_title expand_title_collapse expand_title_expanded">
             Usage Report <div class="icon"></div>
         </div>
-        <div class="expand_div">
+        <div class="expand_div" style="display:block;">
             <form method="" id="usrTimeForm" action="" onsubmit="return false;">
                 <div class="control filter" id="fltUserTime">
                     <span class="body" style="display:inline-block;"></span>
@@ -267,18 +268,19 @@ var userTimeReport = {
         $(".tblUserTime tbody").empty();
 
         var local_time =  new Date();
-        var local_utc_diff_m = -1 * local_time.getTimezoneOffset()
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        local_utc_diff_m = local_utc_diff_m / 60;
         
         for(d in data){
             table_con += '<tr role="row" user_id=' + data[d].id + '>';
             table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
             table_con += '<td>' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
-            table_con += '<td>' + this.datetime_style(data[d].login_time,local_utc_diff_m) + '</td>';
+            table_con += '<td>' + moment(data[d].login_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
             if(data[d].logout_time == ''){
                 table_con += '<td>' + ' ' + '</td>';
             }
             else{
-                table_con += '<td>' + this.datetime_style(data[d].logout_time,local_utc_diff_m) + '</td>';
+                table_con += '<td>' + moment(data[d].logout_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
             }
             table_con += '<td>' + data[d].last_session + '</td>';
             table_con += '<td>' + data[d].total_session + '</td>';
@@ -304,7 +306,7 @@ var userTimeReport = {
         var local_time =  new Date();
         var local_utc_diff_m = -1 * local_time.getTimezoneOffset()
         console.log(local_utc_diff_m);
-        $.post("${reverse('get_user_login_info')}", {local_utc_diff_m:local_utc_diff_m}, 
+        $.post("${reverse('get_user_login_info')}", {}, 
             function(data) {
                 if (data != null) {
                     //self.dialog.hide();
@@ -313,27 +315,6 @@ var userTimeReport = {
             }
         );
     },
-
-    datetime_style:function(dt,time_diff){
-        var dt_obj = new Date(dt);
-        var dt_obj_local = new Date(Date.parse(dt_obj) + (60000 * time_diff));
-        var local_time_1 = dt_obj_local.toLocaleString().replace(/\//g,"-");
-        var local_time_1 = local_time_1.replace(/\b(\w)\b/g, '0$1');
-
-        var hours=dt_obj_local.getHours();
-        var am_pm = "AM";
-        if(hours>12){
-            am_pm = "PM";
-        }
-
-        arr = local_time_1.split(" ");
-        arr_date = arr[0].split("-");
-        str_time = arr[1].substring(2);
-        dt_result = arr_date[1] + "-" + arr_date[2] + "-" + arr_date[0] + " " + str_time + " " + am_pm;
-
-        return dt_result;
-    },
-
 
 
 };
