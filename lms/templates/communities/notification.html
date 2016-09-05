@@ -98,7 +98,6 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
 </div>
 %endif
-
 <div class = "data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -118,7 +117,7 @@ from permissions.utils import check_access_level, check_user_perms
                ajaxUrl="${reverse('communities_notification_config')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
           <thead>
             <tr>
-              <th>Communities</th><th>In Pepper</th><th>Email</th><th>Frequency</th>
+              <th>Communities</th><th>In Pepper (Select All <input type="checkbox" class="checkall" /> )</th><th>Email (Select All <input type="checkbox" class="checkall" /> )</th><th>Frequency</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -144,7 +143,6 @@ from permissions.utils import check_access_level, check_user_perms
           <input type="button" name="" value="Save" id="btnSaveConfig"/> <span class="">You MUST click save to keep these changes.</span>
         </div>
       </div>
-
       %if check_access_level(request.user, 'notification', 'admin') == "System":
       <div class="table-box" id="config-other-table-box">
         <div style="margin-bottom:10px;">
@@ -178,7 +176,7 @@ from permissions.utils import check_access_level, check_user_perms
         <table role="grid" class="data-table" ajaxUrl="${reverse('communities_notification_config_other')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
           <thead>
             <tr>
-              <th>Communities</th><th>In Pepper</th><th>Email</th><th>Frequency</th>
+              <th>Communities</th><th>In Pepper (Select All <input type="checkbox" class="checkall" /> )</th><th>Email (Select All <input type="checkbox" class="checkall" /> )</th><th>Frequency</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -411,7 +409,7 @@ from permissions.utils import check_access_level, check_user_perms
       });
     });
     $.post("${reverse('communities_notification_save_config')}", {data: JSON.stringify(data)}, function(r){
-      $(self).next("span").html("Save successfully.");
+      $(self).next("span").html("Saved successfully.");
     });
   });
   $("#btnSaveOtherConfig").click(function(e){
@@ -435,7 +433,7 @@ from permissions.utils import check_access_level, check_user_perms
     $.post("${reverse('communities_notification_save_other_config')}",
            {data: JSON.stringify(data), filter: JSON.stringify(filter)},
            function(r){
-             $(self).next("span").html("Save successfully.");
+             $(self).next("span").html("Saved successfully.");
            });
   });
   $(document).ready(function(){
@@ -555,18 +553,14 @@ from permissions.utils import check_access_level, check_user_perms
     $("#btnMyNotifications").click(function(){
       $("#config-table-box").show();
       $("#config-other-table-box").hide();
-
       $(".section-tab").removeClass("active");
       $(".section-tab.my").addClass("active");
-      
     });
     $("#btnOtherNotifications").click(function(){                      
       $("#config-table-box").hide();
       $("#config-other-table-box").show();
-
       $(".section-tab").removeClass("active");
       $(".section-tab.other").addClass("active");
-      
     });
     $("#delete-groups").click(function(){
       var ids = getCheckedIds("#group-table-box");
@@ -597,9 +591,6 @@ from permissions.utils import check_access_level, check_user_perms
       });
     });
   });
-
-
-
   function filterOptions(item, id) {
     if ($(item).attr("class") != id) {
       $(item).css("display", "none");
@@ -610,24 +601,20 @@ from permissions.utils import check_access_level, check_user_perms
       $(this).css("display", "");
     }
   }
-
   $("#state_select").change(function () {
     var id = $(this).val();
     $("#district_select > option").each(function (i) {
       if(i>0)filterOptions(this, id)
     });
   });
-
   $("#district_select").change(function () {
     var id = $(this).val();
     $("#cohort_select > option").each(function (i) {
       if(i>0)filterOptions(this, id)
     });
   });
-
   $("#state_select").change();
   $("#district_select").change();
-  
 </script>
 <script type="text/javascript">
   $(".check-mark").each(function(){
@@ -638,5 +625,15 @@ from permissions.utils import check_access_level, check_user_perms
     $(this).addClass("on");
   }).on("mouseleave",function(){
     $(this).removeClass("on");
+  });
+</script>
+<script type="text/javascript">  
+  $(document).ready(function(){    
+    $("input.checkall").change(function(){
+      var $th = $(this).closest("th");
+      var $tr = $th.closest("tr");
+      var id = $tr.find("th").index($th) + 1;
+      $(this).closest("table").find("tr td:nth-child(" + id + ") input[type=checkbox]").attr("checked", $(this).is(":checked"));
+    });
   });
 </script>
