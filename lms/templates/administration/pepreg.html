@@ -37,6 +37,9 @@
 <script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
 <link rel="stylesheet" href="/static/css/mapbox-gl-directions.css"/>
 
+<script type="text/javascript" src="/static/js/pikaday.min1.js"></script>
+<link rel="stylesheet" href="/static/css/pikaday1.css"/>
+
 <style>
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -57,18 +60,24 @@
 	#calendar-month tr td .al_7{ background-color:#fa0000; color:#FFFFFF !important;}
 	#calendar-month tr td .al_7 span{color:#FFFFFF;}
 	
-	#calendar-panel .calendar-panel-top{position:absolute; height:40px; padding-top:5px; left:0; right:0; top:0; background-color:#FFFFFF; border-bottom:2px solid #eeeeee;}
+	/*#calendar-panel .calendar-panel-top{position:absolute; height:40px; padding-top:5px; left:0; right:0; top:0; background-color:#FFFFFF; border-bottom:2px solid #eeeeee;}
 	#calendar-panel .calendar-panel-center{position:absolute; left:0; right:0; top:50px; bottom:68px; overflow:auto; background-color:#FFFFFF}
 	#calendar-panel .calendar-panel-bottom{position:absolute; height:60px; left:0; right:0; bottom:0; padding-top:5px; background-color:#FFFFFF; border-top:2px solid #eeeeee;}
-	#calendar-panel .calendar-panel-bottom div{float:left; width:100%;}
-	#calendar-panel .calendar-panel-bottom .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
-	#calendar-panel .calendar-panel-bottom .calendar_exp .calendar_exp_txt{float:left; width:130px; height:20px; line-height:20px; font-weight:bold}
-	#calendar-panel .calendar-panel-bottom .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
-	#calendar-panel .calendar-panel-bottom .calendar_exp .c1{background-color:#22B14C;}
-	#calendar-panel .calendar-panel-bottom .calendar_exp .c2{background-color:#FFC90E;}
-	#calendar-panel .calendar-panel-bottom .calendar_exp .c3{background-color:#3F48CC;}
-	#calendar-panel .calendar-panel-bottom .calendar_exp .c4{background-color:#7F7F7F;}	
-	#calendar-panel .calendar-panel-bottom .calendar_exp .c5{background-color:#FA0000;}
+	#calendar-panel .calendar-panel-bottom div{float:left; width:100%;}*/
+	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
+	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:130px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
+	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
+	#calendar-panel .calendar_exp .c1{background-color:#22B14C;}
+	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
+	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
+	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
+	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}
+	
+	/*.pika-select-year{ z-index:1000000 !important;}
+	.pika-select-month{ z-index:1000000 !important;}
+	.ui-datepicker-month{ z-index:1000000 !important;}
+	.ui-datepicker-year{ z-index:1000000 !important;}
+	#ui-datepicker-div {z-index:2500 !important; clip:auto}*/
 </style>
 
 <div class="data_import_bottom">
@@ -203,38 +212,57 @@
     </div>
 </div>
 
-<div id="calendar-panel" style="display:none">
-	<div class="calendar-panel-top">
-        <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="Previous" />
-        <input class1="btn btn-default" type="button" id="calendar_btn_next" value="Next" />
-        <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
-        <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
-            <option value="0" selected="selected">All Categories</option>
-            <option value="1">Attended Training</option>
-            <option value="2">Register for Training</option>
-            <option value="3">Registered for Training</option>
-            <option value="4">Attend Training</option>
-            <option value="5">Training Full</option>
-        </select>
+<div class="modal" id="calendar-panel" style="width:1000px;margin-left:-500px;border-radius:0;">
+	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title">My Calendar</h3>
+            <div class="close-modal">✕</div>
+        </div>
+        <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+            
+            <!--<input class1="btn btn-default" type="button" id="calendar_btn_Select" value="Select Date" />           -->
+            <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
+            <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_next" value=">>" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
+
+            <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
+                <option value="0" selected="selected">All Categories</option>
+                <option value="1">Attended Training</option>
+                <option value="2">Register for Training</option>
+                <option value="3">Registered for Training</option>
+                <option value="4">Attend Training</option>
+                <option value="5">Training Full</option>
+            </select>
+            <table id="calendar-month" style="width:960px !important;">
+                <tr id="calendar-month-weekdays">
+                    <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+                </tr>
+            </table>
+        </div>
+        <div style="padding:10px;text-align:right;">
+          	<div>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Register for Training: </span><span class="calendar_exp_color c3"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Registered Training: </span><span class="calendar_exp_color c2"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
+            </div>
+            <div>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Training Full: </span><span class="calendar_exp_color c5"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Attend  Training: </span><span class="calendar_exp_color c4"></span></span>
+            </div>
+        </div>
+    </div>
+	<!--<div class="calendar-panel-top">
+    	
     </div>
     <div class="calendar-panel-center">
-        <table id="calendar-month" style="width:980px !important;">
-            <tr id="calendar-month-weekdays">
-                <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
-            </tr>
-        </table>
+        
     </div>
     <div class="calendar-panel-bottom">
-        <div>
-        	<span class="calendar_exp"><span class="calendar_exp_txt">Register for Training:</span><span class="calendar_exp_color c3"></span></span>
-        	<span class="calendar_exp"><span class="calendar_exp_txt">Registered Training:</span><span class="calendar_exp_color c2"></span></span>
-        	<span class="calendar_exp"><span class="calendar_exp_txt">Attended Training:</span><span class="calendar_exp_color c1"></span></span>	        
-        </div>
-        <div>
-        	<span class="calendar_exp"><span class="calendar_exp_txt">Training Full:</span><span class="calendar_exp_color c5"></span></span>
-            <span class="calendar_exp"><span class="calendar_exp_txt">Attend  Training:</span><span class="calendar_exp_color c4"></span></span>
-        </div>
-    </div>
+        
+    </div>-->
 </div>
 
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
@@ -493,15 +521,26 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_panel, _calendar_picker;
 	var _calendar_date = new Date();
 
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
-		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){
-			$("#calendar-panel").dialog("open");
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){			
+	        _calendar_panel.show();
+			//_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
+			//_calendar_picker.gotoMonth(_sys_calendar_month);
+			//_calendar_picker.gotoYear(_sys_calendar_year);
+			
+			//_calendar_picker.gotoDate(new Date("_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day"));
+			//$('#calendar_select_data').val(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
+			
 			$(".calendar-tr-tmp").remove();
-			$("#calendar-panel").dialog({title: data.title});
+			//$("#calendar-panel").dialog({title: data.title});
+			//var dlgWarn11 = new Dialog("#calendar-panel");
+			//-----------------------------------------------dialogx
+			//$( "#calendar-panel" ).dialog({autoOpen: false, width: 1000, height:610, modal: true});
+			
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
 			$(".alert").each(function(){
 				if($(this).find("input").length > 0){
@@ -595,6 +634,42 @@
 	}
 	
 	$(function(){
+		//$("#calendar_select_data").datepicker();
+		
+		_calendar_panel = new Dialog($("#calendar-panel"));
+		var picker_year = _calendar_date.getFullYear();
+		_calendar_picker = new Pikaday({
+			field: document.getElementById('calendar_select_data'),
+			firstDay: 1,			
+		    //minDate: new Date("1998-01-01"),
+		    //maxDate: new Date("2030-12-30"),
+			yearRange: [picker_year - 10, picker_year + 10],
+			onSelect: function(date) {
+				//$("#calendar_select_data").val("dd");
+				_sys_calendar_year = date.getFullYear();
+				_sys_calendar_month = date.getMonth() + 1;
+				_sys_calendar_day = date.getDate();
+				
+				_sys_calendar_year_now = date.getFullYear();
+				_sys_calendar_month_now = date.getMonth() + 1;
+				
+				$('#calendar_select_data').val(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
+				
+				calendarOpen();
+				
+				//field.value = "2332";//this.getMoment().format('Do MMMM YYYY');
+				//field.value = picker.toString();
+				//field.value = picker.toString();
+				//alert(date.getMonth() + 1);
+				//var date = document.createTextNode(this.getMoment().format('YYYY-MM-DD') + ' '); //生成的时间格式化成 2013-09-25
+				//$('#calendar_select_data').appendChild(date);
+			},
+			onOpen: function(){
+				//$(".pika-select-month").val(_sys_calendar_month);
+				//$(".pika-select-year").val(_sys_calendar_year);
+			}
+		});
+					
 		$("#calendar_select_categories").change(function(){
 			calendarOpen();
 		});
@@ -622,6 +697,7 @@
 				_sys_calendar_month = 12;
 				_sys_calendar_year -= 1;
 			}
+			_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
 			calendarOpen();
 		});
 		
@@ -632,6 +708,24 @@
 				_sys_calendar_month = 1;
 				_sys_calendar_year += 1;
 			}
+			_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------previous
+		$("#calendar_btn_previous_y").click(function(){
+			_sys_calendar_year -= 1;
+			if(_sys_calendar_year < 1979){
+				_sys_calendar_year = 1979;
+			}
+			_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------next
+		$("#calendar_btn_next_y").click(function(){
+			_sys_calendar_year += 1;
+			_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
 			calendarOpen();
 		});
 		
@@ -639,14 +733,13 @@
 		$("#calendar_btn_today").click(function(){
 			_sys_calendar_year = _calendar_date.getFullYear();
 			_sys_calendar_month = _calendar_date.getMonth() + 1;
-			//_sys_calendar_year = _sys_calendar_year_now;
-			//_sys_calendar_month = _sys_calendar_month_now;
+			_sys_calendar_day = _calendar_date.getDate();
+			_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
 			calendarOpen();
 		});
 	});
 	
-	//-----------------------------------------------dialogx
-	$( "#calendar-panel" ).dialog({autoOpen: false, width: 1000, height:610, modal: true});
+	
 	
     var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
@@ -1101,6 +1194,7 @@
 	PepReg.prototype.openCalendar = function () {
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_calendar_picker.setDate(_sys_calendar_year + "-" + _sys_calendar_month + "-" + _sys_calendar_day);
 	   	calendarOpen();
     };
     PepReg.prototype.registerUser = function (training_id, join, cb) {
