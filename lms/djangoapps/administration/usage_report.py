@@ -226,3 +226,95 @@ def drop_schools(request):
             else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
+
+def usage_report_download_excel(request):
+	return
+	'''
+	if request.user.is_authenticated() and request.user.is_superuser:
+		import xlsxwriter
+		output = StringIO()
+		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+		worksheet = workbook.add_worksheet()
+		FIELDS = ["user_first_name", "user_last_name", "user_email", "district", "school", "total_time", "collaboration_time",
+              "discussion_time", "portfolio_time", "external_time", "course_time", "complete_course_num", "current_course_num"]
+
+        TITLES = ["state", "district", "school", "email", "username", "first_name", "last_name",
+              "login_time", "logout_time", "last_session", "total_session", "online_state"]
+        for i, k in enumerate(TITLES):
+        	worksheet.write(0, i, k)
+        row = 1
+
+        
+        results = get_download_info(request)
+
+        for p in results:
+        	for i, k in enumerate(FIELDS):
+        		worksheet.write(row, i, p[k])
+        	row += 1
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = datetime.now().strftime('attachment; filename=users-time-report-%Y-%m-%d-%H-%M-%S.xlsx')
+        workbook.close()
+        response.write(output.getvalue())
+        return response
+    else:
+    	raise Http404
+    '''
+
+'''
+def get_download_info(request):
+	user_log_info = []
+	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
+		data = UserProfile.objects.all()
+		data = filter_user(request.POST, data)
+
+		user_array = []
+		for user in data:
+			user_array.append(user.user_id)
+
+		user_log_info = UserLoginInfo.objects.filter(user_id__in=user_array)
+	else:
+		user_log_info = UserLoginInfo.objects.filter()
+	
+	login_info_list = []
+	for d in user_log_info:
+		dict_tmp = {}
+		obj_user = User.objects.get(id=d.user_id)
+		
+		try:
+			if obj_user.profile.district.state.id:
+				dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
+		except Exception as e:
+			dict_tmp['state'] = ''
+
+		try:
+			if obj_user.profile.district.id:
+				dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
+		except Exception as e:
+			dict_tmp['district'] = ''
+
+		try:
+			if obj_user.profile.school.id:
+				dict_tmp['school'] = School.objects.get(id=obj_user.profile.school.id).name
+		except Exception as e:
+			dict_tmp['school'] = ''
+
+		dict_tmp['email'] = obj_user.email
+		dict_tmp['username'] = obj_user.username
+		dict_tmp['first_name'] = obj_user.first_name
+		dict_tmp['last_name'] = obj_user.last_name
+		dict_tmp['login_time'] = d.login_time
+
+		if active_recent(obj_user):
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			dict_tmp['online_state'] = 'On'
+		else:
+			dict_tmp['logout_time'] = d.logout_time
+			dict_tmp['last_session'] = study_time_format(d.last_session)
+			dict_tmp['online_state'] = 'Off'
+
+		dict_tmp['total_session'] = study_time_format(d.total_session)
+
+		login_info_list.append(dict_tmp)
+	return login_info_list
+'''
