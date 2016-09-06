@@ -1079,8 +1079,8 @@ def get_posts(request):
             html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
         else:
             html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Comment</a>"
-        html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
+        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment.png' class='comment-image'></img>Comment</a>"
+        html+="<a data-id='"+str(post.id)+"' data-type='post' data-community='"+str(post.community.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share.png' class='share-image'></img>Share</a>"+like_text+"<br><div class='comment-section'>"
         for comment in comments:
             active = active_recent(comment.user)
             try:
@@ -1129,7 +1129,7 @@ def get_posts(request):
             else:
                 delete_code = ""
             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment_image.png' class='comment-image'></img>Reply</a><a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-type='comment' data-content='"+comment.comment+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share_image.png' class='share-image'></img>Share</a>"+delete_code+like_text+"</td></tr></table>"
+            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='post-comment-text'><img src='/static/images/comment.png' class='comment-image'></img>Reply</a><a data-id='"+str(post.id)+"' data-community='"+str(post.community.id)+"' data-type='comment' data-content='"+comment.comment+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share.png' class='share-image'></img>Share</a>"+delete_code+like_text+"</td></tr></table>"
         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
         html+="</td></tr>"
     return HttpResponse(json.dumps({'data': extra_data,'id':id, 'len': len(posts), 'Success': 'True', 'all':all, 'post': html, 'community': request.POST.get('community_id')}), content_type='application/json')

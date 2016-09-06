@@ -5,7 +5,8 @@
     padding-left:5px;
     padding-bottom:2px;
 }
-.circle {
+.circle:hover{
+    cursor: pointer;
 }
 .smallcircle {
   width: 18px;
@@ -724,6 +725,7 @@ div.card-bottom table tr:nth-child(2) {
     width:16px;
     height: 14px;
     padding-bottom: 2px;
+    padding-right: 3px;
 }
 .post-like-text:hover{
     cursor: pointer;
@@ -847,6 +849,9 @@ div.card-bottom table tr:nth-child(2) {
 }
 .members-link{
     color: #3c3c3c;
+}
+.members-link:hover{
+    cursor: pointer;
 }
 .new-discussion:hover{
     cursor: pointer;
