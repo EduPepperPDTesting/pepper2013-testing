@@ -1,20 +1,20 @@
 from mitxmako.shortcuts import render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseForbidden
 import json
 from django.contrib.auth.decorators import login_required
 from django_future.csrf import ensure_csrf_cookie
 from django.contrib.auth.models import User
 from student.models import District, Cohort, School, State
-from django.http import HttpResponseForbidden
 from django.db.models import Q
 from student.models import UserProfile
-
+from StringIO import StringIO
 import datetime
+
 from datetime import timedelta
 from models import UserLoginInfo
 
-import logging
-log = logging.getLogger("tracking")
+#import logging
+#log = logging.getLogger("tracking")
 
 @login_required
 def main(request):
@@ -26,16 +26,6 @@ def main(request):
 		 				 'error_message': 'You do not have access to this are of the site. If you feel this is\
                                            in error, please contact the site administrator for assistance.'}
         return HttpResponseForbidden(render_to_response('error.html', error_context))
-
-def filter_user(vars, data):
-	if vars.get('state', None):
-		data = data.filter(Q(district__state_id=vars.get('state')))
-	if vars.get('district', None):
-		data = data.filter(Q(district_id=vars.get('district')))
-	if vars.get('school', None):
-		data = data.filter(Q(school_id=vars.get('school')))
-	data = data.filter(~Q(subscription_status='Imported'))
-	return data
 
 @ensure_csrf_cookie
 def get_user_login_info(request):
@@ -121,55 +111,6 @@ def user_lastactive_save(request):
 			user_log_info[0].save()
 	return HttpResponse(json.dumps({}), content_type="application/json")
 
-'''
-def time_to_local(user_time,time_diff_m):
-	user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
-	plus_sub = 1
-	time_diff_m_int = int(time_diff_m)
-	if time_diff_m_int >= 0:
-		plus_sub = 1
-	else:
-		plus_sub = -1
-	
-	user_time_str = (user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub).strftime('%Y-%m-%d %H:%M:%S')
-	return user_time_str
-'''
-
-def active_recent(user):
-	user_now = user
-	utc_month = datetime.datetime.utcnow().strftime("%m")
-	utc_day = datetime.datetime.utcnow().strftime("%d")
-	utc_h = datetime.datetime.utcnow().strftime("%H")
-	utc_m = datetime.datetime.utcnow().strftime("%M")
-	d_min = 60*int(utc_h) + int(utc_m)
-	if user_now.profile.last_activity:
-		user_last_activity = user_now.profile.last_activity
-		u_min = 60*int(user_last_activity.strftime("%H")) + int(user_last_activity.strftime("%M"))
-		close = int(d_min) - int(u_min) < 1
-		active = user_last_activity.strftime("%d") == utc_day and user_last_activity.strftime("%m") == utc_month and close
-	else:
-		active = False
-	return active
-
-def study_time_format(t, is_sign=False):
-	sign = ''
-	if t < 0 and is_sign:
-		sign = '-'
-		t = abs(t)
-	hour_unit = ' Hour, '
-	minute_unit = ' Minute'
-	hour = int(t / 60 / 60)
-	minute = int(t / 60 % 60)
-	if hour != 1:
-		hour_unit = ' Hours, '
-	if minute != 1:
-		minute_unit = 'Minutes'
-	if hour > 0:
-		hour_full = str(hour) + hour_unit
-	else:
-		hour_full = ''
-	return ('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)
-
 # -------------- Dropdown Lists -------------
 def drop_states(request):
     r = list()
@@ -185,7 +126,6 @@ def drop_states(request):
             else:
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
-
 
 def drop_districts(request):
     r = list()
@@ -204,7 +144,6 @@ def drop_districts(request):
             else:
                 r.append({"id": item.id, "name": item.name, "code": item.code})
     return HttpResponse(json.dumps(r), content_type="application/json")
-
 
 def drop_schools(request):
     r = list()
@@ -227,43 +166,37 @@ def drop_schools(request):
                 r.append({"id": item.id, "name": item.name})
     return HttpResponse(json.dumps(r), content_type="application/json")
 
+
 def usage_report_download_excel(request):
-	return
-	'''
 	if request.user.is_authenticated() and request.user.is_superuser:
 		import xlsxwriter
 		output = StringIO()
 		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
 		worksheet = workbook.add_worksheet()
-		FIELDS = ["user_first_name", "user_last_name", "user_email", "district", "school", "total_time", "collaboration_time",
-              "discussion_time", "portfolio_time", "external_time", "course_time", "complete_course_num", "current_course_num"]
+		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time", "Online State"]
 
-        TITLES = ["state", "district", "school", "email", "username", "first_name", "last_name",
-              "login_time", "logout_time", "last_session", "total_session", "online_state"]
-        for i, k in enumerate(TITLES):
-        	worksheet.write(0, i, k)
-        row = 1
+		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session", "online_state"]
 
-        
-        results = get_download_info(request)
+		for i, k in enumerate(TITLES):
+			worksheet.write(0, i, k)
+		row = 1
+		down_result = get_download_info(request)
+		for d in down_result:
+			for k, v in enumerate(FIELDS):
+				worksheet.write(row, k, d[v])
+			row += 1
+		response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = datetime.datetime.now().strftime('attachment; filename=usage-report-%Y-%m-%d-%H-%M-%S.xlsx')
+		workbook.close()
+		response.write(output.getvalue())
+		return response
+	else:
+		raise Http404
 
-        for p in results:
-        	for i, k in enumerate(FIELDS):
-        		worksheet.write(row, i, p[k])
-        	row += 1
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = datetime.now().strftime('attachment; filename=users-time-report-%Y-%m-%d-%H-%M-%S.xlsx')
-        workbook.close()
-        response.write(output.getvalue())
-        return response
-    else:
-    	raise Http404
-    '''
-
-'''
 def get_download_info(request):
 	user_log_info = []
 	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
+		time_diff_m = request.POST.get('local_utc_diff_m')
 		data = UserProfile.objects.all()
 		data = filter_user(request.POST, data)
 
@@ -302,14 +235,14 @@ def get_download_info(request):
 		dict_tmp['username'] = obj_user.username
 		dict_tmp['first_name'] = obj_user.first_name
 		dict_tmp['last_name'] = obj_user.last_name
-		dict_tmp['login_time'] = d.login_time
+		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
 
 		if active_recent(obj_user):
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
 			dict_tmp['online_state'] = 'On'
 		else:
-			dict_tmp['logout_time'] = d.logout_time
+			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			dict_tmp['online_state'] = 'Off'
 
@@ -317,4 +250,60 @@ def get_download_info(request):
 
 		login_info_list.append(dict_tmp)
 	return login_info_list
-'''
+
+def filter_user(vars, data):
+	if vars.get('state', None):
+		data = data.filter(Q(district__state_id=vars.get('state')))
+	if vars.get('district', None):
+		data = data.filter(Q(district_id=vars.get('district')))
+	if vars.get('school', None):
+		data = data.filter(Q(school_id=vars.get('school')))
+	data = data.filter(~Q(subscription_status='Imported'))
+	return data
+
+def time_to_local(user_time,time_diff_m):
+	user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
+	plus_sub = 1
+	time_diff_m_int = int(time_diff_m)
+	if time_diff_m_int >= 0:
+		plus_sub = 1
+	else:
+		plus_sub = -1
+	
+	user_time_str = (user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub).strftime('%m-%d-%Y %I:%M:%S %p')
+	return user_time_str
+
+def active_recent(user):
+	user_now = user
+	utc_month = datetime.datetime.utcnow().strftime("%m")
+	utc_day = datetime.datetime.utcnow().strftime("%d")
+	utc_h = datetime.datetime.utcnow().strftime("%H")
+	utc_m = datetime.datetime.utcnow().strftime("%M")
+	d_min = 60*int(utc_h) + int(utc_m)
+	if user_now.profile.last_activity:
+		user_last_activity = user_now.profile.last_activity
+		u_min = 60*int(user_last_activity.strftime("%H")) + int(user_last_activity.strftime("%M"))
+		close = int(d_min) - int(u_min) < 1
+		active = user_last_activity.strftime("%d") == utc_day and user_last_activity.strftime("%m") == utc_month and close
+	else:
+		active = False
+	return active
+
+def study_time_format(t, is_sign=False):
+	sign = ''
+	if t < 0 and is_sign:
+		sign = '-'
+		t = abs(t)
+	hour_unit = ' Hour, '
+	minute_unit = ' Minute'
+	hour = int(t / 60 / 60)
+	minute = int(t / 60 % 60)
+	if hour != 1:
+		hour_unit = ' Hours, '
+	if minute != 1:
+		minute_unit = 'Minutes'
+	if hour > 0:
+		hour_full = str(hour) + hour_unit
+	else:
+		hour_full = ''
+	return (('{0}{1} {2} {3}').format(sign, hour_full, minute, minute_unit)).strip()
