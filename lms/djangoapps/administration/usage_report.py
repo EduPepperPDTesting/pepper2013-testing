@@ -195,8 +195,8 @@ def usage_report_download_excel(request):
 
 def get_download_info(request):
 	user_log_info = []
+	time_diff_m = request.POST.get('local_utc_diff_m')
 	if request.POST.get('state') or request.POST.get('district') or request.POST.get('school'):
-		time_diff_m = request.POST.get('local_utc_diff_m')
 		data = UserProfile.objects.all()
 		data = filter_user(request.POST, data)
 
