@@ -173,9 +173,9 @@ def usage_report_download_excel(request):
 		output = StringIO()
 		workbook = xlsxwriter.Workbook(output, {'in_memory': True})
 		worksheet = workbook.add_worksheet()
-		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time", "Online State"]
+		TITLES = ["State", "District", "School", "Email", "User Name", "First Name", "Last Name","Time Login", "Time Last Logout", "Last Session Time", "Total Session Time"]
 
-		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session", "online_state"]
+		FIELDS = ["state", "district", "school", "email", "username", "first_name", "last_name","login_time", "logout_time", "last_session", "total_session"]
 
 		for i, k in enumerate(TITLES):
 			worksheet.write(0, i, k)
@@ -240,11 +240,11 @@ def get_download_info(request):
 		if active_recent(obj_user):
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
-			dict_tmp['online_state'] = 'On'
+			#dict_tmp['online_state'] = 'On' 
 		else:
 			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
 			dict_tmp['last_session'] = study_time_format(d.last_session)
-			dict_tmp['online_state'] = 'Off'
+			#dict_tmp['online_state'] = 'Off'
 
 		dict_tmp['total_session'] = study_time_format(d.total_session)
 
