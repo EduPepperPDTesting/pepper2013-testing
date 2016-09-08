@@ -715,7 +715,7 @@ div.card-bottom table tr:nth-child(2) {
     padding-right: 3px;
 }
 .ask-expert-message{
-    font: normal 300 16px Georgia, Cambria, "Times New Roman", Times, sans-serif !important;
+    font: normal 300 17px G, Cambria, "Times New Roman", Times, sans-serif !important;
     max-width: 200px;
 }
 .post-button:hover{
@@ -834,8 +834,7 @@ div.card-bottom table tr:nth-child(2) {
     margin-top: 9px;
     width:92%;
     float:right;
-    font: normal 300 16px Georgia, Cambria, "Times New Roman", Times, sans-serif !important;
-    font-style: italic;
+    font: normal 300 17px G, Cambria, "Times New Roman", Times, sans-serif !important;
     height: 30px;
 }
 .ask-expert{
