@@ -427,31 +427,40 @@ def getCalendarMonth(request):
                     except:
                         status = "";
 
+                    titlex = item.name + "&#13;" + item.training_date.strftime('%m-%d-%Y') + "&#13;" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
                         if(_catype == "0" or _catype == "4"):
+                            # occurrences.append(
+                            #     "<span class='alert al_4' title='The training date has not arrived yet.'>" + item.name + "</span>");
                             occurrences.append(
-                                "<span class='alert al_4' title='The training date has not arrived yet.'>" + item.name + "</span>");
+                                "<span class='alert al_4' title='" + titlex + "'>" + item.name + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (_catype == "0" or _catype == "5"):
+                                # occurrences.append(
+                                #     "<span class='alert al_7' title='Maximum number of users have registered for this training.'>" + item.name + "</span>");
                                 occurrences.append(
-                                    "<span class='alert al_7' title='Maximum number of users have registered for this training.'>" + item.name + "</span>");
+                                    "<span class='alert al_7' title='" + titlex + "'>" + item.name + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
+                                    # occurrences.append(
+                                    #     "<label class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</span></label>");
                                     occurrences.append(
-                                        "<label class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
+                                    # occurrences.append(
+                                    #     "<label class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</label>");
                                     occurrences.append(
-                                        "<label class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         #The registration date has passed for this training
@@ -467,16 +476,20 @@ def getCalendarMonth(request):
                             if (_catype == "0" or _catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
+                                # occurrences.append(
+                                #     "<label class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
                             if (_catype == "0" or _catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
+                                # occurrences.append(
+                                #     "<label class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
