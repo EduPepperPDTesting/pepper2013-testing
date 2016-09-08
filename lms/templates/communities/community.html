@@ -86,38 +86,9 @@ import datetime
                 <div id="community_content_discussions" class="community-content-section">
                     <div class="discussions">
                     <center><a onclick="newDiscussion()" class="side-button blue-button new-discussion">New Discussion</a></center>
-                    %for i,d in enumerate(discussions):
-                        <div class="discussion">
-                            <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
-                            <div class="discussion-stats">
-                                <span>Replies: ${d.replies}</span>
-                                <span>Views: ${d.views}</span>
-                            </div>
-                            <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
-                            <div class="discussion-post-info">
-                                <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
-                                <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
-                            </div>
-                            <div class="community-clear"></div>
-                        </div>
-                    %endfor
-                    </div>
-                    <center><a onclick="newDiscussion()">New Discussion</a></center>
-                    <div id="discussion-pager">
-                        <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
-                        %if pager['page'] > 1:
-                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']-1})" class="up_page"></a>
-                        %endif
-                        %for p in pager['jumps']:
-                            %if p=='c':
-                                <a href="#discussions" onclick="replaceDiscussions(${pager['page']})" class="page_active">${pager['page']}</a>
-                            %else:
-                                <a href="#discussions" onclick="replaceDiscussions(${p})">${p}</a>
-                            %endif
-                        %endfor
-                        %if pager['pages'] > pager['page']:
-                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
-                        %endif
+                    <div id="discussion_list"></div>
+                                                <center><img id="disc_loading_image" src="../static/images/posts-loading.gif"></img></center>
+
                     </div>
                 </div>
             </div>
@@ -719,6 +690,16 @@ import datetime
             $("#select_name").remove();
         });
     }
+    function getDiscussions(){
+        var community=${community.id};
+        $.post("${reverse('community_get_discussions')}", {community_id:community, size:discussion_size}, function(data){
+            if(data.all=="DONE"){
+                $("#disc_loading_image").remove();
+            }
+            $("#discussion_list").html(data.content);
+            console.log(data.content);
+        });
+    }
     function getPosts(){
         filter = $("#post_filter_select").val()
         var community=${community.id};
@@ -882,6 +863,7 @@ import datetime
     }
     $(document).ready(function(){
         size=5;
+        discussion_size=5;
         $("#members_view_all").click(function(e){
             e.preventDefault();
             var members_dialog = new Dialog($('#dialog'));
@@ -925,8 +907,7 @@ import datetime
            $("#add_images_div").toggle();
         });
         getPosts();
-
-        
+        getDiscussions();
         $("#submit_new_post_button").click(function(){
             var post=$("#new_post_textarea").val();
             var community=${community.id};
@@ -959,12 +940,16 @@ import datetime
                 var body = document.body, html = document.documentElement;
                 var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
                 if (a + b >= height - 150) {
-                    size += 5;
+                    if ($("#community_content_header_discussions").hasClass("selected"))
+                        discussion_size += 5;
+                    else
+                        size += 5;
                     waiting = true;
                     setTimeout(function(){
                       waiting = false;
                     }, 750);
                     getPosts();
+                    getDiscussions()
                 }
             }
         });

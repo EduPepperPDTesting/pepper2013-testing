@@ -986,6 +986,37 @@ def email_expert(request):
     return HttpResponse(json.dumps({'Subject': sub, 'Message': message, 'result':result,'to':to}), content_type='application/json')
 
 
+def get_discussions(request):
+    id = 0
+    size = request.POST.get('size')
+    c = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
+    html = ""
+    total = int(CommunityDiscussions.objects.filter(community=c).count())
+    if total >= int(size):
+        all = "NO"
+    elif total == 0:
+        all = "DONE"
+    else:
+        all = "DONE"
+    discussions = CommunityDiscussions.objects.filter(community=c).order_by('-date_create')[0:size]
+    views_connect = view_counter_store()
+    for disc in discussions:
+        views_object = views_connect.get_item('discussion', str(disc.id))
+        if views_object is None:
+            views = 0
+        else:
+            views = views_object['views']
+
+        html += "<div class = 'discussion'><img class='discussion-avatar' src ='" + reverse('user_photo', args=[disc.user_id]) + "'>"
+        re = int(CommunityDiscussionReplies.objects.filter(discussion=disc).count())
+        html += "<div class = 'discussion-stats'><span>Replies: "+str(re)+"</span><span>Views: "+str(views)+"</span>"
+        html += "</div><h2><a href='"+reverse('community_discussion_view', args=[disc.id])+"'>" + disc.subject + "</a></h2>"
+        html += "<div class='discussion-post-info'><div class='discussion-byline'><span>Posted By: </span>"+disc.user.first_name + " " + disc.user.last_name + "</div>"
+        html += "<div class='discussion-date'><span> On: </span>" + '{dt:%b}. {dt.day}, {dt.year}'.format(dt=disc.date_create) + "</div>"
+        html += "</div><div class='community-clear'></div></div>"
+    return HttpResponse(json.dumps({'id':id, 'Success': 'True', 'all':all, 'content': html, 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
 def get_posts(request):
     id = 0
     size=request.POST.get('size')

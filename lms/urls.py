@@ -352,6 +352,7 @@ urlpatterns = (
     url(r'^community/post/like$', 'communities.views.submit_new_like', name='community_submit_new_like'),
     url(r'^community/post/new$', 'communities.views.submit_new_post', name='community_submit_new_post'),
     url(r'^community/post/get$', 'communities.views.get_posts', name='community_get_posts'),
+    url(r'^community/discussion/get$', 'communities.views.get_discussions', name='community_get_discussions'),
     url(r'^community/post/comment', 'communities.views.submit_new_comment', name='community_submit_new_comment'),
     url(r'^community/post/lookup', 'communities.views.lookup_name', name='community_lookup_name'),
     url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
