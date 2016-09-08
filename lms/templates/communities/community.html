@@ -46,7 +46,7 @@ import datetime
                 <div id="community_content_header" class="community-content-header">
                     <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
                     <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object not-selected">Discussions</h1>
-                    <h1 id="community_content_header_discussions_new" onclick="newDiscussion()" class="section-tab discussion-tab community-content-header-object not-selected">New Discussion</h1>
+                    <a onclick="newDiscussion()" id = "add_new_discussion" class="side-button blue-button new-discussion">New Discussion</a>
                 </div>
                 <div id="community_content_posts" class="community-content-section">
                     <div id="post_content" class="post-content">
@@ -86,7 +86,6 @@ import datetime
                 </div>
                 <div id="community_content_discussions" class="community-content-section">
                     <div class="discussions">
-                    <center><a onclick="newDiscussion()" class="side-button blue-button new-discussion">New Discussion</a></center>
                     <div id="discussion_list"></div>
                                                 <center><img id="disc_loading_image" src="../static/images/posts-loading.gif"></img></center>
 
@@ -962,6 +961,7 @@ import datetime
                 $("#community_content_header_discussions").removeClass("selected");
                 $("#community_content_header_posts").removeClass("not-selected");
                 $("#community_content_header_discussions").addClass("not-selected");
+               $("#add_new_discussion").hide();
                 change_var = 1;
            }else{
                 $("#community_content_posts").hide();
@@ -969,6 +969,7 @@ import datetime
                 $("#community_content_header_discussions").addClass("selected");
                 $("#community_content_header_posts").addClass("not-selected");
                 $("#community_content_header_discussions").removeClass("not-selected");
+                $("#add_new_discussion").show();
                 change_var = 0;
            }
         });
@@ -980,6 +981,7 @@ import datetime
             $("#community_content_header_discussions").removeClass("selected");
             $("#community_content_header_posts").removeClass("not-selected");
             $("#community_content_header_discussions").addClass("not-selected");
+            $("#add_new_discussion").hide();
         });
         $("#community_content_header_discussions").click(function(){
             $("#community_content_posts").hide();
@@ -988,6 +990,7 @@ import datetime
             $("#community_content_header_discussions").addClass("selected");
             $("#community_content_header_discussions").removeClass("not-selected");
             $("#community_content_header_posts").addClass("not-selected");
+            $("#add_new_discussion").show();
         });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();

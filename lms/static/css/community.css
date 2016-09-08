@@ -858,8 +858,9 @@ div.card-bottom table tr:nth-child(2) {
 }
 .new-discussion{
     max-width: 140px;
-    margin-top: 12px;
+    margin-top: -77px;
     margin-bottom: 12px;
+    margin-left: 255px;
 }
 .comment-like-text{
     color: #A5A5A5 !important;
