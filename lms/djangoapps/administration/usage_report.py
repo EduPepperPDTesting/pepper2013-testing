@@ -71,16 +71,16 @@ def get_user_login_info(request):
 		dict_tmp['last_name'] = obj_user.last_name
 		dict_tmp['login_time'] = d.login_time
 
-		if active_recent(obj_user):
+		if active_recent(obj_user) or not d.logout_press:
 			dict_tmp['logout_time'] = ''
 			dict_tmp['last_session'] = ''
 			dict_tmp['online_state'] = 'On'
+			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
 		else:
 			dict_tmp['logout_time'] = d.logout_time
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			dict_tmp['online_state'] = 'Off'
-
-		dict_tmp['total_session'] = study_time_format(d.total_session)
+			dict_tmp['total_session'] = study_time_format(d.total_session)
 
 		login_info_list.append(dict_tmp)
 	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
