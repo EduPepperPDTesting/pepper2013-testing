@@ -211,16 +211,16 @@ def get_download_info(request):
 		dict_tmp['last_name'] = obj_user.last_name
 		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
 
-		if active_recent(obj_user):
-			dict_tmp['logout_time'] = ''
-			dict_tmp['last_session'] = ''
-			#dict_tmp['online_state'] = 'On' 
-		else:
-			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
+		if not active_recent(obj_user) or d.logout_press:
+			dict_tmp['logout_time'] = d.logout_time
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			#dict_tmp['online_state'] = 'Off'
-
-		dict_tmp['total_session'] = study_time_format(d.total_session)
+			dict_tmp['total_session'] = study_time_format(d.total_session)
+		else:
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			#dict_tmp['online_state'] = 'On'
+			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
 
 		login_info_list.append(dict_tmp)
 	return login_info_list
