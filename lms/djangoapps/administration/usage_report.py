@@ -257,7 +257,7 @@ def active_recent(user):
 	if user_now.profile.last_activity:
 		user_last_activity = user_now.profile.last_activity
 		u_min = 60*int(user_last_activity.strftime("%H")) + int(user_last_activity.strftime("%M"))
-		close = int(d_min) - int(u_min) < 1
+		close = int(d_min) - int(u_min) <= 30   
 		active = user_last_activity.strftime("%d") == utc_day and user_last_activity.strftime("%m") == utc_month and close
 	else:
 		active = False
