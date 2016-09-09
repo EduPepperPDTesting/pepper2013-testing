@@ -85,32 +85,6 @@ def get_user_login_info(request):
 		login_info_list.append(dict_tmp)
 	return HttpResponse(json.dumps({'rows': login_info_list}), content_type="application/json")
 
-@ensure_csrf_cookie
-@login_required
-def user_lastactive_save(request):
-	utc_time = datetime.datetime.utcnow()
-	try:
-		time_diff = utc_time - request.session['record_time']
-	except Exception as e:
-		request.session['record_time'] = utc_time
-		time_diff = utc_time - request.session['record_time']
-			
-	time_diff_seconds = time_diff.seconds
-	if time_diff_seconds > 120:
-		request.session['record_time'] = utc_time
-		user_log_info = UserLoginInfo.objects.filter(user_id=request.user.id)
-		if user_log_info:
-			utc_time_30m_str = (utc_time + timedelta(seconds=30*60)).strftime('%Y-%m-%d %H:%M:%S')
-			user_log_info[0].logout_time = utc_time_30m_str
-
-			db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
-			utc_time_str = utc_time.strftime('%Y-%m-%d %H:%M:%S')
-			last_session = datetime.datetime.strptime(utc_time_str, '%Y-%m-%d %H:%M:%S') - db_login_time
-			user_log_info[0].last_session = last_session.seconds + 1800
-			user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds
-			user_log_info[0].save()
-	return HttpResponse(json.dumps({}), content_type="application/json")
-
 # -------------- Dropdown Lists -------------
 def drop_states(request):
     r = list()
@@ -237,16 +211,16 @@ def get_download_info(request):
 		dict_tmp['last_name'] = obj_user.last_name
 		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
 
-		if active_recent(obj_user):
-			dict_tmp['logout_time'] = ''
-			dict_tmp['last_session'] = ''
-			#dict_tmp['online_state'] = 'On' 
-		else:
-			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
+		if not active_recent(obj_user) or d.logout_press:
+			dict_tmp['logout_time'] = d.logout_time
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			#dict_tmp['online_state'] = 'Off'
-
-		dict_tmp['total_session'] = study_time_format(d.total_session)
+			dict_tmp['total_session'] = study_time_format(d.total_session)
+		else:
+			dict_tmp['logout_time'] = ''
+			dict_tmp['last_session'] = ''
+			#dict_tmp['online_state'] = 'On'
+			dict_tmp['total_session'] = study_time_format(d.total_session - 1800)
 
 		login_info_list.append(dict_tmp)
 	return login_info_list
