@@ -131,7 +131,6 @@ urlpatterns = (
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
 
     url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
-    url(r'^usage_report/user_lastactive_save$', 'administration.usage_report.user_lastactive_save', name="user_lastactive_save"),
     url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
     url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
     url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),

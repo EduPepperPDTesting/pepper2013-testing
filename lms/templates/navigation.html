@@ -1394,10 +1394,3 @@
         $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
     </script>
 %endif
-%if request.user.is_authenticated():
-    <script>
-    $(function() {
-        $.get("${reverse('user_lastactive_save')}")
-    }); 
-    </script>
-%endif
