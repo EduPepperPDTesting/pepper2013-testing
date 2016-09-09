@@ -427,7 +427,13 @@ def getCalendarMonth(request):
                     except:
                         status = "";
 
-                    titlex = item.name + "&#13;" + item.training_date.strftime('%m-%d-%Y') + "&#13;" + item.geo_location;
+                    titlex = item.name + "&#13;" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
+
+                    if item.classroom:
+                        titlex = titlex  + "&#13;" + item.classroom;
+
+                    if item.geo_location:
+                        titlex = titlex  + "&#13;" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
                         if(_catype == "0" or _catype == "4"):
