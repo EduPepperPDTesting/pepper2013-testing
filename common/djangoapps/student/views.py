@@ -834,6 +834,7 @@ def login_user(request, error=""):
             user_log_info[0].total_session = user_log_info[0].total_session + 60 * 30
 
             user_log_info[0].login_times = user_log_info[0].login_times + 1
+            user_log_info[0].logout_press = 0
 
             user_log_info[0].save()
         else:
@@ -880,6 +881,7 @@ def logout_user(request):
         time_diff = utctime - request.session['record_time']
         time_diff_seconds = time_diff.seconds
         user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
+        user_log_info[0].logout_press = 1
         user_log_info[0].save()       
     #@end
 
