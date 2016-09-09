@@ -209,6 +209,7 @@ class PepRegInstructor(models.Model):
     date_create = models.DateField(auto_now_add=True, db_index=False)
     all_edit = models.BooleanField(blank=False, default=0)
     all_delete = models.BooleanField(blank=False, default=0)
+    
 
 class PepRegStudent(models.Model):
     class Meta:
