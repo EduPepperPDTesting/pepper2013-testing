@@ -435,7 +435,19 @@
                         <h5>Create Your Training or PD Event: Step 5 of 6</h5>
                         <h4>Add/Remove Instructors</h4>
                         <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;"
-                             id="instructor_emails"></div>
+                             id="instructor_emails">
+                         	<table width="100%" cellspacing="" cellpadding="" border="0">
+                                <thead>
+                                <tr>
+                                	<th width="30" align="center"></th>
+                                    <th align="center">Email</th>
+                                    <th width="150" align="center">Edit Training</th>
+                                    <th width="150" align="center">Delete Training</th>
+                                </tr>
+                                </thead>
+                                <tbody id="training_instructors_list"></tbody>
+                            </table>
+                         </div>
                         <div class="form-row">
                             <i>Select a training instructor by searching email (start typing and select email of
                                 instructor):</i>
@@ -997,8 +1009,14 @@
     };
     PepReg.prototype.getInstructors = function (emails) {
         var ar = [];
-        $("#instructor_emails").find("div").each(function () {
+        /*$("#instructor_emails").find("div").each(function () {
             ar.push($(this).find("span").text());
+        });*/
+		$("#training_instructors_list").find("tr").each(function () {
+			var email = $(this).find("td").eq(1).text();
+			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+			var all_delete = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + all_edit + "::" + all_delete);
         });
         return ar;
     };
@@ -1007,10 +1025,27 @@
             var curr = this.getInstructors();
             $.each(emails.split(","), function (i, email) {
                 if (email && curr.indexOf(email) < 0) {
-                    $("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
-                        e.preventDefault();
-                        $(this).parent().remove();
-                    });
+					var tmp = email.split("::");
+					if(tmp[0] != ""){
+						var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+						var tmp_td1 = $("<td>" + tmp[0] + "</td>");
+						var tmp_td2 = $("<td align='center'><input type='checkbox' name='allow_edit' /></td>");
+						var tmp_td3 = $("<td align='center'><input type='checkbox' name='allow_delete' /></td>");
+						tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3);
+						$("#training_instructors_list").append(tmp_tr);
+						
+						if(tmp[1] == "1")			tmp_td2.find("input").attr("checked", "checked");
+						if(tmp[2] == "1")			tmp_td3.find("input").attr("checked", "checked");
+						
+						tmp_tr.find("a").click(function(e){
+							e.preventDefault();
+							$(this).parent().parent().remove();
+						});
+						/*$("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
+							e.preventDefault();
+							$(this).parent().remove();
+						});*/
+					}
                 }
             });
         }
@@ -1064,13 +1099,15 @@
         } else {
             this.showPlace(this.map_edit, state);
         }
+		
         $.each(data, function (k, v) {
             var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
             if ($entry.prop("tagName") == "INPUT" && ($entry.attr("type") == "radio" || $entry.attr("type") == "checkbox")) {
                 $entry.prop('checked', false);
                 $entry.filter("*[value=" + v + "]").prop('checked', true);
             } else if (k == "instructor_emails") {
-                $("#instructor_emails").html("");
+                //$("#instructor_emails").html("");
+				$("#training_instructors_list").html("");
                 self.appendInstructors(v);
             } else {
                 $entry.val(v);
@@ -1109,7 +1146,7 @@
     PepReg.prototype.editTraining = function (id) {
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
-            r.instructor_emails = r.instructor_emails.join(",");
+            r.instructor_emails = r.instructor_emails.join(",");			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
@@ -1409,20 +1446,9 @@
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
                     $(this).click(function () {
-                        //var training_id = $(this).parent().find("input[name=training_id]").val();
-                        //var origin = escape($("#map_show").find("input:first").val());
-                        //var zoom = 12;
-                        //var center = map_show.getCenter();
                         window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
-                        //var props = JSON.parse($(this).find("input").val());
-                        //props.geo_location = $(this).find("input[name='row_geo_location']").val();
-                        //props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
-
-                        //self.showMap(props, training_id);
                     });
                 }
-                // var state='${request.user.profile.district.state.name} United States';
-                // self.showPlace(self.map_show, state);
             });
             // each row
             $(this).find("tr").each(function () {
@@ -1430,6 +1456,8 @@
                 if (!training_id)
                     return; // continue
                 var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
+				var all_edit = $(this).find("input[name=all_edit]").val();
+				var all_delete = $(this).find("input[name=all_delete]").val();				
                 var apart = $(this).find("input[name=status]").val().split(",");
                 var arrive = apart[0];
                 var status = apart[1];
@@ -1438,15 +1466,24 @@
                 var reach_limit = apart[4];
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
+				if(is_superuser){
+					all_edit = "1";
+					all_delete = "1";
+				}
+				
                 if (is_row_admin) {
-                    $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.editTraining(training_id);
-                    });
-                    $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.deleteTraining(training_id);
-                    });
+					if(all_edit == "1"){
+						$("<a href='' class='icon icon-edit' a='"+all_edit+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.editTraining(training_id);
+						});
+					}
+                   	if(all_delete == "1"){
+						$("<a href='' class='icon icon-remove' a='"+all_delete+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.deleteTraining(training_id);
+						});
+					}
                 }
                 // Register/Record Attendance
                 $(this).find("td:nth-child(15)").each(function () {
@@ -1540,7 +1577,6 @@
                   $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
                 });              
             });
-
         });
     };
     PepReg.prototype.reloadTable = function () {

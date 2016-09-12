@@ -188,8 +188,25 @@ def rows(request):
             training=item).count() if item.max_registration > 0 else -1
 
         status = ""
+        all_edit = "0"
+        all_delete = "0"
+
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
+
+        if item.user_create == request.user:
+            all_edit = "1"
+            all_delete = "1"
+        else:
+            if PepRegInstructor.objects.filter(instructor=request.user, training=item).exists():
+                for pi in PepRegInstructor.objects.filter(instructor=request.user, training=item):
+                    if pi.all_edit:
+                        all_edit = "1";
+
+                    if pi.all_delete:
+                        all_delete = "1";
+
+                    break;
 
         is_belong = PepRegInstructor.objects.filter(instructor=request.user,
                                                     training=item).exists() or item.user_create == request.user
@@ -220,8 +237,10 @@ def rows(request):
             "",
             "<input type=hidden value=%s name=id> \
             <input type=hidden value=%s name=managing> \
+            <input type=hidden value=%s name=all_edit> \
+            <input type=hidden value=%s name=all_delete> \
             <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
-                item.id, managing, arrive, status, allow,
+                item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
                 remain
             )
@@ -271,13 +290,20 @@ def save_training(request):
         training.date_modify = datetime.now(UTC)
         training.save()
 
-        for email in request.POST.get("instructor_emails", "").split(","):
+        for emails in request.POST.get("instructor_emails", "").split(","):
+            tmp1 = emails.split("::");
+            email = tmp1[0];
+            all_edit = True if tmp1[1] == "1" else False;
+            all_delete = True if tmp1[2] == "1" else False;
+
             if User.objects.filter(email=email).exists():
                 pi = PepRegInstructor()
                 pi.training = training
                 pi.instructor = User.objects.get(email=email)
                 pi.date_create = datetime.now(UTC)
                 pi.user_create = request.user
+                pi.all_edit = all_edit;
+                pi.all_delete = all_delete;
                 pi.save()
 
     except Exception as e:
@@ -306,7 +332,10 @@ def training_json(request):
 
     instructor_emails = []
     for pi in PepRegInstructor.objects.filter(training=item):
-        instructor_emails.append(pi.instructor.email)
+        all_edit = "1" if pi.all_edit else "0"
+        all_delete = "1" if pi.all_delete else "0"
+
+        instructor_emails.append(pi.instructor.email + "::" + all_edit  + "::" + all_delete)
 
     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
 
