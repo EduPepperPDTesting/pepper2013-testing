@@ -455,14 +455,14 @@ def getCalendarMonth(request):
                             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
                     except:
                         status = "";
-
-                    titlex = item.name + "&#13;" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
+                    # &#13;
+                    titlex = item.name + "::" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
 
                     if item.classroom:
-                        titlex = titlex  + "&#13;" + item.classroom;
+                        titlex = titlex  + "::" + item.classroom;
 
                     if item.geo_location:
-                        titlex = titlex  + "&#13;" + item.geo_location;
+                        titlex = titlex  + "::" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
                         if(_catype == "0" or _catype == "4"):

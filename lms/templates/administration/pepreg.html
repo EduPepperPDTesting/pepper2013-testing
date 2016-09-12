@@ -52,6 +52,8 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
 	
+	/*#calendar-month tr td .alert:hover{font-size:14px !important; }*/
+	
 	#calendar-month tr td .al_3{ background-color:#22b14c;}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
@@ -74,6 +76,9 @@
 	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
 	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
 	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
+	
+	.ui-tooltip, .arrow:after {background: black; border: 2px solid white;}
+	.ui-tooltip {width:120px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; text-transform: uppercase; box-shadow: 0 0 7px black; z-index:20000 !important;}
 </style>
 
 <div class="data_import_bottom">
@@ -395,17 +400,17 @@
                             <span class="label" style="width:180px">Please Select the Training Date:</span>
                             <input type="" name="training_date" class="datePickText lock_past" value=""
                                    readonly='true'/>
-                            <img src="/static/images/calendar-icon-2.png" class="" alt="" width="24"/>
+                            <img src="/static/images/calendar-icon-2.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select Start Time:</span>
                             <input type="" name="training_time_start" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select End Time:</span>
                             <input type="" name="training_time_end" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                     </div>
                 </div>
@@ -627,7 +632,21 @@
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
 	}
 	
-	$(function(){		
+	$(function(){
+		$(document).tooltip({
+			content: function() {
+				var tmp1 = $(this).attr("title");
+				if(tmp1 != ""){
+					var tmp2 = tmp1.split("::");
+					var tmp3 = "";
+					for(i in tmp2){
+						tmp3 += "<div>" + tmp2[i] + "</div>";
+					}
+					return tmp3;
+				}
+			}
+		});
+		
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
@@ -889,16 +908,7 @@
                 return ["max_registration", "Please input a valid Maximum Registration Cap"];
             }
         }
-    };
-    /* PepReg.prototype.markInvalid=function(name, message){
-       var $input = $("#dlg-add-training").find("*[name="+ name +"]");
-       var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
-       $mark.addClass("on");
-       $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
-       $input.one('focus', function(){
-       $mark.removeClass("on").hideBalloon();
-       });
-       } */
+    };   
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -1008,10 +1018,7 @@
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
-        var ar = [];
-        /*$("#instructor_emails").find("div").each(function () {
-            ar.push($(this).find("span").text());
-        });*/
+        var ar = [];       
 		$("#training_instructors_list").find("tr").each(function () {
 			var email = $(this).find("td").eq(1).text();
 			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
@@ -1041,10 +1048,6 @@
 							e.preventDefault();
 							$(this).parent().parent().remove();
 						});
-						/*$("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
-							e.preventDefault();
-							$(this).parent().remove();
-						});*/
 					}
                 }
             });
@@ -1146,7 +1149,17 @@
     PepReg.prototype.editTraining = function (id) {
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
-            r.instructor_emails = r.instructor_emails.join(",");			
+            r.instructor_emails = r.instructor_emails.join(",");
+			if(r.arrive == "1"){
+				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
+				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
+				$(".training_date_icon").hide();
+			}else{
+				$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+				$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+				$(".training_date_icon").show();
+			}
+			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
