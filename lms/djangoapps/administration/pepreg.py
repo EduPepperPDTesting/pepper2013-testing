@@ -290,21 +290,23 @@ def save_training(request):
         training.date_modify = datetime.now(UTC)
         training.save()
 
-        for emails in request.POST.get("instructor_emails", "").split(","):
-            tmp1 = emails.split("::");
-            email = tmp1[0];
-            all_edit = True if tmp1[1] == "1" else False;
-            all_delete = True if tmp1[2] == "1" else False;
+        emails_get = request.POST.get("instructor_emails");
+        if(emails_get):
+            for emails in request.POST.get("instructor_emails", "").split(","):
+                tmp1 = emails.split("::");
+                email = tmp1[0];
+                all_edit = True if tmp1[1] == "1" else False;
+                all_delete = True if tmp1[2] == "1" else False;
 
-            if User.objects.filter(email=email).exists():
-                pi = PepRegInstructor()
-                pi.training = training
-                pi.instructor = User.objects.get(email=email)
-                pi.date_create = datetime.now(UTC)
-                pi.user_create = request.user
-                pi.all_edit = all_edit;
-                pi.all_delete = all_delete;
-                pi.save()
+                if User.objects.filter(email=email).exists():
+                    pi = PepRegInstructor()
+                    pi.training = training
+                    pi.instructor = User.objects.get(email=email)
+                    pi.date_create = datetime.now(UTC)
+                    pi.user_create = request.user
+                    pi.all_edit = all_edit;
+                    pi.all_delete = all_delete;
+                    pi.save()
 
     except Exception as e:
         db.transaction.rollback()
@@ -466,36 +468,28 @@ def getCalendarMonth(request):
 
                     if (arrive == "0" and allow == "0"):
                         if(_catype == "0" or _catype == "4"):
-                            # occurrences.append(
-                            #     "<span class='alert al_4' title='The training date has not arrived yet.'>" + item.name + "</span>");
                             occurrences.append(
-                                "<span class='alert al_4' title='" + titlex + "'>" + item.name + "</span>");
+                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (_catype == "0" or _catype == "5"):
-                                # occurrences.append(
-                                #     "<span class='alert al_7' title='Maximum number of users have registered for this training.'>" + item.name + "</span>");
                                 occurrences.append(
-                                    "<span class='alert al_7' title='" + titlex + "'>" + item.name + "</span>");
+                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
-                                    # occurrences.append(
-                                    #     "<label class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</span></label>");
                                     occurrences.append(
-                                        "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
-                                    # occurrences.append(
-                                    #     "<label class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</label>");
                                     occurrences.append(
-                                        "<label class='alert al_5' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         #The registration date has passed for this training
@@ -511,20 +505,16 @@ def getCalendarMonth(request):
                             if (_catype == "0" or _catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
-                                # occurrences.append(
-                                #     "<label class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_3' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
                             if (_catype == "0" or _catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
-                                # occurrences.append(
-                                #     "<label class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
