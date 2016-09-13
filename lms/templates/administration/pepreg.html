@@ -79,7 +79,7 @@
 	
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
-	#calendar_alert_title{position:absolute; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
+	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
 
 <div class="data_import_bottom">
@@ -544,6 +544,7 @@
 				var this_x = $(this).parent().position().left;
 				var tmp1 = $(this).offset();
 				tmp1.top += 30;
+				tmp1.top -= $(document).scrollTop();
 				var tmp3 = $(this).attr("titlex").split("::");
 				for(var i in tmp3){
 					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
