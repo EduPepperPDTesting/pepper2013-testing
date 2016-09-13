@@ -1,43 +1,43 @@
-.remove_skype_span:hover{
+.remove_skype_span:hover {
     cursor: pointer;
 }
-.remove_skype_span{
-    padding-left:5px;
-    padding-bottom:2px;
+.remove_skype_span {
+    padding-left: 5px;
+    padding-bottom: 2px;
 }
-.circle:hover{
+.circle:hover {
     cursor: pointer;
 }
 .smallcircle {
-  width: 18px;
-  height: 18px;
-  position:absolute;
-  right:6px;
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    right: 6px;
     top: 6px;
 }
-.discussions{
-    margin-top:10px;
+.discussions {
+    margin-top: 10px;
 }
-.redcircle{
-  width: 20px;
-  height: 20px;
-  background: red;
-  border-radius: 10px;
-  position:absolute;
-  right:0;
+.redcircle {
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 10px;
+    position: absolute;
+    right: 0;
 }
-.skype_username_list, .share_username_list{
+.skype_username_list, .share_username_list {
     display: inline-block;
     background-color: #5A9BD5;
-    font-weight:bold;
+    font-weight: bold;
     margin: 4px;
     border-radius: 4px;
     padding: 3px;
 }
-#dlg-user-photo{
-     width:140px;
-     height:140px;
- }
+#dlg-user-photo {
+    width: 140px;
+    height: 140px;
+}
 #community-main {
     width: 1185px;
     margin: 30px auto;
@@ -136,7 +136,7 @@
     margin: 0 15px 0 0;
     padding-top: 10px;
 }
-.community-name-header{
+.community-name-header {
     width: 350px !important;
 }
 #community-logo {
@@ -152,10 +152,10 @@
     height: 260px;
 }
 .facilitator-wrap {
-     position: absolute;
-     width: 450px;
-     bottom: 20px;
-     left: 20px;
+    position: absolute;
+    width: 450px;
+    bottom: 20px;
+    left: 20px;
 
 }
 #community-content-area h1 {
@@ -199,65 +199,64 @@
     margin-top: -26px;
     margin-left: -38px;
 }
-.community-content-header{
+.community-content-header {
     width: 622px;
     margin-top: 27px;
     height: 52px;
-    float:left;
+    float: left;
     padding-left: 4px;
     background-color: #e4e4e4;
     border: 1px solid lightgrey;
 }
-.community-content-header-object{
-    border-top:1px solid gray;
-    border-left:1px solid gray;
-    border-right:1px solid gray;
+.community-content-header-object {
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
 }
-.community-content-header-object:hover{
-    background-color:#ededed;
-    cursor:pointer;
+.community-content-header-object:hover {
+    background-color: #ededed;
+    cursor: pointer;
 }
-#content-collection-header{
+#content-collection-header {
     padding-bottom: 8px !important;
     padding-top: 34px !important;
     font-size: 20px !important;
 }
-.postbutton{
+.postbutton {
     display: inline-block;
     float: right;
-    margin-bottom: 4px;font-family:Arial;
-    font-size:19px;
+    margin-bottom: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 19px;
     cursor: pointer;
 }
-.small{
+.small {
     margin-top: 2px;
 }
-}
-
-.cke{
+.cke {
     width: 100% !important;
 }
-.selected{
-    background-color:white;
+.selected {
+    background-color: white;
     padding-top: 16px !important;
 }
-.not-selected{
+.not-selected {
     background-color: #e4e4e4;
     border: none !important;
 }
-.community-content-header-object{
-    border-bottom:none !important;
+.community-content-header-object {
+    border-bottom: none !important;
     border-top: 2px solid #90BF70;
     margin-left: 5px;
     height: 10px;
 }
-.community-content-section{
+.community-content-section {
     width: 624px;
     border: 2px solid lightgrey;
-    border-top:1px solid lightgrey;
+    border-top: 1px solid lightgrey;
     min-height: 700px;
     background-color: whitesmoke;
-    float:left;
+    float: left;
 }
 #community-discussions {
     width: 578px;
@@ -272,16 +271,16 @@
     padding: 15px 20px 15px 94px;
     background-color: #f5f5f5;
     margin-bottom: 15px;
-    margin-right:4px;
-    margin-left:4px;
+    margin-right: 4px;
+    margin-left: 4px;
 }
-.admin-dropdown-menu{
+.admin-dropdown-menu {
     text-align: left;
 }
-.info_list{
+.info_list {
     text-align: left;
 }
-.filter-word-label{
+.filter-word-label {
     font-weight: bold;
 }
 .discussion h2 {
@@ -295,7 +294,7 @@
     float: left;
     width: 463px;
 }
-.img-span-code > img{
+.img-span-code > img {
     margin-top: 10px;
 }
 .discussion-post-info div {
@@ -379,8 +378,8 @@
     display: inline-block;
     padding: 2px 5px;
 }
-div.cke{
-    width:580px;
+div.cke {
+    width: 580px;
 }
 .community-resource {
     display: block;
@@ -390,13 +389,13 @@ div.cke{
     border: 0 solid #f0870c;
     height: 150px;
     width: 200px;
-    float:right;
+    float: right;
     box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
     border-radius: 6px;
     overflow: hidden;
     position: relative;
 }
-.members-container{
+.members-container {
     text-align: left;
 }
 .community-resource img {
@@ -454,8 +453,8 @@ div.card-bottom table tr:nth-child(2) {
 #members a img {
     vertical-align: middle;
 }
-#skype_usernames_select{
-    min-width:100px;
+#skype_usernames_select {
+    min-width: 100px;
 }
 .modal {
     position: absolute;
@@ -466,7 +465,7 @@ div.card-bottom table tr:nth-child(2) {
     top: 40px;
     background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
     border-radius: 5px;
-    box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 80px 15px rgba(0, 0, 0, 0.5);
     padding: 0 0 8px 0;
     width: 680px !important;
     display: none;
@@ -474,8 +473,8 @@ div.card-bottom table tr:nth-child(2) {
 #fixed-dialog, #fixed-dialog-likes, #fixed-dialog-share, #skype-dialog {
     position: fixed;
 }
-#fixed-dialog-likes{
-    width:300px;
+#fixed-dialog-likes {
+    width: 300px;
     margin-left: -153px;
 }
 .modal .close-modal {
@@ -615,133 +614,133 @@ div.card-bottom table tr:nth-child(2) {
     background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
     height: 20px;
 }
-.hidden{
-    display:none;
+.hidden {
+    display: none;
 }
-.post-content{
-    margin:10px;
-    background-color:#f5f5f5;
-    min-height:700px;
+.post-content {
+    margin: 10px;
+    background-color: #f5f5f5;
+    min-height: 700px;
 }
 .section-tab.discussion-tab {
 }
-.section-tab.search-tab{
+.section-tab.search-tab {
 }
 .section-tab.posts-tab {
 }
 
 .section-tab {
 }
-.post-content-left{
-    width:80px;
+.post-content-left {
+    width: 80px;
     position: relative;
 }
-.post-profile-image{
-    width:72px;
-    height:72px;
-    margin:4px;
+.post-profile-image {
+    width: 72px;
+    height: 72px;
+    margin: 4px;
 }
-.post-content-right{
-    width:100%;
+.post-content-right {
+    width: 100%;
     vertical-align: middle;
-    padding-right:5px;
+    padding-right: 5px;
     padding-top: 5px;
 }
-.in-comment-link{
+.in-comment-link {
     color: #365899 !important;
     font-size: 14px !important;
 }
-.new-post-textarea{
-    border:none;
-    resize:none;
+.new-post-textarea {
+    border: none;
+    resize: none;
     margin-top: 4px;
     width: 100%;
-     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     font-family: sans-serif !important;
-    font-style: inherit;;
-     box-sizing: border-box;
+    font-style: inherit;
+    box-sizing: border-box;
 }
-.comment-area{
+.comment-area {
     margin-bottom: 5px;
 }
-.like-button-image{
+.like-button-image {
     width: 12px;
-    height:12px;
+    height: 12px;
     padding-bottom: 4px;
-    padding-right:3px;
+    padding-right: 3px;
 }
-.like-members-anchor{
+.like-members-anchor {
     color: #365899;
-    padding-left:8px;
-    font-size:13px;
+    padding-left: 8px;
+    font-size: 13px;
 }
-.like-members-anchor:hover{
+.like-members-anchor:hover {
     cursor: pointer;
 }
-.members-name{
+.members-name {
     display: inline-block;
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
     overflow-y: hidden;
 }
-.members-image{
+.members-image {
     margin-top: -20px;
     position: relative;
     right: 3px;
     bottom: 7px;
     width: 10px;
 }
-.post-like-text{
-        color: #A5A5A5 !important;
+.post-like-text {
+    color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
-.post-comment-text, .post-share-text{
+.post-comment-text, .post-share-text {
     margin-left: 8px;
     color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
 
-.post-comment-text:hover, .post-share-text:hover{
+.post-comment-text:hover, .post-share-text:hover {
     cursor: pointer;
 }
-.comment-image{
-    width:12px;
+.comment-image {
+    width: 12px;
     height: 12px;
     padding-bottom: 2px;
     padding-right: 3px;
 }
-.ask-expert-message{
-    font: normal 300 17px G, Cambria, "Times New Roman", Times, sans-serif !important;
+.ask-expert-message {
+    font: normal 300 16px sans-serif !important;
     max-width: 200px;
 }
-.post-button:hover{
+.post-button:hover {
     cursor: pointer;
 }
-.share-image{
-    width:16px;
+.share-image {
+    width: 16px;
     height: 14px;
     padding-bottom: 2px;
     padding-right: 3px;
 }
-.post-like-text:hover{
+.post-like-text:hover {
     cursor: pointer;
 }
-.delete-something{
+.delete-something {
     float: right;
     margin-right: 10px;
 }
-.comment-delete{
-    float:none;
-    margin-left:10px !important;
+.comment-delete {
+    float: none;
+    margin-left: 10px !important;
 }
-.delete-something:hover{
+.delete-something:hover {
     cursor: pointer;
 }
-.post-textarea{
+.post-textarea {
     border: none;
     resize: none;
     font-style: normal;
@@ -756,21 +755,20 @@ div.card-bottom table tr:nth-child(2) {
     box-sizing: border-box;
     border-top: 1px solid #afafaf;
 }
-.trending-post{
+.trending-post {
     border: 1px solid black;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
     padding: 4px;
 }
-.trending-type{
+.trending-type {
     font-size: larger;
     padding-bottom: 8px;
 }
-.comment-section{
+.comment-section {
     background-color: #f6f7f9;
-    padding: 6px;
-    padding-top: 2px;
+    padding: 2px 6px 6px 6px;
     display: inline-block;
     width: 96%;
     border: 1px solid #cfcfcf;
@@ -779,14 +777,14 @@ div.card-bottom table tr:nth-child(2) {
     -moz-border-radius: 6px;
     border-radius: 6px;
 }
-.selection_name{
-    font-size:16px !important;
-    font-weight:bold !important;
+.selection_name {
+    font-size: 16px !important;
+    font-weight: bold !important;
     padding-left: 6px;
     padding-top: 2px;
     padding-bottom: 2px;
 }
-#select_name{
+#select_name {
     margin-left: 50px;
     background-color: white;
     -webkit-border-radius: 4px;
@@ -798,99 +796,99 @@ div.card-bottom table tr:nth-child(2) {
     width: 340px;
 }
 
-.selection_name:hover{
+.selection_name:hover {
     cursor: pointer;
 }
-.anchor-container-select:hover{
+.anchor-container-select:hover {
     background-color: #4c4cff ;
     color: #fff !important;
 }
-.anchor-container-select{
+.anchor-container-select {
     width: 100%;
 }
-.comment-section table{
+.comment-section table {
     margin-top: 2px;
-    margin-bottom:8px;
+    margin-bottom: 8px;
 }
-.comment-anchor-text{
+.comment-anchor-text {
     color: #365899 !important;
     font-weight: bold !important;
     font-size: 12px !important;
     padding-right: 4px;
 }
-.post-content-row{
+.post-content-row {
     border-top: 12px solid whitesmoke;
     background-color: white;
 }
-.comment-profile-image{
-    width:34px;
-    margin-top:5px;
-    height:34px;
+.comment-profile-image {
+    width: 34px;
+    margin-top: 5px;
+    height: 34px;
 }
-.image-style{
-    width:200px !important;
+.image-style {
+    width: 200px !important;
 }
-.add-comment-text{
+.add-comment-text {
     margin-top: 9px;
-    width:92%;
-    float:right;
-    font: normal 300 17px G, Cambria, "Times New Roman", Times, sans-serif !important;
+    width: 92%;
+    float: right;
+    font: normal 300 16px sans-serif !important;
     height: 30px;
 }
-.ask-expert{
+.ask-expert {
     float: right;
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
 }
-.ask-expert:hover{
+.ask-expert:hover {
     cursor: pointer;
 }
-.members-link{
+.members-link {
     color: #3c3c3c;
 }
-.members-link:hover{
+.members-link:hover {
     cursor: pointer;
 }
-.new-discussion:hover{
+.new-discussion:hover {
     cursor: pointer;
 }
-.new-discussion{
+.new-discussion {
     max-width: 140px;
     margin-top: -77px;
     margin-bottom: 12px;
     margin-left: 255px;
 }
-.comment-like-text{
+.comment-like-text {
     color: #A5A5A5 !important;
     font-weight: bold !important;
     font-size: 14px !important;
 }
-.comment-like-text:hover{
-    cursor:pointer;
+.comment-like-text:hover {
+    cursor: pointer;
 }
-.comment-like-anchor{
-    padding-left:8px;
+.comment-like-anchor {
+    padding-left: 8px;
 }
-.post-name-link{
+.post-name-link {
     color: #365899 !important;
     font-weight: bold !important;
     font-size: 16px !important;
 }
-.user-info-div{
+.user-info-div {
     position: absolute;
-    background-color:white;
+    background-color: white;
     border: 2px solid lightgrey;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
-.user_info_span{
+.user_info_span {
     position: relative;
-    float:left;
+    float: left;
     text-align: left;
     padding: 4px 4px 4px 4px;
 }
-.info-tile-img{
+.info-tile-img {
     padding-right: 4px !important;
 }
