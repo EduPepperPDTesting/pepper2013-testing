@@ -95,12 +95,12 @@
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
                                 %if request.user.is_superuser:
-                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %elif item.district_id == user.profile.district_id:
                                     <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %endif
                             %endfor
-                            </select>
+                        </select>
                         <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
@@ -154,7 +154,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Add Selected Users" class ="small" onclick="add_selected_users()"/>
+              <input type="button" value="Add Selected Users" class="small" onclick="add_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -185,7 +185,7 @@
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
                                 %if request.user.is_superuser:
-                                <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
+                                    <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %elif item.district_id == user.profile.district_id:
                                     <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
                                 %endif

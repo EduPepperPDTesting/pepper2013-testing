@@ -17,6 +17,26 @@ urlpatterns = (
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
 
+    # === notification config begin ===
+    url(r'^confignotification/$', 'communities.notification.configuration', name="communities_notification_index"),
+    url(r'^communities/notification/groups$', 'communities.notification.groups', name="communities_notification_groups"),
+    url(r'^communities/notification/all_groups$', 'communities.notification.all_groups', name="communities_notification_all_groups"),
+    url(r'^communities/notification/types$', 'communities.notification.types', name="communities_notification_types"),
+    url(r'^communities/notification/groups/save$', 'communities.notification.save_group', name="communities_notification_save_group"),
+    url(r'^communities/notification/types/save$', 'communities.notification.save_type', name="communities_notification_save_type"),
+
+    url(r'^communities/notification/groups/delete$', 'communities.notification.delete_group', name="communities_notification_delete_group"),
+    url(r'^communities/notification/types/delete$', 'communities.notification.delete_type', name="communities_notification_delete_type"),
+
+    url(r'^communities/notification/groups/edit$', 'communities.notification.edit_group', name="communities_notification_edit_group"),
+    url(r'^communities/notification/types/edit$', 'communities.notification.edit_type', name="communities_notification_edit_type"),
+
+    url(r'^communities/notification/config$', 'communities.notification.config', name="communities_notification_config"),
+    url(r'^communities/notification/config_other$', 'communities.notification.config_other', name="communities_notification_config_other"),
+    url(r'^communities/notification/configs/save$', 'communities.notification.save_config', name="communities_notification_save_config"),
+        url(r'^communities/notification/configs/saveother$', 'communities.notification.save_other_config', name="communities_notification_save_other_config"),
+    # === notification config end ===
+
     # === sso begin ===
     url(r'^genericsso/$', 'sso.sp.genericsso'),
     url(r'^sso/activate_account/$', 'sso.sp.activate_account', name="activate_sso_account"),
@@ -310,6 +330,18 @@ urlpatterns = (
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/reply$', 'communities.views.discussion_reply', name='community_discussion_reply'),
     url(r'^community/discussion/(?P<discussion_id>[0-9]+)/delete$', 'communities.views.discussion_delete', name='community_discussion_delete'),
     url(r'^community/discussion/(?P<reply_id>[0-9]+)/reply-delete$', 'communities.views.discussion_reply_delete', name='community_discussion_reply_delete'),
+
+    url(r'^community/post/showlikes', 'communities.views.get_full_likes', name='community_get_full_likes'),
+    url(r'^community/post/check$', 'communities.views.check_content_priority', name='community_check_content_priority'),
+    url(r'^community/post/like$', 'communities.views.submit_new_like', name='community_submit_new_like'),
+    url(r'^community/post/new$', 'communities.views.submit_new_post', name='community_submit_new_post'),
+    url(r'^community/post/get$', 'communities.views.get_posts', name='community_get_posts'),
+    url(r'^community/discussion/get$', 'communities.views.get_discussions', name='community_get_discussions'),
+    url(r'^community/post/comment', 'communities.views.submit_new_comment', name='community_submit_new_comment'),
+    url(r'^community/post/lookup', 'communities.views.lookup_name', name='community_lookup_name'),
+    url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
+    url(r'^community/delete/comment', 'communities.views.delete_comment', name='community_delete_comment'),
+    url(r'^community/delete/post', 'communities.views.delete_post', name='community_delete_post'),
 
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),

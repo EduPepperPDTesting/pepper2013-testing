@@ -4,6 +4,7 @@
     from file_uploader.utils import get_file_url
     from administration.configuration import has_hangout_perms
     from student.models import State,District
+    from communities.models import CommunityCommunities
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -98,13 +99,13 @@
     #community-state {
         float: left;
     }
-    #community-private {
+    #community-private, #community-priority {
         display: block;
         float: right;
         text-align: left;
         clear: both;
     }
-    #community-private input {
+    #community-private input, #community-priority input {
         margin-left: 10px;
     }
     #community-hangouts div {
@@ -202,6 +203,19 @@
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
+        %endif
+        <%
+            try:
+                c = CommunityCommunities.objects.get(id=community)
+                dpriority = c.discussion_priority
+            except:
+                dpriority = 1
+
+        %>
+        %if dpriority:
+            <label id="community-priority"><input type="radio" name="priority_id" value="0">Post Priority<br><input type="radio" name="priority_id" value="1" checked>Discussion Priority<br></label>
+        %else:
+            <label id="community-priority"><input type="radio" name="priority_id" value="0" checked>Post Priority<br><input type="radio" name="priority_id" value="1">Discussion Priority<br></label>
         %endif
         %if has_hangout_perms(request.user):
             <label id="community-hangouts"><span>Hangouts Setup:</span>
