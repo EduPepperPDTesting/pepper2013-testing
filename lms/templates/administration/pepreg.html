@@ -77,8 +77,9 @@
 	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
 	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
 	
-	.ui-tooltip, .arrow:after {background: black; border: 2px solid white;}
-	.ui-tooltip {width:120px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; text-transform: uppercase; box-shadow: 0 0 7px black; z-index:20000 !important;}
+	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
+	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
+	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
 
 <div class="data_import_bottom">
@@ -220,6 +221,7 @@
             <div class="close-modal">✕</div>
         </div>
         <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+        	<span id="math_width" style="position:absolute; top:-1000px;"></span>
             <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
             <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
             <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
@@ -254,6 +256,8 @@
         </div>
     </div>
 </div>
+
+<div id="calendar_alert_title"></div>
 
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
@@ -525,7 +529,7 @@
 <script type="text/javascript">
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
 	var _calendar_date = new Date();
-
+	
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
 		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){			
@@ -534,6 +538,30 @@
 			$(".calendar-tr-tmp").remove();
 			
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+			
+			$(".alert").mouseover(function () {
+				$("#calendar_alert_title").empty();
+				var this_x = $(this).parent().position().left;
+				var tmp1 = $(this).offset();
+				tmp1.top += 30;
+				tmp1.top -= $(document).scrollTop();
+				var tmp3 = $(this).attr("titlex").split("::");
+				for(var i in tmp3){
+					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
+				}
+				if(this_x > 800){
+					tmp1.left -= ($("#calendar_alert_title").width() - 100);
+				}else if(this_x > 600){
+					tmp1.left -= ($("#calendar_alert_title").width() - 200);
+				}
+				$("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
+				
+				$("#calendar_alert_title").show();
+			});
+			$(".alert").mouseleave(function () {
+				$("#calendar_alert_title").hide();
+			});
+			 
 			$(".alert").each(function(){
 				if($(this).find("input").length > 0){
 					var tmp_span = $(this).find("span");
@@ -633,20 +661,6 @@
 	}
 	
 	$(function(){
-		$(document).tooltip({
-			content: function() {
-				var tmp1 = $(this).attr("title");
-				if(tmp1 != ""){
-					var tmp2 = tmp1.split("::");
-					var tmp3 = "";
-					for(i in tmp2){
-						tmp3 += "<div>" + tmp2[i] + "</div>";
-					}
-					return tmp3;
-				}
-			}
-		});
-		
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
@@ -962,17 +976,18 @@
             },
             source: function (request, response) {
                 $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
-                        {q: $('input[name=geo_location]').val()}, function (r) {
-                            var data = [];
-                            hits = r;
-                            $.each(r, function (i, v) {
-                                data.push(v.display_name);
-                                hits[v.display_name] = v;
-                            });
-                            response(data);
-                        });
+					{q: $('input[name=geo_location]').val()}, function (r) {
+						var data = [];
+						hits = r;
+						$.each(r, function (i, v) {
+							data.push(v.display_name);
+							hits[v.display_name] = v;
+						});
+						response(data);
+					});
             }
-        });
+        });		
+				
         // ************* input instructors
         $(".btn-add-instructor").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -1186,7 +1201,11 @@
     };
     PepReg.prototype.addTraining = function () {
         var self = this;
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
+		$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+		$(".training_date_icon").show();
+		
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
             // submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
