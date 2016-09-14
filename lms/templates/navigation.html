@@ -905,6 +905,8 @@
                 case 'my_chunks':
                     data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
                     break;
+                default:
+                    data.type_text = data.subject || data.body;                
             }
         }
 
