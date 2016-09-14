@@ -294,7 +294,8 @@ header.global {
 .view-register, .view-login {
 
   header.global nav {
-    width: 960px;
+    max-width: 1180px;
+    min-width: 960px;
   }
 }
 

@@ -16,583 +16,90 @@ import datetime
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
-<style type="text/css" media="screen">
-    .remove_skype_span:hover{
-        cursor: pointer;
-    }
-    .remove_skype_span{
-        padding-left:5px;
-        padding-bottom:2px;
-    }
-    .circle {
-      width: 20px;
-      height: 20px;
-      position:absolute;
-      right:0;
-    }
-    .redcircle{
-      width: 20px;
-      height: 20px;
-      background: red;
-      border-radius: 10px;
-      position:absolute;
-      right:0;
-    }
-    .skype_username_list{
-        display: inline-block;
-        background-color: #5A9BD5;
-        font-weight:bold;
-        margin: 4px;
-        border-radius: 4px;
-        padding: 3px;
-    }
-    #dlg-user-photo{
-         width:140px;
-         height:140px;
-     }
-    #community-main {
-        width: 1185px;
-        margin: 30px auto;
-        text-align: left;
-    }
-    #community-main-content {
-        width: 880px;
-        float: left;
-    }
-    #community-main-sidebar {
-        width: 266px;
-        float: right;
-        top: 0;
-        text-align: center;
-    }
-    #community-sidebar-header {
-        border: 2px solid #ddd;
-        height: 53px;
-        text-align: center;
-        vertical-align: middle;
-        font: 700 1.2em/2.4em "Open Sans",Verdana,Geneva,sans-serif;
-    }
-    #community-sidebar {
-        width: 208px;
-        padding: 20px 20px 0 20px;
-        border: 2px solid #ddd;
-        margin: auto;
-        border-top: 0;
-        text-align: left;
-    }
-    .sidebar-section {
-        margin: 0 0 20px 0;
-    }
-    #community-member {
-        margin-top: 10px;
-    }
-    .sidebar-section h2 {
-        border-bottom: 2px solid #90BF70;
-        padding-bottom: 5px;
-        margin: 0 0 10px 0;
-        color: #006EBF;
-        font-weight: bold;
-        text-transform: none;
-        font-size: 1em;
-        line-height: 1em;
-    }
-    .sidebar-sub-section {
-        margin: 0 10px;
-    }
-    .trending-title {
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .trending-name {
-        font-size: 80%;
-        display: block;
-        margin-bottom: 5px;
-    }
-    .trending-name span {
-        font-weight: bold;
-    }
-    .status-name {
-        display: block;
-        margin-bottom: 5px;
-    }
-    #community-header {
-        border: 2px solid #ddd;
-        width: 100%;
-        position: relative;
-        min-height: 260px;
-    }
-    #community-header h1 {
-        text-align: left;
-        color: #006EBF;
-        margin: 15px 0 0 20px;
-        font-weight: bold;
-        font-size: 160%;
-    }
-    #community-header h2 {
-        margin: 15px 0 0 20px;
-        text-transform: none;
-        font-weight: bold;
-    }
-    #community-header h3 {
-        color: #006EBF;
-        padding: 10px 0;
-    }
-    #community-header h4 {
-        font-weight: bold;
-    }
-    #community-avatar {
-        width: 100px;
-        float: left;
-        margin: 0 15px 0 0;
-    }
-    #community-logo {
-        float: right;
-        width: 380px;
-        height: 260px;
-        overflow: hidden;
-        margin: 15px;
-        text-align: center;
-        background-color: white;
-    }
-    #community-logo img {
-        height: 260px;
-    }
-    .facilitator-wrap {
-        position: absolute;
-        width: 450px;
-        bottom: 20px;
-        left: 20px;
-    }
-    #community-content-area h1 {
-        color: #006EBF;
-        padding: 20px 3px;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: left;
-        border-bottom: 2px solid #90BF70;
-        display: inline-block;
-    }
-    #community-content h1 {
-        width: 100%;
-    }
-    #community-content, #community-discussions {
-        color: #000;
-        padding: 20px 3px;
-    }
-    #community-content-area label {
-        font-style: normal;
-        display: inline-block;
-        width: 3.5em;
-        text-align: left;
-        font-weight: bold;
-    }
-    #community-content-area span {
-        /*font-size: 12px;*/
-    }
-    #community-content {
-        width: 270px;
-        height: 700px;
-        float: left;
-    }
-    #community-content-scroller {
-        width: 270px;
-        height: 640px;
-        overflow-y: scroll;
-        overflow-x: hidden;
-    }
-    #community-discussions {
-        width: 578px;
-        margin-right: 20px;
-        float: left;
-    }
-    .discussion {
-        clear: both;
-        position: relative;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        padding: 15px 20px 15px 94px;
-        background-color: #fff;
-        margin-bottom: 15px;
-    }
-    .discussion h2 {
-        margin-bottom: 5px;
-        width: 370px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .discussion-post-info-header {
-        float: left;
-        width: 463px;
-    }
-    .discussion-post-info div {
-        display: inline-block;
-    }
-    .discussion-post-info span {
-        font-weight: bold;
-    }
-    .discussion-byline {
-        overflow: hidden;
-        height: 1.5em;
-        width: 370px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .discussion-stats-header {
-        float: left;
-        width: 100px;
-    }
-    .discussion-stats {
-        float: right;
-        width: 80px;
-    }
-    .discussion-stats span {
-        display: block;
-    }
-    .discussion-avatar {
-        position: absolute;
-        width: 64px;
-        display: block;
-        top: 15px;
-        left: 20px;
-    }
-    .community-clear {
-        clear: both;
-        height: 1px;
-        margin-top: -1px;
-    }
-    #discussion-pager {
-        text-align: center;
-        line-height: 24px;
-        clear: both;
-        margin: 20px 0;
-    }
-    #discussion-pager a {
-        width: auto;
-        line-height: 24px;
-        padding: 2px 5px;
-        color: #333;
-        border: 1px solid #ccc;
-        margin-left: 3px;
-    }
-    #discussion-pager a:hover {
-        color: #ff6600;
-    }
-    #discussion-pager .up_page {
-        display: inline-block;
-        width: 17px !important;
-        line-height: 24px;
-        height: 20px;
-        background: url(/static/tmp-resource/image/up_page.png) no-repeat;
-        border: none;
-        vertical-align: middle;
-    }
-    #discussion-pager .next_page {
-        display: inline-block;
-        width: 17px !important;
-        height: 20px;
-        background: url(/static/tmp-resource/image/next_page.png) no-repeat;
-        border: none;
-        margin-left: 13px;
-        vertical-align: middle;
-    }
-    #discussion-pager .page_active {
-        color: #ff6600 !important;
-    }
-    #discussion-pager .page_active:hover {
-        color: #ff9933 !important;
-    }
-    #discussion-pager .page_num {
-        display: inline-block;
-        padding: 2px 5px;
-    }
-    div.cke{
-        width:580px;
-    }
-    .community-resource {
-        display: block;
-        clear: both;
-        margin-bottom: 20px;
-        border: 0 solid #f0870c;
-        height: 160px;
-        width: 242px;
-        box-shadow: rgba(0, 0, 0, 0.1) 3px 7px 7px 0;
-        border-radius: 6px;
-        overflow: hidden;
-        position: relative;
-    }
-    .community-resource img {
-        display: block;
-        width: 242px;
-        border-radius: 6px;
-    }
-    .community-resource a {
-        display: block;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 60px;
-        background: #f0870c;
-        color: #fff;
-        font-size: 14px;
-        border-radius: 0 0 6px 6px;
-    }
-    .community-resource div {
-        display: table-cell;
-        height: 60px;
-        vertical-align: middle;
-        width: 242px;
-        text-align: center;
-    }
-    #table-members th {
-        color: #006EBF;
-        padding: 20px 3px;
-        font-size: 20px;
-    }
-    .card-link span {
-        color: #FFFFFF;
-    }
-    .course-card {
-        margin: 0 0 20px 0 !important
-    }
-    div.card-bottom table tr:nth-child(2) {
-        display: none;
-    }
-    #members {
-        display: inline-block;
-        overflow-x: hidden;
-        padding: 10px 0;
-        width: 100%;
-        position: relative;
-    }
-    #members a {
-        margin-right: 5px;
-        display: inline-block;
-    }
-    #members a img {
-        vertical-align: middle;
-    }
-    #skype_usernames_select{
-        min-width:100px;
-    }
-    .modal {
-        position: absolute;
-        opacity: 1;
-        z-index: 101;
-        left: 50%;
-        margin-left: -349px;
-        top: 40px;
-        background: none repeat scroll 0 0 rgba(255, 255, 255, 1);
-        border-radius: 5px;
-        box-shadow: 0px 15px 80px 15px rgba(0, 0, 0, 0.5);
-        padding: 0 0 8px 0;
-        width: 680px;
-        display: none;
-    }
-    #fixed-dialog, #skype-dialog {
-        position: fixed;
-    }
-    .modal .close-modal {
-        border-radius: 2px;
-        cursor: pointer;
-        display: inline-block;
-        vertical-align: baseline;
-        padding: 10px;
-        position: absolute;
-        right: 2px;
-        top: 0;
-        z-index: 3;
-        color: #333;
-    }
-    .modal .titlebar {
-        height: 70px;
-        background: #ccc;
-    }
-    .modal .dialog-title {
-        margin: 0;
-        padding: 20px 0 0 30px;
-        color: #666;
-    }
-    .modal .content {
-        color: #333;
-        text-align: left;
-        font-size: 16px;
-        padding: 20px 10px;
-        line-height: 20px;
-    }
-    .modal .discussion-error {
-        color: #f00;
-        font-weight: bold;
-        font-size: 120%;
-        line-height: 120%;
-    }
-    .modal .inner-wrapper form textarea {
-        height: 100px;
-    }
-    .hangout_container {
-        text-align: center;
-        padding-top: 20px;
-    }
-    .hangout_container img {
-        width: 120px;
-        vertical-align: top;
-    }
-    .hangout_container .side-button {
-        background: #8cbe41 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAQAAAAngNWGAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAAJdnBBZwAAABQAAAAUAKM7KtEAAAB2SURBVCjPY/zPQBxgIlIdTRReYfiPFZ5HUsXNMJ/hP24A06P9/8r//4QVpvz/CuHgU8jzfzGCgxvo/b+O4DD+xx3iPxg4iAue38SGoynDZSQeXs9w/p9NjGcgwRPz/zNxChn+a0IC/AoOZVeR4pP7/3zGIZAeAdFoNZxQb6AuAAAAAElFTkSuQmCC) no-repeat 10px 10px;
-        height: 20px;
-    }
-    .side-button {
-        color: white !important;
-        display: block;
-        padding: 7px;
-        border-width: 1px;
-        border-style: solid;
-        text-align: center;
-        margin-top: 5px;
-    }
-    .blue-button {
-        border-color: #45719E;
-        background: #5A9BD5;
-    }
-    .green-button {
-        border-color: #595;
-        background: #8cbe41;
-    }
-    .red-button {
-        border-color: #df0000;
-        background: #ED2828;
-    }
-    #poll-form {
-        display: none;
-        margin-top: 15px;
-        clear: both;
-    }
-    .poll-answer-input {
-        width: 80% !important;
-        display: inline !important;
-    }
-    .discussion-attachment {
-        float: left;
-        padding-top: 16px;
-    }
-    .discussion-poll {
-        float: right;
-        display: block;
-        vertical-align: middle;
-        padding-top: 16px;
-    }
-    #members-title {
-        border-bottom: 2px solid #90BF70;
-        color: #006EBF;
-        font-size: 20px;
-        padding: 20px 3px;
-        font-weight: bold;
-        clear: both;
-    }
-    #table-members {
-        width: 100%;
-        table-layout: fixed;
-        margin-bottom: 20px;
-    }
-    #table-members tr {
-        border-bottom: 2px solid #90BF70;
-    }
-    .member-arrows {
-        width: 20px;
-        vertical-align: middle;
-    }
-    .member-arrows div {
-        cursor: pointer;
-        width: 17px;
-        height: 20px;
-    }
-    .member-arrow-left {
-        background: url(/static/tmp-resource/image/up_page.png);
-    }
-    .member-arrow-right {
-        background: url(/static/tmp-resource/image/next_page.png);
-    }
-    .member-column {
-        white-space: nowrap;
-    }
-    .discussion-error-box {
-        border-color: red !important;
-    }
-    #create-skype, #create-skype-online {
-        float: left;
-        margin: 0 20px 0 0;
-    }
-    .skype-container {
-        float: left;
-    }
-    .skype-button .side-button {
-        background: #5A9BD5 url(https://swx.cdn.skype.com/skypewebsdk/shareButton/v/latest/assets/images/s_logo.svg) no-repeat 10px 10px/20px 20px;
-        height: 20px;
-    }
-</style><script src="https://apis.google.com/js/platform.js" async defer></script>
-<link rel="stylesheet" type="text/css"  href="static/tmp-resource/css/ppd-general01.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/community.css" />
+<link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
     <section id="community-main-content">
         <div id="community-header">
-            %if community.logo:
-                <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
-            %endif
-            <h1>${community.name}</h1>
-            <h2>${community.motto}</h2>
-            %if facilitator:
-                <div class="facilitator-wrap">
-                    <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
-                    <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
-                    <h4>Community Facilitator</h4>
-                </div>
-            %endif
+             %if community.logo:
+                 <div id="community-logo"><img src="${get_file_url(community.logo)}" alt="Community Logo"/></div>
+             %endif
+             <h1>${community.name}</h1>
+             <h2>${community.motto}</h2>
+             %if facilitator:
+                 <div class="facilitator-wrap">
+                     <img src="${reverse('user_photo', args=[facilitator.user.id])}" id="community-avatar" alt="Facilitator Avatar" />
+                     <h3>${facilitator.user.first_name} ${facilitator.user.last_name}</h3>
+                     <h4>Community Facilitator</h4>
+                 </div>
+             %endif
+
+
             <div class="community-clear"></div>
         </div>
 
         <div id="community-content-area">
-            <div id="community-discussions">
+            <div id = "community_content_panel">
+                <div id="community_content_header" class="community-content-header">
+                    <h1 id="community_content_header_posts" class="section-tab posts-tab community-content-header-object selected">Posts</h1>
+                    <h1 id="community_content_header_discussions" class="section-tab discussion-tab community-content-header-object not-selected">Discussions</h1>
+                    <a onclick="newDiscussion()" id = "add_new_discussion" class="side-button blue-button new-discussion">New Discussion</a>
+                </div>
+                <div id="community_content_posts" class="community-content-section">
+                    <div id="post_content" class="post-content">
+                        <span class="filter-word-label">Filter:</span>
+                        <select id = "post_filter_select">
+                            <option value = 'newest_post'>Newest Posts</option>
+                            <option value = 'oldest_post'>Oldest Posts</option>
+                            <option value = 'latest_reply'>Latest Reply</option>
+                            <option value = 'oldest_reply'>Oldest Reply</option>
+                            <option value = 'alphabetical'>Last Name (A-Z)</option>
+                            <option value = 'reversealpha'>Last Name (Z-A)</option>
+                            <option value = 'alphauname'>Nickname (A-Z)</option>
+                            <option value = 'ralphauname'>Nickname (Z-A)</option>
+                        </select>
+                        <table id="post_content_table">
+                            <tr class="post-content-row" id="post_content_new_row">
+                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
+                                <td class="post-content-right" style="padding-bottom: 8px;">
+                                    <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea><br>
+                                    <a href = "#" style="color:#06e !important;" id = "add_post_image">Add Image/Video Links</a><a id = "submit_new_post_button" type="button" class="post-button blue-button side-button" style="float: right;position: relative;" value="Post">Post</a>
+                                    <div style="display:none" id = "add_images_div">
+                                        <br>
+                                        <input id="image_link_input" type="text" placeholder = "Enter Image Link Here">
+                                        <input id="embed_checkbox" style = "margin-top:10px" type = "checkbox">Embed
+                                    </div>
+                                </td>
+                            </tr>
+                            <!--<tr class="post-content-row">
+                                <td class="post-content-left"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-profile-image"></img></td>
+                                <td class="post-content-right">
+                                    <textarea id="post_textarea" class="post-textarea" placeholder="" readonly></textarea>
+                                </td>
+                            </tr>-->
+                        </table>
+                        <center><img id="posts_loading_image" src="../static/images/posts-loading.gif"></img></center>
+                    </div>
+                </div>
+                <div id="community_content_discussions" class="community-content-section">
+                    <div class="discussions">
+                    <div id="discussion_list"></div>
+                                                <center><img id="disc_loading_image" src="../static/images/posts-loading.gif"></img></center>
+
+                    </div>
+                </div>
+            </div>
+            <!--<div id="community-discussions">
                 <a name="discussions"></a>
                 <h1 class="discussion-post-info-header">Community Discussion</h1>
                 <h1 class="discussion-stats-header">Activity</h1>
-                <div class="discussions">
-                %for i,d in enumerate(discussions):
-                    <div class="discussion">
-                        <img class="discussion-avatar" src="${reverse('user_photo', args=[d.user.id])}">
-                        <div class="discussion-stats">
-                            <span>Replies: ${d.replies}</span>
-                            <span>Views: ${d.views}</span>
-                        </div>
-                        <h2><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></h2>
-                        <div class="discussion-post-info">
-                            <div class="discussion-byline"><span>Posted By: </span>${d.user.first_name} ${d.user.last_name}</div>
-                            <div class="discussion-date"><span> On: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</div>
-                        </div>
-                        <div class="community-clear"></div>
-                    </div>
-                %endfor
-                </div>
-                <div id="discussion-pager">
-                    <span>Total Discussions: ${pager['total']}</span>&nbsp;&nbsp;&nbsp;
-                    %if pager['page'] > 1:
-                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']-1})" class="up_page"></a>
-                    %endif
-                    %for p in pager['jumps']:
-                        %if p=='c':
-                            <a href="#discussions" onclick="replaceDiscussions(${pager['page']})" class="page_active">${pager['page']}</a>
-                        %else:
-                            <a href="#discussions" onclick="replaceDiscussions(${p})">${p}</a>
-                        %endif
-                    %endfor
-                    %if pager['pages'] > pager['page']:
-                        <a href="#discussions" onclick="replaceDiscussions(${pager['page']+1})" class="next_page"></a>
-                    %endif
-                </div>
-            </div>
+
+            </div> -->
             <div id="community-content">
-                <h1>Content Collections</h1>
+                <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
                         <% c=course_from_id(cc.course) %>
@@ -612,44 +119,6 @@ import datetime
             </div>
         </div>
 
-        <div id="members-title">Members</div>
-        <table id="table-members" cellspacing="" cellpadding="" border="0">
-            <tr>
-                <td class="member-arrows">
-                    <div class="member-arrow-left" onclick="left()"> </div>
-                </td>
-                <td class="member-column">
-                    <div id="members">
-                      %for u in users:
-                      <%
-                      use = u.user
-                      utc_month=datetime.datetime.utcnow().strftime("%m")
-                      utc_day=datetime.datetime.utcnow().strftime("%d")
-                      utc_h=datetime.datetime.utcnow().strftime("%H")
-                      utc_m=datetime.datetime.utcnow().strftime("%M")
-                      d_min = 60*int(utc_h) + int(utc_m)
-                      if use.profile.last_activity:
-                        usr=use.profile.last_activity
-                        u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
-                        close = int(d_min) - int(u_min) < 1
-                        active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
-                      else:
-                        active_recent = False
-                      %>
-                      <a href="${reverse('dashboard',args=[u.user.id])}" target="_blank" style="position:relative;">
-                        %if active_recent:
-                            <img src="/static/images/online-3.png" class="circle" id="${use.profile.id}" data-email="${use.email}" data-fname="${use.first_name}" data-lname="${use.last_name}" data-skypename="${use.profile.skype_username}" data-id="${use.id}" data-username="${use.username}"></img>
-                        %endif
-                        <img src="${reverse('user_photo',args=[u.user.id])}" alt="${u.user.first_name}" />
-                      </a>
-                      %endfor
-                    </div>
-                </td>
-                <td class="member-arrows">
-                    <div class="member-arrow-right" onclick="right()"></div>
-                </td>
-            </tr>
-        </table>
     </section>
     <section id="community-main-sidebar">
         <div id="community-sidebar-header">
@@ -657,7 +126,8 @@ import datetime
         </div>
         <div id="community-sidebar">
             <div class="sidebar-section" style="text-align: center;">
-                <img src="/static/images/pcg_columns_transparent.png" alt="PCG Logo" />
+                <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
+
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                 %else:
@@ -669,23 +139,74 @@ import datetime
                 <div class="sidebar-sub-section">
                     <span class="status-name">Discussions: ${total_discussions}</span>
                     <!--<span class="trending-name">Messages: </span>-->
-                    <span class="status-name">Members: ${users.count()}</span>
+                    <span class="status-name"><a class="members-link" id="members_view_all">Members: ${users.count()}</a></span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h2>Ask an Expert</h2>
+                <div class="sidebar-sub-section">
+                    <textarea id="ask_expert_message" class="ask-expert-message" placeholder="Ask a question of your community facilitator." rows="3"></textarea>
+                    <a type="button" class="blue-button side-button ask-expert" id="ask_an_expert_button" value="Ask">Ask</a>
+                    <p style="padding-top: 28px;" id="expert_error"></p>
                 </div>
             </div>
             <div class="sidebar-section">
                 <h2>Trending</h2>
                 <div class="sidebar-sub-section">
                     %for i, d in enumerate(trending):
-                        <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %if hasattr(d, "subject"):
+                            <span class="trending-title"><a href="${reverse('community_discussion_view', args=[d.id])}">${d.subject}</a></span>
+                        %else:
+                            <span class="trending-title"><a href="#" class="clickable-post" data-id="${d.id}">${d.post}</a></span>
+                        %endif
                         <span class="trending-name"><span>Posted: </span>${'{dt:%b}. {dt.day}, {dt.year}'.format(dt=d.date_create)}</span>
                     %endfor
+
+
+                </div>
+            </div>
+            <div class="sidebar-section" style="display:none">
+                <h2>Members</h2>
+                <div id="members_container" class="">
+                <table class="members-container" cellspacing="" cellpadding="" border="0">
+
+                              %for u in users:
+                              <%
+                              use = u.user
+                              utc_month=datetime.datetime.utcnow().strftime("%m")
+                              utc_day=datetime.datetime.utcnow().strftime("%d")
+                              utc_h=datetime.datetime.utcnow().strftime("%H")
+                              utc_m=datetime.datetime.utcnow().strftime("%M")
+                              d_min = 60*int(utc_h) + int(utc_m)
+                              if use.profile.last_activity:
+                                usr=use.profile.last_activity
+                                u_min = 60*int(usr.strftime("%H")) + int(usr.strftime("%M"))
+                                close = int(d_min) - int(u_min) < 1
+                                active_recent = usr.strftime("%d") == utc_day and usr.strftime("%m") == utc_month and close
+                              else:
+                                active_recent = False
+                              %>
+                                  <tr><td>
+                              %if not active_recent:
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+                              %else:
+
+                                  <a href="${reverse('dashboard',args=[u.user.id])}" data-skype='${use.profile.skype_username}' data-name="${use.first_name} ${use.last_name}" data-uname='${use.username}' data-email='${use.email}' data-id='${use.id}' class="hoverable-profile" target="_blank" style="position:relative;">
+
+                                %endif
+                                <img src="${reverse('user_photo',args=[u.user.id])}" alt="" width="20px" style="margin-top:-20px"/>
+                                <span class="members-name">${use.first_name} ${use.last_name}</span></a>
+                                %if active_recent:
+                                    <img src ="/static/images/online-3.png" data-skypename='${use.profile.skype_username}' data-fname='${use.first_name}' data-lname="${use.last_name}" data-username='${use.username}' data-email='${use.email}' data-id='${use.id}' width="" class="members-image circle"></img>
+
+                                %endif
+                                  </td></tr>
+                              %endfor
+                </table>
                 </div>
             </div>
             <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                %if is_member(request.user, community) or request.user.is_superuser:
-                    <a href="#" class="blue-button side-button" id="newDiscussionButton" onclick="newDiscussion()">Start a New Discussion</a>
-                %endif
                 %if is_facilitator(request.user, community) or request.user.is_superuser:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
@@ -693,7 +214,6 @@ import datetime
                 %endif
                 %if has_hangout_perms(request.user) and community.hangout:
                     <div class="hangout_container" id="hangout_div">
-                        <img src="/static/images/community_google_hangouts.png" class="" alt="" />
                         <a class="side-button green-button" href="${community.hangout}" target="_blank">Join Hangout</a>
                     </div>
                 %endif
@@ -747,6 +267,24 @@ import datetime
   </div>
 </div>
 <div style="" id="fixed-dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="fixed-dialog-likes" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div style="" id="fixed-dialog-share" class="modal">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
         <div class="titlebar">
             <h3 class="dialog-title"></h3>
@@ -872,7 +410,11 @@ import datetime
         </div>
     </div>
 </div>
+<div id = 'user_info_div' class="user-info-div">
+    <span id='user_info' class="user_info_span"></span>
+</div>
 <script type="text/javascript">
+    var size=0;
     function joinMe(){
         var user_id = "${request.user.id}";
         $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
@@ -924,7 +466,9 @@ import datetime
         }
         return valid;
     }
+
     function newDiscussion() {
+        window.scrollTo(0, 10);
         var content = '<form id="new-discussion-submit" action="${reverse('community_discussion_add')}" method="post" enctype="multipart/form-data">';
         content += '<label class="discussion-subject">Subject:<input type="text" name="subject"></label>';
         content += '<label class="discussion-post">Discussion:<textarea name="post" id="post"></textarea></label>';
@@ -972,16 +516,19 @@ import datetime
                             if ($('#new-discussion-submit .poll-add').is(':checked')) {
                                 var pollData = formSelector.serializeArray();
                                 pollData[pollData.length] = {name: 'poll_id', 'value': data.DiscussionID};
+                                redirect_id = data.DiscussionID;
                                 $.post('${reverse('poll_form_submit', args=['discussion'])}', pollData, function (data) {
                                     if (data.Success) {
                                         discussion_dialog.hide();
                                         replaceDiscussions(1);
+                                        window.location.replace("../discussion/"+redirect_id);
                                     } else {
                                         $('.discussion-error').append('There was an error adding your discussion. Please try again later.')
                                     }
                                 });
                             } else {
                                 discussion_dialog.hide();
+                                window.location.replace("../discussion/"+redirect_id);
                                 replaceDiscussions(1);
                             }
 
@@ -1086,7 +633,7 @@ import datetime
       {
         var userInfo=[];
         userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
-        userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+        userInfo['user']={id:'${user.id}',fullname:"${user.first_name} ${user.last_name}",name:"${user.username}"};
         message_board(userInfo);
       }
     function left(){
@@ -1126,7 +673,325 @@ import datetime
                     - $("#members").width() + $(firstHideRight).width() + 1);
         }
     }
-    $(document).ready(function() {
+    function displayOptions(data){
+        var focused = $(':focus');
+        var code = "<div id='select_name'>"
+        for (i=0; i < data.length; i++){
+            code+="<div class='anchor-container-select selection_name' data-parent='"+focused.data('id')+"' data-content='"+data[i]+"'>" + data[i] + "</div>";
+        }
+        code+="</div>";
+        $("#select_name").remove();
+        focused.after(code);
+        $(".selection_name").click(function(e){
+            var change = $(this).parent().prev();
+            var str = change.val().substr(0, change.val().lastIndexOf("@")+1);
+            change.val(str+$(this).data("content") + " ");
+            change.focus();
+            $("#select_name").remove();
+        });
+    }
+    function getDiscussions(){
+        var community=${community.id};
+        $.post("${reverse('community_get_discussions')}", {community_id:community, size:discussion_size}, function(data){
+            if(data.all=="DONE"){
+                $("#disc_loading_image").remove();
+            }
+            $("#discussion_list").html(data.content);
+            console.log(data.content);
+        });
+    }
+    function getPosts(){
+        filter = $("#post_filter_select").val()
+        var community=${community.id};
+        $.post("${reverse('community_get_posts')}", {community_id: community, size:size, filter:filter}, function (data){
+            if(data.all =="DONE"){
+                $("#posts_loading_image").remove()
+            }
+            $("#post_content_table").find("tr:gt(0)").remove();
+            $('#post_content_table tr:last').after(data.post);
+            $(".post-like-text").click(function(){
+                $.post("${reverse('community_submit_new_like')}", {post_id: $(this).data('id'), comment_id: '-1', user_id:'${request.user.id}'},function(data){
+                    getPosts();
+                });
+            });
+            $(".post-comment-text").click(function(){
+                id=$(this).data('id');
+                if($(this).data('name') != ''){
+                    $("#focus"+id).val("@"+$(this).data('name')+" ");
+                }
+                $("#focus"+id).focus();
+            });
+            $(".post-share-text").click(function(){
+                content = $(this).data('content');
+                community = $(this).data('community');
+                poster = $(this).data("poster");
+                type= $(this).data("type");
+                options = "<label>Select from the below list to share.</label><br>";
+                options += '<select id = "share_usernames_select" multiple>';
+                %for u in users:
+                    options += "<option class='skype_uname_option' id='${u.user.username}' data-id='${u.user.id}' data-src='${reverse('user_photo',args=[u.id])}' val='${u.user.id}'>${u.user.first_name} ${u.user.last_name}</option>";
+                %endfor
+                options+="</select><br><br><span id='selected_share_names'></span>";
+                html = options+"<br><br><button onclick=\"sharePost('"+content+"', '"+community+"', '"+poster+"', '"+type+"')\">Share</button><br><p id='share_message' style='display:none'></p>"
+                new Dialog($('#fixed-dialog-share')).show("Share Post", "<center>"+html+"</center>");
+                $("#share_usernames_select").change(function(){
+                   if($(this).val() != "Select Username"){
+                       toggleShareAddition($(this).attr("id"));
+                   }
+                });
+            });
+            $(".delete-something").click(function(){
+                if($(this).attr("data-postid")){
+                    var pid = $(this).data('postid');
+                    $.post("${reverse('community_delete_post')}", {post_id:pid}, function(data){
+                        getPosts()
+                    });
+                }
+                if($(this).attr("data-commentid")){
+                    var cid = $(this).data('commentid');
+                    $.post("${reverse('community_delete_comment')}", {comment_id:cid}, function(data){
+                        getPosts()
+                    });
+                }
+            })
+            $(".comment-like-text").click(function(){
+                $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
+                    getPosts();
+                });
+            });
+            $('.new-post-textarea').keyup(function (e) {
+                $("#select_name").remove();
+                if (e.keyCode === 13) {
+                    content=$(this).val();
+                    post_id=$(this).data('id')
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                        getPosts();
+                    });
+                }
+                var n = $(this)[0].selectionStart;
+                var at = $(this).val().indexOf("@");
+                if(at > -1){
+                    var str = $(this).val().substr(at);
+                    var x = str.length;
+                    for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+
+                        s = s.substr(1);
+                        x = s.indexOf("@");
+                        if(x>-1)
+                            working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+                        else
+                            working = s.substr(0).split(' ').slice(0,2).join(' ');
+                    }
+                    loc = $(this).val().indexOf(working);
+                    if(n > loc && n <= working.length+loc) {
+                        $.post("${reverse('community_lookup_name')}", {name: working}, function(data){
+                            if(data.content.length > 0) {
+                                displayOptions(data.content);
+                            }
+                        });
+                    }
+
+                }
+            });
+            $(".clickable-post").click(function(e){
+                e.preventDefault();
+                post_id = $(this).data("id");
+                offset = $("#community_content_posts").offset().top;
+                $("#community_content_posts").animate({scrollTop:$("#post_content_new_row_"+post_id).position().top-offset}, 2000);
+            });
+
+            $('.add-comment-text').keyup(function (e) {
+                $("#select_name").remove();
+                if (e.keyCode === 13) {
+                    content=$(this).val();
+                    post_id=$(this).data('id')
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                        getPosts();
+                    });
+                }
+                var n = $(this)[0].selectionStart;
+                var at = $(this).val().indexOf("@");
+                if(at > -1){
+                    var str = $(this).val().substr(at);
+                    var x = str.length;
+                    for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+
+                        s = s.substr(1);
+                        x = s.indexOf("@");
+                        if(x>-1)
+                            working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+                        else
+                            working = s.substr(0).split(' ').slice(0,2).join(' ');
+                    }
+                    loc = $(this).val().indexOf(working);
+                    if(n > loc && n <= working.length+loc) {
+                        $.post("${reverse('community_lookup_name')}", {name: working}, function(data){
+                            if(data.content.length > 0) {
+                                displayOptions(data.content);
+                            }
+                        });
+                    }
+
+                }
+            });
+            safety=0;
+            $(".hoverable-profile").hover(function(event) {
+                safety++;
+                $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+                if ($(this).data("skype") !== undefined){
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img><a href='skype:"+$(this).data('skype')+"?call'>"+$(this).data('skype')+"</a>")
+                    $("#user_info").append("<br><img class='info-tile-img' src='/static/images/hangout_icon.png' width=16px height=16px></img><span style='float:right; padding-right:46px;'>"+$('#hangout_span_'+$(this).data("id")).html()+"</span>");
+                }
+                $("#user_info_div").css({top: $(this).offset().top+20, left: $(this).offset().left}).show();
+            }, function() {
+                if (!$("#user_info_div").is(":hover") && safety > 1){
+                    $("#user_info_div").hide();
+                    safety = 0;
+                }
+            });
+            $("#user_info_div").hover(function(e){}, function(){
+                $(this).hide()
+            });
+            $(".like-members-anchor").click(function(){
+                var post = $(this).data('post');
+                var comment = $(this).data('comment');
+                $.post('${reverse('community_get_full_likes')}', {'post': post, 'comment': comment}, function (data){
+                    new Dialog($('#fixed-dialog-likes')).show("Likes", "<center>"+data.html+"</center>");
+                });
+            });
+        });
+    }
+    $(document).ready(function(){
+        size=5;
+        discussion_size=5;
+        $("#members_view_all").click(function(e){
+            e.preventDefault();
+            var members_dialog = new Dialog($('#dialog'));
+            members_dialog.show('Members', $("#members_container").html());
+            $(".circle").click(function(event){
+                event.preventDefault();
+                scroll(0,0);
+                $(".hangout-span").hide();
+                $("#hangout_span_"+$(this).data('id')).show();
+                $("#skype-online-username").attr("href", "skype:"+$(this).attr("data-skypename")+"?call")
+                $("#skype-online-name").text("");
+                $("#skype-name-exists").text("Begin a call with: ");
+                $("#skype-name-exists-toggle").show();
+                $("#dlg-name-title").html($(this).attr("data-fname")+" "+$(this).attr("data-lname"));
+                $("#dlg-user-photo").attr("src", "/user_photo/"+$(this).attr("data-id"));
+                $("#message_board_data").attr("data-fullname", $(this).attr("data-fname") + " " + $(this).attr("data-lname"));
+                $("#message_board_data").attr("data-name", $(this).attr("data-username"));
+                $("#message_board_data").attr("data-id", $(this).attr("data-id"));
+                if($(this).attr("data-skypename") == "None"){
+                    $("#skype-name-exists").text("This user does not have their skype name set.");
+                    $("#skype-name-exists-toggle").hide();
+                }else{
+                    $("#skype-online-name").text($(this).attr("data-skypename"));
+                }            main_dlg=new Dialog($('#online_dialog'));
+                main_dlg.show("Error", "");
+                return false;
+            });
+        })
+        $(".card-line").remove();
+        $("#ask_an_expert_button").click(function(){
+            $.post("${reverse('community_ask_an_expert')}", {facilitator: "${facilitator.user.email}", message:$("#ask_expert_message").val(), subject: "New Question from ${request.user.first_name} ${request.user.last_name}"}, function(data){
+                $("#expert_error").text(data.result);
+                $("#ask_expert_message").val("");
+            });
+        });
+        $("#post_filter_select").change(function(){
+            getPosts();
+        });
+        $("#add_post_image").click(function(e){
+            e.preventDefault();
+           $("#add_images_div").toggle();
+        });
+        getPosts();
+        getDiscussions();
+        $("#submit_new_post_button").click(function(){
+            var post=$("#new_post_textarea").val();
+            var community=${community.id};
+            var images = $("#image_link_input").val()
+            var include_var = "no"
+            if (images != ""){
+                include_var = "yes";
+            }
+            var embed = 0;
+            if ($("#embed_checkbox").is(":checked")){
+                embed = 1;
+            }
+            $.post("${reverse('community_submit_new_post')}", {post: post, community_id: community, include_images:include_var, embed:embed, images:images }, function (data) {
+                $("#new_post_textarea").val("");
+                $("#image_link_input").val("");
+                getPosts();
+            });
+        });
+        $('#community_content_posts').on('scroll', function() {
+            if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+                size+=5;
+                getPosts();
+            }
+        });
+        waiting = false;
+        $(window).scroll(function(){
+            if(!waiting) {
+                var a = $(this).scrollTop();
+                var b = $(this).innerHeight();
+                var body = document.body, html = document.documentElement;
+                var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+                if (a + b >= height - 150) {
+                    if ($("#community_content_header_discussions").hasClass("selected"))
+                        discussion_size += 5;
+                    else
+                        size += 5;
+                    waiting = true;
+                    setTimeout(function(){
+                      waiting = false;
+                    }, 750);
+                    getPosts();
+                    getDiscussions()
+                }
+            }
+        });
+        var change_var = 0;
+        $.post("${reverse('community_check_content_priority')}", {community_id: ${community.id}}, function (data){4
+           if(data.result==0){
+                $("#community_content_discussions").hide();
+                $("#community_content_header_posts").addClass("selected");
+                $("#community_content_header_discussions").removeClass("selected");
+                $("#community_content_header_posts").removeClass("not-selected");
+                $("#community_content_header_discussions").addClass("not-selected");
+               $("#add_new_discussion").hide();
+                change_var = 1;
+           }else{
+                $("#community_content_posts").hide();
+                $("#community_content_header_posts").removeClass("selected");
+                $("#community_content_header_discussions").addClass("selected");
+                $("#community_content_header_posts").addClass("not-selected");
+                $("#community_content_header_discussions").removeClass("not-selected");
+                $("#add_new_discussion").show();
+                change_var = 0;
+           }
+        });
+
+        $("#community_content_header_posts").click(function(){
+            $("#community_content_discussions").hide();
+            $("#community_content_posts").show();
+            $("#community_content_header_posts").addClass("selected");
+            $("#community_content_header_discussions").removeClass("selected");
+            $("#community_content_header_posts").removeClass("not-selected");
+            $("#community_content_header_discussions").addClass("not-selected");
+            $("#add_new_discussion").hide();
+        });
+        $("#community_content_header_discussions").click(function(){
+            $("#community_content_posts").hide();
+            $("#community_content_discussions").show();
+            $("#community_content_header_posts").removeClass("selected");
+            $("#community_content_header_discussions").addClass("selected");
+            $("#community_content_header_discussions").removeClass("not-selected");
+            $("#community_content_header_posts").addClass("not-selected");
+            $("#add_new_discussion").show();
+        });
         $("#message_board_close").click(function(){
             $(".lean-overlay").remove();
         });
@@ -1236,7 +1101,7 @@ import datetime
             });
           });
     });
-    function toggleSkypeAddition(id){
+    function toggleShareAddition(id){
         var selected = $("#"+id).find('option:selected');
         val = $("#"+id).val()+'';
         vals = val.split(",");
@@ -1244,11 +1109,57 @@ import datetime
             if(vals[i] != null) {
                 j = $("option:contains(" + vals[i] + ")");
                 j.hide();
+                $("#selected_share_names").append("<div class='share_username_list' data-id='" + j.data('id') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
+            }
+        });
+        $("#share_usernames_select").val('');
+        $(".share_username_list:contains('null')").remove();
+    }
+    function toggleSkypeAddition(id){
+        var selected = $("#"+id).find('option:selected');
+        val = $("#"+id).val()+'';
+        vals = val.split(",");
+        $.each(vals,function(i){
+            if(vals[i] != null) {
+                j = $("#skype_usernames_select:contains(" + vals[i] + ")");
+                j.hide();
                 $("#selected_skype_names").append("<div class='skype_username_list' data-skype='" + j.data('skype') + "'><img src='" + j.data('src') + "' width='16px' height='16px' style='padding-left: 5px; padding-bottom: 2px'></img>" + vals[i] + "<img src='../static/images/red_x.png' width='16px' height='16px' class='remove_skype_span'></img></div>");
             }
         });
         $("#skype_usernames_select").val('');
         $(".skype_username_list:contains('null')").remove();
+    }
+    function sharePost(content, community, poster, type){
+        message = "<p style='text-align:left; float-left'>${user.first_name} ${user.last_name} has shared the following "+type+" by "+poster+" with you!</p><p style='text-align:left;font-style:italic'>"+content+"</p>";
+        message += "<p style='text-align:left; float-left'>View the full discussion here: <a href='/community/"+community+"'>Community</a></p>"
+        $(".share_username_list").each(function(i){
+            share_id = $(this).data("id").toString();
+            var datainfo = {
+                'info': JSON.stringify({
+                'sender_id': '${user.id}',
+                'recipient_id': share_id,
+                'date': (new Date()).toISOString(),
+                'body': message
+                })
+            };
+            $.post("${reverse('save_message')}", datainfo, function(data){});
+            var messageinfo = {
+                'info': JSON.stringify({
+                    'user_id': share_id,
+                    'interviewer_id': '${request.user.id}',
+                    'interviewer_name': '${request.user.first_name}',
+                    'interviewer_fullname': "${request.user.first_name} ${request.user.last_name}",
+                    'type': 'message',
+                    'body': '',
+                    'date': (new Date()).toISOString(),
+                    'activate': 'false'
+                })
+            };
+            $.post("${reverse('save_interactive_update')}", messageinfo, function() {});
+        });
+        $("#share_message").html("Message Shared!")
+        $("#share_message").css("color", "green");
+        $("#share_message").show()
     }
 </script>
 </body>

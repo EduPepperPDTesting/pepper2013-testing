@@ -42,22 +42,25 @@ def get_interactive_update_range(request):
     info  = rs.return_items(str(request.user.id),int(request.POST.get('skip')),int(request.POST.get('limit')))
     return utils.JsonResponse({'results': info,'count': count})
 
-def save_interactive_update(request):
+def save_interactive_info(info):
     rs = remindstore()
-    info = json.loads(request.POST.get('info'))
     info['date'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     user_id = str(info['user_id']).split(',')
-    if len(user_id)>1:
+    if len(user_id) > 1:
         '''
         for v in user_id:
             singleInfo = info.copy()
             singleInfo['user_id'] = v
             rs.insert_item(singleInfo)
         '''
-        info['user_id']=user_id
+        info['user_id'] = user_id
         rs.insert_item(info)
     else:
         rs.insert_item(info)
+
+def save_interactive_update(request):
+    info = json.loads(request.POST.get('info'))
+    save_interactive_info(info)
     return utils.JsonResponse({'results':'true'})
 
 def set_interactive_update(request):

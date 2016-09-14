@@ -10,109 +10,260 @@
 <!--@date:2013-11-02-->
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <!--@end-->
+<script type="text/javascript" src="static/js/jcarousellite_1.0.1.js"></script>
 
 <style type="text/css" media="screen">
-  ul.left {
-  list-style:none;
-  }
-  ul.left li{
-  margin-top:30px;font-size:16px;
-  }
-  ul.left a{
-  color:#666;
-  }
-  div.gray_box{
-  border:3px solid #DDDDDD;width:39%;height:320px;float:left;margin-left:20px;padding:20px;
-  }
-  div.gray_box div{
-  border-top:1px solid #ccc;
-  margin-top:15px;
-  padding-top:15px;
-  font-size:14px !important;
-  }
+ul.left {
+    list-style:none;
+}
+ul.left li{
+    margin-top:30px;font-size:16px;
+}
+ul.left a{
+    color:#666;
+}
+div.gray_box{
+    border:3px solid #DDDDDD;
+    width:250px;
+    height:320px;
+    float:left;
+    padding:10px;
+}
+div.gray_box div{
+    border-top:1px solid #ccc;
+    margin-top:15px;
+    padding-top:15px;
+    font-size:14px !important;
+}
+.main_container{
+    text-align:center;
+    background:#f5f5f5
+}
+.banner_title{
+    margin:auto;
+    width:960px;
+    height:195px;
+    background:url(static/images/ppd-aboutus-banner.jpg);
+}
+.main_content{
+    width:960px;
+    margin:auto;
+    background:#fff;
+}
+.main_title_div{
+    width:750px;
+    text-align:left;
+    padding-top:20px;
+    margin:auto;
+    border:0px solid;
+}
+.main_title{
+    font-size:32px;
+    color:#0070c0;
+    font-weight:bold;
+}
+.org_card_container{
+    padding-top:10px;
+    height:380px;
+    width:860px;
+    margin:auto;
+    border:0px solid;
+}
+.content_scroll{
+    width:960px;
+    margin-bottom:25px;
+    border:0px solid;
+}
+.content_scroll_title{
+    text-align:center;
+    padding:20px 0 5px 0;
+    font-size:32px;
+    color:#0070c0;
+    font-weight:bold;
+    margin-top:20px;
+}
+.auto table{
+    width:260px;
+    height:226px;
+    border:0px solid;
+}
+.auto td{
+   text-align:center;
+   vertical-align:middle;
+}
 </style>
-<div style="text-align:center;background:#f5f5f5">
-  <!--@begin:use new image name(ppd-...); use (background:url..) replace <img src=...>-->
-  <!--@date:2013-11-02-->
-  <div style="margin:auto;width:960px;height:195px;background:url(static/images/ppd-aboutus-banner.jpg);">
-    <!--@end-->
-	<!--@begin:use html text to replace the text on the picture-->
-    <!--@date:2013-11-02-->
-    <section class="_banner_aboutus_title_font">OUR TEAM</section>
-    <!--@end-->
-  </div>
-  <div style="width:960px;margin:auto;background:#fff;">
-    <div style="float:left;width:217px;height:900px;background:#E6F4FB;text-align:left;">
-      <ul class="left">
-        <li><a href="/about_pepper">ABOUT PEPPER</a></li>
-        <li><a href="/research_pedagogy">RESEARCH & PEDAGOGY</a></li>
-        <li><a href="/our_team" style="color:#3461ad;">OUR TEAM</a></li>
-        <li><a href="/faq">FAQ</a></li>
-		<li><a href="/contact">CONTACT US</a></li>
-        <!--@begin:add new url-->
-        <!--@date:2013-11-02-->
-        <li><a href="/press">PRESS</a></li>
-        <!--@end-->
-      </ul>
+
+<script type="text/javascript">
+$(function() {
+    $(".auto").jCarouselLite({
+        auto: 3000,
+        speed: 1000,
+        visible: 3,
+        onMouse:true,
+        btnNext: ".next",
+        btnPrev: ".prev"
+    });
+});
+</script>
+
+
+<div class="main_container">
+    <div class="banner_title">
+        <section class="_banner_aboutus_title_font">Our Team</section>
     </div>
-    <div style="float:left;width:743px;height:680px;text-align:left;">
-      <div style="padding:20px;">
-        <h2 style="font-weight:300 !important;font-size:25px;color:#3461ad;text-align:left;">WHO WE ARE</h2>
-        <hr />
-        <p style="text-align:24px;width:100%;">
-          <div class="clearfix" style="padding-top:10px;">
-            <div class="gray_box _body_content_font">
-              <a href="http://www.wested.org/" target="_blank">
-                <img src="static/images/logo_our_team/wested_logo.jpg" /></a>
-              <div id="">
-                WestEd, a national nonpartisan, nonprofit research,
-                development, and service agency, works with
-                education and other communities to promote
-                excellence, achieve equity, and improve learning for
-                children, youth, and adults.                
-              </div>
+    <div class="main_content">
+        <div class="main_title_div">
+            <h2 class="main_title">WHO WE ARE</h2>
+            <hr />
+        </div>
+        <div class="org_card_container clearfix">
+            <div class="gray_box _body_content_font" style="margin-right:15px;">
+                <a href="https://www.edx.org/about-us" target="_blank"><img src="static/images/logo_our_team/harvard_logo.jpg" width="250"/></a>
+                <div id="">
+                    Pepper is delivered on the powerful edX learning platform,
+                    the Cambridge-based education partnership founded by
+                    Harvard University and M.I.T., to support two important
+                    missions: improving online education, and advancing
+                    teaching and learning through research.  
+                </div>
+            </div>
+            <div class="gray_box _body_content_font" style="margin-right:15px;">
+                <a href="http://www.publicconsultinggroup.com/education/" target="_blank"><img src="static/images/logo_our_team/pcg_logo.jpg" width="250"/></a>
+                <div id="">
+                    PCG Education is a division of Public Consulting
+                    Group, currently works with more than 4,400
+                    school districts and has contracts with 14 state
+                    education agencies to provide services and
+                    software solutions that focus on student
+                    achievement.  
+                </div>
             </div>
             <div class="gray_box _body_content_font">
-              <a href="https://www.edx.org/about-us" target="_blank">
-                <img src="static/images/logo_our_team/harvard_logo.jpg" /></a>
-              <div id="">
-                Pepper is delivered on the powerful edX learning platform,
-                the Cambridge-based education partnership founded by
-                Harvard University and M.I.T., to support two important
-                missions: improving online education, and advancing
-                teaching and learning through research.  
-              </div>
+                <a href="http://www.education2000.com/" target="_blank"><img src="static/images/logo_our_team/education2000_logo.jpg" width="250"/></a>
+                <div id="">
+                    Edu2000 develops interactive content for state
+                    departments of education, school districts, and
+                    educational publishers. Edu2000 is particularly strong in
+                    the delivery of online mathematics and science curriculum
+                    that includes interactive animations, simulations, and visual
+                    experiments that teach concepts to all learners.  
+                </div>
             </div>
-          </div>
-          <div class="clearfix" style="padding-top:20px;">
-            <div class="gray_box _body_content_font">
-              <a href="http://www.publicconsultinggroup.com/education/" target="_blank">
-                <img src="static/images/logo_our_team/pcg_logo.jpg" /></a>
-              <div id="">
-                PCG Education is a division of Public Consulting
-                Group, currently works with more than 4,400
-                school districts and has contracts with 14 state
-                education agencies to provide services and
-                software solutions that focus on student
-                achievement.  
-              </div>
+        </div>
+
+        <div class="content_scroll">
+            <div class="content_scroll_title">
+                Best Content.  Trusted Partners.
             </div>
-            <div class="gray_box _body_content_font">
-              <a href="http://www.education2000.com/" target="_blank">
-                <img src="static/images/logo_our_team/education2000_logo.jpg" /></a>
-              <div id="">
-                Edu2000 develops interactive content for state
-                departments of education, school districts, and
-                educational publishers. Edu2000 is particularly strong in
-                the delivery of online mathematics and science curriculum
-                that includes interactive animations, simulations, and visual
-                experiments that teach concepts to all learners.  
-              </div>
-            </div>
-          </div>
-        </p>
-      </div>
+
+            <!--Scrolling Start-->
+            <table width="960" border="0">
+                <tr>
+                    <td width="9%" align="right" style="vertical-align:middle;">
+                        <a class="prev" style="cursor:pointer;"><img src="static/images/index_jtl.png"></a>
+                    </td>
+                    <td width="82%" align="center">
+                        <div class="auto" style="border:0px solid #f00">
+                            <ul>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="/static/resource/Pepper_Professional_Learning_Fall2016.pdf" target="_blank"><img src="static/images/ourteam/ourteam_Pepper_PDF.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.wested.org" target="_blank"><img src="static/images/ourteam/ourteam_WestEd.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://ell.stanford.edu" target="_blank"><img src="static/images/ourteam/ourteam_Standford.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="https://www.commonsensemedia.org/educators/digital-citizenship" target="_blank"><img src="static/images/ourteam/ourteam_CommonSense.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.getfueled.com" target="_blank"><img src="static/images/ourteam/ourteam_Fuel.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.publicconsultinggroup.com/education2" target="_blank"><img src="static/images/ourteam/ourteam_PCG.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.acceleratedliteracylearning.com" target="_blank"><img src="static/images/ourteam/ourteam_ALL.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.chadd.org" target="_blank"><img src="static/images/ourteam/ourteam_CHADD.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://www.seadae.org" target="_blank"><img src="static/images/ourteam/ourteam_SEADAE.png"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                                <li>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a href="http://oneillseaodyssey.org" target="_blank"><img src="static/images/ourteam/ourteam_Sea_Odyssey_Logo.jpg"></a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td align="left" style="vertical-align:middle;">
+                        <a class="next" style="cursor:pointer;"><img src="static/images/index_jtr.png"></a>
+                    </td>
+                </tr>
+            </table>
+            <!--Scrolling End-->
+        </div>
     </div>
-    <br style="clear:both"/>
-  </div>
 </div>

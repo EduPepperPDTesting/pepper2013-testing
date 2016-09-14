@@ -82,7 +82,9 @@
 		    });
 	    }
 		function notifications_update_init(data)
-  		{   
+  	  {
+
+        console.log(data)
   			notifications_update_totalNum = data.count;
   			//notifications_update_loadNum+=20;
   			console.log("update_init data",data);
@@ -174,7 +176,9 @@
 		        break;
 		      case 'my_chunks':
         		data.type_text="<b>"+data.interviewer_name+"</b> has sent you a chunk of content from course "+data.course_number+".";
-        		break;
+                break;
+              default:
+                data.type_text = data.subject || data.body;
 		    }
   	    }
   	    function notifications_update_setMessageBody(data)
