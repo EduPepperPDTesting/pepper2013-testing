@@ -979,7 +979,7 @@ def email_expert(request):
     to = request.POST.get('facilitator')
     result=""
     try:
-        send_mail(sub, message, 'support@pepperpd.com', ['mike.a.minnick@gmail.com', to], fail_silently=False)
+        send_mail(sub, message, request.user.email, [to], fail_silently=False)
         result="Mail sent successfully!"
     except:
         result="There was a problem sending the message."
