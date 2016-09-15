@@ -188,8 +188,25 @@ def rows(request):
             training=item).count() if item.max_registration > 0 else -1
 
         status = ""
+        all_edit = "0"
+        all_delete = "0"
+
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
+
+        if item.user_create == request.user:
+            all_edit = "1"
+            all_delete = "1"
+        else:
+            if PepRegInstructor.objects.filter(instructor=request.user, training=item).exists():
+                for pi in PepRegInstructor.objects.filter(instructor=request.user, training=item):
+                    if pi.all_edit:
+                        all_edit = "1";
+
+                    if pi.all_delete:
+                        all_delete = "1";
+
+                    break;
 
         is_belong = PepRegInstructor.objects.filter(instructor=request.user,
                                                     training=item).exists() or item.user_create == request.user
@@ -220,8 +237,10 @@ def rows(request):
             "",
             "<input type=hidden value=%s name=id> \
             <input type=hidden value=%s name=managing> \
+            <input type=hidden value=%s name=all_edit> \
+            <input type=hidden value=%s name=all_delete> \
             <input type=hidden value=%s,%s,%s,%s,%s,%s,%s name=status>" % (
-                item.id, managing, arrive, status, allow,
+                item.id, managing, all_edit, all_delete, arrive, status, allow,
                 item.attendancel_id, rl, "1" if item.allow_student_attendance else "0",
                 remain
             )
@@ -271,14 +290,23 @@ def save_training(request):
         training.date_modify = datetime.now(UTC)
         training.save()
 
-        for email in request.POST.get("instructor_emails", "").split(","):
-            if User.objects.filter(email=email).exists():
-                pi = PepRegInstructor()
-                pi.training = training
-                pi.instructor = User.objects.get(email=email)
-                pi.date_create = datetime.now(UTC)
-                pi.user_create = request.user
-                pi.save()
+        emails_get = request.POST.get("instructor_emails");
+        if(emails_get):
+            for emails in request.POST.get("instructor_emails", "").split(","):
+                tmp1 = emails.split("::");
+                email = tmp1[0];
+                all_edit = True if tmp1[1] == "1" else False;
+                all_delete = True if tmp1[2] == "1" else False;
+
+                if User.objects.filter(email=email).exists():
+                    pi = PepRegInstructor()
+                    pi.training = training
+                    pi.instructor = User.objects.get(email=email)
+                    pi.date_create = datetime.now(UTC)
+                    pi.user_create = request.user
+                    pi.all_edit = all_edit;
+                    pi.all_delete = all_delete;
+                    pi.save()
 
     except Exception as e:
         db.transaction.rollback()
@@ -306,7 +334,10 @@ def training_json(request):
 
     instructor_emails = []
     for pi in PepRegInstructor.objects.filter(training=item):
-        instructor_emails.append(pi.instructor.email)
+        all_edit = "1" if pi.all_edit else "0"
+        all_delete = "1" if pi.all_delete else "0"
+
+        instructor_emails.append(pi.instructor.email + "::" + all_edit  + "::" + all_delete)
 
     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
 
@@ -426,47 +457,39 @@ def getCalendarMonth(request):
                             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
                     except:
                         status = "";
-
-                    titlex = item.name + "&#13;" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
+                    # &#13;
+                    titlex = item.name + "::" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
 
                     if item.classroom:
-                        titlex = titlex  + "&#13;" + item.classroom;
+                        titlex = titlex  + "::" + item.classroom;
 
                     if item.geo_location:
-                        titlex = titlex  + "&#13;" + item.geo_location;
+                        titlex = titlex  + "::" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
                         if(_catype == "0" or _catype == "4"):
-                            # occurrences.append(
-                            #     "<span class='alert al_4' title='The training date has not arrived yet.'>" + item.name + "</span>");
                             occurrences.append(
-                                "<span class='alert al_4' title='" + titlex + "'>" + item.name + "</span>");
+                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (_catype == "0" or _catype == "5"):
-                                # occurrences.append(
-                                #     "<span class='alert al_7' title='Maximum number of users have registered for this training.'>" + item.name + "</span>");
                                 occurrences.append(
-                                    "<span class='alert al_7' title='" + titlex + "'>" + item.name + "</span>");
+                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
-                                    # occurrences.append(
-                                    #     "<label class='alert al_6' title='&#x0221A; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</span></label>");
                                     occurrences.append(
-                                        "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
-                                    # occurrences.append(
-                                    #     "<label class='alert al_5' title='&#x025A1; I would like to register for this training.'>" + tmp_ch + "<span>" + item.name + "</label>");
                                     occurrences.append(
-                                        "<label class='alert al_5' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         #The registration date has passed for this training
@@ -482,20 +505,16 @@ def getCalendarMonth(request):
                             if (_catype == "0" or _catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
-                                # occurrences.append(
-                                #     "<label class='alert al_3' title='&#x0221A; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_3' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
                             if (_catype == "0" or _catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
-                                # occurrences.append(
-                                #     "<label class='alert al_6' title='&#x025A1; Yes I attended this training.'>" + tmp_ch  + "<span>" + item.name + "</span></label>");
                                 occurrences.append(
-                                    "<label class='alert al_6' title='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True

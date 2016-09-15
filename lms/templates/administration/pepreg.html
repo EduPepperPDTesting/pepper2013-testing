@@ -52,6 +52,8 @@
 	#calendar-month tr th{height:35px !important;}
 	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
 	
+	/*#calendar-month tr td .alert:hover{font-size:14px !important; }*/
+	
 	#calendar-month tr td .al_3{ background-color:#22b14c;}
 	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
 	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
@@ -74,6 +76,10 @@
 	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
 	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
 	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
+	
+	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
+	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
+	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
 
 <div class="data_import_bottom">
@@ -215,6 +221,7 @@
             <div class="close-modal">✕</div>
         </div>
         <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+        	<span id="math_width" style="position:absolute; top:-1000px;"></span>
             <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
             <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
             <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
@@ -249,6 +256,8 @@
         </div>
     </div>
 </div>
+
+<div id="calendar_alert_title"></div>
 
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
@@ -395,17 +404,17 @@
                             <span class="label" style="width:180px">Please Select the Training Date:</span>
                             <input type="" name="training_date" class="datePickText lock_past" value=""
                                    readonly='true'/>
-                            <img src="/static/images/calendar-icon-2.png" class="" alt="" width="24"/>
+                            <img src="/static/images/calendar-icon-2.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select Start Time:</span>
                             <input type="" name="training_time_start" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select End Time:</span>
                             <input type="" name="training_time_end" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                     </div>
                 </div>
@@ -435,7 +444,19 @@
                         <h5>Create Your Training or PD Event: Step 5 of 6</h5>
                         <h4>Add/Remove Instructors</h4>
                         <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;"
-                             id="instructor_emails"></div>
+                             id="instructor_emails">
+                         	<table width="100%" cellspacing="" cellpadding="" border="0">
+                                <thead>
+                                <tr>
+                                	<th width="30" align="center"></th>
+                                    <th align="center">Email</th>
+                                    <th width="150" align="center">Edit Training</th>
+                                    <th width="150" align="center">Delete Training</th>
+                                </tr>
+                                </thead>
+                                <tbody id="training_instructors_list"></tbody>
+                            </table>
+                         </div>
                         <div class="form-row">
                             <i>Select a training instructor by searching email (start typing and select email of
                                 instructor):</i>
@@ -508,7 +529,7 @@
 <script type="text/javascript">
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
 	var _calendar_date = new Date();
-
+	
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
 		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){			
@@ -517,6 +538,30 @@
 			$(".calendar-tr-tmp").remove();
 			
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+			
+			$(".alert").mouseover(function () {
+				$("#calendar_alert_title").empty();
+				var this_x = $(this).parent().position().left;
+				var tmp1 = $(this).offset();
+				tmp1.top += 30;
+				tmp1.top -= $(document).scrollTop();
+				var tmp3 = $(this).attr("titlex").split("::");
+				for(var i in tmp3){
+					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
+				}
+				if(this_x > 800){
+					tmp1.left -= ($("#calendar_alert_title").width() - 100);
+				}else if(this_x > 600){
+					tmp1.left -= ($("#calendar_alert_title").width() - 200);
+				}
+				$("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
+				
+				$("#calendar_alert_title").show();
+			});
+			$(".alert").mouseleave(function () {
+				$("#calendar_alert_title").hide();
+			});
+			 
 			$(".alert").each(function(){
 				if($(this).find("input").length > 0){
 					var tmp_span = $(this).find("span");
@@ -615,7 +660,7 @@
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
 	}
 	
-	$(function(){		
+	$(function(){
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
@@ -877,16 +922,7 @@
                 return ["max_registration", "Please input a valid Maximum Registration Cap"];
             }
         }
-    };
-    /* PepReg.prototype.markInvalid=function(name, message){
-       var $input = $("#dlg-add-training").find("*[name="+ name +"]");
-       var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
-       $mark.addClass("on");
-       $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
-       $input.one('focus', function(){
-       $mark.removeClass("on").hideBalloon();
-       });
-       } */
+    };   
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -940,17 +976,18 @@
             },
             source: function (request, response) {
                 $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
-                        {q: $('input[name=geo_location]').val()}, function (r) {
-                            var data = [];
-                            hits = r;
-                            $.each(r, function (i, v) {
-                                data.push(v.display_name);
-                                hits[v.display_name] = v;
-                            });
-                            response(data);
-                        });
+					{q: $('input[name=geo_location]').val()}, function (r) {
+						var data = [];
+						hits = r;
+						$.each(r, function (i, v) {
+							data.push(v.display_name);
+							hits[v.display_name] = v;
+						});
+						response(data);
+					});
             }
-        });
+        });		
+				
         // ************* input instructors
         $(".btn-add-instructor").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -996,9 +1033,12 @@
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
-        var ar = [];
-        $("#instructor_emails").find("div").each(function () {
-            ar.push($(this).find("span").text());
+        var ar = [];       
+		$("#training_instructors_list").find("tr").each(function () {
+			var email = $(this).find("td").eq(1).text();
+			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+			var all_delete = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + all_edit + "::" + all_delete);
         });
         return ar;
     };
@@ -1007,10 +1047,23 @@
             var curr = this.getInstructors();
             $.each(emails.split(","), function (i, email) {
                 if (email && curr.indexOf(email) < 0) {
-                    $("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
-                        e.preventDefault();
-                        $(this).parent().remove();
-                    });
+					var tmp = email.split("::");
+					if(tmp[0] != ""){
+						var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+						var tmp_td1 = $("<td>" + tmp[0] + "</td>");
+						var tmp_td2 = $("<td align='center'><input type='checkbox' name='allow_edit' /></td>");
+						var tmp_td3 = $("<td align='center'><input type='checkbox' name='allow_delete' /></td>");
+						tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3);
+						$("#training_instructors_list").append(tmp_tr);
+						
+						if(tmp[1] == "1")			tmp_td2.find("input").attr("checked", "checked");
+						if(tmp[2] == "1")			tmp_td3.find("input").attr("checked", "checked");
+						
+						tmp_tr.find("a").click(function(e){
+							e.preventDefault();
+							$(this).parent().parent().remove();
+						});
+					}
                 }
             });
         }
@@ -1064,13 +1117,15 @@
         } else {
             this.showPlace(this.map_edit, state);
         }
+		
         $.each(data, function (k, v) {
             var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
             if ($entry.prop("tagName") == "INPUT" && ($entry.attr("type") == "radio" || $entry.attr("type") == "checkbox")) {
                 $entry.prop('checked', false);
                 $entry.filter("*[value=" + v + "]").prop('checked', true);
             } else if (k == "instructor_emails") {
-                $("#instructor_emails").html("");
+                //$("#instructor_emails").html("");
+				$("#training_instructors_list").html("");
                 self.appendInstructors(v);
             } else {
                 $entry.val(v);
@@ -1110,6 +1165,16 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
+			if(r.arrive == "1"){
+				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
+				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
+				$(".training_date_icon").hide();
+			}else{
+				$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+				$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+				$(".training_date_icon").show();
+			}
+			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
@@ -1136,7 +1201,11 @@
     };
     PepReg.prototype.addTraining = function () {
         var self = this;
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
+		$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+		$(".training_date_icon").show();
+		
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
             // submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -1409,20 +1478,9 @@
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
                     $(this).click(function () {
-                        //var training_id = $(this).parent().find("input[name=training_id]").val();
-                        //var origin = escape($("#map_show").find("input:first").val());
-                        //var zoom = 12;
-                        //var center = map_show.getCenter();
                         window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
-                        //var props = JSON.parse($(this).find("input").val());
-                        //props.geo_location = $(this).find("input[name='row_geo_location']").val();
-                        //props.geo_destination = $(this).find("input[name='row_geo_destination']").val();
-
-                        //self.showMap(props, training_id);
                     });
                 }
-                // var state='${request.user.profile.district.state.name} United States';
-                // self.showPlace(self.map_show, state);
             });
             // each row
             $(this).find("tr").each(function () {
@@ -1430,6 +1488,8 @@
                 if (!training_id)
                     return; // continue
                 var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
+				var all_edit = $(this).find("input[name=all_edit]").val();
+				var all_delete = $(this).find("input[name=all_delete]").val();				
                 var apart = $(this).find("input[name=status]").val().split(",");
                 var arrive = apart[0];
                 var status = apart[1];
@@ -1438,15 +1498,24 @@
                 var reach_limit = apart[4];
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
+				if(is_superuser){
+					all_edit = "1";
+					all_delete = "1";
+				}
+				
                 if (is_row_admin) {
-                    $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.editTraining(training_id);
-                    });
-                    $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.deleteTraining(training_id);
-                    });
+					if(all_edit == "1"){
+						$("<a href='' class='icon icon-edit' a='"+all_edit+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.editTraining(training_id);
+						});
+					}
+                   	if(all_delete == "1"){
+						$("<a href='' class='icon icon-remove' a='"+all_delete+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.deleteTraining(training_id);
+						});
+					}
                 }
                 // Register/Record Attendance
                 $(this).find("td:nth-child(15)").each(function () {
@@ -1540,7 +1609,6 @@
                   $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
                 });              
             });
-
         });
     };
     PepReg.prototype.reloadTable = function () {
