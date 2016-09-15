@@ -337,18 +337,19 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     })
                 
             # Save none instant notification to audit
-            days = {"Daily": 0, "Weekly": 7}
-            if config and config.via_email and config.frequency != 'Instant':
-                audit = CommunityNotificationAudit()
-                audit.subject = subject
-                audit.body = body
-                audit.receiver = user
-                audit.creator = action_user
-                audit.create_date = datetime.utcnow()
-                audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
-                audit.save()
-            else:
-                send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
+            if config and config.via_email:
+                days = {"Daily": 0, "Weekly": 7}
+                if config.frequency != 'Instant':
+                    audit = CommunityNotificationAudit()
+                    audit.subject = subject
+                    audit.body = body
+                    audit.receiver = user
+                    audit.creator = action_user
+                    audit.create_date = datetime.utcnow()
+                    audit.send_date = audit.create_date + timedelta(days=days[config.frequency])
+                    audit.save()
+                else:
+                    send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
     for member in CommunityUsers.objects.filter(community=community_id):
         process(member.user, "Delete Course", courses_del)
