@@ -127,20 +127,21 @@ def get_add_user_rows(request, community_id):
                3: ['user__last_name', '__iexact', 'str'],
                4: ['user__profile__district__state__name', '__iexact', 'str'],
                5: ['user__profile__district__name', '__iexact', 'str'],
-               6: ['user__profile__school__name', '__icontains', 'str']}
+               6: ['user__profile__cohort__code', '__icontains', 'str'],
+               7: ['user__profile__school__name', '__icontains', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 7)
+    filters = get_post_array(request.GET, 'fcol', 8)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size
 
-    if filters.get('7'):
-        filters['all'] = filters['7']
-        del filters['7']
+    if filters.get('8'):
+        filters['all'] = filters['8']
+        del filters['8']
     
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -187,9 +188,14 @@ def get_add_user_rows(request, community_id):
         except:
             user_district = ""
             user_district_state = ""
+        try:
+            user_cohort = str(item.user.profile.cohort.code)
+        except:
+            user_cohort = ""
 
         row.append(str(user_district_state))
         row.append(str(user_district))
+        row.append(str(user_cohort))
         row.append(str(user_school))
 
         row.append('<input class="select_box" type="checkbox" name="id" value="' + str(item.user.id) + '"/>')
@@ -219,20 +225,21 @@ def get_remove_user_rows(request, community_id):
                3: ['user__last_name', '__iexact', 'str'],
                4: ['user__profile__district__state__name', '__iexact', 'str'],
                5: ['user__profile__district__name', '__iexact', 'str'],
-               6: ['user__profile__school__name', '__icontains', 'str']}
+               6: ['user__profile__cohort__code', '__icontains', 'str'],
+               7: ['user__profile__school__name', '__icontains', 'str']}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
-    filters = get_post_array(request.GET, 'fcol', 7)
+    filters = get_post_array(request.GET, 'fcol', 8)
     # Get the page number and number of rows per page, and calculate the start and end of the query.
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     start = page * size
     end = start + size - 1
 
-    if filters.get('7'):
-        filters['all'] = filters['7']
-        del filters['7']
+    if filters.get('8'):
+        filters['all'] = filters['8']
+        del filters['8']
     
     # Get the sort arguments if any.
     order = build_sorts(columns, sorts)
@@ -283,7 +290,7 @@ def get_remove_user_rows(request, community_id):
 
         row.append(str(user_district_state))
         row.append(str(user_district))
-        # row.append(str(user_cohort))
+        row.append(str(user_cohort))
         row.append(str(user_school))
 
         # row.append(str(item.user.profile.subscription_status))
