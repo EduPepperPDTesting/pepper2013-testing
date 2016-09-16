@@ -91,7 +91,7 @@
                                 %endfor
                             </select>
                         %endif
-                        <select type="search" class="search-users" data-column="6" id="User_school_select" autocomplete="off">
+                        <select type="search" class="search-users" data-column="7" id="User_school_select" autocomplete="off">
                             <option value="" class="null_case">Select School</option>
                             %for item in School.objects.all().order_by('name'):
                                 %if request.user.is_superuser:
@@ -102,6 +102,7 @@
                             %endfor
                         </select>
                         <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
+                        <input type = "checkbox" id = "checkall">Check All
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
                             <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
@@ -127,7 +128,7 @@
                             <th class="user_lname">Last Name</th>
                             <th class="user_state">State</th>
                             <th class="user_adduser">District</th>
-                            <!-- <th class="user_cohort">Cohort</th> -->
+                            <th class="user_cohort">Cohort</th>
                             <th class="user_removeuser">School</th>
                             <!-- <th class="user_registration">Registration Status</th>
                             <th class="user_enrollment_status">Enrollment Start</th> -->
@@ -217,7 +218,7 @@
                             <th class="user_lname">Last Name</th>
                             <th class="user_state">State</th>
                             <th class="user_adduser">District</th>
-                            <!-- <th class="user_cohort">Cohort</th> -->
+                            <th class="user_cohort">Cohort</th>
                             <th class="user_removeuser">School</th>
                             <!-- <th class="user_registration">Registration Status</th>
                             <th class="user_enrollment_status">Enrollment Start</th> -->
@@ -396,6 +397,9 @@
         $(document).ready(function () {
             $(".expand_title").eq(0).click();
             $("#user-table").hide();
+            $("#checkall").change(function () {
+                $("input:checkbox").prop('checked', $(this).prop("checked"));
+            });
         });
         //* ----------- do add/remove member
         function add_selected_users(){
