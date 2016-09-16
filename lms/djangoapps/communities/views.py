@@ -1100,7 +1100,9 @@ def get_posts(request):
         for img in images:
             if "youtube" in img.link and img.embed:
                 img_code += "<br><br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
-            elif "youtube" in img.link:
+            elif "youtu.be" in img.link and img.embed:
+                img_code += "<br><br><iframe src='"+img.link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+            elif "youtube" in img.link or "youtu.be" in img.link:
                 img_code += "<p><a style='word-wrap:break-word;' href='"+img.link+"'>"+img.link+"</a></p>"
             elif img.embed:
                 img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
@@ -1227,11 +1229,17 @@ def submit_new_post(request):
             image = image.rstrip('/')
             image = image.rstrip('\\')
             ext = image[-3:]
-            if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image):
+            if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image) or ("youtu.be" in image):
                 img = CommunityPostsImages()
                 img.post = post
                 img.link = image
                 img.embed = int(request.POST.get('embed'))
+                img.save()
+            else:
+                img = CommunityPostsImages()
+                img.post = post
+                img.link = image
+                img.embed = 0
                 img.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
 
