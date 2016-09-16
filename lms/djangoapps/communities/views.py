@@ -1215,13 +1215,17 @@ def check_content_priority(request):
 
 def submit_new_post(request):
     post = CommunityPosts()
+    content = request.POST.get('post')
+    content = parse_urls(content)
     post.community = CommunityCommunities.objects.get(id=request.POST.get('community_id'))
     post.user = User.objects.get(id=request.user.id)
-    post.post = request.POST.get('post')
+    post.post = content
     post.save()
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
         for image in images:
+            image = image.rstrip('/')
+            image = image.rstrip('\\')
             ext = image[-3:]
             if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image):
                 img = CommunityPostsImages()
@@ -1230,6 +1234,26 @@ def submit_new_post(request):
                 img.embed = int(request.POST.get('embed'))
                 img.save()
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
+
+
+def parse_urls(content):
+    final = ""
+    url = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    for word in content.split():
+        try:
+            if url.match(word):
+                final += '<a href = "'+word+'">'+word+'</a> '
+            else:
+                final += word + " "
+        except Exception as e:
+            final = e
+    return final
 
 
 def lookup_name(request):
