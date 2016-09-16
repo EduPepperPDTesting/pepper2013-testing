@@ -844,9 +844,6 @@ div.card-bottom table tr:nth-child(2) {
 .ask-expert:hover {
     cursor: pointer;
 }
-.members-link {
-    color: #3c3c3c;
-}
 .members-link:hover {
     cursor: pointer;
 }
