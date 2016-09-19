@@ -152,11 +152,9 @@
     height: 260px;
 }
 .facilitator-wrap {
-    position: absolute;
-    width: 450px;
-    bottom: 20px;
-    left: 20px;
-
+    float: left;
+    width: 430px;
+    padding: 20px;
 }
 #community-content-area h1 {
     color: #006EBF;
