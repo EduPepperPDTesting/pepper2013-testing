@@ -19,10 +19,12 @@ from student.models import UserTestGroup, CourseEnrollment, UserProfile, Distric
 from xmodule.modulestore.django import modulestore
 import pymongo
 
+from django.conf import settings
 import calendar
 from django.utils.timezone import datetime, now, timedelta, utc
 from django.utils.translation import ugettext_lazy as _
 from dateutil.relativedelta import relativedelta
+from django.core.mail import send_mail
 
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
                             TestCenterRegistration, TestCenterRegistrationForm,
@@ -717,12 +719,20 @@ def student_list(request):
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
+    last_date = training.last_date
+    if last_date:
+        last_date = str('{d:%m/%d/%Y}'.format(d=training.last_date));
+
     return HttpResponse(json.dumps({'success': True,
                                     'rows': rows,
                                     'allow_attendance': training.allow_attendance,
                                     'allow_validation': training.allow_validation,
+                                    'allow_registration': training.allow_registration,
                                     'training_id': training.id,
                                     'training_name': training.name,
+                                    'last_date': last_date,
+                                    'training_type': training.type,
+                                    'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
                                     'arrive': arrive
                                     }),
                         content_type="application/json")
@@ -770,46 +780,102 @@ def delete_student(request):
 
 def download_students_excel(request):
     training_id = request.GET.get("training_id")
+    last_date = request.GET.get("last_date")
+
     training = PepRegTraining.objects.get(id=training_id)
-    students = PepRegStudent.objects.filter(training_id=training_id)
 
-    output = StringIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet()
+    if(last_date):
+        name_dict = {};
+        _res = "0";
+        try:
+            EMAIL_TEMPLATE_DICT = {'training_email': ('emails/training_student_email_subject.txt', 'emails/training_student_email_message.txt')}
 
-    FIELDS = ["email", "status", "attendance", "validation", "credits"]
-    TITLES = ["User", "Status", "Attendance", "Validation", "Credits"]
+            subject_template, message_template = EMAIL_TEMPLATE_DICT.get("training_email", (None, None))
 
-    for i, k in enumerate(TITLES):
-        worksheet.write(0, i, k)
+            email_students = [];
 
-    row = 1
+            for reg_stu in PepRegStudent.objects.filter(training_id=training_id, student_status="Registered"):
+                userx = User.objects.get(id=reg_stu.student_id)
+                email_students.append(userx.email);
 
-    for item in students:
-        if training.allow_attendance:
-            attendance = "Y" if (item.student_status == "Validated" or item.student_status == "Attended") else "N"
-        else:
-            attendance = ""
+                param_dict = {};
+                param_dict["training_name"] = training.name;
+                param_dict["training_date"] = training.training_date;
+                param_dict["first_name"] = userx.first_name;
+                param_dict["last_name"] = userx.last_name;
+                param_dict["district_name"] = training.district.name;
+                param_dict["training_time_start"] = training.training_time_start;
 
-        if training.allow_validation:
-            validation = "Y" if (item.student_status == "Validated") else "N"
-        else:
-            validation = ""
+                if training.classroom == "" and training.geo_location == "":
+                    param_dict["classroom"] = "";
+                    param_dict["geo_location"] = "";
 
-        data_row = {'email': item.student.email,
-                    'status': item.student_status,
-                    'attendance': attendance,
-                    'validation': validation,
-                    'credits': item.student_credit
-                    }
+                elif not training.classroom == "" and training.geo_location == "":
+                    param_dict["classroom"] = training.classroom;
+                    param_dict["geo_location"] = "";
 
-        for i, k in enumerate(FIELDS):
-            worksheet.write(row, i, data_row[k])
-        row = row + 1
+                elif training.classroom == "" and not training.geo_location == "":
+                    param_dict["classroom"] = "";
+                    param_dict["geo_location"] = training.geo_location;
 
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=%s_users.xlsx' % (training.name)
-    workbook.close()
-    response.write(output.getvalue())
-    return response
+                else:
+                    param_dict["classroom"] = training.classroom + ", ";
+                    param_dict["geo_location"] = training.geo_location;
+
+                subject = render_to_string(subject_template, param_dict)
+                message = render_to_string(message_template, param_dict)
+
+                _res = send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [userx.email], fail_silently=False)
+
+            training.last_date = last_date;
+            training.save()
+
+            _res = "1";
+        except Exception as e:
+            _res = '%s' % e
+
+        name_dict["_res"] = _res;
+        return HttpResponse(json.dumps(name_dict), content_type="application/json");
+    else:
+        students = PepRegStudent.objects.filter(training_id=training_id)
+
+        output = StringIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        worksheet = workbook.add_worksheet()
+
+        FIELDS = ["email", "status", "attendance", "validation", "credits"]
+        TITLES = ["User", "Status", "Attendance", "Validation", "Credits"]
+
+        for i, k in enumerate(TITLES):
+            worksheet.write(0, i, k)
+
+        row = 1
+
+        for item in students:
+            if training.allow_attendance:
+                attendance = "Y" if (item.student_status == "Validated" or item.student_status == "Attended") else "N"
+            else:
+                attendance = ""
+
+            if training.allow_validation:
+                validation = "Y" if (item.student_status == "Validated") else "N"
+            else:
+                validation = ""
+
+            data_row = {'email': item.student.email,
+                        'status': item.student_status,
+                        'attendance': attendance,
+                        'validation': validation,
+                        'credits': item.student_credit
+                        }
+
+            for i, k in enumerate(FIELDS):
+                worksheet.write(row, i, data_row[k])
+            row = row + 1
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=%s_users.xlsx' % (training.name)
+        workbook.close()
+        response.write(output.getvalue())
+        return response
 

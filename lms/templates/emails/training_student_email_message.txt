@@ -1,0 +1,10 @@
+Dear ${first_name} ${last_name},
+
+${district_name} ${training_name} is coming up on ${training_date} at ${training_time_start}.
+
+The location of the training is ${classroom}${geo_location}.
+
+Please remember to attend this training.
+
+Regards,
+Professor Pepper 
