@@ -19,6 +19,7 @@ import datetime
 <link rel="stylesheet" type="text/css" href="/static/css/community.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
 <script src="https://apis.google.com/js/platform.js" async defer></script>
+<script>num_r = 0;</script>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
@@ -106,6 +107,7 @@ import datetime
                         <%include file="../course.html" args="course=c" />
                     %endfor
                     %for i,r in enumerate(resources):
+                        <script>num_r++;</script>
                         <div class="community-resource">
                             <img src="${get_file_url(r.logo)}" alt="${r.name}" />
                             <a href="${r.link}" target="_blank">
@@ -862,6 +864,10 @@ import datetime
         });
     }
     $(document).ready(function(){
+        if (num_r > 4){
+            num_r -= 4;
+            $("#community-content-area").height(700+(200*num_r));
+        }
         size=5;
         discussion_size=5;
         $("#members_view_all").click(function(e){

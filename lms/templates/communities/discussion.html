@@ -691,23 +691,32 @@
         }
         var subject = $("#editable_reply_subject_"+id).val();
         var post = $("#editable_reply_post_"+id).val();
-        $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
-            editReply(id);
-            $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
-            $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
-        });
+        if (subject != ""){
+            $.post("${reverse('community_reply_edit')}", {id: id, subject: subject, post: post}, function(r){
+                editReply(id);
+                $("#reply_subject_"+id).text($("#editable_reply_subject_"+id).val());
+                $("#reply_post_"+id).html($("#editable_reply_post_"+id).val());
+            });
+        }else{
+            alert("Subject can not be left blank");
+        }
     }
     function discussionEditSave(){
         for (var instanceName in CKEDITOR.instances) {
             CKEDITOR.instances[instanceName].updateElement();
         }
         var subject = $("#editable_subject").val();
-        var post = $("#editable_post").val();
-        $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
-            editDiscussion();
-            $("#discussion_subject").text($("#editable_subject").val());
-            $("#discussion_post").html($("#editable_post").val());
-        });
+        if (subject != ""){
+            var post = $("#editable_post").val();
+            $.post("${reverse('community_discussion_edit')}", {id: ${discussion.id}, subject: subject, post: post}, function(r){
+                editDiscussion();
+                $("#discussion_subject").text($("#editable_subject").val());
+                $("#discussion_post").html($("#editable_post").val());
+            });
+        }
+        else{
+            alert("Subject can not be left blank.");
+        }
     }
     function joinMe(){
         var user_id = "${request.user.id}";
