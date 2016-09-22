@@ -601,7 +601,7 @@
                 </div>
                 <div class="sidebar-section">
                 <a href="${reverse('communities')}" class="blue-button side-button">My Communities</a>
-                %if is_facilitator(request.user, community) or request.user.is_superuser:
+                %if is_facilitator(request.user, community) or request.user.is_superuser or request.user == discussion.user:
                     <a href="${reverse('community_edit',args=[community.id])}" class="green-button side-button">Edit</a>
                     <a href="${reverse('community_delete',args=[community.id])}" class="red-button side-button delete-icon">Delete</a>
                     <a href="${reverse('community_mange_member',args=[community.id])}" class="blue-button side-button">Manage Members</a>
