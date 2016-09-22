@@ -300,7 +300,9 @@
             </table>
         </div>
         <div style="padding:10px;text-align:right;">
-            <input type="button" name="" value="Download Excel" class="small download-students-excel"/>
+        	<span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+	        <input type="button" name="" value="Reminder Email" class="small" id="reminder_mail_btn" />
+            <input type="button" name="" value="Download Excel" class="small download-students-excel" />
         </div>
     </div>
 </div>
@@ -1311,6 +1313,30 @@
         var self = this;
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
             if (r.success) {
+				//Last Reminder Email: 08/16/2016
+				if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){				
+					$("#reminder_mail_date").show();
+					$("#reminder_mail_btn").show();
+					$("#reminder_mail_date").html("");
+
+					if(r.last_date != null && r.last_date != "null")
+						$("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
+					
+					$("#reminder_mail_btn").unbind("click").click(function () {
+						last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
+						$.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+							if(r._res == "1"){
+								alert("Sent successfully!");
+							}else{
+								alert("Send failure!");
+							}
+						});
+					});
+				}else{
+					$("#reminder_mail_date").hide();
+					$("#reminder_mail_btn").hide();
+				}
+			
                 var dlg = new Dialog($("#dlg-students"));
                 dlg.show("Student Information for " + r.training_name);
                 $tbody = $("#dlg-students").find("tbody").empty();

@@ -199,6 +199,7 @@ class PepRegTraining(models.Model):
     date_create = models.DateField(auto_now_add=False, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=False, db_index=False)
+    last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
 
 class PepRegInstructor(models.Model):
     class Meta:
