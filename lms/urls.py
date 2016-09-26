@@ -81,6 +81,7 @@ urlpatterns = (
     url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
+    url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     # === pepreg end ==    
 
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
