@@ -380,7 +380,7 @@
             %if request.user.is_superuser or request.user==discussion.user:
                 <img class = "edit-icon" onclick="editDiscussion()" src="/static/images/pencil_edit.png" alt="Edit Discussion">
             %endif
-            %if request.user.is_superuser or is_facilitator(request.user, discussion.community):
+            %if request.user.is_superuser or is_facilitator(request.user, discussion.community) or request.user==discussion.user:
                 <a class="delete-icon delete-discussion" href="${reverse('community_discussion_delete', args=[discussion.id])}">
                     <img src="/static/images/trash-small.png" alt="Delete Discussion">
                 </a>

@@ -19,7 +19,7 @@ import datetime
 <link rel="stylesheet" type="text/css" href="/static/css/community.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
 <script src="https://apis.google.com/js/platform.js" async defer></script>
-<script>num_r = 0;</script>
+<script>num_c = 0; num_res = 0;</script>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
@@ -103,11 +103,12 @@ import datetime
                 <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
+                        <script>num_c++;</script>
                         <% c=course_from_id(cc.course) %>
                         <%include file="../course.html" args="course=c" />
                     %endfor
                     %for i,r in enumerate(resources):
-                        <script>num_r++;</script>
+                        <script>num_res++;</script>
                         <div class="community-resource">
                             <img src="${get_file_url(r.logo)}" alt="${r.name}" />
                             <a href="${r.link}" target="_blank">
@@ -699,7 +700,6 @@ import datetime
                 $("#disc_loading_image").remove();
             }
             $("#discussion_list").html(data.content);
-            console.log(data.content);
         });
     }
     function getPosts(){
@@ -864,10 +864,9 @@ import datetime
         });
     }
     $(document).ready(function(){
-        if (num_r > 4){
-            num_r -= 4;
-            $("#community-content-area").height(700+(200*num_r));
-        }
+        if((230*num_c) + (180*num_res) > 700)
+            $("#community-content-area").css("height", (230*num_c) + (180*num_res));
+
         size=5;
         discussion_size=5;
         $("#members_view_all").click(function(e){
