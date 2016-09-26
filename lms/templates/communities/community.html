@@ -103,6 +103,7 @@ import datetime
                 <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
+                        <script>num_r++;</script>
                         <% c=course_from_id(cc.course) %>
                         <%include file="../course.html" args="course=c" />
                     %endfor
@@ -699,7 +700,6 @@ import datetime
                 $("#disc_loading_image").remove();
             }
             $("#discussion_list").html(data.content);
-            console.log(data.content);
         });
     }
     function getPosts(){
@@ -866,7 +866,7 @@ import datetime
     $(document).ready(function(){
         if (num_r > 4){
             num_r -= 4;
-            $("#community-content-area").height(700+(200*num_r));
+            $("#community-content-area").css("height", 700+(200*num_r));
         }
         size=5;
         discussion_size=5;
