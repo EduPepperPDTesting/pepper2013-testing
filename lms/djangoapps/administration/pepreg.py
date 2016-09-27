@@ -25,6 +25,7 @@ from django.utils.timezone import datetime, now, timedelta, utc
 from django.utils.translation import ugettext_lazy as _
 from dateutil.relativedelta import relativedelta
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
                             TestCenterRegistration, TestCenterRegistrationForm,
@@ -32,6 +33,19 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
 
+from io import BytesIO
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.platypus import Paragraph, Table
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.lib.utils import simpleSplit
+from reportlab.platypus import Paragraph
+from reportlab.lib.fonts import addMapping
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 @login_required
 def index(request):
@@ -781,6 +795,7 @@ def delete_student(request):
 def download_students_excel(request):
     training_id = request.GET.get("training_id")
     last_date = request.GET.get("last_date")
+    flag_pdf = request.GET.get("pdf")
 
     training = PepRegTraining.objects.get(id=training_id)
 
@@ -800,7 +815,7 @@ def download_students_excel(request):
 
                 param_dict = {};
                 param_dict["training_name"] = training.name;
-                param_dict["training_date"] = training.training_date;
+                param_dict["training_date"] = str('{d:%m-%d-%Y}'.format(d=training.training_date));
                 param_dict["first_name"] = userx.first_name;
                 param_dict["last_name"] = userx.last_name;
                 param_dict["district_name"] = training.district.name;
@@ -825,7 +840,10 @@ def download_students_excel(request):
                 subject = render_to_string(subject_template, param_dict)
                 message = render_to_string(message_template, param_dict)
 
-                _res = send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [userx.email], fail_silently=False)
+                # _res = send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [userx.email], fail_silently=False)
+                msg = EmailMultiAlternatives(subject, message, settings.DEFAULT_FROM_EMAIL, [userx.email])
+                msg.content_subtype = "html"
+                msg.send()
 
             training.last_date = last_date;
             training.save()
@@ -836,6 +854,189 @@ def download_students_excel(request):
 
         name_dict["_res"] = _res;
         return HttpResponse(json.dumps(name_dict), content_type="application/json");
+
+    elif(flag_pdf):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="' + training.name + flag_pdf + '.pdf"'
+
+        buffer = BytesIO()
+
+        c = canvas.Canvas(buffer)
+
+        # ------------------------------------------------------------------------------------logo
+        try:
+            logo = ImageReader("https://" + request.get_host() + '/static/images/pd_pdf2.png')
+        except:
+            logo = ImageReader("http://" + request.get_host() + '/static/images/pd_pdf2.png')
+
+        c.drawImage(logo, 330, 740, 200, 73);
+
+        c.setFont("Helvetica", 20)
+        c.drawString(370, 700, "PD Planner")
+        c.drawString(370, 670, "SignUp")
+
+        c.setFont("Helvetica", 16)
+        c.drawString(50, 625, "Training Name: " + training.name)
+        c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
+        c.drawString(50, 575, "Instructor:")
+
+        instructor_y = 575
+
+        tmp_flag = 0;
+        tmp_names = "";
+        for reg_stu in PepRegInstructor.objects.filter(training_id=training_id):
+            if tmp_flag == 0:
+                tmp_flag += 1;
+                tmp_names = reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
+            elif tmp_flag == 1:
+                tmp_flag += 1;
+                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
+            else:
+                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
+                c.drawString(130, instructor_y, tmp_names)
+                instructor_y = instructor_y + 25;
+
+                tmp_names = "";
+                tmp_flag = 0;
+
+        if not(tmp_names == ""):
+            c.drawString(130, instructor_y, tmp_names)
+
+        c.setFillColor(colors.lawngreen)  # C7,F4,65
+
+        base_table_y = 520;
+        c.rect(10, base_table_y, 80, 30, fill=1)
+        c.rect(90, base_table_y, 80, 30, fill=1)
+        c.rect(170, base_table_y, 130, 30, fill=1)
+        c.rect(300, base_table_y, 150, 30, fill=1)
+        c.rect(450, base_table_y, 70, 30, fill=1)
+        c.rect(520, base_table_y, 60, 30, fill=1)
+
+        c.setStrokeColor(colors.black)
+        c.setFillColor(colors.black)  # C7,F4,65
+        c.setFont("Helvetica", 10)
+
+        c.drawCentredString(50, base_table_y + 10, "First Name")
+        c.drawCentredString(130, base_table_y + 10, "Last Name")
+        c.drawCentredString(235, base_table_y + 10, "Email Address")
+        c.drawCentredString(375, base_table_y + 10, "School Site")
+        c.drawCentredString(485, base_table_y + 10, "Employee ID")
+        c.drawCentredString(550, base_table_y + 10, "Signature")
+
+        # L = simpleSplit(u'simpleSplit drawString drawString', 'Helvetica', 12, 100)
+        # y = 335
+        # for t in L:
+        #     c.drawCentredString(300, y, t)
+        #     y -= c._leading
+        base_font_size = 9;
+        ty = base_table_y - 30;
+        for reg_stu in PepRegStudent.objects.filter(training_id=training_id):
+            c.rect(10, ty, 80, 30, fill=0)
+            c.rect(90, ty, 80, 30, fill=0)
+            c.rect(170, ty, 130, 30, fill=0)
+            c.rect(300, ty, 150, 30, fill=0)
+            c.rect(450, ty, 70, 30, fill=0)
+            c.rect(520, ty, 60, 30, fill=0)
+
+            if (reg_stu.student.first_name):
+                tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 75):
+                    c.drawCentredString(50, ty + 18, reg_stu.student.first_name[0 : len(reg_stu.student.first_name) / 2])
+                    c.drawCentredString(50, ty + 5, reg_stu.student.first_name[len(reg_stu.student.first_name) / 2:])
+                else:
+                    c.drawCentredString(50, ty + 10, reg_stu.student.first_name)
+
+            if (reg_stu.student.last_name):
+                tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 75):
+                    c.drawCentredString(130, ty + 18, reg_stu.student.last_name[0: len(reg_stu.student.last_name) / 2])
+                    c.drawCentredString(130, ty + 5, reg_stu.student.last_name[len(reg_stu.student.last_name) / 2:])
+                else:
+                    c.drawCentredString(130, ty + 10, reg_stu.student.last_name)
+
+            if(reg_stu.student.email):
+                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
+                if(tmp_email_width > 130):
+                    tmp_split = reg_stu.student.email.split("@");
+                    c.drawCentredString(235, ty + 18, tmp_split[0])
+                    c.drawCentredString(235, ty + 5, "@" + tmp_split[1])
+                else:
+                    c.drawCentredString(235, ty + 10, reg_stu.student.email)
+
+            pro = UserProfile.objects.get(user_id=reg_stu.student.id)
+            if(pro):
+                if(pro.school):
+                    tmp_email_width = stringWidth(pro.school.name, "Helvetica", base_font_size)
+                    if (tmp_email_width > 150):
+                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 145)
+                        # L = simpleSplit("Patricia A Bendorf Elementary School", "Helvetica", 10, 145)
+                        line0_str = "";
+                        line1_str = "";
+                        line2_str = "";
+                        line_flag = True;
+                        for t in L:
+                            if line_flag:
+                                line0_str = line0_str + " " + t;
+                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 150):
+                                    line2_str = line2_str + " " + t;
+                                    line_flag = False;
+                                else:
+                                    line1_str = line1_str + " " + t;
+                            else:
+                                line2_str = line2_str + " " + t;
+
+                        c.drawCentredString(375, ty + 18, line1_str)
+                        c.drawCentredString(375, ty + 5, line2_str)
+                    else:
+                        c.drawCentredString(375, ty + 10, pro.school.name)
+
+            ty -= 30;
+
+        c.showPage()
+
+        # c.setFillColor(colors.lawngreen)  # C7,F4,65
+        # base_table_y = 770;
+        # c.rect(10, base_table_y, 80, 30, fill=1)
+        # c.rect(90, base_table_y, 80, 30, fill=1)
+        # c.rect(170, base_table_y, 130, 30, fill=1)
+        # c.rect(300, base_table_y, 120, 30, fill=1)
+        # c.rect(420, base_table_y, 80, 30, fill=1)
+        # c.rect(500, base_table_y, 80, 30, fill=1)
+        #
+        # c.setStrokeColor(colors.black)
+        # c.setFillColor(colors.black)  # C7,F4,65
+        # c.setFont("Helvetica", 12)
+        #
+        # c.drawCentredString(50, base_table_y + 10, "First Name")
+        # c.drawCentredString(130, base_table_y + 10, "Last Name")
+        # c.drawCentredString(235, base_table_y + 10, "Email Address")
+        # c.drawCentredString(360, base_table_y + 10, "School Site")
+        # c.drawCentredString(460, base_table_y + 10, "Employee ID")
+        # c.drawCentredString(540, base_table_y + 10, "Signature")
+        #
+        # for i in range(1, 25):
+        #     ty = base_table_y - i * 30
+        #     c.rect(10, ty, 80, 30, fill=0)
+        #     c.rect(90, ty, 80, 30, fill=0)
+        #     c.rect(170, ty, 130, 30, fill=0)
+        #     c.rect(300, ty, 120, 30, fill=0)
+        #     c.rect(420, ty, 80, 30, fill=0)
+        #     c.rect(500, ty, 80, 30, fill=0)
+        #
+        #     c.drawCentredString(50, ty + 10, "First Name" + str(i))
+        #     c.drawCentredString(130, ty + 10, "Last Name")
+        #     c.drawCentredString(235, ty + 10, "Email Address")
+        #     c.drawCentredString(360, ty + 10, "School Site")
+        #
+        # c.showPage()
+
+        c.save()
+
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response
+
     else:
         students = PepRegStudent.objects.filter(training_id=training_id)
 
@@ -879,3 +1080,48 @@ def download_students_excel(request):
         response.write(output.getvalue())
         return response
 
+def download_students_pdf(request):
+    training_id = request.GET.get("training_id")
+    training = PepRegTraining.objects.get(id=training_id)
+
+    students = PepRegStudent.objects.filter(training_id=training_id)
+
+    output = StringIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+
+    FIELDS = ["email", "status", "attendance", "validation", "credits"]
+    TITLES = ["User", "Status", "Attendance", "Validation", "Credits"]
+
+    for i, k in enumerate(TITLES):
+        worksheet.write(0, i, k)
+
+    row = 1
+
+    for item in students:
+        if training.allow_attendance:
+            attendance = "Y" if (item.student_status == "Validated" or item.student_status == "Attended") else "N"
+        else:
+            attendance = ""
+
+        if training.allow_validation:
+            validation = "Y" if (item.student_status == "Validated") else "N"
+        else:
+            validation = ""
+
+        data_row = {'email': item.student.email,
+                    'status': item.student_status,
+                    'attendance': attendance,
+                    'validation': validation,
+                    'credits': item.student_credit
+                    }
+
+        for i, k in enumerate(FIELDS):
+            worksheet.write(row, i, data_row[k])
+        row = row + 1
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=%s_users.xlsx' % (training.name)
+    workbook.close()
+    response.write(output.getvalue())
+    return response
