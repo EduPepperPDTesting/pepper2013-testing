@@ -6,6 +6,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
+
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -28,8 +29,8 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
-                            TestCenterRegistration, TestCenterRegistrationForm,
-                            PendingNameChange, PendingEmailChange,
+                            TestCenterRegistration, TestCenterRegistrationForm, State,
+                            PendingNameChange, PendingEmailChange, District,
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
 
@@ -51,10 +52,14 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 def index(request):
     # courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     # courses = sorted(courses, key=lambda course: course.display_name.lower())
+    tmp = "administration/pepreg.html";
+    try:
+        courses = get_courses_drop(request.user.profile.district.state.name, request.user.profile.district.code)
+    except:
+        tmp = "administration/pepreg_district_school_null.html";
+        courses = {};
 
-    courses = get_courses_drop(request.user.profile.district.state.name, request.user.profile.district.code)
-
-    return render_to_response('administration/pepreg.html', {"courses": courses})
+    return render_to_response(tmp, {"courses": courses})
 
 
 def build_filters(columns, filters):
