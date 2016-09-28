@@ -253,6 +253,35 @@ echo '-------------------------------------------'
 echo '###########################################'
 
 echo '-------------------------------------------'
+echo 'PD Planner conversion'
+echo '-------------------------------------------'
+
+sync
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+mysql -u$mysql_user -p$mysql_pwd -h$mysql_host -P$mysql_port $mysql_db <<EOF
+select pepreg_training.id,type,district_id,description,subject,pepreg_training.name,pepper_course,training_date,training_time_start,training_time_end,geo_location,classroom,credits,attendancel_id,allow_registration,max_registration,allow_attendance,allow_validation,user_create_id,date_create,state_id,district.name as district from pepreg_training,district where district_id=district.id into outfile '/tmp/pepreg_training.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
+select pepreg_student.training_id,student_id,student_status,instructor_id from pepreg_student left join pepreg_instructor on pepreg_student.training_id=pepreg_instructor.training_id and student_id=instructor_id into outfile '/tmp/pepreg_student.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
+EOF
+
+$mongo3_path/mongo --port=$mongo3_port <<EOF
+use $mongo3_db_reporting
+db.pepreg_training.drop()
+db.pepreg_student.drop()
+EOF
+
+$mongo3_path/mongoimport -d "$mongo3_db_reporting" -c "pepreg_training" --port $mongo3_port -f "training_id,type,district_id,description,subject,name,pepper_course,training_date,training_time_start,training_time_end,geo_location,classroom,credits,attendancel_id,allow_registration,max_registration,allow_attendance,allow_validation,user_create_id,date_create,state_id,district" --type=csv --file=/tmp/pepreg_training.csv
+$mongo3_path/mongoimport -d "$mongo3_db_reporting" -c "pepreg_student" --port $mongo3_port -f "training_id,student_id,student_status,instructor_id" --type=csv --file=/tmp/pepreg_student.csv
+
+sudo rm -f /tmp/pepreg_training.csv;
+sudo rm -f /tmp/pepreg_student.csv;
+
+
+echo '-------------------------------------------'
+echo 'PD Planner conversion is complete!'
+echo '-------------------------------------------'
+#exit 0;
+echo '-------------------------------------------'
 echo 'Course enrollment conversion'
 echo '-------------------------------------------'
 
@@ -474,6 +503,7 @@ load("$DIR/create_superuser_views/user.js");
 load("$DIR/create_superuser_views/course.js");
 load("$DIR/create_superuser_views/user-course.js");
 load("$DIR/create_superuser_views/course-assignments.js");
+load("$DIR/create_superuser_views/pd-planner.js");
 load("$DIR/create_superuser_views/aggregate-timer.js");
 load("$DIR/create_superuser_views/aggregate-grades.js");
 

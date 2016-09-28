@@ -34,7 +34,7 @@ var tablesorterOptions = {
     }
 };
 
-var data_types = ['text', 'int', 'date', 'time', 'url'];
+var data_types = ['text', 'int', 'date', 'time', 'url', 'clk'];
 
 function viewSelect(related_url, columns_url) {
     $('.view-select').change(function () {
@@ -275,6 +275,8 @@ function filterColumns() {
             line += '    <option value="' + v + '">' + v + '</option>';
         });
         line += '</select>';
+        line += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="hidden" name="column_custom_filter[]" value="0">';
+        line += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="checkbox" name="column_custom_filter[]" value="0">';
         line += '<input type="button" value="+" data-name="plus" class="plus" name="plus[]">';
         line += '<input type="button" value="-" data-name="minus" class="minus" name="minus[]">';
         line += '</div>';
@@ -343,12 +345,12 @@ function addView() {
                 content += '</select>';
                 content += '<input type="hidden" data-name="column_id" class="column_id" name="column_id[' + index + ']" value="' + value.id + '">';
                 if (value.custom_filter == 1) {
-                    content += '<input class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0" checked="checked">';
-                    content += '<input class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1" checked="checked">';
+                    content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0" checked="checked">';
+                    content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1" checked="checked">';
                 }
                 else{
-                    content += '<input class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0">';
-                    content += '<input class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1">';
+                    content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="hidden" name="column_custom_filter[' + index + ']" value="0">';
+                    content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="checkbox" name="column_custom_filter[' + index + ']" value="1">';
                 }
                 content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[' + index + ']">';
                 if (index > 0) {
@@ -366,8 +368,8 @@ function addView() {
                 content += '    <option value="' + v + '">' + v + '</option>';
             });
             content += '</select>';
-            content += '<input class="filter-select-columns-check" type="hidden" name="custom_filter_column[0]" value="0">';
-            content += '<input class="filter-select-columns-check" type="checkbox" name="custom_filter_column[0]" value="0">';
+            content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="hidden" name="column_custom_filter[0]" value="0">';
+            content += '<input data-name="column_custom_filter" class="filter-select-columns-check" type="checkbox" name="column_custom_filter[0]" value="0">';
             content += '<input type="button" value="+" data-name="plus" class="plus" name="plus[0]">';
             content += '</div>';
         }

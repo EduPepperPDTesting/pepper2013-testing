@@ -546,11 +546,15 @@ def query_ref_variable(query, request, report, columns, filters):
     distinct = get_query_distinct(report.distinct, columns)
     columns = get_query_display_columns(columns)
     filters = get_query_filters(filters)
+    pd_domain, pd_user_domain = get_query_pd_domain(request.user)
     return query.replace('{user_domain}', domain)\
         .replace('{display_columns}', columns)\
         .replace('{filters}', filters)\
         .replace('{distinct}', distinct)\
-        .replace('{school_year}', school_year)
+        .replace('{school_year}', school_year)\
+        .replace('{pd_domain}', pd_domain)\
+        .replace('{pd_user_domain}', pd_user_domain)\
+        .replace(',,', ',')
 
 
 def get_query_user_domain(user):
@@ -571,6 +575,30 @@ def get_query_user_domain(user):
         elif level == 'School':
             domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
     return domain
+
+def get_query_pd_domain(user):
+    """
+    Get the pd domain (permissions).
+    :param user: The user object.
+    :return: Mongo query
+    """
+    domain = '{"$match":{"district_id":' + str(user.profile.district.id) + '}},'
+    pd_user_domain_tmp = '{"$match":{"$or":[{"#domain#": {"$exists": False}},{"#domain#":#value#}]}},'
+    pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'user_id').replace('#value#', str(user.profile.district.state.id))
+    if check_user_perms(user, 'reporting', ['view', 'administer']):
+        level = check_access_level(user, 'reporting', ['view', 'administer'])
+        if level == 'System':
+            domain = ''
+            pd_user_domain = ''
+        elif level == 'State':
+            domain = '{"$match":{"state_id":' + str(user.profile.district.state.id) + '}},'
+            pd_user_domain = ''
+        elif level == 'District':
+            pd_user_domain = ''
+        elif level == 'School':
+            domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
+            pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'school_id').replace('#value#', str(user.profile.school.id))
+    return domain, pd_user_domain
 
 
 def get_query_display_columns(columns):
