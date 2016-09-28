@@ -824,7 +824,7 @@ def download_students_excel(request):
                 param_dict["first_name"] = userx.first_name;
                 param_dict["last_name"] = userx.last_name;
                 param_dict["district_name"] = training.district.name;
-                param_dict["training_time_start"] = training.training_time_start;
+                param_dict["training_time_start"] = str('{d:%I:%M %p}'.format(d=training.training_time_start)).lstrip('0');
 
                 if training.classroom == "" and training.geo_location == "":
                     param_dict["classroom"] = "";
