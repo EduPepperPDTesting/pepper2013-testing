@@ -69,7 +69,7 @@
 	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
 	
 	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
-	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:130px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
+	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
 	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
 	#calendar-panel .calendar_exp .c1{background-color:#22B14C;}
 	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
@@ -245,13 +245,13 @@
         </div>
         <div style="padding:10px;text-align:right;">
           	<div>
-                <span class="calendar_exp"><span class="calendar_exp_txt">Register for Training: </span><span class="calendar_exp_color c3"></span></span>
-                <span class="calendar_exp"><span class="calendar_exp_txt">Registered Training: </span><span class="calendar_exp_color c2"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">I can register: </span><span class="calendar_exp_color c3"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">I am registered: </span><span class="calendar_exp_color c2"></span></span>
                 <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
             </div>
             <div>
-                <span class="calendar_exp"><span class="calendar_exp_txt">Training Full: </span><span class="calendar_exp_color c5"></span></span>
-                <span class="calendar_exp"><span class="calendar_exp_txt">Attend  Training: </span><span class="calendar_exp_color c4"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
             </div>
         </div>
     </div>
@@ -1317,7 +1317,8 @@
 				//Last Reminder Email: 08/16/2016
 				if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){				
 					$("#reminder_mail_date").show();
-					$("#reminder_mail_btn").show();
+					//$("#reminder_mail_btn").show();
+					$("#reminder_mail_btn").attr("disabled", false);
 					$("#reminder_mail_date").html("");
 
 					if(r.last_date != null && r.last_date != "null")
@@ -1335,7 +1336,8 @@
 					});
 				}else{
 					$("#reminder_mail_date").hide();
-					$("#reminder_mail_btn").hide();
+					$("#reminder_mail_btn").attr("disabled", true);
+					//$("#reminder_mail_btn").hide();
 				}
 			
                 var dlg = new Dialog($("#dlg-students"));

@@ -1,6 +1,6 @@
 Dear ${first_name} ${last_name},
 <br/><br/>
-${district_name} <font style="font-weight: bold">${training_name}</font> is coming up on ${training_date} at ${training_time_start}.
+${district_name} <font style="font-weight: bold">${training_name}</font> PD event is coming up on ${training_date} at ${training_time_start}.
 <br/><br/>
 The location of the training is ${classroom}${geo_location}.
 <br/><br/>
