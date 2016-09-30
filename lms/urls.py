@@ -65,6 +65,8 @@ urlpatterns = (
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
     url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
+    url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
+    url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
@@ -72,6 +74,7 @@ urlpatterns = (
     url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
+    url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     # === pepreg end ==    
 
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),

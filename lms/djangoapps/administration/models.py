@@ -196,6 +196,7 @@ class PepRegTraining(models.Model):
     date_create = models.DateField(auto_now_add=False, db_index=False)
     user_modify = models.ForeignKey(User, related_name='+')
     date_modify = models.DateField(auto_now_add=False, db_index=False)
+    last_date = models.DateField(auto_now_add=False, db_index=False, null=True)
 
 
 class PepRegInstructor(models.Model):
@@ -205,6 +206,8 @@ class PepRegInstructor(models.Model):
     instructor = models.ForeignKey(User, related_name='+')
     user_create = models.ForeignKey(User, related_name='+')
     date_create = models.DateField(auto_now_add=True, db_index=False)
+    all_edit = models.BooleanField(blank=False, default=0)
+    all_delete = models.BooleanField(blank=False, default=0)
 
 
 class PepRegStudent(models.Model):
