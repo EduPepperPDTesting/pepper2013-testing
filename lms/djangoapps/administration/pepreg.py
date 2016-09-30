@@ -28,8 +28,8 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
 from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
-                            TestCenterRegistration, TestCenterRegistrationForm,
-                            PendingNameChange, PendingEmailChange,
+                            TestCenterRegistration, TestCenterRegistrationForm, State,
+                            PendingNameChange, PendingEmailChange, District,
                             CourseEnrollment, unique_id_for_user,
                             get_testcenter_registration, CourseEnrollmentAllowed)
 
@@ -311,7 +311,7 @@ def save_training(request):
         
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
-            for email in request.POST.get("instructor_emails", "").split(","):
+            for emails in request.POST.get("instructor_emails", "").split(","):
                 tmp1 = emails.split("::");
                 email = tmp1[0];
                 all_edit = True if tmp1[1] == "1" else False;
