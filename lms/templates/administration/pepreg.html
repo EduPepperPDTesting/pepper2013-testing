@@ -495,7 +495,7 @@
 
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
-		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, catype: $("#calendar_select_categories").val()}, function(data){
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){
 			$("#calendar-panel").dialog("open");
 			$(".calendar-tr-tmp").remove();
 			$("#calendar-panel").dialog({title: data.title});
@@ -511,6 +511,9 @@
 		_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
+		
+		_sys_calendar_year_now = _calendar_date.getFullYear();
+		_sys_calendar_month_now = _calendar_date.getMonth() + 1;
 		
 		//-----------------------------------------------getCalendarInfo
 		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	

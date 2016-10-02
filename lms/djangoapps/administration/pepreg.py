@@ -350,6 +350,8 @@ def getCalendarMonth(request):
 
     _year = request.GET.get('year');
     _month = request.GET.get('month');
+    _year_n = request.GET.get('year_n');
+    _month_n = request.GET.get('month_n');
     _day = request.GET.get('day');
     _catype = request.GET.get('catype');
 
@@ -358,6 +360,12 @@ def getCalendarMonth(request):
 
     if (_month):
         _month = int(_month);
+
+    if (_year_n):
+        _year_n = int(_year_n);
+
+    if (_month_n):
+        _month_n = int(_month_n);
 
     if (_day):
         _day = int(_day);
@@ -397,7 +405,7 @@ def getCalendarMonth(request):
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
 
-    current_day = datetime(year=_year, month=_month, day=_day, tzinfo=utc)  # 2016-08-01
+    current_day = datetime(year=_year_n, month=_month_n, day=_day, tzinfo=utc)  # 2016-08-01
 
     for day in cal.itermonthdays(_year, _month):
         current = False;
