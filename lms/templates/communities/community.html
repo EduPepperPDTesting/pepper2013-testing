@@ -724,7 +724,7 @@ import datetime
                 $("#focus"+id).focus();
             });
             $(".post-share-text").click(function(){
-                content = $(this).data('content');
+                content = $(this).data('content').replace(/(<([^>]+)>)/ig,"");
                 community = $(this).data('community');
                 poster = $(this).data("poster");
                 type= $(this).data("type");
