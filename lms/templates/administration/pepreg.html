@@ -129,8 +129,7 @@
                 </select>
                 <input type="" name="" value="" class="search" data-column="3" autocomplete="off"
                        style="display:none;"/>
-                       
-               	%if check_user_perms(request.user, 'pepreg'):
+                %if check_user_perms(request.user, 'pepreg'):
                     <div class="imgBtn imgBtn_add_new" onclick="return pepreg.addTraining();" style="float:right;">
                         <a href="#">
                             <div class="icon"></div>
@@ -213,7 +212,16 @@
         </div>
     </div>
 </div>
-
+<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"
+             style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+    </div>
+</div>
 <div class="modal" id="calendar-panel" style="width:1000px;margin-left:-500px;border-radius:0;">
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
@@ -232,10 +240,10 @@
             <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
                 <option value="0" selected="selected">All Categories</option>
                 <option value="1">Attended Training</option>
-                <option value="2">Register for Training</option>
-                <option value="3">Registered for Training</option>
-                <option value="4">Attend Training</option>
-                <option value="5">Training Full</option>
+                <option value="3">I am registered</option>
+                <option value="2">I can register</option>
+                <option value="4">Training not yet open</option>
+                <option value="5">No More Spots!</option>
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
@@ -300,7 +308,7 @@
             </table>
         </div>
         <div style="padding:10px;text-align:right;">
-        	<img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
+            <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
         	<span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
 	        <input type="button" name="" value="Reminder Email" class="small" id="reminder_mail_btn" />
             <input type="button" name="" value="Download Excel" class="small download-students-excel" />
@@ -434,10 +442,6 @@
                             <input type="" name="geo_location" value="" style="width:400px"
                                    placeholder="Type in address and select location as it appears"/>
                         </div>
-                        <!--<div class="form-row">
-                          <span class="label" style="width:220px">Please Select Destination Address:</span>
-                          <input type="" name="geo_destination" value="" style="width:400px" placeholder="Type in address and select location as it appears"/>
-                        </div>-->
                         <div id="map_edit" name="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
                         <input type="hidden" name="geo_props" value="" style="width:400px"/>
                     </div>
@@ -751,7 +755,7 @@
 		});
 	});	
 	
-    var map_show = null, map_show_directions = null, flag_input_js_origin = true;
+	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);
         var meridian = apart.pop();
@@ -767,10 +771,8 @@
         var self = this;
         this.$content = $content;
         this.initContent();
-
         // *** maps ***
         var url_tile_layer = "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoicGVwcGVybWFwcGluZyIsImEiOiJjaW81MDd6azUwMXFldmlrajdjaHE2ZGh3In0.9X-2aWqWodZQzkIdth-mVA";
-
         this.map_edit = L.map('map_edit');
         L.tileLayer(url_tile_layer, {
             trackResize: true,
@@ -778,7 +780,7 @@
             attribution: '',
             id: 'mapbox.streets'
         }).addTo(this.map_edit);
-        // ***map_show***
+         // ***map_show***
         mapboxgl.accessToken = 'pk.eyJ1IjoibHBmbmV0IiwiYSI6ImNpcGJ3cWQ0bTAwMjd1OGtzMGR1anNhd2oifQ.6n9PlfAlSPNmGwGYPxaWgQ';
         map_show = new mapboxgl.Map({
             container: 'map_show',
@@ -790,12 +792,12 @@
         });
         map_show.addControl(map_show_directions);	//控件
         map_show.addControl(new mapboxgl.Navigation({position: 'bottom-left'}));
-
-        /*this.map_show = L.map('map_show');
+		
+		/*this.map_show = L.map('map_show');
         L.tileLayer(url_tile_layer, {
-          maxZoom: 18,
-          attribution: '',
-          id: 'mapbox.streets'
+            maxZoom: 18,
+            attribution: '',
+            id: 'mapbox.streets'
         }).addTo(this.map_show);*/
     }
     PepReg.prototype.initContent = function () {
@@ -925,7 +927,7 @@
                 return ["max_registration", "Please input a valid Maximum Registration Cap"];
             }
         }
-    };   
+    };
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -979,18 +981,17 @@
             },
             source: function (request, response) {
                 $.getJSON('https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1',
-					{q: $('input[name=geo_location]').val()}, function (r) {
-						var data = [];
-						hits = r;
-						$.each(r, function (i, v) {
-							data.push(v.display_name);
-							hits[v.display_name] = v;
-						});
-						response(data);
-					});
+                        {q: $('input[name=geo_location]').val()}, function (r) {
+                            var data = [];
+                            hits = r;
+                            $.each(r, function (i, v) {
+                                data.push(v.display_name);
+                                hits[v.display_name] = v;
+                            });
+                            response(data);
+                        });
             }
-        });		
-				
+        });
         // ************* input instructors
         $(".btn-add-instructor").unbind("click").bind("click", function () {
             var email = $("#complete-email").val();
@@ -1120,7 +1121,6 @@
         } else {
             this.showPlace(this.map_edit, state);
         }
-		
         $.each(data, function (k, v) {
             var $entry = $("#dlg-add-training").find("*[name=" + k + "]");
             if ($entry.prop("tagName") == "INPUT" && ($entry.attr("type") == "radio" || $entry.attr("type") == "checkbox")) {
@@ -1521,7 +1521,7 @@
                     $(this).find('span.geo_location').css("color", "#1d9dd9");
                     $(this).css("cursor", "pointer");
                     $(this).click(function () {
-                        window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
+						window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
                     });
                 }
             });
@@ -1650,7 +1650,7 @@
                 // instructors
                 $(this).find("td:nth-child(13)").each(function () {
                   $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
-                });              
+                });  
             });
         });
     };
@@ -1686,20 +1686,9 @@
         $(".expand_title").click();
         $(".print-map").click(function (e) {
             e.preventDefault();
-            /* var training_id = $(this).parent().find("input[name=training_id]").val();
-             var origin = escape($("#map_show").find("input:first").val());
-             var zoom = map_show.getZoom();
-             var center = map_show.getCenter();
-             window.open('${reverse('pepreg_map')}' + "?training_id="+training_id + "&origin=" + origin + "&zoom=" + zoom + "&lng=" + center.lng + "&lat=" + center.lat, '_blank');*/
-            /* var w = window.open();
-               var content = $('#map_show').html();
-               w.document.write('<html><head><title>Copy Printed</title></head><body>' + content  + '</body></html>');
-               // w.window.print();
-               w.document.close(); */
             return false;
         });
     });
-
 </script>
 <script type="text/javascript">
     $.datepicker.setDefaults({
