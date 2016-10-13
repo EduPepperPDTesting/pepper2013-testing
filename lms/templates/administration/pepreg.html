@@ -480,6 +480,8 @@
                                   style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
                             <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+                            <label><input type="checkbox" id="math_credits" value="true"/> Update from time</label>
+
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
@@ -501,7 +503,7 @@
                         <div class="form-row">
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
-                            <input type="" name="attendancel_id" value=""/>
+                            <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
@@ -750,6 +752,52 @@
 			_calendar_picker_day = _sys_calendar_day;
 			setPickerValue();
 			calendarOpen();
+		});
+		
+		//-----------------------------------------------
+		$("#math_credits").click(function(){
+			if($(this).attr("checked") == "checked"){
+				var t1 = $("input[name='training_time_start']").val();
+				var t2 = $("input[name='training_time_end']").val();
+				var math_val = 0;
+				if(t1 != "" && t2 != ""){
+					t1_h = 0;
+					t1_m = 0;
+					t2_h = 0;
+					t2_m = 0;
+					t1_flag = false;
+					t2_flag = false;
+					if(t1.indexOf("PM") > 0)	t1_flag = true;
+					if(t2.indexOf("PM") > 0)	t2_flag = true;
+					
+					t1 = t1.replace(" AM", "").replace(" PM", "");
+					t2 = t2.replace(" AM", "").replace(" PM", "");
+					t1_arr = t1.split(":");
+					t1_h = Number(t1_arr[0]);
+					t1_m = Number(t1_arr[1]);
+					t2_arr = t2.split(":");
+					t2_h = Number(t2_arr[0]);
+					t2_m = Number(t2_arr[1]);
+					if(t1_flag)	t1_h += 12;
+					if(t2_flag)	t2_h += 12;
+					
+					var h = t2_h - t1_h;
+					var m = t2_m - t1_m;
+					if(m < 0){
+						m += 60;
+						h -= 1;
+					}
+					m = Number((m / 60).toFixed(1));
+					math_val = h + m;
+				}
+				
+				$("#math_credits").attr("bak_val", $("input[name='credits']").val());
+				$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
+				$("input[name='credits']").val(math_val);
+			}else{
+				$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+				$("input[name='credits']").val($(this).attr("bak_val"));
+			}
 		});
 	});	
 	
@@ -1176,6 +1224,9 @@
 				$(".training_date_icon").show();
 			}
 			
+			$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+			$("#math_credits").removeAttr("checked");
+			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
@@ -1206,6 +1257,9 @@
 		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 		$(".training_date_icon").show();
 		
+		$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+		$("#math_credits").removeAttr("checked");
+			
         var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
             // submit
             if (einfo = self.validateAllPage(data)) {
@@ -1688,8 +1742,9 @@
         });
     });
 </script>
+
 <script type="text/javascript">
-    $.datepicker.setDefaults({
+	$.datepicker.setDefaults({
         showButtonPanel: true,
         closeText: 'Clear',
         currentText: 'Today',
@@ -1723,8 +1778,7 @@
             minDate: lock_past ? 0 : new Date("1999-9-9")
         });
     });
-</script>
-<script type="text/javascript">
+	
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
     $(document).ready(function () {
         $('.columnSelectorButton').click(function (e) {
