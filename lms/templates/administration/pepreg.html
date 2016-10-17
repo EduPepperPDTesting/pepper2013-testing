@@ -489,9 +489,9 @@
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">
-                <i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
-              </span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
+                              	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
+                            </span>
                             <input type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
@@ -667,7 +667,52 @@
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
 	}
 	
+	function mathCreditsChecked(){
+		var t1 = $("input[name='training_time_start']").val();
+		var t2 = $("input[name='training_time_end']").val();
+		var math_val = 0;
+		if(t1 != "" && t2 != ""){
+			t1_h = 0;
+			t1_m = 0;
+			t2_h = 0;
+			t2_m = 0;
+			t1_flag = false;
+			t2_flag = false;
+			if(t1.indexOf("PM") > 0)	t1_flag = true;
+			if(t2.indexOf("PM") > 0)	t2_flag = true;
+			
+			t1 = t1.replace(" AM", "").replace(" PM", "");
+			t2 = t2.replace(" AM", "").replace(" PM", "");
+			t1_arr = t1.split(":");
+			t1_h = Number(t1_arr[0]);
+			t1_m = Number(t1_arr[1]);
+			t2_arr = t2.split(":");
+			t2_h = Number(t2_arr[0]);
+			t2_m = Number(t2_arr[1]);
+			if(t1_flag)	t1_h += 12;
+			if(t2_flag)	t2_h += 12;
+			
+			var h = t2_h - t1_h;
+			var m = t2_m - t1_m;
+			if(m < 0){
+				m += 60;
+				h -= 1;
+			}
+			m = Number((m / 60).toFixed(1));
+			math_val = h + m;
+		}
+		
+		$("#math_credits").attr("bak_val", $("input[name='credits']").val());
+		$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
+		$("input[name='credits']").val(math_val);
+	}
+	
 	$(function(){
+		//$("input[name='training_time_start']").change(function(){
+			//alert($(this).val());
+		//});
+		
+		//---------------------------------------
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
@@ -757,43 +802,7 @@
 		//-----------------------------------------------
 		$("#math_credits").click(function(){
 			if($(this).attr("checked") == "checked"){
-				var t1 = $("input[name='training_time_start']").val();
-				var t2 = $("input[name='training_time_end']").val();
-				var math_val = 0;
-				if(t1 != "" && t2 != ""){
-					t1_h = 0;
-					t1_m = 0;
-					t2_h = 0;
-					t2_m = 0;
-					t1_flag = false;
-					t2_flag = false;
-					if(t1.indexOf("PM") > 0)	t1_flag = true;
-					if(t2.indexOf("PM") > 0)	t2_flag = true;
-					
-					t1 = t1.replace(" AM", "").replace(" PM", "");
-					t2 = t2.replace(" AM", "").replace(" PM", "");
-					t1_arr = t1.split(":");
-					t1_h = Number(t1_arr[0]);
-					t1_m = Number(t1_arr[1]);
-					t2_arr = t2.split(":");
-					t2_h = Number(t2_arr[0]);
-					t2_m = Number(t2_arr[1]);
-					if(t1_flag)	t1_h += 12;
-					if(t2_flag)	t2_h += 12;
-					
-					var h = t2_h - t1_h;
-					var m = t2_m - t1_m;
-					if(m < 0){
-						m += 60;
-						h -= 1;
-					}
-					m = Number((m / 60).toFixed(1));
-					math_val = h + m;
-				}
-				
-				$("#math_credits").attr("bak_val", $("input[name='credits']").val());
-				$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
-				$("input[name='credits']").val(math_val);
+				mathCreditsChecked();
 			}else{
 				$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
 				$("input[name='credits']").val($(this).attr("bak_val"));
@@ -1002,7 +1011,12 @@
                     $("input[name=attendancel_id]").parents(".form-row").show();
                     $("input[name=credits]").parents(".form-row").show();
                 }
-            }
+            }else if(curr == 2){
+				if($("#math_credits").attr("checked") == "checked"){
+					mathCreditsChecked();
+				}
+			}
+			
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
         };
         // ************* when finish form
@@ -1780,7 +1794,9 @@
     });
 	
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-    $(document).ready(function () {
+	
+    $(document).ready(function () {		
+		//---------------------------------------
         $('.columnSelectorButton').click(function (e) {
             if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
                 $('.columnSelector').show();
