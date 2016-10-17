@@ -2236,3 +2236,7 @@ def get_pepper_stats(request):
         'total_course_times':total_course_times
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
+
+#test for new style of dashboard
+def newdashboard(request):
+    return render_to_response('newdashboard.html', {})

@@ -1,0 +1,278 @@
+<%!
+    from django.core.urlresolvers import reverse
+%>
+
+
+<style>
+.header-global{
+	width: 100%;
+	height:77px;
+	border:0px solid;
+}
+#page-nav{
+	margin: 0 auto;
+	width: 1180px;
+	height: 76px;
+	background-color:#c5e0b4; 
+	border:0px solid;
+}
+.logo{
+	float:left;
+	padding-top: 7px;
+	padding-left:15px; 
+}
+.searching{
+	display: inline-block;
+	width: 300px;
+	height:30px;
+	border:2px solid #41719c;
+	float: left;
+	margin-top: 22px;
+	margin-left:20px;
+	border-radius: 5px;
+	background-color:#fff; 
+
+	
+}
+.searching i{
+	color:#818181;
+	font-size: 13px;
+	margin-left:5px;
+	font-family: "Arial" !important;
+}
+.nav-global{
+	float:left;
+	margin-top:13px; 
+	margin-left:40px;
+}
+.nav-global li{
+	display: inline-block;
+	padding-right: 10px;
+}
+.nav-global li img{
+	width: 50px;
+	height:50px;
+}
+.nav-global a{
+	cursor: pointer;
+}
+
+.user-info{
+	float: right;
+	margin-top: 6px;
+	margin-right: 10px;
+	height: 60px;
+} 
+/*--------------------------------*/
+.content-wrapper{
+	width: 100%;
+	margin: 0 auto;
+	display: block;
+
+
+	border: 0px solid;
+}
+.container{
+    margin: 0 auto;
+    max-width: 1180px;
+    min-width: 760px;
+    width: 100%;
+
+    border:0px solid;
+}
+.dashboard{
+	margin-top: 25px;
+}
+
+.dashboard .my-courses{
+	display: block;
+	float:left;
+	width:275px;
+	margin-right: 10px;
+
+	border: 0px solid #f00;
+}
+.title{
+	font-size: 20px;
+	color: #7f7f7f;
+	font-family: "Arial" !important;
+	font-weight: bold;
+
+}
+
+.dashboard .main-content{
+	display: block;
+	float:left;
+	width:610px;
+	margin-right: 10px;
+
+	/*height:600px;*/
+	border-bottom: 1px solid #3891e0;
+}
+.dashboard .main-content div{
+	margin-bottom: 25px;
+}
+
+.dashboard .community{
+	display: block;
+	float:right;
+	width:275px;
+
+	border: 0px solid #f00;
+}
+.dashboard .community td{
+	text-align: right;
+}
+.comment-info{
+	font-size: 18px;
+	color: #b4b4b4;
+	font-family: "Arial" !important;
+	margin-bottom: 15px;
+}
+
+.seemore td{
+	font-family: "Arial" !important;
+	font-size: 16px;
+	color: #0070d5;
+}
+#searching-text{
+	border:0;
+	height:25px;
+	width: 255px;
+	margin-left: 5px;
+	outline: none;
+
+	color:#818181;
+	font-size: 15px;
+	font-family: "Arial" !important;
+	font-style:italic;
+}
+/*
+#searching-text:focus{
+	border:0;
+}
+*/
+</style>
+
+<header class="header-global">
+	<nav id="page-nav">
+		<a class="logo" href="/newdashboard"><img src="static/images/newdashboard/header-logo.png"/></a>
+		<div class="searching">
+			<table border="0" width="100%" height="100%">
+				<tr>
+					<td><input id="searching-text" type="text" placeholder="Search Pepper"/></td>
+					<td width="20"><img src="static/images/newdashboard/search.png" width="20" style="margin-right:5px;cursor:pointer;"/></td>
+				</tr>
+			</table>
+			
+		</div>
+		<ol class="nav-global">
+			<li><a href="#"><img src="static/images/newdashboard/cal_icon3_54_1289.png"/></a></li>
+			<li><a href="#"><img src="static/images/newdashboard/call-report-icon-3.png"/></a></li>
+			<li><a href="#"><img src="static/images/newdashboard/chat-active.png"/></a></li>
+			<li><a href="${reverse('people')}"><img src="static/images/newdashboard/1-06-512.png"/></a></li>
+			<li><a href="http://www.pepperpcg.blogspot.com"><img src="static/images/newdashboard/blog_icon.png"/></a></li>
+		</ol>
+
+		<table class="user-info" border="0">
+			<tr>
+				<td width="55"><img src="static/images/newdashboard/temp/39.jpg" style="width:45px;height:45px;"/></td>
+				<td><img src="static/images/newdashboard/temp/username.png"/></td>
+			</tr>
+		</table>
+	</nav>
+</header>
+
+<section class="content-wrapper">
+	<section class="container dashboard">
+		<!--width 275 + 10 + 610 + 10 + 275 = 1180-->
+		<section class="my-courses">
+			<div class="title">My Course & Workshops</div>
+			<table width="100%" border="0">
+				<tr>
+					<td rowspan="2" scope="col" width="210" height="220">
+						<img src="static/images/newdashboard/temp/aa1.png"/>
+					</td>
+					<td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+				</tr>
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+				</tr>
+			</table>
+			<table width="100%" border="0">
+				<tr>
+					<td rowspan="2" scope="col" width="210" height="220">
+						<img src="static/images/newdashboard/temp/aa2.png"/>
+					</td>
+					<td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+				</tr>
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+				</tr>
+			</table>
+			<table class="seemore" width="210" height="50" border="0">
+				<tr>
+					<td>See More</td>
+					<td align="right">+ Content</td>
+				</tr>
+			</table>
+		</section>
+
+		<section class="main-content">
+			<div>
+				<img src="static/images/newdashboard/temp/c1.png"/ width="610">
+			</div>
+			<div>
+				<img src="static/images/newdashboard/temp/c2.png"/ width="610">
+			</div>
+			<div>
+				<img src="static/images/newdashboard/temp/c3.png"/ width="610">
+			</div>
+			<table class="comment-info" width="100%" border="0">
+				<tr>
+					<td><img src="static/images/newdashboard/hand-cursor-xxl.png" width="30" /></td>
+					<td>Like</td>
+					<td>&nbsp;</td>
+					<td><img src="static/images/newdashboard/Comment-512.png" width="35" /></td>
+					<td>Comment</td>
+					<td><i>21 Likes</i></td>
+					<td><i>14 Comments</i></td>
+				</tr>
+			</table>
+		</section>
+
+		<section class="community">
+			<div class="title" style="text-align:right">Coaching & Collaboration</div>
+			<table width="100%" border="0">
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+					<td rowspan="2" scope="col" width="210" height="220">
+						<img src="static/images/newdashboard/temp/bb1.png"/>
+					</td>
+				</tr>
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+				</tr>
+			</table>
+			<table width="100%" border="0">
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+					<td rowspan="2" scope="col" width="210" height="220">
+						<img src="static/images/newdashboard/temp/bb1.png"/>
+					</td>
+				</tr>
+				<tr>
+					<td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+				</tr>
+			</table>
+			<table class="seemore" width="100%" height="50" border="0">
+				<tr>
+					<td width="65"></td>
+					<td style="text-align:left;">See More</td>
+					<td>+ Content</td>
+				</tr>
+			</table>
+		</section>
+		<div style="clear:both;"></div>
+	</section>
+</section>
