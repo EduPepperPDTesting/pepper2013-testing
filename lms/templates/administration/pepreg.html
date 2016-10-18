@@ -479,7 +479,8 @@
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
-                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
+                            Time Credit will be automatically calculated from clock settings"></span>
                             <label><input type="checkbox" id="math_credits" value="true"/> Update from time</label>
 
                         </div>
@@ -689,8 +690,8 @@
 			t2_arr = t2.split(":");
 			t2_h = Number(t2_arr[0]);
 			t2_m = Number(t2_arr[1]);
-			if(t1_flag)	t1_h += 12;
-			if(t2_flag)	t2_h += 12;
+			if(t1_flag && t1_h != 12)	t1_h += 12;
+			if(t2_flag && t2_h != 12)	t2_h += 12;
 			
 			var h = t2_h - t1_h;
 			var m = t2_m - t1_m;
