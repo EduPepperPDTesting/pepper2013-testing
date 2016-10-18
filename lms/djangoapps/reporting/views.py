@@ -382,7 +382,8 @@ def report_view(request, report_id):
             allowed = True
         elif report.access_level == 'School' and request.user.profile.school.id == report.access_id:
             allowed = True
-
+        elif request.user.is_superuser:
+            allowed = True
         if allowed:
             rs = reporting_store()
             collection = get_cache_collection(request)
