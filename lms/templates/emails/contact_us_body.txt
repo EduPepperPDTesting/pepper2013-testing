@@ -2,5 +2,6 @@ Your Email: ${email}<br/>
 Full Name: ${fullname}<br/>
 District/LEA: ${district_lea}<br/>
 Phone: ${phone}<br/>
-Inquiry Type: ${inquiry_type}<br/>  
+Inquiry Type: ${inquiry_type}<br/>
+Content Collection Interested in: ${content_collection}<br/>   
 Message: ${message} 

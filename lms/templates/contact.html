@@ -116,9 +116,9 @@ span.red{
             <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;width:490px;"> </div>
             <form method="" id="form" action="">
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                <table class="connect_us_table _body_content_font" width="500" border="0" cellpadding="0" cellspacing="0">
+                <table class="connect_us_table _body_content_font" width="520" border="0" cellpadding="0" cellspacing="0">
                 	<tr>
-                		<td width="120">Your Email: <span class="red">*</span></td>
+                		<td width="140">Your Email: <span class="red">*</span></td>
                 		<td><input class="connect_input" name="email" size="60" chkType="Email" chkMsg="Email is invalid."></td>
                 	</tr>
                 	<tr>
@@ -146,6 +146,18 @@ span.red{
                 			</select>
                 		</td>
                 	</tr>
+                    <tr>
+                        <td>Content Collection Interested In?: </td>
+                        <td>
+                            <select class="connect_us_select" name="content_collection" >
+                                <option value="" selected="selected">- Select -</option>
+                                <option>CHADD</option>
+                                <option>Common Sense Media</option>
+                                <option>Digital Citizenship</option>
+                                <option>Other</option>
+                            </select>
+                        </td>
+                    </tr>
                 	<tr>
                 		<td>Message: <span class="red"> *</span></td>
                 		<td><textarea name="message" style="width:361px; height:150px;" class="connect_us_textarea" chkType="Require" chkMsg="Message is required."></textarea></td>
@@ -248,13 +260,14 @@ form.submit(function(){
         return false;
     }
     this.submit.disabled=true;
-    var flds=["email","fullname","district_lea","phone","inquiry_type","message","csrfmiddlewaretoken"];
+    var flds=["email","fullname","district_lea","phone","inquiry_type","content_collection","message","csrfmiddlewaretoken"];
     var data=easy.form.getFormData(this,flds);
     data['send_by_js']='true'
     if(!data['message']){
         alert("Can't send form, please contact us. ")
     }
     $("#message").html("Submiting..");
+
     $.post('${reverse("contact_us_submit")}',data,
     function(r) {
         if((typeof r) == 'string') r = $.parseJSON(r);
