@@ -25,6 +25,7 @@ import urllib2
 # import multiprocessing
 from multiprocessing import Process, Queue, Pipe
 from django.core.validators import validate_email, validate_slug, ValidationError
+from administration.models import CustomEmail
 
 import gevent
 from django import db
@@ -1507,6 +1508,22 @@ def do_send_registration_email(task, user_ids, request):
                        settings.SUPPORT_EMAIL, [request.user.email], attach)
 
         output.close()
+
+
+def get_custom_email(request):
+    email = CustomEmail.objects.get(id=request.POST.get("id"))
+    return HttpResponse(json.dumps({'success': True, 'message': email.email_content}), content_type="application/json")
+
+
+def save_custom_email(request):
+    save = CustomEmail()
+    save.email_content = request.POST.get('message')
+    save.user = request.user
+    save.name = request.POST.get('name')
+    if(request.POST.get('district')):
+        save.district = request.user.profile.district
+    save.save()
+    return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
 
 
 def registration_email_progress(request):

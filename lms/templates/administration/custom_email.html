@@ -1,3 +1,6 @@
+<%!
+  from administration.models import CustomEmail
+%>
 <%page args="subject_to_edit=None,email_to_edit=None,ck_name=''" />
 
 <div class="custom-email">
@@ -27,7 +30,12 @@
   </div> 
   <label style="cursor:normal !important;">
     Subject:<br />
-    <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/>
+    <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/><span style="margin-top: -61px; margin-left: 57px;">Saved Email:
+    <select id = 'custom_email_name'>
+    %for i in CustomEmail.objects.filter(user=request.user, district=request.user.profile.district).order_by('name'):
+        <option id="${i.id}">${i.name}</option>
+    %endfor
+    </select></span>
   </label>
   <label style="cursor:normal !important;">
     <br />Custom Email:<br />

@@ -8,6 +8,7 @@ from certificates.models import CertificateStatuses
 from xmodule.modulestore import MONGO_MODULESTORE_TYPE
 from xmodule.modulestore.django import modulestore
 import json
+from administration.models import CustomEmail
 from student.models import State,District,School,Cohort,User,UserProfile
 %>
 
@@ -195,6 +196,7 @@ f.close()
           <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
         </ul>
         <div style="padding:7px;">
+            <span style="float: right;margin-right: 525px;margin-top: -8px;"> <button id = "save_email">Save Email</button> </span>
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
             <label style="font-style:normal;color:#555;cursor:default;">
@@ -817,6 +819,27 @@ $("#singleUserImportForm").submit(function () {
 });
 
 $(document).ready(function () {
+    $("#custom_email_name").change(function(e){
+        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
+            CKEDITOR.instances.custom_email_001.setData(data.message);
+        });
+    });
+    $("#save_email").click(function(e){
+        e.preventDefault();
+        html = "<label>Save Name: </label><input type='text' id='email_name'></input><br><br>";
+        html += "User: <input type='checkbox' id ='user_only'></input><br>District and User: <input type='checkbox' id ='dandu'></input><br><br>"
+        html += "<button id='save_email_post'>Save</button><br><span id='save_email_message'></span>";
+
+        new Dialog($('#dialog')).show("Custom Email", html);
+        $("#save_email_post").click(function(e){
+            e.preventDefault();
+            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name").val(),"message":CKEDITOR.instances.custom_email_001.getData(), "user":$("#user_only").is(":checked"), "district":$("#dandu").is(":checked")}, function (r) {
+                $("#save_email_message").css("color", "green");
+                $("#save_email_message").html("<br>Successfully saved message.");
+            });
+        });
+    });
+
     $(".table-section").hide();
     $(".district_table-section").show();
     $("#selectalldistrict").click(function () {
@@ -1120,6 +1143,8 @@ function openBookmark(table) {
     });
 
 }
+
+
 function saveBookmark(table) {
     var nameData = $("#bookmark_newname_" + table).val();
     var state = $("#" + table + "_state_select :selected").attr("id");

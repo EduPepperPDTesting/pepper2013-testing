@@ -41,6 +41,14 @@ class EmailTask(models.Model):
     user = models.ForeignKey(User, default=0)
 
 
+class CustomEmail(models.Model):
+    class Meta:
+        db_table = 'admin_custom_emails'
+    email_content = models.TextField(blank=False, null=True)
+    name = models.CharField(blank=False, max_length=30, null=False)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
+    district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None)
+
 class EmailTaskLog(models.Model):
     class Meta:
         db_table = 'admin_email_task_log'
