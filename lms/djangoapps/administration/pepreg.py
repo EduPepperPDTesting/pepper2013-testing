@@ -907,6 +907,7 @@ def download_students_excel(request):
         if not(tmp_names == ""):
             c.drawString(130, instructor_y, tmp_names)
 
+        # ------------------------------------------------------------------------------------head
         c.setFillColor(colors.lawngreen)  # C7,F4,65
 
         base_table_y = 520;
@@ -928,14 +929,15 @@ def download_students_excel(request):
         c.drawCentredString(485, base_table_y + 10, "Employee ID")
         c.drawCentredString(550, base_table_y + 10, "Signature")
 
-        # L = simpleSplit(u'simpleSplit drawString drawString', 'Helvetica', 12, 100)
-        # y = 335
-        # for t in L:
-        #     c.drawCentredString(300, y, t)
-        #     y -= c._leading
+        # ------------------------------------------------------------------------------------tr
         base_font_size = 9;
         ty = base_table_y - 30;
-        for reg_stu in PepRegStudent.objects.filter(training_id=training_id):
+        student_index = 0;
+        pdf_first_flag = True;
+        studentList = PepRegStudent.objects.filter(training_id=training_id);
+        lastpos = len(studentList) - 1;
+
+        for reg_stu in studentList:
             c.rect(10, ty, 80, 30, fill=0)
             c.rect(90, ty, 80, 30, fill=0)
             c.rect(170, ty, 130, 30, fill=0)
@@ -969,12 +971,12 @@ def download_students_excel(request):
                     c.drawCentredString(235, ty + 10, reg_stu.student.email)
 
             pro = UserProfile.objects.get(user_id=reg_stu.student.id)
+
             if(pro):
                 if(pro.school):
                     tmp_email_width = stringWidth(pro.school.name, "Helvetica", base_font_size)
                     if (tmp_email_width > 150):
                         L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 145)
-                        # L = simpleSplit("Patricia A Bendorf Elementary School", "Helvetica", 10, 145)
                         line0_str = "";
                         line1_str = "";
                         line2_str = "";
@@ -997,43 +999,28 @@ def download_students_excel(request):
 
             ty -= 30;
 
-        c.showPage()
+            if student_index == lastpos:
+                c.showPage()
+            else:
+                student_index += 1;
 
-        # c.setFillColor(colors.lawngreen)  # C7,F4,65
-        # base_table_y = 770;
-        # c.rect(10, base_table_y, 80, 30, fill=1)
-        # c.rect(90, base_table_y, 80, 30, fill=1)
-        # c.rect(170, base_table_y, 130, 30, fill=1)
-        # c.rect(300, base_table_y, 120, 30, fill=1)
-        # c.rect(420, base_table_y, 80, 30, fill=1)
-        # c.rect(500, base_table_y, 80, 30, fill=1)
-        #
-        # c.setStrokeColor(colors.black)
-        # c.setFillColor(colors.black)  # C7,F4,65
-        # c.setFont("Helvetica", 12)
-        #
-        # c.drawCentredString(50, base_table_y + 10, "First Name")
-        # c.drawCentredString(130, base_table_y + 10, "Last Name")
-        # c.drawCentredString(235, base_table_y + 10, "Email Address")
-        # c.drawCentredString(360, base_table_y + 10, "School Site")
-        # c.drawCentredString(460, base_table_y + 10, "Employee ID")
-        # c.drawCentredString(540, base_table_y + 10, "Signature")
-        #
-        # for i in range(1, 25):
-        #     ty = base_table_y - i * 30
-        #     c.rect(10, ty, 80, 30, fill=0)
-        #     c.rect(90, ty, 80, 30, fill=0)
-        #     c.rect(170, ty, 130, 30, fill=0)
-        #     c.rect(300, ty, 120, 30, fill=0)
-        #     c.rect(420, ty, 80, 30, fill=0)
-        #     c.rect(500, ty, 80, 30, fill=0)
-        #
-        #     c.drawCentredString(50, ty + 10, "First Name" + str(i))
-        #     c.drawCentredString(130, ty + 10, "Last Name")
-        #     c.drawCentredString(235, ty + 10, "Email Address")
-        #     c.drawCentredString(360, ty + 10, "School Site")
-        #
-        # c.showPage()
+                if (pdf_first_flag):
+                    if (student_index == 16):
+                        student_index = 0;
+                        pdf_first_flag = False;
+                        ty = 760;
+                        c.showPage()
+                        c.setStrokeColor(colors.black)
+                        c.setFillColor(colors.black)  # C7,F4,65
+                        c.setFont("Helvetica", 10)
+                else:
+                    if (student_index == 25):
+                        student_index = 0;
+                        ty = 760;
+                        c.showPage()
+                        c.setStrokeColor(colors.black)
+                        c.setFillColor(colors.black)  # C7,F4,65
+                        c.setFont("Helvetica", 10)
 
         c.save()
 
