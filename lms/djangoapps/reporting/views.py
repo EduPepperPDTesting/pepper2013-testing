@@ -584,8 +584,7 @@ def get_query_pd_domain(user):
     :return: Mongo query
     """
     domain = '{"$match":{"district_id":' + str(user.profile.district.id) + '}},'
-    pd_user_domain_tmp = '{"$match":{"$or":[{"#domain#": {"$exists": False}},{"#domain#":#value#}]}},'
-    pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'user_id').replace('#value#', str(user.profile.district.state.id))
+    pd_user_domain_tmp = '{"$match":{"#domain#":#value#}},'
     if check_user_perms(user, 'reporting', ['view', 'administer']):
         level = check_access_level(user, 'reporting', ['view', 'administer'])
         if level == 'System':
@@ -599,6 +598,8 @@ def get_query_pd_domain(user):
         elif level == 'School':
             domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
             pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'school_id').replace('#value#', str(user.profile.school.id))
+    else:
+        pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'user_id').replace('#value#', str(user.id))
     return domain, pd_user_domain
 
 
