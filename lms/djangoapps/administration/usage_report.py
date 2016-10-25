@@ -212,7 +212,7 @@ def get_download_info(request):
 		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
 
 		if not active_recent(obj_user) or d.logout_press:
-			dict_tmp['logout_time'] = d.logout_time
+			dict_tmp['logout_time'] = time_to_local(d.logout_time,time_diff_m)
 			dict_tmp['last_session'] = study_time_format(d.last_session)
 			#dict_tmp['online_state'] = 'Off'
 			dict_tmp['total_session'] = study_time_format(d.total_session)
@@ -236,6 +236,9 @@ def filter_user(vars, data):
 	return data
 
 def time_to_local(user_time,time_diff_m):
+	'''
+	Just use for usage_report_download_excel
+	'''
 	user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
 	plus_sub = 1
 	time_diff_m_int = int(time_diff_m)
