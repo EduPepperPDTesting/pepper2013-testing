@@ -234,3 +234,4 @@ class UserLoginInfo(models.Model):
     total_session = models.IntegerField(blank=False, max_length=30)
     login_times = models.IntegerField(blank=False, max_length=15, default=1)
     logout_press = models.BooleanField(blank=False, default=0)
+    temp_time = models.CharField(max_length=30)

@@ -1035,6 +1035,7 @@ def login_user(request, error=""):
         if user_log_info:
             user_log_info[0].login_time = utctime_str
             user_log_info[0].logout_time = utctime_30m_str
+            user_log_info[0].temp_time = utctime_str
 
             user_log_info[0].last_session = 60 * 30
             user_log_info[0].total_session = user_log_info[0].total_session + 60 * 30
@@ -1044,10 +1045,8 @@ def login_user(request, error=""):
 
             user_log_info[0].save()
         else:
-            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800)
+            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,temp_time=utctime_str)
             user_log_info.save();
-        
-        request.session['record_time'] = datetime.datetime.utcnow()
         #@end
 
         return response
@@ -1084,7 +1083,7 @@ def logout_user(request):
         last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
         user_log_info[0].last_session = last_session.seconds
 
-        time_diff = utctime - request.session['record_time']
+        time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
         time_diff_seconds = time_diff.seconds
         user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
         user_log_info[0].logout_press = 1
