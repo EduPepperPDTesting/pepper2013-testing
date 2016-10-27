@@ -553,10 +553,10 @@ def dpicourse_list(request):
     if is_new != '':
         for course in courses:
             if course.is_newish:
-                course_filter(course, subject_index, currSubject, g_courses, grade_id)
+                dpicourse_filter(course, subject_index, currSubject, g_courses, grade_id)
     else:
         for course in courses:
-            course_filter(course, subject_index, currSubject, g_courses, grade_id)
+            dpicourse_filter(course, subject_index, currSubject, g_courses, grade_id)
     for gc in g_courses:
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)
