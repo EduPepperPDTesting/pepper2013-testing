@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 
@@ -45,6 +45,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.lib.utils import simpleSplit
 from reportlab.platypus import Paragraph
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.fonts import addMapping
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
@@ -783,8 +784,20 @@ def get_courses_drop(state_name, district_code):
 
 def show_map(request):
     training_id = request.GET.get("training_id")
-    training = PepRegTraining.objects.get(id=training_id)
-    return render_to_response('administration/pepreg_map.html', {"training": training})
+    district_id = request.GET.get("district_id")
+
+    if (district_id):
+        r = list()
+        district = District.objects.get(id=district_id)
+        if district:
+            data = School.objects.filter(district=district).order_by('name')
+            for item in data:
+                r.append({'id': item.id, 'name': item.name, 'code': item.code});
+
+        return HttpResponse(json.dumps(r), content_type="application/json")
+    else:
+        training = PepRegTraining.objects.get(id=training_id)
+        return render_to_response('administration/pepreg_map.html', {"training": training})
 
 
 def delete_student(request):
@@ -866,7 +879,7 @@ def download_students_excel(request):
 
         buffer = BytesIO()
 
-        c = canvas.Canvas(buffer)
+        c = canvas.Canvas(buffer, pagesize=A4)
 
         # ------------------------------------------------------------------------------------logo
         try:
@@ -874,16 +887,29 @@ def download_students_excel(request):
         except:
             logo = ImageReader("http://" + request.get_host() + '/static/images/pd_pdf2.png')
 
-        c.drawImage(logo, 330, 740, 200, 73);
+        c.drawImage(logo, 330, 750, 200, 73);
 
         c.setFont("Helvetica", 20)
-        c.drawString(370, 700, "PD Planner")
-        c.drawString(370, 670, "SignUp")
+        c.drawString(370, 710, "PD Planner")
+        c.drawString(370, 680, "SignUp")
+
+        styleSheet = getSampleStyleSheet()
+        style = styleSheet['BodyText']
+        style.fontName = "Helvetica"
+        style.fontSize = 16
+        style.leading = 15
+        training_name = "Training Name: " + training.name
+        content_width = stringWidth(training_name, "Helvetica", 16)
+        p = Paragraph(training_name, style)
+        w1 = 520
+        h1 = 800
+        w2, h2 = p.wrap(w1, h1)
+        p.drawOn(c, 50, 625)
 
         c.setFont("Helvetica", 16)
-        c.drawString(50, 625, "Training Name: " + training.name)
+        #c.drawString(50, 625, "Training Name: " + training.name)
         c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
-        c.drawString(50, 575, "Instructor:")
+        c.drawString(50, 578, "Instructor:")
 
         instructor_y = 575
 
@@ -914,9 +940,9 @@ def download_students_excel(request):
         c.rect(10, base_table_y, 80, 30, fill=1)
         c.rect(90, base_table_y, 80, 30, fill=1)
         c.rect(170, base_table_y, 130, 30, fill=1)
-        c.rect(300, base_table_y, 150, 30, fill=1)
-        c.rect(450, base_table_y, 70, 30, fill=1)
-        c.rect(520, base_table_y, 60, 30, fill=1)
+        c.rect(300, base_table_y, 120, 30, fill=1)
+        c.rect(420, base_table_y, 70, 30, fill=1)
+        c.rect(490, base_table_y, 90, 30, fill=1)
 
         c.setStrokeColor(colors.black)
         c.setFillColor(colors.black)  # C7,F4,65
@@ -925,9 +951,9 @@ def download_students_excel(request):
         c.drawCentredString(50, base_table_y + 10, "First Name")
         c.drawCentredString(130, base_table_y + 10, "Last Name")
         c.drawCentredString(235, base_table_y + 10, "Email Address")
-        c.drawCentredString(375, base_table_y + 10, "School Site")
-        c.drawCentredString(485, base_table_y + 10, "Employee ID")
-        c.drawCentredString(550, base_table_y + 10, "Signature")
+        c.drawCentredString(360, base_table_y + 10, "School Site")
+        c.drawCentredString(455, base_table_y + 10, "Employee ID")
+        c.drawCentredString(535, base_table_y + 10, "Signature")
 
         # ------------------------------------------------------------------------------------tr
         base_font_size = 9;
@@ -941,9 +967,9 @@ def download_students_excel(request):
             c.rect(10, ty, 80, 30, fill=0)
             c.rect(90, ty, 80, 30, fill=0)
             c.rect(170, ty, 130, 30, fill=0)
-            c.rect(300, ty, 150, 30, fill=0)
-            c.rect(450, ty, 70, 30, fill=0)
-            c.rect(520, ty, 60, 30, fill=0)
+            c.rect(300, ty, 120, 30, fill=0)
+            c.rect(420, ty, 70, 30, fill=0)
+            c.rect(490, ty, 90, 30, fill=0)
 
             if (reg_stu.student.first_name):
                 tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
@@ -974,9 +1000,19 @@ def download_students_excel(request):
 
             if(pro):
                 if(pro.school):
-                    tmp_email_width = stringWidth(pro.school.name, "Helvetica", base_font_size)
-                    if (tmp_email_width > 150):
-                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 145)
+                    tmp_name = pro.school.name
+                    if (tmp_name.find("Elementary") > -1):
+                        tmp_name = tmp_name.split("Elementary")[0];
+
+                    elif (tmp_name.find("Middle") > -1):
+                        tmp_name = tmp_name.split("Middle")[0];
+
+                    elif (tmp_name.find("High") > -1):
+                        tmp_name = tmp_name.split("High")[0];
+
+                    tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
+                    if (tmp_email_width > 120):
+                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 115)
                         line0_str = "";
                         line1_str = "";
                         line2_str = "";
@@ -984,7 +1020,7 @@ def download_students_excel(request):
                         for t in L:
                             if line_flag:
                                 line0_str = line0_str + " " + t;
-                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 150):
+                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 120):
                                     line2_str = line2_str + " " + t;
                                     line_flag = False;
                                 else:
@@ -992,10 +1028,10 @@ def download_students_excel(request):
                             else:
                                 line2_str = line2_str + " " + t;
 
-                        c.drawCentredString(375, ty + 18, line1_str)
-                        c.drawCentredString(375, ty + 5, line2_str)
+                        c.drawCentredString(360, ty + 18, line1_str)
+                        c.drawCentredString(360, ty + 5, line2_str)
                     else:
-                        c.drawCentredString(375, ty + 10, pro.school.name)
+                        c.drawCentredString(360, ty + 10, pro.school.name)
 
             ty -= 30;
 
