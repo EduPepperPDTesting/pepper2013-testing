@@ -246,16 +246,7 @@ import datetime
     </div>
     <div style="color:#000;text-align:center;padding:10px;">
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/community_google_hangouts.png" class="" alt="" style="padding-bottom:5px;"/><br/>
-          %for u in users:
-          <%
-            use = u.user
-          %>
-             <span class="hangout-span" id="hangout_span_${use.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${use.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
-          %endfor
-        <div id="google_hangout"></div>
-      </div>
+      
       <div style="display:inline-block;vertical-align:top;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
