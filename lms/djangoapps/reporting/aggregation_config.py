@@ -800,6 +800,7 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         "description": 1,
         "student_status": "$pegreg_student.student_status",
         "instructor_status": "$pegreg_student.instructor_status",
+        "student_credit": "$pegreg_student.student_credit",
         "user_id": "$pegreg_student.student_id",
         "district": 1,
         "state_id": 1,
