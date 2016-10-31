@@ -285,6 +285,7 @@ def save_training(request):
 
         training.type = request.POST.get("type", "")
         training.district_id = request.POST.get("district_id")
+        training.school_id = request.POST.get("school_id")
         training.name = request.POST.get("name", "")
         training.description = request.POST.get("description", "")
 
@@ -367,6 +368,7 @@ def training_json(request):
         "id": item.id,
         "type": item.type,
         "district_id": item.district_id,
+        "school_id": item.school_id,
         "name": item.name,
         "description": item.description,
         "pepper_course": item.pepper_course,
@@ -459,6 +461,7 @@ def getCalendarMonth(request):
     cal.setfirstweekday(firstweekday)
 
     current_day = datetime(year=_year_n, month=_month_n, day=_day, tzinfo=utc)  # 2016-08-01
+    tmp_school_id = request.user.profile.school.id
 
     for day in cal.itermonthdays(_year, _month):
         current = False;
@@ -467,6 +470,9 @@ def getCalendarMonth(request):
             date = datetime(year=_year, month=_month, day=day, tzinfo=utc)
             for item in all_occurrences:
                 if (item.training_date == date.date()):
+                    if(item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                        continue;
+
                     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"

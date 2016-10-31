@@ -355,7 +355,7 @@
                         <h4>General Training Information</h4>
                         <div class="form-row">
                             <span class="label">District:</span>
-                            <select name="district_id" autocomplate="off">
+                            <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
                                 %for item in District.objects.all().order_by("name"):
@@ -365,6 +365,10 @@
                                     <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>
                                 %endif
                             </select>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">School:</span>
+                            <select id="school_id" name="school_id" autocomplate="off" style="min-width:200px;"></select>
                         </div>
                         <div class="form-row">
                             <span class="label">Training Name:</span>
@@ -809,6 +813,18 @@
 				$("input[name='credits']").val($(this).attr("bak_val"));
 			}
 		});
+		
+		$("#district_id").change(function(){
+			$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
+				$("#school_id").empty();
+				$("#school_id").append('<option value=""></option>');        
+				if(data.length > 0){
+					for(var i in data){
+						$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+					}
+				}
+			});
+		});
 	});	
 	
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
@@ -866,6 +882,7 @@
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
             district_id: $form.find("select[name=district_id]").val(),
+			school_id: $form.find("select[name=school_id]").val(),
             name: $.trim($form.find("input[name=name]").val()),
             description: $form.find("textarea[name=description]").val(),
             pepper_course: $form.find("select[name=pepper_course]").val(),
@@ -1030,7 +1047,21 @@
         } else {
             self.clearData();
         }
-        self.fillData(data);
+        self.fillData(data);						
+		
+		// ************* school id
+		var school_id = data.school_id;
+		$("#school_id").empty();	
+		$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
+			$("#school_id").append('<option value="-1"></option>');        
+			if(data.length > 0){
+				for(var i in data){
+					$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+				}
+				if(school_id)		$("#school_id").val(school_id);
+			}
+		});
+		
         // ************* input map
         var hits = {};
         $('input[name=geo_location]').autocomplete({
@@ -1229,6 +1260,7 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
+			
 			if(r.arrive == "1"){
 				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
 				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
@@ -1247,7 +1279,7 @@
                     self.warning(einfo.error[1], self.dlgForm);
                     self.steps.switchTo(einfo.id);
                     return;
-                }
+                }				
                 $.post("${reverse('pepreg_save_training')}", data, function (r) {
                     if (r.success) {
                         $("#dlg-add-training").hide();
