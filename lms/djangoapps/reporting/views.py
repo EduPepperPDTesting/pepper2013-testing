@@ -596,7 +596,6 @@ def get_query_pd_domain(user):
         elif level == 'District':
             pd_user_domain = ''
         elif level == 'School':
-            domain = '{"$match":{"school_id":' + str(user.profile.school.id) + '}},'
             pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'school_id').replace('#value#', str(user.profile.school.id))
     else:
         pd_user_domain = pd_user_domain_tmp.replace('#domain#', 'user_id').replace('#value#', str(user.id))
