@@ -44,6 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.lib.utils import simpleSplit
 from reportlab.platypus import Paragraph
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.fonts import addMapping
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
@@ -282,6 +283,7 @@ def save_training(request):
 
         training.type = request.POST.get("type", "")
         training.district_id = request.POST.get("district_id")
+        training.school_id = request.POST.get("school_id")
         training.name = request.POST.get("name", "")
         training.description = request.POST.get("description", "")
 
@@ -364,6 +366,7 @@ def training_json(request):
         "id": item.id,
         "type": item.type,
         "district_id": item.district_id,
+        "school_id": item.school_id,
         "name": item.name,
         "description": item.description,
         "pepper_course": item.pepper_course,
@@ -419,7 +422,7 @@ def getCalendarMonth(request):
     if (_day):
         _day = int(_day);
 
-    if not(_catype):
+    if not (_catype):
         _catype = "0";
 
     firstweekday = 0 + SHIFT_WEEKSTART
@@ -440,7 +443,7 @@ def getCalendarMonth(request):
         2: ['district__name', '__iexact', 'str']
     }
     filters = get_post_array(request.GET, 'fcol')
-    #filters[1] = request.user.profile.district.state.name
+    # filters[1] = request.user.profile.district.state.name
     filters[2] = request.user.profile.district.name
     if len(filters):
         args, kwargs = build_filters(columns, filters)
@@ -455,6 +458,7 @@ def getCalendarMonth(request):
     cal.setfirstweekday(firstweekday)
 
     current_day = datetime(year=_year_n, month=_month_n, day=_day, tzinfo=utc)  # 2016-08-01
+    tmp_school_id = request.user.profile.school.id
 
     for day in cal.itermonthdays(_year, _month):
         current = False;
@@ -463,6 +467,9 @@ def getCalendarMonth(request):
             date = datetime(year=_year, month=_month, day=day, tzinfo=utc)
             for item in all_occurrences:
                 if (item.training_date == date.date()):
+                    if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                        continue;
+
                     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"
@@ -479,13 +486,13 @@ def getCalendarMonth(request):
                     titlex = item.name + "::" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
 
                     if item.classroom:
-                        titlex = titlex  + "::" + item.classroom;
+                        titlex = titlex + "::" + item.classroom;
 
                     if item.geo_location:
-                        titlex = titlex  + "::" + item.geo_location;
+                        titlex = titlex + "::" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
-                        if(_catype == "0" or _catype == "4"):
+                        if (_catype == "0" or _catype == "4"):
                             occurrences.append(
                                 "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
 
@@ -498,23 +505,25 @@ def getCalendarMonth(request):
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
+                                        item.id) + "' checked /> ";
                                     occurrences.append(
                                         "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
+                                        item.id) + "' /> ";
                                     occurrences.append(
                                         "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
-                        #The registration date has passed for this training
+                        # The registration date has passed for this training
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "0"):
-                        #Instructor records attendance.
+                        # Instructor records attendance.
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "1"):
@@ -798,11 +807,12 @@ def download_students_excel(request):
 
     training = PepRegTraining.objects.get(id=training_id)
 
-    if(last_date):
+    if (last_date):
         name_dict = {};
         _res = "0";
         try:
-            EMAIL_TEMPLATE_DICT = {'training_email': ('emails/training_student_email_subject.txt', 'emails/training_student_email_message.txt')}
+            EMAIL_TEMPLATE_DICT = {'training_email': (
+            'emails/training_student_email_subject.txt', 'emails/training_student_email_message.txt')}
 
             subject_template, message_template = EMAIL_TEMPLATE_DICT.get("training_email", (None, None))
 
@@ -818,7 +828,8 @@ def download_students_excel(request):
                 param_dict["first_name"] = userx.first_name;
                 param_dict["last_name"] = userx.last_name;
                 param_dict["district_name"] = training.district.name;
-                param_dict["training_time_start"] = str('{d:%I:%M %p}'.format(d=training.training_time_start)).lstrip('0');
+                param_dict["training_time_start"] = str('{d:%I:%M %p}'.format(d=training.training_time_start)).lstrip(
+                    '0');
 
                 if training.classroom == "" and training.geo_location == "":
                     param_dict["classroom"] = "";
@@ -854,13 +865,13 @@ def download_students_excel(request):
         name_dict["_res"] = _res;
         return HttpResponse(json.dumps(name_dict), content_type="application/json");
 
-    elif(flag_pdf):
+    elif (flag_pdf):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="' + training.name + flag_pdf + '.pdf"'
 
         buffer = BytesIO()
 
-        c = canvas.Canvas(buffer)
+        c = canvas.Canvas(buffer, pagesize=A4)
 
         # ------------------------------------------------------------------------------------logo
         try:
@@ -868,16 +879,29 @@ def download_students_excel(request):
         except:
             logo = ImageReader("http://" + request.get_host() + '/static/images/pd_pdf2.png')
 
-        c.drawImage(logo, 330, 740, 200, 73);
+        c.drawImage(logo, 330, 750, 200, 73);
 
         c.setFont("Helvetica", 20)
-        c.drawString(370, 700, "PD Planner")
-        c.drawString(370, 670, "SignUp")
+        c.drawString(370, 710, "PD Planner")
+        c.drawString(370, 680, "SignUp")
+
+        styleSheet = getSampleStyleSheet()
+        style = styleSheet['BodyText']
+        style.fontName = "Helvetica"
+        style.fontSize = 16
+        style.leading = 15
+        training_name = "Training Name: " + training.name
+        content_width = stringWidth(training_name, "Helvetica", 16)
+        p = Paragraph(training_name, style)
+        w1 = 520
+        h1 = 800
+        w2, h2 = p.wrap(w1, h1)
+        p.drawOn(c, 50, 625)
 
         c.setFont("Helvetica", 16)
-        c.drawString(50, 625, "Training Name: " + training.name)
+        # c.drawString(50, 625, "Training Name: " + training.name)
         c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d=training.training_date)))
-        c.drawString(50, 575, "Instructor:")
+        c.drawString(50, 578, "Instructor:")
 
         instructor_y = 575
 
@@ -908,9 +932,9 @@ def download_students_excel(request):
         c.rect(10, base_table_y, 80, 30, fill=1)
         c.rect(90, base_table_y, 80, 30, fill=1)
         c.rect(170, base_table_y, 130, 30, fill=1)
-        c.rect(300, base_table_y, 150, 30, fill=1)
-        c.rect(450, base_table_y, 70, 30, fill=1)
-        c.rect(520, base_table_y, 60, 30, fill=1)
+        c.rect(300, base_table_y, 120, 30, fill=1)
+        c.rect(420, base_table_y, 70, 30, fill=1)
+        c.rect(490, base_table_y, 90, 30, fill=1)
 
         c.setStrokeColor(colors.black)
         c.setFillColor(colors.black)  # C7,F4,65
@@ -919,9 +943,9 @@ def download_students_excel(request):
         c.drawCentredString(50, base_table_y + 10, "First Name")
         c.drawCentredString(130, base_table_y + 10, "Last Name")
         c.drawCentredString(235, base_table_y + 10, "Email Address")
-        c.drawCentredString(375, base_table_y + 10, "School Site")
-        c.drawCentredString(485, base_table_y + 10, "Employee ID")
-        c.drawCentredString(550, base_table_y + 10, "Signature")
+        c.drawCentredString(360, base_table_y + 10, "School Site")
+        c.drawCentredString(455, base_table_y + 10, "Employee ID")
+        c.drawCentredString(535, base_table_y + 10, "Signature")
 
         # ------------------------------------------------------------------------------------tr
         base_font_size = 9;
@@ -935,9 +959,9 @@ def download_students_excel(request):
             c.rect(10, ty, 80, 30, fill=0)
             c.rect(90, ty, 80, 30, fill=0)
             c.rect(170, ty, 130, 30, fill=0)
-            c.rect(300, ty, 150, 30, fill=0)
-            c.rect(450, ty, 70, 30, fill=0)
-            c.rect(520, ty, 60, 30, fill=0)
+            c.rect(300, ty, 120, 30, fill=0)
+            c.rect(420, ty, 70, 30, fill=0)
+            c.rect(490, ty, 90, 30, fill=0)
 
             if (reg_stu.student.first_name):
                 tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
@@ -968,9 +992,19 @@ def download_students_excel(request):
 
             if (pro):
                 if (pro.school):
-                    tmp_email_width = stringWidth(pro.school.name, "Helvetica", base_font_size)
-                    if (tmp_email_width > 150):
-                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 145)
+                    tmp_name = pro.school.name
+                    if (tmp_name.find("Elementary") > -1):
+                        tmp_name = tmp_name.split("Elementary")[0];
+
+                    elif (tmp_name.find("Middle") > -1):
+                        tmp_name = tmp_name.split("Middle")[0];
+
+                    elif (tmp_name.find("High") > -1):
+                        tmp_name = tmp_name.split("High")[0];
+
+                    tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
+                    if (tmp_email_width > 120):
+                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 115)
                         line0_str = "";
                         line1_str = "";
                         line2_str = "";
@@ -978,7 +1012,7 @@ def download_students_excel(request):
                         for t in L:
                             if line_flag:
                                 line0_str = line0_str + " " + t;
-                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 150):
+                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 120):
                                     line2_str = line2_str + " " + t;
                                     line_flag = False;
                                 else:
@@ -986,10 +1020,10 @@ def download_students_excel(request):
                             else:
                                 line2_str = line2_str + " " + t;
 
-                        c.drawCentredString(375, ty + 18, line1_str)
-                        c.drawCentredString(375, ty + 5, line2_str)
+                        c.drawCentredString(360, ty + 18, line1_str)
+                        c.drawCentredString(360, ty + 5, line2_str)
                     else:
-                        c.drawCentredString(375, ty + 10, pro.school.name)
+                        c.drawCentredString(360, ty + 10, pro.school.name)
 
             ty -= 30;
 
@@ -1022,6 +1056,7 @@ def download_students_excel(request):
         buffer.close()
         response.write(pdf)
         return response
+
     else:
         students = PepRegStudent.objects.filter(training_id=training_id)
 

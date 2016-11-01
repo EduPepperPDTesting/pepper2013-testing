@@ -355,7 +355,7 @@
                         <h4>General Training Information</h4>
                         <div class="form-row">
                             <span class="label">District:</span>
-                            <select name="district_id" autocomplate="off">
+                            <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
                                 %for item in District.objects.all().order_by("name"):
@@ -365,6 +365,17 @@
                                     <option value="${request.user.profile.district.id}">${request.user.profile.district.name}</option>
                                 %endif
                             </select>
+                        </div>
+                        <div class="form-row">
+                            <span class="label">School:</span>                            
+                            %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                            <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
+                            %else:
+                            <select id="school_id" name="school_id" autocomplate="off" style="min-width:200px;">
+	                            <option value="-1"></option>
+                                <option value="${request.user.profile.school.id}">${request.user.profile.school.name}</option>
+                            </select>
+                            %endif
                         </div>
                         <div class="form-row">
                             <span class="label">Training Name:</span>
@@ -479,7 +490,10 @@
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
-                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
+                            Time Credit will be automatically calculated from clock settings"></span>
+                            <label><input type="checkbox" id="math_credits" value="true"/> Update from time</label>
+
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
@@ -487,9 +501,9 @@
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">
-                <i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
-              </span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
+                              	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
+                            </span>
                             <input type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
@@ -501,7 +515,7 @@
                         <div class="form-row">
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
-                            <input type="" name="attendancel_id" value=""/>
+                            <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
@@ -665,7 +679,52 @@
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
 	}
 	
+	function mathCreditsChecked(){
+		var t1 = $("input[name='training_time_start']").val();
+		var t2 = $("input[name='training_time_end']").val();
+		var math_val = 0;
+		if(t1 != "" && t2 != ""){
+			t1_h = 0;
+			t1_m = 0;
+			t2_h = 0;
+			t2_m = 0;
+			t1_flag = false;
+			t2_flag = false;
+			if(t1.indexOf("PM") > 0)	t1_flag = true;
+			if(t2.indexOf("PM") > 0)	t2_flag = true;
+			
+			t1 = t1.replace(" AM", "").replace(" PM", "");
+			t2 = t2.replace(" AM", "").replace(" PM", "");
+			t1_arr = t1.split(":");
+			t1_h = Number(t1_arr[0]);
+			t1_m = Number(t1_arr[1]);
+			t2_arr = t2.split(":");
+			t2_h = Number(t2_arr[0]);
+			t2_m = Number(t2_arr[1]);
+			if(t1_flag && t1_h != 12)	t1_h += 12;
+			if(t2_flag && t2_h != 12)	t2_h += 12;
+			
+			var h = t2_h - t1_h;
+			var m = t2_m - t1_m;
+			if(m < 0){
+				m += 60;
+				h -= 1;
+			}
+			m = Number((m / 60).toFixed(1));
+			math_val = h + m;
+		}
+		
+		$("#math_credits").attr("bak_val", $("input[name='credits']").val());
+		$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
+		$("input[name='credits']").val(math_val);
+	}
+	
 	$(function(){
+		//$("input[name='training_time_start']").change(function(){
+			//alert($(this).val());
+		//});
+		
+		//---------------------------------------
 		_calendar_panel = new Dialog($("#calendar-panel"));
 		var picker_year = _calendar_date.getFullYear();
 		_calendar_picker = new Pikaday({
@@ -751,6 +810,30 @@
 			setPickerValue();
 			calendarOpen();
 		});
+		
+		//-----------------------------------------------
+		$("#math_credits").click(function(){
+			if($(this).attr("checked") == "checked"){
+				mathCreditsChecked();
+			}else{
+				$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+				$("input[name='credits']").val($(this).attr("bak_val"));
+			}
+		});
+		
+		$("#district_id").change(function(){
+			if($("#school_id").attr("flag_system") == "1"){
+				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
+					$("#school_id").empty();
+					$("#school_id").append('<option value=""></option>');        
+					if(data.length > 0){
+						for(var i in data){
+							$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+						}
+					}
+				});
+			}
+		});
 	});	
 	
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
@@ -808,6 +891,7 @@
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
             district_id: $form.find("select[name=district_id]").val(),
+			school_id: $form.find("select[name=school_id]").val(),
             name: $.trim($form.find("input[name=name]").val()),
             description: $form.find("textarea[name=description]").val(),
             pepper_course: $form.find("select[name=pepper_course]").val(),
@@ -954,7 +1038,12 @@
                     $("input[name=attendancel_id]").parents(".form-row").show();
                     $("input[name=credits]").parents(".form-row").show();
                 }
-            }
+            }else if(curr == 2){
+				if($("#math_credits").attr("checked") == "checked"){
+					mathCreditsChecked();
+				}
+			}
+			
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
         };
         // ************* when finish form
@@ -967,7 +1056,22 @@
         } else {
             self.clearData();
         }
-        self.fillData(data);
+        self.fillData(data);						
+		
+		// ************* school id
+		if($("#school_id").attr("flag_system") == "1"){
+			var school_id = data.school_id;
+			$("#school_id").empty();	
+			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
+				$("#school_id").append('<option value="-1"></option>');        
+				if(data.length > 0){
+					for(var i in data){
+						$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+					}
+					if(school_id)		$("#school_id").val(school_id);
+				}
+			});
+		}
         // ************* input map
         var hits = {};
         $('input[name=geo_location]').autocomplete({
@@ -1166,6 +1270,7 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
+			
 			if(r.arrive == "1"){
 				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
 				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
@@ -1176,12 +1281,15 @@
 				$(".training_date_icon").show();
 			}
 			
+			$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+			$("#math_credits").removeAttr("checked");
+			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
                     self.steps.switchTo(einfo.id);
                     return;
-                }
+                }				
                 $.post("${reverse('pepreg_save_training')}", data, function (r) {
                     if (r.success) {
                         $("#dlg-add-training").hide();
@@ -1206,6 +1314,9 @@
 		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
 		$(".training_date_icon").show();
 		
+		$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+		$("#math_credits").removeAttr("checked");
+			
         var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
             // submit
             if (einfo = self.validateAllPage(data)) {
@@ -1688,8 +1799,9 @@
         });
     });
 </script>
+
 <script type="text/javascript">
-    $.datepicker.setDefaults({
+	$.datepicker.setDefaults({
         showButtonPanel: true,
         closeText: 'Clear',
         currentText: 'Today',
@@ -1723,10 +1835,11 @@
             minDate: lock_past ? 0 : new Date("1999-9-9")
         });
     });
-</script>
-<script type="text/javascript">
+	
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-    $(document).ready(function () {
+	
+    $(document).ready(function () {		
+		//---------------------------------------
         $('.columnSelectorButton').click(function (e) {
             if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
                 $('.columnSelector').show();
