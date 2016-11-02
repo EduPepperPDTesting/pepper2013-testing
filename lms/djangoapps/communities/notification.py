@@ -273,7 +273,7 @@ def delete_type(request):
 
 def send_notification(action_user, community_id, courses_add=[], courses_del=[], resources_add=[],
                       resources_del=[], members_add=[], members_del=[], discussions_new=[],
-                      discussions_reply=[], discussions_delete=[], replies_delete=[]):
+                      discussions_reply=[], discussions_delete=[], replies_delete=[], domain_name=''):
 
     community = CommunityCommunities.objects.get(id=community_id)
 
@@ -305,6 +305,9 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                 "Sender Last Name": action_user.last_name,
                 "Receiver First Name": user.first_name,
                 "Receiver Last Name": user.last_name}
+            
+            if domain_name:
+                values["Community URL"] = "https://" + domain_name + "/community/" + str(community.id)
 
             if type_name == "Delete Course" or type_name == "Add Course":
                 values["Course Name"] = item.display_name
@@ -319,6 +322,8 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
             if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
                 values["Subject"] = item.subject
                 values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
+                if domain_name:
+                    values["Discussion Topic URL"] = "https://" + domain_name + "/community/discussion/" + str(item.id)
 
             # Send the notification
             body = replace_values(type.body or "", values)
