@@ -322,7 +322,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
             if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
                 values["Subject"] = item.subject
                 values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
-                if domain_name and type_name in ["New Discussion", "Reply Discussion"]:
+                if domain_name and type_name in ["New Discussion", "Reply Discussion", "Delete Reply"]:
                     values["Discussion Topic URL"] = "https://" + domain_name + "/community/discussion/" + str(item.id)
 
             # Send the notification
