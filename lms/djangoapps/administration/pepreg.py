@@ -786,8 +786,20 @@ def get_courses_drop(state_name, district_code):
 
 def show_map(request):
     training_id = request.GET.get("training_id")
-    training = PepRegTraining.objects.get(id=training_id)
-    return render_to_response('administration/pepreg_map.html', {"training": training})
+    district_id = request.GET.get("district_id")
+
+    if (district_id):
+        r = list()
+        district = District.objects.get(id=district_id)
+        if district:
+            data = School.objects.filter(district=district).order_by('name')
+            for item in data:
+                r.append({'id': item.id, 'name': item.name, 'code': item.code});
+
+        return HttpResponse(json.dumps(r), content_type="application/json")
+    else:
+        training = PepRegTraining.objects.get(id=training_id)
+        return render_to_response('administration/pepreg_map.html', {"training": training})
 
 
 def delete_student(request):
