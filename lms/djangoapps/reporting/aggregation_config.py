@@ -803,6 +803,7 @@ AggregationConfig["PDPlannerView"]["query"] = '''{school_year}{pd_domain}{
         "student_credit": "$pegreg_student.student_credit",
         "user_id": "$pegreg_student.student_id",
         "district": 1,
+        "school": 1,
         "state_id": 1,
         "school_id": {
             "$ifNull": [{"$arrayElemAt": ["$user_info.school_id", 0]}, "1"]
