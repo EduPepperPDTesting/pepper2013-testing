@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import user_passes_test
 from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
-from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
+from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
 from xmodule.modulestore.django import modulestore
 import pymongo
 
