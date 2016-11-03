@@ -935,7 +935,7 @@ def download_students_excel(request):
                 tmp_flag = 0;
 
         if not (tmp_names == ""):
-            c.drawString(130, instructor_y, tmp_names)
+            c.drawString(130, instructor_y + 3, tmp_names)
 
         # ------------------------------------------------------------------------------------head
         c.setFillColor(colors.lawngreen)  # C7,F4,65
@@ -943,10 +943,10 @@ def download_students_excel(request):
         base_table_y = 520;
         c.rect(10, base_table_y, 80, 30, fill=1)
         c.rect(90, base_table_y, 80, 30, fill=1)
-        c.rect(170, base_table_y, 130, 30, fill=1)
-        c.rect(300, base_table_y, 120, 30, fill=1)
-        c.rect(420, base_table_y, 70, 30, fill=1)
-        c.rect(490, base_table_y, 90, 30, fill=1)
+        c.rect(170, base_table_y, 90, 30, fill=1)
+        c.rect(260, base_table_y, 90, 30, fill=1)
+        c.rect(350, base_table_y, 70, 30, fill=1)
+        c.rect(420, base_table_y, 160, 30, fill=1)
 
         c.setStrokeColor(colors.black)
         c.setFillColor(colors.black)  # C7,F4,65
@@ -954,51 +954,25 @@ def download_students_excel(request):
 
         c.drawCentredString(50, base_table_y + 10, "First Name")
         c.drawCentredString(130, base_table_y + 10, "Last Name")
-        c.drawCentredString(235, base_table_y + 10, "Email Address")
-        c.drawCentredString(360, base_table_y + 10, "School Site")
-        c.drawCentredString(455, base_table_y + 10, "Employee ID")
-        c.drawCentredString(535, base_table_y + 10, "Signature")
+        c.drawCentredString(215, base_table_y + 10, "Email Address")
+        c.drawCentredString(305, base_table_y + 10, "School Site")
+        c.drawCentredString(385, base_table_y + 10, "Employee ID")
+        c.drawCentredString(505, base_table_y + 10, "Signature")
 
         # ------------------------------------------------------------------------------------tr
         base_font_size = 9;
-        ty = base_table_y - 30;
+        ty = base_table_y;
         student_index = 0;
-        pdf_first_flag = True;
         studentList = PepRegStudent.objects.filter(training_id=training_id);
         lastpos = len(studentList) - 1;
 
+        table_style = styleSheet['BodyText']
+        table_style.fontName = "Helvetica"
+        table_style.fontSize = 9
+        table_style.leading = 10
+
         for reg_stu in studentList:
-            c.rect(10, ty, 80, 30, fill=0)
-            c.rect(90, ty, 80, 30, fill=0)
-            c.rect(170, ty, 130, 30, fill=0)
-            c.rect(300, ty, 120, 30, fill=0)
-            c.rect(420, ty, 70, 30, fill=0)
-            c.rect(490, ty, 90, 30, fill=0)
-
-            if (reg_stu.student.first_name):
-                tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
-                if (tmp_email_width > 75):
-                    c.drawCentredString(50, ty + 18, reg_stu.student.first_name[0: len(reg_stu.student.first_name) / 2])
-                    c.drawCentredString(50, ty + 5, reg_stu.student.first_name[len(reg_stu.student.first_name) / 2:])
-                else:
-                    c.drawCentredString(50, ty + 10, reg_stu.student.first_name)
-
-            if (reg_stu.student.last_name):
-                tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
-                if (tmp_email_width > 75):
-                    c.drawCentredString(130, ty + 18, reg_stu.student.last_name[0: len(reg_stu.student.last_name) / 2])
-                    c.drawCentredString(130, ty + 5, reg_stu.student.last_name[len(reg_stu.student.last_name) / 2:])
-                else:
-                    c.drawCentredString(130, ty + 10, reg_stu.student.last_name)
-
-            if (reg_stu.student.email):
-                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
-                if (tmp_email_width > 130):
-                    tmp_split = reg_stu.student.email.split("@");
-                    c.drawCentredString(235, ty + 18, tmp_split[0])
-                    c.drawCentredString(235, ty + 5, "@" + tmp_split[1])
-                else:
-                    c.drawCentredString(235, ty + 10, reg_stu.student.email)
+            tr_height = 30
 
             pro = UserProfile.objects.get(user_id=reg_stu.student.id)
 
@@ -1015,52 +989,68 @@ def download_students_excel(request):
                         tmp_name = tmp_name.split("High")[0];
 
                     tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
-                    if (tmp_email_width > 120):
-                        L = simpleSplit(pro.school.name, "Helvetica", base_font_size, 115)
-                        line0_str = "";
-                        line1_str = "";
-                        line2_str = "";
-                        line_flag = True;
-                        for t in L:
-                            if line_flag:
-                                line0_str = line0_str + " " + t;
-                                if (stringWidth(line0_str, "Helvetica", base_font_size) > 120):
-                                    line2_str = line2_str + " " + t;
-                                    line_flag = False;
-                                else:
-                                    line1_str = line1_str + " " + t;
-                            else:
-                                line2_str = line2_str + " " + t;
+                    if (tmp_email_width > 80):
+                        p = Paragraph(tmp_name, table_style)
+                        w2, h2 = p.wrap(80, 100)
+                        h2 += 10
+                        if (h2 > tr_height):
+                            tr_height = h2
 
-                        c.drawCentredString(360, ty + 18, line1_str)
-                        c.drawCentredString(360, ty + 5, line2_str)
+                        p.drawOn(c, 265, ty - tr_height + 5)
                     else:
-                        c.drawCentredString(360, ty + 10, pro.school.name)
+                        c.drawCentredString(305, ty - tr_height + 10, pro.school.name)
 
-            ty -= 30;
+            ty -= tr_height;
+
+            c.rect(10, ty, 80, tr_height, fill=0)
+            c.rect(90, ty, 80, tr_height, fill=0)
+            c.rect(170, ty, 90, tr_height, fill=0)
+            c.rect(260, ty, 90, tr_height, fill=0)
+            c.rect(350, ty, 70, tr_height, fill=0)
+            c.rect(420, ty, 160, tr_height, fill=0)
+
+            if (reg_stu.student.first_name):
+                tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 75):
+                    p = Paragraph(reg_stu.student.first_name, table_style)
+                    w2, h2 = p.wrap(70, 100)
+                    h2 += 10
+                    p.drawOn(c, 15, ty + (tr_height / 2) - (h2 / 2) + 5)
+                else:
+                    c.drawCentredString(50, ty + tr_height / 2 - 5, reg_stu.student.first_name)
+
+            if (reg_stu.student.last_name):
+                tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 75):
+                    p = Paragraph(reg_stu.student.last_name, table_style)
+                    w2, h2 = p.wrap(70, 100)
+                    h2 += 10
+                    p.drawOn(c, 95, ty + (tr_height / 2) - (h2 / 2) + 5)
+                else:
+                    c.drawCentredString(130, ty + tr_height / 2 - 5, reg_stu.student.last_name)
+
+            if (reg_stu.student.email):
+                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
+                if (tmp_email_width > 80):
+                    p = Paragraph(reg_stu.student.email, table_style)
+                    w2, h2 = p.wrap(80, 100)
+                    h2 += 10
+                    p.drawOn(c, 175, ty + (tr_height / 2) - (h2 / 2) + 5)
+                else:
+                    c.drawCentredString(215, ty + tr_height / 2 - 5, reg_stu.student.email)
 
             if student_index == lastpos:
                 c.showPage()
             else:
-                student_index += 1;
+                if (ty < 60):
+                    ty = 790;
+                    pdf_first_flag = False;
+                    c.showPage()
+                    c.setStrokeColor(colors.black)
+                    c.setFillColor(colors.black)  # C7,F4,65s
+                    c.setFont("Helvetica", 10)
 
-                if (pdf_first_flag):
-                    if (student_index == 16):
-                        student_index = 0;
-                        pdf_first_flag = False;
-                        ty = 760;
-                        c.showPage()
-                        c.setStrokeColor(colors.black)
-                        c.setFillColor(colors.black)  # C7,F4,65
-                        c.setFont("Helvetica", 10)
-                else:
-                    if (student_index == 25):
-                        student_index = 0;
-                        ty = 760;
-                        c.showPage()
-                        c.setStrokeColor(colors.black)
-                        c.setFillColor(colors.black)  # C7,F4,65
-                        c.setFont("Helvetica", 10)
+                student_index += 1;
 
         c.save()
 
