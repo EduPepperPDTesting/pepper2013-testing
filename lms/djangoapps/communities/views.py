@@ -311,6 +311,7 @@ def get_remove_user_rows(request, community_id):
 
 @login_required
 def community_join(request, community_id):
+    domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
@@ -328,13 +329,14 @@ def community_join(request, community_id):
                 
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
-    send_notification(request.user, community.id, members_add=users)
+    send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
         
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
 @login_required
 def community_leave(request, community_id):
+    domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
@@ -347,7 +349,7 @@ def community_leave(request, community_id):
             mems.delete()
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
-    send_notification(request.user, community.id, members_del=users)
+    send_notification(request.user, community.id, members_del=users, domain_name=domain_name)
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
 
@@ -502,6 +504,7 @@ def discussion(request, discussion_id):
 @login_required
 @ensure_csrf_cookie
 def discussion_add(request):
+    domain_name = request.META['HTTP_HOST']
     error = ''
 
     try:
@@ -528,7 +531,7 @@ def discussion_add(request):
             discussion.save()
         success = True
         discussion_id = discussion.id
-        send_notification(request.user, community.id, discussions_new=[discussion])
+        send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
         error = e
         success = False
@@ -539,6 +542,7 @@ def discussion_add(request):
 @login_required
 @ensure_csrf_cookie
 def discussion_reply(request, discussion_id):
+    domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
     reply = CommunityDiscussionReplies()
     reply.discussion = discussion
@@ -559,7 +563,7 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
-    send_notification(request.user, discussion.community.id, discussions_reply=[reply])
+    send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
     discussion.date_reply = reply.date_create
     discussion.save()
     return redirect(reverse('community_discussion_view', kwargs={'discussion_id': discussion_id}))
@@ -567,6 +571,7 @@ def discussion_reply(request, discussion_id):
 
 @login_required()
 def discussion_delete(request, discussion_id):
+    domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
     redirect_url = reverse('community_view', args=[discussion.community.id])
     # try:
@@ -579,7 +584,7 @@ def discussion_delete(request, discussion_id):
 
     discussion.delete()
 
-    send_notification(request.user, discussion.community_id, discussions_delete=[discussion])
+    send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:
     #     log.warning('There was an error deleting a discussion: {0}'.format(e))
 
@@ -588,11 +593,12 @@ def discussion_delete(request, discussion_id):
 
 @login_required()
 def discussion_reply_delete(request, reply_id):
+    domain_name = request.META['HTTP_HOST']
     reply = CommunityDiscussionReplies.objects.get(id=reply_id)
     redirect_url = reverse('community_discussion_view', args=[reply.discussion.id])
     try:
         reply.delete()
-        send_notification(request.user, reply.discussion.community_id, replies_delete=[reply])
+        send_notification(request.user, reply.discussion.community_id, replies_delete=[reply], domain_name=domain_name)
     except Exception as e:
         log.warning('There was an error deleting a reply: {0}'.format(e))
     return redirect(redirect_url)
@@ -737,6 +743,7 @@ def community_edit_process(request):
     """
     try:
         # Get all of the form data.
+        domain_name = request.META['HTTP_HOST']
         community_id = request.POST.get('community_id', '')
         name = request.POST.get('name', '')
         motto = request.POST.get('motto', '')
@@ -897,7 +904,8 @@ def community_edit_process(request):
                           courses_add=courses_add,
                           courses_del=courses_cur.values(),
                           resources_add=resources_add,
-                          resources_del=resources_cur.values())
+                          resources_del=resources_cur.values(),
+                          domain_name=domain_name)
 
         return redirect(reverse('community_view', kwargs={'community_id': community_object.id}))
     except Exception as e:
