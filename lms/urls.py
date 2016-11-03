@@ -15,6 +15,13 @@ urlpatterns = (
     # url(r'^$', 'idp.views.tnl_domain_add', name="tnl_domain_add"),
 
 ####### Ancestor
+    # === shopping begin ===
+    url(r'^shopping/$', 'shopping.views.course_list', name="shopping_course_list"),
+    url(r'^shopping/enroll/post$', 'shopping.views.enroll_post', name="shopping_enroll_post"),
+    url(r'^shopping/(?P<course_id>[^/]+/[^/]+/[^/]+)/course_info/$', 'shopping.views.course_info', name="shopping_course_info"),
+    url(r'^shopping/valid_discount_code/$', 'shopping.views.valid_discount_code', name="shopping_valid_discount_code"),
+    # === shopping end ===
+    
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
