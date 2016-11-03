@@ -1,0 +1,371 @@
+<%!
+from django.utils.translation import ugettext as _ 
+from django.core.urlresolvers import reverse 
+from time import strftime
+from courseware.courses import course_image_url, get_course_about_section
+from student.models import CourseEnrollment,CourseEnrollmentAllowed
+from datetime import datetime
+from pytz import UTC
+%>
+<%namespace name='static' file='../static_content.html'/>
+
+<link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
+
+<style type="text/css" media="screen">
+ #btn-logged-user{display:none;}
+ #page-nav,#page-footer{
+   width:1180px;
+ }
+ a.btnx:hover,input[type=button].btnx:hover {
+   background:#6e8194;
+   transition-delay: 0s, 0s, 0s;
+   transition-duration: 0.25s, 0.25s, 0.25s;
+   transition-property:color, background,​ box-shadow;
+   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+   transition-duration:0.25s,​ 0.25s,​ 0.25s;
+   color:#fff;
+ }
+ a.btnx, input[type=button].btnx{
+   border:none;
+   text-decoration:none;
+   background:#556370;
+   text-decoration: none;
+   padding-bottom: 7px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 7px;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ a.btnx:normal, input[type=button].btnx{
+   background-color:#556370;
+   text-decoration: none;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function:cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+
+ /*@begin:hide prerequisites and authors in main content*/
+ /*@date:2013-12-09*/
+ .prerequisites
+ {display:none;}
+ .authors
+ {display:none;}
+ .newish
+ {display:none;}
+ /*@end*/
+ .course_org
+ {display:none;}
+ .flip-radio {
+   display: none;
+ }
+ .flip-title {
+   width: 100%;
+   height: 50px;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   border: 4px solid #E1E1E1;
+   background-color: #E1E1E1;
+ }
+ .flip-title-left {
+   display: block;
+   font-size: 1.2em;
+   font-weight: bold;
+   font-family: "open sans" !important;
+   color: #3c3c3c;
+   padding-top: 6px;
+   padding-left: 10px;
+ }
+ .flip-title-right {
+   display: block;
+   float: right;
+   color: #1d9dd9;
+   font: bolder 1em/1em "Open Sans", Verdana, Geneva, sans-serif;
+   font-size: 18px;
+   margin-top: -25px;
+   margin-right: 8px;
+   cursor: pointer;
+ }
+ .flip-content {
+   width: 100%;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   border: 4px solid #e7e7e7;
+   background-color: #e7e7e7;
+   margin-top: 6px;
+   margin-bottom: 0;
+   padding-left: 10px;
+ }
+ .flip-title-faq {
+   width: 100%;
+   height: 50px;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   border: 4px solid #E1E1E1;
+   background-color: #E1E1E1;
+ }
+ .flip-title-left-faq {
+   display: block;
+   font-size: 1.2em;
+   font-weight: bold;
+   font-family: "open sans" !important;
+   color: #3c3c3c;
+   padding-top: 6px;
+   padding-left: 10px;
+ }
+ .flip-title-right-faq {
+   display: block;
+   float: right;
+   color: #1d9dd9;
+   font: bolder 1em/1em "Open Sans", Verdana, Geneva, sans-serif;
+   font-size: 18px;
+   margin-top: -25px;
+   margin-right: 8px;
+   cursor: pointer;
+ }
+ .flip-content-faq {
+   width: 100%;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   border: 4px solid #e7e7e7;
+   background-color: #e7e7e7;
+   margin-top: 6px;
+   margin-bottom: 0;
+   padding-left: 10px;
+ }
+</style>
+
+<div style="background:#f5f5f5;text-align:left;">
+  <div style="width:960px;margin:auto;background:#fff;">
+	<!--@begin:modify the layout style-->
+	<!--@date:2013-11-02-->
+    <!-- <div style="font-weight:300 !important;font-size:25px;color:#3461ad;padding:30px 0 0 0px;padding-left:10px;">COURSE DETAIL</div>
+    <hr />
+    -->
+	<div style="padding-left:10px;padding-right:10px;">
+    %if course.display_number_with_default == "PEP101x":
+		  <div style="width:608px;height:211px;border:0px solid;float:left;border:3px solid #999;margin:-3px;">
+    %else:
+      <div style="width:608px;height:211px;border:0px solid;float:left;">
+    %endif
+		  <img src="${course_image_url(course)}"  style="width:100%;height:100%;" alt="" />
+		</div>
+	<!--@begin:change image show style-->
+	<!--@date:2014-07-29-->
+    <div style="float:right;border:3px solid #8E8E8E;" id="div_course_org">
+    </div>
+	<!--@end-->
+
+		<div style="float:right;padding-top:10px;">
+				
+				<!--@begin:add course description(overview)-->
+				<!--@date:2013-11-02-->
+				<div style="float:left;width:600px;padding-right:10px;">
+					${get_course_about_section(course, "overview")}
+				</div>
+				<!--@end-->
+				
+				<div style="float:right;width:321px;background:#eee;">
+				  <div style="width:281px;background:#fff;margin:10px 10px 0 10px;padding:10px;">
+					<table cellpadding="10" border="0" style="width:100%;font-size:14px;">
+						<tr style="border-bottom:1px solid #ccc;">
+							<td align="left" width="120">Course Code:</td>
+							<th align="right">${course.display_number_with_default | h}</th>
+						</tr>
+						<tr style="border-bottom:1px solid #ccc;">
+							<td align="left">Course Release:</td>
+							<th align="right">${_("{start_date}").format(start_date=course.start_date_text)}</th>
+						</tr>
+						<tr>
+							<td align="left">Estimated Effort:</td>
+							<!--@begin:use code(${get_course_about_section(course, "effort")}) relpace the static html code-->
+							<!--@date:2013-11-02-->
+							<th align="right">${get_course_about_section(course, "effort")}</th>
+							<!--@end-->
+						</tr>
+					</table>
+				  </div>
+				  <div style="background:#E1E1E1;margin:0 10px 10px 10px;line-height:20px;">
+					<p style="padding:10px 20px;"><b>Suggested Prerequisites:</b>
+						<br>
+						<!--@begin:read prerequisites from overview-->
+						<!--@date:2013-12-09-->
+            <%def name='prerequisites()'>
+              <%
+                text1=""
+                text2=""
+                overview_temp = get_course_about_section(course, "overview")
+                length1 = len(overview_temp.split('</section>'))
+                if length1 > 5:
+                    text1 = overview_temp.split('</section>')[5]
+                length2 = len(text1.split('<section class="prerequisites">'))
+                if length2 > 1:
+                    text2 = text1.split('<section class="prerequisites">')[1]
+              %>
+              ${text2}
+            </%def>
+            <span>${prerequisites()}<span>
+						<!--@end-->
+					</p>
+				  </div>
+				  <!--@begin:according to different situation(login/choose the course) to show the button-->
+				  <!--@date:2013-11-02-->
+			      %if user.is_authenticated():
+                    %if not CourseEnrollmentAllowed.objects.filter(email=user.email,course_id=course.id,is_active=True).exists():
+                      <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="" class="btnx _del_line request_access">Request Access</a>
+			        %elif CourseEnrollment.is_enrolled(request.user, course.id):
+			          <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
+			        %else:
+                      %if datetime.strptime(course.start_date_text,"%b %d, %Y").replace(tzinfo=UTC) > datetime.now(UTC):
+			            <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line disabled">Course Starting Soon!</a>
+                      %else:
+			            <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line">Sign Up & Start Course</a>
+                      %endif
+			        %endif
+                  %else:
+                    <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="/contact" class="btnx _del_line">Request Info</a>
+			      %endif
+				    <!--@end-->
+                    <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;background:#22B14C;cursor:default;" href="javascript:return false;" class="btnx _del_line">Your Price: $${course.paypal_purchase_price}</a>
+
+				</div>
+
+			</div>
+				<br style="clear:both;"/>
+		</div>
+		<!--@end-->
+	</div>
+</div>
+<form id="class_enroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+  <fieldset class="enroll_fieldset">
+    <input name="course_id" type="hidden" value="${course.id}">
+    <input name="enrollment_action" type="hidden" value="enroll">
+  </fieldset>
+</form>
+<section id="apply_name_change" class="modal">
+  <div class="inner-wrapper" style="padding-bottom:10px;">
+    <header style="padding:10px 5px 0 5px;margin-bottom:5px">
+      <img src="/static/images/header-logo.png" class="" alt="" height="30"/>
+    </header>
+    <div style="margin-top:0;color:black;padding:0 30px;">
+      Thank you for your interest in this course! A request has been sent to your administrator.
+    </div>
+    <div style="padding-top:20px;text-align:right">
+      <input type="button" class="btnx" id="access_success_ok" value="OK" style="padding:5px 15px"/>
+    </div>
+    <div class="close-modal" id="access_success_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="text/javascript">
+  (function() {
+	if($(".course_org").html()==null||$(".course_org").html()=="") {
+      $("#div_course_org").html("<img src=/static/images/Course_Details_Default.png width='320' height='211' />");
+    } else {
+      $("#div_course_org").html($(".course_org").html());
+    }
+    $(".register").click(function(event) {
+      %if not user.is_staff: 
+      if($(this).hasClass("disabled")){
+        return false;
+      }
+      %endif
+      $("#class_enroll_form").submit();
+      event.preventDefault();
+    });
+    
+    $(".request_access").click(function(event) {
+      var url="${reverse('request_course_access')}";
+      var course_id="${course.id}";
+      $.post(url,{course_id:course_id,csrfmiddlewaretoken:'${csrf_token}'},function(r){
+        if((typeof r)=="string")
+          r = $.parseJSON(r);
+        if (r.success) {
+
+          $("<a href='#apply_name_change'></a>").leanModal({closeButton:'#access_success_close,#access_success_ok'}).click();
+            
+        } else {
+          alert("An error occured");
+        }        
+      });
+      return false;
+    });
+    ## making the conditional around this entire JS block for sanity
+    %if settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+    $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+      if(xhr.status == 200) {
+        location.href = "${reverse('dashboard')}";
+      } else if (xhr.status == 403) {
+        location.href = "${reverse('course-specific-register', args=[course.id])}?course_id=${course.id}&enrollment_action=enroll";
+      } else if (xhr.status == 400) { //This means the user did not have permission
+        $('#register_error').html('This course has restricted enrollment.  Sorry, you do not have permission to enroll.<br />' +
+                                  'You may need to log out and re-login with a university account, such as WebAuth'
+        ).css("display", "block");
+      } else {
+        $('#register_error').html(
+          (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
+        ).css("display", "block");
+      }
+    });
+    %else:
+    $('#class_enroll_form').on('ajax:complete', function(event, xhr) {
+      if(xhr.status == 200) {
+        location.href = "${reverse('dashboard')}";
+      } else if (xhr.status == 403) {
+        location.href = "${reverse('register_user',args=[''])}?course_id=${course.id}&enrollment_action=enroll";
+      } else {
+        $('#register_error').html(
+          (xhr.responseText ? xhr.responseText : 'An error occurred. Please try again later.')
+        ).css("display", "block");
+      }
+    });
+    %endif
+  })(this)
+    $(document).ready(function(){
+      var flipTitleIsChecked = "false";
+      var flipTitleIsChecked_faq = "false";
+      $(".flip-title-right").click(function(){
+        $(".flip-content").fadeToggle();
+        if(flipTitleIsChecked == "false"){
+          flipTitleIsChecked = "true";
+          $(".flip-title-right").html("- Close");
+        } else {
+          flipTitleIsChecked = "false";
+          $(".flip-title-right").html("+ Expand");
+        }
+      });
+      //--------------------------------
+      $(".flip-title-right-faq").click(function(){
+        $(".flip-content-faq").fadeToggle();
+        if(flipTitleIsChecked_faq == "false"){
+          flipTitleIsChecked_faq = "true";
+          $(".flip-title-right-faq").html("- Close");
+        } else {
+          flipTitleIsChecked_faq = "false";
+          $(".flip-title-right-faq").html("+ Expand");
+        }
+      });
+      $(".title h2").html('${course.display_name}');
+    });
+
+</script>

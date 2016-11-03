@@ -1,0 +1,207 @@
+<%
+from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+from django.core.urlresolvers import reverse
+%>
+
+<%inherit file="../main.html" />
+
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
+
+<style type="text/css" media="screen">
+ #dlg-enroll label{width:240px;display:inline-block;font-weight:bold;}
+ #dlg-enroll input[type=text]{width:500px;}
+ #dlg-enroll div.row{margin-bottom:10px;}
+ .green-button{display:inline-block;background:#22B14C;padding:7px 30px;color:#fff;cursor:default;}
+ #dlg-detail .content{padding:0;height:430px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;}
+</style>
+
+<div class="modal" id="dlg-detail" style="width:1100px;height:500px;margin-left:-550px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="titlebar">
+      <h3 class="dialog-title">Course Detail</h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+
+<section class="container" style="padding:10px;text-align:center;background:#F5F5F5;">
+  <div id="dlg-enroll" style="border-radius:0;text-align:left;display:none;">
+    <div style="line-height:30px;">
+    <div> <b>Step 1: Complete your contact informatioin below.</b></div>
+    <div>Have questions?</div>
+    <div style="font-weight:bold;" class="clearfix"> User Information <span style="float:right;">*Required field</span></div>
+    </div>
+    <hr />
+    <div style="padding-left:20px;">
+      <div class="row"><label>First Name*</label> <input type="" name="first_name" value="" /></div>
+      <div class="row"><label>Last Name*</label> <input type="" name="last_name" value="" /></div>
+      <div class="row"><label>Email*</label> <input type="" name="email" value="" /></div>
+      <div class="row"><label>Phone Number*</label> <input type="" name="phone" value="" /></div>
+      <div class="row"><label>School District/Organization</label> <input type="" name="dist_org" value="" /></div>
+      <div class="row"><label>School District/Organization Website</label> <input type="" name="dist_org_website" value="" /></div>
+      <div  class="row">
+        <label>State*</label>
+        <div style="border: 1px solid rgb(200,200,200);display:inline-block;">
+          <select id="" name="state_id" autocomplate="off">
+            <option value=""></option>
+            %for item in State.objects.all().order_by('name'):
+            <option value="${item.id}">${item.name}</option>
+            %endfor
+          </select>
+        </div>
+      </div>
+      <div  class="row"><label>Country</label> <input type="" name="country" value="" /></div>
+    </div>
+    <div style="text-align:right;">
+      <span id="btnNext" class="green-button">Next</span>
+    </div>
+  </div>
+
+  <div id="main-section">
+    %if not email:
+    <center> <b style="font-size:21px;line-height:40px;">Explore Pepper Courses Available for Purchase</b> </center>
+    <p style="text-align:left;line-height:31px;">
+      Please explore these professional development courses and workshops available for individual purchase.<br/>
+      If you are insterested in purchasing access and courses for multiple users, <a>click here</a>.
+    </p>
+    %else:
+    <div style="text-align:left;line-height:31px;">
+      <b>Step 2: Add course to your shopping cart . Yout can view more information about <br/>each course by clicking on the tile. </b>Your can view your cart here
+      <form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" style="display: inline-block;">
+        <input type="hidden" name="cmd" value="_s-xclick">
+        <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+                                                     ">
+        <img src="https://www.paypalobjects.com/en_US/i/btn/btn_viewcart_SM.gif" border="0"
+             alt="PayPal - The safer, easier way to pay online!" onclick="$(this).closest('form').submit()"/>
+
+        <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+      </form>
+    </div>
+    %endif
+
+    <div class="clearfix" style="text-align:left">
+      %for c in courses:
+      <div style="display:inline-block">
+        <%include file="course_icon.html" args="course=c" />
+        %if email:
+        <div id="" style="text-align:center;"> <span style="font-size:12px;">Discount Code</span>
+          <input type="" name="" value="" style="width:120px;height:20px;font-size:12px;border:1px solid #000;padding:0;" />
+          <img src="/static/images/shopping/PayPal_check.png" class="btn-discount" alt="" course_id="${c.id}" style="width:20px;"/>
+          <form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" style="margin-top:5px;">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="${c.paypal_link}">
+            <img src="https://www.paypalobjects.com/en_US/i/btn/btn_cart_LG.gif" border="0"
+                   alt="PayPal - The safer, easier way to pay online!" onclick="$(this).closest('form').submit()"/>
+            <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+          </form>          
+        </div>
+        %endif
+      </div>
+      %endfor
+    </div>
+    %if not email:
+    <div style="text-align:right;">
+      <span id="btnEnroll" name="" value="" class="green-button">Enroll Now!</span>
+    </div>
+    %endif
+  </div>
+  
+</section>
+<div style="" id="dialog" class="modal">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content"></div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(".card-link").click(function(e){
+    e.preventDefault();
+    var dlg = new Dialog("#dlg-detail");
+    dlg.show();
+    $.get(this.href, function(r){
+      $("#dlg-detail .content").html(r);
+    }, "text");
+  });
+  $("#btnEnroll").click(function(){
+    /* var dlg = new Dialog("#dlg-enroll");
+       dlg.show(); */
+    $("#dlg-enroll").show();
+    $("#main-section").hide();
+  });
+  var $form = $("#dlg-enroll");
+  var regs = {
+    first_name: /[\S]+/,
+    last_name: /[\S]+/,
+    email: /^\s*\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*\s*$/,  
+    phone: /^\s*[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}\s*$/,
+    state_id: /[\S]+/
+  }
+  function validField(field){
+    var $field = $(field);
+    var value = $field.val();
+    var reg = regs[$field.prop('name')];
+    var $b = $field.prop('tagName').toLowerCase()=='select' ? $field.parent() : $field;
+    if(!reg.test(value)){
+      $b.css("border-color", "#f00");
+      return false;
+    }else{
+      $b.css("border-color", "rgb(200, 200, 200)");
+      return true;
+    }
+  }
+  $fields = $form.find("*[name=email], *[name=phone], *[name=first_name], *[name=last_name], *[name=state_id]"); 
+  $fields.keyup(function(){
+    validField(this);
+  });
+  $fields.change(function(){
+    validField(this);
+  });
+
+  var dlgAlert = new Dialog($('#dialog'));
+  $("#btnNext").click(function(){
+    var data = {};
+    var valided = true;
+    $fields.each(function(){
+      if(!validField(this)){
+        valided = false;
+        return false;
+      }
+      data[this.name] = $.trim($(this).val());
+    });
+    if(!valided)
+      return;
+    $.post('${reverse('shopping_enroll_post')}', data, function(r){
+      if(!r.success){
+        dlgAlert.show("", "An error occured.");
+        return;
+      }
+      if(r.user_exists){
+        dlgAlert.show("", "Please login and request access to the course<br><a href='/login' style='font-size:27px;'>Existing user login here</a>")
+      }else{
+        window.location.href = "${reverse('shopping_course_list')}?email=" + data['email'];
+      }
+    });
+  });
+  $(".btn-discount").click(function(){
+    var self = this; 
+    var course_id = $(this).attr("course_id");
+    var discount_code = $.trim($(this).prev("input").val());
+    var data = {course_id: course_id, discount_code: discount_code};
+    $.post('${reverse('shopping_valid_discount_code')}',data , function(r){
+      if(r.success){
+        if(r.matched){
+          dlgAlert.show('', 'The code is verified, please click on the Add to Cart button to proceed');
+          $(self).next("form").find("input[name=hosted_button_id]").val(discount_code);
+        }else{
+          dlgAlert.show('', 'code\'s not matched');
+        }
+      }
+    });
+  });
+</script>
+
