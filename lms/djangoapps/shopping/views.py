@@ -119,8 +119,7 @@ def enroll_post(request):
         Country: %s
         """ % (username, first_name, last_name, email, phone, dist_org, dist_org_website, state.name, country)
 
-        # peppersupport@pcgus.com
-        send_html_mail(subject, body, settings.SUPPORT_EMAIL, ["mailfcl@126.com"])
+        send_html_mail(subject, body, settings.SUPPORT_EMAIL, ["peppersupport@pcgus.com"])
         
         db.transaction.commit()
         json_out = {'success': True, 'user_exists': False}
