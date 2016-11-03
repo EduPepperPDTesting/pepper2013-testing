@@ -886,3 +886,6 @@ div.card-bottom table tr:nth-child(2) {
 .info-tile-img {
     padding-right: 4px !important;
 }
+table.cke_dialog.cke_browser_webkit.cke_ltr {
+    z-index: 100000 !important;
+}
