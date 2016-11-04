@@ -36,17 +36,12 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
 
 from io import BytesIO
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.platypus import Paragraph, Table
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.lib.utils import simpleSplit
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.fonts import addMapping
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 @login_required
@@ -913,7 +908,6 @@ def download_students_excel(request):
         p.drawOn(c, 50, 625)
 
         c.setFont("Helvetica", 16)
-        #c.drawString(50, 625, "Training Name: " + training.name)
         c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
         c.drawString(50, 578, "Instructor:")
 
@@ -962,7 +956,7 @@ def download_students_excel(request):
         c.drawCentredString(505, base_table_y + 10, "Signature")
 
         # ------------------------------------------------------------------------------------tr
-        base_font_size = 9;
+        base_font_size = 8;
         ty = base_table_y;
         student_index = 0;
         studentList = PepRegStudent.objects.filter(training_id=training_id);
@@ -970,9 +964,9 @@ def download_students_excel(request):
 
         table_style = styleSheet['BodyText']
         table_style.fontName = "Helvetica"
-        table_style.fontSize = 9
+        table_style.fontSize = base_font_size
         table_style.leading = 10
-
+        c.setFont("Helvetica", base_font_size)
         for reg_stu in studentList:
             tr_height = 30
 
@@ -1000,7 +994,7 @@ def download_students_excel(request):
 
                         p.drawOn(c, 265, ty - tr_height + 5)
                     else:
-                        c.drawCentredString(305, ty - tr_height + 10, pro.school.name)
+                        c.drawCentredString(305, ty - 15, pro.school.name)
 
             ty -= tr_height;
 
@@ -1014,32 +1008,49 @@ def download_students_excel(request):
             if (reg_stu.student.first_name):
                 tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    p = Paragraph(reg_stu.student.first_name, table_style)
-                    w2, h2 = p.wrap(70, 100)
-                    h2 += 10
-                    p.drawOn(c, 15, ty + (tr_height / 2) - (h2 / 2) + 5)
+                    frist_tmp1 = len(reg_stu.student.first_name) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.first_name[0: frist_tmp1], "Helvetica", base_font_size)
+                        if(frist_tmp2 > 70):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(13, ty + tr_height - 13, reg_stu.student.first_name[0: frist_tmp1])
+                    c.drawString(13, ty + tr_height - 23, reg_stu.student.first_name[frist_tmp1:])
                 else:
-                    c.drawCentredString(50, ty + tr_height / 2 - 5, reg_stu.student.first_name)
+                    c.drawCentredString(50, ty + tr_height - 15, reg_stu.student.first_name)
 
             if (reg_stu.student.last_name):
                 tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    p = Paragraph(reg_stu.student.last_name, table_style)
-                    w2, h2 = p.wrap(70, 100)
-                    h2 += 10
-                    p.drawOn(c, 95, ty + (tr_height / 2) - (h2 / 2) + 5)
+                    frist_tmp1 = len(reg_stu.student.last_name) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.last_name[0: frist_tmp1], "Helvetica", base_font_size)
+                        if (frist_tmp2 > 70):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(93, ty + tr_height - 13, reg_stu.student.last_name[0: frist_tmp1])
+                    c.drawString(93, ty + tr_height - 23, reg_stu.student.last_name[frist_tmp1:])
                 else:
-                    c.drawCentredString(130, ty + tr_height / 2 - 5, reg_stu.student.last_name)
+                    c.drawCentredString(130, ty + tr_height - 15, reg_stu.student.last_name)
 
             if (reg_stu.student.email):
-                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
-                if (tmp_email_width > 80):
-                    p = Paragraph(reg_stu.student.email, table_style)
-                    w2, h2 = p.wrap(80, 100)
-                    h2 += 10
-                    p.drawOn(c, 175, ty + (tr_height / 2) - (h2 / 2) + 5)
+                if (tmp_email_width > 85):
+                    frist_tmp1 = len(reg_stu.student.email) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.email[0: frist_tmp1], "Helvetica", base_font_size)
+                        if (frist_tmp2 > 80):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(173, ty + tr_height - 13, reg_stu.student.email[0: frist_tmp1])
+                    c.drawString(173, ty + tr_height - 23, reg_stu.student.email[frist_tmp1:])
                 else:
-                    c.drawCentredString(215, ty + tr_height / 2 - 5, reg_stu.student.email)
+                    c.drawCentredString(215, ty + tr_height - 15, reg_stu.student.email)
 
             if student_index == lastpos:
                 c.showPage()
@@ -1050,7 +1061,7 @@ def download_students_excel(request):
                     c.showPage()
                     c.setStrokeColor(colors.black)
                     c.setFillColor(colors.black)  # C7,F4,65s
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", base_font_size)
 
                 student_index += 1;
 
