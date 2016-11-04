@@ -6,6 +6,7 @@ from django import db
 from datetime import datetime, timedelta, date
 from pytz import UTC
 from django.contrib.auth.models import User
+
 import urllib2
 from courseware.courses import (get_courses, get_course_with_access,
                                 get_courses_by_university, sort_by_announcement)
@@ -35,17 +36,12 @@ from student.models import (Registration, UserProfile, TestCenterUser, TestCente
 
 from io import BytesIO
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.platypus import Paragraph, Table
 from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.lib.utils import simpleSplit
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.fonts import addMapping
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 @login_required
@@ -143,7 +139,8 @@ def build_sorts(columns, sorts):
 
 
 def reach_limit(training):
-    return training.max_registration > 0 and PepRegStudent.objects.filter(training=training).count() >= training.max_registration
+    return training.max_registration > 0 and PepRegStudent.objects.filter(
+        training=training).count() >= training.max_registration
 
 
 def instructor_names(training):
@@ -204,13 +201,13 @@ def rows(request):
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
-        remain = item.max_registration - PepRegStudent.objects.filter(training=item).count() if item.max_registration > 0 else -1
+        remain = item.max_registration - PepRegStudent.objects.filter(
+            training=item).count() if item.max_registration > 0 else -1
 
         status = ""
         all_edit = "0"
         all_delete = "0"
 
-        status = ""
         if PepRegStudent.objects.filter(student=request.user, training=item).exists():
             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
 
@@ -293,7 +290,7 @@ def save_training(request):
             training.pepper_course = ""
             training.credits = request.POST.get("credits", 0)
             training.attendancel_id = request.POST.get("attendancel_id", "")
-        
+
         training.subject = request.POST.get("subject")
         training.training_date = request.POST.get("training_date", "")
         training.training_time_start = request.POST.get("training_time_start", "")
@@ -301,7 +298,7 @@ def save_training(request):
         training.classroom = request.POST.get("classroom", "")
         training.geo_location = request.POST.get("geo_location", "")
         training.geo_props = request.POST.get("geo_props", "")
-        
+
         training.allow_registration = request.POST.get("allow_registration", False)
         training.max_registration = request.POST.get("max_registration", 0)
         training.allow_attendance = request.POST.get("allow_attendance", False)
@@ -310,7 +307,7 @@ def save_training(request):
         training.user_modify = request.user
         training.date_modify = datetime.now(UTC)
         training.save()
-        
+
         emails_get = request.POST.get("instructor_emails");
         if(emails_get):
             for emails in request.POST.get("instructor_emails", "").split(","):
@@ -318,7 +315,7 @@ def save_training(request):
                 email = tmp1[0];
                 all_edit = True if tmp1[1] == "1" else False;
                 all_delete = True if tmp1[2] == "1" else False;
-				
+
                 if User.objects.filter(email=email).exists():
                     pi = PepRegInstructor()
                     pi.training = training
@@ -328,7 +325,7 @@ def save_training(request):
                     pi.all_edit = all_edit;
                     pi.all_delete = all_delete;
                     pi.save()
-                    
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -357,11 +354,11 @@ def training_json(request):
     for pi in PepRegInstructor.objects.filter(training=item):
         all_edit = "1" if pi.all_edit else "0"
         all_delete = "1" if pi.all_delete else "0"
-		
+
         instructor_emails.append(pi.instructor.email + "::" + all_edit  + "::" + all_delete)
 
     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
-        
+
     data = {
         "id": item.id,
         "type": item.type,
@@ -385,9 +382,9 @@ def training_json(request):
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
         "arrive": arrive
-        }
-    
+    }
     return HttpResponse(json.dumps(data), content_type="application/json")
+
 
 def getCalendarInfo(request):
     name_dict = {};
@@ -396,6 +393,7 @@ def getCalendarInfo(request):
     name_dict["month"] = now().month;
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json");
+
 
 def getCalendarMonth(request):
     SHIFT_WEEKSTART = 0;
@@ -422,7 +420,7 @@ def getCalendarMonth(request):
     if (_day):
         _day = int(_day);
 
-    if not (_catype):
+    if not(_catype):
         _catype = "0";
 
     firstweekday = 0 + SHIFT_WEEKSTART
@@ -443,7 +441,7 @@ def getCalendarMonth(request):
         2: ['district__name', '__iexact', 'str']
     }
     filters = get_post_array(request.GET, 'fcol')
-    # filters[1] = request.user.profile.district.state.name
+    #filters[1] = request.user.profile.district.state.name
     filters[2] = request.user.profile.district.name
     if len(filters):
         args, kwargs = build_filters(columns, filters)
@@ -467,7 +465,7 @@ def getCalendarMonth(request):
             date = datetime(year=_year, month=_month, day=day, tzinfo=utc)
             for item in all_occurrences:
                 if (item.training_date == date.date()):
-                    if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                    if(item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                         continue;
 
                     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
@@ -486,13 +484,13 @@ def getCalendarMonth(request):
                     titlex = item.name + "::" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
 
                     if item.classroom:
-                        titlex = titlex + "::" + item.classroom;
+                        titlex = titlex  + "::" + item.classroom;
 
                     if item.geo_location:
-                        titlex = titlex + "::" + item.geo_location;
+                        titlex = titlex  + "::" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
-                        if (_catype == "0" or _catype == "4"):
+                        if(_catype == "0" or _catype == "4"):
                             occurrences.append(
                                 "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
 
@@ -505,25 +503,23 @@ def getCalendarMonth(request):
                             if (status == "Registered"):
                                 # checked true
                                 if (_catype == "0" or _catype == "3"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
-                                        item.id) + "' checked /> ";
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
                                     occurrences.append(
                                         "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
                                 if (_catype == "0" or _catype == "2"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
-                                        item.id) + "' /> ";
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
                                     occurrences.append(
                                         "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
-                        # The registration date has passed for this training
+                        #The registration date has passed for this training
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "0"):
-                        # Instructor records attendance.
+                        #Instructor records attendance.
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "1"):
@@ -580,13 +576,15 @@ def getCalendarMonth(request):
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json");
 
+
 def remove_student(student):
     if student.training.type == "pepper_course":
         CourseEnrollment.unenroll(student.student, student.training.pepper_course)
-        CourseEnrollmentAllowed.objects.filter(email=student.student.email, course_id=student.training.pepper_course).delete()
+        CourseEnrollmentAllowed.objects.filter(email=student.student.email,
+                                               course_id=student.training.pepper_course).delete()
     student.delete()
 
-    
+
 def register(request):
     try:
         join = request.POST.get("join", "false") == "true"
@@ -618,14 +616,15 @@ def register(request):
             student.save()
 
             if training.type == "pepper_course":
-                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email, course_id=training.pepper_course)
+                cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
+                                                                             course_id=training.pepper_course)
                 cea.is_active = True
                 cea.save()
                 CourseEnrollment.enroll(student_user, training.pepper_course)
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
-    
+
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -650,7 +649,7 @@ def set_student_attended(request):
 
         student.user_modify = request.user
         student.date_modify = datetime.now(UTC)
-       
+
         if yn == "true":
             student.student_status = "Attended"
             if not training.allow_validation:
@@ -676,7 +675,7 @@ def set_student_attended(request):
                     }
         else:
             data = None
-        
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -692,10 +691,10 @@ def set_student_validated(request):
 
         training = PepRegTraining.objects.get(id=training_id)
         student = PepRegStudent.objects.get(training_id=training_id, student_id=student_id)
-  
+
         student.user_modify = request.user
         student.date_modify = datetime.now(UTC)
-       
+
         if yn == "true":
             student.student_status = "Validated"
             student.student_credit = training.credits
@@ -714,7 +713,7 @@ def set_student_validated(request):
                 "student_credit": student.student_credit,
                 "student_id": student.student_id,
                 }
-        
+
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -737,7 +736,7 @@ def student_list(request):
                 "is_validated": item.student_status == "Validated",
                 "student_credit": item.student_credit,
                 "student_id": item.student_id,
-                })
+            })
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
@@ -772,13 +771,13 @@ def get_courses_drop(state_name, district_code):
     courses = modulestore().collection.find({'_id.category': 'course', 'metadata.display_district': district_code})
     if courses.count() > 0:
         matches_district.append('ALL')
-    
+
     flt = {
         '_id.category': 'course',
-        'metadata.display_state':  {'$in': matches_district},
+        'metadata.display_state': {'$in': matches_district},
         'metadata.display_district': {'$in': matches_state}
-        }
-    
+    }
+
     courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(courses), 0)
     return courses
@@ -819,12 +818,11 @@ def download_students_excel(request):
 
     training = PepRegTraining.objects.get(id=training_id)
 
-    if (last_date):
+    if(last_date):
         name_dict = {};
         _res = "0";
         try:
-            EMAIL_TEMPLATE_DICT = {'training_email': (
-            'emails/training_student_email_subject.txt', 'emails/training_student_email_message.txt')}
+            EMAIL_TEMPLATE_DICT = {'training_email': ('emails/training_student_email_subject.txt', 'emails/training_student_email_message.txt')}
 
             subject_template, message_template = EMAIL_TEMPLATE_DICT.get("training_email", (None, None))
 
@@ -840,8 +838,7 @@ def download_students_excel(request):
                 param_dict["first_name"] = userx.first_name;
                 param_dict["last_name"] = userx.last_name;
                 param_dict["district_name"] = training.district.name;
-                param_dict["training_time_start"] = str('{d:%I:%M %p}'.format(d=training.training_time_start)).lstrip(
-                    '0');
+                param_dict["training_time_start"] = str('{d:%I:%M %p}'.format(d=training.training_time_start)).lstrip('0');
 
                 if training.classroom == "" and training.geo_location == "":
                     param_dict["classroom"] = "";
@@ -877,7 +874,7 @@ def download_students_excel(request):
         name_dict["_res"] = _res;
         return HttpResponse(json.dumps(name_dict), content_type="application/json");
 
-    elif (flag_pdf):
+    elif(flag_pdf):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="' + training.name + flag_pdf + '.pdf"'
 
@@ -911,8 +908,7 @@ def download_students_excel(request):
         p.drawOn(c, 50, 625)
 
         c.setFont("Helvetica", 16)
-        # c.drawString(50, 625, "Training Name: " + training.name)
-        c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d=training.training_date)))
+        c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
         c.drawString(50, 578, "Instructor:")
 
         instructor_y = 575
@@ -934,7 +930,7 @@ def download_students_excel(request):
                 tmp_names = "";
                 tmp_flag = 0;
 
-        if not (tmp_names == ""):
+        if not(tmp_names == ""):
             c.drawString(130, instructor_y + 3, tmp_names)
 
         # ------------------------------------------------------------------------------------head
@@ -960,7 +956,7 @@ def download_students_excel(request):
         c.drawCentredString(505, base_table_y + 10, "Signature")
 
         # ------------------------------------------------------------------------------------tr
-        base_font_size = 9;
+        base_font_size = 8;
         ty = base_table_y;
         student_index = 0;
         studentList = PepRegStudent.objects.filter(training_id=training_id);
@@ -968,9 +964,9 @@ def download_students_excel(request):
 
         table_style = styleSheet['BodyText']
         table_style.fontName = "Helvetica"
-        table_style.fontSize = 9
+        table_style.fontSize = base_font_size
         table_style.leading = 10
-
+        c.setFont("Helvetica", base_font_size)
         for reg_stu in studentList:
             tr_height = 30
 
@@ -998,7 +994,7 @@ def download_students_excel(request):
 
                         p.drawOn(c, 265, ty - tr_height + 5)
                     else:
-                        c.drawCentredString(305, ty - tr_height + 10, pro.school.name)
+                        c.drawCentredString(305, ty - 15, pro.school.name)
 
             ty -= tr_height;
 
@@ -1012,32 +1008,49 @@ def download_students_excel(request):
             if (reg_stu.student.first_name):
                 tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    p = Paragraph(reg_stu.student.first_name, table_style)
-                    w2, h2 = p.wrap(70, 100)
-                    h2 += 10
-                    p.drawOn(c, 15, ty + (tr_height / 2) - (h2 / 2) + 5)
+                    frist_tmp1 = len(reg_stu.student.first_name) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.first_name[0: frist_tmp1], "Helvetica", base_font_size)
+                        if(frist_tmp2 > 70):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(13, ty + tr_height - 13, reg_stu.student.first_name[0: frist_tmp1])
+                    c.drawString(13, ty + tr_height - 23, reg_stu.student.first_name[frist_tmp1:])
                 else:
-                    c.drawCentredString(50, ty + tr_height / 2 - 5, reg_stu.student.first_name)
+                    c.drawCentredString(50, ty + tr_height - 15, reg_stu.student.first_name)
 
             if (reg_stu.student.last_name):
                 tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    p = Paragraph(reg_stu.student.last_name, table_style)
-                    w2, h2 = p.wrap(70, 100)
-                    h2 += 10
-                    p.drawOn(c, 95, ty + (tr_height / 2) - (h2 / 2) + 5)
+                    frist_tmp1 = len(reg_stu.student.last_name) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.last_name[0: frist_tmp1], "Helvetica", base_font_size)
+                        if (frist_tmp2 > 70):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(93, ty + tr_height - 13, reg_stu.student.last_name[0: frist_tmp1])
+                    c.drawString(93, ty + tr_height - 23, reg_stu.student.last_name[frist_tmp1:])
                 else:
-                    c.drawCentredString(130, ty + tr_height / 2 - 5, reg_stu.student.last_name)
+                    c.drawCentredString(130, ty + tr_height - 15, reg_stu.student.last_name)
 
             if (reg_stu.student.email):
-                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
-                if (tmp_email_width > 80):
-                    p = Paragraph(reg_stu.student.email, table_style)
-                    w2, h2 = p.wrap(80, 100)
-                    h2 += 10
-                    p.drawOn(c, 175, ty + (tr_height / 2) - (h2 / 2) + 5)
+                if (tmp_email_width > 85):
+                    frist_tmp1 = len(reg_stu.student.email) / 2
+                    while 1:
+                        frist_tmp2 = stringWidth(reg_stu.student.email[0: frist_tmp1], "Helvetica", base_font_size)
+                        if (frist_tmp2 > 80):
+                            break;
+                        else:
+                            frist_tmp1 += 1
+
+                    c.drawString(173, ty + tr_height - 13, reg_stu.student.email[0: frist_tmp1])
+                    c.drawString(173, ty + tr_height - 23, reg_stu.student.email[frist_tmp1:])
                 else:
-                    c.drawCentredString(215, ty + tr_height / 2 - 5, reg_stu.student.email)
+                    c.drawCentredString(215, ty + tr_height - 15, reg_stu.student.email)
 
             if student_index == lastpos:
                 c.showPage()
@@ -1048,7 +1061,7 @@ def download_students_excel(request):
                     c.showPage()
                     c.setStrokeColor(colors.black)
                     c.setFillColor(colors.black)  # C7,F4,65s
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", base_font_size)
 
                 student_index += 1;
 
@@ -1147,4 +1160,3 @@ def download_students_pdf(request):
     workbook.close()
     response.write(output.getvalue())
     return response
-
