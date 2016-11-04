@@ -1008,7 +1008,7 @@ def download_students_excel(request):
             if (reg_stu.student.first_name):
                 tmp_email_width = stringWidth(reg_stu.student.first_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    frist_tmp1 = len(reg_stu.student.first_name) / 2
+                    frist_tmp1 = int(len(reg_stu.student.first_name) / 3)
                     while 1:
                         frist_tmp2 = stringWidth(reg_stu.student.first_name[0: frist_tmp1], "Helvetica", base_font_size)
                         if(frist_tmp2 > 70):
@@ -1024,13 +1024,13 @@ def download_students_excel(request):
             if (reg_stu.student.last_name):
                 tmp_email_width = stringWidth(reg_stu.student.last_name, "Helvetica", base_font_size)
                 if (tmp_email_width > 75):
-                    frist_tmp1 = len(reg_stu.student.last_name) / 2
+                    frist_tmp1 = int(len(reg_stu.student.last_name) / 3)
                     while 1:
                         frist_tmp2 = stringWidth(reg_stu.student.last_name[0: frist_tmp1], "Helvetica", base_font_size)
                         if (frist_tmp2 > 70):
                             break;
                         else:
-                            frist_tmp1 += 1
+                            frist_tmp1 += 2
 
                     c.drawString(93, ty + tr_height - 13, reg_stu.student.last_name[0: frist_tmp1])
                     c.drawString(93, ty + tr_height - 23, reg_stu.student.last_name[frist_tmp1:])
@@ -1038,14 +1038,15 @@ def download_students_excel(request):
                     c.drawCentredString(130, ty + tr_height - 15, reg_stu.student.last_name)
 
             if (reg_stu.student.email):
-                if (tmp_email_width > 85):
+                tmp_email_width = stringWidth(reg_stu.student.email, "Helvetica", base_font_size)
+                if (tmp_email_width > 80):
                     frist_tmp1 = len(reg_stu.student.email) / 2
                     while 1:
                         frist_tmp2 = stringWidth(reg_stu.student.email[0: frist_tmp1], "Helvetica", base_font_size)
                         if (frist_tmp2 > 80):
                             break;
                         else:
-                            frist_tmp1 += 1
+                            frist_tmp1 += 2
 
                     c.drawString(173, ty + tr_height - 13, reg_stu.student.email[0: frist_tmp1])
                     c.drawString(173, ty + tr_height - 23, reg_stu.student.email[frist_tmp1:])
