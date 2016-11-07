@@ -15,7 +15,6 @@ from django.core.urlresolvers import reverse
  .green-button{display:inline-block;background:#22B14C;padding:7px 30px;color:#fff;cursor:default;}
  #dlg-detail .content{padding:0;height:430px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;}
 </style>
-
 <div class="modal" id="dlg-detail" style="width:1100px;height:500px;margin-left:-550px;border-radius:0;">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
     <div class="titlebar">
@@ -25,7 +24,6 @@ from django.core.urlresolvers import reverse
     <div class="content"></div>
   </div>
 </div>
-
 <section class="container" style="padding:10px;text-align:center;background:#F5F5F5;">
   <div id="dlg-enroll" style="border-radius:0;text-align:left;display:none;">
     <div style="line-height:30px;">
@@ -58,13 +56,12 @@ from django.core.urlresolvers import reverse
       <span id="btnNext" class="green-button">Next</span>
     </div>
   </div>
-
   <div id="main-section">
     %if not email:
     <center> <b style="font-size:21px;line-height:40px;">Explore Pepper Courses Available for Purchase</b> </center>
     <p style="text-align:left;line-height:31px;">
       Please explore these professional development courses and workshops available for individual purchase.<br/>
-      If you are insterested in purchasing access and courses for multiple users, <a>click here</a>.
+      Click on <a href="#">"Join Pepper"</a> to sign up and shop for courses.
     </p>
     %else:
     <div style="text-align:left;line-height:31px;">
@@ -75,12 +72,10 @@ from django.core.urlresolvers import reverse
                                                      ">
         <img src="https://www.paypalobjects.com/en_US/i/btn/btn_viewcart_SM.gif" border="0"
              alt="PayPal - The safer, easier way to pay online!" onclick="$(this).closest('form').submit()" style="cursor:pointer;"/>
-
         <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
       </form>
     </div>
     %endif
-
     <div class="clearfix" style="text-align:left">
       %for c in courses:
       <div style="display:inline-block">
@@ -91,7 +86,7 @@ from django.core.urlresolvers import reverse
           <img src="/static/images/shopping/PayPal_check.png" class="btn-discount" alt="" course_id="${c.id}" style="width:20px;"/>
           <form target="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" style="margin-top:5px;">
             <input type="hidden" name="cmd" value="_s-xclick">
-            <input type="hidden" name="hosted_button_id" value="${c.paypal_link}">
+            <input type="hidden" name="hosted_button_id" value="${c.paypal_purchase_link}">
             <img src="https://www.paypalobjects.com/en_US/i/btn/btn_cart_LG.gif" border="0" style="cursor:pointer;"
                    alt="PayPal - The safer, easier way to pay online!" onclick="$(this).closest('form').submit()"/>
             <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
@@ -103,11 +98,10 @@ from django.core.urlresolvers import reverse
     </div>
     %if not email:
     <div style="text-align:right;">
-      <span id="btnEnroll" name="" value="" class="green-button">Enroll Now!</span>
+      <span id="btnEnroll" name="" value="" class="green-button">Join Pepper!</span>
     </div>
     %endif
   </div>
-  
 </section>
 <div style="" id="dialog" class="modal">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
@@ -161,7 +155,6 @@ from django.core.urlresolvers import reverse
   $fields.change(function(){
     validField(this);
   });
-
   var dlgAlert = new Dialog($('#dialog'));
   $("#btnNext").click(function(){
     var data = {};
@@ -192,7 +185,7 @@ from django.core.urlresolvers import reverse
     var course_id = $(this).attr("course_id");
     var discount_code = $.trim($(this).prev("input").val());
     var data = {course_id: course_id, discount_code: discount_code};
-    $.post('${reverse('shopping_valid_discount_code')}',data , function(r){
+    $.post("${reverse('shopping_valid_discount_code')}",data , function(r){
       if(r.success){
         if(r.matched){
           dlgAlert.show('', 'The code is verified, please click on the Add to Cart button to proceed');
@@ -204,4 +197,3 @@ from django.core.urlresolvers import reverse
     });
   });
 </script>
-
