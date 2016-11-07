@@ -994,7 +994,7 @@ def download_students_excel(request):
 
                         p.drawOn(c, 265, ty - tr_height + 5)
                     else:
-                        c.drawCentredString(305, ty - 15, pro.school.name)
+                        c.drawCentredString(305, ty - 15, tmp_name)
 
             ty -= tr_height;
 
