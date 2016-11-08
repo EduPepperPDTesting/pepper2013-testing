@@ -117,6 +117,7 @@ from django.core.urlresolvers import reverse
     e.preventDefault();
     var dlg = new Dialog("#dlg-detail");
     dlg.show();
+    $("#dlg-detail .content").html("");
     $.get(this.href, function(r){
       $("#dlg-detail .content").html(r);
     }, "text");
