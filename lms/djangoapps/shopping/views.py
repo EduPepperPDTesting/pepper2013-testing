@@ -65,7 +65,9 @@ def valid_discount_code(request):
     try:
         course_loc = CourseDescriptor.id_to_location(course_id)
         course = modulestore().get_instance(course_id, course_loc)
-        json_out = {'success': True, 'matched': discount_code == course.paypal_discount_code}
+        json_out = {'success': True,
+                    'matched': discount_code == course.paypal_discount_code,
+                    'discount_link': course.paypal_discount_link}
     except Exception as e:
         json_out = {'success': False, 'message': '%s' % e}
 

@@ -189,7 +189,7 @@ from django.core.urlresolvers import reverse
       if(r.success){
         if(r.matched){
           dlgAlert.show('', 'The code is verified, please click on the Add to Cart button to proceed');
-          $(self).next("form").find("input[name=hosted_button_id]").val(discount_code);
+          $(self).next("form").find("input[name=hosted_button_id]").val(r.discount_link);
         }else{
           dlgAlert.show('', 'code\'s not matched');
         }
