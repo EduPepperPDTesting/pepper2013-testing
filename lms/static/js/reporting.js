@@ -60,9 +60,12 @@ function viewSelect(related_url, columns_url) {
         // Get the columns and add them to the column selector and filter dropdowns.
         var views = $('.view-select').val();
         var get_data = {};
+        /*
         $.each(views, function (index, value) {
             get_data['view[' + index + ']'] = value;
         });
+        */
+        get_data['view[0]'] = views;
         $.get(columns_url, get_data, function (data) {
             // Add the checkbox selectors for the column selectors.
             if (data.length) {
