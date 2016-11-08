@@ -21,7 +21,7 @@ def course_list(request):
         UserProfile.objects.get(user__email=email, subscription_status='Imported')
     except:
         email = ""
-    filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$nin": ("", None)}}  # {"$nin": ("", None)}
+    filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$ne": None}}  # {"$nin": ("", None)}
     items = modulestore().collection.find(filterDic)
     courses = modulestore()._load_items(list(items), 0)
     return render_to_response("shopping/course_list.html", {'courses': courses, 'email': email})
