@@ -274,11 +274,7 @@
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=ELL&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>English Language Learners</span></a>
                         </div>
-                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/ARTS.jpg);background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="/courses-list?subject_id=ARTS&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Visual & Performing Arts</span></a>
-                        </div>
-
+                        
                         %if request.user.is_authenticated() and len(states) > 0:
 
                             <!--------State Content Collection-------->
@@ -303,6 +299,10 @@
                         <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/Pepper_Online_Workshop.jpg);background-size:100% 100%;">
                             <div style="height:100px;"></div>
                             <a href="/courses-list?subject_id=POW&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Pepper's Online Workshops</span></a>
+                        </div>
+                        <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/ARTS.jpg);background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="/courses-list?subject_id=ARTS&grade_id=all&author_id=all&op=find" class="card-link image-bottom-style"><span>Visual & Performing Arts</span></a>
                         </div>
                         <div class="image-link-style" style="width:240px;height:150px;background-image: url(/static/images/DC-digital_citiznship_tile.jpg);background-size:100% 100%;">
                             <div style="height:100px;"></div>
