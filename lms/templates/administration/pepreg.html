@@ -822,7 +822,7 @@
 		});
 		
 		$("#district_id").change(function(){
-			/*if($("#school_id").attr("flag_system") == "1"){
+			if($("#school_id").attr("flag_system") == "1"){
 				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
 					$("#school_id").empty();
 					$("#school_id").append('<option value=""></option>');        
@@ -832,7 +832,7 @@
 						}
 					}
 				});
-			}*/
+			}
 		});
 	});	
 	
@@ -1059,7 +1059,7 @@
         self.fillData(data);						
 		
 		// ************* school id
-		/*if($("#school_id").attr("flag_system") == "1"){
+		if($("#school_id").attr("flag_system") == "1"){
 			var school_id = data.school_id;
 			$("#school_id").empty();	
 			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
@@ -1071,7 +1071,7 @@
 					if(school_id)		$("#school_id").val(school_id);
 				}
 			});
-		}*/
+		}
         // ************* input map
         var hits = {};
         $('input[name=geo_location]').autocomplete({
