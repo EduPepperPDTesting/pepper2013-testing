@@ -228,6 +228,8 @@ from django.core.urlresolvers import reverse
     var course_id = $(this).attr("course_id");
     var discount_code = $.trim($(this).prev("input").val());
     var data = {course_id: course_id, discount_code: discount_code};
+    if(discount_code == "")
+      return;
     $.post("${reverse('shopping_valid_discount_code')}",data , function(r){
       if(r.success){
         if(r.matched){
@@ -235,7 +237,7 @@ from django.core.urlresolvers import reverse
           $(self).prev("form").find("input[name=hosted_button_id]").val(r.discount_link);
           $(self).prev("form").submit();
         }else{
-          dlgAlert.show('', 'code\'s not matched');
+          dlgAlert.show('', 'Code\'s not matched');
         }
       }
     });
