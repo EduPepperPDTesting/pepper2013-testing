@@ -154,8 +154,7 @@ class TextbookList(List):
 
 class CourseFields(object):
     paypal_purchase_price = String(help="", default="0", scope=Scope.settings)
-    populating = Boolean(help="Whether to put the course on the purchase page", default=False, scope=Scope.settings)
-    paypal_link = String(help="PayPal purchase link for the course", default="", scope=Scope.settings)
+    paypal_purchase_link = String(help="PayPal purchase link for the course", default="", scope=Scope.settings)
     paypal_discount_code = String(help="", default="", scope=Scope.settings)
     paypal_discount_link = String(help="", default="", scope=Scope.settings)
     

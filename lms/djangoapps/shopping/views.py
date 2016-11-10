@@ -21,7 +21,7 @@ def course_list(request):
         UserProfile.objects.get(user__email=email, subscription_status='Imported')
     except:
         email = ""
-    filterDic = {'_id.category': 'course', 'metadata.populating': True}
+    filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$ne": "", "$exists": True}}  # {"$nin": ("", None)}
     items = modulestore().collection.find(filterDic)
     courses = modulestore()._load_items(list(items), 0)
     return render_to_response("shopping/course_list.html", {'courses': courses, 'email': email})
@@ -65,7 +65,9 @@ def valid_discount_code(request):
     try:
         course_loc = CourseDescriptor.id_to_location(course_id)
         course = modulestore().get_instance(course_id, course_loc)
-        json_out = {'success': True, 'matched': discount_code == course.paypal_discount_code}
+        json_out = {'success': True,
+                    'matched': discount_code == course.paypal_discount_code,
+                    'discount_link': course.paypal_discount_link}
     except Exception as e:
         json_out = {'success': False, 'message': '%s' % e}
 
