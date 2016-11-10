@@ -78,6 +78,9 @@ from administration.models import PepRegStudent
 from reporting.models import reporting_store
 #@end
 
+from administration.models import UserLoginInfo
+from datetime import timedelta
+
 log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
@@ -1023,6 +1026,29 @@ def login_user(request, error=""):
                             secure=None,
                             httponly=None)
 
+        #@begin:record user login time
+        #@date:2016-08-22
+        utctime_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        utctime_30m_str = (datetime.datetime.utcnow() + timedelta(seconds=30*60)).strftime('%Y-%m-%d %H:%M:%S')
+
+        user_log_info = UserLoginInfo.objects.filter(user_id=user.id)
+        if user_log_info:
+            user_log_info[0].login_time = utctime_str
+            user_log_info[0].logout_time = utctime_30m_str
+            user_log_info[0].temp_time = utctime_str
+
+            user_log_info[0].last_session = 60 * 30
+            user_log_info[0].total_session = user_log_info[0].total_session + 60 * 30
+
+            user_log_info[0].login_times = user_log_info[0].login_times + 1
+            user_log_info[0].logout_press = 0
+
+            user_log_info[0].save()
+        else:
+            user_log_info = UserLoginInfo(user_id=user.id,login_time=utctime_str,logout_time=utctime_30m_str,last_session=1800,total_session=1800,temp_time=utctime_str)
+            user_log_info.save();
+        #@end
+
         return response
 
     AUDIT_LOG.warning(u"Login failed - Account not active for user {0}, resending activation".format(username))
@@ -1043,6 +1069,27 @@ def logout_user(request):
     """
     # We do not log here, because we have a handler registered
     # to perform logging on successful logouts.
+    
+    #@begin:record user logout time
+    #@date:2016-08-22
+    user_id = request.user.id
+    utctime = datetime.datetime.utcnow()
+    utctime_str = utctime.strftime('%Y-%m-%d %H:%M:%S')
+
+    user_log_info = UserLoginInfo.objects.filter(user_id=user_id)
+    if user_log_info:
+        user_log_info[0].logout_time = utctime_str
+        db_login_time = datetime.datetime.strptime(user_log_info[0].login_time, '%Y-%m-%d %H:%M:%S')
+        last_session = datetime.datetime.strptime(utctime_str, '%Y-%m-%d %H:%M:%S') - db_login_time
+        user_log_info[0].last_session = last_session.seconds
+
+        time_diff = utctime - datetime.datetime.strptime(user_log_info[0].temp_time, '%Y-%m-%d %H:%M:%S')
+        time_diff_seconds = time_diff.seconds
+        user_log_info[0].total_session = user_log_info[0].total_session + time_diff_seconds - 1800
+        user_log_info[0].logout_press = 1
+        user_log_info[0].save()       
+    #@end
+
     logout(request)
     if settings.MITX_FEATURES.get('AUTH_USE_CAS'):
         target = reverse('cas-logout')

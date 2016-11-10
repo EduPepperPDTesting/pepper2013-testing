@@ -30,33 +30,54 @@
 <link rel="stylesheet" href="/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/leaflet/leaflet.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="/static/css/pepreg.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/css/calendar.css" type="text/css" media="screen"/>
 
 <script type="text/javascript" src="/static/js/mapbox-gl.js"></script>
 <link rel="stylesheet" href="/static/css/mapbox-gl.css"/>
 <script type="text/javascript" src="/static/js/mapbox-gl-directions.js"></script>
 <link rel="stylesheet" href="/static/css/mapbox-gl-directions.css"/>
 
+<script type="text/javascript" src="/static/js/pikaday.min1.js"></script>
+<link rel="stylesheet" href="/static/css/pikaday1.css"/>
+
 <style>
-    input[type="button"], button, .button {
-        box-shadow: none !important;
-    }
-
-    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
-        margin: 0 0 50px 10px !important;
-    }
-
-    .mapbox-directions-route-summary {
-        position: absolute !important;
-    }
-
-    .directions-control.directions-control-inputs {
-        left: 5px !important;
-        top: 5px !important;
-    }
-
-    .ui-autocomplete {
-        z-index: 100000 !important;
-    }
+    input[type="button"], button, .button {box-shadow: none !important;}
+    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
+    .mapbox-directions-route-summary {position: absolute !important;}
+    .directions-control.directions-control-inputs {left: 5px !important; top: 5px !important;}
+    .ui-autocomplete {z-index: 100000 !important;}
+	.ui-button-icon-primary{left:-1px !important; top:-1px !important;}
+	
+	#calendar-month{margin-top: 0 !important;}
+	#calendar-month tr th{height:35px !important;}
+	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+	
+	#calendar-month tr td .al_3{ background-color:#22b14c;}
+	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
+	#calendar-month tr td .al_6{ background-color:#ffc90e;}
+	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
+	
+	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
+	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
+	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
+	
+	#calendar-month tr td .al_4{ background-color:#7f7f7f; width:95px;}
+	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
+	
+	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
+	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
+	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
+	#calendar-panel .calendar_exp .c1{background-color:#22B14C;}
+	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
+	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
+	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
+	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
+	
+	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
+	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
+	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
 
 <div class="data_import_bottom">
@@ -113,6 +134,14 @@
                             <div>Add New</div>
                         </a>
                     </div>
+                %endif
+                %if not(check_access_level(request.user, 'pepreg', 'add_new_training') == "System"):
+                <div class="imgBtn imgBtn_my_calendar" onclick="return pepreg.openCalendar();" style="float:right; margin-right:20px;">
+                    <a href="#">
+                        <div class="icon"></div>
+                        <div>My Calendar</div>
+                    </a>
+                </div>
                 %endif
                 <br>
                 <select id="" name="" autocomplate="off" class="search" data-column="4">
@@ -191,6 +220,61 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
+<div class="modal" id="calendar-panel" style="width:1000px;margin-left:-500px;border-radius:0;">
+	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title">My Calendar</h3>
+            <div class="close-modal">✕</div>
+        </div>
+        <div class="content" style="height:450px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+        	<span id="math_width" style="position:absolute; top:-1000px;"></span>
+            <input class1="btn btn-default" type="button" id="calendar_btn_previous_y" value="|<" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_previous" value="<<" />
+            <input type="text" id="calendar_select_data" readonly="readonly" style="width:150px;" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_next" value=">>" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
+            <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
+
+            <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
+                <option value="0" selected="selected">All Categories</option>
+                <option value="1">Attended Training</option>
+                <option value="3">I am registered</option>
+                <option value="2">I can register</option>
+                <option value="4">Training not yet open</option>
+                <option value="5">No More Spots!</option>
+            </select>
+            <table id="calendar-month" style="width:960px !important;">
+                <tr id="calendar-month-weekdays">
+                    <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+                </tr>
+            </table>
+        </div>
+        <div style="padding:10px;text-align:right;">
+          	<div>
+                <span class="calendar_exp"><span class="calendar_exp_txt">I can register: </span><span class="calendar_exp_color c3"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">I am registered: </span><span class="calendar_exp_color c2"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Attended Training: </span><span class="calendar_exp_color c1"></span></span>	        
+            </div>
+            <div>
+                <span class="calendar_exp"><span class="calendar_exp_txt">No More Spots! </span><span class="calendar_exp_color c5"></span></span>
+                <span class="calendar_exp"><span class="calendar_exp_txt">Training not yet open: </span><span class="calendar_exp_color c4"></span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="calendar_alert_title"></div>
+
+<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"
+             style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+    </div>
+</div>
 <div class="modal" id="dlg-map" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="close-modal" id="dialog_close" style="background:#fff;padding:0;margin:10px;">✕</div>
@@ -222,7 +306,10 @@
             </table>
         </div>
         <div style="padding:10px;text-align:right;">
-            <input type="button" name="" value="Download Excel" class="small download-students-excel"/>
+            <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
+        	<span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+	        <input type="button" name="" value="Reminder Email" class="small" id="reminder_mail_btn" />
+            <input type="button" name="" value="Download Excel" class="small download-students-excel" />
         </div>
     </div>
 </div>
@@ -268,7 +355,7 @@
                         <h4>General Training Information</h4>
                         <div class="form-row">
                             <span class="label">District:</span>
-                            <select name="district_id" autocomplate="off">
+                            <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
                                 %for item in District.objects.all().order_by("name"):
@@ -279,6 +366,17 @@
                                 %endif
                             </select>
                         </div>
+                        <!--<div class="form-row">
+                            <span class="label">School:</span>                            
+                            %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
+                            <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
+                            %else:
+                            <select id="school_id" name="school_id" autocomplate="off" style="min-width:200px;">
+	                            <option value="-1"></option>
+                                <option value="${request.user.profile.school.id}">${request.user.profile.school.name}</option>
+                            </select>
+                            %endif
+                        </div>-->
                         <div class="form-row">
                             <span class="label">Training Name:</span>
                             <input type="text" name="name" value=""/>
@@ -326,17 +424,17 @@
                             <span class="label" style="width:180px">Please Select the Training Date:</span>
                             <input type="" name="training_date" class="datePickText lock_past" value=""
                                    readonly='true'/>
-                            <img src="/static/images/calendar-icon-2.png" class="" alt="" width="24"/>
+                            <img src="/static/images/calendar-icon-2.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select Start Time:</span>
                             <input type="" name="training_time_start" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:180px">Please Select End Time:</span>
                             <input type="" name="training_time_end" value="" class="timePickText"/>
-                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="" alt="" width="24"/>
+                            <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                     </div>
                 </div>
@@ -353,7 +451,7 @@
                             <input type="" name="geo_location" value="" style="width:400px"
                                    placeholder="Type in address and select location as it appears"/>
                         </div>
-                        <div id="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
+                        <div id="map_edit" name="map_edit" style="width: 100%; height: 270px; margin-top:10px;"></div>
                         <input type="hidden" name="geo_props" value="" style="width:400px"/>
                     </div>
                 </div>
@@ -362,7 +460,19 @@
                         <h5>Create Your Training or PD Event: Step 5 of 6</h5>
                         <h4>Add/Remove Instructors</h4>
                         <div style="width:100%;height:240px;overflow-y:scroll;border:1px solid #999;"
-                             id="instructor_emails"></div>
+                             id="instructor_emails">
+                         	<table width="100%" cellspacing="" cellpadding="" border="0">
+                                <thead>
+                                <tr>
+                                	<th width="30" align="center"></th>
+                                    <th align="center">Email</th>
+                                    <th width="150" align="center">Edit Training</th>
+                                    <th width="150" align="center">Delete Training</th>
+                                </tr>
+                                </thead>
+                                <tbody id="training_instructors_list"></tbody>
+                            </table>
+                         </div>
                         <div class="form-row">
                             <i>Select a training instructor by searching email (start typing and select email of
                                 instructor):</i>
@@ -380,7 +490,10 @@
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
-                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments"></span>
+                            <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
+                            Time Credit will be automatically calculated from clock settings"></span>
+                            <label><input type="checkbox" id="math_credits" value="true"/> Update from time</label>
+
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
@@ -388,9 +501,9 @@
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-              <span class="label" style="width:230px;text-align:left;padding-left:20px;">
-                <i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
-              </span>
+                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
+                              	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
+                            </span>
                             <input type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
@@ -402,7 +515,7 @@
                         <div class="form-row">
                             <span class="label"
                                   style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
-                            <input type="" name="attendancel_id" value=""/>
+                            <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
@@ -431,7 +544,298 @@
         var is_superuser = false;
     </script>
 %endif
+
 <script type="text/javascript">
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
+	var _calendar_date = new Date();
+	
+	//-----------------------------------------------calendarOpen
+	function calendarOpen(){
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){			
+	        _calendar_panel.show();
+			
+			$(".calendar-tr-tmp").remove();
+			
+			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+			
+			$(".alert").mouseover(function () {
+				$("#calendar_alert_title").empty();
+				var this_x = $(this).parent().position().left;
+				var tmp1 = $(this).offset();
+				tmp1.top += 30;
+				tmp1.top -= $(document).scrollTop();
+				var tmp3 = $(this).attr("titlex").split("::");
+				for(var i in tmp3){
+					$("#calendar_alert_title").append("<div>" + tmp3[i] + "</div>");	
+				}
+				if(this_x > 800){
+					tmp1.left -= ($("#calendar_alert_title").width() - 100);
+				}else if(this_x > 600){
+					tmp1.left -= ($("#calendar_alert_title").width() - 200);
+				}
+				$("#calendar_alert_title").css({left:tmp1.left, top:tmp1.top});
+				
+				$("#calendar_alert_title").show();
+			});
+			$(".alert").mouseleave(function () {
+				$("#calendar_alert_title").hide();
+			});
+			 
+			$(".alert").each(function(){
+				if($(this).find("input").length > 0){
+					var tmp_span = $(this).find("span");
+					var tmp_span_txt = $(tmp_span).text();
+					if(tmp_span_txt.length > 10){
+						$(tmp_span).text(tmp_span_txt.substr(0,10) + "...");
+					}
+				}else{
+					var tmp1 = $(this).text();
+					if(tmp1.length > 10){
+						$(this).text(tmp1.substr(0,10) + "...");
+					}
+				}
+			});
+			$(".calendar_check_would").change(function(){
+				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+					if (reg)
+						pepreg.warning("Thank you for registering/recording attendance for this training!");
+					else
+						pepreg.warning("Thank you! You are no longer registered for this training.");
+						
+					pepreg.reloadTable();
+					calendarOpen();
+				})
+			});
+			
+			$(".calendar_check_attended").each(function(){
+				var attendancel_id = $(this).attr("attendancel_id");
+				if (attendancel_id.length) {
+					var training_id = $(this).attr("training_id");
+					var input = $("<input type='text' training_id='" + training_id + "' style='margin-right:5px;width:100px;height:25px;' >");
+					var button = $("<input type='button' training_id='" + training_id + "' class='small' value='check'>");
+					$(this).parent().after(button).after(input);
+					$(input).hide();
+					$(button).hide();
+					
+					button.click(function () {
+						if (attendancel_id == input.val()) {
+							pepreg.setStudentAttended(${request.user.id}, training_id, true, function () {
+								input.hide();
+								button.hide();
+								pepreg.warning("Thank you for registering/recording attendance for this training!");
+								
+								pepreg.reloadTable();
+								calendarOpen();
+							});
+						} else {
+							pepreg.warning("It's a wrong ID.");
+						}
+					});
+				}
+			});
+			
+			$(".calendar_check_attended").change(function(){
+				var training_id = $(this).attr("training_id");
+				var attendancel_id = $(this).attr("attendancel_id");
+				var checked = ($(this).attr("checked")) ? true : false;
+				
+				if (attendancel_id.length) {
+					var tmp_text = $(this).parent().parent().find("input[type='text'][training_id='" + training_id + "']");
+					var tmp_button = $(this).parent().parent().find("input[type='button'][training_id='" + training_id + "']");
+					
+					if (checked) {
+						tmp_text.show();
+						tmp_button.show();
+					} else {
+						if (!tmp_text.is(":visible")) {
+							pepreg.setStudentAttended(${request.user.id}, training_id, false, function () {
+								pepreg.warning("Thank you! You are no longer registered for this training.");
+								pepreg.reloadTable();
+								calendarOpen();
+							});
+						}
+						tmp_text.hide();
+						tmp_button.hide();						
+					}
+				}else{
+					pepreg.setStudentAttended(${request.user.id}, training_id, checked, function (data) {
+						if (data && data.is_attended)
+							pepreg.warning("Thank you for registering/recording attendance for this training!");
+						else
+							pepreg.warning("Thank you! You are no longer registered for this training.");
+						
+						pepreg.reloadTable()
+						calendarOpen();
+					});
+				}
+			});
+		});
+	}
+	
+	function setPickerValue(){
+		var m = (_sys_calendar_month < 10) ? "0" + _sys_calendar_month : _sys_calendar_month;
+		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
+		$('#calendar_select_data').val(m + "/" + d + "/" + _sys_calendar_year);
+		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
+	}
+	
+	function mathCreditsChecked(){
+		var t1 = $("input[name='training_time_start']").val();
+		var t2 = $("input[name='training_time_end']").val();
+		var math_val = 0;
+		if(t1 != "" && t2 != ""){
+			t1_h = 0;
+			t1_m = 0;
+			t2_h = 0;
+			t2_m = 0;
+			t1_flag = false;
+			t2_flag = false;
+			if(t1.indexOf("PM") > 0)	t1_flag = true;
+			if(t2.indexOf("PM") > 0)	t2_flag = true;
+			
+			t1 = t1.replace(" AM", "").replace(" PM", "");
+			t2 = t2.replace(" AM", "").replace(" PM", "");
+			t1_arr = t1.split(":");
+			t1_h = Number(t1_arr[0]);
+			t1_m = Number(t1_arr[1]);
+			t2_arr = t2.split(":");
+			t2_h = Number(t2_arr[0]);
+			t2_m = Number(t2_arr[1]);
+			if(t1_flag && t1_h != 12)	t1_h += 12;
+			if(t2_flag && t2_h != 12)	t2_h += 12;
+			
+			var h = t2_h - t1_h;
+			var m = t2_m - t1_m;
+			if(m < 0){
+				m += 60;
+				h -= 1;
+			}
+			m = Number((m / 60).toFixed(1));
+			math_val = h + m;
+		}
+		
+		$("#math_credits").attr("bak_val", $("input[name='credits']").val());
+		$("input[name='credits']").attr("disabled", true).css("background-color", "#eee");
+		$("input[name='credits']").val(math_val);
+	}
+	
+	$(function(){
+		//$("input[name='training_time_start']").change(function(){
+			//alert($(this).val());
+		//});
+		
+		//---------------------------------------
+		_calendar_panel = new Dialog($("#calendar-panel"));
+		var picker_year = _calendar_date.getFullYear();
+		_calendar_picker = new Pikaday({
+			field: document.getElementById('calendar_select_data'),
+			firstDay: 1,			
+		    //minDate: new Date("1998-01-01"), maxDate: new Date("2030-12-30"),
+			yearRange: [picker_year - 10, picker_year + 10],
+			onSelect: function(date) {
+				_sys_calendar_year = date.getFullYear();
+				_sys_calendar_month = date.getMonth() + 1;
+				_calendar_picker_day = date.getDate();
+				
+				setPickerValue();
+				calendarOpen();
+			}
+		});
+					
+		$("#calendar_select_categories").change(function(){
+			calendarOpen();
+		});
+		
+		_sys_calendar_year = _calendar_date.getFullYear();
+		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_sys_calendar_day = _calendar_date.getDate();
+		
+		_sys_calendar_year_now = _calendar_date.getFullYear();
+		_sys_calendar_month_now = _calendar_date.getMonth() + 1;
+		
+		//-----------------------------------------------getCalendarInfo
+		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	
+			$("#calendar-panel").dialog({title: data.title});			
+			_sys_calendar_year = data.year;
+			_sys_calendar_month = data.month;
+			_sys_calendar_year_now = data.year;
+			_sys_calendar_month_now = data.month;
+		});*/
+		
+		//-----------------------------------------------previous
+		$("#calendar_btn_previous").click(function(){
+			_sys_calendar_month -= 1;
+			if(_sys_calendar_month == 0){
+				_sys_calendar_month = 12;
+				_sys_calendar_year -= 1;
+			}
+			setPickerValue();
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------next
+		$("#calendar_btn_next").click(function(){
+			_sys_calendar_month += 1;
+			if(_sys_calendar_month == 13){
+				_sys_calendar_month = 1;
+				_sys_calendar_year += 1;
+			}
+			setPickerValue();
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------previous
+		$("#calendar_btn_previous_y").click(function(){
+			_sys_calendar_year -= 1;
+			if(_sys_calendar_year < 1979){
+				_sys_calendar_year = 1979;
+			}
+			setPickerValue();
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------next
+		$("#calendar_btn_next_y").click(function(){
+			_sys_calendar_year += 1;
+			setPickerValue();
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------today
+		$("#calendar_btn_today").click(function(){
+			_sys_calendar_year = _calendar_date.getFullYear();
+			_sys_calendar_month = _calendar_date.getMonth() + 1;
+			_sys_calendar_day = _calendar_date.getDate();
+			_calendar_picker_day = _sys_calendar_day;
+			setPickerValue();
+			calendarOpen();
+		});
+		
+		//-----------------------------------------------
+		$("#math_credits").click(function(){
+			if($(this).attr("checked") == "checked"){
+				mathCreditsChecked();
+			}else{
+				$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+				$("input[name='credits']").val($(this).attr("bak_val"));
+			}
+		});
+		
+		$("#district_id").change(function(){
+			if($("#school_id").attr("flag_system") == "1"){
+				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
+					$("#school_id").empty();
+					$("#school_id").append('<option value=""></option>');        
+					if(data.length > 0){
+						for(var i in data){
+							$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+						}
+					}
+				});
+			}
+		});
+	});	
+	
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);
@@ -487,6 +891,7 @@
             id: $form.find("input[name=id]").val(),
             type: $form.find("input[name=type]:checked").val(),
             district_id: $form.find("select[name=district_id]").val(),
+			school_id: $form.find("select[name=school_id]").val(),
             name: $.trim($form.find("input[name=name]").val()),
             description: $form.find("textarea[name=description]").val(),
             pepper_course: $form.find("select[name=pepper_course]").val(),
@@ -496,6 +901,7 @@
             training_time_end: ($form.find("input[name=training_time_end]").val()),
             classroom: $.trim($form.find("input[name=classroom]").val()),
             geo_location: $form.find("input[name=geo_location]").val(),
+            geo_destination: $form.find("input[name=geo_destination]").val(),
             geo_props: $form.find("input[name=geo_props]").val(),
             instructor_emails: this.getInstructors().join(","),
             credits: $form.find("input[name=credits]").val() || 0,
@@ -604,15 +1010,6 @@
             }
         }
     };
-    /* PepReg.prototype.markInvalid=function(name, message){
-       var $input = $("#dlg-add-training").find("*[name="+ name +"]");
-       var $mark=$input.eq(0).nextAll(".check-mark").eq(0);
-       $mark.addClass("on");
-       $mark.showBalloon({position: "bottom", contents: message, css: {backgroundColor: '#fff'}});
-       $input.one('focus', function(){
-       $mark.removeClass("on").hideBalloon();
-       });
-       } */
     PepReg.prototype.initForm = function (data, finishCallback) {
         var self = this;
         var dlg = this.dlgForm = new Dialog($("#dlg-add-training"));
@@ -641,7 +1038,12 @@
                     $("input[name=attendancel_id]").parents(".form-row").show();
                     $("input[name=credits]").parents(".form-row").show();
                 }
-            }
+            }else if(curr == 2){
+				if($("#math_credits").attr("checked") == "checked"){
+					mathCreditsChecked();
+				}
+			}
+			
             return dest == 0 || this.visited(dest - 1) || self.warning("Please finish the previous pages before switch to that page", self.dlgForm); // return true if ready to switch
         };
         // ************* when finish form
@@ -654,7 +1056,22 @@
         } else {
             self.clearData();
         }
-        self.fillData(data);
+        self.fillData(data);						
+		
+		// ************* school id
+		if($("#school_id").attr("flag_system") == "1"){
+			var school_id = data.school_id;
+			$("#school_id").empty();	
+			$.get("${reverse('pepreg_map')}", {district_id: $("#district_id").val()}, function (data) {				
+				$("#school_id").append('<option value="-1"></option>');        
+				if(data.length > 0){
+					for(var i in data){
+						$("#school_id").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+					}
+					if(school_id)		$("#school_id").val(school_id);
+				}
+			});
+		}
         // ************* input map
         var hits = {};
         $('input[name=geo_location]').autocomplete({
@@ -722,9 +1139,12 @@
         return steps;
     };
     PepReg.prototype.getInstructors = function (emails) {
-        var ar = [];
-        $("#instructor_emails").find("div").each(function () {
-            ar.push($(this).find("span").text());
+        var ar = [];       
+		$("#training_instructors_list").find("tr").each(function () {
+			var email = $(this).find("td").eq(1).text();
+			var all_edit = ($(this).find("input").eq(0).is(":checked")) ? "1" : "0";
+			var all_delete = ($(this).find("input").eq(1).is(":checked")) ? "1" : "0";
+            ar.push(email + "::" + all_edit + "::" + all_delete);
         });
         return ar;
     };
@@ -733,10 +1153,23 @@
             var curr = this.getInstructors();
             $.each(emails.split(","), function (i, email) {
                 if (email && curr.indexOf(email) < 0) {
-                    $("<div><span>" + email + "</span> <a style='cursor:pointer;'>delete</a></div>").appendTo($("#instructor_emails")).find("a").click(function (e) {
-                        e.preventDefault();
-                        $(this).parent().remove();
-                    });
+					var tmp = email.split("::");
+					if(tmp[0] != ""){
+						var tmp_tr = $("<tr><td><a class='icon icon-remove' style='cursor:pointer;'></a></td></tr>");
+						var tmp_td1 = $("<td>" + tmp[0] + "</td>");
+						var tmp_td2 = $("<td align='center'><input type='checkbox' name='allow_edit' /></td>");
+						var tmp_td3 = $("<td align='center'><input type='checkbox' name='allow_delete' /></td>");
+						tmp_tr.append(tmp_td1).append(tmp_td2).append(tmp_td3);
+						$("#training_instructors_list").append(tmp_tr);
+						
+						if(tmp[1] == "1")			tmp_td2.find("input").attr("checked", "checked");
+						if(tmp[2] == "1")			tmp_td3.find("input").attr("checked", "checked");
+						
+						tmp_tr.find("a").click(function(e){
+							e.preventDefault();
+							$(this).parent().parent().remove();
+						});
+					}
                 }
             });
         }
@@ -796,7 +1229,8 @@
                 $entry.prop('checked', false);
                 $entry.filter("*[value=" + v + "]").prop('checked', true);
             } else if (k == "instructor_emails") {
-                $("#instructor_emails").html("");
+                //$("#instructor_emails").html("");
+				$("#training_instructors_list").html("");
                 self.appendInstructors(v);
             } else {
                 $entry.val(v);
@@ -836,12 +1270,26 @@
         var self = this;
         $.get("${reverse('pepreg_training_json')}", {id: id}, function (r) {
             r.instructor_emails = r.instructor_emails.join(",");
+			
+			if(r.arrive == "1"){
+				$('.datePickText,input[name=training_data]').datepicker("disable").css("background-color", "#eee");
+				$(".timePickText").attr("disabled", true).css("background-color", "#eee");
+				$(".training_date_icon").hide();
+			}else{
+				$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+				$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+				$(".training_date_icon").show();
+			}
+			
+			$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+			$("#math_credits").removeAttr("checked");
+			
             self.initForm(r, function (data) {
                 if (einfo = self.validateAllPage(data)) {
                     self.warning(einfo.error[1], self.dlgForm);
                     self.steps.switchTo(einfo.id);
                     return;
-                }
+                }				
                 $.post("${reverse('pepreg_save_training')}", data, function (r) {
                     if (r.success) {
                         $("#dlg-add-training").hide();
@@ -862,7 +1310,14 @@
     };
     PepReg.prototype.addTraining = function () {
         var self = this;
-        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {
+		$('.datePickText,input[name=training_data]').datepicker("enable").css("background-color", "#fff");
+		$(".timePickText").attr("disabled", false).css("background-color", "#fff");
+		$(".training_date_icon").show();
+		
+		$("input[name='credits']").attr("disabled", false).css("background-color", "#fff");
+		$("#math_credits").removeAttr("checked");
+			
+        var steps = this.initForm({district_id:${request.user.profile.district_id}}, function (data) {			
             // submit
             if (einfo = self.validateAllPage(data)) {
                 self.warning(einfo.error[1], self.dlgForm);
@@ -878,6 +1333,13 @@
             });
         });
         return false;
+    };
+	PepReg.prototype.openCalendar = function () {
+	   	_sys_calendar_year = _calendar_date.getFullYear();
+		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		_calendar_picker_day = _sys_calendar_day;
+		setPickerValue();
+	   	calendarOpen();
     };
     PepReg.prototype.registerUser = function (training_id, join, cb) {
         var self = this;
@@ -961,6 +1423,32 @@
         var self = this;
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
             if (r.success) {
+				//Last Reminder Email: 08/16/2016
+				if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){				
+					$("#reminder_mail_date").show();
+					//$("#reminder_mail_btn").show();
+					$("#reminder_mail_btn").attr("disabled", false);
+					$("#reminder_mail_date").html("");
+
+					if(r.last_date != null && r.last_date != "null")
+						$("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
+					
+					$("#reminder_mail_btn").unbind("click").click(function () {
+						last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
+						$.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+							if(r._res == "1"){
+								alert("Sent successfully!");
+							}else{
+								alert("Send failure!");
+							}
+						});
+					});
+				}else{
+					$("#reminder_mail_date").hide();
+					$("#reminder_mail_btn").attr("disabled", true);
+					//$("#reminder_mail_btn").hide();
+				}
+			
                 var dlg = new Dialog($("#dlg-students"));
                 dlg.show("Student Information for " + r.training_name);
                 $tbody = $("#dlg-students").find("tbody").empty();
@@ -1017,6 +1505,20 @@
                 });
                 $(".download-students-excel").unbind("click").click(function () {
                     window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
+                });
+                $("#download-students-pdf").unbind("click").click(function () {
+					var tmp = new Date();
+					var tmp1 = tmp.getMonth() + 1;
+					var tmp2 = tmp.getDate();
+					var tmp3 = tmp.getFullYear();
+					var tmp4 = tmp.getHours();
+					var tmp5 = tmp.getMinutes();
+					tmp1 = (tmp1 < 10) ? "0" + tmp1 : String(tmp1);
+					tmp2 = (tmp2 < 10) ? "0" + tmp2 : String(tmp2);
+					tmp4 = (tmp4 < 10) ? "0" + tmp4 : String(tmp4);
+					tmp5 = (tmp5 < 10) ? "0" + tmp5 : String(tmp5);
+					tmp1 = tmp1 + tmp2 + tmp3 + tmp4 + tmp5;
+                    window.open("${reverse('pepreg_download_students_excel')}?pdf=" + tmp1 + "&training_id=" + r.training_id);
                 });
             }
         });
@@ -1129,12 +1631,8 @@
                     $(this).css("cursor", "pointer");
                     $(this).click(function () {
 						window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');
-                        //var props = JSON.parse($(this).find("input").val());
-                        //self.showMap(props, training_id);
                     });
                 }
-                // var state='${request.user.profile.district.state.name} United States';
-                // self.showPlace(self.map_show, state);
             });
             // each row
             $(this).find("tr").each(function () {
@@ -1142,6 +1640,8 @@
                 if (!training_id)
                     return; // continue
                 var is_row_admin = $(this).find("input[name=managing][value=true]").val() == "true";
+				var all_edit = $(this).find("input[name=all_edit]").val();
+				var all_delete = $(this).find("input[name=all_delete]").val();				
                 var apart = $(this).find("input[name=status]").val().split(",");
                 var arrive = apart[0];
                 var status = apart[1];
@@ -1150,15 +1650,24 @@
                 var reach_limit = apart[4];
                 var allow_student_attendance = apart[5];
                 var remain = parseInt(apart[6]);
+				if(is_superuser){
+					all_edit = "1";
+					all_delete = "1";
+				}
+				
                 if (is_row_admin) {
-                    $("<a href='' class='icon icon-edit'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.editTraining(training_id);
-                    });
-                    $("<a href='' class='icon icon-remove'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
-                        e.preventDefault();
-                        self.deleteTraining(training_id);
-                    });
+					if(all_edit == "1"){
+						$("<a href='' class='icon icon-edit' a='"+all_edit+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.editTraining(training_id);
+						});
+					}
+                   	if(all_delete == "1"){
+						$("<a href='' class='icon icon-remove' a='"+all_delete+"'></a>").appendTo($(this).find("td:nth-child(1)")).click(function (e) {
+							e.preventDefault();
+							self.deleteTraining(training_id);
+						});
+					}
                 }
                 // Register/Record Attendance
                 $(this).find("td:nth-child(15)").each(function () {
@@ -1191,7 +1700,8 @@
                     } else if (arrive == "1" && allow_student_attendance == "1") {
                         var $check = $("<input type='checkbox' style='position:absolute;'><span style='display:inline-block;padding-left:57px;margin-left:-37px;line-height:16px;'>Yes I attended this training</span>").appendTo($(this).empty());
                         $check.prop('checked', status == "Attended" || status == "Validated");
-                        if (attendancel_id.length) {
+                        
+						if (attendancel_id.length) {
                             $check.change(function () {
                                 if (this.checked) {
                                     $input.show();
@@ -1249,7 +1759,7 @@
                 // instructors
                 $(this).find("td:nth-child(13)").each(function () {
                   $(this).html($(this).html().replace(/<br>/g, "<br/><br/>"))
-                });                
+                });  
             });
         });
     };
@@ -1285,19 +1795,13 @@
         $(".expand_title").click();
         $(".print-map").click(function (e) {
             e.preventDefault();
-           /* var training_id = $(this).parent().find("input[name=training_id]").val();
-            window.open('${reverse('pepreg_map')}' + "?training_id=" + training_id, '_blank');*/
-            /* var w = window.open();
-               var content = $('#map_show').html();
-               w.document.write('<html><head><title>Copy Printed</title></head><body>' + content  + '</body></html>');
-               // w.window.print();
-               w.document.close(); */
             return false;
         });
     });
 </script>
+
 <script type="text/javascript">
-    $.datepicker.setDefaults({
+	$.datepicker.setDefaults({
         showButtonPanel: true,
         closeText: 'Clear',
         currentText: 'Today',
@@ -1331,10 +1835,11 @@
             minDate: lock_past ? 0 : new Date("1999-9-9")
         });
     });
-</script>
-<script type="text/javascript">
+	
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
-    $(document).ready(function () {
+	
+    $(document).ready(function () {		
+		//---------------------------------------
         $('.columnSelectorButton').click(function (e) {
             if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
                 $('.columnSelector').show();
