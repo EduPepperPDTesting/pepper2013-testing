@@ -1,6 +1,7 @@
 import urllib2
 from django.http import HttpResponse
 import json
+import random
 
 
 def get_request_array(params, name, max=None):
@@ -30,3 +31,13 @@ def render_json_response(data):
     :return: HttpResponse with the converted data and correct content type.
     """
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def random_mark(length):
+    """
+    Generates a random string of the given length.
+    :param length: The length of the random string.
+    :return: The random string.
+    """
+    return "".join(
+        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~') for _ in range(length))

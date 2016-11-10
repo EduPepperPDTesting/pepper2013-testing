@@ -153,6 +153,12 @@ class TextbookList(List):
 
 
 class CourseFields(object):
+    paypal_purchase_price = String(help="", default="0", scope=Scope.settings)
+    paypal_purchase_link = String(help="PayPal purchase link for the course", default="", scope=Scope.settings)
+    paypal_discount_code = String(help="", default="", scope=Scope.settings)
+    paypal_discount_link = String(help="", default="", scope=Scope.settings)
+
+    
     textbooks = TextbookList(help="List of pairs of (title, url) for textbooks used in this course",
                              default=[], scope=Scope.content)
     wiki_slug = String(help="Slug that points to the wiki for this course", scope=Scope.content)
