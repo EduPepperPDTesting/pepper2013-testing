@@ -189,14 +189,14 @@ f.close()
           </li>
           <li class="customize-email">
             <label style="cursor: pointer !important;">
-              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              <input class="custom-email-checkbox" type="checkbox" id = "cec1" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
           </li>
           <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
         </ul>
         <div style="padding:7px;">
-            <span style="float: right;margin-right: 525px;margin-top: -8px;"> <button id = "save_email">Save Email</button> </span>
+            <span style="float: right;margin-right: 525px;margin-top: -8px;"> <button style="display:none;" id = "save_email">Save Email</button> </span>
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
             <label style="font-style:normal;color:#555;cursor:default;">
@@ -220,7 +220,7 @@ f.close()
                   </li>
                   <li class="customize-email">
                     <label style="cursor: pointer !important;">
-                      <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+                      <input class="custom-email-checkbox" id="cec2" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
                       Customize registration email
                     </label>
                   </li>
@@ -229,6 +229,7 @@ f.close()
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
                 <div style="padding: 1em 7px 7px 7px;">
+                    <span style="float: right;margin-right: 525px;margin-top: -8px;"> <button style="display:none;" id = "save_email2">Save Email</button> </span>
                     <label class="label">State:<br/>
                         <select id="user_state_single" name="state" autocomplete="off" chkmsg="You must select a state." chktype="Require">
                             <option class="null_case" value=""></option>
@@ -563,12 +564,13 @@ f.close()
           </li>
           <li class="customize-email" style="display: list-item">
             <label style="cursor: normal !important; float: right;">
-              <input  class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              <input  class="custom-email-checkbox" id = "cec3" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
           </li>
           <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'"/>
         </ul>
+        <span style="float: right;margin-right: 525px;margin-top: -8px;"> <button style="display:none;" id = "save_email3">Save Email</button> </span>
     </div>
     <div class="cohort_table-section table-section">
         <div class="add-area" onclick="$('#filterArea3').slideToggle()">
@@ -819,9 +821,28 @@ $("#singleUserImportForm").submit(function () {
 });
 
 $(document).ready(function () {
-    $("#custom_email_name").change(function(e){
+    $("#cec1").change(function(){
+        $("#save_email").toggle();
+    });
+    $("#cec2").change(function(){
+        $("#save_email2").toggle();
+    });
+    $("#cec3").change(function(){
+        $("#save_email3").toggle();
+    });
+    $("#custom_email_name_custom_email_001").change(function(e){
         $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
             CKEDITOR.instances.custom_email_001.setData(data.message);
+        });
+    });
+    $("#custom_email_name_custom_email_002").change(function(e){
+        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
+            CKEDITOR.instances.custom_email_002.setData(data.message);
+        });
+    });
+    $("#custom_email_name_custom_email_003").change(function(e){
+        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
+            CKEDITOR.instances.custom_email_003.setData(data.message);
         });
     });
     $("#save_email").click(function(e){
@@ -839,7 +860,36 @@ $(document).ready(function () {
             });
         });
     });
+    $("#save_email2").click(function(e){
+        e.preventDefault();
+        html = "<label>Save Name: </label><input type='text' id='email_name2'></input><br><br>";
+        html += "User: <input type='checkbox' id ='user_only2'></input><br>District and User: <input type='checkbox' id ='dandu2'></input><br><br>"
+        html += "<button id='save_email_post2'>Save</button><br><span id='save_email_message'></span>";
 
+        new Dialog($('#dialog')).show("Custom Email", html);
+        $("#save_email_post2").click(function(e){
+            e.preventDefault();
+            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name2").val(),"message":CKEDITOR.instances.custom_email_003.getData(), "user":$("#user_only2").is(":checked"), "district":$("#dandu2").is(":checked")}, function (r) {
+                $("#save_email_message").css("color", "green");
+                $("#save_email_message").html("<br>Successfully saved message.");
+            });
+        });
+    });
+    $("#save_email3").click(function(e){
+        e.preventDefault();
+        html = "<label>Save Name: </label><input type='text' id='email_name3'></input><br><br>";
+        html += "User: <input type='checkbox' id ='user_only3'></input><br>District and User: <input type='checkbox' id ='dandu3'></input><br><br>"
+        html += "<button id='save_email_post3'>Save</button><br><span id='save_email_message'></span>";
+
+        new Dialog($('#dialog')).show("Custom Email", html);
+        $("#save_email_post3").click(function(e){
+            e.preventDefault();
+            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name3").val(),"message":CKEDITOR.instances.custom_email_002.getData(), "user":$("#user_only3").is(":checked"), "district":$("#dandu3").is(":checked")}, function (r) {
+                $("#save_email_message").css("color", "green");
+                $("#save_email_message").html("<br>Successfully saved message.");
+            });
+        });
+    });
     $(".table-section").hide();
     $(".district_table-section").show();
     $("#selectalldistrict").click(function () {

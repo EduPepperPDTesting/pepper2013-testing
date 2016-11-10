@@ -31,7 +31,7 @@
   <label style="cursor:normal !important;">
     Subject:<br />
     <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/><span style="margin-top: -61px; margin-left: 57px;">Saved Email:
-    <select id = 'custom_email_name'><option></option>
+    <select id = 'custom_email_name_${ck_name}' style="max-width:95px"><option>`</option>
     %for i in CustomEmail.objects.filter(user=request.user, district=request.user.profile.district).order_by('name'):
         <option id="${i.id}">${i.name}</option>
     %endfor
