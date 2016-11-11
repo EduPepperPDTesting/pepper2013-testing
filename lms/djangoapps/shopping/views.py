@@ -22,7 +22,7 @@ def course_list(request):
     except:
         email = ""
     filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$ne": "", "$exists": True}}  # {"$nin": ("", None)}
-    items = modulestore().collection.find(filterDic)
+    items = modulestore().collection.find(filterDic).sort("metadata.display_name")
     courses = modulestore()._load_items(list(items), 0)
     return render_to_response("shopping/course_list.html", {'courses': courses, 'email': email})
 
