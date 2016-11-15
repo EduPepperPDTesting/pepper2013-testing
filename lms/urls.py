@@ -89,7 +89,11 @@ urlpatterns = (
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
-    # === pepreg end ==    
+    # === pepreg end ==
+
+    # === Portfolio Settings begin ==
+    url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
+    # === Portfolio Settings end ==
 
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
