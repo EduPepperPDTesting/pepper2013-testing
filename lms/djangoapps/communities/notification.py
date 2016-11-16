@@ -295,7 +295,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         type = CommunityNotificationType.objects.get(name=type_name)
         
         for item in list:
-            config = CommunityNotificationConfig.objects.filter(user=member.user, type=type)
+            config = CommunityNotificationConfig.objects.filter(user=user, type=type)
 
             if config.exists():
                 config = config[0]
@@ -332,8 +332,8 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                         discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
                         values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
 
-            if type_name in ["New Post", "Reply Post", "Delete Post", "Delete Reply Post"]:
-                log.debug("New Post---------------------------------------")
+            #if type_name in ["New Post", "Reply Post", "Delete Post", "Delete Reply Post"]:
+            #    pass
 
             # Send the notification
             body = replace_values(type.body or "", values)
@@ -383,3 +383,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         process(member.user, "Reply Post", posts_reply)
         process(member.user, "Delete Post", posts_delete)
         process(member.user, "Delete Reply Post", posts_reply_delete)
+
+    if len(members_del):
+        for member in members_del:
+            process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
