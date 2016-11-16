@@ -294,7 +294,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         type = CommunityNotificationType.objects.get(name=type_name)
         
         for item in list:
-            config = CommunityNotificationConfig.objects.filter(user=member.user, type=type)
+            config = CommunityNotificationConfig.objects.filter(user=user, type=type)
 
             if config.exists():
                 config = config[0]
@@ -376,3 +376,7 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         process(member.user, "Reply Discussion", discussions_reply)
         process(member.user, "Delete Discussion", discussions_delete)
         process(member.user, "Delete Reply", replies_delete)
+
+    if len(members_del):
+        for member in members_del:
+            process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
