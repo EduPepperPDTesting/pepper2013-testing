@@ -90,10 +90,13 @@ from django.core.urlresolvers import reverse
   <div id="main-section">
     %if not email:
     <center> <b style="font-size:24px;line-height:70px;">Explore Pepper Courses Available for Purchase</b> </center>
-    <p style="text-align:left;line-height:31px;">
-      <b>Please explore these professional development courses and workshops available for individual purchase.<br/>
-        Click on <a href="#" style="font-weight:bold;">"Join Pepper"</a> to sign up and shop for courses.</b>
-    </p>
+ 
+    <p style="text-align:left;line-height:21px;margin:10px 0"> Welcome to Pepper, the nation’s fastest-growing online, interactive professional learning platform.</p>
+
+    <p style="text-align:left;line-height:21px;margin:10px 0">Explore these professional development courses and workshops available for individual purchase. <b>To sign up and begin right now, <a href="#" id="link_enroll">click here</a> or click the “Join Pepper!” button at the bottom of the page.</b></p>
+
+    <p style="text-align:left;line-height:21px;margin:10px 0">To learn about offering these and other courses for your school or district, view the <a href="/static/resource/Pepper_Professional_Learning_Fall2016.pdf" target="_blank">Pepper Professional Learning catalog</a> and <a href="/contact" target="_blank">click here</a> to have a member of our Support Team contact you directly.</p>
+
     %else:
     <div style="text-align:left;line-height:31px;">
       <b>Step 2: Add course to your cart and checkout out with PayPal </b>
@@ -131,8 +134,7 @@ from django.core.urlresolvers import reverse
               <span class="check-mark" alt="Enter Promo Code. Click &quot;Apply Promo Code&quot; and add the course to your cart to view the discounted price. "></span>
             </div>       
           </form>
-          
-     
+
         </div>
         %endif
       </div>
@@ -164,7 +166,8 @@ from django.core.urlresolvers import reverse
       $("#dlg-detail .content").html(r);
     }, "text");
   });
-  $("#btnEnroll").click(function(){
+  $("#btnEnroll,#link_enroll").click(function(e){
+    e.preventDefault();
     /* var dlg = new Dialog("#dlg-enroll");
        dlg.show(); */
     $("#dlg-enroll").show();
