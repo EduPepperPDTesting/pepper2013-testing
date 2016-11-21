@@ -41,43 +41,22 @@
 <link rel="stylesheet" href="/static/css/pikaday1.css"/>
 
 <style>
-    input[type="button"], button, .button {box-shadow: none !important;}
-    #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
-    .mapbox-directions-route-summary {position: absolute !important;}
-    .directions-control.directions-control-inputs {left: 5px !important; top: 5px !important;}
-    .ui-autocomplete {z-index: 100000 !important;}
-	.ui-button-icon-primary{left:-1px !important; top:-1px !important;}
+	.protfolio_table{border:2px solid #8A8C8F; border-radius: 5px; border-right-width:0;}
+	.protfolio_table th{heig1ht:30px; text-align:left; padding:5px 0 3px 5px; background-color:#f1f1f1; border-right:2px solid #8A8C8F;}
+	.protfolio_table td{padding:5px; background-color:#FFFFFF; border-top:1px solid #8A8C8F; border-right:2px solid #8A8C8F; hei1ght:35px;}
+	.protfolio_table .protfolio_table_name{float:left; paddi1ng:5px;}
+	.protfolio_table .protfolio_table_check{float:right; margin:5px 5px 0 0;}
+	.protfolio_table_all{float:right; padding-right:10px; font-style:normal; font-weight:bold;}
+	.protfolio_span{float:left; background-color:#ff0000; border-radius: 5px; border:2px solid #8A8C8F; margin-right:5px;}
+		.protfolio_span_head{float:left; width:100%; background-color:#f1f1f1; border-bottom:2px solid #8A8C8F;}
+		.protfolio_span_head div{float:left; clear:both; padding:5px;}
 	
-	#calendar-month{margin-top: 0 !important;}
-	#calendar-month tr th{height:35px !important;}
-	#calendar-month tr td .alert{float:left; display:-moz-inline-box; display:inline-block; margin-bottom:2px; clear:both; font-size:12px !important; height: 20px !important; line-height:20px !important; color:#000000 !important;}
+		.protfolio_span_body{background-color:#FFFFFF; padding:5px;}
+		.protfolio_span_body td{ height:30px;}
 	
-	#calendar-month tr td .al_3{ background-color:#22b14c;}
-	#calendar-month tr td .al_3 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_3 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
-	#calendar-month tr td .al_6{ background-color:#ffc90e;}
-	#calendar-month tr td .al_6 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_6 span{float:left; width:80px; text-align:left;}
+	#protfolio_table_save_btn{margin:10px 0 0 700px;}
 	
-	#calendar-month tr td .al_5{ background-color:#3f48cc; color:#FFFFFF !important;}
-	#calendar-month tr td .al_5 input{float:left; margin:4px 2px 0 0; }
-	#calendar-month tr td .al_5 span{float:left; color:#FFFFFF; width:80px; text-align:left;}
-	
-	#calendar-month tr td .al_4{ background-color:#7f7f7f; width:95px;}
-	#calendar-month tr td .al_7{ background-color:#fa0000; width:95px; color:#FFFFFF !important;}
-	
-	#calendar-panel .calendar_exp{float:right; width:280px; height:30px; font-size:12px; }
-	#calendar-panel .calendar_exp .calendar_exp_txt{float:left; width:140px; height:20px; line-height:20px; font-weight:bold;padding-right:5px;}
-	#calendar-panel .calendar_exp .calendar_exp_color{float:left; width:120px; height:20px;}
-	#calendar-panel .calendar_exp .c1{background-color:#22B14C;}
-	#calendar-panel .calendar_exp .c2{background-color:#FFC90E;}
-	#calendar-panel .calendar_exp .c3{background-color:#3F48CC;}
-	#calendar-panel .calendar_exp .c4{background-color:#7F7F7F;}	
-	#calendar-panel .calendar_exp .c5{background-color:#FA0000;}	
-	
-	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
-	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
-	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
+	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}
 </style>
 
 <div class="data_import_bottom">
@@ -87,113 +66,34 @@
             <div class="icon"></div>
         </div>
         <div class="expand_div" style="padding:10px;">
-            <div class="table-filter">
-                %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                    <select id="state_select" autocomplate="off" class="search" data-column="1">
-                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                            <option value="">Select State</option>
-                        %for item in State.objects.all().order_by("name"):
-                            <option class="${item.id}" value="${item.name}">${item.name}</option>
-                        %endfor
-                        %else:
-                            <option value="${request.user.profile.district.state.name}">${request.user.profile.district.state.name}</option>
-                        %endif
-                    </select>
-                    <select id="district_select" autocomplate="off" class="search" data-column="2">
-                        %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
-                            <option value="">Select District</option>
-                        %for item in District.objects.all().order_by("name"):
-                            <option value="${item.name}" class="${item.state.id}">${item.name}</option>
-                        %endfor
-                        %else:
-                            <option value="${request.user.profile.district.name}">${request.user.profile.district.name}</option>
-                        %endif
-                    </select>
-                %endif
-                <select id="filter-suject-drop" name="" autocomplete="off">
-                    <option value="">Select Subject</option>
-                    <option value="AR">Assessments and Reporting</option>
-                    <option value="DC">Digital Citizenship</option>
-                    <option value="ELA">English Language Arts</option>
-                    <option value="ELL">English Language Learners</option>
-                    <option value="MA">Mathematics</option>
-                    <option value="PEP">Pepper</option>
-                    <option value="POW">Pepper's Online Workshops!</option>
-                    <option value="SC">Science</option>
-                    <option value="SE">Special Education</option>
-                    <option value="TECH">Technology</option>
-                    <option value="WR">Writing and Poetry</option>
-                    <option value="Other">Other</option>
-                </select>
-                <input type="" name="" value="" class="search" data-column="3" autocomplete="off"
-                       style="display:none;"/>
-               
-                <br>
-                <select id="" name="" autocomplate="off" class="search" data-column="4">
-                    <option value="">Select Pepper Courses</option>
-                    %for item in courses:
-                        <option value="${item.id}">${item.display_name}</option>
-                    %endfor
-                </select>
-                <input type="text" name="training_data" value="" class="search" data-column="7"
-                       placeholder="Select Date" readonly='true'/>
-            </div>
-            <div class="add_table-section table-section clearfix">
-                <table id="data-table" class="tablesorter-blue user_table_init"
-                       width="" cellspacing="" cellpadding="" border=""
-                       ajaxUrl="${reverse('pepreg_rows')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
-                    <thead>
-                    <tr>
-                        <th class="sorter-false filter-false">Edit/Delete</th>
-                        <th>State</th>
-                        <th>District</th>
-                        <th>Subject</th>
-                        <th>Course</th>
-                        <th>Training Name</th>
-                        <th>Description</th>
-                        <th>Training Date</th>
-                        <th>Training Start Time</th>
-                        <th>Training End Time</th>
-                        <th>Training Location</th>
-                        <th>Hours</th>
-                        <th class="sorter-false">Instructors</th>
-                        <th class="sorter-false">Creator</th>
-                        <th class="sorter-false">Register/Record Attendance</th>
-                        <th class="sorter-false filter-false table-menu" style="width:10px;">
-                            <div style="width:18px;height:20px;">
-                                <label class="columnSelectorButton" for="colSelect1"></label>
-                            </div>
-                        </th>
-                    </tr>
-                    </thread>
-                    <tbody id="user_data_tbody"></tbody>
-                </table>
-            </div>
-            <div class="columnSelectorWrapper">
-                <input id="colSelect1" type="checkbox" class="hidden">
-                <div id="columnSelector" class="columnSelector">
-                    <!-- this div is where the column selector is added -->
-                </div>
-            </div>
-            <span id="user-pager" class="pager clearfix">
-        <form style="float:left;">
-          <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
-          <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
-          <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
-          <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
-          <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
-          <select class="pagesize">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
-        </form>
-        <span style="float:right;"></span>
-      </span>
-        </div>
-    </div>
+        	<table class="protfolio_table" width="900" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th width="550">Course Name</th>
+                    <th>Permission Level</th>
+                </tr>
+                <tr>
+                    <th>
+                    	<input type="" id="protfolio_table_search" placeholder="Search..." style="width:300px;" />
+                        <input type="button" id="protfolio_table_search_btn" class="small" value="search" />
+                        <label class="protfolio_table_all">Select All <input id="protfolio_table_checkall" type="checkbox" /></label>
+                    </th>
+                    <th>
+                    	<select id="permission_level_filter" autocomplete="off">
+                            <option value="-1">Set Permission for Multiple/All courses</option>
+                            <option value="1">Public</option>
+                            <option value="2">State </option>
+                            <option value="3">District</option>
+                            <option value="4">School</option>
+                            <option value="5">Network</option>
+                            <option value="6">District & Network</option>
+                            <option value="7">Private</option>
+                        </select>
+                    </th>
+                </tr>
+            </table> 
+            <input type="button" id="protfolio_table_save_btn" value="Save Settings" />
+      </div>
+  </div>
 </div>
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
@@ -529,6 +429,106 @@
         var is_superuser = false;
     </script>
 %endif
+
+<script type="text/javascript">
+	function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+	
+    $(document).ready(function () {
+		//-----------------------------------------------------_protfolio_select
+		var _protfolio_select = '<select class="protfolio_table_select" autocomplete="off">';
+		_protfolio_select += '<option value="1">Public</option>';
+		_protfolio_select += '<option value="2">State </option>';
+		_protfolio_select += '<option value="3">District</option>';
+		_protfolio_select += '<option value="4">School</option>';
+		_protfolio_select += '<option value="5">Network</option>';
+		_protfolio_select += '<option value="6">District & Network</option>';
+		_protfolio_select += '<option value="7">Private</option>';
+		_protfolio_select += '</select>';
+		
+		//-----------------------------------------------------protfolio_table_init
+		function protfolio_table_init(){
+			$("#protfolio_table_checkall").removeAttr("checked");
+			
+			var s_txt = $("#protfolio_table_search").val();
+			$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourses", s_txt:s_txt}, function (r) {
+				if (r.success) {
+					$(".protfolio_table").find(".protfolio_table_tr").remove();
+					if(r.rows.length > 0){
+						for(var i in r.rows){
+							var trx = $("<tr class='protfolio_table_tr'></tr>");
+							trx.append('<td><label><span class="protfolio_table_name">' + r.rows[i].course + '</span><input class="protfolio_table_check" type="checkbox" ppid="' + r.rows[i].ppid + '"cid="' + r.rows[i].id + '"></label></td>');
+							trx.append("<td>" + _protfolio_select + "</td>");
+							
+							$(".protfolio_table").append(trx);
+							trx.find("select").val(r.rows[i].level);
+						}
+					}
+				}			
+	        });
+		}
+		
+		protfolio_table_init();
+		
+		//-----------------------------------------------------protfolio_table_search_btn
+		$("#protfolio_table_search_btn").click(function(){
+			protfolio_table_init();
+		});	
+		
+		//-----------------------------------------------------protfolio_table_checkall
+		$("#protfolio_table_checkall").change(function(){
+			if($(this).attr("checked")){
+				$(".protfolio_table_check").attr("checked", "checked");
+			}else{
+				$(".protfolio_table_check").removeAttr("checked");
+			}
+		});
+		
+		//-----------------------------------------------------permission_level_filter
+		$("#permission_level_filter").change(function(){
+			var tmp1 = $(this).val();
+			if(tmp1 != "-1"){
+				$(".protfolio_table_check:checked").each(function(){
+					$(this).parent().parent().parent().find("select").val(tmp1);
+				});
+			}
+		});
+		
+		//-----------------------------------------------------protfolio_table_save_btn
+		$("#protfolio_table_save_btn").click(function(){
+			var data = "";
+			$(".protfolio_table_check:checked").each(function(){
+				var cid = $(this).attr("cid");
+				var ppid = $(this).attr("ppid");
+				var level = $(this).parent().parent().parent().find("select").val();
+				if(data != "")	data += ",";
+				data += cid + ":" + level + ":" + ppid;
+			});
+			if(data != ""){
+				var loadwin = new LoadingWin();
+				$.get("${reverse('portfolio_settings')}", {flag: "saveCourse", content: data}, function (r) {
+					loadwin.hide();
+					protfolio_table_init();
+                });
+			}
+		});
+    });
+</script>
 
 <script type="text/javascript">
 	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
@@ -1764,9 +1764,7 @@
         return ids;
     };
     $(document).ready(function () {
-        //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
-        //** init expand title
         $(".expand_title").click(function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
@@ -1784,7 +1782,6 @@
         });
     });
 </script>
-
 <script type="text/javascript">
 	$.datepicker.setDefaults({
         showButtonPanel: true,
@@ -1824,7 +1821,6 @@
     $('.timePickText').timeDropper({readonly: true, format: 'h:mm A', meridians: true});
 	
     $(document).ready(function () {		
-		//---------------------------------------
         $('.columnSelectorButton').click(function (e) {
             if (e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
                 $('.columnSelector').show();
