@@ -164,6 +164,11 @@ from django.core.urlresolvers import reverse
     $("#dlg-detail .content").html("");
     $.get(this.href, function(r){
       $("#dlg-detail .content").html(r);
+      $("#btnCoursePrice").click(function(){
+        e.preventDefault();
+        dlg.hide();
+        $("#btnEnroll").click();
+      });
     }, "text");
   });
   $("#btnEnroll,#link_enroll").click(function(e){
