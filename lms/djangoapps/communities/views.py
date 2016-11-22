@@ -1267,10 +1267,6 @@ def submit_new_post(request):
                 img.link = image
                 img.embed = 0
                 img.save()
-    log.debug("views==============================")
-    log.debug(request.user)
-    log.debug(community_id)
-    log.debug(domain_name)
     send_notification(request.user, community_id, posts_new=[post], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
 

@@ -332,9 +332,6 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                         discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
                         values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
 
-            #if type_name in ["New Post", "Reply Post", "Delete Post", "Delete Reply Post"]:
-            #    pass
-
             # Send the notification
             body = replace_values(type.body or "", values)
             subject = replace_values(type.subject or "", values)

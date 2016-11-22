@@ -734,8 +734,6 @@ import datetime
                 });
             });
             $(".delete-something").click(function(){
-                console.log("delete-something-----------------");
-                console.log(community)
                 if($(this).attr("data-postid")){
                     var pid = $(this).data('postid');
                     $.post("${reverse('community_delete_post')}", {post_id:pid, community_id:community}, function(data){
@@ -796,8 +794,6 @@ import datetime
             });
 
             $('.add-comment-text').keyup(function (e) {
-                console.log("add comment-----------------");
-                console.log(community)
                 $("#select_name").remove();
                 if (e.keyCode === 13) {
                     content=$(this).val();
