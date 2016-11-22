@@ -830,19 +830,39 @@ $(document).ready(function () {
     $("#cec3").change(function(){
         $("#save_email3").toggle();
     });
-    $("#custom_email_name_custom_email_001").change(function(e){
-        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
-            CKEDITOR.instances.custom_email_001.setData(data.message);
+    $("#saved_email_button_custom_email_001").click(function(e){
+        code = '</select><br><br><button id="load_saved_email_custom_email_001">Load</button>';
+        new Dialog($('#dialog')).show('Saved Emails', "<select id = 'custom_email_name_custom_email_001'>" + $("#select_options").html() + code);
+        $("#load_saved_email_custom_email_001").click(function(){
+            $.post("${reverse('pepconn_get_custom_email')}", {"id":$("#custom_email_name_custom_email_001").children(":selected").attr("id")}, function(data){
+                CKEDITOR.instances.custom_email_001.setData(data.message);
+                $("#dialog").hide();
+                $(".lean-overlay").hide();
+            });
         });
     });
-    $("#custom_email_name_custom_email_002").change(function(e){
-        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
-            CKEDITOR.instances.custom_email_002.setData(data.message);
+
+    $("#saved_email_button_custom_email_002").click(function(e){
+        code = '</select><br><br><button id="load_saved_email_custom_email_002">Load</button>';
+        new Dialog($('#dialog')).show('Saved Emails', "<select id = 'custom_email_name_custom_email_002'>" + $("#select_options").html() + code);
+        $("#load_saved_email_custom_email_002").click(function(){
+            console.log("click");
+            $.post("${reverse('pepconn_get_custom_email')}", {"id":$("#custom_email_name_custom_email_002").children(":selected").attr("id")}, function(data){
+                CKEDITOR.instances.custom_email_002.setData(data.message);
+                $("#dialog").hide();
+                $(".lean-overlay").hide();
+            });
         });
     });
-    $("#custom_email_name_custom_email_003").change(function(e){
-        $.post("${reverse('pepconn_get_custom_email')}", {"id":$(this).children(":selected").attr("id")}, function(data){
-            CKEDITOR.instances.custom_email_003.setData(data.message);
+    $("#saved_email_button_custom_email_003").click(function(e){
+        code = '</select><br><br><button id="load_saved_email_custom_email_003">Load</button>';
+        new Dialog($('#dialog')).show('Saved Emails', "<select id = 'custom_email_name_custom_email_003'>" + $("#select_options").html() + code);
+        $("#load_saved_email_custom_email_003").click(function(){
+            $.post("${reverse('pepconn_get_custom_email')}", {"id":$("#custom_email_name_custom_email_003").children(":selected").attr("id")}, function(data){
+                CKEDITOR.instances.custom_email_003.setData(data.message);
+                $("#dialog").hide();
+                $(".lean-overlay").hide();
+            });
         });
     });
     $("#save_email").click(function(e){

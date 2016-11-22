@@ -1511,19 +1511,29 @@ def do_send_registration_email(task, user_ids, request):
 
 
 def get_custom_email(request):
-    email = CustomEmail.objects.get(id=request.POST.get("id"))
+    try:
+        email = CustomEmail.objects.get(id=request.POST.get("id"))
+    except Exception as e:
+        return HttpResponse(json.dumps({'success': True, 'message': e.message}), content_type="application/json")
+
     return HttpResponse(json.dumps({'success': True, 'message': email.email_content}), content_type="application/json")
 
 
 def save_custom_email(request):
-    save = CustomEmail()
-    save.email_content = request.POST.get('message')
-    save.user = request.user
-    save.name = request.POST.get('name')
-    if(request.POST.get('district')):
-        save.district = request.user.profile.district
-    save.save()
-    return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
+    try:
+        email = CustomEmail.objects.get(name=request.POST.get('name'), user=request.user)
+        email.email_content = request.POST.get('message')
+        email.save()
+        return HttpResponse(json.dumps({'success': True, 'count': 'updated!'}), content_type="application/json")
+    except:
+        save = CustomEmail()
+        save.email_content = request.POST.get('message')
+        save.user = request.user
+        save.name = request.POST.get('name')
+        if(request.POST.get('district')):
+            save.district = request.user.profile.district
+        save.save()
+        return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
 
 
 def registration_email_progress(request):
