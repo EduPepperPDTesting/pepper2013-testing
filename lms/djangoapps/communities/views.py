@@ -975,16 +975,22 @@ def get_full_likes(request):
 
 
 def delete_comment(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
     cid = request.POST.get("comment_id")
     comment = CommunityComments.objects.get(id=cid)
     comment.delete()
+    send_notification(request.user, community_id, posts_reply_delete=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
 def delete_post(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
     pid = request.POST.get("post_id")
     post = CommunityPosts.objects.get(id=pid)
     post.delete()
+    send_notification(request.user, community_id, posts_delete=[post], domain_name=domain_name)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 
@@ -1184,6 +1190,8 @@ def get_posts(request):
 
 
 def submit_new_comment(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
     comment = CommunityComments()
     post = CommunityPosts.objects.get(id=request.POST.get('post_id'))
     post.date_update = datetime.datetime.now()
@@ -1192,6 +1200,7 @@ def submit_new_comment(request):
     comment.user = User.objects.get(id=request.user.id)
     comment.comment = request.POST.get('content')
     comment.save()
+    send_notification(request.user, community_id, posts_reply=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
 
 
@@ -1231,6 +1240,8 @@ def check_content_priority(request):
 
 
 def submit_new_post(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
     post = CommunityPosts()
     content = request.POST.get('post')
     content = parse_urls(content)
@@ -1256,6 +1267,7 @@ def submit_new_post(request):
                 img.link = image
                 img.embed = 0
                 img.save()
+    send_notification(request.user, community_id, posts_new=[post], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'community': request.POST.get('community_id')}), content_type='application/json')
 
 

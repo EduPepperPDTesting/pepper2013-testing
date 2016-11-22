@@ -743,13 +743,13 @@ import datetime
             $(".delete-something").click(function(){
                 if($(this).attr("data-postid")){
                     var pid = $(this).data('postid');
-                    $.post("${reverse('community_delete_post')}", {post_id:pid}, function(data){
+                    $.post("${reverse('community_delete_post')}", {post_id:pid, community_id:community}, function(data){
                         getPosts()
                     });
                 }
                 if($(this).attr("data-commentid")){
                     var cid = $(this).data('commentid');
-                    $.post("${reverse('community_delete_comment')}", {comment_id:cid}, function(data){
+                    $.post("${reverse('community_delete_comment')}", {comment_id:cid, community_id:community}, function(data){
                         getPosts()
                     });
                 }
@@ -764,7 +764,7 @@ import datetime
                 if (e.keyCode === 13) {
                     content=$(this).val();
                     post_id=$(this).data('id')
-                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content, community_id:community}, function(data){
                         getPosts();
                     });
                 }
@@ -805,7 +805,7 @@ import datetime
                 if (e.keyCode === 13) {
                     content=$(this).val();
                     post_id=$(this).data('id')
-                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content}, function(data){
+                    $.post("${reverse('community_submit_new_comment')}", {post_id: post_id, content:content, community_id:community}, function(data){
                         getPosts();
                     });
                 }
