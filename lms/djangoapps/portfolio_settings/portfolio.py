@@ -48,7 +48,7 @@ def index(request):
             rows = []
             try:
                 for item in Courses:
-                    ppBeans = ProtfolioPermissions.objects.filter(user_id=request.user.id).filter(course_id=item.id)
+                    ppBeans = ProtfolioPermissions.objects.filter(user_id=request.user.id).filter(course_id=item.course_id)
                     level = "1"
                     ppid = "-1"
                     for ppx in ppBeans:
@@ -72,7 +72,7 @@ def index(request):
             if(content):
                 for tmp1 in content.split(","):
                     tmp2 = tmp1.split(":");
-                    cid = int(tmp2[0]);
+                    cid = tmp2[0];
                     level = tmp2[1];
                     ppid = tmp2[2];
 
@@ -81,6 +81,33 @@ def index(request):
                         protfolio_1 = ProtfolioPermissions.objects.get(id=ppid)
 
                     protfolio_1.user_id = request.user.id
+                    protfolio_1.course_id = cid
+                    protfolio_1.permission_level = level
+                    protfolio_1.save();
+
+            return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+        elif (request_flag == "saveOneCourse"):
+            content = request.GET.get("content")
+            if (content):
+                for tmp1 in content.split(","):
+                    tmp2 = tmp1.split(":");
+                    cid = tmp2[0];
+                    level = tmp2[1];
+                    uid = tmp2[2];
+
+                    # protfolio_1 = ProtfolioPermissions.objects.filter(user_id=uid).filter(course_id=cid)
+                    # for tmp1 in content.split(","):
+                    #     protfolio_1.permission_level = level
+                    #     protfolio_1.save();
+                    #     break;
+                    protfolio_1 = ProtfolioPermissions()
+                    ppBeans = ProtfolioPermissions.objects.filter(user_id=uid).filter(course_id=cid)
+                    for ppx in ppBeans:
+                        protfolio_1 = ppx
+                        break;
+
+                    protfolio_1.user_id = uid
                     protfolio_1.course_id = cid
                     protfolio_1.permission_level = level
                     protfolio_1.save();
