@@ -588,7 +588,7 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
         url(r'^nccourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
-        url(r'^nccourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
+        url(r'^nccourses-list$', 'courseware.views.dpicourse_list', name="nccourse_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
         url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),
