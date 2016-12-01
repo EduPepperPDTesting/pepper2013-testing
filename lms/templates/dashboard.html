@@ -437,19 +437,21 @@
 <!--@end-->
   //-----------------------------------------------
   $(".portfolio-btn").click(function(){
-    var curr_user={};
-    var interviewer={};
-    //var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
-    var course_number=$(this).parent().find("a").attr("course_number");
-    interviewer.id="${request.user.id}";
-    interviewer.name="${request.user.username}";
-    interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
-    curr_user.id="${curr_user.id}";
-    var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
-                                         'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
-                                         'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
-    var url = $(this).attr("link");
-    $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
+		if(!$(this).hasClass("disabled_btn")){
+			var curr_user={};
+			var interviewer={};
+			//var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+			var course_number=$(this).parent().find("a").attr("course_number");
+			interviewer.id="${request.user.id}";
+			interviewer.name="${request.user.username}";
+			interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
+			curr_user.id="${curr_user.id}";
+			var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
+												 'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
+												 'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+			var url = $(this).attr("link");
+			$.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
+		}
    });
     function imessage_click(obj)
   {
@@ -460,7 +462,29 @@
   }
   </script>
     <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
-
+<style>
+	.disabled_btn{ cursor:default !important; color:#999999 !important; }
+</style>
+<script>
+	$(document).ready(function(){
+		$(".portfolio-btn").each(function(){
+			var user_id = "${curr_user.id}";
+			var linkx = $(this).attr("link");
+			var course_id = linkx.split("/portfolio")[0];
+			course_id = course_id.replace("/courses/", "");
+			
+			$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourseLevel", linkx:linkx, course_id:course_id, user_id:user_id}, function (r) {
+				if (r.success) {
+					if(r.level == "1"){
+						$(".portfolio-btn[link='" + r.linkx + "']").removeClass("disabled_btn");
+					}
+				}			
+			});
+		});
+		
+		
+	});
+</script>
 </%block>
 <section class="container dashboard" id="container_dashboard">
   %if message and curr_user==request.user:
@@ -992,7 +1016,7 @@ Add info that you would like to share about yourself here:
       		      %if curr_user == request.user:              
 			              <a href="${reverse('portfolio_about_me',args=[course.id])}" class="enter-course dashboard-btn1">${_('View Portfolio')}</a>
 			          %else:
-                    <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                    <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn disabled_btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
                 %if curr_user == request.user and not course.close_course:      
                     <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>

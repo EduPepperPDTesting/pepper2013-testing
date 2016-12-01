@@ -194,10 +194,14 @@ def rows(request):
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
     count = trainings.count()
-    json_out = [count]
     rows = list()
 
+    tmp_school_id = request.user.profile.school.id
     for item in trainings[start:end]:
+        if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+            count -= 1;
+            continue;
+
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
@@ -263,6 +267,8 @@ def rows(request):
             )
         ]
         rows.append(row)
+
+    json_out = [count]
     json_out.append(rows)
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 

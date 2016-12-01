@@ -21,18 +21,14 @@ from xmodule.modulestore.django import modulestore
 import pymongo
 
 from django.conf import settings
-import calendar
-from django.utils.timezone import datetime, now, timedelta, utc
-from django.utils.translation import ugettext_lazy as _
-from dateutil.relativedelta import relativedelta
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives
+#import calendar
+#from django.utils.timezone import datetime, now, timedelta, utc
+#from django.utils.translation import ugettext_lazy as _
+#from dateutil.relativedelta import relativedelta
 
-from student.models import (Registration, UserProfile, TestCenterUser, TestCenterUserForm,
-                            TestCenterRegistration, TestCenterRegistrationForm, State,
-                            PendingNameChange, PendingEmailChange, District,
-                            CourseEnrollment, unique_id_for_user,
-                            get_testcenter_registration, CourseEnrollmentAllowed)
+#from student.models import (Registration, UserProfile, District)
+
+from people.people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
 
 @login_required
 def index(request):
@@ -96,11 +92,6 @@ def index(request):
                     level = tmp2[1];
                     uid = tmp2[2];
 
-                    # protfolio_1 = ProtfolioPermissions.objects.filter(user_id=uid).filter(course_id=cid)
-                    # for tmp1 in content.split(","):
-                    #     protfolio_1.permission_level = level
-                    #     protfolio_1.save();
-                    #     break;
                     protfolio_1 = ProtfolioPermissions()
                     ppBeans = ProtfolioPermissions.objects.filter(user_id=uid).filter(course_id=cid)
                     for ppx in ppBeans:
@@ -113,6 +104,68 @@ def index(request):
                     protfolio_1.save();
 
             return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+
+        elif (request_flag == "getCourseLevel"):
+            course_id = request.GET.get("course_id")
+            user_id = request.GET.get("user_id")
+            user_profile = UserProfile.objects.get(user_id=user_id)
+            linkx = request.GET.get("linkx")
+            #current_user_id = request.user
+
+            if (course_id and user_id):
+                level = 1
+                ppBeans = ProtfolioPermissions.objects.filter(user_id=user_id).filter(course_id=course_id)
+                for ppx in ppBeans:
+                    level = ppx.permission_level
+                    break;
+
+                total = 0
+                if(level != "1"):
+                    if(user_id == request.user.id):
+                        level = "1";
+                    else:
+                        if(level == "2"):
+                            if(user_profile.district.state.name == request.user.profile.district.state.name):
+                                level = "1";
+
+                        elif(level == "3"):
+                            if (user_profile.district.name == request.user.profile.district.name):
+                                level = "1";
+
+                        elif (level == "4"):
+                            if (user_profile.school.name == request.user.profile.school.name):
+                                level = "1";
+
+                        elif (level == "5"):
+                            cond = gen_people_search_query(
+                                must={
+                                    'people_of': user_id,
+                                    'user_id': request.user.id
+                                })
+
+                            profiles, total = search_people(cond)
+                            if(int(total) > 0):
+                                level = "1";
+
+                        elif (level == "6"):
+                            if (user_profile.district.name == request.user.profile.district.name):
+                                level = "1"
+
+                            else:
+                                cond = gen_people_search_query(
+                                    must={
+                                        'people_of': user_id,
+                                        'user_id': request.user.id
+                                    })
+
+                                profiles, total = search_people(cond)
+                                if(total > 0):
+                                    level = "1";
+
+
+                return HttpResponse(json.dumps({'success': True, 'linkx': linkx, 'level': level}), content_type="application/json")
+            else:
+                return HttpResponse(json.dumps({'success': False}), content_type="application/json")
         else:
             return HttpResponse(json.dumps({'success': False}), content_type="application/json")
     else:
