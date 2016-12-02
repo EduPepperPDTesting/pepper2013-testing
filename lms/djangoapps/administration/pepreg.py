@@ -180,9 +180,11 @@ def rows(request):
         filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
 
     # limit to district trainings for none-system
+    is_System = False
     if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
         filters[1] = request.user.profile.district.state.name
         filters[2] = request.user.profile.district.name
+        is_System = True
 
     if len(filters):
         args, kwargs = build_filters(columns, filters)
@@ -193,15 +195,17 @@ def rows(request):
     else:
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
-    count = trainings.count()
-    rows = list()
-
     tmp_school_id = request.user.profile.school.id
-    for item in trainings[start:end]:
-        if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
-            count -= 1;
-            continue;
+    trainings_set = list()
+    for item in trainings:
+        if (is_System and item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+            pass;
+        else:
+            trainings_set.append(item)
 
+    count = len(trainings_set)#.count()
+    rows = list()
+    for item in trainings_set[start:end]:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
