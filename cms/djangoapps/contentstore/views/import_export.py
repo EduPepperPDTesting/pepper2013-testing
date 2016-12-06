@@ -33,8 +33,10 @@ from xmodule.exceptions import SerializationError
 from .access import get_location_and_verify_access
 from util.json_request import JsonResponse
 import time
+from pymongo import MongoClient
+import json
 
-__all__ = ['import_course', 'generate_export_course', 'export_course']
+__all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course']
 
 log = logging.getLogger(__name__)
 
@@ -324,3 +326,47 @@ def export_course(request, org, course, name):
         'context_course': course_module,
         'successful_import_redirect_url': ''
     })
+
+
+def copy_course(id_org, id_course, _from, _to):
+    def copy_collection(db_name, collection_name, cond):
+        from_db = _from[db_name]
+        to_db = _to[db_name]
+
+        from_collection = from_db[collection_name]
+        to_collection = to_db[collection_name]
+
+        for doc in from_collection.find(cond):  # , "_id.name": id_name
+            to_collection.save(doc)
+
+    copy_collection("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
+    copy_collection("xcontent", "fs.files", {"_id.org": id_org, "_id.course": id_course})
+    copy_collection("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
+
+
+@login_required
+def sync_course(request):
+    """
+    Sync Course to Another Server
+    """
+    org = request.POST.get("id_org", "")
+    course = request.POST.get("id_course", "")
+    # name = request.POST.get("id_name", "")
+    
+    try:
+        dest_id = int(request.POST.get("dest", ""))
+        d = settings.COURSE_SYNC_DEST[dest_id]
+        dest = MongoClient(d['host'], d['port'])
+        dest.admin.authenticate(d['user'], d['password'])
+        
+        opt = settings.MODULESTORE['default']['OPTIONS']
+        local = MongoClient(opt['host'], opt['port'])
+        local.admin.authenticate(opt['user'], opt['password'])
+        
+        json_out = {'success': True}
+        copy_course(org, course, local, dest)
+    except Exception as e:
+        json_out = {'success': False, 'message': '%s' % e}
+    return HttpResponse(json.dumps(json_out), content_type="application/json")
+
+
