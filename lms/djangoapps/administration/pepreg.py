@@ -180,11 +180,11 @@ def rows(request):
         filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
 
     # limit to district trainings for none-system
-    is_System = False
+    is_no_System = False
     if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
-        filters[1] = request.user.profile.district.state.name
-        filters[2] = request.user.profile.district.name
-        is_System = True
+        #filters[1] = request.user.profile.district.state.name
+        #filters[2] = request.user.profile.district.name
+        is_no_System = True
 
     if len(filters):
         args, kwargs = build_filters(columns, filters)
@@ -195,10 +195,21 @@ def rows(request):
     else:
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
-    tmp_school_id = request.user.profile.school.id
+    if(is_no_System):
+        tmp_school_id = request.user.profile.school.id
+
     trainings_set = list()
     for item in trainings:
-        if (is_System and item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+        is_belong = PepRegInstructor.objects.filter(instructor=request.user,
+                                                    training=item).exists() or item.user_create == request.user
+        if(is_belong):
+            trainings_set.append(item)
+
+        elif(check_access_level(request.user, 'pepreg', 'add_new_training') != "System"):
+            if (item.district.state.name == request.user.profile.district.state.name and item.district.name == request.user.profile.district.name):
+                trainings_set.append(item)
+
+        elif(is_no_System and item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
             pass;
         else:
             trainings_set.append(item)
