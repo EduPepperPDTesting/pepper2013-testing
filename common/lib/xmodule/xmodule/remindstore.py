@@ -47,9 +47,12 @@ class MongoRemindStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_status]
+
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_aid.database.authenticate(user, password)
+            self.collection_status.database.authenticate(user, password)
+            
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_aid.safe = True
