@@ -1,6 +1,6 @@
 from student.models import State, District, School, Cohort, User
 from .utils import render_json_response
-
+from permissions.utils import check_access_level, check_user_perms
 
 def drop_states(request):
     r = list()
@@ -83,7 +83,7 @@ def drop_cohorts(request):
 
 def user_email_completion(request):
     r = list()
-    access_level = request.GET.get('access_level', False)
+    access_level = check_access_level(request.user, 'pepreg', 'add_new_training')#request.GET.get('access_level', False)
     lookup = request.GET.get('q', False)
     if lookup:
         kwargs = {'email__istartswith': lookup}
