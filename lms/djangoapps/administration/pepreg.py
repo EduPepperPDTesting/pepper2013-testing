@@ -195,26 +195,30 @@ def rows(request):
     else:
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
-    if(is_no_System):
+    tmp_school_id = 0
+    try:
         tmp_school_id = request.user.profile.school.id
+    except:
+        tmp_school_id = 0
 
     trainings_set = list()
     for item in trainings:
-        is_belong = PepRegInstructor.objects.filter(instructor=request.user,
-                                                    training=item).exists() or item.user_create == request.user
-        if(is_belong):
+        if(not(is_no_System)):
             trainings_set.append(item)
-
-        elif(check_access_level(request.user, 'pepreg', 'add_new_training') != "System"):
-            if (item.district.state.name == request.user.profile.district.state.name and item.district.name == request.user.profile.district.name):
+        else:
+            is_belong = PepRegInstructor.objects.filter(instructor=request.user,
+                                                        training=item).exists() or item.user_create == request.user
+            if(is_belong):
                 trainings_set.append(item)
 
-        elif(is_no_System and item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
-            pass;
-        else:
-            trainings_set.append(item)
+            elif(item.district.name == request.user.profile.district.name):
+                try:
+                    if(not(item.school_id) or item.school_id == -1 or item.school_id == tmp_school_id):
+                        trainings_set.append(item)
+                except:
+                    pass
 
-    count = len(trainings_set)#.count()
+    count = len(trainings_set)
     rows = list()
     for item in trainings_set[start:end]:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
@@ -301,7 +305,8 @@ def save_training(request):
 
         training.type = request.POST.get("type", "")
         training.district_id = request.POST.get("district_id")
-        training.school_id = request.POST.get("school_id")
+        if(request.POST.get("school_id")):
+            training.school_id = request.POST.get("school_id")
         training.name = request.POST.get("name", "")
         training.description = request.POST.get("description", "")
 
