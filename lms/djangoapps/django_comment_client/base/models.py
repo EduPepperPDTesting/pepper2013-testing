@@ -64,13 +64,7 @@ class MongoDiscussionRating(object):
     
 def discussion_rating_store():
     options =  {
-        'db': 'cs_comments_service_development',
         'collection': 'contents_rating',
-        'host': 'localhost',
-        #'port': 27017,
-        #'user': None,
-        #'password': None,
     }
-    options = {}
     options.update(settings.DISCUSSION_RATING_STORE['OPTIONS'])    
     return MongoDiscussionRating(**options)
