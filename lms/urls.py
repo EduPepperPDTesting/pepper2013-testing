@@ -84,6 +84,10 @@ urlpatterns = (
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     # === pepreg end ==    
 
+    # === Portfolio Settings begin ==
+    url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
+    # === Portfolio Settings end ==
+	
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
     url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),

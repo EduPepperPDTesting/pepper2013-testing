@@ -400,6 +400,7 @@
                         %if curr_user.is_superuser:
                             <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
                         %endif    
+                        <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {
