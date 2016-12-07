@@ -71,4 +71,6 @@ def discussion_rating_store():
         #'user': None,
         #'password': None,
     }
+    options = {}
+    options.update(settings.DISCUSSION_RATING_STORE['OPTIONS'])    
     return MongoDiscussionRating(**options)
