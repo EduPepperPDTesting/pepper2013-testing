@@ -935,34 +935,39 @@ def download_students_excel(request):
 
         c.setFont("Helvetica", 16)
         c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
-        c.drawString(50, 578, "Instructor:")
+        # c.drawString(50, 578, "Instructor:")
 
         instructor_y = 575
 
         tmp_flag = 0;
-        tmp_names = "";
+        instructor_name = "Instructor: ";
         for reg_stu in PepRegInstructor.objects.filter(training_id=training_id):
             if tmp_flag == 0:
                 tmp_flag += 1;
-                tmp_names = reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
-            elif tmp_flag == 1:
-                tmp_flag += 1;
-                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
+                instructor_name += reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
             else:
-                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
-                c.drawString(130, instructor_y, tmp_names)
-                instructor_y = instructor_y + 25;
+                instructor_name += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
 
-                tmp_names = "";
-                tmp_flag = 0;
+        style1 = styleSheet['BodyText']
+        style1.fontName = "Helvetica"
+        style1.fontSize = 16
+        style1.leading = 15
 
-        if not(tmp_names == ""):
-            c.drawString(130, instructor_y + 3, tmp_names)
+        p1 = Paragraph(instructor_name, style1)
+        w2 = 520
+        h2 = 800
+        w2, h2 = p1.wrap(w2, h2)
+        if (h2 == 15):
+            p1.drawOn(c, 50, instructor_y + 3)
+        elif (h2 == 30):
+            p1.drawOn(c, 50, instructor_y - 13)
+        elif (h2 == 45):
+            p1.drawOn(c, 50, instructor_y - 23)
 
         # ------------------------------------------------------------------------------------head
         c.setFillColor(colors.lawngreen)  # C7,F4,65
 
-        base_table_y = 520;
+        base_table_y = 510;
         c.rect(10, base_table_y, 80, 30, fill=1)
         c.rect(90, base_table_y, 80, 30, fill=1)
         c.rect(170, base_table_y, 90, 30, fill=1)
