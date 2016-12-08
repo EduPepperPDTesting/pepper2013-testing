@@ -1004,28 +1004,32 @@ def download_students_excel(request):
             pro = UserProfile.objects.get(user_id=reg_stu.student.id)
 
             if (pro):
-                if (pro.school):
+                tmp_name = "";
+                try:
                     tmp_name = pro.school.name
-                    if (tmp_name.find("Elementary") > -1):
-                        tmp_name = tmp_name.split("Elementary")[0];
+                except:
+                    tmp_name = ""
 
-                    elif (tmp_name.find("Middle") > -1):
-                        tmp_name = tmp_name.split("Middle")[0];
+                if (tmp_name.find("Elementary") > -1):
+                    tmp_name = tmp_name.split("Elementary")[0];
 
-                    elif (tmp_name.find("High") > -1):
-                        tmp_name = tmp_name.split("High")[0];
+                elif (tmp_name.find("Middle") > -1):
+                    tmp_name = tmp_name.split("Middle")[0];
 
-                    tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
-                    if (tmp_email_width > 80):
-                        p = Paragraph(tmp_name, table_style)
-                        w2, h2 = p.wrap(80, 100)
-                        h2 += 10
-                        if (h2 > tr_height):
-                            tr_height = h2
+                elif (tmp_name.find("High") > -1):
+                    tmp_name = tmp_name.split("High")[0];
 
-                        p.drawOn(c, 265, ty - tr_height + 5)
-                    else:
-                        c.drawCentredString(305, ty - 15, tmp_name)
+                tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 80):
+                    p = Paragraph(tmp_name, table_style)
+                    w2, h2 = p.wrap(80, 100)
+                    h2 += 10
+                    if (h2 > tr_height):
+                        tr_height = h2
+
+                    p.drawOn(c, 265, ty - tr_height + 5)
+                else:
+                    c.drawCentredString(305, ty - 15, tmp_name)
 
             ty -= tr_height;
 
