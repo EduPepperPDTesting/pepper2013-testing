@@ -40,7 +40,6 @@ class EmailTask(models.Model):
     task_read = models.BooleanField(blank=False, default=0)
     user = models.ForeignKey(User, default=0)
 
-
 class CustomEmail(models.Model):
     class Meta:
         db_table = 'admin_custom_emails'
@@ -48,6 +47,8 @@ class CustomEmail(models.Model):
     name = models.CharField(blank=False, max_length=30, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None)
+    system = models.BooleanField(blank=False, null=False)
+    school = models.ForeignKey(School, on_delete=models.PROTECT, null=False)
 
 class EmailTaskLog(models.Model):
     class Meta:

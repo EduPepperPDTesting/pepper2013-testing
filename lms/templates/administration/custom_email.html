@@ -34,8 +34,27 @@
       <img class = "saved_email_img" src="/static/images/bookmark.png" id="saved_email_button_${ck_name}">
       <span style="margin-top: -61px; margin-left: 57px; display:none;" id = "saved_email_span_${ck_name}">
     <span id = 'select_options'>
-    %for i in CustomEmail.objects.filter(user=request.user, district=request.user.profile.district).order_by('name'):
-        <option id="${i.id}">${i.name}</option>
+
+
+    %for i in CustomEmail.objects.all().order_by('name'):
+        <%
+            district = -1
+            school = -1
+            system = -1
+            try:
+                district = i.district.id
+            except:
+                None
+            try:
+                school = i.school.id
+            except:
+                None
+            try:
+                system = i.system
+            except:
+                None
+        %>
+        <option id="${i.id}" data-district="${district}" data-school="${school}" data-system="${system}">${i.name}</option>
     %endfor
         </span>
     <br>

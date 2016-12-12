@@ -1530,8 +1530,18 @@ def save_custom_email(request):
         save.email_content = request.POST.get('message')
         save.user = request.user
         save.name = request.POST.get('name')
-        if(request.POST.get('district')):
-            save.district = request.user.profile.district
+        if(request.POST.get('system') == "true"):
+            save.system = 1
+        else:
+            save.system = 0
+        try:
+            save.district = District.objects.get(id=request.POST.get('district'))
+        except:
+            None
+        try:
+            save.school = School.objects.get(id=request.POST.get('school'))
+        except:
+            None
         save.save()
         return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
 
