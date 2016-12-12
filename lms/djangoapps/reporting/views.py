@@ -326,6 +326,11 @@ def report_save(request, report_id):
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
+
+            rs = reporting_store()
+            collection = get_cache_collection(request, report_id)
+            rs.del_collection(collection)
+
         else:
             raise Exception('Report could not be located or created.')
     except Exception as e:
@@ -387,19 +392,22 @@ def report_view(request, report_id):
         if allowed:
             rs = reporting_store()
             collection = get_cache_collection(request, report_id)
-            rs.del_collection(collection)
-            selected_view = ReportViews.objects.filter(report=report)[0]
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-            report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-            columns = []
-            filters = []
-            for col in selected_columns:
-                columns.append(col)
-            for f in report_filters:
-                filters.append(f)
+            stats = int(rs.get_collection_stats(collection)['ok'])
+            if(not(stats)):
+                rs.del_collection(collection)
+                selected_view = ReportViews.objects.filter(report=report)[0]
+                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+                report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-            create_report_collection(request, report, selected_view, columns, filters, report_id)
+                columns = []
+                filters = []
+                for col in selected_columns:
+                    columns.append(col)
+                for f in report_filters:
+                    filters.append(f)
+
+                create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             school_year_item = []
             if report_has_school_year(selected_columns):
