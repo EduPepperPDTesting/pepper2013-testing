@@ -1,4 +1,4 @@
-//var db = connect("localhost:27018/reporting")
+var db = connect("localhost:27018/reporting")
 db.user_course_progress.remove({})
 db.problem_point.remove({})
 var modulestore = [];

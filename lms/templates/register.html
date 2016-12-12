@@ -282,18 +282,18 @@ from baseinfo.models import Enum
           <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />
           <li class="field required text" id="field-name">
             <label for="grade_level_id">${_('Grade Level-Check all that apply')}</label>
-            <div class="level_containter" style="margin-bottom:10px;">
+            <div class="level_containter" style="margin-bottom:10px;width:100%;">
             <input type="hidden" autocomplete="off" id="grade_level_id" name="grade_level_id" value="" />
               %for item in GradeLevel.objects.all():
-              <span class="level">
-                <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
+              <span class="level" style="padding-right:78px;">
+                <a href="#" id="grade_btn${item.id}" class="btn_grade_level" style="width:100px;" onclick="click_grade_btn(${item.id});return false">
                   ${item.name}
                 </a>
               </span>
               %endfor
-              </div>
+            </div>
           </li>            
-         <li class="field required text" id="field-name">
+          <li class="field required text" id="field-name">
             <label for="years_in_education_id">${_('Number of Years in Education')}</label>
             <select autocomplete="off" name="years_in_education_id" style="width:100px;">
               <option value="">--</option>
@@ -301,8 +301,9 @@ from baseinfo.models import Enum
               <option value="${item.id}">${item.name}</option>
               %endfor                
             </select>
-<!--@end-->
           </li>
+<!--@end-->
+          
 
           <div style="padding:10px 0 15px 0;"> 
             <b style="font-size:15px;color:#333;">My Learners' Profile *</b>

@@ -352,48 +352,6 @@ def course_filter(course, subject_index, currSubject, g_courses, currGrades, mor
     # end
     '''
 
-#@begin:Add dpicourse_filter just for dpicourses
-#@date:2016-10-27
-def dpicourse_filter(course, subject_index, currSubject, g_courses, currGrades):
-    # 20151130 modify the courses shown in different course grade after press All button
-    # begin
-    if course.display_grades == 'K-5':
-        if course.display_subject != currSubject[0]:
-            currSubject[0] = course.display_subject
-            subject_index[0] += 1
-            g_courses[0].append([])
-        g_courses[0][subject_index[0]].append(course)
-    if (course.display_grades == '6-8' or course.display_grades == '6-12') and currGrades != '9-12':
-        if course.display_subject != currSubject[1]:
-            currSubject[1] = course.display_subject
-            subject_index[1] += 1
-            g_courses[1].append([])
-        g_courses[1][subject_index[1]].append(course)
-    if (course.display_grades == '9-12' or course.display_grades == '6-12') and currGrades != '6-8':
-        if course.display_subject != currSubject[2]:
-            currSubject[2] = course.display_subject
-            subject_index[2] += 1
-            g_courses[2].append([])
-        g_courses[2][subject_index[2]].append(course)
-    if course.display_grades == 'K-12':
-        if course.display_subject != currSubject[3]:
-            currSubject[3] = course.display_subject
-            subject_index[3] += 1
-            g_courses[3].append([])
-        g_courses[3][subject_index[3]].append(course)
-    # end
-
-    # 20160322 add "Add new grade 'PreK-3'"
-    # begin
-    if course.display_grades == 'PreK-3':
-        if course.display_subject != currSubject[4]:
-            currSubject[4] = course.display_subject
-            subject_index[4] += 1
-            g_courses[4].append([])
-        g_courses[4][subject_index[4]].append(course)
-    # end
-# end
-
 @ensure_csrf_cookie
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def course_list(request):
@@ -545,18 +503,16 @@ def dpicourse_list(request):
 
     items = modulestore().collection.find(filterDic).sort("metadata.display_subject", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(items), 0)
-
-    subject_index = [-1, -1, -1, -1, -1]
-    currSubject = ["", "", "", "", ""]
-    g_courses = [[], [], [], [], []]
-
+    subject_index = [-1, -1, -1, -1]
+    currSubject = ["", "", "", ""]
+    g_courses = [[], [], [], []]
     if is_new != '':
         for course in courses:
             if course.is_newish:
-                dpicourse_filter(course, subject_index, currSubject, g_courses, grade_id)
+                course_filter(course, subject_index, currSubject, g_courses, grade_id)
     else:
         for course in courses:
-            dpicourse_filter(course, subject_index, currSubject, g_courses, grade_id)
+            course_filter(course, subject_index, currSubject, g_courses, grade_id)
     for gc in g_courses:
         for sc in gc:
             sc.sort(key=lambda x: x.display_coursenumber)

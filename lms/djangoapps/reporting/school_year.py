@@ -2,12 +2,12 @@
 from .models import ReportViews
 from .models import reporting_store
 
-school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView']
+school_year_collection = ['UserView', 'UserCourseView']
 
 
 def report_has_school_year(columns):
     for col in columns:
-        if col.column.data_type == 'time' or col.column.data_type == 'clk':
+        if col.column.data_type == 'time':
             return True
     return False
 

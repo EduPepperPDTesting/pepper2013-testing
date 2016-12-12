@@ -13,13 +13,6 @@ urlpatterns = (
     '',  # nopep8
 
 ####### Ancestor
-    # === shopping begin ===
-    url(r'^shopping/$', 'shopping.views.course_list', name="shopping_course_list"),
-    url(r'^shopping/enroll/post$', 'shopping.views.enroll_post', name="shopping_enroll_post"),
-    url(r'^shopping/(?P<course_id>[^/]+/[^/]+/[^/]+)/course_info/$', 'shopping.views.course_info', name="shopping_course_info"),
-    url(r'^shopping/valid_discount_code/$', 'shopping.views.valid_discount_code', name="shopping_valid_discount_code"),
-    # === shopping end ===
-    
     url(r'^student/drop_districts$', 'student.views.drop_districts', name="student_drop_districts"),
     url(r'^student/drop_states$', 'student.views.drop_states', name="student_drop_states"),
     url(r'^student/drop_schools$', 'student.views.drop_schools', name="student_drop_schools"),
@@ -72,8 +65,6 @@ urlpatterns = (
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
     url(r'^pepreg/training_json$', 'administration.pepreg.training_json', name="pepreg_training_json"),
-    url(r'^pepreg/getCalendarInfo$', 'administration.pepreg.getCalendarInfo', name="pepreg_training_calendar_json"),
-    url(r'^pepreg/getCalendarMonth$', 'administration.pepreg.getCalendarMonth', name="pepreg_training_calendar_getmonth"),
     url(r'^pepreg/register$', 'administration.pepreg.register', name="pepreg_register"),
     url(r'^pepreg/set_student_attended$', 'administration.pepreg.set_student_attended', name="pepreg_set_student_attended"),
     url(r'^pepreg/set_student_validated$', 'administration.pepreg.set_student_validated', name="pepreg_set_student_validated"),
@@ -81,7 +72,6 @@ urlpatterns = (
     url(r'^pepreg/delete_student$', 'administration.pepreg.delete_student', name="pepreg_delete_student"),
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
-    url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     # === pepreg end ==    
 
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
@@ -130,13 +120,6 @@ urlpatterns = (
     url(r'^reporting/report/get_progress$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
-
-    url(r'^usage_report/$', 'administration.usage_report.main', name="usage_report"),
-    url(r'^usage_report/get_result$', 'administration.usage_report.get_user_login_info', name="get_user_login_info"),
-    url(r'^usage_report/drop_states$', 'administration.usage_report.drop_states', name="usage_report_drop_states"),
-    url(r'^usage_report/drop_districts$', 'administration.usage_report.drop_districts', name="usage_report_drop_districts"),
-    url(r'^usage_report/drop_schools$', 'administration.usage_report.drop_schools', name="usage_report_drop_schools"),
-    url(r'^usage_report/download_excel/$', 'administration.usage_report.usage_report_download_excel', name="usage_report_download_excel"),
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),
@@ -573,8 +556,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
-        url(r'^nccourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
-        url(r'^nccourses-list$', 'courseware.views.dpicourse_list', name="nccourse_list"),
+        url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
         url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),

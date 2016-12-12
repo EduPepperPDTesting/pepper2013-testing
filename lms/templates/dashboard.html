@@ -567,35 +567,8 @@
         </li>
         % endif
         %endif
-        
-<!-------------------------------- My Pepper Stats------------------------------------->
-    <li>
-      <span class="title">
-         <div style="font-family: 'Open Sans';font-size:12px;">
-            <div class="" style="padding:0 0 5px 0;"> 
-              <b style="font-size:14px;color:#000">My Pepper Stats:</b>
-            </div>
-            <div style="line-height:30px;"><b>All Course Time:</b>
-           <span id="all_course_time" style="display:inline;"></span>
-           </div>
-           <div style="line-height:30px;"><b>Collaboration Time:</b>
-           <span id="collaboration_time" style="display:inline;"></span>
-           </div>
-           <!-- hide totle adjustment time -->
-           <!--
-           <div style="line-height:30px;"><b>Adjusted Total Time:</b>
-            <span id="totle_adjustment_time" style="display:inline;"></span>
-           </div>
-           -->
-           <div style="line-height:30px;"><b>Total Time:</b>
-            <span id="total_time_in_pepper" style="display:inline;"></span>
-           </div>
-         </div>
-      </span>
-    </li>
-<!-------------------------------------------------------------------------------------->
 		<li>
-          <span class="title">
+      <span class="title">
 		  <div style="font-family: 'Open Sans';font-size:12px;">
             <div class="" style="padding:0 0 5px 0;"> 
               <b style="font-size:14px;color:#000">My Profile:</b>
@@ -605,44 +578,44 @@
 			  ${curr_user.profile.district.state.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;"><b>District:</b>
-			  % if curr_user.profile.district_id:
-			  <br>${curr_user.profile.district.name}
-			  % endif
-			</div>
-			<div style="line-height:30px;"><b>School:</b>
-			  % if curr_user.profile.school_id:
-			  <br>${curr_user.profile.school.name}
-			  % endif
-              %if curr_user==request.user:
-			  (<a href="#change_school" rel="leanModal">edit</a>)
-              %endif
-			</div>
-			<div style="line-height:30px;"><b>Grade Level:</b>
-              <% gn=list() %>
-			  % if curr_user.profile.grade_level_id:
+			<div style="line-height:30px;"><b>Organization:</b>
+          % if curr_user.profile.district_id:
+              <br>${curr_user.profile.district.name}
+          % endif
+      </div>
+			<div style="line-height:30px;"><b>Campus:</b>
+          % if curr_user.profile.school_id:
+              <br>${curr_user.profile.school.name}
+          % endif
+          %if curr_user==request.user:
+              (<a href="#change_school" rel="leanModal">edit</a>)
+          %endif
+      </div>
+			<div style="line-height:30px;"><b>Department:</b>
+          <% gn=list() %>
+			    % if curr_user.profile.grade_level_id:
               <br>
-			  % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
-			  % if len(c)>0:
-			  <% gn.append(GradeLevel.objects.get(id=c).name) %>
-			  % endif
-			  % endfor
-			  % endif
-              ${", ".join(gn)}
-              %if curr_user==request.user:
-			  (<a href="#change_grade_level" rel="leanModal">edit</a>)
-              %endif
+			        % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+			            % if len(c)>0:
+			                <% gn.append(GradeLevel.objects.get(id=c).name) %>
+			            % endif
+			        % endfor
+			    % endif
+          ${", ".join(gn)}
+          %if curr_user==request.user:
+			        (<a href="#change_grade_level" rel="leanModal">edit</a>)
+          %endif
 			</div>
-			<div style="line-height:30px;"><b>Major Subject Area:</b>
-			  % if curr_user.profile.major_subject_area_id:
+			<div style="line-height:30px;"><b>Job Title:</b>
+			    % if curr_user.profile.major_subject_area_id:
               <br>
-			  ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
-			  % endif
-               %if curr_user==request.user:
-			  (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
-              %endif
+			       ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+			    % endif
+          %if curr_user==request.user:
+			        (<a href="#change_major_subject_area" rel="leanModal">edit</a>)
+          %endif
 			</div>
-			<div style="line-height:30px;"><b>Number of Years in Education:</b>
+			<div style="line-height:30px;"><b>Number of Years with Company:</b>
 			  % if curr_user.profile.years_in_education_id:
 			  ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
 			  % endif
@@ -650,39 +623,7 @@
               (<a href="#change_years_in_education" rel="leanModal">edit</a>)
               %endif
 			</div>
-
-            <div style="padding:15px 0 5px 0;"> 
-              <b style="font-size:14px;color:#000;">My Learners' Profile:</b>
-            </div>
-            
-			<div style="line-height:30px;">
-              <b>Free/Reduced Lunch:</b>
-			  % if curr_user.profile.percent_lunch:
-			  ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_lunch" rel="leanModal">edit</a>)
-              %endif
-			</div>
-            <div style="line-height:30px;">
-              <b>IEPs:</b>
-			  % if curr_user.profile.percent_iep:
-			  ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_iep" rel="leanModal">edit</a>)
-              %endif
-			</div>
-            <div style="line-height:30px;">
-              <b>English Learners:</b>
-			  % if curr_user.profile.percent_eng_learner:
-			  ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
-			  % endif
-              %if curr_user==request.user:
-              (<a href="#change_percent_eng_learner" rel="leanModal">edit</a>)
-              %endif
-			</div>
-            </span>
+      </span>
 		</li>
         <li>
           <span class="title">
@@ -771,8 +712,8 @@ Add info that you would like to share about yourself here:
 <!--@date:2013-11-02-->
 <section class="my-courses">
   <header style="width:886px;height:246px;margin:auto;position:relative;border-bottom:none;margin-bottom:30px;">
-    <div style="position:absolute;background:url(${static.url('images/p15.png')});width:886px;height:246px;">
-      <a href="http://www.pepperpcg.blogspot.com" target="_blank" style="margin:170px 0 0 227px;position:absolute;" class="btnx dashboard-btn1">${_('Latest News')}</a>
+    <div style="position:absolute;background:url(${static.url('images/mx_noticias.png')});width:886px;height:246px;">
+      <a href="http://www.nyp.org" target="_blank" style="margin:170px 0 0 227px;position:absolute;" class="btnx dashboard-btn1">${_('Latest News')}</a>
     </div>
   </header>
 </section>
@@ -795,7 +736,7 @@ Add info that you would like to share about yourself here:
 % if havent_enroll > 0:
 <section class="my-courses" style="padding:20px 0 20px 0;text-align:right;" >
   <a href="/more_courses_available" class="btnx dashboard-btn1">
-    ${havent_enroll} More Course(s) Available For You
+    ${havent_enroll} More Program(s) Available For You
   </a>
 </section>
 % endif
@@ -803,7 +744,7 @@ Add info that you would like to share about yourself here:
 
 <section class="my-courses" style="" >
     <header>
-      <h2>${_("Current Courses")}</h2>
+      <h2>${_("CURRENT PROGRAMS")}</h2>
     </header>
 
     % if len(courses_incomplated) > 0:
@@ -972,7 +913,7 @@ Add info that you would like to share about yourself here:
                     <a href="javascript:void(0)" class="enter-course dashboard-btn1 portfolio-btn" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                 %endif
                 %if curr_user == request.user and not course.close_course:      
-                    <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Course')}</a>
+                    <a href="${course_target}" class="enter-course dashboard-btn2" style="margin-left:10px;">${_('View Program')}</a>
                 %endif
             % endif
             %if curr_user==request.user:
@@ -990,19 +931,6 @@ Add info that you would like to share about yourself here:
                 % endif
               % endif
               -->
-          <!--20160621 change to current year course time and total_time-->
-          <!--begin-->
-          % if course.hide_timer == False:
-              <div style="margin-top:10px;font-size:14px;float:right;color:#646464;text-align:right;">
-                  <div class="total-course-time" course_id="${course.id}" style="margin-top:0px;"><b>Total</b> Course Time: <span></span></div>
-                  % if course.show_external_timer == False:
-                      <div class="course-time" time_type="course" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> Course Time: <span></span></div>
-                  % else:
-                      <div class="course-time" time_type="external" course_id="${course.id}" style="padding-top:0px;float:none;margin-top:4px;"><b>Current Year</b> External Time: <span></span></div>
-                  % endif
-              </div>
-          % endif
-          <!--end-->
 	    % endif
            %endif
           </section>
@@ -1035,7 +963,7 @@ Add info that you would like to share about yourself here:
 <!--@begin:Shown completed course list-->
 <!--@date:2013-11-02-->
           <header>
-            <h2>${_("Completed Courses")}</h2>
+            <h2>${_("COMPLETED PROGRAMS")}</h2>
           </header>
           <%include file="completed_courses.html" />
 <!--@end-->
@@ -1087,13 +1015,13 @@ Add info that you would like to share about yourself here:
 <section id="change_school" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change My School').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <h2>${_('Change My Campus').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
     <form id="change_school_form" method="post">
       <fieldset>
         <div class="input-group">
-            <label>School:</label>
+            <label>Campus:</label>
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
               	% if curr_user.profile.district_id:
@@ -1120,20 +1048,20 @@ Add info that you would like to share about yourself here:
 <section id="change_grade_level" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change My Grade Level').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <h2>${_('Change My Department').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
     <form id="change_grade_level_form" method="post">
       <fieldset>
         <label id="">
-          Grade Level-Check all that apply:
+          Department-Check all that apply:
         </label>
         <div class="input-group">
           <label style="margin:20px 0;display:block;">
             <input id="grade_level_id" type="hidden" name="grade_level_id" value="" autocomplete="off"/>
             %for item in GradeLevel.objects.all():
-            <span class="level">
-              <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
+            <span class="level" style="padding-right:78px;">
+              <a href="#" id="grade_btn${item.id}" class="btn_grade_level" style="width:100px;" onclick="click_grade_btn(${item.id});return false">
                 ${item.name}
               </a>
             </span>
@@ -1156,7 +1084,7 @@ Add info that you would like to share about yourself here:
 <section id="change_major_subject_area" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change My Subject Area').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <h2>${_('Change My Job Title').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
       <hr/>
     </header>
     <form id="change_major_subject_area_form" method="post">
@@ -1185,7 +1113,7 @@ Add info that you would like to share about yourself here:
 <section id="change_years_in_education" class="modal">
   <div class="inner-wrapper">
     <header>
-      <h2>${_('Change Number of Years in Education').format()}</h2>
+      <h2>${_('Change Number of Years with Company').format()}</h2>
       <hr/>
     </header>
     <form id="change_years_in_education_form" method="post">

@@ -62,7 +62,7 @@ def _courseware(tab, user, course, active_page):
     link = reverse('courseware', args=[course.id])
 #@begin:Change the static tag of Courseware to My Course
 #@date:2013-11-02        
-    return [CourseTab('My Course', link, active_page == "courseware")]
+    return [CourseTab('My Program', link, active_page == "courseware")]
 #@end    
 
 
@@ -344,7 +344,7 @@ def get_course_tabs(user, course, active_page):
     #                       reverse('resource_library', args=[course.id]),
     #                       active_page == 'resource_library'))
 
-    tabs.append(CourseTab('My Course Portfolio',
+    tabs.append(CourseTab('Program Portfolio',
                           reverse('portfolio_about_me', args=[course.id]),
                           active_page == 'portfolio'))
     

@@ -116,9 +116,9 @@ span.red{
             <div id="message" style="background:#f99;margin-top:15px;padding:10px;border:1px solid #f33;display:none;width:490px;"> </div>
             <form method="" id="form" action="">
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
-                <table class="connect_us_table _body_content_font" width="520" border="0" cellpadding="0" cellspacing="0">
+                <table class="connect_us_table _body_content_font" width="500" border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td width="140">Your Email: <span class="red">*</span></td>
+                        <td width="120">Your Email: <span class="red">*</span></td>
                         <td><input class="connect_input" name="email" size="60" chkType="Email" chkMsg="Email is invalid."></td>
                     </tr>
                     <tr>
@@ -143,21 +143,6 @@ span.red{
                                 <option>Technical Support Question</option>
                                 <option>Idea to Share</option>
                                 <option>General / Other Question</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Content Collection Interested In?</td>
-                        <td>
-                            <select class="connect_us_select" name="content_collection" >
-                                <option value="" selected="selected">- Select -</option>
-                                <option>Supporting Students with ADHD (CHADD)</option>
-                                <option>Digital Citizenship (Common Sense Education)</option>
-                                <option>English Language Learners</option>
-                                <option>Special Education</option>
-                                <option>Next Generation Science Standards</option>
-                                <option>Common Core State Standards</option>
-                                <option>Other</option>
                             </select>
                         </td>
                     </tr>
@@ -263,7 +248,7 @@ form.submit(function(){
         return false;
     }
     this.submit.disabled=true;
-    var flds=["email","fullname","district_lea","phone","inquiry_type","content_collection","message","csrfmiddlewaretoken"];
+    var flds=["email","fullname","district_lea","phone","inquiry_type","message","csrfmiddlewaretoken"];
     var data=easy.form.getFormData(this,flds);
     data['send_by_js']='true'
     if(!data['message']){

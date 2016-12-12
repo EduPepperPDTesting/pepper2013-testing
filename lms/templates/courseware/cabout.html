@@ -166,7 +166,7 @@ from pytz import UTC
   <div style="width:960px;margin:auto;background:#fff;">
 	<!--@begin:modify the layout style-->
 	<!--@date:2013-11-02-->
-    <div style="font-weight:300 !important;font-size:25px;color:#3461ad;padding:30px 0 0 0px;padding-left:10px;">COURSE DETAIL</div>
+    <div style="font-weight:300 !important;font-size:25px;color:#3461ad;padding:30px 0 0 0px;padding-left:10px;">PROGRAM DETAILS</div>
     <hr />
    
 	<div style="padding-left:10px;padding-right:10px;">
@@ -196,11 +196,11 @@ from pytz import UTC
 				  <div style="width:281px;background:#fff;margin:10px 10px 0 10px;padding:10px;">
 					<table cellpadding="10" border="0" style="width:100%;font-size:14px;">
 						<tr style="border-bottom:1px solid #ccc;">
-							<td align="left" width="120">Course Code:</td>
+							<td align="left" width="120">Code:</td>
 							<th align="right">${course.display_number_with_default | h}</th>
 						</tr>
 						<tr style="border-bottom:1px solid #ccc;">
-							<td align="left">Course Release:</td>
+							<td align="left">Release:</td>
 							<th align="right">${_("{start_date}").format(start_date=course.start_date_text)}</th>
 						</tr>
 						<tr>
@@ -241,7 +241,7 @@ from pytz import UTC
                     %if not CourseEnrollmentAllowed.objects.filter(email=user.email,course_id=course.id,is_active=True).exists():
                       <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="" class="btnx _del_line request_access">Request Access</a>
 			        %elif CourseEnrollment.is_enrolled(request.user, course.id):
-			          <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Course</a>
+			          <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="${reverse('courseware', args=[course.id])}" class=" btnx _del_line">Access Program</a>
 			        %else:
                       %if datetime.strptime(course.start_date_text,"%b %d, %Y").replace(tzinfo=UTC) > datetime.now(UTC):
 			            <a style="width:285px;display:block;margin:0 10px 10px 10px;text-align:center;" href="#" class="register btnx _del_line disabled">Course Starting Soon!</a>

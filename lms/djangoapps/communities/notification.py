@@ -273,8 +273,7 @@ def delete_type(request):
 
 def send_notification(action_user, community_id, courses_add=[], courses_del=[], resources_add=[],
                       resources_del=[], members_add=[], members_del=[], discussions_new=[],
-                      discussions_reply=[], discussions_delete=[], replies_delete=[], domain_name='',
-                      posts_new=[], posts_reply=[], posts_delete=[], posts_reply_delete=[]):
+                      discussions_reply=[], discussions_delete=[], replies_delete=[]):
 
     community = CommunityCommunities.objects.get(id=community_id)
 
@@ -306,10 +305,6 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                 "Sender Last Name": action_user.last_name,
                 "Receiver First Name": user.first_name,
                 "Receiver Last Name": user.last_name}
-            
-            if domain_name:
-                community_url = "https://" + domain_name + "/community/" + str(community.id)
-                values["Community URL"] = "<a href=\"" + community_url + "\" target=\"_blank\">" + community_url + "</a>"
 
             if type_name == "Delete Course" or type_name == "Add Course":
                 values["Course Name"] = item.display_name
@@ -324,13 +319,6 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
             if type_name in ["New Discussion", "Reply Discussion", "Delete Discussion", "Delete Reply"]:
                 values["Subject"] = item.subject
                 values["Posted By"] = "%s %s" % (item.user.first_name, item.user.last_name)
-                if domain_name:
-                    if type_name == "New Discussion":
-                        discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.id)
-                        values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
-                    elif type_name in ["Reply Discussion", "Delete Reply"]:
-                        discussion_topic_url = "https://" + domain_name + "/community/discussion/" + str(item.discussion_id)
-                        values["Discussion Topic URL"] = "<a href=\"" + discussion_topic_url + "\" target=\"_blank\">" + discussion_topic_url + "</a>"
 
             # Send the notification
             body = replace_values(type.body or "", values)
@@ -376,11 +364,8 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
         process(member.user, "Reply Discussion", discussions_reply)
         process(member.user, "Delete Discussion", discussions_delete)
         process(member.user, "Delete Reply", replies_delete)
-        process(member.user, "New Post", posts_new)
-        process(member.user, "Reply Post", posts_reply)
-        process(member.user, "Delete Post", posts_delete)
-        process(member.user, "Delete Reply Post", posts_reply_delete)
-
+   
     if len(members_del):
         for member in members_del:
-            process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
+            process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])  
+  
