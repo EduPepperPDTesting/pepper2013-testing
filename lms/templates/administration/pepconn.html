@@ -1081,14 +1081,14 @@ $(document).ready(function () {
         html+= "District: <select id='select_district_email1'>";
         html+= '<option value="" class="-1">Select District</option>';
         %for item in District.objects.all().order_by('name'):
-            html+= '<option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+= '<option parent-class="${item.state.id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br>";
 
         html += "School: <select id = 'school_select_email1'>";
         html+='<option value="" class="-1">Select School</option>';
         %for item in School.objects.all().order_by('name'):
-            html+='<option parent-class="${item.district_id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br><br>";
 
@@ -1131,14 +1131,14 @@ $(document).ready(function () {
         html+= "District: <select id='select_district_email2'>";
         html+= '<option value="" class="-1">Select District</option>';
         %for item in District.objects.all().order_by('name'):
-            html+= '<option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+= '<option parent-class="${item.state.id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br>";
 
         html += "School: <select id = 'school_select_email2'>";
         html+='<option value="" class="-1">Select School</option>';
         %for item in School.objects.all().order_by('name'):
-            html+='<option parent-class="${item.district_id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br><br>";
 
@@ -1181,14 +1181,14 @@ $(document).ready(function () {
         html+= "District: <select id='select_district_email3'>";
         html+= '<option value="" class="-1">Select District</option>';
         %for item in District.objects.all().order_by('name'):
-            html+= '<option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+= '<option parent-class="${item.state.id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br>";
 
         html += "School: <select id = 'school_select_email3'>";
         html+='<option value="" class="-1">Select School</option>';
         %for item in School.objects.all().order_by('name'):
-            html+='<option parent-class="${item.district_id}" value="${item.name}" class="${item.id}">${item.name}</option>';
+            html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
         html+= "</select><br><br>";
 
