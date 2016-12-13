@@ -1061,7 +1061,7 @@ def create_account(request, post_override=None):
         if len(post_vars[a]) < 1:
             error_str = {
                 'major_subject_area_id': 'Major Subject Area is required',
-                'grade_level_id': 'Grade Level-heck is required',
+                'grade_level_id': 'Grade Level-Check is required',
                 'district_id': 'District is required',
                 'school_id': 'School is required',
                 'years_in_education_id': 'Number of Years in Education is required',
@@ -1911,7 +1911,7 @@ def activate_easyiep_account(request):
                 'district_id': 'District is required',
                 'school_id': 'School is required',
                 'major_subject_area_id': 'Major Subject Area is required',
-                # 'grade_level_id': 'Grade Level-heck is required',
+                # 'grade_level_id': 'Grade Level-Check is required',
                 'years_in_education_id': 'Number of Years in Education is required',
                 'percent_lunch': 'Free/Reduced Lunch is required',
                 'percent_iep': 'IEPs is required',
