@@ -378,6 +378,7 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
+        selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
 
         if report.access_level == 'System':
             allowed = True
@@ -397,7 +398,6 @@ def report_view(request, report_id):
             if(not(stats)):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
-                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
                 columns = []
@@ -422,6 +422,7 @@ def report_view(request, report_id):
         return render_to_response('error.html', data, status=404)
 
     data = {'report': report,
+            'timex': end - start,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
