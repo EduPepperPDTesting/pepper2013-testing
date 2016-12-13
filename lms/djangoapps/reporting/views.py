@@ -422,7 +422,6 @@ def report_view(request, report_id):
         return render_to_response('error.html', data, status=404)
 
     data = {'report': report,
-            'timex': end - start,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
