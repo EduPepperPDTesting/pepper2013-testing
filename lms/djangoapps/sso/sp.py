@@ -455,7 +455,7 @@ def activate_account(request):
                 'first_name': 'Your first name is required.',
                 'last_name': 'Your last name is required.',
                 'major_subject_area_id': 'Major Subject Area is required.',
-                # 'grade_level_id':'Grade Level-heck is required',
+                # 'grade_level_id':'Grade Level-Check is required',
                 'state_id': 'State is required.',
                 'district_id': 'District is required.',
                 'school_id': 'School is required.',
