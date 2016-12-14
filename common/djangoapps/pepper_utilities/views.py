@@ -83,7 +83,7 @@ def drop_cohorts(request):
 
 def user_email_completion(request):
     r = list()
-    access_level = request.GET.get('access_level', False)
+    access_level = check_access_level(request.user, 'pepreg', 'add_new_training')
     lookup = request.GET.get('q', False)
     if lookup:
         kwargs = {'email__istartswith': lookup}
