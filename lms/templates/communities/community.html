@@ -19,6 +19,7 @@ import datetime
 <link rel="stylesheet" type="text/css" href="/static/css/community.css" />
 <link rel="stylesheet" type="text/css" href="/static/css/admin_ui_controls.css" />
 <script src="https://apis.google.com/js/platform.js" async defer></script>
+<script>num_c = 0; num_res = 0;</script>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/ppd-general01.css"/>
 <body style="text-align:center">
 <div id="community-main" class="clearfix">
@@ -102,10 +103,12 @@ import datetime
                 <h1 id="content-collection-header">Content Collections</h1>
                 <div id="community-content-scroller">
                     %for i,cc in enumerate(courses):
+                        <script>num_c++;</script>
                         <% c=course_from_id(cc.course) %>
                         <%include file="../course.html" args="course=c" />
                     %endfor
                     %for i,r in enumerate(resources):
+                        <script>num_res++;</script>
                         <div class="community-resource">
                             <img src="${get_file_url(r.logo)}" alt="${r.name}" />
                             <a href="${r.link}" target="_blank">
@@ -243,16 +246,7 @@ import datetime
     </div>
     <div style="color:#000;text-align:center;padding:10px;">
       <img src="" class="" alt="" id="dlg-user-photo" width="230"/><br/>
-      <div style="display:inline-block;vertical-align:bottom;">
-        <img src="/static/images/community_google_hangouts.png" class="" alt="" style="padding-bottom:5px;"/><br/>
-          %for u in users:
-          <%
-            use = u.user
-          %>
-             <span class="hangout-span" id="hangout_span_${use.id}"><div class="hangout-button"><g:hangout render="createhangout" id="google_hangout" invites="[{id:'${use.email}', invite_type:'EMAIL'}]"></g:hangout></div></span>
-          %endfor
-        <div id="google_hangout"></div>
-      </div>
+
       <div style="display:inline-block;vertical-align:top;">
         <img src="/static/images/online/skype.jpg" class="" alt="" /><br>
         <a href="skype:?call" id="skype-online-username" class="side-button blue-button skype-button">Start Skype Call</a>
@@ -697,7 +691,6 @@ import datetime
                 $("#disc_loading_image").remove();
             }
             $("#discussion_list").html(data.content);
-            console.log(data.content);
         });
     }
     function getPosts(){
@@ -722,7 +715,7 @@ import datetime
                 $("#focus"+id).focus();
             });
             $(".post-share-text").click(function(){
-                content = $(this).data('content');
+                content = $(this).data('content').replace(/(<([^>]+)>)/ig,"");
                 community = $(this).data('community');
                 poster = $(this).data("poster");
                 type= $(this).data("type");
@@ -862,6 +855,9 @@ import datetime
         });
     }
     $(document).ready(function(){
+        if((230*num_c) + (180*num_res) > 700)
+            $("#community-content-area").css("height", (230*num_c) + (180*num_res));
+
         size=5;
         discussion_size=5;
         $("#members_view_all").click(function(e){
