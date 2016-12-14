@@ -180,9 +180,11 @@ def rows(request):
         filters['7'] = datetime.strptime(filters['7'], '%m/%d/%Y').strftime('%Y-%m-%d')
 
     # limit to district trainings for none-system
+    is_no_System = False
     if check_access_level(request.user, 'pepreg', 'add_new_training') != "System":
-        filters[1] = request.user.profile.district.state.name
-        filters[2] = request.user.profile.district.name
+        # filters[1] = request.user.profile.district.state.name
+        # filters[2] = request.user.profile.district.name
+        is_no_System = True
 
     if len(filters):
         args, kwargs = build_filters(columns, filters)
@@ -193,11 +195,32 @@ def rows(request):
     else:
         trainings = PepRegTraining.objects.prefetch_related().all().order_by(*order)
 
-    count = trainings.count()
-    json_out = [count]
-    rows = list()
+    tmp_school_id = 0
+    try:
+        tmp_school_id = request.user.profile.school.id
+    except:
+        tmp_school_id = 0
 
-    for item in trainings[start:end]:
+    trainings_set = list()
+    for item in trainings:
+        if (not (is_no_System)):
+            trainings_set.append(item)
+        else:
+            is_belong = PepRegInstructor.objects.filter(instructor=request.user,
+                                                        training=item).exists() or item.user_create == request.user
+            if (is_belong):
+                trainings_set.append(item)
+
+            elif (item.district.name == request.user.profile.district.name):
+                try:
+                    if (not (item.school_id) or item.school_id == -1 or item.school_id == tmp_school_id):
+                        trainings_set.append(item)
+                except:
+                    pass
+
+    count = len(trainings_set)
+    rows = list()
+    for item in trainings_set[start:end]:
         arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
         allow = "1" if item.allow_registration else "0"
         rl = "1" if reach_limit(item) else "0"
@@ -247,7 +270,7 @@ def rows(request):
             str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'),
             str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0'),
             "<span class='classroom'>%s</span><br><span class='geo_location'>%s</span><input type='hidden' value='%s'><input type='hidden' name='row_geo_location' value='%s'>" % (
-            item.classroom, geo_location_shorter, item.geo_props, item.geo_location),
+                item.classroom, geo_location_shorter, item.geo_props, item.geo_location),
             item.credits,
             "<br>".join(instructor_names(item)),
             "%s %s" % (item.user_create.first_name, item.user_create.last_name),
@@ -263,6 +286,8 @@ def rows(request):
             )
         ]
         rows.append(row)
+
+    json_out = [count]
     json_out.append(rows)
     return HttpResponse(json.dumps(json_out), content_type="application/json")
 
@@ -280,7 +305,8 @@ def save_training(request):
 
         training.type = request.POST.get("type", "")
         training.district_id = request.POST.get("district_id")
-        training.school_id = request.POST.get("school_id")
+        if (request.POST.get("school_id")):
+            training.school_id = request.POST.get("school_id")
         training.name = request.POST.get("name", "")
         training.description = request.POST.get("description", "")
 
@@ -908,35 +934,40 @@ def download_students_excel(request):
         p.drawOn(c, 50, 625)
 
         c.setFont("Helvetica", 16)
-        c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d = training.training_date)))
-        c.drawString(50, 578, "Instructor:")
+        c.drawString(50, 600, "Training Date: " + str('{d:%m/%d/%Y}'.format(d=training.training_date)))
+        # c.drawString(50, 578, "Instructor:")
 
         instructor_y = 575
 
         tmp_flag = 0;
-        tmp_names = "";
+        instructor_name = "Instructor: ";
         for reg_stu in PepRegInstructor.objects.filter(training_id=training_id):
             if tmp_flag == 0:
                 tmp_flag += 1;
-                tmp_names = reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
-            elif tmp_flag == 1:
-                tmp_flag += 1;
-                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
+                instructor_name += reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
             else:
-                tmp_names += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
-                c.drawString(130, instructor_y, tmp_names)
-                instructor_y = instructor_y + 25;
+                instructor_name += ", " + reg_stu.instructor.first_name + " " + reg_stu.instructor.last_name;
 
-                tmp_names = "";
-                tmp_flag = 0;
+        style1 = styleSheet['BodyText']
+        style1.fontName = "Helvetica"
+        style1.fontSize = 16
+        style1.leading = 15
 
-        if not(tmp_names == ""):
-            c.drawString(130, instructor_y + 3, tmp_names)
+        p1 = Paragraph(instructor_name, style1)
+        w2 = 520
+        h2 = 800
+        w2, h2 = p1.wrap(w2, h2)
+        if (h2 == 15):
+            p1.drawOn(c, 50, instructor_y + 3)
+        elif (h2 == 30):
+            p1.drawOn(c, 50, instructor_y - 13)
+        elif (h2 == 45):
+            p1.drawOn(c, 50, instructor_y - 23)
 
         # ------------------------------------------------------------------------------------head
         c.setFillColor(colors.lawngreen)  # C7,F4,65
 
-        base_table_y = 520;
+        base_table_y = 510;
         c.rect(10, base_table_y, 80, 30, fill=1)
         c.rect(90, base_table_y, 80, 30, fill=1)
         c.rect(170, base_table_y, 90, 30, fill=1)
@@ -973,28 +1004,32 @@ def download_students_excel(request):
             pro = UserProfile.objects.get(user_id=reg_stu.student.id)
 
             if (pro):
-                if (pro.school):
+                tmp_name = "";
+                try:
                     tmp_name = pro.school.name
-                    if (tmp_name.find("Elementary") > -1):
-                        tmp_name = tmp_name.split("Elementary")[0];
+                except:
+                    tmp_name = ""
 
-                    elif (tmp_name.find("Middle") > -1):
-                        tmp_name = tmp_name.split("Middle")[0];
+                if (tmp_name.find("Elementary") > -1):
+                    tmp_name = tmp_name.split("Elementary")[0];
 
-                    elif (tmp_name.find("High") > -1):
-                        tmp_name = tmp_name.split("High")[0];
+                elif (tmp_name.find("Middle") > -1):
+                    tmp_name = tmp_name.split("Middle")[0];
 
-                    tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
-                    if (tmp_email_width > 80):
-                        p = Paragraph(tmp_name, table_style)
-                        w2, h2 = p.wrap(80, 100)
-                        h2 += 10
-                        if (h2 > tr_height):
-                            tr_height = h2
+                elif (tmp_name.find("High") > -1):
+                    tmp_name = tmp_name.split("High")[0];
 
-                        p.drawOn(c, 265, ty - tr_height + 5)
-                    else:
-                        c.drawCentredString(305, ty - 15, tmp_name)
+                tmp_email_width = stringWidth(tmp_name, "Helvetica", base_font_size)
+                if (tmp_email_width > 80):
+                    p = Paragraph(tmp_name, table_style)
+                    w2, h2 = p.wrap(80, 100)
+                    h2 += 10
+                    if (h2 > tr_height):
+                        tr_height = h2
+
+                    p.drawOn(c, 265, ty - tr_height + 5)
+                else:
+                    c.drawCentredString(305, ty - 15, tmp_name)
 
             ty -= tr_height;
 
@@ -1011,7 +1046,7 @@ def download_students_excel(request):
                     frist_tmp1 = int(len(reg_stu.student.first_name) / 3)
                     while 1:
                         frist_tmp2 = stringWidth(reg_stu.student.first_name[0: frist_tmp1], "Helvetica", base_font_size)
-                        if(frist_tmp2 > 70):
+                        if (frist_tmp2 > 70):
                             break;
                         else:
                             frist_tmp1 += 1

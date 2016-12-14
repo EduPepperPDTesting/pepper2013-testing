@@ -230,7 +230,7 @@
         },
         show_progress: function(obj){
             var self = this;
-            $.post("${reverse('reporting_report_get_progress')}", function(data) {
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}", function(data) {
                 if (data != null) {
                     if(data.success)
                     {

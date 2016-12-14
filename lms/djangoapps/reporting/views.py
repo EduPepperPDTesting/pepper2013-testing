@@ -45,7 +45,7 @@ def reports_view(request):
     :return: The Reports page.
     """
     levels = {'System': 0, 'State': 1, 'District': 2, 'School': 3}
-    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view_reports'])
+    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view'])
 
     # If this is user has System access, show all the reports, otherwise, only show reports above their access level.
     if access_level == 'System':
@@ -326,6 +326,11 @@ def report_save(request, report_id):
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
+
+            rs = reporting_store()
+            collection = get_cache_collection(request, report_id)
+            rs.del_collection(collection)
+
         else:
             raise Exception('Report could not be located or created.')
     except Exception as e:
@@ -373,6 +378,7 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
+        selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
 
         if report.access_level == 'System':
             allowed = True
@@ -386,20 +392,22 @@ def report_view(request, report_id):
             allowed = True
         if allowed:
             rs = reporting_store()
-            collection = get_cache_collection(request)
-            rs.del_collection(collection)
-            selected_view = ReportViews.objects.filter(report=report)[0]
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
-            report_filters = ReportFilters.objects.filter(report=report).order_by('order')
+            collection = get_cache_collection(request, report_id)
 
-            columns = []
-            filters = []
-            for col in selected_columns:
-                columns.append(col)
-            for f in report_filters:
-                filters.append(f)
+            stats = int(rs.get_collection_stats(collection)['ok'])
+            if (not (stats)):
+                rs.del_collection(collection)
+                selected_view = ReportViews.objects.filter(report=report)[0]
+                report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
-            create_report_collection(request, report, selected_view, columns, filters)
+                columns = []
+                filters = []
+                for col in selected_columns:
+                    columns.append(col)
+                for f in report_filters:
+                    filters.append(f)
+
+                create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             school_year_item = []
             if report_has_school_year(selected_columns):
@@ -437,7 +445,7 @@ def report_get_rows(request):
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
     sorts, filters = build_sorts_and_filters(selected_columns, sorts, filters)
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
 
@@ -490,17 +498,17 @@ def build_sorts_and_filters(columns, sorts, filters):
     return order, filter
 
 
-def get_cache_collection(request):
+def get_cache_collection(request, report_id):
     """
     Returns the name of the aggregate collection.
     :param request: Request object.
     :return: aggregate collection name.
     """
-    return 'tmp_collection_' + str(request.user.id)
+    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id)
 
 
 @postpone
-def create_report_collection(request, report, selected_view, columns, filters):
+def create_report_collection(request, report, selected_view, columns, filters, report_id):
     """
     Creates aggregate collections in Mongo in a background process.
     :param request: Request object from the report view.
@@ -510,12 +518,12 @@ def create_report_collection(request, report, selected_view, columns, filters):
     """
     gevent.sleep(0)
     aggregate_config = AggregationConfig[selected_view.view.collection]
-    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters)
+    aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
-def aggregate_query_format(request, query, report, columns, filters, out=True):
+def aggregate_query_format(request, query, report, columns, filters, report_id, out=True):
     """
     Does some formatting to the query for mongo.
     :param request: The request object from upstream.
@@ -528,7 +536,7 @@ def aggregate_query_format(request, query, report, columns, filters, out=True):
     query = query_ref_variable(query, request, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '')
     if out:
-        query += ',{"$out":"' + get_cache_collection(request) + '"}'
+        query += ',{"$out":"' + get_cache_collection(request, report_id) + '"}'
     query = eval(query)
     return query
 
@@ -701,7 +709,7 @@ def report_download_excel(request, report_id):
         worksheet.write(0, i, k.column.name)
     row = 1
     rs = reporting_store()
-    rs.set_collection(get_cache_collection(request))
+    rs.set_collection(get_cache_collection(request, report_id))
     results = rs.collection.find()
     for p in results:
         for i, k in enumerate(columns):
@@ -720,16 +728,16 @@ def report_download_excel(request, report_id):
 
 
 @login_required
-def report_get_progress(request):
+def report_get_progress(request, report_id):
     """
     Checks the status of the collection creation progress.
     :param request: Request object.
     :return: JSON representation of the status.
     """
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id)
     stats = int(rs.get_collection_stats(collection)['ok'])
-    return render_json_response({'success': stats})
+    return render_json_response({'success': stats, 'collection':collection})
 
 
 def report_get_custom_filters(request, report_id):
@@ -740,7 +748,7 @@ def report_get_custom_filters(request, report_id):
     """
     data = []
     rs = reporting_store()
-    collection = get_cache_collection(request)
+    collection = get_cache_collection(request, report_id)
     rs.set_collection(collection)
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report, column__custom_filter=1).order_by('order')
