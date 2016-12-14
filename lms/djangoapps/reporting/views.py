@@ -45,7 +45,7 @@ def reports_view(request):
     :return: The Reports page.
     """
     levels = {'System': 0, 'State': 1, 'District': 2, 'School': 3}
-    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view_reports'])
+    access_level = check_access_level(request.user, 'reporting', ['administer', 'create_reports', 'view'])
 
     # If this is user has System access, show all the reports, otherwise, only show reports above their access level.
     if access_level == 'System':
