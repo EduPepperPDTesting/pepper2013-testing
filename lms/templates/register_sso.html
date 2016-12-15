@@ -223,7 +223,7 @@ from baseinfo.models import Enum
             <label for="first_name">${_('First Name')}</label>
             %if 'first_name' in attribute_mapping:
             ${profile.user.first_name}
-            <input id="first_name" type="hidden" name="first_name" value="${profile.user.first_name}"/>
+            <input id="first_name" type="text" name="first_name" value="${profile.user.first_name}"/>
             %else:
             <input id="first_name" type="text" name="first_name" value="" placeholder="${_('example: Jane')}" required aria-required="true" maxlength="30"/>
             <span class="tip tip-input">${_("Needed for any certificates you may earn")}</span>
@@ -233,7 +233,7 @@ from baseinfo.models import Enum
             <label for="last_name">${_('Last Name')}</label>
             %if 'last_name' in attribute_mapping:
             ${profile.user.last_name}
-            <input id="last_name" type="hidden" name="last_name" value="${profile.user.last_name}"/>
+            <input id="last_name" type="text" name="last_name" value="${profile.user.last_name}"/>
             %else:
             <input id="last_name" type="text" name="last_name" value="" placeholder="${_('example: Jane')}" required aria-required="true" maxlength="30"/>
             <span class="tip tip-input">${_("Needed for any certificates you may earn")}</span>
