@@ -437,26 +437,32 @@ def activate_account(request):
 
     #** validate fields
     required_post_vars_dropdown = [
+        'first_name',
+        'last_name',
         'state_id',
         'district_id',
         'school_id',
         'major_subject_area_id',
         # 'grade_level_id',
         'years_in_education_id',
-        'percent_lunch', 'percent_iep', 'percent_eng_learner']
+        'percent_lunch',
+        'percent_iep',
+        'percent_eng_learner']
 
     for a in required_post_vars_dropdown:
         if len(vars[a]) < 1:
             error_str = {
-                'major_subject_area_id': 'Major Subject Area is required',
-                # 'grade_level_id':'Grade Level-heck is required',
-                'state_id': 'State is required',
-                'district_id': 'District is required',
-                'school_id': 'School is required',
-                'years_in_education_id': 'Number of Years in Education is required',
-                'percent_lunch': 'Free/Reduced Lunch is required',
-                'percent_iep': 'IEPs is required',
-                'percent_eng_learner': 'English Learners is required'
+                'first_name': 'Your first name is required.',
+                'last_name': 'Your last name is required.',
+                'major_subject_area_id': 'Major Subject Area is required.',
+                # 'grade_level_id':'Grade Level-Check is required',
+                'state_id': 'State is required.',
+                'district_id': 'District is required.',
+                'school_id': 'School is required.',
+                'years_in_education_id': 'Number of Years in Education is required.',
+                'percent_lunch': 'Free/Reduced Lunch is required.',
+                'percent_iep': 'IEPs is required.',
+                'percent_eng_learner': 'English Learners is required.'
             }
             js = {'success': False}
             js['value'] = error_str[a]
@@ -473,6 +479,8 @@ def activate_account(request):
     try:
         #** update user
         profile.user.username = vars.get('username', '')
+        profile.user.first_name = vars.get('first_name', '')
+        profile.user.last_name = vars.get('last_name', '')
         profile.user.is_active = True
         profile.user.save()
 

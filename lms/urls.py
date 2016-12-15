@@ -84,6 +84,10 @@ urlpatterns = (
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
     # === pepreg end ==    
 
+    # === Portfolio Settings begin ==
+    url(r'^portfolio_settings/$', 'portfolio_settings.portfolio.index', name='portfolio_settings'),
+    # === Portfolio Settings end ==
+	
     url(r'^pepper-utilities/drop/states', 'pepper_utilities.views.drop_states', name='pepper_utilities_drop_states'),
     url(r'^pepper-utilities/drop/districts', 'pepper_utilities.views.drop_districts', name='pepper_utilities_drop_districts'),
     url(r'^pepper-utilities/drop/schools', 'pepper_utilities.views.drop_schools', name='pepper_utilities_drop_schools'),
@@ -127,7 +131,7 @@ urlpatterns = (
     url(r'^reporting/views/related$', 'reporting.views.related_views', name='reporting_related_views'),
     url(r'^reporting/views/columns$', 'reporting.views.view_columns', name='reporting_view_columns'),
     url(r'^reporting/report/get_rows$', 'reporting.views.report_get_rows', name='reporting_report_get_rows'),
-    url(r'^reporting/report/get_progress$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
+    url(r'^reporting/report/get_progress/(?P<report_id>[0-9a-z]+)$', 'reporting.views.report_get_progress', name='reporting_report_get_progress'),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/download_excel$', 'reporting.views.report_download_excel', name="report_download_excel"),
     url(r'^reporting/report/(?P<report_id>[0-9a-z]+)/report_get_custom_filters$', 'reporting.views.report_get_custom_filters', name="report_get_custom_filters"),
 
@@ -573,8 +577,8 @@ if settings.COURSEWARE_ENABLED:
         # url(r'^edit_circuit/(?P<circuit>[^/]*)$', 'circuit.views.edit_circuit'),
         # url(r'^save_circuit/(?P<circuit>[^/]*)$', 'circuit.views.save_circuit'),
         url(r'^courses/?$', 'branding.views.courses', name="courses"),
-        url(r'^dpicourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
-        url(r'^dpicourses-list$', 'courseware.views.dpicourse_list', name="course_list"),
+        url(r'^nccourses/?$', 'branding.views.newgroup_courses', name="newgroup_courses"),
+        url(r'^nccourses-list$', 'courseware.views.dpicourse_list', name="nccourse_list"),
         url(r'^courses-list$', 'courseware.views.course_list', name="course_list"),
         url(r'^courses/states$', 'courseware.views.states', name="courses_states"),
         url(r'^courses/districts$', 'courseware.views.districts', name="courses_districts"),
