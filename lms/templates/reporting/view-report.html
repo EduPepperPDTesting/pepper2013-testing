@@ -230,8 +230,8 @@
         },
         show_progress: function(obj){
             var self = this;
-            $.post("${reverse('reporting_report_get_progress')}", function(data) {
-                if (data != null) {
+            $.post("${reverse('reporting_report_get_progress',args=[report.id])}", function(data) {
+                if (data != null) {					
                     if(data.success)
                     {
                         obj.reloadTable()

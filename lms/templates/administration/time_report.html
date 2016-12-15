@@ -436,7 +436,10 @@
 
         $("#tabs").tabs({
             activate: function(event, ui) {
-                $("#"+ui.newPanel.attr('id')).find(".drop_course").get(0).selectedIndex = 0;
+                var drop_course = $("#"+ui.newPanel.attr('id')).find(".drop_course");
+                if(drop_course.length > 0){
+                    drop_course.get(0).selectedIndex = 0;
+                }
                 userTimeReport.load_adjustment_time(userTimeReport.user_id, ui.newPanel.attr('id'));
             }
         });
