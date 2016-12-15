@@ -86,7 +86,7 @@ def user_email_completion(request):
     access_level = check_access_level(request.user, 'pepreg', 'add_new_training')#request.GET.get('access_level', False)
     lookup = request.GET.get('q', False)
     if lookup:
-        kwargs = {'email__istartswith': lookup}
+        kwargs = {'email__istartswith': lookup, 'profile__subscription_status': 'Registered'}
         if access_level == 'State':
             kwargs.update({'profile__district__state': request.user.profile.district.state})
         elif access_level == 'District':
