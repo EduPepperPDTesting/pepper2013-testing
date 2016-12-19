@@ -2237,5 +2237,209 @@ def get_pepper_stats(request):
     return HttpResponse(json.dumps(context), content_type="application/json")
 
 #test for new style of dashboard
-def newdashboard(request):
-    return render_to_response('newdashboard.html', {})
+@login_required
+@ensure_csrf_cookie
+def newdashboard(request, user_id=None):
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        user = User.objects.get(id=request.user.id)
+
+    # Build our courses list for the user, but ignore any courses that no longer
+    # exist (because the course IDs have changed). Still, we don't delete those
+    # enrollments, because it could have been a data push snafu.
+
+    courses_complated = []
+    courses_incomplated = []
+    courses = []
+
+    external_time = 0
+    external_times = {}
+    exists = 0
+
+    total_course_times = {}
+
+    # get none enrolled course count for current login user
+    rts = record_time_store()
+    if user_id != request.user.id:
+        allowed = CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).values_list('course_id', flat=True)
+        # make sure the course exists
+        for course_id in allowed:
+            try:
+                # course=course_from_id(course_id)
+                exists = exists + 1
+            except:
+                pass
+
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        try:
+            c = course_from_id(enrollment.course_id)
+            c.student_enrollment_date = enrollment.created
+
+            if enrollment.course_id in allowed:
+                exists = exists - 1
+
+            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
+            # chapter_count=len(model_data_cache.descriptors)
+            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=2)
+            # count_history=0
+            # c.is_completed=False
+            # chapter_count=len(model_data_cache.descriptors)-chapter_count
+            # for m in model_data_cache.descriptors:
+            #     if m.ispublic:
+            #         chapter_count=chapter_count+1
+            #     if len(StudentModule.objects.filter(student_id=user.id,
+            #                                         course_id=c.id,
+            #                                         module_type='sequential',
+            #                                         module_id=m.location)) > 0:
+            #         count_history=count_history+1
+
+            courses.append(c)
+
+            # grade_precent=grade(user,request,c)['percent']
+            # if count_history==chapter_count and grade_precent >= 0.85:
+            #     courses_complated.append(c)
+            # else:
+            #     courses_incomplated.append(c)
+            if user.is_superuser:
+                external_times[c.id] = 0
+            else:
+                external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+                external_time += external_times[c.id]
+                external_times[c.id] = study_time_format(external_times[c.id])
+            field_data_cache = FieldDataCache([c], c.id, user)
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
+
+            if course_instance.complete_course:
+                c.complete_date = course_instance.complete_date
+                c.student_enrollment_date = course_instance.complete_date
+                courses_complated.append(c)
+            else:
+                courses_incomplated.append(c)
+
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+
+    courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
+    courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
+
+    course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
+    message = ""
+    if not user.is_active:
+        message = render_to_string('registration/activate_account_notice.html', {'email': user.email})
+    # Global staff can see what courses errored on their dashboard
+    staff_access = False
+    errored_courses = {}
+    if has_access(user, 'global', 'staff'):
+        # Show any courses that errored on load
+        staff_access = True
+        errored_courses = modulestore().get_errored_courses()
+
+    show_courseware_links_for = frozenset(course.id for course in courses
+                                          if has_access(user, course, 'load'))
+
+    cert_statuses = {course.id: cert_info(user, course) for course in courses}
+    exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
+    if user.is_superuser:
+        course_times = {course.id: 0 for course in courses}
+        total_course_times = {course.id: 0 for course in courses}
+    else:
+        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+
+        #@begin:change to current year course time and total_time
+        #@date:2016-06-21
+        rs = reporting_store()
+        rs.set_collection('UserCourseView')
+        for course in courses:
+            results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+            total_time_user = 0
+            for v in results:
+                total_time_user = total_time_user + v['total_time']
+           
+            total_course_times[course.id] = study_time_format(total_time_user) 
+        #@end
+
+    # get info w.r.t ExternalAuthMap
+    external_auth_map = None
+    try:
+        external_auth_map = ExternalAuthMap.objects.get(user=user)
+    except ExternalAuthMap.DoesNotExist:
+        pass
+
+    #@begin:add pd_time to total_time
+    #@date:2016-06-06
+    id_of_user = ''
+    if user_id:
+        id_of_user = user_id
+    else:
+        id_of_user = request.user.id
+    pd_time = 0;
+    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
+    if pd_time_tmp:
+        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
+    #@end
+
+    if user.is_superuser:
+
+        course_time = 0
+        discussion_time = 0
+        portfolio_time = 0
+        all_course_time = 0
+        collaboration_time = 0
+        adjustment_time_totle = 0
+        total_time_in_pepper = 0
+    else:
+        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
+        all_course_time = course_time + external_time
+        collaboration_time = discussion_time + portfolio_time
+        adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
+        #@begin:add pd_time to total_time
+        #@date:2016-06-06
+        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
+        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
+        #@end
+
+    #20160413 load alert_message
+    #begin
+    site_settings = site_setting_store()
+    al_text = "__NONE__"
+    try:
+        al_text = site_settings.get_item('alert_text')['value']
+    except Exception as e:
+        pass
+    if al_text == "__NONE__":
+        al_text = ""
+
+    al_enabled = "un_enabled"
+    try:
+        al_enabled = site_settings.get_item('alert_enabled')['value']
+    except Exception as e:
+        pass
+    #end
+
+    context = {
+        'courses_complated': courses_complated,
+        'courses_incomplated': courses_incomplated,
+        'course_optouts': course_optouts,
+        'message': message,
+        'external_auth_map': external_auth_map,
+        'staff_access': staff_access,
+        'errored_courses': errored_courses,
+        'show_courseware_links_for': show_courseware_links_for,
+        'cert_statuses': cert_statuses,
+        'exam_registrations': exam_registrations,
+        'curr_user': user,
+        'havent_enroll': exists,
+        'all_course_time': study_time_format(all_course_time),
+        'collaboration_time': study_time_format(collaboration_time),
+        'total_time_in_pepper': study_time_format(total_time_in_pepper),
+        'course_times': course_times,
+        'external_times': external_times,
+        'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
+        'alert_text':al_text,
+        'alert_enabled':al_enabled,
+        'total_course_times':total_course_times
+    }
+
+    return render_to_response('dashboard_new.html', context)
