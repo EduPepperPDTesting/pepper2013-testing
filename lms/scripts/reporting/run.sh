@@ -65,7 +65,7 @@ echo '-------------------------------------------'
 sync
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_xmodule -c modulestore -o /tmp/modulestore.json
+mongoexport --port=$mongo2_port -d $mongo2_db_xmodule -c modulestore -o /tmp/modulestore.json
 $mongo3_path/mongo --port=$mongo3_port <<EOF
 use $mongo3_db_reporting
 db.modulestore.drop()
@@ -102,11 +102,11 @@ mysql -u$mysql_user -p$mysql_pwd -h$mysql_host -P$mysql_port $mysql_db <<EOF
 select student_id as user_id,sum(student_credit)*3600 as credit from pepreg_student group by user_id into outfile '/tmp/pd_time.csv' fields terminated by ',' optionally enclosed by '"' escaped by '' lines terminated by '\n';
 EOF
 
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_assist -c page_time -o /tmp/page_time.json
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_assist -c discussion_time -o /tmp/discussion_time.json
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_assist -c portfolio_time -o /tmp/portfolio_time.json
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_assist -c external_time -o /tmp/external_time.json
-mongoexport -h $mongo2_host -u $mongo2_user -p $mongo2_pwd --port=$mongo2_port -d $mongo2_db_assist -c adjustment_time -o /tmp/adjustment_time.json
+mongoexport --port=$mongo2_port -d $mongo2_db_assist -c page_time -o /tmp/page_time.json
+mongoexport --port=$mongo2_port -d $mongo2_db_assist -c discussion_time -o /tmp/discussion_time.json
+mongoexport --port=$mongo2_port -d $mongo2_db_assist -c portfolio_time -o /tmp/portfolio_time.json
+mongoexport --port=$mongo2_port -d $mongo2_db_assist -c external_time -o /tmp/external_time.json
+mongoexport --port=$mongo2_port -d $mongo2_db_assist -c adjustment_time -o /tmp/adjustment_time.json
 
 $mongo3_path/mongo --port=$mongo3_port <<EOF
 use $mongo3_db_reporting
