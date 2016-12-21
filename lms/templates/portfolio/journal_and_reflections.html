@@ -15,7 +15,13 @@
 <%block name="bodyclass">courseware ${course.css_class}</%block>
 <%block name="title"><title course_number="${course.display_number_with_default}">${_("{course_number} Portfolio - {username}").format(course_number=course.display_number_with_default,username=portfolio_user.username) | h}</title></%block>
 <link rel="stylesheet" type="text/css"  href="/static/tmp-resource/css/portfolio.css"/>
-
+% if course.close_course:
+  <style>
+    a.edit-course-btn{
+      display:none !important;
+    }
+  </style>
+% endif
 <%block name="headextra">
   <%static:css group='course'/>
   <%include file="../discussion/_js_head_dependencies.html" />
