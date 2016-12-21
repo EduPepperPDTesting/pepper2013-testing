@@ -854,8 +854,14 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
-        html+= "</select><br><br>";
+        html+= "</select><br>";
 
+         html += "User: <select id = 'user_select_email' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
+        html+= "</select><br><br>";
 
         code = '</select><br><br><button id="load_saved_email_custom_email_001">Load</button>';
         new Dialog($('#dialog')).show('Saved Emails', html+"<select id = 'custom_email_name_custom_email_001'>" + $("#select_options").html() + code);
@@ -874,6 +880,16 @@ $(document).ready(function () {
            var id = $(this).children(":selected").attr("class");
            $("#custom_email_name_custom_email_001 > option").each(function () {
                 if($(this).data("school") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
+            });
+        });
+        $("#user_select_email").change(function() {
+           var id = $(this).children(":selected").attr("class");
+           $("#custom_email_name_custom_email_001 > option").each(function () {
+                if($(this).data("owner") == id || $(this).data("system") == "True"){
                    $(this).css("display","")
                 }else{
                     $(this).css("display","none");
@@ -932,8 +948,14 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
-        html+= "</select><br><br>";
+        html+= "</select><br>";
 
+         html += "User: <select id = 'user_select_email2' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
+        html+= "</select><br><br>";
 
         code = '</select><br><br><button id="load_saved_email_custom_email_002">Load</button>';
         new Dialog($('#dialog')).show('Saved Emails', html+"<select id = 'custom_email_name_custom_email_002'>" + $("#select_options").html() + code);
@@ -952,6 +974,16 @@ $(document).ready(function () {
            var id = $(this).children(":selected").attr("class");
            $("#custom_email_name_custom_email_002 > option").each(function () {
                 if($(this).data("school") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
+            });
+        });
+        $("#user_select_email2").change(function() {
+           var id = $(this).children(":selected").attr("class");
+           $("#custom_email_name_custom_email_002 > option").each(function () {
+                if($(this).data("owner") == id || $(this).data("system") == "True"){
                    $(this).css("display","")
                 }else{
                     $(this).css("display","none");
@@ -1010,8 +1042,14 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
-        html+= "</select><br><br>";
+        html+= "</select><br>";
 
+         html += "User: <select id = 'user_select_email3' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
+        html+= "</select><br><br>";
 
         code = '</select><br><br><button id="load_saved_email_custom_email_003">Load</button>';
         new Dialog($('#dialog')).show('Saved Emails', html+"<select id = 'custom_email_name_custom_email_003'>" + $("#select_options").html() + code);
@@ -1030,6 +1068,16 @@ $(document).ready(function () {
            var id = $(this).children(":selected").attr("class");
            $("#custom_email_name_custom_email_003 > option").each(function () {
                 if($(this).data("school") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
+            });
+        });
+        $("#user_select_email3").change(function() {
+           var id = $(this).children(":selected").attr("class");
+           $("#custom_email_name_custom_email_003 > option").each(function () {
+                if($(this).data("owner") == id || $(this).data("system") == "True"){
                    $(this).css("display","")
                 }else{
                     $(this).css("display","none");
@@ -1090,6 +1138,13 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
+        html+= "</select><br>";
+
+        html += "User: <select id = 'user_select_email1' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
         html+= "</select><br><br>";
 
         html += "<button id='save_email_post'>Save</button><br><span id='save_email_message'></span>";
@@ -1112,7 +1167,7 @@ $(document).ready(function () {
         });
         $("#save_email_post").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name").val(),"message":CKEDITOR.instances.custom_email_001.getData(), "user":1, "system":$("#system_exclusive1").is(":checked"),"district":$("#select_district_email1").find('option:selected').attr("class"), "school":$("#school_select_email1").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email1").find("option:selected").attr("class"),"name":$("#email_name").val(),"message":CKEDITOR.instances.custom_email_001.getData(), "user":1, "system":$("#system_exclusive1").is(":checked"),"district":$("#select_district_email1").find('option:selected').attr("class"), "school":$("#school_select_email1").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message").css("color", "green");
                 $("#save_email_message").html("<br>Successfully saved message.");
             });
@@ -1140,8 +1195,14 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
-        html+= "</select><br><br>";
+        html+= "</select><br>";
 
+        html += "User: <select id = 'user_select_email2' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
+        html+= "</select><br><br>";
         html += "<button id='save_email_post2'>Save</button><br><span id='save_email_message2'></span>";
 
         new Dialog($('#dialog')).show("Custom Email", html);
@@ -1162,7 +1223,7 @@ $(document).ready(function () {
         });
         $("#save_email_post2").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name2").val(),"message":CKEDITOR.instances.custom_email_002.getData(), "user":1, "system":$("#system_exclusive2").is(":checked"),"district":$("#select_district_email2").find('option:selected').attr("class"), "school":$("#school_select_email2").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email2").find("option:selected").attr("class"),"name":$("#email_name2").val(),"message":CKEDITOR.instances.custom_email_002.getData(), "user":1, "system":$("#system_exclusive2").is(":checked"),"district":$("#select_district_email2").find('option:selected').attr("class"), "school":$("#school_select_email2").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message2").css("color", "green");
                 $("#save_email_message2").html("<br>Successfully saved message.");
             });
@@ -1190,6 +1251,13 @@ $(document).ready(function () {
         %for item in School.objects.all().order_by('name'):
             html+='<option parent-class="${item.district_id}" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
         %endfor
+        html+= "</select><br>";
+
+        html += "User: <select id = 'user_select_email3' style='max-width:180px'>";
+        html+='<option value="" class="-1">Select User</option>';
+        %for item in UserProfile.objects.all().order_by('name'):
+            html+='<option parent-class="" value="'+cleanInput("${item.name}")+'" class="${item.id}">'+cleanInput("${item.name}")+'</option>';
+        %endfor
         html+= "</select><br><br>";
 
         html += "<button id='save_email_post3'>Save</button><br><span id='save_email_message3'></span>";
@@ -1212,7 +1280,7 @@ $(document).ready(function () {
         });
         $("#save_email_post3").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"name":$("#email_name3").val(),"message":CKEDITOR.instances.custom_email_003.getData(), "user":1, "system":$("#system_exclusive3").is(":checked"),"district":$("#select_district_email3").find('option:selected').attr("class"), "school":$("#school_select_email3").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email3").find("option:selected").attr("class"),"name":$("#email_name3").val(),"message":CKEDITOR.instances.custom_email_003.getData(), "user":1, "system":$("#system_exclusive3").is(":checked"),"district":$("#select_district_email3").find('option:selected').attr("class"), "school":$("#school_select_email3").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message3").css("color", "green");
                 $("#save_email_message3").html("<br>Successfully saved message.");
             });

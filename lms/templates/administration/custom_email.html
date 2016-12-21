@@ -41,6 +41,7 @@
             district = -1
             school = -1
             system = -1
+            owner = -1
             try:
                 district = i.district.id
             except:
@@ -53,8 +54,12 @@
                 system = i.system
             except:
                 None
+            try:
+                owner = i.owner.id
+            except:
+                None
         %>
-        <option id="${i.id}" data-district="${district}" data-school="${school}" data-system="${system}">${i.name}</option>
+        <option id="${i.id}" data-district="${district}" data-school="${school}" data-system="${system}" data-owner="${owner}">${i.name}</option>
     %endfor
         </span>
     <br>

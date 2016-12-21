@@ -1542,6 +1542,10 @@ def save_custom_email(request):
             save.school = School.objects.get(id=request.POST.get('school'))
         except:
             None
+        try:
+            save.owner = UserProfile.objects.get(id=request.POST.get('owner'))
+        except:
+            None
         save.save()
         return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
 
