@@ -323,7 +323,7 @@
                         %endif
                         %for course in courses[4]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -336,7 +336,7 @@
                         %endif
                         %for course in courses[0]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -349,7 +349,7 @@
                         %endif
                         %for course in courses[1]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -362,7 +362,7 @@
                         %endif
                         %for course in courses[2]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor
@@ -375,7 +375,7 @@
                         %endif
                         %for course in courses[3]:
                             %for c in course:
-                                %if not c.close_course:
+                                %if not c.close_course or c.close_course and c.keep_in_directory:
                                     <%include file="../course.html" args="course=c" />
                                 %endif
                             %endfor

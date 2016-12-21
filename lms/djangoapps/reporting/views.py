@@ -58,6 +58,7 @@ def reports_view(request):
             qs |= Q(access_level='District', access_id=request.user.profile.district.id)
         if not access_level or levels[access_level] > 2:
             qs |= Q(access_level='School', access_id=request.user.profile.school.id)
+        qs |= Q(author_id=request.user.id)
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
@@ -73,6 +74,8 @@ def reports_view(request):
     if admin_rights or create_rights:
         report_list = list()
         qs = Q(category__isnull=True)
+        ####Original logic
+        '''
         if not admin_rights:
             if access_level == 'School':
                 qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
@@ -80,6 +83,9 @@ def reports_view(request):
                 qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
             elif access_level == 'State':
                 qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        '''
+        if not request.user.is_superuser:
+            qs &= Q(author_id=request.user.id)
         category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
@@ -378,6 +384,7 @@ def report_view(request, report_id):
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
+        selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
 
         if report.access_level == 'System':
             allowed = True
@@ -397,7 +404,6 @@ def report_view(request, report_id):
             if(not(stats)):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
-                selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
 
                 columns = []

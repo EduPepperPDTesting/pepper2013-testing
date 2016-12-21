@@ -335,7 +335,7 @@ AggregationConfig["CourseView"]["query"] = '''{user_domain}{
                             }, {
                                 "$eq": {school_year}
                             }]
-                        }, "$$item.external_time", 0]
+                        }, "$$item.course_time", 0]
                     }
                 }
             }

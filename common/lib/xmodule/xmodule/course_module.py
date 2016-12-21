@@ -416,6 +416,11 @@ class CourseFields(object):
     close_course = Boolean(help="True if this course closed", default=False, scope=Scope.settings)
     #@end
 
+    #@begin:keep the course still in directory(Courses & Workshops page) when close_course sets true
+    #@date:2016-12-17
+    keep_in_directory = Boolean(help="True keep the course still in directory when close_course sets true", default=False, scope=Scope.settings)
+    #@end
+
     #@begin:Issue Certificate
     #@date:2016-07-13
     issue_certificate = Boolean(help="True issue the digital certificate", default=True, scope=Scope.settings)
