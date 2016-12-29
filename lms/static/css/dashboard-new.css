@@ -275,9 +275,7 @@
     text-align: left;
 }
 
-#post_filter_select{
-    font-size: 14px;
-}
+
 .discussion h2 {
     margin-bottom: 5px;
     width: 350px;
@@ -777,8 +775,8 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     font-weight: bold;
     line-height:25px;
 }
-*/
 
+*/
 /*------------dashboard post--------------*/
 .dashboard .dashboard_main_content{
     display: block;
@@ -1025,6 +1023,9 @@ a.post_btn:hover{
 .filter-word-label {
     font-size: 14px;
     font-weight: bold;
+}
+#post_filter_select{
+    font-size: 14px;
 }
 .delete-something {
     float: right;
