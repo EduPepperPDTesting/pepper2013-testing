@@ -291,7 +291,7 @@ _bsn.AutoSuggest.prototype.setSuggestions = function (req)
 	
 	if (this.oP.json)
 	{
-		var jsondata = eval('(' + req.responseText + ')');
+		var jsondata = JSON.parse('(' + req.responseText + ')');
 		
 		for (var i=0;i<jsondata.results.length;i++)
 		{
