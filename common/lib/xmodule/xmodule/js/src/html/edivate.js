@@ -18,7 +18,7 @@ EmbedEdivate.prototype.embed = function(element_name, assest_id) {
     xmlhttp.open('GET', '/user-info', false);
     xmlhttp.send();
     if (xmlhttp.status == 200) {
-        var data = eval("(" + xmlhttp.responseText + ")");
+        var data = JSON.parse("(" + xmlhttp.responseText + ")");
         firstName = data.first_name;
         lastName = data.last_name;
         email = data.email;
