@@ -1313,3 +1313,39 @@ def on_user_delete(sender, instance, signal, *args, **kwargs):
         CourseEnrollmentAllowed.objects.filter(email=instance.email).delete()
     except:
         pass
+
+#@begin:Add for Dashboard Posts
+#@date:2016-12-29
+class DashboardPosts(models.Model):
+    class Meta:
+        db_table = 'dashboard_posts'
+    master = models.ForeignKey(User, related_name='dashboardposts_master', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='dashboardposts_user', on_delete=models.CASCADE)
+    post = models.TextField(blank=False, max_length=255, db_index=False)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+    date_update = models.DateTimeField(auto_now_add=True, db_index=False)
+
+class DashboardPostsImages(models.Model):
+    class Meta:
+        db_table = 'dashboard_posts_images'
+    post = models.ForeignKey(DashboardPosts, on_delete=models.CASCADE)
+    link = models.TextField(blank=False, max_length=1024, null=False)
+    embed = models.BooleanField(blank=False, default=1)
+
+class DashboardComments(models.Model):
+    class Meta:
+        db_table = 'dashboard_posts_comments'
+    post = models.ForeignKey(DashboardPosts, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField(blank=False, max_length=255, db_index=False)
+    sub_comment = models.ForeignKey("self", on_delete=models.CASCADE, default=None, null=True, blank=True)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+
+class DashboardLikes(models.Model):
+    class Meta:
+        db_table = 'dashboard_posts_likes'
+    post = models.ForeignKey(DashboardPosts, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(DashboardComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    date_create = models.DateTimeField(auto_now_add=True, db_index=False)
+#@end
