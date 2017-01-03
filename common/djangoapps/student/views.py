@@ -2528,14 +2528,15 @@ def get_posts(request):
         post_time_d = post_time.strftime("%Y-%m-%d")
         if (datetime.datetime.strptime(now_date_last_str, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(post_date_create_str, '%Y-%m-%d %H:%M:%S')).days <= 1: 
             post_time_d = 'Today'
-        post_time_t = post_time.strftime("%I:%M")
+        post_time_h = str(int(post_time.strftime("%I")))
+        post_time_m = post_time.strftime("%M")
         post_time_ampm = post_time.strftime("%p")
 
         html += "<td class='ds-post-title-text'>"
         html += "<a class='ds-post-title-name' href='/dashboard/"+str(post.user.id)+"'>"+post.user.first_name+" "+post.user.last_name+"</a>"
         html += "&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;"
         html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
-        html += "<span class='ds-post-title-time'>"+post_time_d+" at "+post_time_t+" "+post_time_ampm+"</span>"
+        html += "<span class='ds-post-title-time'>"+post_time_d+" at "+post_time_h+":"+post_time_m+" "+post_time_ampm+"</span>"
         html += "</td>"
 
         html += "<td class='ds-post-title-delete'>"
