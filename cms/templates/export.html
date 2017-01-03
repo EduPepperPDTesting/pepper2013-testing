@@ -137,6 +137,8 @@ from django.conf import settings
 </div>
 <script type="text/javascript">
   $("#btnExportTo").click(function(){
+    if(!confirm("Are you sure you want to override the course?"))
+      return;
     var id_org = "${context_course.location.org}";
     var id_course = "${context_course.location.course}";
     var id_name = "${context_course.location.name}";
