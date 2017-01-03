@@ -58,6 +58,7 @@ def reports_view(request):
             qs |= Q(access_level='District', access_id=request.user.profile.district.id)
         if not access_level or levels[access_level] > 2:
             qs |= Q(access_level='School', access_id=request.user.profile.school.id)
+        qs |= Q(author_id=request.user.id)
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
@@ -73,6 +74,8 @@ def reports_view(request):
     if admin_rights or create_rights:
         report_list = list()
         qs = Q(category__isnull=True)
+        ####Original logic
+        '''
         if not admin_rights:
             if access_level == 'School':
                 qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
@@ -80,6 +83,9 @@ def reports_view(request):
                 qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
             elif access_level == 'State':
                 qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        '''
+        if not request.user.is_superuser:
+            qs &= Q(author_id=request.user.id)
         category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,

@@ -1,6 +1,7 @@
 from django.db import models
 from student.models import District, School
 from django.contrib.auth.models import User
+from student.models import UserProfile
 from django.conf import settings
 import pymongo
 import logging
@@ -49,6 +50,7 @@ class CustomEmail(models.Model):
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None)
     system = models.BooleanField(blank=False, null=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT, null=False)
+    owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=False);
 
 class EmailTaskLog(models.Model):
     class Meta:

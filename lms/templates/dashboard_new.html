@@ -1,0 +1,205 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from django.utils import timezone
+    from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+    import datetime
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+    #image_uploading{display:none;}
+</style>
+<!--@end-->
+<%inherit file="main_new.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
+<style type="text/css" media="screen">
+/*--new dashboard------------------------------*/
+.content-wrapper{
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+    border: 0px solid;
+
+    margin-top:-55px;
+}
+.content-wrapper td{
+    vertical-align:middle;
+}
+.container{
+    margin: 0 auto;
+    max-width: 1180px;
+    min-width: 760px;
+    width: 100%;
+
+    border:0px solid;
+}
+.dashboard{
+    margin-top: 25px;
+}
+
+.dashboard .my-courses{
+    display: block;
+    float:left;
+    width:275px;
+    margin-right: 10px;
+    border: 0px solid #f00;
+}
+.title{
+    font-size: 20px;
+    color: #7f7f7f;
+    font-family: "Arial" !important;
+    font-weight: bold;
+    line-height:25px;
+}
+
+.dashboard .main-content{
+    display: block;
+    float:left;
+    width:610px;
+    margin-right: 10px;
+
+    /*height:600px;*/
+    border-bottom: 1px solid #3891e0;
+}
+.dashboard .main-content div{
+    margin-bottom: 25px;
+}
+
+.dashboard .community{
+    display: block;
+    float:right;
+    width:275px;
+
+    border: 0px solid #f00;
+}
+.dashboard .community td{
+    text-align: right;
+}
+.comment-info{
+    font-size: 18px;
+    color: #b4b4b4;
+    font-family: "Arial" !important;
+    margin-bottom: 15px;
+}
+
+.seemore td{
+    font-family: "Arial" !important;
+    font-size: 16px;
+    color: #0070d5;
+}
+#searching-text{
+    border:0;
+    height:25px;
+    width: 255px;
+    margin-left: 5px;
+    outline: none;
+
+    color:#818181;
+    font-size: 15px;
+    font-family: "Arial" !important;
+    font-style:italic;
+}
+</style>
+
+
+<section class="content-wrapper">
+    <section class="container dashboard">
+        <!--width 275 + 10 + 610 + 10 + 275 = 1180-->
+        <section class="my-courses">
+            <div class="title">My Course & Workshops</div>
+            <table width="100%" border="0">
+                <tr>
+                    <td rowspan="2" scope="col" width="210" height="220">
+                        <img src="static/images/newdashboard/temp/aa1.png"/>
+                    </td>
+                    <td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+                </tr>
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+                </tr>
+            </table>
+            <table width="100%" border="0">
+                <tr>
+                    <td rowspan="2" scope="col" width="210" height="220">
+                        <img src="static/images/newdashboard/temp/aa2.png"/>
+                    </td>
+                    <td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+                </tr>
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+                </tr>
+            </table>
+            <table class="seemore" width="210" height="50" border="0">
+                <tr>
+                    <td>See More</td>
+                    <td align="right">+ Content</td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="main-content">
+            <div>
+                <img src="static/images/newdashboard/temp/c1.png"/ width="610">
+            </div>
+            <div>
+                <img src="static/images/newdashboard/temp/c2.png"/ width="610">
+            </div>
+            <div>
+                <img src="static/images/newdashboard/temp/c3.png"/ width="610">
+            </div>
+            <table class="comment-info" width="100%" border="0">
+                <tr>
+                    <td><img src="static/images/newdashboard/hand-cursor-xxl.png" width="30" /></td>
+                    <td>Like</td>
+                    <td>&nbsp;</td>
+                    <td><img src="static/images/newdashboard/Comment-512.png" width="35" /></td>
+                    <td>Comment</td>
+                    <td><i>21 Likes</i></td>
+                    <td><i>14 Comments</i></td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="community">
+            <div class="title" style="text-align:right">Coaching & Collaboration</div>
+            <table width="100%" border="0">
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+                    <td rowspan="2" scope="col" width="210" height="220">
+                        <img src="static/images/newdashboard/temp/bb1.png"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+                </tr>
+            </table>
+            <table width="100%" border="0">
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
+                    <td rowspan="2" scope="col" width="210" height="220">
+                        <img src="static/images/newdashboard/temp/bb1.png"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td scope="col"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
+                </tr>
+            </table>
+            <table class="seemore" width="100%" height="50" border="0">
+                <tr>
+                    <td width="65"></td>
+                    <td style="text-align:left;">See More</td>
+                    <td>+ Content</td>
+                </tr>
+            </table>
+        </section>
+        <div style="clear:both;"></div>
+    </section>
+</section>
