@@ -2487,7 +2487,7 @@ def get_posts(request):
     elif post_filter == "ralphauname":
         posts = DashboardPosts.objects.filter(master=c).order_by('-user__username')[0:size]
     usr_img = reverse('user_photo', args=[request.user.id])
-
+    time_diff_m = request.POST.get('local_utc_diff_m')
     c_likes = 0
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
@@ -2519,11 +2519,23 @@ def get_posts(request):
            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
         html += "</td>"
 
+        post_time = post.date_create
+        if int(time_diff_m) != 0:
+            post_time = time_to_local(post.date_create, time_diff_m)   
+        now_date_last_str = datetime.datetime.now().strftime('%Y-%m-%d') + ' 23:59:59'
+        post_date_create_str = post.date_create.strftime('%Y-%m-%d %H:%M:%S')  
+        
+        post_time_d = post_time.strftime("%Y-%m-%d")
+        if (datetime.datetime.strptime(now_date_last_str, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(post_date_create_str, '%Y-%m-%d %H:%M:%S')).days <= 1: 
+            post_time_d = 'Today'
+        post_time_t = post_time.strftime("%I:%M")
+        post_time_ampm = post_time.strftime("%p")
+
         html += "<td class='ds-post-title-text'>"
         html += "<a class='ds-post-title-name' href='/dashboard/"+str(post.user.id)+"'>"+post.user.first_name+" "+post.user.last_name+"</a>"
         html += "&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;"
         html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
-        html += "<span class='ds-post-title-time'>Today at 2:30 PM</span>"
+        html += "<span class='ds-post-title-time'>"+post_time_d+" at "+post_time_t+" "+post_time_ampm+"</span>"
         html += "</td>"
 
         html += "<td class='ds-post-title-delete'>"
@@ -2834,4 +2846,20 @@ def active_recent(user):
     else:
         active = False
     return active
+
+def time_to_local(user_time,time_diff_m):
+    if type(user_time) == str:
+        user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
+    else:
+        user_time_time = user_time
+
+    plus_sub = 1
+    time_diff_m_int = int(time_diff_m)
+    if time_diff_m_int >= 0:
+        plus_sub = 1
+    else:
+        plus_sub = -1
+    
+    user_time_dt = user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub
+    return user_time_dt
 #@end
