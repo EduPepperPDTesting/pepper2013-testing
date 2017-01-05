@@ -1792,7 +1792,6 @@ function getPosts(){
     var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
     filter = $("#post_filter_select").val()
     var master_id = "${curr_user.id}";
-    console.log("master_id",master_id);
     $.post("${reverse('dashboard_get_posts')}", {master_id: master_id, size:size, filter:filter, local_utc_diff_m:local_utc_diff_m}, function (data){
         if(data.all =="DONE"){
             $("#posts_loading_image").remove()
@@ -1957,7 +1956,6 @@ function getPosts(){
         e.preventDefault();
         $("#add_images_div").toggle();
     });
-    console.log("111111");
     getPosts(); //start
 
     //--Post function--------------------------------------------
