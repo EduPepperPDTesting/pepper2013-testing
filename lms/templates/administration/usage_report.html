@@ -125,7 +125,16 @@
         <div class="content"></div>
     </div>
 </div>
-
+<!-- dialog_loading -->
+<div style="" id="dialog_loading" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"><img src="/static/images/posts-loading.gif" style="display:block;margin:auto;"/></div>
+    </div>
+</div>
 <script>
 //-------------------------- Usage Report --------------------------//
 var pagerOptions = {
@@ -287,14 +296,20 @@ var userTimeReport = {
     },
 
     get_table_result:function(){
+        $(".tblUserTime tbody").empty();
+        
         var self = this;
         var filter = $('#fltUserTime')[0].control.getFilter();
         var local_time =  new Date();
         var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
 
+        self.dialog = new Dialog($('#dialog_loading'));
+        self.dialog.show('Loading data, Please wait...');
+
         $.post("${reverse('get_user_login_info')}", {'state': filter.state,'district': filter.district,'school': filter.school}, 
             function(data) {
                 if (data != null) {
+                    self.dialog.hide();
                     self.createTimeTable(data.rows);
                 }
             }
