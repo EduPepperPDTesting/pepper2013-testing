@@ -13,8 +13,8 @@ import datetime
 from datetime import timedelta
 from models import UserLoginInfo
 
-#import logging
-#log = logging.getLogger("tracking")
+# import logging
+# log = logging.getLogger("tracking")
 
 @login_required
 def main(request):
@@ -45,30 +45,27 @@ def get_user_login_info(request):
 	login_info_list = []
 	for d in user_log_info:
 		dict_tmp = {}
-		obj_user = User.objects.get(id=d.user_id)
-		
 		try:
-			if obj_user.profile.district.state.id:
-				dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
+			obj_user = UserProfile.objects.get(user_id=d.user_id)
 		except Exception as e:
+			continue
+
+		try:
+			dict_tmp['district'] = str(obj_user.district.name)
+			dict_tmp['state'] = str(obj_user.district.state.name)
+		except Exception as e:
+			dict_tmp['district'] = ''
 			dict_tmp['state'] = ''
 
 		try:
-			if obj_user.profile.district.id:
-				dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
-		except Exception as e:
-			dict_tmp['district'] = ''
-
-		try:
-			if obj_user.profile.school.id:
-				dict_tmp['school'] = School.objects.get(id=obj_user.profile.school.id).name
+			dict_tmp['school'] = str(obj_user.school.name)
 		except Exception as e:
 			dict_tmp['school'] = ''
 
-		dict_tmp['email'] = obj_user.email
-		dict_tmp['username'] = obj_user.username
-		dict_tmp['first_name'] = obj_user.first_name
-		dict_tmp['last_name'] = obj_user.last_name
+		dict_tmp['email'] = obj_user.user.email
+		dict_tmp['username'] = obj_user.user.username
+		dict_tmp['first_name'] = obj_user.user.first_name
+		dict_tmp['last_name'] = obj_user.user.last_name
 		dict_tmp['login_time'] = d.login_time
 
 		if not active_recent(obj_user) or d.logout_press:
@@ -185,30 +182,27 @@ def get_download_info(request):
 	login_info_list = []
 	for d in user_log_info:
 		dict_tmp = {}
-		obj_user = User.objects.get(id=d.user_id)
-		
 		try:
-			if obj_user.profile.district.state.id:
-				dict_tmp['state'] = State.objects.get(id=obj_user.profile.district.state.id).name
+			obj_user = UserProfile.objects.get(user_id=d.user_id)
 		except Exception as e:
+			continue
+
+		try:
+			dict_tmp['district'] = str(obj_user.district.name)
+			dict_tmp['state'] = str(obj_user.district.state.name)
+		except Exception as e:
+			dict_tmp['district'] = ''
 			dict_tmp['state'] = ''
 
 		try:
-			if obj_user.profile.district.id:
-				dict_tmp['district'] = District.objects.get(id=obj_user.profile.district.id).name
-		except Exception as e:
-			dict_tmp['district'] = ''
-
-		try:
-			if obj_user.profile.school.id:
-				dict_tmp['school'] = School.objects.get(id=obj_user.profile.school.id).name
+			dict_tmp['school'] = str(obj_user.school.name)
 		except Exception as e:
 			dict_tmp['school'] = ''
 
-		dict_tmp['email'] = obj_user.email
-		dict_tmp['username'] = obj_user.username
-		dict_tmp['first_name'] = obj_user.first_name
-		dict_tmp['last_name'] = obj_user.last_name
+		dict_tmp['email'] = obj_user.user.email
+		dict_tmp['username'] = obj_user.user.username
+		dict_tmp['first_name'] = obj_user.user.first_name
+		dict_tmp['last_name'] = obj_user.user.last_name
 		dict_tmp['login_time'] = time_to_local(d.login_time,time_diff_m)
 
 		if not active_recent(obj_user) or d.logout_press:
@@ -250,15 +244,18 @@ def time_to_local(user_time,time_diff_m):
 	user_time_str = (user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub).strftime('%m-%d-%Y %I:%M:%S %p')
 	return user_time_str
 
-def active_recent(user):
-	user_now = user
+def active_recent(user_profile):
+	'''
+	Parameter is UserProfile object, not User project.
+	'''
+	user_profile = user_profile
 	utc_month = datetime.datetime.utcnow().strftime("%m")
 	utc_day = datetime.datetime.utcnow().strftime("%d")
 	utc_h = datetime.datetime.utcnow().strftime("%H")
 	utc_m = datetime.datetime.utcnow().strftime("%M")
 	d_min = 60*int(utc_h) + int(utc_m)
-	if user_now.profile.last_activity:
-		user_last_activity = user_now.profile.last_activity
+	if user_profile.last_activity:
+		user_last_activity = user_profile.last_activity
 		u_min = 60*int(user_last_activity.strftime("%H")) + int(user_last_activity.strftime("%M"))
 		close = int(d_min) - int(u_min) <= 30   
 		active = user_last_activity.strftime("%d") == utc_day and user_last_activity.strftime("%m") == utc_month and close
