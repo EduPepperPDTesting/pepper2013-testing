@@ -412,18 +412,20 @@ def sync_course(request):
             cursor.execute("select * from auth_user_groups where user_id = '%s' and group_id='%s'" % (user_id, group_id))
             result = cursor.fetchone()
             if result is None:
-                cursor.execute("insert into auth_user_groups set user_id = '%s' and group_id='%s'" % (user_id, group_id))
+                cursor.execute("insert into auth_user_groups set user_id = '%s', group_id='%s'" % (user_id, group_id))
 
         # ** create course group created for the user
         cursor = db.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("select * from auth_user where email='%s'" % request.user.email)
-        result = cursor.fetchone()
-        if result is None:
+        user = cursor.fetchone()
+        if user is None:
             # *** user(owner) must already exists on the dest server
             raise User.DoesNotExist
         else:
-            update_user_group(result['id'], org, course, name, "instructor")
-            update_user_group(result['id'], org, course, name, "staff")
+            update_user_group(user['id'], org, course, name, "instructor")
+            update_user_group(user['id'], org, course, name, "staff")
+            
+        db.commit()
         db.close()
         server.stop()
 
