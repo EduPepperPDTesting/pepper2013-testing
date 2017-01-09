@@ -830,8 +830,8 @@ Add info that you would like to share about yourself here:
   <!--@begin:Add for Dashboard Posts-->
   <!--@2016-12-29-->
   <!--w:610,min-h:800-->
-  <div style="float:left;width:880px;">
-    <div id="dashboard_content_posts" class="dashboard_main_content" style="min-height:600px;">
+  <div style="float:left;width:750px;margin-left:130px;margin-bottom:40px;">
+    <div id="dashboard_content_posts" class="dashboard_main_content" style="min-height:600px;height:600px;overflow-y:scroll;">
       <div id="post_content" class="post_content" style="margin-bottom:0px;">
         <table id="" width="100%" border="0" style="margin-bottom:10px;background-color:#f2f2f2;">
           <tr class=".post-submit-row" id="post_submit_row">
@@ -1788,10 +1788,11 @@ Add info that you would like to share about yourself here:
 //@date:2016-12-29
 var size = 0;
 function getPosts(){
+    var local_time =  new Date();
+    var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
     filter = $("#post_filter_select").val()
     var master_id = "${curr_user.id}";
-    console.log("master_id",master_id);
-    $.post("${reverse('dashboard_get_posts')}", {master_id: master_id, size:size, filter:filter}, function (data){
+    $.post("${reverse('dashboard_get_posts')}", {master_id: master_id, size:size, filter:filter, local_utc_diff_m:local_utc_diff_m}, function (data){
         if(data.all =="DONE"){
             $("#posts_loading_image").remove()
         }
@@ -1955,7 +1956,6 @@ function getPosts(){
         e.preventDefault();
         $("#add_images_div").toggle();
     });
-    console.log("111111");
     getPosts(); //start
 
     //--Post function--------------------------------------------

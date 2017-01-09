@@ -2487,7 +2487,7 @@ def get_posts(request):
     elif post_filter == "ralphauname":
         posts = DashboardPosts.objects.filter(master=c).order_by('-user__username')[0:size]
     usr_img = reverse('user_photo', args=[request.user.id])
-
+    time_diff_m = request.POST.get('local_utc_diff_m')
     c_likes = 0
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
@@ -2519,11 +2519,29 @@ def get_posts(request):
            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
         html += "</td>"
 
+        post_time_local = post.date_create
+        now_local = datetime.datetime.now()
+        if int(time_diff_m) != 0:
+            post_time_local = time_to_local(post.date_create, time_diff_m)   
+            now_local = time_to_local(datetime.datetime.now(), time_diff_m)   
+        now_local_last_str = now_local.strftime('%Y-%m-%d') + ' 23:59:59'
+        post_time_local_str =post_time_local.strftime('%Y-%m-%d %H:%M:%S')  
+        if (datetime.datetime.strptime(now_local_last_str, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(post_time_local_str, '%Y-%m-%d %H:%M:%S')).days < 1: 
+            post_date = 'Today'
+        else:
+            post_year = post_time_local.strftime("%Y")
+            post_month = str(int(post_time_local.strftime("%m")))
+            post_day = str(int(post_time_local.strftime("%d")))
+            post_date = post_year + '-' + post_month + '-' + post_day
+        post_h = str(int(post_time_local.strftime("%I")))
+        post_m = post_time_local.strftime("%M")
+        post_ampm = post_time_local.strftime("%p")
+
         html += "<td class='ds-post-title-text'>"
         html += "<a class='ds-post-title-name' href='/dashboard/"+str(post.user.id)+"'>"+post.user.first_name+" "+post.user.last_name+"</a>"
         html += "&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;"
         html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
-        html += "<span class='ds-post-title-time'>Today at 2:30 PM</span>"
+        html += "<span class='ds-post-title-time'>"+post_date+" at "+post_h+":"+post_m+" "+post_ampm+"</span>"
         html += "</td>"
 
         html += "<td class='ds-post-title-delete'>"
@@ -2834,4 +2852,23 @@ def active_recent(user):
     else:
         active = False
     return active
+
+def time_to_local(user_time,time_diff_m):
+    '''
+    Return datetime type
+    '''
+    if type(user_time) == str:
+        user_time_time = datetime.datetime.strptime(user_time, '%Y-%m-%d %H:%M:%S')
+    else:
+        user_time_time = user_time
+
+    plus_sub = 1
+    time_diff_m_int = int(time_diff_m)
+    if time_diff_m_int >= 0:
+        plus_sub = 1
+    else:
+        plus_sub = -1
+    
+    user_time_dt = user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub
+    return user_time_dt
 #@end

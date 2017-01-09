@@ -373,6 +373,9 @@
                         %if check_user_perms(curr_user, 'certificate'):
                             <li><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
+                        %if curr_user.is_superuser:
+                            <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
+                        %endif
                         <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
                         %if check_user_perms(curr_user, 'pepconn'):
                             <li><a href="${reverse('pepconn')}">PepConn</a></li>
