@@ -36,6 +36,10 @@ import time
 from pymongo import MongoClient
 import json
 from sshtunnel import SSHTunnelForwarder
+from xmodule.course_module import CourseDescriptor
+import MySQLdb
+from django.contrib.auth.models import User
+
 
 __all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course']
 
@@ -201,6 +205,7 @@ def import_course(request, org, course, name):
                     for fname in os.listdir(dirpath):
                         shutil.move(dirpath / fname, course_dir)
 
+                remove_course(org, course)
                 _module_store, course_items = import_from_xml(
                     modulestore('direct'),
                     settings.GITHUB_REPO_ROOT,
@@ -329,8 +334,23 @@ def export_course(request, org, course, name):
     })
 
 
+def remove_course(id_org, id_course, conn=None):
+    if conn is None:
+        opt = settings.MODULESTORE['default']['OPTIONS']
+        conn = MongoClient(opt['host'], opt['port'])
+
+    def remove_docs(db_name, collection_name, cond):
+        db = conn[db_name]
+        collection = db[collection_name]
+        collection.remove(cond)
+
+    remove_docs("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
+    remove_docs("xcontent", "fs.files", {"_id.org": id_org, "_id.course": id_course})
+    remove_docs("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
+
+
 def copy_course(id_org, id_course, _from, _to):
-    def copy_collection(db_name, collection_name, cond):
+    def copy_docs(db_name, collection_name, cond):
         from_db = _from[db_name]
         to_db = _to[db_name]
 
@@ -338,13 +358,12 @@ def copy_course(id_org, id_course, _from, _to):
         to_collection = to_db[collection_name]
 
         to_collection.remove(cond)
-
-        for doc in from_collection.find(cond):  # , "_id.name": id_name
+        for doc in from_collection.find(cond):
             to_collection.save(doc)
 
-    copy_collection("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
-    copy_collection("xcontent", "fs.files", {"_id.org": id_org, "_id.course": id_course})
-    copy_collection("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
+    copy_docs("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
+    copy_docs("xcontent", "fs.files", {"_id.org": id_org, "_id.course": id_course})
+    copy_docs("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
 
 
 @login_required
@@ -354,12 +373,61 @@ def sync_course(request):
     """
     org = request.POST.get("id_org", "")
     course = request.POST.get("id_course", "")
-    # name = request.POST.get("id_name", "")
-    
+    name = request.POST.get("id_name", "")
+
+    # course_location = "i4x://%s/%s/course/%s" % (org, course, name)
+    # course_obj = modulestore().get_instance(course_id, CourseDescriptor.id_to_location(course_id))
     try:
         dest_id = int(request.POST.get("dest", ""))
         d = settings.COURSE_SYNC_DEST[dest_id]
-        
+
+        # ** connect to mysql on dest server
+        server = SSHTunnelForwarder(
+            d['host'],
+            ssh_port=d['ssh_port'],
+            ssh_username=d['ssh_username'],
+            ssh_password=d['ssh_password'],
+            remote_bind_address=('127.0.0.1', d['mysql_port'])
+        )
+        server.start()
+        db = MySQLdb.connect(
+            host="127.0.0.1",
+            user=d["mysql_username"],
+            passwd=d["mysql_password"],
+            db=d["mysql_db"],
+            port=server.local_bind_port)
+
+        def get_group_id(org, course, name, role):
+            group_name = "%s_%s/%s/%s" % (role, org, course, name)
+            cursor.execute("select * from auth_group where name = '%s'" % group_name)
+            result = cursor.fetchone()
+            if result is None:
+                cursor.execute("insert into auth_group set name = '%s'" % group_name)
+                return cursor.lastrowid
+            else:
+                return result["id"]
+
+        def update_user_group(user_id, org, course, name, role):
+            group_id = get_group_id(org, course, name, role)
+            cursor.execute("select * from auth_user_groups where user_id = '%s' and group_id='%s'" % (user_id, group_id))
+            result = cursor.fetchone()
+            if result is None:
+                cursor.execute("insert into auth_user_groups set user_id = '%s' and group_id='%s'" % (user_id, group_id))
+
+        # ** create course group created for the user
+        cursor = db.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("select * from auth_user where email='%s'" % request.user.email)
+        result = cursor.fetchone()
+        if result is None:
+            # *** user(owner) must already exists on the dest server
+            raise User.DoesNotExist
+        else:
+            update_user_group(result['id'], org, course, name, "instructor")
+            update_user_group(result['id'], org, course, name, "staff")
+        db.close()
+        server.stop()
+
+        # ** connect to mongo on dest server
         server = SSHTunnelForwarder(
             d['host'],
             ssh_port=d['ssh_port'],
@@ -368,7 +436,6 @@ def sync_course(request):
             remote_bind_address=('127.0.0.1', d['mongo_port']),
             # local_bind_address=('0.0.0.0', 27018)
         )
-
         server.start()
 
         dest = MongoClient('127.0.0.1', server.local_bind_port)
@@ -377,14 +444,17 @@ def sync_course(request):
         opt = settings.MODULESTORE['default']['OPTIONS']
         local = MongoClient(opt['host'], opt['port'])
         # local.admin.authenticate(opt['user'], opt['password'])
-        
+
+        # ** sync course to dest server
+        remove_course(org, course, dest)
         copy_course(org, course, local, dest)
 
         dest.close()
         server.stop()
         json_out = {'success': True}
+    except User.DoesNotExist:
+        json_out = {'success': False, 'message': 'user does not exists on the destination server.'}
     except Exception as e:
         json_out = {'success': False, 'message': '%s' % e}
     return HttpResponse(json.dumps(json_out), content_type="application/json")
-
 
