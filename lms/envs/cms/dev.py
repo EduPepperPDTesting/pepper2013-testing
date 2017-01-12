@@ -114,6 +114,7 @@ RECORDTIMESTORE = {
         'collection_external': 'external_time',
         'collection_result_set': 'result_set',
         'collection_adjustment': 'adjustment_time',
+        'collection_aggregate': 'aggregate_time',
         'host': MONGO_HOST,
         'port': MONGO_PORT,        
         'user':MONGO_USER,
