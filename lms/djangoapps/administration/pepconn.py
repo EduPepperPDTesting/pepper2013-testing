@@ -1546,6 +1546,10 @@ def save_custom_email(request):
             save.owner = UserProfile.objects.get(id=request.POST.get('owner'))
         except:
             None
+        try:
+            save.state = State.objects.get(id=request.POST.get('state'))
+        except:
+            None
         save.save()
         return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
 

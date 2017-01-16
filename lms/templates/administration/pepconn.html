@@ -917,6 +917,13 @@ $(document).ready(function () {
             $("#school_select_email > option").each(function () {
                 filterOptions(this, $("#select_district_email").children(":selected").attr("class"));
             });
+             $("#custom_email_name_custom_email_001 > option").each(function () {
+                if($(this).data("state") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
+            });
         });
 
 
@@ -1010,6 +1017,13 @@ $(document).ready(function () {
             });
             $("#school_select_email2 > option").each(function () {
                 filterOptions(this, $("#select_district_email2").children(":selected").attr("class"));
+            });
+            $("#custom_email_name_custom_email_002 > option").each(function () {
+                if($(this).data("state") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
             });
         });
 
@@ -1105,6 +1119,13 @@ $(document).ready(function () {
             $("#school_select_email3 > option").each(function () {
                 filterOptions(this, $("#select_district_email").children(":selected").attr("class"));
             });
+            $("#custom_email_name_custom_email_003 > option").each(function () {
+                if($(this).data("state") == id || $(this).data("system") == "True"){
+                   $(this).css("display","")
+                }else{
+                    $(this).css("display","none");
+                }
+            });
         });
 
 
@@ -1121,6 +1142,7 @@ $(document).ready(function () {
         html = "<label>Save Name: </label><input type='text' id='email_name'></input><br><br>";
         html += "System: <input type='checkbox' id='system_exclusive1'></input><br>";
         html += "State: <select id='state_select1'>";
+        html+= '<option value="" class="-1">Select State</option>';
         %for item in State.objects.all().order_by('name'):
             html+= '<option class="${item.id}" value="${item.name}">${item.name}</option>'
         %endfor
@@ -1167,7 +1189,7 @@ $(document).ready(function () {
         });
         $("#save_email_post").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email1").find("option:selected").attr("class"),"name":$("#email_name").val(),"message":CKEDITOR.instances.custom_email_001.getData(), "user":1, "system":$("#system_exclusive1").is(":checked"),"district":$("#select_district_email1").find('option:selected').attr("class"), "school":$("#school_select_email1").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email1").find("option:selected").attr("class"),"name":$("#email_name").val(),"message":CKEDITOR.instances.custom_email_001.getData(), "user":1, "state":$("#state_select1").find('option:selected').attr("class"), "system":$("#system_exclusive1").is(":checked"),"district":$("#select_district_email1").find('option:selected').attr("class"), "school":$("#school_select_email1").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message").css("color", "green");
                 $("#save_email_message").html("<br>Successfully saved message.");
             });
@@ -1178,6 +1200,7 @@ $(document).ready(function () {
         html = "<label>Save Name: </label><input type='text' id='email_name2'></input><br><br>";
         html += "System: <input type='checkbox' id='system_exclusive2'></input><br>";
         html += "State: <select id='state_select2'>";
+        html+= '<option value="" class="-1">Select State</option>';
         %for item in State.objects.all().order_by('name'):
             html+= '<option class="${item.id}" value="${item.name}">${item.name}</option>'
         %endfor
@@ -1223,7 +1246,7 @@ $(document).ready(function () {
         });
         $("#save_email_post2").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email2").find("option:selected").attr("class"),"name":$("#email_name2").val(),"message":CKEDITOR.instances.custom_email_002.getData(), "user":1, "system":$("#system_exclusive2").is(":checked"),"district":$("#select_district_email2").find('option:selected').attr("class"), "school":$("#school_select_email2").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email2").find("option:selected").attr("class"),"name":$("#email_name2").val(),"message":CKEDITOR.instances.custom_email_002.getData(), "user":1,"state":$("#state_select2").find('option:selected').attr("class"), "system":$("#system_exclusive2").is(":checked"),"district":$("#select_district_email2").find('option:selected').attr("class"), "school":$("#school_select_email2").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message2").css("color", "green");
                 $("#save_email_message2").html("<br>Successfully saved message.");
             });
@@ -1234,6 +1257,7 @@ $(document).ready(function () {
         html = "<label>Save Name: </label><input type='text' id='email_name3'></input><br><br>";
         html += "System: <input type='checkbox' id='system_exclusive3'></input><br>";
         html += "State: <select id='state_select3'>";
+        html+= '<option value="" class="-1">Select State</option>';
         %for item in State.objects.all().order_by('name'):
             html+= '<option class="${item.id}" value="${item.name}">${item.name}</option>'
         %endfor
@@ -1280,7 +1304,7 @@ $(document).ready(function () {
         });
         $("#save_email_post3").click(function(e){
             e.preventDefault();
-            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email3").find("option:selected").attr("class"),"name":$("#email_name3").val(),"message":CKEDITOR.instances.custom_email_003.getData(), "user":1, "system":$("#system_exclusive3").is(":checked"),"district":$("#select_district_email3").find('option:selected').attr("class"), "school":$("#school_select_email3").find("option:selected").attr("class")}, function (r) {
+            $.post("${reverse('pepconn_save_custom_email')}", {"owner":$("#user_select_email3").find("option:selected").attr("class"),"name":$("#email_name3").val(),"message":CKEDITOR.instances.custom_email_003.getData(),"state":$("#state_select3").find('option:selected').attr("class"), "user":1, "system":$("#system_exclusive3").is(":checked"),"district":$("#select_district_email3").find('option:selected').attr("class"), "school":$("#school_select_email3").find("option:selected").attr("class")}, function (r) {
                 $("#save_email_message3").css("color", "green");
                 $("#save_email_message3").html("<br>Successfully saved message.");
             });
