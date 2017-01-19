@@ -1534,16 +1534,16 @@ def save_custom_email(request):
             save.system = 1
         else:
             save.system = 0
+        if(request.POST.get('user') == "true"):
+            save.owner = request.user.profile
+        else:
+            save.owner = 0
         try:
             save.district = District.objects.get(id=request.POST.get('district'))
         except:
             None
         try:
             save.school = School.objects.get(id=request.POST.get('school'))
-        except:
-            None
-        try:
-            save.owner = UserProfile.objects.get(id=request.POST.get('owner'))
         except:
             None
         try:
