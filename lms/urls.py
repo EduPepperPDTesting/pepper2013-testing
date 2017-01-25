@@ -203,8 +203,9 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
-    url(r'^custom/save', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
-    url(r'^custom/get', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
+    url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
+    url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
+    url(r'^custom/get-list$', 'administration.pepconn.get_custom_email_list', name="pepconn_get_custom_email_list"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
 
