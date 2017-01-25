@@ -1530,14 +1530,15 @@ def save_custom_email(request):
         save.email_content = request.POST.get('message')
         save.user = request.user
         save.name = request.POST.get('name')
-        if(request.POST.get('system') == "true"):
+        if (request.POST.get("op") == "1"):
             save.system = 1
-        else:
+            save.owner = None
+        elif (request.POST.get("op") == "2"):
             save.system = 0
-        if(request.POST.get('user') == "true"):
             save.owner = request.user.profile
         else:
-            save.owner = 0
+            save.system = 0
+            save.owner = None
         try:
             save.district = District.objects.get(id=request.POST.get('district'))
         except:
