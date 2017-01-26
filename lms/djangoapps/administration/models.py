@@ -1,5 +1,5 @@
 from django.db import models
-from student.models import District, School
+from student.models import District, School, State
 from django.contrib.auth.models import User
 from student.models import UserProfile
 from django.conf import settings
@@ -41,16 +41,19 @@ class EmailTask(models.Model):
     task_read = models.BooleanField(blank=False, default=0)
     user = models.ForeignKey(User, default=0)
 
+
 class CustomEmail(models.Model):
     class Meta:
         db_table = 'admin_custom_emails'
     email_content = models.TextField(blank=False, null=True)
     name = models.CharField(blank=False, max_length=30, null=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
-    district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None)
+    district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None, blank=True)
     system = models.BooleanField(blank=False, null=False)
-    school = models.ForeignKey(School, on_delete=models.PROTECT, null=False)
-    owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=False);
+    school = models.ForeignKey(School, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, default=None, blank=True)
+
 
 class EmailTaskLog(models.Model):
     class Meta:
