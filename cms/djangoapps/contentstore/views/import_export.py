@@ -205,7 +205,6 @@ def import_course(request, org, course, name):
                     for fname in os.listdir(dirpath):
                         shutil.move(dirpath / fname, course_dir)
 
-                remove_course(org, course)
                 _module_store, course_items = import_from_xml(
                     modulestore('direct'),
                     settings.GITHUB_REPO_ROOT,
@@ -359,6 +358,10 @@ def copy_course(id_org, id_course, _from, _to):
 
         to_collection.remove(cond)
         for doc in from_collection.find(cond):
+            d = doc['_id']
+            if "__getitem__" in dir(d):
+                doc['_id'] = {"tag": d['tag'], "org": d['org'], "course": d['course'],
+                              "category": d['category'], "name": d['name'], "revision": d['revision']}
             to_collection.save(doc)
 
     copy_docs("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
@@ -448,7 +451,6 @@ def sync_course(request):
         # local.admin.authenticate(opt['user'], opt['password'])
 
         # ** sync course to dest server
-        remove_course(org, course, dest)
         copy_course(org, course, local, dest)
 
         dest.close()
