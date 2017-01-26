@@ -357,7 +357,7 @@ def copy_course(id_org, id_course, _from, _to):
         from_collection = from_db[collection_name]
         to_collection = to_db[collection_name]
 
-        to_collection.remove(cond)
+        # to_collection.remove(cond)
         for doc in from_collection.find(cond):
             d = doc['_id']
             if "__getitem__" in dir(d):
