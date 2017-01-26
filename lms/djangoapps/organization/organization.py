@@ -73,12 +73,6 @@ def main(request):
 
     else:
         tmp = "organization/organization.html";
-        try:
-            pass
-            # courses = get_courses_drop(request.user.profile.district.state.name, request.user.profile.district.code)
-        except:
-            tmp = "organization/organization.html";
-
         return render_to_response(tmp)
 
 #-------------------------------------------------------------------organization_list

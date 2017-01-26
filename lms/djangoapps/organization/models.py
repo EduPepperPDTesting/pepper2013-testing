@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import logging
 
+
 class OrganizationMetadata(models.Model):
     class Meta:
         db_table = 'organization_metadata'
