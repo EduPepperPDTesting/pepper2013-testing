@@ -411,19 +411,13 @@
                             });
                         </script>
                         <!-- endif -->
-                       <script type="text/javascript">
-                            url_studio = ["https://studio0.pepperpd.com",
-                                          "https://studio-staging.pepperpd.com",
-                                          "https://studio-demo.pepperpd.com",
-                                          "https://studio.pepperpd.com",
-                                          "https://studio-dev.pepperpd.com",
-                                          "https://studio-major.pepperpd.com",
-                                          "https://studio-patch.pepperpd.com",
-                                          "https://studio-test.pepperpd.com"];
+                        <script type="text/javascript">
                             url_split_array = window.location.href.split('/');
                             split_array_1 = "";
                             split_keyword = "";
-                            url_using= "#";
+                            url_using = "#";
+                            str1 = "https://studio";
+                            str2 = ".pepperpd.com";
 
                             if (url_split_array.length>2){
                                 split_array_1 = url_split_array[2].split('.');
@@ -431,28 +425,13 @@
                             }
                             
                             if (split_keyword == "www0"){
-                               url_using = url_studio[0];
-                            }
-                            else if(split_keyword == "staging"){
-                                url_using = url_studio[1];
-                            }
-                            else if(split_keyword == "demo"){
-                                url_using = url_studio[2];
+                               url_using = str1 + "0" + str2;
                             }
                             else if(split_keyword == "www"){
-                                url_using = url_studio[3];
+                                url_using = str1 + str2;
                             }
-                            else if(split_keyword == "dev"){
-                                url_using = url_studio[4];
-                            }
-                            else if(split_keyword == "major"){
-                                url_using = url_studio[5];
-                            }
-                            else if(split_keyword == "patch"){
-                                url_using = url_studio[6];
-                            }
-                            else if(split_keyword == "test"){
-                                url_using = url_studio[7];
+                            else{
+                                url_using = str1 + "-" + split_keyword + str2;
                             }
                             $("#studio_url").attr("href",url_using);
                         </script>
@@ -878,7 +857,12 @@
         function interactive_update_createItem(data) {
             var body = data.body == undefined ? '' : data.body;
             interactive_update_switchType(data);
-            element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            if(data.type_community){
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:450px;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
+            else{
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
             $('.info_list').append(element);
             element.click(function() {
                 if (data.activate == 'false') {
@@ -890,6 +874,7 @@
         }
 
         function interactive_update_switchType(data) {
+            data.type_community = 0;
             switch (data.type) {
                 case 'discussion':
                     data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
@@ -910,7 +895,8 @@
                     data.type_text = "<b>" + data.interviewer_name + "</b> has sent you a chunk of content from course " + data.course_number + ".";
                     break;
                 default:
-                    data.type_text = data.subject || data.body;                
+                    data.type_text = data.subject || data.body;
+                    data.type_community = 1;                
             }
         }
 
