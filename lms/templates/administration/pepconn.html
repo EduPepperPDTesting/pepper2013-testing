@@ -838,21 +838,21 @@ $(document).ready(function () {
 
             var html = '<div class="email-save-wrapper">';
 
-            html += 'State: <select id="state_select"><option class="-1" value="-1" selected>Select State</option>';
+            html += 'State: <select id="state_select"><option class="-1" value="null_case" selected>Select State</option>';
             %for item in states:
                 html += '<option class="${item['id']}" value="${item['name']}">${item['name']}</option>';
             %endfor
             html += "</select><br>";
 
             html += 'District: <select id="select_district_email">';
-            html += '<option value="" class="-1">Select District</option>';
+            html += '<option value="null_case" class="-1">Select District</option>';
             %for item in districts:
                 html += '<option parent-class="${item['parent_id']}" value="' + cleanInput("${item['name']}") + '" class="${item['id']}">' + cleanInput("${item['name']}") + '</option>';
             %endfor
             html += "</select><br>";
 
             html += 'School: <select id="school_select_email">';
-            html +='<option value="" class="-1">Select School</option>';
+            html +='<option value="null_case" class="-1">Select School</option>';
             %for item in schools:
                 html +='<option parent-class="${item['parent_id']}" value="' + cleanInput("${item['name']}") + '" class="${item['id']}">' + cleanInput("${item['name']}") + '</option>';
             %endfor
@@ -961,21 +961,21 @@ $(document).ready(function () {
         html += '<label><input type="radio" name="ops" value="1" id="system_exclusive"></input> System</label><br>';
         html += '<label><input type="radio" name="ops" value="3"></input> Organization</label><br>';
         html += '<span id="ops" style="display: none;">State: <select id="state_select">';
-        html += '<option value="" class="-1">Select State</option>';
+        html += '<option value="null_case" class="-1">Select State</option>';
         %for item in states:
             html += '<option class="${item['id']}" value="${item['name']}">${item['name']}</option>';
         %endfor
         html += "</select><br>";
 
         html += 'District: <select id="select_district_email">';
-        html += '<option value="" class="-1">Select District</option>';
+        html += '<option value="null_case" class="-1">Select District</option>';
         %for item in districts:
             html += '<option parent-class="${item['parent_id']}" value="' + cleanInput("${item['name']}") + '" class="${item['id']}">' + cleanInput("${item['name']}") + '</option>';
         %endfor
         html += "</select><br>";
 
         html += 'School: <select id="school_select_email">';
-        html += '<option value="" class="-1">Select School</option>';
+        html += '<option value="null_case" class="-1">Select School</option>';
         %for item in schools:
             html += '<option parent-class="${item['parent_id']}" value="' + cleanInput("${item['name']}") + '" class="${item['id']}">' + cleanInput("${item['name']}") + '</option>';
         %endfor
@@ -1182,7 +1182,7 @@ $(document).ready(function () {
         //console.log('Child parent: ' + $(item).attr("parent-class"));
         //console.log('Child class: ' + $(item).attr("class"));
         $(item).removeAttr('selected');
-        if ($(item).attr("parent-class") != id && $(item).attr("class") != "null_case" && id != 'null_case') {
+        if ($(item).attr("parent-class") != id && $(item).attr("class") != "null_case" && id != 'null_case' && $(item).attr('value') != 'null_case') {
             $(item).css("display", "none");
         } else {
             $(item).css("display", "");
