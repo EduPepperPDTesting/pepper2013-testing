@@ -742,12 +742,20 @@ function editUserData(id){
         new Dialog($('#dialog')).show("Edit User",code);
         $("#userDistrictValue").change(function(){
             id=$(this).val();
+            $("#userCohortValue > option").each(function() {
+                if($(this).attr("data-district") != id){
+                    $(this).hide();
+                } else $(this).show();
+            });
             $("#userSchoolValue > option").each(function() {
                 if($(this).attr("data-district") != id){
                     $(this).hide();
                 }else $(this).show();
             });
             if($("#userSchoolValue option:selected" ).attr("data-district") != id){
+                $("#userSchoolValue").val("");
+            }
+            if($("#userCohortValue option:selected" ).attr("data-district") != id){
                 $("#userSchoolValue").val("");
             }
         });
