@@ -180,7 +180,7 @@
         %if logo != '':
             <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
         %else:
-            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>
+            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo" accept=".gif,.jpg,jpeg,.png,.GIF,.JPG,.JPEG,.PNG"></label>
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
@@ -387,7 +387,7 @@
             }
         });
         $('#community-logo .remove').click(function() {
-            var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo"></label>';
+            var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo" accept=".gif,.jpg,jpeg,.png,.GIF,.JPG,.JPEG,.PNG"></label>';
             $('#community-logo').replaceWith(content);
         });
         $('.community-resource .remove').click(function() {
