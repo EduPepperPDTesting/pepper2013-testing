@@ -740,6 +740,7 @@ function editUserData(id){
     }, function (r) {
         var code = r.code;
         new Dialog($('#dialog')).show("Edit User",code);
+
         $("#userDistrictValue").change(function(){
             id=$(this).val();
             $("#userCohortValue > option").each(function() {
@@ -759,6 +760,7 @@ function editUserData(id){
                 $("#userSchoolValue").val("");
             }
         });
+        $("#userDistrictValue").trigger();
     });
 }
 function submitUserEdit(){
