@@ -24,15 +24,6 @@ from django.conf import settings
 from PIL import Image
 import os.path
 
-#import calendar
-#from django.utils.timezone import datetime, now, timedelta, utc
-#from django.utils.translation import ugettext_lazy as _
-#from dateutil.relativedelta import relativedelta
-
-#from student.models import (Registration, UserProfile, District)
-
-# from people.people_in_es import gen_people_search_query, search_people, add_user_people_of, del_user_people_of
-
 @login_required
 #-------------------------------------------------------------------main
 def main(request):
@@ -70,6 +61,9 @@ def main(request):
 
         elif (post_flag == "org_main_upload"):
             return org_main_upload(request);
+
+        elif (post_flag == "organization_check_Entity"):
+            return org_check_Entity(request);
 
     else:
         tmp = "organization/organization.html";
@@ -141,6 +135,27 @@ def organization_delete(request):
             org.delete()
 
         data = {'Success': True}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------org_check_Entity
+def org_check_Entity(request):
+    try:
+        oid = request.POST.get("oid", "")
+        add_id = request.POST.get("add_id", "")
+        add_type = request.POST.get("add_type", "")
+        is_add = True
+        if(oid and add_id and add_type):
+            # --------------OrganizationDistricts
+            org_districts_list = OrganizationDistricts.objects.filter(EntityType=add_type, OrganizationEnity=add_id)
+            for tmp1 in org_districts_list:
+                if(tmp1.organization.id != oid):
+                    is_add = False;
+                    break;
+
+        data = {'Success': True, 'Add': is_add}
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -222,10 +237,6 @@ def organizational_save_base(request):
         specific_items = request.POST.get("specific_items", "")
         sid_did = request.POST.get("sid_did", "")
         motto = request.POST.get("motto", "")
-        # site_url = request.POST.get("site_url", "")
-        # logo_text = request.POST.get("logo_text", "")
-        # button_text = request.POST.get("button_text", "")
-        # button_link = request.POST.get("button_link", "")
 
         if(oid):
             # --------------OrganizationMetadata

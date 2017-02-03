@@ -496,17 +496,6 @@ def user_get_info(request):
     profile = UserProfile.objects.prefetch_related().get(id=user_id)
     code = "<h2>Edit User Form</h2>First Name:<input type = 'text' id = 'userFirstValue' value = '"+str(profile.user.first_name)+"'></input><br><br>"
     code += "Last Name:<input type = 'text' id = 'userLastValue' value = '"+str(profile.user.last_name)+"'></input><br><br>"
-    code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
-
-    for item in Cohort.objects.all():
-        try:
-            if profile.cohort == item:
-                code += "<option value = '"+str(item.id)+"' selected>"+str(item.code)+"</option>"
-            else:
-                code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
-        except:
-            code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
-    code += "</select><br><br>"
     try:
         state = profile.district.state
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
@@ -519,6 +508,21 @@ def user_get_info(request):
             except:
                 code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
         code += "</select><br><br>"
+        code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
+
+        for item in Cohort.objects.all():
+            try:
+                if profile.cohort == item:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"' selected>"+str(item.code)+"</option>"
+                else:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.code)+"</option>"
+            except Exception as ex:
+                    try:
+                        code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.code)+"</option>"
+                    except:
+                        code += "<option value = '"+str(item.id)+"' data-district='-1'>"+str(item.code)+"</option>"
+
+        code += "</select><br><br>TEST"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
             try:

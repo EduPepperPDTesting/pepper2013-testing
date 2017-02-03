@@ -6,7 +6,7 @@
     from certificates.models import CertificateStatuses
     from xmodule.modulestore.django import modulestore
     import json
-    from student.models import State,District,School,Cohort,User,UserProfile    
+    from student.models import State,District,School,User,UserProfile    
 %>
 <%inherit file="../main.html"/>
 
@@ -27,45 +27,23 @@
 	.organization_main{margin: 0 auto 30px auto; width: 1180px; padding: 10px;}
 	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #ddd; padding: 10px;}
 	.check-column {width: 60px !important;}
-	.organization-table {
-		width: 100%;
-		border: 1px solid #555;
-	}
-	.organization-table th {
-		border-bottom: 1px solid #555;
-		background-color: #ddd;
-		border-right: 1px solid #555;
-		text-align: left;
-		padding: 4px;
-	}
-	.organization-table tr {
-		border-bottom: 1px solid #555;
-	}
-	.organization-table td {
-		border-right: 1px solid #555;
-		padding: 4px;
-		text-align: left;
-	}
+	.organization-table {width: 100%; border: 1px solid #555;}
+	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px;}
+	.organization-table tr {border-bottom: 1px solid #555;}
+	.organization-table td {border-right: 1px solid #555; padding: 4px; text-align: left;}
 	.org_table1 td{padding:2px;}
 	.org_table1 .org_td1{padding-top:10px;}
 	.org_table1 input[type='text']{width:300px;}
 	.org_table1 .org_table_menu1{float:left; padding:0 20px 0 5px; cursor:pointer}
 	.org_table1 .org_table_menu1:hover{ text-decoration:underline}
 	.org_table1 .org_icon_dn{background:url(/static/images/configuration/sort_dn.gif) no-repeat right center}
-	.org_table1 .org_icon_up{background:url(/static/images/configuration/sort_up.gif) no-repeat right center}
-	
-	.org_table1 .org_table_menu_child1{float:left; text-indent:30px; font-size:12px}
-	/*.org_table1 .org_table_tr_menu{display:none}	*/
-	
-	.org_table1_selected,.org_edit_selected{ background-color:#56a033 !important;}
-	
-	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}
-	/*.org_div1{fl1oat:left; cl1ear:both; margin-bottom:5px; width:1000px; background-color:#999999}
-	.org_div1 .org_span1{floa1t:left; width:240px; line-height:38px; font-weight:bold;}
-	.org_div1 .org_input1{flo1at:left; width:400px;}*/
-	.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}
-	
+	.org_table1 .org_icon_up{background:url(/static/images/configuration/sort_up.gif) no-repeat right center}	
+	.org_table1 .org_table_menu_child1{float:left; text-indent:30px; font-size:12px}	
+	.org_table1_selected,.org_edit_selected{ background-color:#56a033 !important;}	
+	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
+	.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
 	.expand_title_parent{ display:none}
+	.logo_remove {float:right; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px;">
@@ -80,7 +58,7 @@
             	<tr>
                 	<td class="org_td1">Top Main Logo: </td>
                     <td id="organizational_base_top_main_logo_p"></td>
-                    <td></td>
+                    <td width="70"></td>
             	</tr>
                 <tr>
                 	<td width="220" class="org_td1">Main Logo Text: </td>
@@ -329,7 +307,7 @@
             	<tr>
                 	<td width="230" class="org_td1">Home Page Logo(100&times;100px): </td>
                     <td id="organizational_base_home_logo_p"></td>
-                    <td></td>
+                    <td width="70"></td>
             	</tr>
                 <tr>
                 	<td class="org_td1">Profile Logo(100&times;100px): </td>
@@ -667,9 +645,13 @@
 						$(this).parent().addClass("org_table1_selected");
 						$(this).parent().next().addClass("org_table1_selected");
 						
+						$("#org_btn_first_next").parent().show();
+						$("#org_btn_second_next").parent().show();
+						
 						$.get("${reverse('organizational_configuration')}", {flag: "organization_get", oid: org_current_id}, function (r) {							
 							if (r.Success){
 								if(r.find){	
+									$("#org_btn_reset_state").click();
 									$(".expand_title_parent").show();
 									organizationAddFileImg(r.New, "organizational_base_home_logo", r.home_logo);
 									organizationAddFileImg(r.New, "organizational_base_profile_logo", r.profile_logo);
@@ -769,6 +751,7 @@
 			if(!flag_new){
 				var src = "/static/uploads/organization/" + org_current_id + "/" + name;				
 				$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a>');
+				//<a href="#" class="logo_remove"></a>
 			}
 		}
 	}
@@ -779,6 +762,7 @@
 		if(!flag_new){
 			var src = "/static/uploads/organization/main_page/" + name;
 			$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a>');
+			//<a href="#" class="logo_remove"></a>
 		}		
 	}
 	
@@ -904,6 +888,16 @@
 				}
 			})
 		}
+	}
+	
+	//-----------------------------------------------------------------------organizationCheckUploadFile
+	function organizationCheckUploadFile(filename){
+		var tmp1 = filename.substring(filename.length - 4);
+		if(tmp1 == ".gif" || tmp1 == ".jpg" || tmp1 == ".jpeg" || tmp1 == ".png"){			
+			return true;
+		}else{			
+			return false;
+		}		
 	}
 	
 	//-----------------------------------------------------------------------document ready
@@ -1131,15 +1125,24 @@
 				add_txt = $("#org_school_select option:selected").text();
 				add_type = "School";
 			}
-			
 			if(add_id == ""){
 				alert("Please select");
 			}else{
-				if($(".organization-state-edit[sid='" + add_id + "'][stype='" + add_type + "']").length > 0){
-					alert("Have been added");
-				}else{
-					organizationAddDistricts(add_type, add_txt, add_id);
-				}
+				$.post("${reverse('organizational_configuration')}", {flag:"organization_check_Entity", oid: org_current_id, add_id: add_id, add_type: add_type}, function (r) {
+					if (r.Success){
+						if(r.Add){
+							if($(".organization-state-edit[sid='" + add_id + "'][stype='" + add_type + "']").length > 0){
+								alert("The " + add_txt + " has been added in this organization.");
+							}else{
+								organizationAddDistricts(add_type, add_txt, add_id);
+							}
+						}else{
+							alert("This item has been added in this/other organization.");
+						}
+					}else{
+						alert(r.Error);
+					}
+				});
 			}
 		});	
 		
@@ -1233,7 +1236,17 @@
 				alert("The following errors occurred:\n\Profile Logo is required.");
 				loadwin.hide();
 				return;
-			}		
+			}
+			if($("#organizational_base_home_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_home_logo").val())){
+				alert("Home Page Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
+			if($("#organizational_base_profile_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_profile_logo").val())){				
+				alert("Profile Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
+			}
 			
 			var sid_did = "";
 			$(".organization-state-edit").each(function(){
@@ -1255,12 +1268,12 @@
 			specific_items += "}";
 			
 			if (!/[A-Za-z0-9]+/.test(for_district)) {				
-				alert("The following errors occurred:\n\Organization for District is required.");
+				alert("The following errors occurred:\n\Substitute for District is required.");
 				loadwin.hide();
 				return;
 			}
 			if (!/[A-Za-z0-9]+/.test(for_school)) {				
-				alert("The following errors occurred:\n\Organization for School is required.");
+				alert("The following errors occurred:\n\Substitute for School is required.");
 				loadwin.hide();
 				return;
 			}
@@ -1297,7 +1310,27 @@
 				loadwin.hide();
 				return;
 			}
-			
+			if($("#organizational_base_top_main_logo").val() != ""){
+				if(!organizationCheckUploadFile($("#organizational_base_top_main_logo").val())){
+					alert("Top Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+					loadwin.hide();
+					return;
+				}
+			}
+			if($("#organizational_base_bottom_main_logo").val() != ""){
+				if(!organizationCheckUploadFile($("#organizational_base_bottom_main_logo").val())){
+					alert("Bottom Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+					loadwin.hide();
+					return;
+				}
+			}
+			if($("#organizational_base_main_page_bottom_image").val() != ""){
+				if(!organizationCheckUploadFile($("#organizational_base_main_page_bottom_image").val())){
+					alert("Main Page Bottom Image: Please upload image in .gif, .jpg, .jpeg, .png format.");
+					loadwin.hide();
+					return;
+				}
+			}
 			var site_url = $("#organizational_base_site_url").val();
 			var logo_text = $("#organizational_base_main_logo_text").val();
 			var button_text = $("#organizational_base_main_page_button_text").val();
@@ -1333,9 +1366,12 @@
 			}, function (r) {
 				if (r.Success){
 					organizationMainUploadFile("organizational_base_top_main_logo", "top_main_logo", r.mid);
-					organizationMainUploadFile("organizational_base_bottom_main_logo", "bottom_main_logo", r.mid);
-					organizationMainUploadFile("organizational_base_main_page_bottom_image", "main_page_bottom_image", r.mid);	
-					
+					if($("#organizational_base_bottom_main_logo").val() != ""){
+						organizationMainUploadFile("organizational_base_bottom_main_logo", "bottom_main_logo", r.mid);
+					}
+					if($("#organizational_base_main_page_bottom_image").val() != ""){
+						organizationMainUploadFile("organizational_base_main_page_bottom_image", "main_page_bottom_image", r.mid);	
+					}
 					$("#org_btn_cancel_state").click();
 				}else{
 					alert(r.Error);
