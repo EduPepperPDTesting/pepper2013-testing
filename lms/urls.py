@@ -206,6 +206,7 @@ urlpatterns = (
     url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
     url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
     url(r'^custom/get-list$', 'administration.pepconn.get_custom_email_list', name="pepconn_get_custom_email_list"),
+    url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
 

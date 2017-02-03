@@ -46,13 +46,22 @@ class CustomEmail(models.Model):
     class Meta:
         db_table = 'admin_custom_emails'
     email_content = models.TextField(blank=False, null=True)
-    name = models.CharField(blank=False, max_length=30, null=False)
+    name = models.CharField(blank=False, max_length=30, null=False, unique=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
     district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None, blank=True)
     system = models.BooleanField(blank=False, null=False)
+    private = models.BooleanField(blank=False, null=False)
     school = models.ForeignKey(School, on_delete=models.PROTECT, null=True, default=None, blank=True)
-    owner = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=True, default=None, blank=True)
     state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, default=None, blank=True)
+
+
+class CustomEmailLog(models.Model):
+    class Meta:
+        db_table = 'admin_custom_emails_log'
+    email_name = models.CharField(blank=False, max_length=30, null=False)
+    user = models.ForeignKey(User)
+    operation = models.CharField(blank=False, max_length=10, null=False)
+    datetime = models.DateTimeField(auto_now_add=True)
 
 
 class EmailTaskLog(models.Model):

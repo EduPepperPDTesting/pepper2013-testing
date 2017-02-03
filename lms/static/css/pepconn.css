@@ -31,9 +31,11 @@ label {
     display:inline;
 }
 .saved_email_img{
-    float:right;
+    float: right;
     width: 40px;
     height: 40px;
+    z-index: 9999;
+    margin-top: 20px;
 }
 .saved_email_img:hover{
     cursor: pointer;
