@@ -22,6 +22,7 @@ import pymongo
 from django.db.models import Q
 from django.conf import settings
 from PIL import Image
+import os
 import os.path
 
 @login_required
@@ -64,6 +65,9 @@ def main(request):
 
         elif (post_flag == "organization_check_Entity"):
             return org_check_Entity(request);
+
+        elif (post_flag == "organization_remove_img"):
+            return organization_remove_img(request);
 
     else:
         tmp = "organization/organization.html";
@@ -147,8 +151,8 @@ def org_check_Entity(request):
         add_id = request.POST.get("add_id", "")
         add_type = request.POST.get("add_type", "")
         is_add = True
+
         if(oid and add_id and add_type):
-            # --------------OrganizationDistricts
             org_districts_list = OrganizationDistricts.objects.filter(EntityType=add_type, OrganizationEnity=add_id)
             for tmp1 in org_districts_list:
                 if(tmp1.organization.id != oid):
@@ -156,6 +160,59 @@ def org_check_Entity(request):
                     break;
 
         data = {'Success': True, 'Add': is_add}
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------organization_remove_img
+def organization_remove_img(request):
+    data = {'Success': False}
+    try:
+        oid = request.POST.get("oid", "")
+        column = request.POST.get("column", "")
+        db = request.POST.get("db", "")
+
+        if(column and db):
+            if(db == "configuration"):
+                for tmp1 in MainPageConfiguration.objects.all():
+                    if(column == "TopMainLogo"):
+                        filename = tmp1.TopMainLogo
+                        tmp1.TopMainLogo = ""
+                    elif(column == "BottomMainLogo"):
+                        filename = tmp1.BottomMainLogo
+                        tmp1.BottomMainLogo = ""
+                    else:
+                        filename = tmp1.MainPageBottomImage
+                        tmp1.MainPageBottomImage = ""
+
+                    filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/main_page/' + filename
+                    if os.path.isfile(filename):
+                        os.remove(filename)
+
+                    tmp1.save()
+                    data = {'Success': True}
+                    break;
+            else:
+                if(oid):
+                    for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                        for tmp2 in OrganizationAttributes.objects.filter(organization=tmp1):
+                            if (column == "LogoHome"):
+                                filename = tmp2.LogoHome
+                                tmp2.LogoHome = ""
+                            else:
+                                filename = tmp2.LogoProfile
+                                tmp2.LogoProfile = ""
+
+                            filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + filename
+                            if os.path.isfile(filename):
+                                os.remove(filename)
+
+                            tmp2.save()
+                        data = {'Success': True}
+                        break;
+
+
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
@@ -173,53 +230,59 @@ def organization_get(request):
                 data['find'] = True
                 for tmp in organizations:
                     org = tmp
-                    if(org.DistrictType == ""):
-                        data['New'] = True
-                    else:
+                    data['New'] = True
+
+                    # --------------OrganizationMetadata
+                    data['DistrictType'] = org.DistrictType
+                    data['SchoolType'] = org.SchoolType
+
+                    if (org.DistrictType != ""):
                         data['New'] = False
 
-                        # --------------OrganizationMetadata
-                        data['DistrictType'] = org.DistrictType
-                        data['SchoolType'] = org.SchoolType
+                    # --------------OrganizationDataitems
+                    org_data_list = OrganizationDataitems.objects.filter(organization=organizations)
+                    for tmp1 in org_data_list:
+                        data['specific_items'] = tmp1.DataItem
+                        data['New'] = False
+                        break;
 
-                        # --------------OrganizationDataitems
-                        org_data_list = OrganizationDataitems.objects.filter(organization=organizations)
-                        for tmp1 in org_data_list:
-                            data['specific_items'] = tmp1.DataItem
-                            break;
+                    # --------------OrganizationDistricts
+                    sid_did = "";
+                    org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
+                    for tmp1 in org_dir_list:
+                        if(not sid_did == ""):
+                            sid_did += ":"
 
-                        # --------------OrganizationDistricts
-                        sid_did = "";
-                        org_dir_list = OrganizationDistricts.objects.filter(organization=organizations)
-                        for tmp1 in org_dir_list:
-                            if(not sid_did == ""):
-                                sid_did += ":"
+                        tmp1_text = "";
+                        if(tmp1.EntityType == "State"):
+                            for tmp2 in State.objects.filter(id=tmp1.OrganizationEnity):
+                                tmp1_text = tmp2.name
+                                break;
+                        elif(tmp1.EntityType == "District"):
+                            for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
+                                tmp1_text = tmp2.name
+                                break;
+                        else:
+                            for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
+                                tmp1_text = tmp2.name
+                                break;
 
-                            tmp1_text = "";
-                            if(tmp1.EntityType == "State"):
-                                for tmp2 in State.objects.filter(id=tmp1.OrganizationEnity):
-                                    tmp1_text = tmp2.name
-                                    break;
-                            elif(tmp1.EntityType == "District"):
-                                for tmp2 in District.objects.filter(id=tmp1.OrganizationEnity):
-                                    tmp1_text = tmp2.name
-                                    break;
-                            else:
-                                for tmp2 in School.objects.filter(id=tmp1.OrganizationEnity):
-                                    tmp1_text = tmp2.name
-                                    break;
+                        sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text
 
-                            sid_did += tmp1.EntityType + "," + str(tmp1.OrganizationEnity) + "," + tmp1_text
+                        if(data['New']):
+                            data['New'] = False
 
-                        data['sid_did'] = sid_did
+                    data['sid_did'] = sid_did
 
-                        # --------------OrganizationAttributes
-                        org_attr_list = OrganizationAttributes.objects.filter(organization=organizations)
-                        for tmp1 in org_attr_list:
-                            data['home_logo'] = tmp1.LogoHome
-                            data['profile_logo'] = tmp1.LogoProfile
-                            data['motto'] = tmp1.Motto
-                            break;
+                    # --------------OrganizationAttributes
+                    org_attr_list = OrganizationAttributes.objects.filter(organization=organizations)
+                    for tmp1 in org_attr_list:
+                        data['home_logo'] = tmp1.LogoHome
+                        data['profile_logo'] = tmp1.LogoProfile
+                        data['motto'] = tmp1.Motto
+                        data['New'] = False
+                        break;
+
                     break;
             else:
                 data['find'] = False
@@ -252,16 +315,17 @@ def organizational_save_base(request):
             org_metadata.save();
 
             #--------------OrganizationDataitems
-            org_data = OrganizationDataitems();
-            org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
-            for tmp1 in org_data_list:
-                org_data = tmp1
-                break;
+            if(specific_items):
+                org_data = OrganizationDataitems();
+                org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
+                for tmp1 in org_data_list:
+                    org_data = tmp1
+                    break;
 
-            org_data.DataItem = specific_items
-            org_data.organization = org_metadata
+                org_data.DataItem = specific_items
+                org_data.organization = org_metadata
 
-            org_data.save();
+                org_data.save();
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -275,20 +339,17 @@ def organizational_save_base(request):
                     org_dis.save();
 
             # --------------OrganizationAttributes
-            org_attr = OrganizationAttributes();
-            org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
-            for tmp1 in org_attr_list:
-                org_attr = tmp1
-                break;
+            if (motto):
+                org_attr = OrganizationAttributes();
+                org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
+                for tmp1 in org_attr_list:
+                    org_attr = tmp1
+                    break;
 
-            org_attr.Motto = motto
-            # org_attr.SiteURL = site_url
-            # org_attr.MainLogoText = logo_text
-            # org_attr.MainPageButtonText = button_text
-            # org_attr.MainPageButtonLink = button_link
-            org_attr.organization = org_metadata
+                org_attr.Motto = motto
+                org_attr.organization = org_metadata
 
-            org_attr.save();
+                org_attr.save();
 
         data = {'Success': True}
     except Exception as e:

@@ -25,7 +25,7 @@
 <style>
 	input[type=button].small_btn{font-size:12px;height:2em;line-height:2em;padding:0 10px;}
 	.organization_main{margin: 0 auto 30px auto; width: 1180px; padding: 10px;}
-	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #ddd; padding: 10px;}
+	.organization_main1{margin: 0 auto 0 auto; width: 1180px; border: 1px solid #999; padding: 10px;}
 	.check-column {width: 60px !important;}
 	.organization-table {width: 100%; border: 1px solid #555;}
 	.organization-table th {border-bottom: 1px solid #555; background-color: #ddd; border-right: 1px solid #555; text-align: left; padding: 4px;}
@@ -43,10 +43,10 @@
 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
 	.organization_next{float:left; width:100%; color:#333 !important; text-decoration:none !important;}	
 	.expand_title_parent{ display:none}
-	.logo_remove {float:right; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
+	.org_logo_remmove {float:right; background: #fff center url(/static/images/moderator-delete-icon.png) no-repeat; width: 12px; height: 11px; border: solid 1px #ddd; border-radius: 1px; }
 </style>
 
-<div class="organization_main1" style="margin-bottom:20px;">
+<div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
     <div class="expand_title expand_title_collapse" id="org4">Main Page Configuration<div class="icon"></div></div>
     <div class="expand_div">
     	<div style="padding: 1em 7px 7px 7px;">        	      
@@ -144,93 +144,117 @@
                 	<td class="org_td1">Organization Specific Items: </td>
                     <td>
                     	<table id="organization-table2" class="organization-table">
-                            <thead><tr><th>Name</th><th></th></tr></thead>
+                            <thead><tr><th>Name</th><th><input type="checkbox" value="" id="organization-table2_all"></th></tr></thead>
                             <tbody>
                             	<!--Top Menu-->
                                 <tr>
                                     <td width="300"><span class="org_table_menu1 org_icon_up" id="org_top_menu">Top Menu</span></td>
-                                    <td class="check-column"></td>
+                                    <td class="check-column"><input type="checkbox" value="" child_check="org_top_menu" class="org_parent_menu organization-item-select"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">Courses & Workshop</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_course_workshop"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_course_workshop"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">Communities</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_communities"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_communities"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">My Chunks</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_my_chunks"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_my_chunks"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">Resources</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_resources"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_resources"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">People</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_people"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_people"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_top_menu">Notifications</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tm_notifications"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tm_notifications"></td>
                                 </tr>
                                 <!--Tools menu-->
                                 <tr>
                                     <td><span class="org_table_menu1 org_icon_up" id="org_tools_menu">Tools menu</span></td>
-                                    <td class="check-column"></td>
+                                    <td class="check-column"><input type="checkbox" value="" child_check="org_tools_menu" class="org_parent_menu organization-item-select"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Configuration</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_configuration"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_configuration"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Pepper PD Planner</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_pepper_pd_planner"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_pepper_pd_planner"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">PepConn</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_pepconn"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_pepconn"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Roles & Permissions</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_roles_permissions"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_roles_permissions"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Time Report</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_time_report"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_time_report"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Reporting</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_reporting"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_reporting"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">SSO Metadata</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_sso_metadata"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_sso_metadata"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">TNL Configuration</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_tnl_configuration"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_tnl_configuration"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Studio</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_studio"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_studio"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Alert</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_alert"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_alert"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Notifications</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_notifications"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_notifications"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Usage Report</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_usage_report"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_usage_report"></td>
                                 </tr>
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Portfolio Settings</span></td>
-                                    <td><input type="checkbox" value="" class="organization-item-select" id="org_tsm_portfolio_settings"></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_tsm_portfolio_settings"></td>
+                                </tr>
+                                <tr>
+                                    <td width="300"><span class="org_table_menu1 org_icon_up" id="org_registration_page">Registration Page</span></td>
+                                    <td class="check-column"><input type="checkbox" child_check="org_registration_page" class="org_parent_menu organization-item-select"></td>
+                                </tr>
+                                <tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_registration_page">Major Subject Area</span></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_major_subject"></td>
+                                </tr>
+                                <tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_registration_page">Grade Level-Check all that apply</span></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_grade_level"></td>
+                                </tr>
+                                <tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_registration_page">Number of Years in Education</span></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_number_of"></td>
+                                </tr>
+                                <tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_registration_page">My Learners' Profile</span></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_my_learners"></td>
+                                </tr>
+                                <tr class="org_table_tr_menu">
+                                    <td><span class="org_table_menu_child1 org_registration_page">About me</span></td>
+                                    <td><input type="checkbox" class="organization-item-select" id="org_rg_about_me"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -298,7 +322,7 @@
     </div>
 </div>
 
-<div class="organization_main1 expand_title_parent">
+<div class="organization_main1 expand_title_parent" style="margin-bottom:20px;">
     <div class="expand_title expand_title_collapse" id="org3">Organization Attributes<div class="icon"></div></div>
     <div class="expand_div">
     	<div style="padding: 1em 7px 7px 7px;">
@@ -421,8 +445,7 @@
 		}
 	};
 	
-	// A loading status throbber setup.
-	// Initial object.
+	//-----------------------------------------------------------------------A loading status throbber setup.
 	function LoadingStatus(list) {
 		var self = this;
 		setTimeout(function () {
@@ -653,8 +676,8 @@
 								if(r.find){	
 									$("#org_btn_reset_state").click();
 									$(".expand_title_parent").show();
-									organizationAddFileImg(r.New, "organizational_base_home_logo", r.home_logo);
-									organizationAddFileImg(r.New, "organizational_base_profile_logo", r.profile_logo);
+									organizationAddFileImg("organizational_base_home_logo", r.home_logo);
+									organizationAddFileImg("organizational_base_profile_logo", r.profile_logo);
 									
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
@@ -663,6 +686,27 @@
 									$(".organization-state-select").parent().parent().remove();
 									$('#organization-state-table').trigger('update');
 									$("#organizational_base_name").val(org_current_name);
+									
+									//----------
+									if(r.specific_items != ""){
+										var tmp_specific_items = eval("(" + r.specific_items + ")");
+										for(var tmpx in tmp_specific_items){
+											$("#" + tmpx).attr("checked", true);
+										}									
+									}
+									
+									//----------
+									if(r.sid_did != ""){
+										var sid_did_list = r.sid_did.split(":");
+										for(var j in sid_did_list){
+											var tmpsd = sid_did_list[j].split(",");
+											organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1]);
+										}
+									}
+									//----------
+									$("#organizational_base_for_district").val(r.DistrictType);
+									$("#organizational_base_for_school").val(r.SchoolType);										
+									$("#organizational_base_motto").val(r.motto);
 									
 									if(r.New){
 										//----------
@@ -688,11 +732,6 @@
 										
 										open_org2 = false;
 										open_org3 = false;
-										
-										//----------										
-										$("#organizational_base_for_district").val("");
-										$("#organizational_base_for_school").val("");
-										$("#organizational_base_motto").val("");
 									}else{
 										//----------
 										$("#org_btn_first_next").hide();
@@ -702,28 +741,6 @@
 										
 										open_org2 = true;
 										open_org3 = true;
-										
-										//----------
-										if(r.specific_items != ""){
-											var tmp_specific_items = eval("(" + r.specific_items + ")");
-											for(var tmpx in tmp_specific_items){
-												$("#" + tmpx).attr("checked", true);
-											}									
-										}
-										
-										//----------
-										if(r.sid_did != ""){
-											var sid_did_list = r.sid_did.split(":");
-											for(var j in sid_did_list){
-												var tmpsd = sid_did_list[j].split(",");
-												organizationAddDistricts(tmpsd[0], tmpsd[2], tmpsd[1]);
-											}
-										}
-																				
-										//----------
-										$("#organizational_base_for_district").val(r.DistrictType);
-										$("#organizational_base_for_school").val(r.SchoolType);										
-										$("#organizational_base_motto").val(r.motto);
 									}
 								}
 							}else{
@@ -748,21 +765,19 @@
 	function organizationAddFileImg(flag_new, eid, name){
 		if(org_current_id != ""){
 			$("#" + eid + "_p").next().empty();
-			if(!flag_new){
+			if(name){
 				var src = "/static/uploads/organization/" + org_current_id + "/" + name;				
-				$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a>');
-				//<a href="#" class="logo_remove"></a>
+				$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="#" class="org_logo_remmove" onclick="org_logo_remmove(\'' + eid + '\')"></a>');
 			}
 		}
 	}
 	
 	//-----------------------------------------------------------------------organizationAddMainFileImg
-	function organizationAddMainFileImg(flag_new, eid, name){		
+	function organizationAddMainFileImg(eid, name){		
 		$("#" + eid + "_p").next().empty();
-		if(!flag_new){
+		if(name){
 			var src = "/static/uploads/organization/main_page/" + name;
-			$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a>');
-			//<a href="#" class="logo_remove"></a>
+			$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="#" class="org_logo_remmove" onclick="org_logo_remmove(\'' + eid + '\')"></a>');
 		}		
 	}
 	
@@ -848,7 +863,7 @@
 					var tmp2 = eval("(" + $(data).html() + ")");
 					if(tmp2.Success){
 						organizationAddFileImgInit(fileElementId);
-						organizationAddFileImg(false, fileElementId, tmp2.name);
+						organizationAddFileImg(fileElementId, tmp2.name);
 					}else{
 						alert("ajaxFileUpload error: " + tmp2.Error);
 					}
@@ -876,7 +891,7 @@
 					var tmp2 = eval("(" + $(data).html() + ")");
 					if(tmp2.Success){
 						organizationAddFileImgInit(fileElementId);
-						organizationAddMainFileImg(false, fileElementId, tmp2.name);
+						organizationAddMainFileImg(fileElementId, tmp2.name);
 					}else{
 						alert("ajaxFileUpload error: " + tmp2.Error);
 					}
@@ -900,6 +915,35 @@
 		}		
 	}
 	
+	//-----------------------------------------------------------------------org_logo_remmove
+	function org_logo_remmove(eid){
+		if(confirm("Are you sure to delete the image?")){
+			var loadwin = new LoadingWin();
+			var db = "attributes";
+			var column = "";
+			if(eid == "organizational_base_top_main_logo"){
+				db = "configuration";
+				column = "TopMainLogo";
+			}else if(eid == "organizational_base_bottom_main_logo"){
+				db = "configuration";
+				column = "BottomMainLogo";
+			}else if(eid == "organizational_base_main_page_bottom_image"){
+				db = "configuration";
+				column = "MainPageBottomImage";
+			}else if(eid == "organizational_base_home_logo"){
+				column = "LogoHome";
+			}else if(eid == "organizational_base_profile_logo"){
+				column = "LogoProfile";
+			}
+			$.post("${reverse('organizational_configuration')}", {flag: "organization_remove_img", oid: org_current_id, column: column, db: db}, function (r) {	
+				if (r.Success){
+					$("#" + eid + "_p").next().empty();
+				}
+				loadwin.hide();
+			});
+		}
+	}
+		
 	//-----------------------------------------------------------------------document ready
     $(document).ready(function() {
 		$("#org_btn_fix_state").hide();
@@ -911,6 +955,25 @@
 		organizationAddFileImgInit("organizational_base_bottom_main_logo");
 		organizationAddFileImgInit("organizational_base_main_page_bottom_image");
 		
+		//--------------------------organization-table2_all
+		$("#organization-table2_all").change(function(){
+			var checked = false;
+			if ($(this).is(':checked')) {
+				checked = true;
+			}
+			$(".organization-item-select").prop('checked', checked);
+		});
+		
+		//--------------------------org_parent_menu
+		$(".org_parent_menu").change(function(){
+			var tmp1 = $(this).attr("child_check");
+			var checked = false;
+			if ($(this).is(':checked')) {
+				checked = true;
+			}
+			$("." + tmp1).parent().next().find("input[type='checkbox']").prop('checked', checked);
+		});
+		
 		//--------------------------organization_main_get
 		$.get("${reverse('organizational_configuration')}", {flag:"organization_main_get"}, function (r) {			
 			if (r.Success){
@@ -921,9 +984,9 @@
 					$("#organizational_base_main_page_button_link").val("");
 					$("#org_btn_main_save").attr("mid", "-1");
 				 }else{
-					if(r.TopMainLogo != "")			organizationAddMainFileImg(false, "organizational_base_top_main_logo", r.TopMainLogo);
-					if(r.BottomMainLogo != "")		organizationAddMainFileImg(false, "organizational_base_bottom_main_logo", r.BottomMainLogo);
-					if(r.MainPageBottomImage != "")	organizationAddMainFileImg(false, "organizational_base_main_page_bottom_image", r.MainPageBottomImage);					
+					if(r.TopMainLogo != "")			organizationAddMainFileImg("organizational_base_top_main_logo", r.TopMainLogo);
+					if(r.BottomMainLogo != "")		organizationAddMainFileImg("organizational_base_bottom_main_logo", r.BottomMainLogo);
+					if(r.MainPageBottomImage != "")	organizationAddMainFileImg("organizational_base_main_page_bottom_image", r.MainPageBottomImage);					
 					
 					$("#org_btn_main_save").attr("mid", r.mid);
 					$("#organizational_base_site_url").val(r.SiteURL);
@@ -1020,7 +1083,7 @@
 					}
 				});
 			}
-		});
+		});		
 		
 		//--------------------------Initialize the select all checkboxes.
 		selectAll('.organization-select-all', '.organization-select');
@@ -1103,6 +1166,7 @@
 		
 		//--------------------------org_btn_add_state
 		$("#org_btn_add_state").click(function(){
+			var loadwin = new LoadingWin();	
 			var state_id = $("#org_state_select").val();
 			var district_id = $("#org_district_select").val();
 			var school_id = $("#org_school_select").val();			
@@ -1127,20 +1191,70 @@
 			}
 			if(add_id == ""){
 				alert("Please select");
+				loadwin.hide();
 			}else{
 				$.post("${reverse('organizational_configuration')}", {flag:"organization_check_Entity", oid: org_current_id, add_id: add_id, add_type: add_type}, function (r) {
 					if (r.Success){
 						if(r.Add){
 							if($(".organization-state-edit[sid='" + add_id + "'][stype='" + add_type + "']").length > 0){
 								alert("The " + add_txt + " has been added in this organization.");
+								loadwin.hide();
 							}else{
-								organizationAddDistricts(add_type, add_txt, add_id);
+								/*}else if(stype == "District"){
+									for(var i = 0; i < organization_district_list.length; i++){
+										var tmp1 = organization_district_list[i].split(",");
+										if(tmp1[1] == sid){
+											$("#org_state_select").val(tmp1[0]);
+											$("#org_state_select").change();
+											break;
+										}
+									}
+									$("#org_district_select").val(sid);
+									$("#org_district_select").change();
+								}else{
+									for(var i = 0; i < organization_school_list.length; i++){
+										var tmp1 = organization_school_list[i].split(",");
+										if(tmp1[1] == sid){									
+											for(var j = 0; j < organization_district_list.length; j++){
+												var tmp2 = organization_district_list[j].split(",");
+												if(tmp2[1] == tmp1[0]){
+													$("#org_state_select").val(tmp2[0]);
+													$("#org_state_select").change();
+													break;
+												}
+											}
+											$("#org_district_select").val(tmp1[0]);
+											$("#org_district_select").change();
+											break;
+										}
+									}
+									$("#org_school_select").val(sid);
+								}*/
+								if(add_type == "District"){
+									$(".organization-state-edit").each(function(){
+										var sid = $(this).attr("sid");
+										var stype = $(this).attr("stype");
+										if(stype == "State"){
+											
+										}
+									});
+									organizationAddDistricts(add_type, add_txt, add_id);
+									loadwin.hide();
+								}else if(add_type == "School"){
+									organizationAddDistricts(add_type, add_txt, add_id);
+									loadwin.hide();
+								}else{
+									organizationAddDistricts(add_type, add_txt, add_id);
+									loadwin.hide();
+								}
 							}
 						}else{
 							alert("This item has been added in this/other organization.");
+							loadwin.hide();
 						}
 					}else{
 						alert(r.Error);
+						loadwin.hide();
 					}
 				});
 			}
@@ -1227,7 +1341,7 @@
 		$(".org_btn_last_save").click(function(){
 			var loadwin = new LoadingWin();
 			
-			if($("#organizational_base_home_logo").val() == "" && $("#organizational_base_home_logo_p").next().html() == ""){
+			/*if($("#organizational_base_home_logo").val() == "" && $("#organizational_base_home_logo_p").next().html() == ""){
 				alert("The following errors occurred:\n\Home Page Logo is required.");
 				loadwin.hide();
 				return;
@@ -1236,7 +1350,7 @@
 				alert("The following errors occurred:\n\Profile Logo is required.");
 				loadwin.hide();
 				return;
-			}
+			}*/
 			if($("#organizational_base_home_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_home_logo").val())){
 				alert("Home Page Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
 				loadwin.hide();
@@ -1266,8 +1380,9 @@
 			});			
 			specific_items = specific_items.replace(",", "");
 			specific_items += "}";
+			if(specific_items == "{}")	specific_items = "";
 			
-			if (!/[A-Za-z0-9]+/.test(for_district)) {				
+			/*if (!/[A-Za-z0-9]+/.test(for_district)) {				
 				alert("The following errors occurred:\n\Substitute for District is required.");
 				loadwin.hide();
 				return;
@@ -1276,12 +1391,12 @@
 				alert("The following errors occurred:\n\Substitute for School is required.");
 				loadwin.hide();
 				return;
-			}
-			if (!/[A-Za-z0-9]+/.test(motto)) {				
+			}*/
+			/*if (!/[A-Za-z0-9]+/.test(motto)) {				
 				alert("The following errors occurred:\n\Motto is required.");
 				loadwin.hide();
 				return;
-			}
+			}*/
 			
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_base", oid: org_current_id, sid_did: sid_did,
 				for_district: for_district,
@@ -1290,9 +1405,12 @@
 				motto: motto
 			}, function (r) {
 				if (r.Success){
-					organizationUploadFile("organizational_base_home_logo", "home_logo");
-					organizationUploadFile("organizational_base_profile_logo", "profile_logo");
-					
+					if($("#organizational_base_home_logo").val() != ""){
+						organizationUploadFile("organizational_base_home_logo", "home_logo");
+					}
+					if($("#organizational_base_profile_logo").val() != ""){
+						organizationUploadFile("organizational_base_profile_logo", "profile_logo");
+					}
 					$("#org_btn_cancel_state").click();
 				}else{
 					alert(r.Error);
@@ -1305,38 +1423,33 @@
 		$("#org_btn_main_save").click(function(){
 			var loadwin = new LoadingWin();	
 		
-			if($("#organizational_base_top_main_logo").val() == "" && $("#organizational_base_top_main_logo_p").next().html() == ""){
+			/*if($("#organizational_base_top_main_logo").val() == "" && $("#organizational_base_top_main_logo_p").next().html() == ""){
 				alert("The following errors occurred:\n\Top Main Logo is required.");
 				loadwin.hide();
 				return;
+			}*/
+			if($("#organizational_base_top_main_logo").val() != "" && !organizationCheckUploadFile($("#organizational_base_top_main_logo").val())){
+				alert("Top Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
 			}
-			if($("#organizational_base_top_main_logo").val() != ""){
-				if(!organizationCheckUploadFile($("#organizational_base_top_main_logo").val())){
-					alert("Top Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
-					loadwin.hide();
-					return;
-				}
+			if($("#organizational_base_bottom_main_logo").val() != "" &&!organizationCheckUploadFile($("#organizational_base_bottom_main_logo").val())){
+				alert("Bottom Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
 			}
-			if($("#organizational_base_bottom_main_logo").val() != ""){
-				if(!organizationCheckUploadFile($("#organizational_base_bottom_main_logo").val())){
-					alert("Bottom Main Logo: Please upload image in .gif, .jpg, .jpeg, .png format.");
-					loadwin.hide();
-					return;
-				}
+			if($("#organizational_base_main_page_bottom_image").val() != "" && !organizationCheckUploadFile($("#organizational_base_main_page_bottom_image").val())){
+				alert("Main Page Bottom Image: Please upload image in .gif, .jpg, .jpeg, .png format.");
+				loadwin.hide();
+				return;
 			}
-			if($("#organizational_base_main_page_bottom_image").val() != ""){
-				if(!organizationCheckUploadFile($("#organizational_base_main_page_bottom_image").val())){
-					alert("Main Page Bottom Image: Please upload image in .gif, .jpg, .jpeg, .png format.");
-					loadwin.hide();
-					return;
-				}
-			}
+			
 			var site_url = $("#organizational_base_site_url").val();
 			var logo_text = $("#organizational_base_main_logo_text").val();
 			var button_text = $("#organizational_base_main_page_button_text").val();
 			var button_link = $("#organizational_base_main_page_button_link").val();
 			
-			if (site_url == "") {
+			/*if (site_url == "") {
 				alert("The following errors occurred:\n\Site URL is required.");
 				loadwin.hide();
 				return;
@@ -1355,7 +1468,8 @@
 				alert("The following errors occurred:\n\Main Page Button Link  is required.");
 				loadwin.hide();
 				return;
-			}
+			}*/
+			
 			var mid = $(this).attr("mid");
 			$.post("${reverse('organizational_configuration')}", {flag: "organizational_save_main_base", 
 				mid: mid,
@@ -1365,7 +1479,9 @@
 				button_link: button_link
 			}, function (r) {
 				if (r.Success){
-					organizationMainUploadFile("organizational_base_top_main_logo", "top_main_logo", r.mid);
+					if($("#organizational_base_top_main_logo").val() != ""){
+						organizationMainUploadFile("organizational_base_top_main_logo", "top_main_logo", r.mid);
+					}
 					if($("#organizational_base_bottom_main_logo").val() != ""){
 						organizationMainUploadFile("organizational_base_bottom_main_logo", "bottom_main_logo", r.mid);
 					}
