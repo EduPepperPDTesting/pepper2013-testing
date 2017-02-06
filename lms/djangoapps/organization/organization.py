@@ -69,6 +69,9 @@ def main(request):
         elif (post_flag == "organization_remove_img"):
             return organization_remove_img(request);
 
+        elif (post_flag == "organization_get_info"):
+            return organization_get_info(request);
+
     else:
         tmp = "organization/organization.html";
         return render_to_response(tmp)
@@ -516,6 +519,56 @@ def org_main_upload(request):
 
                 data = {'Success': True, 'name': file_type + ext}
 
+    except Exception as e:
+        data = {'Success': False, 'Error': '{0}'.format(e)}
+
+    return HttpResponse(json.dumps(data), content_type="application/json")
+
+#-------------------------------------------------------------------organization_get_info
+def organization_get_info(request):
+    source = request.POST.get('source', False)
+    data = {}
+    try:
+        if (source == "register"):
+            district = request.POST.get('district', False)
+            state = request.POST.get('state', False)
+
+            data['url'] = request.get_host()
+            for org_main in MainPageConfiguration.objects.prefetch_related().all():
+                if(org_main.SiteURL == data['url']):
+                    data['OrganizationOK'] = False
+
+                    if (district):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
+
+                    if(not(data['OrganizationOK']) and state):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
+
+                    if(data['OrganizationOK']):
+                        data['DistrictType'] = organization_obj.DistrictType
+                        data['SchoolType'] = organization_obj.SchoolType
+                        data['OrganizationName'] = organization_obj.OrganizationName
+
+                        for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                            data['org_rg_major_subject'] = tmp2.DataItem.find("org_rg_major_subject")
+                            data['org_rg_grade_level'] = tmp2.DataItem.find("org_rg_grade_level")
+                            data['org_rg_number_of'] = tmp2.DataItem.find("org_rg_number_of")
+                            data['org_rg_my_learners'] = tmp2.DataItem.find("org_rg_my_learners")
+                            data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
+                            break;
+
+                    data['SiteURL_OK'] = True
+                else:
+                    data['SiteURL_OK'] = False
+
+                break;
+            data['Success'] = True
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 
