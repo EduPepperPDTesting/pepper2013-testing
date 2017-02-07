@@ -527,48 +527,108 @@ def org_main_upload(request):
 #-------------------------------------------------------------------organization_get_info
 def organization_get_info(request):
     source = request.POST.get('source', False)
-    data = {}
+    flag_main = request.POST.get('flag_main', False)
+    data = {'Success': False}
+    data['flag_main'] = flag_main
     try:
-        if (source == "register"):
-            district = request.POST.get('district', False)
-            state = request.POST.get('state', False)
+        data['url'] = request.get_host()
+        for org_main in MainPageConfiguration.objects.prefetch_related().all():
+            if (org_main.SiteURL == data['url']):
+                data['SiteURL_OK'] = True
 
-            data['url'] = request.get_host()
-            for org_main in MainPageConfiguration.objects.prefetch_related().all():
-                if(org_main.SiteURL == data['url']):
-                    data['OrganizationOK'] = False
+                if(flag_main == "1"):
+                    data['TopMainLogo'] = org_main.TopMainLogo
+                    data['MainLogoText'] = org_main.MainLogoText
+                    data['BottomMainLogo'] = org_main.BottomMainLogo
+                    data['MainPageBottomImage'] = org_main.MainPageBottomImage
+                    data['MainPageButtonText'] = org_main.MainPageButtonText
+                    data['MainPageButtonLink'] = org_main.MainPageButtonLink
+            else:
+                data['SiteURL_OK'] = False
+            break;
 
-                    if (district):
-                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
-                            data['OrganizationOK'] = True
-                            organization_obj = tmp1.organization
-                            break;
+        if(data['SiteURL_OK']):
+            if (source == "register"):
+                district = request.POST.get('district', False)
+                state = request.POST.get('state', False)
 
-                    if(not(data['OrganizationOK']) and state):
-                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
-                            data['OrganizationOK'] = True
-                            organization_obj = tmp1.organization
-                            break;
+                data['OrganizationOK'] = False
 
-                    if(data['OrganizationOK']):
-                        data['DistrictType'] = organization_obj.DistrictType
-                        data['SchoolType'] = organization_obj.SchoolType
-                        data['OrganizationName'] = organization_obj.OrganizationName
+                if (district):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district, EntityType="District"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
 
-                        for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
-                            data['org_rg_major_subject'] = tmp2.DataItem.find("org_rg_major_subject")
-                            data['org_rg_grade_level'] = tmp2.DataItem.find("org_rg_grade_level")
-                            data['org_rg_number_of'] = tmp2.DataItem.find("org_rg_number_of")
-                            data['org_rg_my_learners'] = tmp2.DataItem.find("org_rg_my_learners")
-                            data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
-                            break;
+                if(not(data['OrganizationOK']) and state):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
 
-                    data['SiteURL_OK'] = True
-                else:
-                    data['SiteURL_OK'] = False
+                if(data['OrganizationOK']):
+                    data['DistrictType'] = organization_obj.DistrictType
+                    data['SchoolType'] = organization_obj.SchoolType
+                    data['OrganizationName'] = organization_obj.OrganizationName
 
-                break;
-            data['Success'] = True
+                    for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                        data['org_rg_major_subject'] = tmp2.DataItem.find("org_rg_major_subject")
+                        data['org_rg_grade_level'] = tmp2.DataItem.find("org_rg_grade_level")
+                        data['org_rg_number_of'] = tmp2.DataItem.find("org_rg_number_of")
+                        data['org_rg_my_learners'] = tmp2.DataItem.find("org_rg_my_learners")
+                        data['org_rg_about_me'] = tmp2.DataItem.find("org_rg_about_me")
+                        break;
+
+
+                data['Success'] = True
+
+            elif(source == "navigation"):
+                state = request.user.profile.district.state.id
+                district = request.user.profile.district.id
+                data['OrganizationOK'] = False
+
+                if (district):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
+                                                                     EntityType="District"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
+
+                if (not (data['OrganizationOK']) and state):
+                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
+                        data['OrganizationOK'] = True
+                        organization_obj = tmp1.organization
+                        break;
+
+                if (data['OrganizationOK']):
+                    data['OrganizationName'] = organization_obj.OrganizationName
+
+                    for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                        data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
+                        data['org_tm_communities_obj'] = tmp2.DataItem.find("org_tm_communities")
+                        data['org_tm_my_chunks_obj'] = tmp2.DataItem.find("org_tm_my_chunks")
+                        data['org_tm_resources_obj'] = tmp2.DataItem.find("org_tm_resources")
+                        data['org_tm_people_obj'] = tmp2.DataItem.find("org_tm_people")
+                        data['org_tm_notifications_obj'] = tmp2.DataItem.find("org_tm_notifications")
+
+                        data['org_tsm_configuration_obj'] = tmp2.DataItem.find("org_tsm_configuration")
+                        data['org_tsm_pepper_pd_planner_obj'] = tmp2.DataItem.find("org_tsm_pepper_pd_planner")
+                        data['org_tsm_pepconn_obj'] = tmp2.DataItem.find("org_tsm_pepconn")
+                        data['org_tsm_roles_permissions_obj'] = tmp2.DataItem.find("org_tsm_roles_permissions")
+                        data['org_tsm_time_report_obj'] = tmp2.DataItem.find("org_tsm_time_report")
+                        data['org_tsm_reporting_obj'] = tmp2.DataItem.find("org_tsm_reporting")
+                        data['org_tsm_sso_metadata_obj'] = tmp2.DataItem.find("org_tsm_sso_metadata")
+                        data['org_tsm_tnl_configuration_obj'] = tmp2.DataItem.find("org_tsm_tnl_configuration")
+                        data['org_tsm_studio_obj'] = tmp2.DataItem.find("org_tsm_studio")
+                        data['org_tsm_alert_obj'] = tmp2.DataItem.find("org_tsm_alert")
+                        data['org_tsm_notifications_obj'] = tmp2.DataItem.find("org_tsm_notifications")
+                        data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
+                        data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
+                        break;
+
+
+                data['Success'] = True
+
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
 

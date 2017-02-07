@@ -183,7 +183,7 @@
         text-align:center;
         font-weight:bold;
     }
-
+ 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
     #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
@@ -334,18 +334,18 @@
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li style="margin-right:18px;"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-                <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
-                <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
-                <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
+                <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
+                <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
+                <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
+                <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
+                <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
+                <li id="org_tm_course_workshop_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
+                <li id="org_tm_communities_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
+                <li id="org_tm_my_chunks_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
+                <li id="org_tm_resources_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
+                <li id="org_tm_people_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
                 <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
             %endif
         %endif
@@ -371,39 +371,39 @@
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(curr_user, 'certificate'):
-                            <li><a href="${reverse('configuration')}">Configuration</a></li>
+                            <li id="org_tsm_configuration_obj"><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
                         %if curr_user.is_superuser:
                             <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
                         %endif
-                        <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
+                        <li id="org_tsm_pepper_pd_planner_obj"><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
                         %if check_user_perms(curr_user, 'pepconn'):
-                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                            <li id="org_tsm_pepconn_obj"><a href="${reverse('pepconn')}">PepConn</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'permissions'):
-                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                            <li id="org_tsm_roles_permissions_obj"><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'time_report'):
-                            <li><a href="${reverse('time_report')}">Time Report</a></li>
+                            <li id="org_tsm_time_report_obj"><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
-                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                        <li id="org_tsm_reporting_obj"><a href="${reverse('reporting_reports')}">Reporting</a></li>
                         %if check_user_perms(curr_user, 'sso'):
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                            <li id="org_tsm_sso_metadata_obj"><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'tnl'):
-                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                            <li id="org_tsm_tnl_configuration_obj"><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'studio'):
-                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                            <li id="org_tsm_studio_obj"><a href="#" target="_blank" id="studio_url">Studio</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'alert_message'):
-                            <li><a href="${reverse('alert_message')}">Alert</a></li>
+                            <li id="org_tsm_alert_obj"><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
-                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                        <li id="org_tsm_notifications_obj"><a href="${reverse('communities_notification_index')}">Notifications</a></li>
                         %if curr_user.is_superuser:
-                            <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
+                            <li id="org_tsm_usage_report_obj"><a href="${reverse('usage_report')}">Usage Report</a></li> 
                         %endif
-                        <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                        <li id="org_tsm_portfolio_settings_obj"><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {
@@ -443,7 +443,7 @@
             %endif
             %if show_extended:
                 <!-- Notifications -->
-                <li class="imessage_style" style="margin-right:5px;">
+                <li class="imessage_style" style="margin-right:5px;" id="org_tm_notifications_obj">
                     <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
                         <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
                             <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
@@ -1384,3 +1384,61 @@
         $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
     </script>
 %endif
+<script type="text/javascript">
+	function LoadingWin(){
+		this.$loader = null;
+		this.show();
+	}
+	LoadingWin.prototype.show = function () {
+		if (!this.$loader) {
+			this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+			this.$loader.appendTo(document.body);
+		}
+		this.$loader.css('display','block');
+	};
+	LoadingWin.prototype.hide = function () {
+		if (this.$loader) {
+			this.$loader.remove();
+			this.$loader = null;
+		}
+	};
+	
+	//------------------organization_get_info
+	$(document).ready(function(){
+		
+		var flag_main = ($(".mainlogo").length > 0) ? 1 : 0;
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
+			if (r.SiteURL_OK){
+				if(r.Success){
+					if(r.OrganizationOK){
+						alert("Organization of " + r.OrganizationName);
+						for(var obj in r){
+							if(obj.indexOf("_obj") > -1){
+								if(r[obj] == "-1"){
+									$("#" + obj).hide();
+								}
+							}
+						}
+						if(r.flag_main == "1"){
+							if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
+							if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
+							if(r.BottomMainLogo)	$(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");							
+							if(r.MainPageBottomImage){
+								$(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
+								var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
+								var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
+								$(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
+							}else{
+								if(r.MainPageButtonText)	$(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
+								if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
+							}
+						}
+					}
+					else{
+						alert("Organization of Pepper");
+					}
+				}
+			}
+		});
+	});							
+</script>
