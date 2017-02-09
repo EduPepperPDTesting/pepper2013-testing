@@ -318,17 +318,18 @@ def organizational_save_base(request):
             org_metadata.save();
 
             #--------------OrganizationDataitems
-            if(specific_items):
-                org_data = OrganizationDataitems();
-                org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
-                for tmp1 in org_data_list:
-                    org_data = tmp1
-                    break;
+            if(not specific_items):
+                specific_items = "";
+            org_data = OrganizationDataitems();
+            org_data_list = OrganizationDataitems.objects.filter(organization=org_metadata)
+            for tmp1 in org_data_list:
+                org_data = tmp1
+                break;
 
-                org_data.DataItem = specific_items
-                org_data.organization = org_metadata
+            org_data.DataItem = specific_items
+            org_data.organization = org_metadata
 
-                org_data.save();
+            org_data.save();
 
             # --------------OrganizationDistricts
             OrganizationDistricts.objects.filter(organization=org_metadata).delete()
@@ -536,7 +537,7 @@ def organization_get_info(request):
             if (org_main.SiteURL == data['url']):
                 data['SiteURL_OK'] = True
 
-                if(flag_main == "1"):
+                if(flag_main == "index"):
                     data['TopMainLogo'] = org_main.TopMainLogo
                     data['MainLogoText'] = org_main.MainLogoText
                     data['BottomMainLogo'] = org_main.BottomMainLogo
@@ -602,6 +603,9 @@ def organization_get_info(request):
 
                 if (data['OrganizationOK']):
                     data['OrganizationName'] = organization_obj.OrganizationName
+                    data['OrganizationId'] = organization_obj.id
+                    data['DistrictType'] = organization_obj.DistrictType
+                    data['SchoolType'] = organization_obj.SchoolType
 
                     for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
                         data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
@@ -626,6 +630,13 @@ def organization_get_info(request):
                         data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
                         break;
 
+
+                    for tmp2 in OrganizationAttributes.objects.filter(organization=organization_obj):
+                        data['LogoHome'] = tmp2.LogoHome
+                        if (flag_main == "dashboard"):
+                            data['LogoProfile'] = tmp2.LogoProfile
+                            data['Motto'] = tmp2.Motto
+                        break;
 
                 data['Success'] = True
 
