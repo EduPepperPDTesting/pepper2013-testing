@@ -301,7 +301,21 @@
     margin-left:5px;
     margin-top:5px;
 }
-
+.userphoto-div{
+    margin-top:-2px;
+    margin-left:303px;/*250+53*/
+    float:left;
+    width:50px;
+    height:50px;
+}
+.nav-option-otheruser img{
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter: gray;
+}
 </style>
 
 % if context.get("curr_user"):
@@ -316,18 +330,18 @@
          <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:5px;}      
         </style>
-        <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
+        <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
     % else:
-        <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#c5e0b4;">
+        <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
     % endif
 % else:
-    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
+    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
 % endif
 
 <!--nav-->
-<nav id="page-nav">
+<nav id="page-nav" style="padding:16px 0px 0px 0px;height:60px;">
 <!--sub logo-->
-    <h1 class="logo" style="position:static;margin-top:-10px;margin-left:5px;margin-right:0px;">
+    <h1 class="logo" style="position:static;margin-top:-10px;margin-left:0px;margin-right:0px;">
         <!--@begin:Choose the link of the top logo according user's login status-->
         <!--@date:2013-11-02-->
         % if curr_user==request.user:
@@ -351,9 +365,11 @@
         </a>
     </h1>
 <!--sub searching-->
+<!--
     % if not course:
         % if curr_user.is_authenticated():
             % if curr_user==request.user:
+
                 <div class="searching">
                     <div class="searching-text-div">
                         <input id="searching_keyword" type="text" placeholder="Search Pepper"/>
@@ -365,6 +381,8 @@
             % endif
         % endif
     % endif
+-->
+
 <!--sub nav option-->
     % if course:
         <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
@@ -374,27 +392,27 @@
             <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
             <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
             % if curr_user==request.user:
-                <ol class="authenticated" style="margin-top:0px;margin-left:5px;float:left;width:auto;">
+                <ol class="authenticated" style="margin-top:0px;margin-left:10px;float:left;width:auto;">
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
+                        <a href="/courses"><img src="static/images/newdashboard/header_my_courses_45.png" title="My Courses" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
+                        <a href="#"><img src="static/images/newdashboard/header_my_standards_45.png" title="My Standards" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_content_45.png" width="45"/></a>
+                        <a href="#"><img src="static/images/newdashboard/header_my_content_45.png" title="My Content" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
+                        <a href="/communities"><img src="static/images/newdashboard/header_my_communities_45.png" title="My Communities" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
+                        <a href="/pepreg"><img src="static/images/newdashboard/header_my_pd_planner_45.png" title="My PD Planner" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
+                        <a href="/reporting"><img src="static/images/newdashboard/header_my_reports_45.png" title="My Reports" width="45"/></a>
                     </li>
                     <li style="margin-left:5px;margin-right:0px;">
-                        <a href="/courses"><img src="static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
+                        <a href="/people"><img src="static/images/newdashboard/header_my_network_people_45.png" title="My Network / People Search" width="45"/></a>
                     </li>
 <!--sub nav option Tools-->
                     %if show_extended:
@@ -402,13 +420,13 @@
                         <!-- Administration -->
                         <li style="margin-left:5px;margin-right:0px;" class="admin-menu-holder">
                             <a href="#" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
-                                <img src="static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
+                                <img src="static/images/newdashboard/header_my_admin_tools_45.png" title="Tools" width="45"/>
                             </a>
                             <ul class="admin-dropdown-menu">
                                 %if check_user_perms(curr_user, 'certificate'):
                                     <li><a href="${reverse('configuration')}">Configuration</a></li>
-                                %endif
-                                <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
+                                %endif  
+                                <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
                                 %if check_user_perms(curr_user, 'pepconn'):
                                     <li><a href="${reverse('pepconn')}">PepConn</a></li>
                                 %endif
@@ -418,7 +436,7 @@
                                 %if check_user_perms(curr_user, 'time_report'):
                                     <li><a href="${reverse('time_report')}">Time Report</a></li>
                                 %endif
-                                <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                                <!--<li><a href="${reverse('reporting_reports')}">Reporting</a></li>-->
                                 %if check_user_perms(curr_user, 'sso'):
                                     <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                                 %endif
@@ -436,6 +454,8 @@
                                     <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
                                 %endif
                                 <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                                <li><a href="${reverse('access_resource_library_list')}">Resource Library</a></li>
+                                <li><a href="${reverse('mychunks')}">My Content Chunks</a></li>
                                 <script type="text/javascript">
                                     $(document).on('click', function(event) {
                                         if (!$(event.target).closest('.admin-menu-holder').length) {
@@ -494,13 +514,6 @@
                             </a>
                         </li>
                     %endif
-
-                    <!--
-                    <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
-                    <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                    <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
-                    <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
-                    -->
                 </ol>
             % else:
                 <style type="text/css" media="screen">
@@ -511,13 +524,28 @@
                         color:#ccc !important;
                     }
                 </style>
-                <ol class="left nav-global authenticated">
-                    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
-                    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
-                    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
-                    <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-                    <!--<li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li>-->
+                <ol class="authenticated nav-option-otheruser" style="margin-top:0px;margin-left:10px;float:left;width:auto;">
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_content_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
+                    </li>
                  </ol>
             % endif          
         % else:
@@ -528,15 +556,17 @@
             </ol>    
         % endif
     % endif
-   
+
+<!--sub userphoto and dropdown menu--> 
     % if curr_user.is_authenticated():
-       
         % if curr_user==request.user:
-
-            <ol class="user admin" >
-
-                
-<!--sub userinfo and dropdown menu--> 
+            <!-- Userphoto -->
+            <div class="userphoto-div">
+                <a href="#">
+                    <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
+                </a>
+            </div>
+            <ol class="user admin">
                 %if show_extended:
                     <!-- Dashboard button with dropdown -->
                     <li class="primary">
