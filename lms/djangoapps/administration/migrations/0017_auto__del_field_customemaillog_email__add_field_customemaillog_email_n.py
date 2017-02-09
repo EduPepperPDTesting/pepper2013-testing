@@ -8,33 +8,47 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'CustomEmail'
-        db.create_table('admin_custom_emails', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('email_content', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], on_delete=models.PROTECT)),
-            ('district', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['student.District'], null=True, on_delete=models.PROTECT)),
-        ))
-        db.send_create_signal('administration', ['CustomEmail'])
+        # Deleting field 'CustomEmailLog.email'
+        db.delete_column('admin_custom_emails_log', 'email_id')
 
+        # Adding field 'CustomEmailLog.email_name'
+        db.add_column('admin_custom_emails_log', 'email_name',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=30),
+                      keep_default=False)
 
-        # Changing field 'AdjustmentTimeLog.comments'
-        db.alter_column('adjustment_time_log', 'comments', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True))
+        # Adding field 'CustomEmailLog.operation'
+        db.add_column('admin_custom_emails_log', 'operation',
+                      self.gf('django.db.models.fields.CharField')(default='update', max_length=10),
+                      keep_default=False)
+
+        # Deleting field 'CustomEmail.active'
+        db.delete_column('admin_custom_emails', 'active')
+
 
     def backwards(self, orm):
-        # Deleting model 'CustomEmail'
-        db.delete_table('admin_custom_emails')
+        # Adding field 'CustomEmailLog.email'
+        db.add_column('admin_custom_emails_log', 'email',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default='', to=orm['administration.CustomEmail']),
+                      keep_default=False)
 
+        # Deleting field 'CustomEmailLog.email_name'
+        db.delete_column('admin_custom_emails_log', 'email_name')
 
-        # Changing field 'AdjustmentTimeLog.comments'
-        db.alter_column('adjustment_time_log', 'comments', self.gf('django.db.models.fields.CharField')(max_length=756, null=True))
+        # Deleting field 'CustomEmailLog.operation'
+        db.delete_column('admin_custom_emails_log', 'operation')
+
+        # Adding field 'CustomEmail.active'
+        db.add_column('admin_custom_emails', 'active',
+                      self.gf('django.db.models.fields.BooleanField')(default=True),
+                      keep_default=False)
+
 
     models = {
         'administration.adjustmenttimelog': {
             'Meta': {'object_name': 'AdjustmentTimeLog', 'db_table': "'adjustment_time_log'"},
             'adjustment_time': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'admin_email': ('django.db.models.fields.CharField', [], {'max_length': '75', 'db_index': 'True'}),
-            'comments': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True', 'db_index': 'True'}),
+            'comments': ('django.db.models.fields.CharField', [], {'max_length': '756', 'null': 'True', 'db_index': 'True'}),
             'course_number': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'db_index': 'True'}),
             'create_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -63,10 +77,23 @@ class Migration(SchemaMigration):
         },
         'administration.customemail': {
             'Meta': {'object_name': 'CustomEmail', 'db_table': "'admin_custom_emails'"},
-            'district': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['student.District']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
+            'district': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['student.District']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
             'email_content': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
+            'private': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'school': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['student.School']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
+            'state': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['student.State']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
+            'system': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'on_delete': 'models.PROTECT'})
+        },
+        'administration.customemaillog': {
+            'Meta': {'object_name': 'CustomEmailLog', 'db_table': "'admin_custom_emails_log'"},
+            'datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'email_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'operation': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'administration.emailtask': {
             'Meta': {'object_name': 'EmailTask', 'db_table': "'admin_email_task'"},
@@ -124,6 +151,8 @@ class Migration(SchemaMigration):
         },
         'administration.pepreginstructor': {
             'Meta': {'object_name': 'PepRegInstructor', 'db_table': "'pepreg_instructor'"},
+            'all_delete': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'all_edit': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'date_create': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'instructor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
@@ -158,9 +187,11 @@ class Migration(SchemaMigration):
             'geo_location': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'geo_props': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_date': ('django.db.models.fields.DateField', [], {'null': 'True'}),
             'max_registration': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'pepper_course': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'school_id': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'subject': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'training_date': ('django.db.models.fields.DateField', [], {}),
             'training_time_end': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'}),
@@ -183,6 +214,20 @@ class Migration(SchemaMigration):
             'total_num': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'default': '0', 'to': "orm['auth.User']"})
+        },
+        'administration.userlogininfo': {
+            'Meta': {'object_name': 'UserLoginInfo', 'db_table': "'user_login_info'"},
+            'create_time': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_session': ('django.db.models.fields.IntegerField', [], {'max_length': '15'}),
+            'login_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'login_times': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '15'}),
+            'logout_press': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'logout_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'temp_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'total_session': ('django.db.models.fields.IntegerField', [], {'max_length': '30'}),
+            'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'user_id': ('django.db.models.fields.IntegerField', [], {'max_length': '11'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -222,10 +267,17 @@ class Migration(SchemaMigration):
         },
         'student.district': {
             'Meta': {'object_name': 'District', 'db_table': "'district'"},
-            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
+            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'unique': 'True', 'max_length': '50', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
             'state': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.State']", 'on_delete': 'models.PROTECT'})
+        },
+        'student.school': {
+            'Meta': {'object_name': 'School', 'db_table': "'school'"},
+            'code': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '50', 'blank': 'True'}),
+            'district': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['student.District']", 'on_delete': 'models.PROTECT'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'db_index': 'True'})
         },
         'student.state': {
             'Meta': {'object_name': 'State', 'db_table': "'state'"},

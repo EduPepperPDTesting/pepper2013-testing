@@ -39,6 +39,7 @@ from sshtunnel import SSHTunnelForwarder
 from xmodule.course_module import CourseDescriptor
 import MySQLdb
 from django.contrib.auth.models import User
+from collections import OrderedDict
 
 
 __all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course']
@@ -205,7 +206,6 @@ def import_course(request, org, course, name):
                     for fname in os.listdir(dirpath):
                         shutil.move(dirpath / fname, course_dir)
 
-                remove_course(org, course)
                 _module_store, course_items = import_from_xml(
                     modulestore('direct'),
                     settings.GITHUB_REPO_ROOT,
@@ -357,8 +357,16 @@ def copy_course(id_org, id_course, _from, _to):
         from_collection = from_db[collection_name]
         to_collection = to_db[collection_name]
 
-        to_collection.remove(cond)
+        # to_collection.remove(cond)
         for doc in from_collection.find(cond):
+            d = doc['_id']
+            if "__getitem__" in dir(d):
+                doc['_id'] = OrderedDict([("tag", d['tag']),
+                                          ("org", d['org']),
+                                          ("course", d['course']),
+                                          ("category", d['category']),
+                                          ("name", d['name']),
+                                          ("revision", d['revision'])])
             to_collection.save(doc)
 
     copy_docs("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
@@ -414,7 +422,7 @@ def sync_course(request):
             if result is None:
                 cursor.execute("insert into auth_user_groups set user_id = '%s', group_id='%s'" % (user_id, group_id))
 
-        # ** create course group created for the user
+        # ** create course group for the user
         cursor = db.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute("select * from auth_user where email='%s'" % request.user.email)
         user = cursor.fetchone()
@@ -448,7 +456,6 @@ def sync_course(request):
         # local.admin.authenticate(opt['user'], opt['password'])
 
         # ** sync course to dest server
-        remove_course(org, course, dest)
         copy_course(org, course, local, dest)
 
         dest.close()

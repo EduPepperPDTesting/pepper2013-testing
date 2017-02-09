@@ -1,23 +1,18 @@
 from django.conf import settings
 from django.template import Context
 from django.core.urlresolvers import reverse
-# from django.shortcuts import redirect
-# from django_future.csrf import ensure_csrf_cookie
+from django_future.csrf import ensure_csrf_cookie
 from mitxmako.shortcuts import render_to_response, render_to_string, marketing_link
-# from student.models import ResourceLibrary,StaticContent
-# from collections import deque
-# from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from pepper_utilities.utils import render_json_response
+
+from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 
-# from django.contrib.auth.models import User
-from student.models import UserProfile, Registration, CourseEnrollmentAllowed
-# from django import db
+from student.models import User, UserProfile, Registration, CourseEnrollmentAllowed
 from pepper_utilities.utils import random_mark
 import json
-# import time
 import logging
 import csv
 import urllib2
@@ -25,11 +20,13 @@ import urllib2
 # import multiprocessing
 from multiprocessing import Process, Queue, Pipe
 from django.core.validators import validate_email, validate_slug, ValidationError
-from administration.models import CustomEmail
+
+from .models import CustomEmail, CustomEmailLog, ImportTask, ImportTaskLog, EmailTask, EmailTaskLog, FilterFavorite
 
 import gevent
 from django import db
-from models import *
+from django.db import IntegrityError
+
 from StringIO import StringIO
 from student.models import Transaction, District, Cohort, School, State
 from mail import send_html_mail
@@ -117,7 +114,22 @@ def postpone(function):
 @user_passes_test(lambda u: u.is_superuser)
 def main(request):
     # from django.contrib.sessions.models import Session
-    return render_to_response('administration/pepconn.html', {})
+    states = State.objects.all().order_by('name')
+    districts = District.objects.all().order_by('name')
+    schools = School.objects.all().order_by('name')
+    data = {
+        'states': list(),
+        'districts': list(),
+        'schools': list()
+    }
+    for item in states:
+        data['states'].append({'id': item.id, 'name': item.name.replace('"', r'\"')})
+    for item in districts:
+        data['districts'].append({'id': item.id, 'name': item.name.replace('"', r'\"'), 'parent_id': item.state.id})
+    for item in schools:
+        data['schools'].append({'id': item.id, 'name': item.name.replace('"', r'\"'), 'parent_id': item.district_id})
+
+    return render_to_response('administration/pepconn.html', data)
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -484,17 +496,6 @@ def user_get_info(request):
     profile = UserProfile.objects.prefetch_related().get(id=user_id)
     code = "<h2>Edit User Form</h2>First Name:<input type = 'text' id = 'userFirstValue' value = '"+str(profile.user.first_name)+"'></input><br><br>"
     code += "Last Name:<input type = 'text' id = 'userLastValue' value = '"+str(profile.user.last_name)+"'></input><br><br>"
-    code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
-
-    for item in Cohort.objects.all():
-        try:
-            if profile.cohort == item:
-                code += "<option value = '"+str(item.id)+"' selected>"+str(item.code)+"</option>"
-            else:
-                code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
-        except:
-            code += "<option value = '"+str(item.id)+"'>"+str(item.code)+"</option>"
-    code += "</select><br><br>"
     try:
         state = profile.district.state
         code += "District:<select type = 'search' id = 'userDistrictValue'><option value = ''></option>"
@@ -507,6 +508,21 @@ def user_get_info(request):
             except:
                 code += "<option value = '"+str(item.id)+"'>"+str(item.name)+"</option>"
         code += "</select><br><br>"
+        code += "Cohort:<select type = 'search' id = 'userCohortValue'><option value = ''></option>"
+
+        for item in Cohort.objects.all():
+            try:
+                if profile.cohort == item:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"' selected>"+str(item.code)+"</option>"
+                else:
+                    code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.code)+"</option>"
+            except Exception as ex:
+                    try:
+                        code += "<option value = '"+str(item.id)+"' data-district='"+str(item.district.id)+"'>"+str(item.code)+"</option>"
+                    except:
+                        code += "<option value = '"+str(item.id)+"' data-district='-1'>"+str(item.code)+"</option>"
+
+        code += "</select><br><br>TEST"
         code += "School:<select type = 'search' id = 'userSchoolValue'><option value = ''></option>"
         for item in School.objects.filter(district__state_id=state):
             try:
@@ -1426,7 +1442,6 @@ def registration_send_email(request):
     return HttpResponse(json.dumps({'success': True, 'taskId': task.id, 'message': message}), content_type="application/json")
 
 
-
 @postpone
 def do_send_registration_email(task, user_ids, request):
     gevent.sleep(0)
@@ -1510,44 +1525,117 @@ def do_send_registration_email(task, user_ids, request):
         output.close()
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def get_custom_email(request):
     try:
         email = CustomEmail.objects.get(id=request.POST.get("id"))
     except Exception as e:
-        return HttpResponse(json.dumps({'success': True, 'message': e.message}), content_type="application/json")
+        return render_json_response({'success': True, 'message': e.message})
 
-    return HttpResponse(json.dumps({'success': True, 'message': email.email_content}), content_type="application/json")
+    return render_json_response({'success': True, 'message': email.email_content})
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@ensure_csrf_cookie
 def save_custom_email(request):
+    op = request.POST.get('op')
+    if op == 'update':
+        try:
+            email = CustomEmail.objects.get(id=request.POST.get('id'))
+            email.email_content = request.POST.get('message')
+            email.save()
+            email_log = CustomEmailLog()
+            email_log.email_name = email.name
+            email_log.user = request.user
+            email_log.operation = 'update'
+            email_log.save()
+            return render_json_response({'success': True, 'op': 'updated'})
+        except Exception as e:
+            return render_json_response({'success': False, 'error': '{0}'.format(e)})
+    else:
+        try:
+            email = CustomEmail()
+            email.email_content = request.POST.get('message')
+            email.user = request.user
+            email.name = request.POST.get('name')
+            if op == 'public':
+                email.system = 1
+                email.private = 0
+            elif op == 'private':
+                email.system = 0
+                email.private = 1
+            elif op == 'organization':
+                email.system = 0
+                email.private = 0
+            else:
+                raise Exception('No operation selected')
+            try:
+                email.district = District.objects.get(id=request.POST.get('district'))
+            except:
+                pass
+            try:
+                email.school = School.objects.get(id=request.POST.get('school'))
+            except:
+                pass
+            try:
+                email.state = State.objects.get(id=request.POST.get('state'))
+            except:
+                pass
+            email.save()
+            return render_json_response({'success': True, 'op': 'saved'})
+        except IntegrityError as e:
+            return render_json_response({'success': False, 'error': 'duplicate'})
+        except Exception as e:
+            return render_json_response({'success': False, 'error': '{0}'.format(e)})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@ensure_csrf_cookie
+def delete_custom_email(request):
     try:
-        email = CustomEmail.objects.get(name=request.POST.get('name'), user=request.user)
-        email.email_content = request.POST.get('message')
-        email.save()
-        return HttpResponse(json.dumps({'success': True, 'count': 'updated!'}), content_type="application/json")
-    except:
-        save = CustomEmail()
-        save.email_content = request.POST.get('message')
-        save.user = request.user
-        save.name = request.POST.get('name')
-        if(request.POST.get('system') == "true"):
-            save.system = 1
-        else:
-            save.system = 0
-        try:
-            save.district = District.objects.get(id=request.POST.get('district'))
-        except:
-            None
-        try:
-            save.school = School.objects.get(id=request.POST.get('school'))
-        except:
-            None
-        try:
-            save.owner = UserProfile.objects.get(id=request.POST.get('owner'))
-        except:
-            None
-        save.save()
-        return HttpResponse(json.dumps({'success': True, 'count': 'done!'}), content_type="application/json")
+        email = CustomEmail.objects.get(id=request.POST.get('id', False))
+        email_log = CustomEmailLog()
+        email_log.email_name = email.name
+        email_log.user = request.user
+        email_log.operation = 'delete'
+        email_log.save()
+        email.delete()
+        return render_json_response({'success': True})
+    except Exception as e:
+        return render_json_response({'success': False, 'error': '{0}'.format(e)})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def get_custom_email_list(request):
+    data = list()
+
+    private = request.GET.get('private', False)
+    public = request.GET.get('public', False)
+    state = request.GET.get('state', False)
+    district = request.GET.get('district', False)
+    school = request.GET.get('school', False)
+    query = dict()
+    if private:
+        query.update({'private': True})
+    if public:
+        query.update({'system': True})
+    if state:
+        query.update({'state': state})
+    if district:
+        query.update({'district': district})
+    if school:
+        query.update({'school': school})
+
+    for i in CustomEmail.objects.filter(**query).order_by('name'):
+        data.append({
+            'id': i.id,
+            'name': i.name,
+        })
+    return render_json_response(data)
 
 
 def registration_email_progress(request):

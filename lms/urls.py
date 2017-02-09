@@ -210,8 +210,10 @@ urlpatterns = (
     url(r'^pepconn/add_to_cohort/submit$', 'administration.pepconn.add_to_cohort', name="pepconn_cohort_add_submit"),
     url(r'^pepconn/remove_from_cohort/submit$', 'administration.pepconn.remove_from_cohort', name="pepconn_cohort_remove_submit"),
 
-    url(r'^custom/save', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
-    url(r'^custom/get', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
+    url(r'^custom/save$', 'administration.pepconn.save_custom_email', name="pepconn_save_custom_email"),
+    url(r'^custom/get$', 'administration.pepconn.get_custom_email', name="pepconn_get_custom_email"),
+    url(r'^custom/get-list$', 'administration.pepconn.get_custom_email_list', name="pepconn_get_custom_email_list"),
+    url(r'^custom/delete$', 'administration.pepconn.delete_custom_email', name="pepconn_delete_custom_email"),
 
     #url(r'^organization/$', 'organization.organization.main', name="organizational_configuration"),
 
@@ -429,7 +431,8 @@ urlpatterns = (
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
-    url(r'^newdashboard$', 'student.views.newdashboard', name="newdashboard"),
+    url(r'^newdashboard$', 'student.newdashboard.newdashboard', name="newdashboard"),
+    url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
 

@@ -183,7 +183,7 @@
         text-align:center;
         font-weight:bold;
     }
-
+ 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
     #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
@@ -211,7 +211,7 @@
         position: absolute;
         right: -12px;
         top: 34px;
-        width: 200px;
+        width: 262px;
         z-index: 3;
     }
     ul.admin-dropdown-menu li {
@@ -334,18 +334,18 @@
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li style="margin-right:18px;"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-                <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
-                <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
-                <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
+                <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
+                <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
+                <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
+                <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
+                <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
+                <li id="org_tm_course_workshop_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
+                <li id="org_tm_communities_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
+                <li id="org_tm_my_chunks_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
+                <li id="org_tm_resources_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
+                <li id="org_tm_people_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
                 <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
             %endif
         %endif
@@ -371,39 +371,39 @@
                     <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
                     <ul class="admin-dropdown-menu">
                         %if check_user_perms(curr_user, 'certificate'):
-                            <li><a href="${reverse('configuration')}">Configuration</a></li>
+                            <li id="org_tsm_configuration_obj"><a href="${reverse('configuration')}">Configuration</a></li>
                         %endif
                         %if curr_user.is_superuser:
                             <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
                         %endif
-                        <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
+                        <li id="org_tsm_pepper_pd_planner_obj"><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
                         %if check_user_perms(curr_user, 'pepconn'):
-                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                            <li id="org_tsm_pepconn_obj"><a href="${reverse('pepconn')}">PepConn</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'permissions'):
-                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                            <li id="org_tsm_roles_permissions_obj"><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'time_report'):
-                            <li><a href="${reverse('time_report')}">Time Report</a></li>
+                            <li id="org_tsm_time_report_obj"><a href="${reverse('time_report')}">Time Report</a></li>
                         %endif
-                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
+                        <li id="org_tsm_reporting_obj"><a href="${reverse('reporting_reports')}">Reporting</a></li>
                         %if check_user_perms(curr_user, 'sso'):
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                            <li id="org_tsm_sso_metadata_obj"><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'tnl'):
-                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                            <li id="org_tsm_tnl_configuration_obj"><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'studio'):
-                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                            <li id="org_tsm_studio_obj"><a href="#" target="_blank" id="studio_url">Studio</a></li>
                         %endif
                         %if check_user_perms(curr_user, 'alert_message'):
-                            <li><a href="${reverse('alert_message')}">Alert</a></li>
+                            <li id="org_tsm_alert_obj"><a href="${reverse('alert_message')}">Alert</a></li>
                         %endif
-                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                        <li id="org_tsm_notifications_obj"><a href="${reverse('communities_notification_index')}">Notifications</a></li>
                         %if curr_user.is_superuser:
-                            <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
+                            <li id="org_tsm_usage_report_obj"><a href="${reverse('usage_report')}">Usage Report</a></li> 
                         %endif
-                        <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                        <li id="org_tsm_portfolio_settings_obj"><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
                         <script type="text/javascript">
                             $(document).on('click', function(event) {
                                 if (!$(event.target).closest('.admin-menu-holder').length) {
@@ -414,19 +414,13 @@
                             });
                         </script>
                         <!-- endif -->
-                       <script type="text/javascript">
-                            url_studio = ["https://studio0.pepperpd.com",
-                                          "https://studio-staging.pepperpd.com",
-                                          "https://studio-demo.pepperpd.com",
-                                          "https://studio.pepperpd.com",
-                                          "https://studio-dev.pepperpd.com",
-                                          "https://studio-major.pepperpd.com",
-                                          "https://studio-patch.pepperpd.com",
-                                          "https://studio-test.pepperpd.com"];
+                        <script type="text/javascript">
                             url_split_array = window.location.href.split('/');
                             split_array_1 = "";
                             split_keyword = "";
-                            url_using= "#";
+                            url_using = "#";
+                            str1 = "https://studio";
+                            str2 = ".pepperpd.com";
 
                             if (url_split_array.length>2){
                                 split_array_1 = url_split_array[2].split('.');
@@ -434,28 +428,13 @@
                             }
                             
                             if (split_keyword == "www0"){
-                               url_using = url_studio[0];
-                            }
-                            else if(split_keyword == "staging"){
-                                url_using = url_studio[1];
-                            }
-                            else if(split_keyword == "demo"){
-                                url_using = url_studio[2];
+                               url_using = str1 + "0" + str2;
                             }
                             else if(split_keyword == "www"){
-                                url_using = url_studio[3];
+                                url_using = str1 + str2;
                             }
-                            else if(split_keyword == "dev"){
-                                url_using = url_studio[4];
-                            }
-                            else if(split_keyword == "major"){
-                                url_using = url_studio[5];
-                            }
-                            else if(split_keyword == "patch"){
-                                url_using = url_studio[6];
-                            }
-                            else if(split_keyword == "test"){
-                                url_using = url_studio[7];
+                            else{
+                                url_using = str1 + "-" + split_keyword + str2;
                             }
                             $("#studio_url").attr("href",url_using);
                         </script>
@@ -464,7 +443,7 @@
             %endif
             %if show_extended:
                 <!-- Notifications -->
-                <li class="imessage_style" style="margin-right:5px;">
+                <li class="imessage_style" style="margin-right:5px;" id="org_tm_notifications_obj">
                     <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
                         <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
                             <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
@@ -881,7 +860,12 @@
         function interactive_update_createItem(data) {
             var body = data.body == undefined ? '' : data.body;
             interactive_update_switchType(data);
-            element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            if(data.type_community){
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:450px;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
+            else{
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
             $('.info_list').append(element);
             element.click(function() {
                 if (data.activate == 'false') {
@@ -893,6 +877,7 @@
         }
 
         function interactive_update_switchType(data) {
+            data.type_community = 0;
             switch (data.type) {
                 case 'discussion':
                     data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
@@ -914,6 +899,7 @@
                     break;
                 default:
                     data.type_text = data.subject || data.body;
+                    data.type_community = 1;
             }
         }
 
@@ -1383,7 +1369,7 @@
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
             <div class="content"></div>
-      <textarea class="setting">
+      <textarea class="setting" style="overflow:hidden">
         {
           "interval": 5000,
           "urls": {
@@ -1398,3 +1384,119 @@
         $(".control.global_task_panel").each(function(){new GlobalTaskPanelControl(this)});
     </script>
 %endif
+<script type="text/javascript">
+	function LoadingWin(){
+		this.$loader = null;
+		this.show();
+	}
+	LoadingWin.prototype.show = function () {
+		if (!this.$loader) {
+			this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+			this.$loader.appendTo(document.body);
+		}
+		this.$loader.css('display','block');
+	};
+	LoadingWin.prototype.hide = function () {
+		if (this.$loader) {
+			this.$loader.remove();
+			this.$loader = null;
+		}
+	};
+	
+	//------------------organization_get_info
+	var organization_data;
+	$(document).ready(function(){
+		var flag_main = "";
+		if($(".mainlogo").length > 0) 					flag_main = "index";
+		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
+
+		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
+			if (r.SiteURL_OK){
+				if(r.Success){
+					if(r.OrganizationOK){
+						alert("Organization of " + r.OrganizationName);
+						for(var obj in r){
+							if(obj.indexOf("_obj") > -1){
+								if(r[obj] == "-1"){
+									$("#" + obj).hide();
+								}
+							}
+						}
+						if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
+							$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
+						}
+						
+						if(r.flag_main == "index"){
+							if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
+							if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
+							if(r.BottomMainLogo)	$(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");							
+							if(r.MainPageBottomImage){
+								$(".sub_div_2").html("<img src='/static/uploads/organization/main_page/" + r.MainPageBottomImage + "' />");
+								var tmp_Text = (r.MainPageButtonText) ? r.MainPageButtonText : "Join the Pepper Network!";
+								var tmp_Link = (r.MainPageButtonLink) ? r.MainPageButtonLink : "/contact";
+								$(".sub_div_2").append('<div class="sub_div_2_3_btn"><a class="join_btn" href="' + tmp_Link + '" target="_blank">' + tmp_Text + '</a></div>');
+							}else{
+								if(r.MainPageButtonText)	$(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
+								if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
+							}
+						}else if(r.flag_main == "dashboard"){
+							var tmp_div = $(".my-courses:first").find("div");
+							if(r.LogoProfile != "" && typeof(r.LogoProfile) != "undefined"){
+								tmp_div.css("backgroundImage", "none");
+								tmp_div.css("border", "2px solid #bbbbbb");
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+								tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r.Motto + "</span>");
+							}
+							$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+							$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+							$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+							
+						}else if(r.flag_main == "communities"){
+							$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
+							
+						}else if(r.flag_main == "pepconn"){
+							$("#District_search").attr("placeholder", "Search " + r.DistrictType);
+							$("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
+							$("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
+							
+							$("#School_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#School_search").attr("placeholder", "Search " + r.SchoolType);
+							$("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
+							$("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
+							$("#school_table_init").find(".school_district_id").html(r.DistrictType);
+							$("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
+							
+							$("#User_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#User_school_select").find("option:first").html("Select " + r.SchoolType);
+							$("#user_table_init").find(".user_school").html(r.SchoolType);
+							$("#user_table_init").find(".user_district").html(r.DistrictType);
+							
+							$("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
+							$("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
+							
+						}else if(r.flag_main == "pepreg"){
+							var tmp_first = $("#district_select").find("option:first");
+							if(tmp_first.val() == ""){
+								tmp_first.html("Select " + r.DistrictType);
+							}
+							$("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
+							$("#organization_pepreg_d1").text(r.DistrictType + ":");
+							$("#organization_pepreg_s1").text(r.SchoolType + ":");
+							
+						}else if(r.flag_main == "people"){
+							$("select[name='district_id']").find("option:first").html(r.DistrictType);
+							$("select[name='school_id']").find("option:first").html(r.SchoolType);
+							
+						}else if(r.flag_main == "report"){
+							organization_data = r;
+						}
+					}
+					else{
+						alert("Organization of Pepper");
+					}
+				}
+			}
+		});
+	});							
+</script>

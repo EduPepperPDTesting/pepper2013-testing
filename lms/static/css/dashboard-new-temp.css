@@ -1119,6 +1119,7 @@ a.post_btn:hover{
 .info-tile-img {
     padding-right: 4px !important;
 }
+/*
 .modal {
     position: absolute;
     opacity: 1;
@@ -1164,6 +1165,7 @@ a.post_btn:hover{
     padding: 20px 10px;
     line-height: 20px;
 }
+*/
 #fixed-dialog, #fixed-dialog-likes, #fixed-dialog-share, #skype-dialog {
     position: fixed;
 }

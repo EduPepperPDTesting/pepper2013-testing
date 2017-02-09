@@ -79,7 +79,7 @@
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
-
+<span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse">
@@ -340,7 +340,7 @@
                         </div>
                         <div class="form-row" style="font-size:12px;">
                             <input type="radio" name="type" value="pd_training" autocomplete="off"/>
-                            <span style="font-weight:bold;">District/School Training or PD Event</span>
+                            <span style="font-weight:bold;" id="organization_pepreg_ds1">District/School Training or PD Event</span>
                             <div style="padding-left:2em;">
                                 Choosing this option will allow you to create a custom training<br> or PD event specific
                                 for your District/School staff.<br/>
@@ -355,7 +355,7 @@
                         <h5>Create Your Training or PD Event: Step 2 of 6</h5>
                         <h4>General Training Information</h4>
                         <div class="form-row">
-                            <span class="label">District:</span>
+                            <span class="label" id="organization_pepreg_d1">District:</span>
                             <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
@@ -368,7 +368,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label">School:</span>                            
+                            <span class="label" id="organization_pepreg_s1">School:</span>                            
                             %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                             <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
                             %elif check_access_level(request.user, 'pepreg', 'add_new_training') == "District":

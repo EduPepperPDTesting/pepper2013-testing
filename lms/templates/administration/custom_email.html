@@ -27,43 +27,13 @@
     <p>The <%text>${site} and ${key}</%text> variables are generally used to create the registration URL, like so:</p>
     <pre><%text>https://<strong>${site}</strong>/register/<strong>${key}</strong></%text></pre>
     <p>See the default template for an example of how it should be used.</p>
-  </div> 
-  <label style="cursor:normal !important;">
+  </div>
+    <img class="saved_email_img" src="/static/images/bookmark.png" id="saved_email_button_${ck_name}">
+    <span style="margin-top: -61px; margin-left: 57px; display:none;" id="saved_email_span_${ck_name}"></span>
+    <label style="cursor:normal !important;">
     Subject:<br />
     <input type="text" name="custom_email_subject" value="${subject_to_edit}" autocomplete="off"/>
-      <img class = "saved_email_img" src="/static/images/bookmark.png" id="saved_email_button_${ck_name}">
-      <span style="margin-top: -61px; margin-left: 57px; display:none;" id = "saved_email_span_${ck_name}">
-    <span id = 'select_options'>
-
-
-    %for i in CustomEmail.objects.all().order_by('name'):
-        <%
-            district = -1
-            school = -1
-            system = -1
-            owner = -1
-            try:
-                district = i.district.id
-            except:
-                None
-            try:
-                school = i.school.id
-            except:
-                None
-            try:
-                system = i.system
-            except:
-                None
-            try:
-                owner = i.owner.id
-            except:
-                None
-        %>
-        <option id="${i.id}" data-district="${district}" data-school="${school}" data-system="${system}" data-owner="${owner}">${i.name}</option>
-    %endfor
-        </span>
     <br>
-      </span>
   </label>
   <label style="cursor:normal !important;">
     <br />Custom Email:<br />

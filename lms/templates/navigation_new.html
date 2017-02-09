@@ -39,7 +39,7 @@
 </%block>
 
 <style type="text/css" media="screen">
-    *{font-family:"open sans" !important;}
+    *{font-family:"open sans" !important;margin:0;padding:0;}
     p{font-family:"open sans" !important;}
 
     a.blue{
@@ -70,6 +70,7 @@
         text-transform:none;
         font-weight:normal !important;
     }
+    /*
     .imessage_style{
         margin-right: 0px;
         display: block;
@@ -78,7 +79,7 @@
         padding: 5px 8px 7px 8px;
         margin-top:-14px;
     }
-
+    */
     #view_all_note:hover {
         background:#6e8194;
         transition-delay: 0s, 0s, 0s;
@@ -185,7 +186,7 @@
     }
 
     #show_notifications_link:focus { outline: none!important;}
- [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
+    [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
 <script type="text/javascript" src="/static/js/record_time.js"></script>
 <style type="text/css" media="screen">
@@ -253,255 +254,342 @@
         top: -6px;
         width: 0px;
     }
-  .sequence-list-wrapper{z-index:2 !important}
+    .sequence-list-wrapper{z-index:2 !important;}
+</style>
+<style>
+.searching{
+    width: 240px;
+    height:30px;
+    border:2px solid #41719c;
+    float: left;
+    margin-top: 5px;
+    margin-left:10px;
+    border-radius: 5px;
+    background-color:#fff; 
+}
+#searching_keyword{
+  border:0;
+  height:28px;
+  width:208px !important;
+  margin-top:1px;
+  outline: none;
+  border-radius: 0px;
+
+  color:#818181;
+  font-size: 15px;
+  font-family: "Arial" !important;
+  font-style:italic;
+
+  box-shadow:0 0 0 0;
+}
+#searching_keyword:focus{
+  border:2;
+  outline: none;
+}
+.searching-text-div{
+    width:210px;
+    height:30px;
+    float:left;
+}
+#searching_btn{
+    width:30px;
+    height:30px;
+    float:left;
+    cursor:pointer;
+}
+#searching_btn img{
+    margin-left:5px;
+    margin-top:5px;
+}
+.userphoto-div{
+    margin-top:-2px;
+    margin-left:303px;/*250+53*/
+    float:left;
+    width:50px;
+    height:50px;
+}
+.nav-option-otheruser img{
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter: gray;
+}
 </style>
 
-% if course:
-    <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
+% if context.get("curr_user"):
+    <% curr_user=context.get("curr_user") %>
 % else:
-    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
+    <% curr_user=user %>
 % endif
-    <nav id="page-nav">
-        <style type="text/css" media="screen">
-            header.global.slim h1.logo::before{top:5px}
+
+<!--header-->
+% if curr_user.is_authenticated():
+    % if course:
+         <style type="text/css" media="screen">
+            header.global.slim h1.logo::before{top:5px;}      
         </style>
-        <h1 class="logo" style="margin-top:-12px;margin-right:30px;">
-            <!--@begin:Choose the link of the top logo according user's login status-->
-            <!--@date:2013-11-02-->
+        <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+    % else:
+        <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+    % endif
+% else:
+    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+% endif
 
-            %if context.get("curr_user"):
-                <% curr_user=context.get("curr_user") %>
-            %else:
-                <% curr_user=user %>
-            %endif
+<!--nav-->
+<nav id="page-nav" style="padding:16px 0px 0px 0px;height:60px;">
+<!--sub logo-->
+    <h1 class="logo" style="position:static;margin-top:-10px;margin-left:0px;margin-right:0px;">
+        <!--@begin:Choose the link of the top logo according user's login status-->
+        <!--@date:2013-11-02-->
+        % if curr_user==request.user:
+            % if curr_user.is_authenticated():
+                <a href="/dashboard">
+            % else:
+                <a href="/">
+            % endif
+        % else:
+            <a href="" style="cursor:default;" onclick="return false;">
+        % endif
+        <!--@end-->
 
-            %if curr_user==request.user:
-                %if curr_user.is_authenticated():
-                    <a href="/dashboard">
-                %else:
-                    <a href="/">
-                %endif
-            %else:
-                <a href="" style="cursor:default;" onclick="return false;">
-            %endif
-            <!--@end-->
-
-            <%block name="navigation_logo">
-                <!--@begin:Choose the image of the top logo according to user's login status-->
+        <%block name="navigation_logo">
+            <!--@begin:Choose the image of the top logo according to user login status-->
             % if index != 1:
                 <img style="height:auto;vertical-align:top" src="${static.url(branding.get_logo_url(request.META.get('HTTP_HOST')))}" alt="${_('{settings.PLATFORM_NAME} home')}" />
             % endif
-                <!--@end-->
-            </%block>
-        </a>
-        </h1>
-
-        % if course:
-            <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}</h2>
-        % endif
-        <!--@begin:Top navigation tabs and styles before login-->
-        <!--@date:2013-11-02-->
-        <style>
-            ol.nav-left li a{
-                color:#555;
-                padding-top:20px;
-            }
-
-        </style>
-
-        %if curr_user!=request.user:
-            <style type="text/css" media="screen">
-                a.main-link{
-                    color:#ccc !important;
-                }
-                a.main-link:hover{
-                    color:#ccc !important;
-                }
-            </style>
-        %endif
-
-        %if curr_user==request.user and curr_user.is_authenticated():
-            <ol class="left nav-global authenticated">
-        %else:
-            <ol class="left nav-global" style="margin-top:5px;">
-        %endif
-
-        % if curr_user==request.user and not curr_user.is_authenticated():
-            <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
-            <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
-            <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
-        % endif
-
-        %if request.user.is_authenticated():
-            %if curr_user==request.user:
-                <li style="margin-right:18px;"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
-                <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
-                <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
-                <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
-                <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
-                <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
-            %else:
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">People</a></li>
-                <!-- <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Course Credits</a></li> -->
-            %endif
-        %endif
-
-        % if curr_user.is_authenticated():
-        <%block name="navigation_global_links_authenticated">
-            <li class="nav-global-01" style="display:none;">
-                <a href="${marketing_link('COURSES')}">${_('Find Courses')}</a>
-            </li>
-        </%block>
-        </ol>
             <!--@end-->
+        </%block>
+        </a>
+    </h1>
+<!--sub searching-->
+<!--
+    % if not course:
+        % if curr_user.is_authenticated():
+            % if curr_user==request.user:
 
-        <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-        <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+                <div class="searching">
+                    <div class="searching-text-div">
+                        <input id="searching_keyword" type="text" placeholder="Search Pepper"/>
+                    </div>
+                    <div id="searching_btn">
+                        <img src="static/images/newdashboard/search.png" width="20"/>
+                    </div>
+                </div>
+            % endif
+        % endif
+    % endif
+-->
 
-        %if curr_user==request.user:
-        <ol class="user admin" >
-            %if show_extended:
-          <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
-                <!-- Administration -->
-                <li style="display:block;float:left;padding-top:10px;margin-right:0px;" class="admin-menu-holder">
-                    <a href="#" class="configuration" onclick="$('.admin ul.admin-dropdown-menu').toggle()">Tools &#9662;</a>
-                    <ul class="admin-dropdown-menu">
-                        %if check_user_perms(curr_user, 'certificate'):
-                            <li><a href="${reverse('configuration')}">Configuration</a></li>
-                        %endif
-                        <li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>
-                        %if check_user_perms(curr_user, 'pepconn'):
-                            <li><a href="${reverse('pepconn')}">PepConn</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'permissions'):
-                            <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'time_report'):
-                            <li><a href="${reverse('time_report')}">Time Report</a></li>
-                        %endif
-                        <li><a href="${reverse('reporting_reports')}">Reporting</a></li>
-                        %if check_user_perms(curr_user, 'sso'):
-                            <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'tnl'):
-                            <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'studio'):
-                            <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
-                        %endif
-                        %if check_user_perms(curr_user, 'alert_message'):
-                            <li><a href="${reverse('alert_message')}">Alert</a></li>
-                        %endif
-                        <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
-                        %if curr_user.is_superuser:
-                            <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
-                        %endif
-                        <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
-                        <script type="text/javascript">
-                            $(document).on('click', function(event) {
-                                if (!$(event.target).closest('.admin-menu-holder').length) {
-                                    $(".admin-dropdown-menu").hide();
-                                } else if ($(event.target).closest(".outside_menu").length) {
-                                    $(".admin-dropdown-menu").hide();
-                                }
-                            });
-                        </script>
-                        <!-- endif -->
-                       <script type="text/javascript">
-                            url_studio = ["https://studio0.pepperpd.com",
-                                          "https://studio-staging.pepperpd.com",
-                                          "https://studio-demo.pepperpd.com",
-                                          "https://studio.pepperpd.com",
-                                          "https://studio-dev.pepperpd.com",
-                                          "https://studio-major.pepperpd.com",
-                                          "https://studio-patch.pepperpd.com",
-                                          "https://studio-test.pepperpd.com"];
-                            url_split_array = window.location.href.split('/');
-                            split_array_1 = "";
-                            split_keyword = "";
-                            url_using= "#";
+<!--sub nav option-->
+    % if course:
+        <h2 style="width:605px;margin-top:15px;"><span class="provider">${course.display_org_with_default | h}:</span> ${course.display_number_with_default | h} ${course.display_name_with_default}
+        </h2>
+    % else:
+        % if curr_user.is_authenticated():
+            <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+            <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+            % if curr_user==request.user:
+                <ol class="authenticated" style="margin-top:0px;margin-left:10px;float:left;width:auto;">
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="/my_courses"><img src="static/images/newdashboard/header_my_courses_45.png" title="My Courses" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="#"><img src="static/images/newdashboard/header_my_standards_45.png" title="My Standards" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="#"><img src="static/images/newdashboard/header_my_content_45.png" title="My Content" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="/communities"><img src="static/images/newdashboard/header_my_communities_45.png" title="My Communities" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="/pepreg"><img src="static/images/newdashboard/header_my_pd_planner_45.png" title="My PD Planner" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="/reporting"><img src="static/images/newdashboard/header_my_reports_45.png" title="My Reports" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="/people"><img src="static/images/newdashboard/header_my_network_people_45.png" title="My Network / People Search" width="45"/></a>
+                    </li>
+<!--sub nav option Tools-->
+                    %if show_extended:
+                        <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
+                        <!-- Administration -->
+                        <li style="margin-left:5px;margin-right:0px;" class="admin-menu-holder">
+                            <a href="#" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
+                                <img src="static/images/newdashboard/header_my_admin_tools_45.png" title="Tools" width="45"/>
+                            </a>
+                            <ul class="admin-dropdown-menu">
+                                %if check_user_perms(curr_user, 'certificate'):
+                                    <li><a href="${reverse('configuration')}">Configuration</a></li>
+                                %endif  
+                                <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
+                                %if check_user_perms(curr_user, 'pepconn'):
+                                    <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                                %endif
+                                %if check_user_perms(curr_user, 'permissions'):
+                                    <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
+                                %endif
+                                %if check_user_perms(curr_user, 'time_report'):
+                                    <li><a href="${reverse('time_report')}">Time Report</a></li>
+                                %endif
+                                <!--<li><a href="${reverse('reporting_reports')}">Reporting</a></li>-->
+                                %if check_user_perms(curr_user, 'sso'):
+                                    <li><a href="${reverse('sso_idp_metadata_edit')}">SSO Metadata</a></li>
+                                %endif
+                                %if check_user_perms(curr_user, 'tnl'):
+                                    <li><a href="${reverse('tnl_configuration')}">TNL Configuration</a></li>
+                                %endif
+                                %if check_user_perms(curr_user, 'studio'):
+                                    <li><a href="#" target="_blank" id="studio_url">Studio</a></li>
+                                %endif
+                                %if check_user_perms(curr_user, 'alert_message'):
+                                    <li><a href="${reverse('alert_message')}">Alert</a></li>
+                                %endif
+                                <li><a href="${reverse('communities_notification_index')}">Notifications</a></li>
+                                %if curr_user.is_superuser:
+                                    <li><a href="${reverse('usage_report')}">Usage Report</a></li> 
+                                %endif
+                                <li><a href="${reverse('portfolio_settings')}">Portfolio Settings</a></li>
+                                <li><a href="${reverse('access_resource_library_list')}">Resource Library</a></li>
+                                <li><a href="${reverse('mychunks')}">My Content Chunks</a></li>
+                                <script type="text/javascript">
+                                    $(document).on('click', function(event) {
+                                        if (!$(event.target).closest('.admin-menu-holder').length) {
+                                            $(".admin-dropdown-menu").hide();
+                                        } else if ($(event.target).closest(".outside_menu").length) {
+                                            $(".admin-dropdown-menu").hide();
+                                        }
+                                    });
+                                </script>
+                                <!-- endif -->
+                                <script type="text/javascript">
+                                    url_split_array = window.location.href.split('/');
+                                    split_array_1 = "";
+                                    split_keyword = "";
+                                    url_using = "#";
+                                    str1 = "https://studio";
+                                    str2 = ".pepperpd.com";
 
-                            if (url_split_array.length>2){
-                                split_array_1 = url_split_array[2].split('.');
-                                split_keyword = split_array_1[0];
-                            }
-                            
-                            if (split_keyword == "www0"){
-                               url_using = url_studio[0];
-                            }
-                            else if(split_keyword == "staging"){
-                                url_using = url_studio[1];
-                            }
-                            else if(split_keyword == "demo"){
-                                url_using = url_studio[2];
-                            }
-                            else if(split_keyword == "www"){
-                                url_using = url_studio[3];
-                            }
-                            else if(split_keyword == "dev"){
-                                url_using = url_studio[4];
-                            }
-                            else if(split_keyword == "major"){
-                                url_using = url_studio[5];
-                            }
-                            else if(split_keyword == "patch"){
-                                url_using = url_studio[6];
-                            }
-                            else if(split_keyword == "test"){
-                                url_using = url_studio[7];
-                            }
-                            $("#studio_url").attr("href",url_using);
-                        </script>
-                    </ul>
-                </li>
-            %endif
-            %if show_extended:
-                <!-- Notifications -->
-                <li class="imessage_style" style="margin-right:5px;">
-                    <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
-                        <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage.jpg);display:none;">
-                            <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
-                                <tr height="26">
-                                    <td width="19"></td>
-                                    <td width="31"></td>
-                                </tr>
-                                <tr height="24">
-                                    <td width="19" >&nbsp;</td>
-                                    <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/ppd-iMessage-none.jpg);"></div>
-                    </a>
-                </li>
-            %endif
+                                    if (url_split_array.length>2){
+                                        split_array_1 = url_split_array[2].split('.');
+                                        split_keyword = split_array_1[0];
+                                    }
+                                    
+                                    if (split_keyword == "www0"){
+                                       url_using = str1 + "0" + str2;
+                                    }
+                                    else if(split_keyword == "www"){
+                                        url_using = str1 + str2;
+                                    }
+                                    else{
+                                        url_using = str1 + "-" + split_keyword + str2;
+                                    }
+                                    $("#studio_url").attr("href",url_using);
+                                </script>
+                            </ul>
+                        </li>
+                    %endif
+<!--sub nav option Notifications--> 
+                    %if show_extended:
+                        <!-- Notifications -->
+                        <li class="imessage_style" style="margin-left:5px;margin-right:0px;">
+                            <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
+                                <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_50.png);display:none;">
+                                    <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
+                                        <tr height="26">
+                                            <td width="19"></td>
+                                            <td width="31"></td>
+                                        </tr>
+                                        <tr height="24">
+                                            <td width="19" >&nbsp;</td>
+                                            <td class="info_count" width="31" align="center" style="color:#f00;font-weight:bold;font-size:13px;">33</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="info_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_none_50.png);"></div>
+                            </a>
+                        </li>
+                    %endif
+                </ol>
+            % else:
+                <style type="text/css" media="screen">
+                    a.main-link{
+                        color:#ccc !important;
+                    }
+                    a.main-link:hover{
+                        color:#ccc !important;
+                    }
+                </style>
+                <ol class="authenticated nav-option-otheruser" style="margin-top:0px;margin-left:10px;float:left;width:auto;">
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_content_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
+                    </li>
+                    <li style="margin-left:5px;margin-right:0px;">
+                        <a href="" style="cursor:default;" onclick="return false;"><img src="static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
+                    </li>
+                 </ol>
+            % endif          
+        % else:
+            <ol class="left nav-global" style="margin-top:5px;">
+                <li><a href="/contact" class="main-link" style="font-size:23px !important;"><b>Membership</b></a></li>
+                <li><a href="/our_team" class="main-link" style="font-size:23px !important;"><b>Our Team</b></a></li>
+                <li><a href="/press" class="main-link" style="font-size:23px !important;"><b>In the News</b></a></li>
+            </ol>    
+        % endif
+    % endif
 
-            %if show_extended:
-                <!-- Dashboard button with dropdown -->
-                <li class="primary">
-                    <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
-                        <span class="avatar"></span>
-                        <span class="sr">${_("Dashboard for:")} </span>
-                        <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
-                    </a>
-                </li>
-                <li class="primary">
-                    <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
-                    <ul class="dropdown-menu">
-                        <%block name="navigation_dropdown_menu_links" >
-                            <li><a href="/static/resource/Pepper_User_Guide_10_2016.pdf" target="_blank">${_("Help")}</a></li>
-                        </%block>
-                        <li><a href="/course_credits" class="main-link">Course Credits</a></li>
-                        <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
-                    </ul>
-                </li>
-            %endif
-        </ol>
+<!--sub userphoto and dropdown menu--> 
+    % if curr_user.is_authenticated():
+        % if curr_user==request.user:
+            <!-- Userphoto -->
+            <div class="userphoto-div">
+                <a href="#">
+                    <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
+                </a>
+            </div>
+            <ol class="user admin">
+                %if show_extended:
+                    <!-- Dashboard button with dropdown -->
+                    <li class="primary">
+                        <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
+                            <span class="avatar"></span>
+                            <span class="sr">${_("Dashboard for:")} </span>
+                            <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        </a>
+                    </li>
+                    <li class="primary">
+                        <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+                        <ul class="dropdown-menu">
+                            <%block name="navigation_dropdown_menu_links" >
+                                <li><a href="/static/resource/Pepper_User_Guide_10_2016.pdf" target="_blank">${_("Help")}</a></li>
+                            </%block>
+                            <li><a href="/course_credits" class="main-link">Course Credits</a></li>
+                            <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+                        </ul>
+                    </li>
+                %endif
+            </ol>
         %endif
+<!--sub dashboard button--> 
         %if not show_extended:
             <ol class="right nav-courseware" id="btn-dashboard">
                 <li class="nav-courseware-01">
@@ -509,53 +597,45 @@
                 </li>
             </ol>
         %endif
-
-        % else:
+<!--unlogin status-->         
+    % else:
         <%block name="navigation_global_links">
             % if settings.MITX_FEATURES.get('ENABLE_MKTG_SITE'):
-                <li class="nav-global-01">
-                    <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
-                </li>
-                <li class="nav-global-02">
-                    <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
-                </li>
-                <li class="nav-global-03">
-                    <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
-                </li>
+                <ol>
+                    <li class="nav-global-01">
+                        <a href="${marketing_link('HOW_IT_WORKS')}">${_("How it Works")}</a>
+                    </li>
+                    <li class="nav-global-02">
+                        <a href="${marketing_link('COURSES')}">${_("Courses")}</a>
+                    </li>
+                    <li class="nav-global-03">
+                        <a href="${marketing_link('SCHOOLS')}">${_("Schools")}</a>
+                    </li>
+                </ol>
             % endif
         </%block>
+ 
+        <ol class="right nav-courseware" style="margin-top:-5px;">
+<!--sub shopping ico-->
+            <li><a class="main-link" href="/shopping" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
+<!--sub login button-->
+            <li class="nav-courseware-01">
+                % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
+                    % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
+                        <!--@begin:Change the text in Log in to Login-->
+                        <!--@date:2013-11-02-->
+                        <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
+                    % else:
+                        <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="/login${login_query()}">${_("Login")}</a>
+                        <!--@end-->
+                    % endif
+                % endif
+            </li>
         </ol>
-
-            <ol class="right nav-courseware" style="margin-top:-5px;">
-                <!--@begin:Add Paypal-->
-                <!--@date:2016-05-19-->
-                <!--<li class="nav-courseware-01">
-                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                            <a  class="main-link" href="${reverse('course-specific-register', args=[course.id])}" target="_blank" style="margin-right:30px;"><img src="/static/images/paypal.png" width="100" height="27"/></a>
-                        % else:
-                            <a  class="main-link" href="/contact" target="_blank" ><img src="/static/images/paypal.png" width="100" height="27"/></a>        
-                        % endif
-                    % endif
-                </li>-->
-                <!--@end-->
-                <li><a class="main-link" href="/shopping" target="_blank"><img src="/static/images/index_login_cart-537824274.png" /></a></li>
-                <li class="nav-courseware-01">
-                    % if not settings.MITX_FEATURES['DISABLE_LOGIN_BUTTON']:
-                        % if course and settings.MITX_FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD') and course.enrollment_domain:
-                            <!--@begin:Change the text in Log in to Login-->
-                            <!--@date:2013-11-02-->
-                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="${reverse('course-specific-login', args=[course.id])}${login_query()}">${_("Login")}</a>
-                        % else:
-                            <a class="cta cta-login" style="padding:10px 40px 10px 40px;font-weight:bold;font-size:19px;" href="/login${login_query()}">${_("Login")}</a>
-                            <!--@end-->
-                        % endif
-                    % endif
-                </li>
-            </ol>
-        % endif
-    </nav>
+    % endif
+</nav>
 </header>
+
 
 % if course:
     <div class="ie-banner">${_('<strong>Warning:</strong> Your browser is not fully supported. We strongly recommend using {chrome_link_start}Chrome{chrome_link_end} or {ff_link_start}Firefox{ff_link_end}.').format(chrome_link_start='<a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">', chrome_link_end='</a>', ff_link_start='<a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">', ff_link_end='</a>')}</div>
@@ -878,7 +958,12 @@
         function interactive_update_createItem(data) {
             var body = data.body == undefined ? '' : data.body;
             interactive_update_switchType(data);
-            element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            if(data.type_community){
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:450px;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
+            else{
+                element = $('<table width="530" height="70" border="0" cellpadding="0" cellspacing="0" style="margin:auto;background-color:' + interactive_update_getActivateStyle(data).backgroundColor + ';cursor:pointer;"><tr><td width="76"><div style="width:60px;height:60px;margin-left:5px;margin-top:5px;background:url(/user_photo/' + data.interviewer_id + ');background-size:contain;background-repeat:no-repeat;"></div></td><td width="424"><table width="454" border="0" cellpadding="0" cellspacing="0"><tr height="46"><td style="padding-right:5px;color:#388e9b;font-size:14px;line-height:20px;padding-top:7px;"><div>' + data.type_text + '</div><div style="color:#000;text-overflow:ellipsis;overflow:hidden;width:320px;white-space:nowrap;">' + body + '</div></td></tr><tr height="24"><td style="vertical-align:middle;font-size:12px;color:#aaa;">' + interactive_update_dateFormat(data).full_date + '</td></tr></table></td></tr></table><br/>');
+            }
             $('.info_list').append(element);
             element.click(function() {
                 if (data.activate == 'false') {
@@ -890,6 +975,7 @@
         }
 
         function interactive_update_switchType(data) {
+            data.type_community = 0;
             switch (data.type) {
                 case 'discussion':
                     data.type_text = "<b>" + data.interviewer_name + "</b> has added a comment to your discussion topic or comment in course " + data.course_number + ".";
@@ -911,6 +997,7 @@
                     break;
                 default:
                     data.type_text = data.subject || data.body;
+                    data.type_community = 1;
             }
         }
 
