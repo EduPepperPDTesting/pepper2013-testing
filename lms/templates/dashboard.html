@@ -486,6 +486,7 @@
 	});
 </script>
 </%block>
+<span id="organization_obj" o_name="dashboard"></span>
 <section class="container dashboard" id="container_dashboard">
   %if message and curr_user==request.user:
     <section class="dashboard-banner">
@@ -629,12 +630,12 @@
 			  ${curr_user.profile.district.state.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;"><b>District:</b>
+			<div style="line-height:30px;" id="organization_obj_dashboard_district"><b>District:</b>
 			  % if curr_user.profile.district_id:
 			  <br>${curr_user.profile.district.name}
 			  % endif
 			</div>
-			<div style="line-height:30px;"><b>School:</b>
+			<div style="line-height:30px;" id="organization_obj_dashboard_school"><b>School:</b>
 			  % if curr_user.profile.school_id:
 			  <br>${curr_user.profile.school.name}
 			  % endif
@@ -1208,7 +1209,7 @@ Add info that you would like to share about yourself here:
     <form id="change_school_form" method="post">
       <fieldset>
         <div class="input-group">
-            <label>School:</label>
+            <label id="organization_obj_dashboard_school2">School:</label>
             <label style="margin:20px 0;display:block;">
               <select name="school_id" style="width:100%" autocomplete="off">
               	% if curr_user.profile.district_id:

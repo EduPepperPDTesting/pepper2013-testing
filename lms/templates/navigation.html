@@ -1369,7 +1369,7 @@
         <div class="control global_task_panel">
             <input type="button" name="" value="? running tasks" class="task_pannel_toggle"/>
             <div class="content"></div>
-      <textarea class="setting">
+      <textarea class="setting" style="overflow:hidden">
         {
           "interval": 5000,
           "urls": {
@@ -1404,9 +1404,12 @@
 	};
 	
 	//------------------organization_get_info
+	var organization_data;
 	$(document).ready(function(){
-		
-		var flag_main = ($(".mainlogo").length > 0) ? 1 : 0;
+		var flag_main = "";
+		if($(".mainlogo").length > 0) 					flag_main = "index";
+		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
+
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
 			if (r.SiteURL_OK){
 				if(r.Success){
@@ -1419,7 +1422,11 @@
 								}
 							}
 						}
-						if(r.flag_main == "1"){
+						if(r.LogoHome != "" && typeof(r.LogoHome) != "undefined"){
+							$(".logo:first").find("img").attr("src", "/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoHome);
+						}
+						
+						if(r.flag_main == "index"){
 							if(r.TopMainLogo)		$(".mainlogo").find("img").attr("src", "/static/uploads/organization/main_page/" + r.TopMainLogo);
 							if(r.MainLogoText)		$(".maintitle").html(r.MainLogoText);
 							if(r.BottomMainLogo)	$(".sub_div_1").html("<img src='/static/uploads/organization/main_page/" + r.BottomMainLogo + "' width='963' height='225' />");							
@@ -1432,6 +1439,57 @@
 								if(r.MainPageButtonText)	$(".sub_div_2_3_btn").find("a").html(r.MainPageButtonText);
 								if(r.MainPageButtonLink)	$(".sub_div_2_3_btn").find("a").attr("href", r.MainPageButtonLink);
 							}
+						}else if(r.flag_main == "dashboard"){
+							var tmp_div = $(".my-courses:first").find("div");
+							if(r.LogoProfile != "" && typeof(r.LogoProfile) != "undefined"){
+								tmp_div.css("backgroundImage", "none");
+								tmp_div.css("border", "2px solid #bbbbbb");
+								tmp_div.append("<img src='/static/uploads/organization/" + r.OrganizationId + "/" + r.LogoProfile + "' width='270' height='200' style='position:absolute; left:580px; top:20px;'>");
+								tmp_div.append("<span style='position:absolute; width:450px; height:100px; left:30px; top:50px; overflow:hidden; font-size:30px; font-weight:bold; color:#000;'>" + r.Motto + "</span>");
+							}
+							$("#organization_obj_dashboard_district").find("b").html(r.DistrictType + ":");
+							$("#organization_obj_dashboard_school").find("b").html(r.SchoolType + ":");
+							$("#organization_obj_dashboard_school2").html(r.SchoolType + ":");
+							
+						}else if(r.flag_main == "communities"){
+							$(".mydistrict-button").find("div").html(r.DistrictType + " Communities");
+							
+						}else if(r.flag_main == "pepconn"){
+							$("#District_search").attr("placeholder", "Search " + r.DistrictType);
+							$("#district_table_init").find(".district_code").html(r.DistrictType + " Id");
+							$("#district_table_init").find(".district_name").html(r.DistrictType + " Name");
+							
+							$("#School_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#School_search").attr("placeholder", "Search " + r.SchoolType);
+							$("#school_table_init").find(".school_code").html(r.SchoolType + " Code");
+							$("#school_table_init").find(".school_name").html(r.SchoolType + " Name");
+							$("#school_table_init").find(".school_district_id").html(r.DistrictType);
+							$("#school_table_init").find(".school_district_two").html(r.DistrictType + " ID");
+							
+							$("#User_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#User_school_select").find("option:first").html("Select " + r.SchoolType);
+							$("#user_table_init").find(".user_school").html(r.SchoolType);
+							$("#user_table_init").find(".user_district").html(r.DistrictType);
+							
+							$("#Cohort_district_select").find("option:first").html("Select " + r.DistrictType);
+							$("#cohort_table_init").find(".cohort_district_name").html(r.DistrictType + " Name");
+							$("#cohort_table_init").find(".cohort_district_code").html(r.DistrictType + " Code");
+							
+						}else if(r.flag_main == "pepreg"){
+							var tmp_first = $("#district_select").find("option:first");
+							if(tmp_first.val() == ""){
+								tmp_first.html("Select " + r.DistrictType);
+							}
+							$("#organization_pepreg_ds1").text(r.DistrictType + "/" + r.SchoolType + " Training or PD Event");
+							$("#organization_pepreg_d1").text(r.DistrictType + ":");
+							$("#organization_pepreg_s1").text(r.SchoolType + ":");
+							
+						}else if(r.flag_main == "people"){
+							$("select[name='district_id']").find("option:first").html(r.DistrictType);
+							$("select[name='school_id']").find("option:first").html(r.SchoolType);
+							
+						}else if(r.flag_main == "report"){
+							organization_data = r;
 						}
 					}
 					else{
