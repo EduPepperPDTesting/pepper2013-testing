@@ -424,7 +424,7 @@ urlpatterns = (
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
-    url(r'^newdashboard$', 'student.views.newdashboard', name="newdashboard"),
+    url(r'^newdashboard$', 'student.newdashboard.newdashboard', name="newdashboard"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
 
