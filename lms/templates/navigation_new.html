@@ -466,7 +466,7 @@
                         <!-- Administration -->
                         <li style="margin-left:5px;margin-right:0px;" class="admin-menu-holder">
                             <a href="#" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
-                                <img src="/static/images/newdashboard/header_my_admin_tools_45.png" title="Tools" width="45"/>
+                                <img src="/static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
                                 <div class="nav-option-text">Tools</div>
                             </a>
                             <ul class="admin-dropdown-menu">
@@ -479,7 +479,7 @@
                                 %endif
                                 %if check_user_perms(curr_user, 'permissions'):
                                     <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
-                                %endif
+                                %endifww
                                 %if check_user_perms(curr_user, 'time_report'):
                                     <li><a href="${reverse('time_report')}">Time Report</a></li>
                                 %endif
