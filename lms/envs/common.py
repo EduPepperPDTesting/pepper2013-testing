@@ -865,7 +865,9 @@ INSTALLED_APPS = (
 
     # SSO
     'sso',
-    
+
+    # PD Training Registration
+    'training'
 )
 
 ######################### MARKETING SITE ###############################

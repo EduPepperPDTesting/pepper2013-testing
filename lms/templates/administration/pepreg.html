@@ -79,7 +79,7 @@
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 </style>
-
+<span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
     <div class="main, data_import_content">
         <div class="expand_title expand_title_collapse">
@@ -305,9 +305,10 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div style="padding:10px;text-align:right;">
+        <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
             <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-        	<span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+            <input onclick="location.href='${reverse('training_registration', args=[0])}';" type="button" name="" value="Register/Unregister Students" class="small" id="register_unregister_students" />
+            <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
 	        <input type="button" name="" value="Reminder Email" class="small" id="reminder_mail_btn" />
             <input type="button" name="" value="Download Excel" class="small download-students-excel" />
         </div>
@@ -339,7 +340,7 @@
                         </div>
                         <div class="form-row" style="font-size:12px;">
                             <input type="radio" name="type" value="pd_training" autocomplete="off"/>
-                            <span style="font-weight:bold;">District/School Training or PD Event</span>
+                            <span style="font-weight:bold;" id="organization_pepreg_ds1">District/School Training or PD Event</span>
                             <div style="padding-left:2em;">
                                 Choosing this option will allow you to create a custom training<br> or PD event specific
                                 for your District/School staff.<br/>
@@ -354,7 +355,7 @@
                         <h5>Create Your Training or PD Event: Step 2 of 6</h5>
                         <h4>General Training Information</h4>
                         <div class="form-row">
-                            <span class="label">District:</span>
+                            <span class="label" id="organization_pepreg_d1">District:</span>
                             <select id="district_id" name="district_id" autocomplate="off">
                                 %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                                     <option value=""></option>
@@ -367,7 +368,7 @@
                             </select>
                         </div>
                         <div class="form-row">
-                            <span class="label">School:</span>                            
+                            <span class="label" id="organization_pepreg_s1">School:</span>                            
                             %if check_access_level(request.user, 'pepreg', 'add_new_training') == "System":
                             <select id="school_id" name="school_id" flag_system="1" autocomplate="off" style="min-width:200px;"></select>
                             %elif check_access_level(request.user, 'pepreg', 'add_new_training') == "District":
@@ -1423,33 +1424,47 @@
     };
     PepReg.prototype.showStudents = function (training_id) {
         var self = this;
+        console.log('training_id '+training_id)
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+            console.log('r.success '+r.success)
             if (r.success) {
-				//Last Reminder Email: 08/16/2016
-				if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){				
-					$("#reminder_mail_date").show();
-					//$("#reminder_mail_btn").show();
-					$("#reminder_mail_btn").attr("disabled", false);
-					$("#reminder_mail_date").html("");
+				// hide/show register button
+				if(!r.arrive && r.allow_registration && !r.student_limit){ // akogan
+                    //$("#register_unregister_students").replaceWith("<input onclick=\"location.href='${reverse('training_registration', args=[0])}';\" type=\"button\" name=\"\" value=\"Register/Unregister Students\" class=\"small\" id=\"register_unregister_students\" />");
+                    $("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
+                    $("#register_unregister_students").attr("disabled", false);
+                    $("#register_unregister_students").unbind("click").click(function () {
 
-					if(r.last_date != null && r.last_date != "null")
-						$("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
-					
-					$("#reminder_mail_btn").unbind("click").click(function () {
-						last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
-						$.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
-							if(r._res == "1"){
-								alert("Sent successfully!");
-							}else{
-								alert("Send failure!");
-							}
-						});
-					});
+                    });
 				}else{
-					$("#reminder_mail_date").hide();
-					$("#reminder_mail_btn").attr("disabled", true);
-					//$("#reminder_mail_btn").hide();
+                    $("#register_unregister_students").attr("disabled", true);
 				}
+
+                //Last Reminder Email: 08/16/2016
+                if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){
+                    $("#reminder_mail_date").show();
+                    //$("#reminder_mail_btn").show();
+                    $("#reminder_mail_btn").attr("disabled", false);
+                    $("#reminder_mail_date").html("");
+
+                    if(r.last_date != null && r.last_date != "null")
+                        $("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
+
+                    $("#reminder_mail_btn").unbind("click").click(function () {
+                        last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
+                        $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+                            if(r._res == "1"){
+                                alert("Sent successfully!");
+                            }else{
+                                alert("Send failure!");
+                            }
+                        });
+                    });
+                }else{
+                    $("#reminder_mail_date").hide();
+                    $("#reminder_mail_btn").attr("disabled", true);
+                    //$("#reminder_mail_btn").hide();
+                }
 			
                 var dlg = new Dialog($("#dlg-students"));
                 dlg.show("Student Information for " + r.training_name);
@@ -1480,6 +1495,8 @@
                             if (r) {
                                 self.deleteStudent(data.id, function () {
                                     $row.remove();
+                                    $(".inner-wrapper").find("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
+                                    $(".inner-wrapper").find("#register_unregister_students").attr("disabled", false);
                                 });
                             }
                         });

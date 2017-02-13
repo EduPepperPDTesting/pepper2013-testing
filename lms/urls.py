@@ -75,6 +75,7 @@ urlpatterns = (
 
     # === pepreg begin ==
     url(r'^pepreg/$', 'administration.pepreg.index', name='pepreg'),
+
     url(r'^pepreg/rows$', 'administration.pepreg.rows', name="pepreg_rows"),
     url(r'^pepreg/save_training$', 'administration.pepreg.save_training', name="pepreg_save_training"),
     url(r'^pepreg/delete_training$', 'administration.pepreg.delete_training', name="pepreg_delete_training"),
@@ -89,6 +90,12 @@ urlpatterns = (
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
+    #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/leave/$', 'training.views.training_leave', name='training_leave'),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_add_user_rows/$', 'training.views.get_add_user_rows', name="training_get_add_user_rows"),
+    url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/tables/get_remove_user_rows/$', 'training.views.get_remove_user_rows', name="training_get_remove_user_rows"),
     # === pepreg end ==
 
     # === Portfolio Settings begin ==
@@ -424,7 +431,8 @@ urlpatterns = (
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
-    url(r'^newdashboard$', 'student.views.newdashboard', name="newdashboard"),
+    url(r'^newdashboard$', 'student.newdashboard.newdashboard', name="newdashboard"),
+    url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
 

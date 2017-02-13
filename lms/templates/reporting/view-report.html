@@ -31,6 +31,7 @@
         margin-left: -64px;
     }
 </style>
+<span id="organization_obj" o_name="report"></span>
 <div id="reporting">
     <div id="back">
         <a href="${reverse('reporting_reports')}" class="up_page"></a>&nbsp;
@@ -239,6 +240,15 @@
                         loadwin.hide();
                         $.post("${reverse('report_get_custom_filters',args=[report.id])}", function(data) {
                             set_custome_filters($(".tblReport"), data.data);
+							
+							$(".tablesorter-header-inner").each(function(){
+								var tmp1 = $(this).text().trim();
+								if(tmp1 == "District"){
+									$(this).html(organization_data.DistrictType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+								}else if(tmp1 == "School"){
+									$(this).html(organization_data.SchoolType + '<i class="tablesorter-icon ui-icon ui-icon-carat-2-n-s"></i>');
+								}
+							});
                         });
                     }
                 }

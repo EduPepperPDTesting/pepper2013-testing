@@ -270,7 +270,7 @@
 </div>
 
 <div class="organization_main1 expand_title_parent">
-    <div class="expand_title expand_title_collapse" id="org2">Organization Districts<div class="icon"></div></div>
+    <div class="expand_title expand_title_collapse" id="org2">Organization Locations<div class="icon"></div></div>
     <div class="expand_div">
         <select id="org_state_select" style="width:200px;">
         	<option value="">Select State</option>
@@ -329,12 +329,12 @@
         	      
         	<table width="800" border="0" class="org_table1">
             	<tr>
-                	<td width="230" class="org_td1">Home Page Logo(100&times;100px): </td>
+                	<td width="230" class="org_td1">Home Page Logo(170&times;58px): </td>
                     <td id="organizational_base_home_logo_p"></td>
                     <td width="70"></td>
             	</tr>
                 <tr>
-                	<td class="org_td1">Profile Logo(100&times;100px): </td>
+                	<td class="org_td1">Profile Logo(270&times;200px): </td>
                     <td id="organizational_base_profile_logo_p"></td>
                     <td></td>
                 </tr>
@@ -678,7 +678,6 @@
 									$(".expand_title_parent").show();
 									organizationAddFileImg("organizational_base_home_logo", r.home_logo);
 									organizationAddFileImg("organizational_base_profile_logo", r.profile_logo);
-									
 									organizationAddFileImgInit("organizational_base_home_logo");
 									organizationAddFileImgInit("organizational_base_profile_logo");
 									
@@ -762,7 +761,7 @@
 	}	
 	
 	//-----------------------------------------------------------------------organizationAddFileImg
-	function organizationAddFileImg(flag_new, eid, name){
+	function organizationAddFileImg(eid, name){
 		if(org_current_id != ""){
 			$("#" + eid + "_p").next().empty();
 			if(name){
