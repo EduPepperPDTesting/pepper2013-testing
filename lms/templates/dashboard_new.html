@@ -10,11 +10,144 @@
     from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
     import datetime
+
+    from communities.views import user_in_community, community_in_state, community_in_district
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-    #image_uploading{display:none;}
+#image_uploading{display:none;}
+/*-----------------------------------*/
+.ds-course-card{
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);
+    float: left;*/
+    width: 213px;/*242px*/
+    /*min-height: 142px;
+    margin: 20px;*/
+    cursor: auto!important;
+    border:1px solid #ccc;
+}
+/*
+.ds-image-style{
+    border-radius: 6px 6px 0px 0px;
+    -moz-border-radius: 6px 6px 0px 0px;
+    -webkit-border-radius: 6px 6px 0px 0px;
+    display: block;
+    font-size:13px;
+}
+*/
+.ds-card-link{
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    color: #FFFFFF !important;
+    /*background: rgba(18,111,154,0.95);*/
+    text-decoration: none!important;
+}
+.ds-course-title {
+    height: 60px;
+    width: 215px;
+    position: relative;
+    bottom: 0;
+    left:-1px;
+    font-size:13px;
+    background: rgba(18,111,154,0.95);
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+}
+
+.ds-course-btn .ds-btn-view-portfolio{
+    color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#556370;
+}
+.ds-course-btn .ds-btn-view-course{
+     color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#4ecdc4;
+    margin-left: 1px;
+}
+.ds-view-all-courses{
+    width:215px;
+    text-align:right;
+    margin-top: -10px;
+    border:0px solid;
+}
+.ds-view-all-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-view-all-communities{
+    width:215px;
+    text-align:right;
+    margin-top:-5px;
+    border:0px solid;
+}
+.ds-view-all-communities a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-my-status{
+    width:185px;
+    font-size: 13px;
+    border-radius: 6px;
+    margin-top: 20px;
+    padding: 15px 15px 15px 15px;
+    border:1px solid #666;
+}
+.image-link-style {
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:215px;
+    height:100px;
+    background-size: auto 100px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+
+    border-top: 1px  solid #ccc;
+    border-left: 1px  solid #ccc;
+    border-right: 1px  solid #ccc;
+}
+.image-bottom-style {
+    border-radius: 0 0 5px 5px;
+    -moz-border-radius: 0 0 5px 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+}
+.card-link {
+    display: table-cell;
+    width: 183px;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+}
+.card-link span {
+    color: #FFFFFF;
+    font-size: 13px;
+}
 </style>
 <!--@end-->
 <%inherit file="main_new.html" />
@@ -26,36 +159,69 @@
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <!--@end-->
 
-<section class="content-wrapper">
-    <section class="container dashboard">
+<section class="content-wrapper" style="margin-top:0px;">
+    <section class="container dashboard" style="margin-top:10px;">
         <!--width 275 + 10 + 610 + 10 + 275 = 1180-->
+        <!--width 230 + 720 + 230 = 1180-->
         <!--Courses Dashboard-->
-        <div class="my-courses">
-            <div class="title">My Course & Workshops</div>
-            <!--loop start-->
-            % for i,course in enumerate(courses_incomplated):
-                <% 
-                    if i > 1:break;
-                %>
-                <table width="100%" border="0" style="margin:10px 0 15px 0;">
-                    <tr>
-                        <td rowspan="2" scope="col" width="215">
-                            <%include file="course_dashboard.html" args="course=course" />
-                        </td>
-                        <td scope="col" style="padding-left:5px;"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
-                    </tr>
-                    <tr>
-                        <td scope="col" style="padding-left:5px;"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
-                    </tr>
-                </table>
-            % endfor
-            <!--loop end-->
-            <table class="seemore" width="210" height="30" border="0">
-                <tr>
-                    <td><a href="#">See More</a></td>
-                    <td align="right"><a href="#">+ Content</a></td>
-                </tr>
-            </table>
+        <div class="my-courses" style="border:0px solid;width:220px;">
+            <div class="title" style="width:215px;text-align:center;">
+                <a href="/courses" style="font-size:16px;color:#3C4646;text-decoration:none;cursor:pointer;font-weight:bold;">My Course & Workshops</a>
+            </div>
+            <div style="margin-top:10px;">
+                %for i,course in enumerate(courses_incomplated):
+                    <%
+                        if i > 2:break;
+                        course_target = reverse('courseware', args=[course.id])
+                    %>
+                    <div style="width:220px;margin-bottom:25px;border:0px solid #f00;">
+                        <div class="ds-course-card" style="cursor:pointer;">
+                            <div class="card-top" style="border:0px solid #f00;">
+                                <div class="field-items">
+                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" width="215"  alt="Cover Image"></figure>
+                                </div>
+                                <div class="ds-course-title">
+                                    <div class="field-content">
+                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
+
+                        <div class="ds-course-btn" style="border:0px solid;line-height:27px;height:28px;margin-top:3px;">
+                            %if course.id in show_courseware_links_for:
+                                %if curr_user == request.user:              
+                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                                %else:
+                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                                %endif
+                                %if curr_user == request.user and not course.close_course:      
+                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                                %endif
+                            %endif
+                        </div>
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-courses">
+                <a href="/my_courses">View All</a>
+            </div>
+            <div class="ds-my-status">
+                <b>My Pepper Achievements Status</b>
+                </br>
+                <b>All Course Time:310 Minutes</b>
+                </br>
+                <b>Collaboration Time:87 Minutes</b>
+                </br>
+                <b>Total Time:397 Minutes</b>
+                </br>
+                </br>
+                <span>Cetificates</span>
+                </br>
+                Pep101x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI141E
+                </br>
+                EDU506
+            </div>
         </div>
 
         <!--Post Dashboard-->
@@ -123,33 +289,23 @@
         </div>
 
         <!--Community Dashboard-->
-        <div class="my_community">
-            <div class="title" style="text-align:right">Coaching & Collaboration</div>
-            <!--loop start-->
-            % for i,course in enumerate(courses_incomplated):
-                <% 
-                    if i > 1:break;
-                %>
-                <table width="100%" border="0" style="margin:10px 0 15px 0;">
-                    <tr>
-                        <td scope="col" style="padding-left:7px;"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
-                        <td rowspan="2" scope="col" width="215">
-                            <%include file="course_dashboard.html" args="course=course"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td scope="col" style="padding-left:7px;"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
-                    </tr>
-                </table>
-            % endfor
-            <!--loop end-->
-            <table class="seemore" width="100%" height="30" border="0">
-                <tr>
-                    <td width="65"></td>
-                    <td style="text-align:left;"><a href="#">See More<a></td>
-                    <td><a href="#">+ Content<a></td>
-                </tr>
-            </table>
+        <div class="my_community" style="border:0px solid #f00;width:220px;">
+            <div class="title" style="width:215px;text-align:center;border:0px solid #f00;">
+                <a href="/communities" style="font-size:16px;color:#3C4646;text-decoration:none;cursor:pointer;font-weight:bold;">Coaching & Collaboration</a>
+            </div>
+            <div style="margin-top:10px;">
+                %for community in communities:
+                    %if user_in_community(community['id'], request.user.id):
+                        <div style="width:220px;margin-bottom:25px;border:0px solid #f00;">
+                            <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                        </div>
+                    %endif
+                %endfor
+            </div>
+            <div class="ds-view-all-communities" style="">
+                <a href="/communities">View All</a>
+            </div>
         </div>
         <div style="clear:both;"></div>
     </section>
@@ -354,4 +510,21 @@ $(document).ready(function(){
     });
     //@end
 });
+</script>
+<script>
+$(function(){
+    $(".ds-card-link").hover(
+        function () {
+            $(this).find("span").html("<span style='margin-right:80px;'>Course Details</span><span>›</span>");
+        },
+        function () {
+            $(this).find("span").html($(this).attr("title"));
+        }
+    );
+    $(".ds-card-link").each(function(){
+        if($(this).height()>60){
+            $(this).css("fontSize","12px");
+        }
+    });
+})
 </script>
