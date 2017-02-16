@@ -25,7 +25,6 @@ from PIL import Image
 import os
 import os.path
 
-@login_required
 #-------------------------------------------------------------------main
 def main(request):
     get_flag = request.GET.get("flag")
@@ -77,6 +76,7 @@ def main(request):
         return render_to_response(tmp)
 
 #-------------------------------------------------------------------organization_list
+@login_required
 def organization_list(request):
     oid = request.GET.get("oid")
     if (oid):
@@ -91,6 +91,7 @@ def organization_list(request):
     return HttpResponse(json.dumps({'success': True, 'rows': rows}), content_type="application/json")
 
 #-------------------------------------------------------------------organization_check
+@login_required
 def organization_check(request):
     valid = True
     error = ''
@@ -108,6 +109,7 @@ def organization_check(request):
     return HttpResponse(json.dumps({'success': valid, 'Error': error}), content_type="application/json")
 
 #-------------------------------------------------------------------organization_add
+@login_required
 def organization_add(request):
     name = request.POST.get('organizational_name', False)
     oid = request.POST.get('oid', False)
@@ -130,6 +132,7 @@ def organization_add(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organization_add
+@login_required
 def organization_delete(request):
     try:
         for oid in request.POST.get("ids", "").split(","):
@@ -148,6 +151,7 @@ def organization_delete(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------org_check_Entity
+@login_required
 def org_check_Entity(request):
     try:
         oid = request.POST.get("oid", "")
@@ -169,6 +173,7 @@ def org_check_Entity(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organization_remove_img
+@login_required
 def organization_remove_img(request):
     data = {'Success': False}
     try:
@@ -222,6 +227,7 @@ def organization_remove_img(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organization_get
+@login_required
 def organization_get(request):
     oid = request.GET.get('oid', False)
     data = {}
@@ -295,6 +301,7 @@ def organization_get(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organizational_save_base
+@login_required
 def organizational_save_base(request):
     try:
         oid = request.POST.get("oid", "")
@@ -362,6 +369,7 @@ def organizational_save_base(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organizational_save_base
+@login_required
 def org_upload(request):
     try:
         data = {'Success': False}
@@ -429,6 +437,7 @@ def org_upload(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organization_main_page_configuration_get
+@login_required
 def organization_main_page_configuration_get(request):
     data = {}
     try:
@@ -454,6 +463,7 @@ def organization_main_page_configuration_get(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------organizational_save_main_base
+@login_required
 def organizational_save_main_base(request):
     try:
         site_url = request.POST.get("site_url", "")
@@ -479,6 +489,7 @@ def organizational_save_main_base(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 #-------------------------------------------------------------------org_main_upload
+@login_required
 def org_main_upload(request):
     try:
         data = {'Success': False}
@@ -529,8 +540,8 @@ def org_main_upload(request):
 def organization_get_info(request):
     source = request.POST.get('source', False)
     flag_main = request.POST.get('flag_main', False)
-    data = {'Success': False}
-    data['flag_main'] = flag_main
+    data = {'Success': False, 'SiteURL_OK': False, 'flag_main': flag_main}
+
     try:
         data['url'] = request.get_host()
         for org_main in MainPageConfiguration.objects.prefetch_related().all():
@@ -584,63 +595,65 @@ def organization_get_info(request):
                 data['Success'] = True
 
             elif(source == "navigation"):
-                state = request.user.profile.district.state.id
-                district = request.user.profile.district.id
-                data['OrganizationOK'] = False
+                if request.user.is_authenticated():
+                    state = request.user.profile.district.state.id
+                    district = request.user.profile.district.id
 
-                if (district):
-                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
-                                                                     EntityType="District"):
-                        data['OrganizationOK'] = True
-                        organization_obj = tmp1.organization
-                        break;
+                    data['OrganizationOK'] = False
 
-                if (not (data['OrganizationOK']) and state):
-                    for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
-                        data['OrganizationOK'] = True
-                        organization_obj = tmp1.organization
-                        break;
+                    if (district):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=district,
+                                                                         EntityType="District"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
 
-                if (data['OrganizationOK']):
-                    data['OrganizationName'] = organization_obj.OrganizationName
-                    data['OrganizationId'] = organization_obj.id
-                    data['DistrictType'] = organization_obj.DistrictType
-                    data['SchoolType'] = organization_obj.SchoolType
+                    if (not (data['OrganizationOK']) and state):
+                        for tmp1 in OrganizationDistricts.objects.filter(OrganizationEnity=state, EntityType="State"):
+                            data['OrganizationOK'] = True
+                            organization_obj = tmp1.organization
+                            break;
 
-                    for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
-                        data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
-                        data['org_tm_communities_obj'] = tmp2.DataItem.find("org_tm_communities")
-                        data['org_tm_my_chunks_obj'] = tmp2.DataItem.find("org_tm_my_chunks")
-                        data['org_tm_resources_obj'] = tmp2.DataItem.find("org_tm_resources")
-                        data['org_tm_people_obj'] = tmp2.DataItem.find("org_tm_people")
-                        data['org_tm_notifications_obj'] = tmp2.DataItem.find("org_tm_notifications")
+                    if (data['OrganizationOK']):
+                        data['OrganizationName'] = organization_obj.OrganizationName
+                        data['OrganizationId'] = organization_obj.id
+                        data['DistrictType'] = organization_obj.DistrictType
+                        data['SchoolType'] = organization_obj.SchoolType
 
-                        data['org_tsm_configuration_obj'] = tmp2.DataItem.find("org_tsm_configuration")
-                        data['org_tsm_pepper_pd_planner_obj'] = tmp2.DataItem.find("org_tsm_pepper_pd_planner")
-                        data['org_tsm_pepconn_obj'] = tmp2.DataItem.find("org_tsm_pepconn")
-                        data['org_tsm_roles_permissions_obj'] = tmp2.DataItem.find("org_tsm_roles_permissions")
-                        data['org_tsm_time_report_obj'] = tmp2.DataItem.find("org_tsm_time_report")
-                        data['org_tsm_reporting_obj'] = tmp2.DataItem.find("org_tsm_reporting")
-                        data['org_tsm_sso_metadata_obj'] = tmp2.DataItem.find("org_tsm_sso_metadata")
-                        data['org_tsm_tnl_configuration_obj'] = tmp2.DataItem.find("org_tsm_tnl_configuration")
-                        data['org_tsm_studio_obj'] = tmp2.DataItem.find("org_tsm_studio")
-                        data['org_tsm_alert_obj'] = tmp2.DataItem.find("org_tsm_alert")
-                        data['org_tsm_notifications_obj'] = tmp2.DataItem.find("org_tsm_notifications")
-                        data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
-                        data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
-                        break;
+                        for tmp2 in OrganizationDataitems.objects.filter(organization=organization_obj):
+                            data['org_tm_course_workshop_obj'] = tmp2.DataItem.find("org_tm_course_workshop")
+                            data['org_tm_communities_obj'] = tmp2.DataItem.find("org_tm_communities")
+                            data['org_tm_my_chunks_obj'] = tmp2.DataItem.find("org_tm_my_chunks")
+                            data['org_tm_resources_obj'] = tmp2.DataItem.find("org_tm_resources")
+                            data['org_tm_people_obj'] = tmp2.DataItem.find("org_tm_people")
+                            data['org_tm_notifications_obj'] = tmp2.DataItem.find("org_tm_notifications")
+
+                            data['org_tsm_configuration_obj'] = tmp2.DataItem.find("org_tsm_configuration")
+                            data['org_tsm_pepper_pd_planner_obj'] = tmp2.DataItem.find("org_tsm_pepper_pd_planner")
+                            data['org_tsm_pepconn_obj'] = tmp2.DataItem.find("org_tsm_pepconn")
+                            data['org_tsm_roles_permissions_obj'] = tmp2.DataItem.find("org_tsm_roles_permissions")
+                            data['org_tsm_time_report_obj'] = tmp2.DataItem.find("org_tsm_time_report")
+                            data['org_tsm_reporting_obj'] = tmp2.DataItem.find("org_tsm_reporting")
+                            data['org_tsm_sso_metadata_obj'] = tmp2.DataItem.find("org_tsm_sso_metadata")
+                            data['org_tsm_tnl_configuration_obj'] = tmp2.DataItem.find("org_tsm_tnl_configuration")
+                            data['org_tsm_studio_obj'] = tmp2.DataItem.find("org_tsm_studio")
+                            data['org_tsm_alert_obj'] = tmp2.DataItem.find("org_tsm_alert")
+                            data['org_tsm_notifications_obj'] = tmp2.DataItem.find("org_tsm_notifications")
+                            data['org_tsm_usage_report_obj'] = tmp2.DataItem.find("org_tsm_usage_report")
+                            data['org_tsm_portfolio_settings_obj'] = tmp2.DataItem.find("org_tsm_portfolio_settings")
+                            break;
 
 
-                    for tmp2 in OrganizationAttributes.objects.filter(organization=organization_obj):
-                        data['LogoHome'] = tmp2.LogoHome
-                        if (flag_main == "dashboard"):
-                            data['LogoProfile'] = tmp2.LogoProfile
-                            data['Motto'] = tmp2.Motto
-                        break;
+                        for tmp2 in OrganizationAttributes.objects.filter(organization=organization_obj):
+                            data['LogoHome'] = tmp2.LogoHome
+                            if (flag_main == "dashboard"):
+                                data['LogoProfile'] = tmp2.LogoProfile
+                                data['Motto'] = tmp2.Motto
+                            break;
 
-                data['Success'] = True
+                    data['Success'] = True
 
     except Exception as e:
-        data = {'Success': False, 'Error': '{0}'.format(e)}
+        data = {'SiteURL_OK': False, 'Error': '{0}'.format(e)}
 
     return HttpResponse(json.dumps(data), content_type="application/json")
