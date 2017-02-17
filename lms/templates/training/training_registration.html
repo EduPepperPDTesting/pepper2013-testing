@@ -112,8 +112,8 @@
                                 %endif
                             %endfor
                         </select>
-                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
-                        <input type = "checkbox" id = "checkall">Check All
+                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table, .checkallusers').show()"/>
+                        <span class="selectall"><input type="checkbox" id="checkallusers" class="checkallusers" name="adduser" autocomplete="off" style="display:none;">&nbsp<span class="checkallusers" style="display:none;"><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
                             <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
@@ -339,7 +339,7 @@
                     $(item).css("display", "");
                 }
             }
-            this.$content.find("#selectalluser").click(function () {
+            this.$content.find("#selectalluser, #checkallusers").click(function () {
                 if (this.checked) {
                     self.$content.find(".user_table_init input[type=checkbox]").each(function () {
                         this.checked = true;
@@ -389,7 +389,7 @@
         tabAdd.show();
         var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
         //* ----------- init expand title
-        $("#dlg-students").find(".expand_title").one("click", function () {
+        $("#dlg-students").find(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
                 $div.slideUp();
@@ -412,7 +412,7 @@
                 $("input:checkbox").prop('checked', $(this).prop("checked"));
             });
 
-            $("#dlg-students").on("click", ".close-modal", function(){
+            $("#dlg-students").find(".close-modal").one("click", function(){
                 $('body').removeClass('modal-open');
                 $('.lean-overlay').remove();
                 $('.modal-backdrop').remove();
@@ -467,7 +467,7 @@
                 console.log('r.success '+r.success)
                 if (r.success) {
                     // hide/show register button
-                    if(!r.arrive && r.allow_registration && !r.student_limit){ // akogan
+                    if(!r.arrive && r.allow_registration){ // akogan  && !r.student_limit
                        $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
                         e.preventDefault();
                         $("#dlg-students-info").css("display", "none");

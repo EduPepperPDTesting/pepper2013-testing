@@ -1441,7 +1441,7 @@
             console.log('r.success '+r.success)
             if (r.success) {
 				// hide/show register button
-				if(!r.arrive && r.allow_registration && !r.student_limit){ // akogan
+				if(!r.arrive && r.allow_registration){ // akogan;  && !r.student_limit
                    $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
                         e.preventDefault();
                         $("#dlg-students-info").css("display", "none");
@@ -1822,7 +1822,7 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
-        $(".expand_title").click(function () {
+        $(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
                 $div.slideUp();
