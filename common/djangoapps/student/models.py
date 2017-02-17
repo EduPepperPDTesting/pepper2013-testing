@@ -1324,6 +1324,7 @@ class DashboardPosts(models.Model):
     post = models.TextField(blank=False, max_length=255, db_index=False)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
     date_update = models.DateTimeField(auto_now_add=True, db_index=False)
+    date_end = models.DateField(auto_now_add=False, db_index=False, null=True)
 
 class DashboardPostsImages(models.Model):
     class Meta:
