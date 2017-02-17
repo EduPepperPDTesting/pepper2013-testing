@@ -10,8 +10,6 @@
     from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
     from baseinfo.models import Enum
     import datetime
-
-    from communities.views import user_in_community, community_in_state, community_in_district
 %>
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
@@ -31,15 +29,13 @@
     cursor: auto!important;
     border:1px solid #ccc;
 }
-/*
 .ds-image-style{
-    border-radius: 6px 6px 0px 0px;
-    -moz-border-radius: 6px 6px 0px 0px;
-    -webkit-border-radius: 6px 6px 0px 0px;
-    display: block;
-    font-size:13px;
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:213px
+    ;height:72px;
 }
-*/
 .ds-card-link{
     display: table-cell;
     height: 60px;
@@ -85,7 +81,7 @@
 .ds-view-all-courses{
     width:215px;
     text-align:right;
-    margin-top: -10px;
+    margin-top: -15px;
     border:0px solid;
 }
 .ds-view-all-courses a{
@@ -97,7 +93,7 @@
 .ds-view-all-communities{
     width:215px;
     text-align:right;
-    margin-top:-5px;
+    margin-top:-15px;
     border:0px solid;
 }
 .ds-view-all-communities a{
@@ -174,15 +170,15 @@
                         if i > 2:break;
                         course_target = reverse('courseware', args=[course.id])
                     %>
-                    <div style="width:220px;margin-bottom:25px;border:0px solid #f00;">
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
                         <div class="ds-course-card" style="cursor:pointer;">
                             <div class="card-top" style="border:0px solid #f00;">
                                 <div class="field-items">
-                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" width="215"  alt="Cover Image"></figure>
+                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" style=""  alt="Cover Image"></figure>
                                 </div>
                                 <div class="ds-course-title">
                                     <div class="field-content">
-                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
+                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" style="line-height:20px;"title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
                                     </div>
                                 </div>  
                             </div>
@@ -295,12 +291,10 @@
             </div>
             <div style="margin-top:10px;">
                 %for community in communities:
-                    %if user_in_community(community['id'], request.user.id):
-                        <div style="width:220px;margin-bottom:25px;border:0px solid #f00;">
-                            <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
+                        <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
                             <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                        </div>
-                    %endif
+                    </div>
                 %endfor
             </div>
             <div class="ds-view-all-communities" style="">
@@ -510,21 +504,4 @@ $(document).ready(function(){
     });
     //@end
 });
-</script>
-<script>
-$(function(){
-    $(".ds-card-link").hover(
-        function () {
-            $(this).find("span").html("<span style='margin-right:80px;'>Course Details</span><span>›</span>");
-        },
-        function () {
-            $(this).find("span").html($(this).attr("title"));
-        }
-    );
-    $(".ds-card-link").each(function(){
-        if($(this).height()>60){
-            $(this).css("fontSize","12px");
-        }
-    });
-})
 </script>

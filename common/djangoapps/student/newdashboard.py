@@ -2231,27 +2231,14 @@ def newdashboard(request, user_id=None):
     :return: The Communities page.
     """
     community_list = list()
-    filter_dict = dict()
 
-    # If this is a regular user, we only want to show public communities and private communities to which they belong.
-    if not request.user.is_superuser:
-        # Filter the normal query to only show public communities.
-        filter_dict.update({'private': False})
-
-        # Do a separate filter to grab private communities this user belongs to.
-        items = CommunityUsers.objects.select_related().filter(user=request.user, community__private=True)
-        for item in items:
-            community_list.append({'id': item.community.id,
-                                   'name': item.community.name,
-                                   'logo': item.community.logo.upload.url if item.community.logo else '',
-                                   'private': item.community.private})
-    # Query for the communities this user is allowed to see.
-    items = CommunityCommunities.objects.filter(**filter_dict)
+    # Just filter the communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')
     for item in items:
-        community_list.append({'id': item.id,
-                               'name': item.name,
-                               'logo': item.logo.upload.url if item.logo else '',
-                               'private': item.private})
+        community_list.append({'id': item.community.id,
+                               'name': item.community.name,
+                               'logo': item.community.logo.upload.url if item.community.logo else '',
+                               'private': item.community.private})
     #@end
 
     context = {
