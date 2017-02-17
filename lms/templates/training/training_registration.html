@@ -164,7 +164,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Register Selected Students" class="small small-grey" onclick="add_selected_users()"/>
+              <input type="button" value="Register Selected Students" id="Register_Selected_Students" class="small small-grey" onclick="add_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -273,11 +273,14 @@
     <script type="text/javascript"> // help
         //* ----------- define Tab class
         function Tab($tab,$content){
+
             var self=this;
             this.$tab=$tab;
             this.$content=$content;
             this.initContent();
             this.$tab.click(function(){
+                console.log($tab.selector);
+                checkStudentLimit(${training.id});
                 self.show();
                 return false;
             });
@@ -387,6 +390,7 @@
         //* -----------  init tabs
         var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
         tabAdd.show();
+        checkStudentLimit(${training.id});
         var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
         //* ----------- init expand title
         $("#dlg-students").find(".expand_title").off("click").bind("click", function () {
@@ -440,10 +444,12 @@
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
                     new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
+                    checkStudentLimit(${training.id});
                 });
             }else{
                 new Dialog($('#dialog')).show("Error", "Please select at least one student to register.");
             }
+
         }
         function remove_selected_users(){
             var ids=tabRemove.getSelectedIds();
@@ -589,5 +595,18 @@
                 return data[b];
             });
         };
+        function checkStudentLimit(training_id){
+            $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+                console.log('r.success '+r.success)
+                if (r.success) {
+                    // hide/show register button
+                    if(!r.student_limit){ // akogan;  && !r.student_limit
+                        $("#Register_Selected_Students").attr("disabled", false);
+                    }else{
+                        $("#Register_Selected_Students").attr("disabled", true);
+                    }
+                }
+            });
+         };
     </script>
 </body>
