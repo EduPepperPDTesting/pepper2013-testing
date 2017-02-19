@@ -2229,7 +2229,7 @@ def newdashboard(request, user_id=None):
     courses_incomplated_list = list()
     for k, v in enumerate(courses_incomplated):
         courses_incomplated_list.append(v)
-        if k > 2:
+        if k > 1:
             break
 
     #@end
