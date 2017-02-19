@@ -440,11 +440,16 @@
         function add_selected_users(){
             var ids=tabAdd.getSelectedIds();
             if(ids.length){
-                $.post("${reverse('training_join',args=[training.id])}",{user_ids:ids.join(",")},function(){
-                    tabAdd.reloadTable();
-                    tabRemove.reloadTable();
-                    new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
-                    checkStudentLimit(${training.id});
+                $.post("${reverse('training_join',args=[training.id])}",{user_ids:ids.join(",")},function(r){
+                    if (!r.error){
+                        tabAdd.reloadTable();
+                        tabRemove.reloadTable();
+                        new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
+                        checkStudentLimit(${training.id});
+                    }else{
+                        $("input:checked").prop("checked", false)
+                        new Dialog($('#dialog')).show("Error", r.error);
+                    }
                 });
             }else{
                 new Dialog($('#dialog')).show("Error", "Please select at least one student to register.");
