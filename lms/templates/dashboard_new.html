@@ -167,7 +167,6 @@
             <div style="margin-top:10px;">
                 %for i,course in enumerate(courses_incomplated):
                     <%
-                        if i > 2:break;
                         course_target = reverse('courseware', args=[course.id])
                     %>
                     <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
