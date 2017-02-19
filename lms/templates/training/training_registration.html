@@ -1,4 +1,4 @@
-<%inherit file="../main.html" />
+<!--%inherit file="../main.html"/-->
 <%!
     from django.core.urlresolvers import reverse
     from courseware.courses import course_image_url, get_course_about_section
@@ -53,17 +53,28 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-storage.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-output.min.js"></script>
 
-<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
-<link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/>
+<link rel = "stylesheet" href = "/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<!--link rel = "stylesheet" href = "/static/css/pepconn.css" type = "text/css" media = "screen"/-->
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel = "stylesheet" href = "/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media = "screen" />
+<link rel = "stylesheet" href = "/static/css/vendor/ui-lightness/jquery-ui-1.8.22.custom.css" media = "screen"/>
+
+<style>
+.small-grey {
+    border-color: #777 #777 #555 !important;
+    box-shadow: 0 1px 0 0 #aaa inset !important;
+    background-color: #888 !important;
+    background-image: linear-gradient(to bottom, #aaa 0%, #888 50%, #777 50%, #777 100%) !important;
+    text-shadow: 0 -1px 1px #555 !important;
+}
+</style>
 
 <body style="text-align:center">
 <div class="data_import_bottom" style="text-align:left;">
     <div class="main data_import_content">
         <div id="back">
             <a href="${reverse('pepreg')}" class="up_page"></a>&nbsp;
-            <a href="${reverse('pepreg')}">
+            <a id="close_registration"> <!-- href="${reverse('pepreg')}" -->
                 Back to Pepper PD Planner
             </a>
         </div>
@@ -101,8 +112,8 @@
                                 %endif
                             %endfor
                         </select>
-                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table').show()"/>
-                        <input type = "checkbox" id = "checkall">Check All
+                        <input type="button" name value="LOAD" class="load" onclick="$('#user-table, .checkallusers').show()"/>
+                        <span class="selectall"><input type="checkbox" id="checkallusers" class="checkallusers" name="adduser" autocomplete="off" style="display:none;">&nbsp<span class="checkallusers" style="display:none;"><b>Select All</b></span></span>
                         <div class="select-columns" id="user-select"><br>
                             <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
                             <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
@@ -153,7 +164,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Register Selected Students" class="small" onclick="add_selected_users()"/>
+              <input type="button" value="Register Selected Students" id="Register_Selected_Students" class="small small-grey" onclick="add_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -240,7 +251,7 @@
                 </select>
             </form>
             <span style="float: right; margin-right: 10px;">
-              <input type="button" value="Unregister Selected Students" class ="small" onclick="remove_selected_users()"/>
+              <input type="button" value="Unregister Selected Students" class ="small small-grey" onclick="remove_selected_users()"/>
             </span>
           </span>
                 </span>
@@ -262,11 +273,14 @@
     <script type="text/javascript"> // help
         //* ----------- define Tab class
         function Tab($tab,$content){
+
             var self=this;
             this.$tab=$tab;
             this.$content=$content;
             this.initContent();
             this.$tab.click(function(){
+                console.log($tab.selector);
+                checkStudentLimit(${training.id});
                 self.show();
                 return false;
             });
@@ -328,7 +342,7 @@
                     $(item).css("display", "");
                 }
             }
-            this.$content.find("#selectalluser").click(function () {
+            this.$content.find("#selectalluser, #checkallusers").click(function () {
                 if (this.checked) {
                     self.$content.find(".user_table_init input[type=checkbox]").each(function () {
                         this.checked = true;
@@ -376,9 +390,10 @@
         //* -----------  init tabs
         var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
         tabAdd.show();
+        checkStudentLimit(${training.id});
         var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
         //* ----------- init expand title
-        $(".expand_title").click(function () {
+        $("#dlg-students").find(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
                 $div.slideUp();
@@ -390,10 +405,35 @@
         });
         //* ----------- expend first title
         $(document).ready(function () {
-            $(".expand_title").eq(0).click();
+
+            $("#dlg-training-info").find(".dialog-title").text("Training Registration for ${training.name}");
+
+            if($("#dlg-students").find(".expand_title").next("div.expand_div").is(':hidden')){
+                $("#dlg-students").find(".expand_title").click();
+            }
             $("#user-table").hide();
             $("#checkall").change(function () {
                 $("input:checkbox").prop('checked', $(this).prop("checked"));
+            });
+
+            $("#dlg-students").find(".close-modal").one("click", function(){
+                $('body').removeClass('modal-open');
+                $('.lean-overlay').remove();
+                $('.modal-backdrop').remove();
+            });
+
+            $("#dlg-students").find(".data_import_content").css({"margin-left": "0px", "width": "auto"});
+
+            $("#close_registration").bind("click", {training_id: ${training.id}}, function(e){
+                e.preventDefault();
+                $("#dlg-training-info").css("display", "none");
+                showStudents(e.data.training_id);
+                $('.modal-backdrop').remove();
+                $('.lean-overlay').remove();
+                $("#dlg-students").css({"width": "auto", "min-width": "800px", "height": "500px",
+                "border-radius": "0px", "margin-left": window.innerWidth/2 - 400, "top": window.innerHeight/2-250});
+                $("#dlg-students").find(".close-modal").show();
+                $("#dlg-students-info").css("display", "block");
             });
         });
         //* ----------- do add/remove member
@@ -404,10 +444,12 @@
                     tabAdd.reloadTable();
                     tabRemove.reloadTable();
                     new Dialog($('#dialog')).show("Success", "Selected students successfully registered for the training.");
+                    checkStudentLimit(${training.id});
                 });
             }else{
                 new Dialog($('#dialog')).show("Error", "Please select at least one student to register.");
             }
+
         }
         function remove_selected_users(){
             var ids=tabRemove.getSelectedIds();
@@ -424,5 +466,147 @@
                 new Dialog($('#dialog')).show("Error", "Please select at least one user to remove.");
             }
         }
+        function showStudents(training_id) {
+            var self = this;
+
+            $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+                console.log('r.success '+r.success)
+                if (r.success) {
+                    // hide/show register button
+                    if(!r.arrive && r.allow_registration){ // akogan  && !r.student_limit
+                       $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
+                        e.preventDefault();
+                        $("#dlg-students-info").css("display", "none");
+                        $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
+                        $("#dlg-students").height(window.innerHeight).width(window.innerWidth-19)
+                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
+                        $("#dlg-students").find(".close-modal").hide();
+                        $("#dlg-training-info").css("display", "block");
+
+                    });
+                    }else{
+                        $("#register_unregister_students").attr("disabled", true);
+                    }
+
+                    //Last Reminder Email: 08/16/2016
+                    if(!r.arrive && r.training_type == "pd_training" && r.allow_registration){
+                        $("#reminder_mail_date").show();
+                        //$("#reminder_mail_btn").show();
+                        $("#reminder_mail_btn").attr("disabled", false);
+                        $("#reminder_mail_date").html("");
+
+                        if(r.last_date != null && r.last_date != "null")
+                            $("#reminder_mail_date").html("Last Reminder Email: " + r.training_date);
+
+                        $("#reminder_mail_btn").unbind("click").click(function () {
+                            last_datex = _calendar_date.getFullYear() + "-" + (_calendar_date.getMonth() + 1) + "-" + _calendar_date.getDate();
+                            $.get("${reverse('pepreg_download_students_excel')}", {last_date:last_datex, training_id: training_id}, function (r) {
+                                if(r._res == "1"){
+                                    alert("Sent successfully!");
+                                }else{
+                                    alert("Send failure!");
+                                }
+                            });
+                        });
+                    }else{
+                        $("#reminder_mail_date").hide();
+                        $("#reminder_mail_btn").attr("disabled", true);
+                        //$("#reminder_mail_btn").hide();
+                    }
+
+                    var dlg = new Dialog($("#dlg-students"));
+                    dlg.show("Student Information for " + r.training_name);
+                    $tbody = $("#dlg-students").find("tbody").empty();
+                    function fillRow($r, data) {
+                        data.is_attended = data.is_attended ? "checked" : "";
+                        data.is_validated = data.is_validated ? "checked" : "";
+                        data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
+                        var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
+                        <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
+                        <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
+                        if ($r)$r.replaceWith($row);
+                        if (!r.allow_attendance || !r.arrive)
+                            $row.find("input[name=is_attended").remove();
+                        if (!r.allow_validation || !r.arrive)
+                            $row.find("input[name=is_validated").remove();
+                        if (r.allow_attendance) {
+                            if (data.is_attended)
+                                $row.find("input[name=is_validated]").show();
+                            else
+                                $row.find("input[name=is_validated]").hide();
+                        }
+                        $row.find("a").css("color", "red");
+                        $row.find("a").css("cursor", "pointer");
+                        $row.find("a").click(function (e) {
+                            e.preventDefault();
+                            self.confirm("Really delete the student?", dlg, function (r) {
+                                if (r) {
+                                    self.deleteStudent(data.id, function () {
+                                        $row.remove();
+                                        $(".inner-wrapper").find("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
+                                        $(".inner-wrapper").find("#register_unregister_students").attr("disabled", false);
+                                    });
+                                }
+                            });
+                        });
+                        $row.find("input[name=is_attended]").change(function () {
+                            var me = this;
+                            self.setStudentAttended(data.student_id, r.training_id, this.checked, function (data) {
+                                if (data)
+                                    fillRow($row, data);
+                                else
+                                    $row.remove();
+                            });
+                        });
+                        $row.find("input[name=is_validated]").change(function () {
+                            var me = this;
+                            self.setStudentValidated(data.student_id, r.training_id, this.checked, function (data) {
+                                fillRow($row, data);
+                            });
+                        });
+                        return $row;
+                    }
+
+                    $.each(r.rows, function (i, data) {
+                        fillRow(null, data).appendTo($tbody);
+                    });
+                    $(".download-students-excel").unbind("click").click(function () {
+                        window.open("${reverse('pepreg_download_students_excel')}?training_id=" + r.training_id);
+                    });
+                    $("#download-students-pdf").unbind("click").click(function () {
+                        var tmp = new Date();
+                        var tmp1 = tmp.getMonth() + 1;
+                        var tmp2 = tmp.getDate();
+                        var tmp3 = tmp.getFullYear();
+                        var tmp4 = tmp.getHours();
+                        var tmp5 = tmp.getMinutes();
+                        tmp1 = (tmp1 < 10) ? "0" + tmp1 : String(tmp1);
+                        tmp2 = (tmp2 < 10) ? "0" + tmp2 : String(tmp2);
+                        tmp4 = (tmp4 < 10) ? "0" + tmp4 : String(tmp4);
+                        tmp5 = (tmp5 < 10) ? "0" + tmp5 : String(tmp5);
+                        tmp1 = tmp1 + tmp2 + tmp3 + tmp4 + tmp5;
+                        window.open("${reverse('pepreg_download_students_excel')}?pdf=" + tmp1 + "&training_id=" + r.training_id);
+                    });
+                }
+            });
+        };
+        fillString = function (s, data) {
+            return s.replace(/\{(.+?)\}/g, function (a, b) {
+                return data[b];
+            });
+        };
+        function checkStudentLimit(training_id){
+            $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
+                console.log('r.success '+r.success)
+                if (r.success) {
+                    // hide/show register button
+                    if(!r.student_limit){ // akogan;  && !r.student_limit
+                        $("#Register_Selected_Students").attr("disabled", false);
+                    }else{
+                        $("#Register_Selected_Students").attr("disabled", true);
+                    }
+                }
+            });
+         };
     </script>
 </body>
