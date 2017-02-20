@@ -158,14 +158,14 @@ urlpatterns = (
 
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
-    url(r'^dashboard/post/get$', 'student.views.get_posts', name='dashboard_get_posts'),
-    url(r'^dashboard/post/like$', 'student.views.submit_new_like', name='dashboard_submit_new_like'),
-    url(r'^dashboard/delete/post', 'student.views.delete_post', name='dashboard_delete_post'),
-    url(r'^dashboard/delete/comment', 'student.views.delete_comment', name='dashboard_delete_comment'),
-    url(r'^dashboard/post/comment', 'student.views.submit_new_comment', name='dashboard_submit_new_comment'),
-    url(r'^dashboard/post/lookup', 'student.views.lookup_name', name='dashboard_lookup_name'),
-    url(r'^dashboard/post/showlikes', 'student.views.get_full_likes', name='dashboard_get_full_likes'),
-    url(r'^dashboard/post/new$', 'student.views.submit_new_post', name='dashboard_submit_new_post'),
+    url(r'^dashboard/post/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
+    url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
+    url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
+    url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
+    url(r'^dashboard/post/comment', 'student.newdashboard.submit_new_comment', name='dashboard_submit_new_comment'),
+    url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
+    url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
+    url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
     #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
