@@ -548,8 +548,6 @@
                                 if (r) {
                                     self.deleteStudent(data.id, function () {
                                         $row.remove();
-                                        $(".inner-wrapper").find("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
-                                        $(".inner-wrapper").find("#register_unregister_students").attr("disabled", false);
                                     });
                                 }
                             });
@@ -599,6 +597,28 @@
             return s.replace(/\{(.+?)\}/g, function (a, b) {
                 return data[b];
             });
+        };
+        function deleteStudent(id, cb) {
+            console.log("id-"+id);
+            var self = this;
+            $.post("${reverse('pepreg_delete_student')}", {id: id}, function (r) {
+                if (r.success) {
+                    cb && cb(r.data);
+                }
+            });
+        }
+       function confirm(message, dlgFlyOn, callback) {
+            var dlgWarn = new Dialog("#dlg-warning");
+            dlgFlyOn.hideOverlay();
+            $("#dlg-warning").bind("hide", function () {
+                $(this).unbind('hide');
+                dlgFlyOn.showOverlay();
+            });
+            dlgWarn.showYesNo("Warning", message, function (r) {
+                this.hide();
+                callback(r);
+            });
+            dlgWarn.lift(100);
         };
         function checkStudentLimit(training_id){
             $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
