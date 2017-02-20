@@ -12,7 +12,7 @@
   ${ problem['html'] }
 
   <section class="action">
-    <input type="hidden" name="problem_id" value="${ problem['name'] }" />
+    <input type="hidden" name="problem_id" value="${ problem['name'] }" data="${ check_button }"/>
 
     % if check_button == "Compare and Submit":
     <input name="${ check_button } check" class="check ${ check_button }" type="button" value="${ check_button }" />
