@@ -3,6 +3,8 @@
     from django.core.urlresolvers import reverse
     from file_uploader.utils import get_file_url
     from administration.configuration import has_hangout_perms
+    from student.models import State,District
+    from communities.models import CommunityCommunities
 %>
 <%! navbar_show_extended=False %>
 <%inherit file="../main.html" />
@@ -46,7 +48,12 @@
         width: 900px;
         padding: 20px;
     }
-    #community-name, #community-hangouts, #community-logo, #community-facilitator {
+    #community-name,
+    #community-hangouts,
+    #community-logo,
+    #community-facilitator,
+    #community-state,
+    #community-district {
         display: block;
         float: left;
         margin: 0 40px 20px 0;
@@ -71,10 +78,15 @@
         display: block;
         width: 500px;
     }
-    #community-logo input {
+    #community-logo input,
+    #community-state select,
+    #community-district select {
         display: block;
     }
-    #community-name, #community-motto, #community-courses, #community-resources {
+    #community-name,
+    #community-motto,
+    #community-courses,
+    #community-resources {
         clear: both;
         display: block;
         text-align: left;
@@ -84,13 +96,16 @@
         display: block;
         width: 860px;
     }
-    #community-private {
-        display: block;
+    #community-state {
         float: left;
-        text-align: left;
-        padding-top: 1.75em;
     }
-    #community-private input {
+    #community-private, #community-priority {
+        display: block;
+        float: right;
+        text-align: left;
+        clear: both;
+    }
+    #community-private input, #community-priority input {
         margin-left: 10px;
     }
     #community-hangouts div {
@@ -125,7 +140,7 @@
     #community-resources .minus, #community-courses .minus {
         padding: 0 8px;
     }
-    .community-course, .community-resource {
+    .community-course, .community-resource, #community-state {
         clear: both;
     }
     .community-logo-thumb {
@@ -153,6 +168,11 @@
     .community-error-box {
         border-color: red !important;
     }
+    .about-field {
+        color: #999;
+        font-size: 80%;
+        display: inline !important;
+    }
 </style>
 <section class="community-form" style="text-align:center;background:#F5F5F5;">
     <form action="${reverse('community_edit_process')}" method="post" enctype="multipart/form-data" id="community-edit-form">
@@ -160,14 +180,42 @@
         %if logo != '':
             <label id="community-logo"><span>Logo:</span><img class="community-logo-thumb" src="${logo}"><input type="hidden" name="logo" value="${logo}"><a href="#" class="remove"></a></label>
         %else:
-            <label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>
+            <label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo" accept=".gif,.jpg,jpeg,.png,.GIF,.JPG,.JPEG,.PNG"></label>
         %endif
         <label id="community-motto"><span>Description (Motto):</span><input type="text" name="motto" value="${motto}" placeholder="A description or motto for this community"></label>
         <label id="community-facilitator"><span>Facilitator:</span><input type="text" name="facilitator" value="${facilitator}" placeholder="The email of the user who will administer this community"></label>
+        %if user_type == 'super':
+            <label id="community-state"><span>Select State:</span>
+                <select id="state-dropdown" name="state-dropdown"></select>
+            </label>
+            <label id="community-district"><span>Select District:</span>
+                <select id="district-dropdown" name="district-dropdown"></select>
+            </label>
+        %else:
+            <label id="community-state"><span>Select State:</span>
+                <select id="state-dropdown" name="state-dropdown" disabled></select>
+            </label>
+            <label id="community-district"><span>Select District:</span>
+                <select id="district-dropdown" name="district-dropdown" disabled></select>
+            </label>
+        %endif
         %if private:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1" checked="checked"></label>
         %else:
             <label id="community-private"><span>Private Group:</span><input type="checkbox" name="private" value="1"></label>
+        %endif
+        <%
+            try:
+                c = CommunityCommunities.objects.get(id=community)
+                dpriority = c.discussion_priority
+            except:
+                dpriority = 1
+
+        %>
+        %if dpriority:
+            <label id="community-priority"><input type="radio" name="priority_id" value="0">Post Priority<br><input type="radio" name="priority_id" value="1" checked>Discussion Priority<br></label>
+        %else:
+            <label id="community-priority"><input type="radio" name="priority_id" value="0" checked>Post Priority<br><input type="radio" name="priority_id" value="1">Discussion Priority<br></label>
         %endif
         %if has_hangout_perms(request.user):
             <label id="community-hangouts"><span>Hangouts Setup:</span>
@@ -300,9 +348,46 @@
         });
         return valid;
     }
+    var state_id = '${state}';
+    var district_id = '${district}';
     $(document).ready(function() {
+        $.get('${reverse('pepper_utilities_drop_states')}', function (data) {
+            // Build the options.
+            var options = '<option value=""></option>';
+            $.each(data, function (index, object) {
+                options += '<option value="' + object.id+ '"';
+                if (object.id == state_id) {
+                    options += ' selected';
+                }
+                options += '>' + object.name + '</option>';
+            });
+            // Add them to the state dropdown.
+            $('#state-dropdown').append(options);
+            $("#state-dropdown").change(function () {
+                if ($(this).val()) {
+                    // Clear the current district and school options since the state changed.
+                    $('#district-dropdown option').remove();
+                    // Get the allowed Districts
+                    $.get('${reverse('pepper_utilities_drop_districts')}', {state: $(this).val()}, function (data) {
+                        var content = '<option value=""></option>';
+                        $.each(data, function (index, object) {
+                            content += '<option value="' + object.id + '"';
+                            if (object.id == district_id) {
+                                content += ' selected';
+                            }
+                            content += '>' + object.name + '</option>';
+                        });
+                        // Add it to the form.
+                        $('#district-dropdown').append(content);
+                    });
+                }
+            });
+            if (state_id) {
+                $("#state-dropdown").trigger('change');
+            }
+        });
         $('#community-logo .remove').click(function() {
-            var content = '<label id="community-logo"><span>Logo:</span><input type="file" name="logo"></label>';
+            var content = '<label id="community-logo"><span>Logo <span class="about-field">(380px X 260px or larger for best results)</span>:</span><input type="file" name="logo" accept=".gif,.jpg,jpeg,.png,.GIF,.JPG,.JPEG,.PNG"></label>';
             $('#community-logo').replaceWith(content);
         });
         $('.community-resource .remove').click(function() {

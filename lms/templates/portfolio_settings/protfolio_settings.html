@@ -1,0 +1,203 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    import json
+    from student.models import State,District,School,Cohort,User,UserProfile
+    from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+    from permissions.utils import check_access_level, check_user_perms
+%>
+<%inherit file="../main.html"/>
+
+<style>
+	.protfolio_table{border:2px solid #8A8C8F; border-radius: 5px; border-right-width:0;}
+	.protfolio_table th{heig1ht:30px; text-align:left; padding:5px 0 3px 5px; background-color:#f1f1f1; border-right:2px solid #8A8C8F;}
+	.protfolio_table td{padding:5px; background-color:#FFFFFF; border-top:1px solid #8A8C8F; border-right:2px solid #8A8C8F; hei1ght:35px;}
+	.protfolio_table .protfolio_table_name{float:left; paddi1ng:5px;}
+	.protfolio_table .protfolio_table_check{float:right; margin:5px 5px 0 0;}
+	.protfolio_table_all{float:right; padding-right:10px; font-style:normal; font-weight:bold;}
+	.protfolio_span{float:left; background-color:#ff0000; border-radius: 5px; border:2px solid #8A8C8F; margin-right:5px;}
+		.protfolio_span_head{float:left; width:100%; background-color:#f1f1f1; border-bottom:2px solid #8A8C8F;}
+		.protfolio_span_head div{float:left; clear:both; padding:5px;}
+	
+		.protfolio_span_body{background-color:#FFFFFF; padding:5px;}
+		.protfolio_span_body td{ height:30px;}
+	
+	#protfolio_table_save_btn{margin:10px 0 0 700px;}
+	
+	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}
+</style>
+
+<div class="data_import_bottom">
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse">
+            Portfolio Settings
+            <div class="icon"></div>
+        </div>
+        <div class="expand_div" style="padding:10px;">
+        	<table class="protfolio_table" width="900" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <th width="550">Course Name</th>
+                    <th>Permission Level</th>
+                </tr>
+                <tr>
+                    <th>
+                    	<input type="" id="protfolio_table_search" placeholder="Search..." style="width:300px;" />
+                        <label class="protfolio_table_all">Select All <input id="protfolio_table_checkall" type="checkbox" /></label>
+                    </th>
+                    <th>
+                    	<select id="permission_level_filter" autocomplete="off">
+                            <option value="-1">Set Permission for Multiple/All courses</option>
+                            <option value="1">Public</option>
+                            <option value="2">State </option>
+                            <option value="3">District</option>
+                            <option value="4">School</option>
+                            <option value="5">Network</option>
+                            <option value="6">District & Network</option>
+                            <option value="7">Private</option>
+                        </select>
+                    </th>
+                </tr>
+            </table> 
+            <input type="button" id="protfolio_table_save_btn" value="Save Settings" />
+      </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+	function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+	
+    $(document).ready(function () {
+		
+		
+		//-----------------------------------------------------_protfolio_select
+		var _protfolio_select = '<select class="protfolio_table_select" autocomplete="off">';
+		_protfolio_select += '<option value="1">Public</option>';
+		_protfolio_select += '<option value="2">State </option>';
+		_protfolio_select += '<option value="3">District</option>';
+		_protfolio_select += '<option value="4">School</option>';
+		_protfolio_select += '<option value="5">Network</option>';
+		_protfolio_select += '<option value="6">District & Network</option>';
+		_protfolio_select += '<option value="7">Private</option>';
+		_protfolio_select += '</select>';
+		
+		//-----------------------------------------------------protfolio_table_init
+		function protfolio_table_init(){
+			$("#protfolio_table_checkall").removeAttr("checked");
+			checkPLAll();
+			
+			var s_txt = $("#protfolio_table_search").val();
+			$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourses", s_txt:s_txt}, function (r) {
+				if (r.success) {
+					$(".protfolio_table").find(".protfolio_table_tr").remove();
+					if(r.rows.length > 0){
+						for(var i in r.rows){
+							var trx = $("<tr class='protfolio_table_tr'></tr>");
+							trx.append('<td><label><span class="protfolio_table_name">' + r.rows[i].course + '</span><input class="protfolio_table_check" type="checkbox" ppid="' + r.rows[i].ppid + '"cid="' + r.rows[i].course + '"></label></td>');
+							trx.append("<td>" + _protfolio_select + "</td>");
+							
+							$(".protfolio_table").append(trx);
+							trx.find("select").val(r.rows[i].level);
+						}
+						
+						$(".protfolio_table_check").change(function(){
+							checkPLAll();
+						});
+					}
+				}			
+	        });
+		}
+		
+		//-----------------------------------------------------
+		function checkPLAll(){
+			if($(".protfolio_table_check:checked").length < 2){
+				$("#permission_level_filter").attr("disabled", true);
+				$("#permission_level_filter").css("color", "#ccc");			
+			}else{
+				$("#permission_level_filter").attr("disabled", false);
+				$("#permission_level_filter").css("color", "#000");
+			}
+		}
+		
+		protfolio_table_init();
+		
+		//-----------------------------------------------------
+		$("#protfolio_table_search").keyup(function(){
+			protfolio_table_init();
+		});	
+		
+		//-----------------------------------------------------protfolio_table_checkall
+		$("#protfolio_table_checkall").change(function(){
+			if($(this).attr("checked")){
+				$(".protfolio_table_check").attr("checked", "checked");
+			}else{
+				$(".protfolio_table_check").removeAttr("checked");
+			}
+			checkPLAll();
+		});
+		
+		//-----------------------------------------------------permission_level_filter
+		$("#permission_level_filter").change(function(){
+			var tmp1 = $(this).val();
+			if(tmp1 != "-1"){
+				$(".protfolio_table_check:checked").each(function(){
+					$(this).parent().parent().parent().find("select").val(tmp1);
+				});
+			}
+		});
+		
+		//-----------------------------------------------------protfolio_table_save_btn
+		$("#protfolio_table_save_btn").click(function(){
+			var data = "";
+			$(".protfolio_table_check:checked").each(function(){
+				var cid = $(this).attr("cid");
+				var ppid = $(this).attr("ppid");
+				var level = $(this).parent().parent().parent().find("select").val();
+				if(data != "")	data += ",";
+				data += cid + ":" + level + ":" + ppid;
+			});
+			if(data != ""){
+				var loadwin = new LoadingWin();
+				$.get("${reverse('portfolio_settings')}", {flag: "saveCourse", content: data}, function (r) {
+					loadwin.hide();
+					protfolio_table_init();
+                });
+			}else{
+				alert("Please select a course!");
+			}
+		});
+		
+		//-----------------------------------------------------expand_title
+		$(".expand_title").click(function () {
+            var $div = $(this).next("div.expand_div");
+            if ($div.is(':visible')) {
+                $div.slideUp();
+                $(this).removeClass("expand_title_expanded");
+            } else {
+                $div.slideDown();
+                $(this).addClass("expand_title_expanded");
+            }
+        });
+        $(".expand_title").click();
+    });
+</script>

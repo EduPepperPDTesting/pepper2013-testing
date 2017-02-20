@@ -1,0 +1,83 @@
+<%
+    from django.utils.translation import ugettext as _
+    from django.core.urlresolvers import reverse
+    import json
+%>
+
+<%inherit file="../main.html"/>
+<link rel="stylesheet" href="/static/css/reporting.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/js/reporting.js"></script>
+<script type="text/javascript" src="/static/js/jquery.sortable.js"></script>
+<div id="reporting">
+    %if admin_rights or create_rights:
+    <div id="iconarea">
+        <a class="iconbutton add-new" href="${reverse('reporting_report_edit', args=['new'])}">Add New</a>
+        <a class="iconbutton manage" href="#">Manage</a>
+        <a class="iconbutton new-category" href="#">Add Category</a>
+        %if admin_rights:
+        <a class="iconbutton edit-views" href="${reverse('reporting_views_edit')}">Edit Views</a>
+        %endif
+    </div>
+    %endif
+    <ul id="categories">
+        %for category in categories:
+            <li class="main ${'' if len(category['reports']) else 'hidden-category'}" id="category-${category['id']}" data-id="${category['id']}" data-name="${category['name']}">
+                <div class="expand_title expand_title_collapse">
+                    %if loop.index > 0:
+                        <a class="delete-category" href="#"><img src="/static/images/icons/Delete-64.png"></a>
+                        <img class="move" src="/static/images/icons/move.png">
+                    %endif
+                    ${category['name']}
+                    <div class="icon"></div>
+                </div>
+                <div class="expand_div">
+                    <ul class="reports">
+                        %for report in category['reports']:
+                            <li id="report-${report['id']}" data-id="${report['id']}" data-name="${report['name']}">
+                                %if admin_rights or report['access_level'] == access_level:
+                                <a class="delete-report" href="#"><img src="/static/images/icons/Delete-64.png"></a>
+                                <a class="edit-report" href="${reverse('reporting_report_edit', args=[report['id']])}"><img src="/static/images/icons/pencil.png"></a>
+                                <img class="imove" src="/static/images/icons/move.png">
+                                %endif
+                                <a href="${reverse('reporting_report', args=[report['id']])}"><img src="/static/images/icons/magnifier.png"/></a> ${report['name']}
+                                %if report['description']:
+                                    &mdash; <span class="report-description">${report['description']}</span>
+                                %endif
+                            </li>
+                        %endfor
+                    </ul>
+                </div>
+            </li>
+        %endfor
+    </ul>
+    <div  id="save-report-order">
+        <span id="dirty-message">The order has been changed. You <strong>MUST</strong> click save to keep these changes.</span>
+        <input type="button" value="Save" disabled>
+    </div>
+    <div style="" id="dialog" class="modal">
+        <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+            <div class="titlebar">
+                <h3 class="dialog-title"></h3>
+
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var category_save_url = '${reverse('reporting_category_save')}';
+    var order_save_url = '${reverse('reporting_order_save')}';
+    var report_delete_url = '${reverse('reporting_report_delete')}';
+    var category_delete_url = '${reverse('reporting_category_delete')}';
+    var is_dirty = false;
+
+    $(document).ready(function () {
+        expandTitle();
+        manageHandler();
+        addCategoryHandler();
+        saveOrderHandler();
+        deleteReportHandler();
+        deleteCategoryHandler();
+    })
+</script>

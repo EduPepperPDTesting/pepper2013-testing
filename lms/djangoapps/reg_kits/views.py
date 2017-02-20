@@ -32,6 +32,8 @@ from courseware.courses import get_courses
 from xmodule.modulestore.django import modulestore
 import pymongo
 
+from pepper_utilities.utils import random_mark
+
 def valid_pager(all,size,page):
     paginator = Paginator(all, size)
     try:
@@ -287,7 +289,11 @@ def filter_user(request):
     if q('cohort_id',True):
         data=data.filter(cohort_id=q('cohort_id'))
 
-    if q('subscription_status'):
+    #20160427 modifed
+    #begin
+    #if q('subscription_status'):
+    if q('subscription_status',True):
+    #end
         data=data.filter(subscription_status=q('subscription_status'))
     if q('invite_days_min'):
         data=data.filter(invite_date__lte=datetime.datetime.now(UTC)-datetime.timedelta(int(q('invite_days_min'))))
@@ -774,9 +780,6 @@ def download_user_excel(request):
     response.write(output.getvalue())
     return response
 
-def random_mark(length):
-    assert(length>0)
-    return "".join(random.sample('abcdefghijklmnopqrstuvwxyz1234567890@#$%^&*_+{};~',length))
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
@@ -804,7 +807,6 @@ def import_user_submit(request):
                 # if(exist):
                 #     raise Exception("An user already exists, or duplicate lines.")
                 email=line[USER_CSV_COL_EMAIL]
-                import random
                 username=random_mark(20)
                 user = User(username=username, email=email, is_active=False)
                 user.set_password(username)

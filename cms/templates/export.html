@@ -1,4 +1,7 @@
-<%! from django.utils.translation import ugettext as _ %>
+<%!
+from django.utils.translation import ugettext as _
+from django.conf import settings
+%>
 <%inherit file="base.html" />
 <%namespace name='static' file='static_content.html'/>
 
@@ -103,6 +106,19 @@
         </form>
       </div>
 
+      <div class="export-form-wrapper">
+        <form action="" method="post" enctype="multipart/form-data" class="export-form" style="margin-top:5px !important;">
+          <h2>${_("Export Course to Server:")}</h2>
+          <p class="error-block-sync"></p>
+          <select id="lstDest" name="" autocomplate="off" style="vertical-align:middle;">
+            %for i, h in enumerate(settings.COURSE_SYNC_DEST):
+            <option value="${i}">${h['name']}</option>
+            %endfor
+          </select>
+          <a href="#" class="button-export" id="btnExportTo" style="vertical-align:middle;display:inline-block;height:1em; padding:7px 15px;">${_("Export")}</a>
+        </form>
+      </div>
+
       <!-- download state: after user clicks download buttons -->
       <%doc>
       <div class="export-form-wrapper is-downloading">
@@ -119,4 +135,25 @@
     </article>
   </div>
 </div>
+<script type="text/javascript">
+  $("#btnExportTo").click(function(){
+    if(!confirm("Are you sure you want to Create/Update a course in " + $("#lstDest option:selected").text() + "?"))
+      return;
+    var id_org = "${context_course.location.org}";
+    var id_course = "${context_course.location.course}";
+    var id_name = "${context_course.location.name}";
+    var dest=$("#lstDest").val();
+    $(".error-block-sync").html("syncing...");
+    $.post("${reverse('sync_course', args=[])}",
+           {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest},
+           function(r){
+             $(".error-block-sync").html("");
+             if(r.success)
+               alert("finished")
+             else
+               alert("failed! error message:" + r.message);
+           });
+  });
+</script>
 </%block>
+

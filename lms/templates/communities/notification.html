@@ -1,0 +1,641 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+from django.core.urlresolvers import reverse
+from courseware.courses import course_image_url, get_course_about_section
+from courseware.access import has_access
+from certificates.models import CertificateStatuses
+from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+from xmodule.modulestore.django import modulestore
+import json
+from student.models import State,District,School,Cohort,User,UserProfile
+from student.models import State,District,SubjectArea,GradeLevel,YearsInEducation,School
+from permissions.utils import check_access_level, check_user_perms
+%>
+
+<%inherit file="../main.html"/>
+
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/communities.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
+
+<script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
+
+%if check_access_level(request.user, 'notification', 'admin') == "System":
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      Groups and Types <div class="icon"></div>
+    </div>
+    <div class="expand_div" style="padding:10px;">
+      <div class="table-box" id="group-table-box">
+        <table role="grid" class="data-table"
+               ajaxUrl="${reverse('communities_notification_groups')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+          <thead>
+            <tr>
+              <th>Group Name</th><th>Description</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="group-actions">
+          <span class="pager ">
+            <form style="float:left;">
+              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+              <select class="pagesize">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </form>
+            <span style="float:right;"></span>
+          </span>
+          <input value="New Group" id="new-group" type="button">
+          <input value="Delete Selected" id="delete-groups" type="submit">
+        </div>
+      </div>
+      <div class="table-box" id="type-table-box" >
+        <table role="grid" class="data-table"
+               ajaxUrl="${reverse('communities_notification_types')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+          <thead>
+            <tr>
+              <th>Type Name</th><th>Description</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="type-actions">
+          <span class="pager ">
+            <form style="float:left;">
+              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+              <select class="pagesize">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </form>
+            <span style="float:right;"></span>
+          </span>
+          <input value="New Type" id="new-type" type="button">
+          <input value="Delete Selected" id="delete-types" type="submit">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+%endif
+<div class = "data_import_bottom">
+  <div class="main, data_import_content">
+    <div class="expand_title expand_title_collapse">
+      Notifications <div class="icon"></div>
+    </div>
+    <div class="expand_div" style="padding:10px;">
+      %if check_user_perms(request.user, 'community_notification', 'admin'):
+      <div style="margin-bottom:10px;margin-top:-10px;">
+        <span type="button" id="btnMyNotifications" class="section-tab my active">My Notifications</span>
+        %if check_access_level(request.user, 'notification', 'admin') == "System":
+        <span type="button" id="btnOtherNotifications" class="section-tab other">Other Notifications</span>
+        %endif
+      </div>
+      %endif
+      <div class="table-box" id="config-table-box">
+        <table role="grid" class="data-table"
+               ajaxUrl="${reverse('communities_notification_config')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+          <thead>
+            <tr>
+              <th>Communities</th><th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="type-actions">
+          <span class="pager ">
+            <form style="float:left;">
+              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+              <select class="pagesize">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </form>
+            <span style="float:right;"></span>
+          </span>
+          <input type="button" name="" value="Save" id="btnSaveConfig"/> <span class="">You MUST click save to keep these changes.</span>
+        </div>
+      </div>
+      %if check_access_level(request.user, 'notification', 'admin') == "System":
+      <div class="table-box" id="config-other-table-box">
+        <div style="margin-bottom:10px;">
+          <select id="state_select" autocomplate="off" class="search" data-column="1">
+            <option value="">Select State</option>
+            %for item in State.objects.all().order_by("name"):
+            <option value="${item.id}">${item.name}</option>
+            %endfor
+          </select>
+          <select id="district_select" autocomplate="off" class="search" data-column="2">
+            <option value="">Select District</option>
+            %for item in District.objects.all().order_by("name"):
+            <option value="${item.id}" class="${item.state_id}">${item.name}</option>
+            %endfor
+          </select>
+          %if request.user.is_superuser:
+          <select id="cohort_select" autocomplate="off" class="search" data-column="2">
+            <option value="">Select Cohort</option>
+            %for item in Cohort.objects.all().order_by("code"):
+            <option value="${item.id}" class="${item.district_id}">${item.code}</option>
+            %endfor
+          </select>
+          %endif
+          <select id="community_select" autocomplate="off" class="search" data-column="2">
+            <option value="">Select Community</option>
+            %for item in facilitators:
+            <option value="${item.community.id}">${item.community.name}</option>
+            %endfor
+          </select>
+        </div>
+        <table role="grid" class="data-table" ajaxUrl="${reverse('communities_notification_config_other')}?page={page}&size={size}&{filterList:fcol}&{sortList:col}">
+          <thead>
+            <tr>
+              <th>Communities</th><th>In Pepper <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Email <span>(Select All <input type="checkbox" class="checkall" /> )</span></th><th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="type-actions">
+          <span class="pager ">
+            <form style="float:left;">
+              <img src="/static/js/tablesorter/css/images/first.png" class="first"/>
+              <img src="/static/js/tablesorter/css/images/prev.png" class="prev"/>
+              <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+              <img src="/static/js/tablesorter/css/images/next.png" class="next"/>
+              <img src="/static/js/tablesorter/css/images/last.png" class="last"/>
+              <select class="pagesize">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </form>
+            <span style="float:right;"></span>
+          </span>
+          <input type="button" name="" value="Save" id="btnSaveOtherConfig"/> <span class="">You MUST click save to keep these changes.</span>
+        </div>        
+      </div>
+      %endif
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-group">
+  <div class="inner-wrapper">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="">
+      <form method="" id="" action="${reverse('communities_notification_save_group')}">
+        <input type="hidden" name="id" value="" />
+        <label>Group Name:<input type="text" name="name" value=""/></label>
+        <label>Group Description:<input type="text" name="description" value=""/></label>
+        <input value="Save" type="submit">
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-type">
+  <div class="inner-wrapper">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="">
+      <form method="" id="" action="${reverse('communities_notification_save_type')}">
+        <input type="hidden" name="id" value="" />
+        <label>Type Name:<input type="text" name="name" value=""/></label>
+        <label>Type Description:<input type="text" name="description" value=""/></label>
+        <label>Type Action:<input type="text" name="action" value=""/></label>
+        <label>Type Group:
+          <select id="" name="group" autocomplate="off">
+            <option value=""></option>
+          </select>
+        </label>
+        <h2>Email:</h2>
+        <label>Subject:
+          <span class="check-mark" alt="Valid only before the training date."></span>
+          <span class="baloon-content">
+            <h2>Variables</h2>
+          </span>
+          <input type="text" name="subject" value="" style="margin-top:10px;"/></label>
+          <div class="editor_view">
+            <textarea id="editor" class="certificate_editor" cols="10" name="body"></textarea>
+          </div>
+          <input value="Save" type="submit">
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
+  <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
+    <div class="titlebar">
+      <h3 class="dialog-title"></h3>
+      <div class="close-modal" id="dialog_close">✕</div>
+    </div>
+    <div class="content" style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
+  </div>
+</div>
+<script type="text/javascript">
+  function reloadTable(table){
+    var t=$(table)[0];
+    var c=t.config;
+    var p=c.pager;
+    p=$.extend(p, p.last);
+    p.ajaxUrl=$(t).attr("ajaxUrl")+"&timestamp="+new Date();
+    p.reload();
+  };  
+  function postInitGroupTable(table){
+    $(table).find("td:nth-child(3)").append("\
+ <input type='checkbox' value='' class='select-row'>&nbsp;\
+ <a href='' class='edit-row'><img src='/static/images/portal-icons/pencil-icon.png'></a>");
+    $(table).find(".select-row").each(function(){
+      var id = $(this).prev("input[type=hidden]").val();
+      $(this).val(id);
+    });
+    $(table).find(".edit-row").click(function(e){
+      e.preventDefault();
+      var id = $(this).parent().find("input").val();
+      $.post("${reverse('communities_notification_edit_group')}", {id: id}, function(data){
+        showGroupForm(data);
+      });
+    });
+  }
+  function postInitTypeTable(table){
+    $(table).find("td:nth-child(3)").append(
+      "<input type='checkbox' value='' class='select-row'>&nbsp;" +
+      "<a href='' class='edit-row'>" +
+      "<img src='/static/images/portal-icons/pencil-icon.png'></a>");
+    $(table).find(".select-row").each(function(){
+      var id = $(this).prev("input[type=hidden]").val();
+      $(this).val(id);
+    });    
+    $(table).find(".edit-row").click(function(e){
+      e.preventDefault();
+      var id = $(this).parent().find("input").val();
+      $.post("${reverse('communities_notification_edit_type')}", {id: id}, function(data){
+        showTypeForm(data);
+      });      
+    });
+  }
+  function postInitConfigTable(table){
+    $(table).find("td:nth-child(2)").each(function(){
+      var checked = $(this).html()=="true";
+      $("<input type=checkbox>").appendTo($(this).empty()).prop('checked', checked);
+    });
+    $(table).find("td:nth-child(3)").each(function(){
+      var checked = $(this).html()=="true";
+      $("<input type=checkbox>").appendTo($(this).empty()).prop('checked', checked);
+    });
+    $(table).find("td:nth-child(4)").each(function(){
+      var value = $(this).html();
+      $("<select><option>Instant</option>" +
+        "<option>Daily</option><option>Weekly</option></select>"
+      ).appendTo($(this).empty()).val(value);
+    });    
+  }
+  function postInitConfigOtherTable(table){
+    $(table).find("td:nth-child(2)").each(function(){
+      var checked = $(this).html()=="true";
+      $("<input type=checkbox>").appendTo($(this).empty()).prop('checked', checked);
+    });
+    $(table).find("td:nth-child(3)").each(function(){
+      var checked = $(this).html()=="true";
+      $("<input type=checkbox>").appendTo($(this).empty()).prop('checked', checked);
+    });
+    $(table).find("td:nth-child(4)").each(function(){
+      var value = $(this).html();
+      $("<select><option>Instant</option>" +
+        "<option>Daily</option><option>Weekly</option></select>"
+      ).appendTo($(this).empty()).val(value);
+    });    
+  }  
+  function fillForm(form, data){
+    data = data || {};
+    $(form).find("input,select,textarea").each(function(){
+      var name;
+      if(name = $(this).attr("name")){
+        $(this).val(data[name]);
+      }
+    });
+  }
+  function postForm(form, callback){
+    var params = $(form).serialize();
+    $.post($(form).attr('action'), params, function(data) {
+      callback && callback(data);
+    });
+  }
+  function showGroupForm(data){
+    var title = data ? "EditGroup" : "New Group";
+    fillForm("#dlg-group form", data);
+    var dialog = new Dialog('#dlg-group').show(title);
+    $("#dlg-group").find("input[type=submit]").off("click").click(function(e){
+      e.preventDefault();
+      postForm($(this).parent("form"), function(data){
+        if (data.success) {
+          dialog.hide();
+          reloadTable("#group-table-box table");
+        }
+      });
+    });
+  }
+  function showTypeForm(data){
+    var title = data ? "EditType" : "New Type"
+    $.get("${reverse('communities_notification_all_groups')}", function(groups){
+      var $drop = $("#dlg-type form select[name=group]").empty();
+      if(groups.length){
+        $.each(groups, function(i, item) {
+          $("<option></option>").appendTo($drop).val(item.id).html(item.name);
+        });
+      }
+      fillForm("#dlg-type form", data);
+      CKEDITOR.instances['editor'].setData($("#editor").val());
+      var dialog = new Dialog('#dlg-type').show(title);
+      $("#dlg-type").find("input[type=submit]").off("click").click(function(e){
+        $("textarea[name=body]").val(CKEDITOR.instances['editor'].getData());
+        e.preventDefault();
+        postForm($(this).closest("form"), function(data){
+          if (data.success) {
+            dialog.hide();
+            reloadTable("#type-table-box table");
+          }
+        });
+      });
+    });
+  }  
+  $("#new-group").click(function(){
+    showGroupForm();
+  });
+  $("#new-type").click(function(){
+    showTypeForm();
+  });
+  $("#btnSaveConfig").click(function(e){
+    var self = this;
+    e.preventDefault();
+    var data=[];
+    $("#config-table-box table tbody tr").each(function(){
+      data.push({
+        type_id: $(this).find("input[name=type_id]").val(),
+        via_pepper: $(this).find("td:nth-child(2) input").prop("checked"),
+        via_email: $(this).find("td:nth-child(3) input").prop("checked"),
+        frequency: $(this).find("td:nth-child(4) select").val()
+      });
+    });
+    $.post("${reverse('communities_notification_save_config')}", {data: JSON.stringify(data)}, function(r){
+      $(self).next("span").html("Saved successfully.");
+    });
+  });
+  $("#btnSaveOtherConfig").click(function(e){
+    var self = this;
+    e.preventDefault();
+    var data=[];
+    var filter={
+        state_id: $("#state_select").val(),
+        district_id: $("#district_select").val(),
+        cohort_id: $("#cohort_select").val(),
+        community_id: $("#community_select").val()
+    }
+    $("#config-other-table-box table tbody tr").each(function(){
+      data.push({
+        type_id: $(this).find("input[name=type_id]").val(),
+        via_pepper: $(this).find("td:nth-child(2) input").prop("checked"),
+        via_email: $(this).find("td:nth-child(3) input").prop("checked"),
+        frequency: $(this).find("td:nth-child(4) select").val()
+      });
+    });
+    $.post("${reverse('communities_notification_save_other_config')}",
+           {data: JSON.stringify(data), filter: JSON.stringify(filter)},
+           function(r){
+             $(self).next("span").html("Saved successfully.");
+           });
+  });
+  $(document).ready(function(){
+    //** init expand title
+    $(".expand_title").click(function(){
+      var $div=$(this).next("div.expand_div");
+      if($div.is(':visible')){
+        $div.slideUp();
+        $(this).removeClass("expand_title_expanded");
+      }else{
+        $div.slideDown();
+        $(this).addClass("expand_title_expanded");
+      }
+    });
+    $(".expand_title").click();
+    ///////////////////////////
+    $(".table-box").each(function(){
+      var id = this.id;
+      var pagerOptions = {
+        container: '',
+        output: '{startRow} - {endRow} / {filteredRows} ({totalRows})',
+        fixedHeight: false,
+        removeRows: false,
+        cssGoto: '.gotoPage',
+        ajaxUrl: $(this).find("table").attr("ajaxUrl"),
+        ajaxProcessing: function(data){
+          return data;
+        },
+        processAjaxOnInit: true,
+        page: 0,
+        savePages: false,
+        size: 10
+      };
+      var tablesorterOptions = {
+        debug: false,
+        theme: '',
+        widthFixed: true,
+        widgets: ["zebra", "filter", "output", "columnSelector"],
+        widgetOptions: {
+          filter_external: '',
+          filter_columnFilters: false,
+          filter_placeholder: {search: 'Search...'},
+          filter_saveFilters: false,
+          filter_reset: '.reset',
+          filter_serversideFiltering: true,
+          columnSelector_container: $('#columnSelector'),
+          // columnSelector_columns: {0: 'disable',  15: 'disable'},
+          columnSelector_mediaqueryName: 'All: '
+        }
+      };
+      pagerOptions.container = $(this).find(".pager");
+      $(this).find("table").tablesorter(tablesorterOptions).tablesorterPager(pagerOptions);
+      $(this).find("table").bind("pagerComplete", function() {
+        if(id == "group-table-box")
+          postInitGroupTable(this);
+        else if(id == "type-table-box")
+          postInitTypeTable(this);
+        else if(id == "config-table-box")
+          postInitConfigTable(this);
+        else if(id == "config-other-table-box")
+          postInitConfigOtherTable(this);
+      });
+    });
+    ///////////////////////////
+    if (typeof CKEDITOR != 'undefined') {
+      CKEDITOR.replaceAll(function (textarea, config) {
+        if (textarea.className == 'certificate_editor') {
+          // Add token plugin
+          config.extraPlugins = 'token,print';
+          config.removePlugins = 'maximize';
+          config.width = '100%';
+          config.height = 100;
+          // Configure available tokens
+          config.availableTokens = [
+            ["", ""],
+            ["Community Name", "Community Name"],
+            ["Sender First Name", "Sender First Name"],
+            ["Sender Last Name", "Sender Last Name"],
+            ["Receiver First Name", "Receiver First Name"],
+            ["Receiver Last Name", "Receiver Last Name"],
+            ["Course Name", "Course Name"],
+            ["Course Number", "Course Number"],
+            ["Resource Title", "Resource Title"],
+            ["Member List", "Member List"],
+            ["Subject", "Subject"],
+            ["Posted By", "Posted By"],
+            ["Community URL", "Community URL"],
+            ["Discussion Topic URL", "Discussion Topic URL"],
+          ];
+          config.tokenStart = '{';
+          config.tokenEnd = '}';
+          config.allowedContent = true;
+          return true;
+        }
+        return false;
+      });
+      CKEDITOR.on( 'dialogDefinition', function( ev ) {
+        // Take the dialog name and its definition from the event data.
+        var dialogName = ev.data.name;
+        var dialogDefinition = ev.data.definition;
+        // Check if the definition is from the dialog window you are interested in (the "Link" dialog window).
+        if ( dialogName == 'link' ) {
+          // Get a reference to the "Target" tab.
+          var targetTab = dialogDefinition.getContents( 'target' );
+          // Set the default value for the target.
+          var targetField = targetTab.get( 'linkTargetType' );
+          targetField[ 'default' ] = '_blank';
+        }
+      });
+    }
+    ///////////////////////////
+    function getCheckedIds(table){
+      var a = [];
+      $(table).find(".select-row:checked").each(function(){
+        a.push($(this).val());
+      });
+      return a;
+    }
+    $("#btnMyNotifications").click(function(){
+      $("#config-table-box").show();
+      $("#config-other-table-box").hide();
+      $(".section-tab").removeClass("active");
+      $(".section-tab.my").addClass("active");
+    });
+    $("#btnOtherNotifications").click(function(){                      
+      $("#config-table-box").hide();
+      $("#config-other-table-box").show();
+      $(".section-tab").removeClass("active");
+      $(".section-tab.other").addClass("active");
+    });
+    $("#delete-groups").click(function(){
+      var ids = getCheckedIds("#group-table-box");
+      var dlgWarn = new Dialog("#dlg-warning");
+      if(!ids.length) return;
+      dlgWarn.showYesNo("Confirm", "Are you sure you want to delete these groups?", function(ans){
+        this.hide();
+        if(ans){
+          $.post("${reverse('communities_notification_delete_group')}", {"ids[]": ids}, function(r){
+            if(r.success)
+              reloadTable("#group-table-box table");
+          });
+        }
+      });
+    });
+    $("#delete-types").click(function(){
+      var ids = getCheckedIds("#type-table-box");
+      var dlgWarn = new Dialog("#dlg-warning");
+      if(!ids.length) return;
+      dlgWarn.showYesNo("Confirm", "Are you sure you want to delete these types?", function(ans){
+        this.hide();
+        if(ans){
+          $.post("${reverse('communities_notification_delete_type')}", {"ids[]": ids}, function(r){
+            if(r.success)
+              reloadTable("#type-table-box table");
+          });
+        }
+      });
+    });
+  });
+  function filterOptions(item, id) {
+    if ($(item).attr("class") != id) {
+      $(item).css("display", "none");
+    } else {
+      $(item).css("display", "");
+    }
+    if (id == "null_case" || $(item).attr("class") == "null_case") {
+      $(this).css("display", "");
+    }
+  }
+  $("#state_select").change(function () {
+    var id = $(this).val();
+    $("#district_select > option").each(function (i) {
+      if(i>0)filterOptions(this, id)
+    });
+  });
+  $("#district_select").change(function () {
+    var id = $(this).val();
+    $("#cohort_select > option").each(function (i) {
+      if(i>0)filterOptions(this, id)
+    });
+  });
+  $("#state_select").change();
+  $("#district_select").change();
+</script>
+<script type="text/javascript">
+  $(".check-mark").each(function(){
+    var b = $(this).next(".baloon-content").html();
+    $(this).balloon({position:"bottom right", css: {maxWidth: "300px"}, offsetX: -20, offsetY: -15, contents: this.alt || b});
+  });
+  $(".check-mark").on("mouseenter",function(){
+    $(this).addClass("on");
+  }).on("mouseleave",function(){
+    $(this).removeClass("on");
+  });
+</script>
+<script type="text/javascript">  
+  $(document).ready(function(){    
+    $("input.checkall").change(function(){
+      var $th = $(this).closest("th");
+      var $tr = $th.closest("tr");
+      var id = $tr.find("th").index($th) + 1;
+      $(this).closest("table").find("tr td:nth-child(" + id + ") input[type=checkbox]").attr("checked", $(this).is(":checked"));
+    });
+  });
+</script>

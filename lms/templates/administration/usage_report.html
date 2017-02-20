@@ -1,0 +1,386 @@
+<%! from django.utils.translation import ugettext as _ %>
+
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from student.models import State,District,School
+%>
+
+
+<%inherit file="../main.html"/>
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<script type="text/javascript" src="/static/js/jquery-blink.js"></script>
+<link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/css/time_report.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css">
+<link rel="stylesheet" href="/static/js/tablesorter/css/jq.css">
+<link rel="stylesheet" href="/static/css/vendor/jquery-ui.css" type="text/css" media="screen" />
+<script src="/static/js/vendor/jquery-ui.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.min.js"></script>
+<script src="/static/js/tablesorter/js/jquery.tablesorter.widgets.min.js"></script>
+<script src="/static/js/tablesorter/js/widgets/widget-columnSelector.min.js"></script>
+<script src="/static/js/datetime/moment.js"></script>
+<!-- Tablesorter: optional -->
+<link rel="stylesheet" href="/static/js/tablesorter/pager/jquery.tablesorter.pager.css">
+<script src="/static/js/tablesorter/pager/jquery.tablesorter.pager.js"></script>
+<style>
+.online{
+    height:25px;
+    width:25px;
+    background-image:url(/static/images/online-3-25x25.png);
+    background-size:25px 25px;
+    display:inline-block;
+}
+</style>
+
+<div class="data_import_top data_import_bottom">
+    <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse expand_title_expanded">
+            Usage Report <div class="icon"></div>
+        </div>
+        <div class="expand_div" style="display:block;">
+            <form method="" id="usrTimeForm" action="" onsubmit="return false;">
+                <div class="control filter" id="fltUserTime">
+                    <span class="body" style="display:inline-block;"></span>
+                    <textarea class="setting">
+                        {
+                            "fields":{
+                                "state":{"display":"State","type":"drop","require":[],"url":"${reverse('usage_report_drop_states')}","format":"<option value='{id}'>{name}</option>"},
+                                "district":{"display":"District","type":"drop","require":["state"],"url":"${reverse('usage_report_drop_districts')}","format":"<option value='{id}'>{name}</option>"},
+                                "school":{"display":"School","type":"drop","require":["district"],"url":"${reverse('usage_report_drop_schools')}","format":"<option value='{id}'>{name}</option>"}
+                            },
+                            "favorite":{
+                               "show":false,
+                               "urls":{}
+                            }
+                        }
+                    </textarea>
+                    <input type="button" name="" value="LOAD" class="load" onclick="userTimeReport.get_table_result()"/>
+                </div>
+                <div class="table">
+                    <div class="" style="padding:5px;"></div>
+                    <div class="body table_scroll">
+                        <table class="tblUserTime tablesorter">
+                            <thead>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>School</th>
+                                <th>Email</th>
+                                <th>User Name</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Time Login</th>
+                                <th>Time Last Logout</th>
+                                <th>Last Session Time</th>
+                                <th>Total Session Time</th>
+                                <th>Online State</th>
+                                <th class="sorter-false filter-false table-menu" style="width:30px;"><div style="width:18px;height:20px;"><label class="columnSelectorButton" for="colSelect1"></label></div></th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                    <div class="columnSelectorWrapper">
+                        <input id="colSelect1" type="checkbox" class="hidden">
+
+                        <div id="columnSelector" class="columnSelector">
+                            <!-- this div is where the column selector is added -->
+                        </div>
+                    </div>
+                    <span class="pager">
+                        <img src="/static/js/tablesorter/pager/icons/first.png" class="first" alt="First" />
+                        <img src="/static/js/tablesorter/pager/icons/prev.png" class="prev" alt="Prev" />
+                        <span class="pagedisplay"></span> <!-- this can be any element, including an input -->
+                        <img src="/static/js/tablesorter/pager/icons/next.png" class="next" alt="Next" />
+                        <img src="/static/js/tablesorter/pager/icons/last.png" class="last" alt="Last" />
+                        <select class="pagesize" title="Select page size">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                        </select>
+                        <select class="gotoPage" title="Select page number"></select>
+                    </span>
+                    <span class="time_download">
+                      Download <span class="total"></span> User(s) As
+                      <input type="button" name="" value="Excel" class="small" id="btnDownloadUserTimeExcel"/>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- dialog -->
+<div style="" id="dialog" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<!-- dialog_loading -->
+<div style="" id="dialog_loading" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"><img src="/static/images/posts-loading.gif" style="display:block;margin:auto;"/></div>
+    </div>
+</div>
+<script>
+//-------------------------- Usage Report --------------------------//
+var pagerOptions = {
+    // target the pager markup - see the HTML block below
+    container: $(".pager"),
+
+    // use this url format "http:/mydatabase.com?page={page}&size={size}&{sortList:col}"
+    ajaxUrl: null,
+
+    // modify the url after all processing has been applied
+    customAjaxUrl: function(table, url) { return url; },
+
+    // add more ajax settings here
+    // see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
+    ajaxObject: { dataType: 'json' },
+
+    // process ajax so that the data object is returned along with the total number of rows
+    ajaxProcessing: null,
+
+    // Set this option to false if your table data is preloaded into the table, but you are still using ajax
+    processAjaxOnInit: true,
+
+    // output string - default is '{page}/{totalPages}'
+    // possible variables: {page}, {totalPages}, {filteredPages}, {startRow}, {endRow}, {filteredRows} and {totalRows}
+    // also {page:input} & {startRow:input} will add a modifiable input in place of the value
+    output: '{startRow} to {endRow} ({totalRows})',
+
+    // apply disabled classname (cssDisabled option) to the pager arrows when the rows
+    // are at either extreme is visible; default is true
+    updateArrows: true,
+
+    // starting page of the pager (zero based index)
+    page: 0,
+
+    // Number of visible rows - default is 10
+    size: 10,
+
+    // Save pager page & size if the storage script is loaded (requires $.tablesorter.storage in jquery.tablesorter.widgets.js)
+    //savePages : true,
+
+    // Saves tablesorter paging to custom key if defined.
+    // Key parameter name used by the $.tablesorter.storage function.
+    // Useful if you have multiple tables defined
+    //storageKey:'tablesorter-pager',
+
+    // Reset pager to this page after filtering; set to desired page number (zero-based index),
+    // or false to not change page at filter start
+    pageReset: 0,
+
+    // if true, the table will remain the same height no matter how many records are displayed. The space is made up by an empty
+    // table row set to a height to compensate; default is false
+    fixedHeight: true,
+
+    // remove rows from the table to speed up the sort of large tables.
+    // setting this to false, only hides the non-visible rows; needed if you plan to add/remove rows with the pager enabled.
+    removeRows: false,
+
+    // If true, child rows will be counted towards the pager set size
+    countChildRows: false,
+
+    // css class names of pager arrows
+    cssNext: '.next', // next page arrow
+    cssPrev: '.prev', // previous page arrow
+    cssFirst: '.first', // go to first page arrow
+    cssLast: '.last', // go to last page arrow
+    cssGoto: '.gotoPage', // select dropdown to allow choosing a page
+
+    cssPageDisplay: '.pagedisplay', // location of where the "output" is displayed
+    cssPageSize: '.pagesize', // page size selector - select dropdown that sets the "size" option
+
+    // class added to arrows when at the extremes (i.e. prev/first arrows are "disabled" when on the first page)
+    cssDisabled: 'disabled', // Note there is no period "." in front of this class name
+    cssErrorRow: 'tablesorter-errorRow' // ajax error information row
+
+};
+
+function safeJSON(j){
+    j.csrfmiddlewaretoken="${csrf_token}";
+    return j;
+}
+
+$(function() {
+    //----------- tablesorter init----------//
+    $(".tblUserTime").tablesorter({
+        theme : 'blue',
+        widgets:['zebra','filter','columnSelector'],
+        widgetOptions: {
+            filter_placeholder: { search : 'Search...' },
+            columnSelector_container : $('#columnSelector'),
+            columnSelector_columns : {12: 'disable'},  //columns counter
+            columnSelector_mediaqueryName: 'All: '
+        }
+    }).tablesorterPager(pagerOptions);
+    $(".tblUserTime").trigger('refreshColumnSelector', [[3,4,7,8,9,10,11]]);
+
+    
+    //----------- column selector event----------//
+    $('.columnSelectorButton').click(function(e){
+        if(e.target.className == $(this).prop("class") && !$('.columnSelector').is(":visible")) {
+            $('.columnSelector').show();
+        }
+        else {
+            $('.columnSelector').hide();
+        }
+    });
+    $(document).click(function(e){
+        var isout = !$('.columnSelectorWrapper').find(e.target).length;
+        if($('.columnSelector').is(":visible")){
+            if(isout && e.target.className != 'columnSelectorButton') {
+                $('.columnSelector').hide();
+            }
+        }
+    });
+});
+
+//----------- tablesorter data----------//
+var userTimeReport = {
+    timeID:null,
+    dialog:null,
+    total_num:0,
+    user_id:0,
+    curr_course:null,
+    createTimeTable:function(data){
+        var self = this;
+        var table_con = "";
+        $(".tblUserTime tbody").empty();
+
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        local_utc_diff_m = local_utc_diff_m / 60;
+        
+        for(d in data){
+            table_con += '<tr role="row" user_id=' + data[d].id + '>';
+            table_con += '<td>' + data[d].state + '</td><td>' + data[d].district + '</td><td>' + data[d].school + '</td>';
+            table_con += '<td>' + data[d].email + '</td><td>' + data[d].username + '</td><td>' + data[d].first_name + '</td><td>' + data[d].last_name + '</td>';
+            table_con += '<td>' + moment(data[d].login_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
+            if(data[d].logout_time == ''){
+                table_con += '<td>' + ' ' + '</td>';
+            }
+            else{
+                table_con += '<td>' + moment(data[d].logout_time).add(local_utc_diff_m,'hours').format('MM-DD-YYYY hh:mm:ss A') + '</td>';
+            }
+            table_con += '<td>' + data[d].last_session + '</td>';
+            table_con += '<td>' + data[d].total_session + '</td>';
+            if(data[d].online_state == 'On'){
+                table_con += '<td align=center style="vertical-align: middle;"><div class=online><span style="opacity:0;">On</span></div></td>';
+            }
+            else{
+                table_con += '<td align=center style="vertical-align: middle;"><span style="opacity:0;">Off</span></td>';
+            }
+            table_con += '<td></td></tr>';
+        }
+        $(".tblUserTime tbody").append(table_con);
+        
+
+        $(".tblUserTime").trigger("update");
+        this.total_num = data.length;
+        $(".time_download .total").html(data.length);
+    },
+
+    get_table_result:function(){
+        $(".tblUserTime tbody").empty();
+        
+        var self = this;
+        var filter = $('#fltUserTime')[0].control.getFilter();
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+
+        self.dialog = new Dialog($('#dialog_loading'));
+        self.dialog.show('Loading data, Please wait...');
+
+        $.post("${reverse('get_user_login_info')}", {'state': filter.state,'district': filter.district,'school': filter.school}, 
+            function(data) {
+                if (data != null) {
+                    self.dialog.hide();
+                    self.createTimeTable(data.rows);
+                }
+            }
+        );
+    },
+
+    postToNewTab: function(url, params) {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", url);
+        form.setAttribute("target", "_blank");
+        for (var i in params) {
+            if (params.hasOwnProperty(i)) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = i;
+                input.value = params[i];
+                form.appendChild(input);
+            }
+        }
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    },
+
+    downloadUserTimeExcel:function(){
+        var filter = $('#fltUserTime')[0].control.getFilter();
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        filter['local_utc_diff_m'] = local_utc_diff_m;
+        this.postToNewTab("${reverse('usage_report_download_excel')}",safeJSON(filter));
+    },
+
+    downloadUserTimeExcel_init:function(){
+        var self = this;
+        $("#btnDownloadUserTimeExcel").click(function(){
+            if(self.total_num > 0){
+                self.downloadUserTimeExcel();
+            }
+            else{
+                self.dialog = new Dialog($('#dialog'));
+                self.dialog.show('Download Excel','Data is empty!');
+            }
+        });
+    }
+};
+userTimeReport.downloadUserTimeExcel_init();
+
+
+
+//-------------------------- UI control --------------------------//
+//** init expand title
+$(".expand_title").click(function(){
+    var $div=$(this).next("div.expand_div");
+    if($div.is(':visible')){
+        $div.slideUp();
+        $(this).removeClass("expand_title_expanded");
+    }else{
+        $div.slideDown();
+        $(this).addClass("expand_title_expanded");
+    }
+});
+
+//** init filter controls
+$(".control.filter").each(function(){
+    var el=this;
+    new FilterControl(this);
+    this.onFavoriteServerUpdated=function(){
+        $(".control.filter").each(function(){
+            if(!$(el).is(this)) this.control.createFavorite();
+        });
+    }
+});
+</script>

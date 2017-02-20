@@ -11,7 +11,7 @@ class MongoRecordTimeStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
     def __init__(self, host, db, collection, collection_page, collection_discussion, collection_portfolio, collection_external, collection_result_set,
-                 collection_adjustment, port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
+                 collection_adjustment, collection_aggregate, port=27017, default_class=None, user=None, password=None, mongo_options=None, **kwargs):
 
         super(MongoRecordTimeStore, self).__init__(**kwargs)
 
@@ -60,6 +60,12 @@ class MongoRecordTimeStore(object):
             tz_aware=True,
             **mongo_options
         )[db][collection_adjustment]
+        self.collection_aggregate = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection_aggregate]
         if user is not None and password is not None:
             self.collection.database.authenticate(user, password)
             self.collection_page.database.authenticate(user, password)
@@ -68,6 +74,7 @@ class MongoRecordTimeStore(object):
             self.collection_external.database.authenticate(user, password)
             self.collection_result_set.database.authenticate(user, password)
             self.collection_adjustment.database.authenticate(user, password)
+            self.collection_aggregate.database.authenticate(user, password)
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
         self.collection_page.safe = True
@@ -76,6 +83,7 @@ class MongoRecordTimeStore(object):
         self.collection_external.safe = True
         self.collection_result_set.safe = True
         self.collection_adjustment.safe = True
+        self.collection_aggregate.safe = True
 
     def _find_one(self):
         item = self.collection.find_one(
@@ -122,7 +130,7 @@ class MongoRecordTimeStore(object):
             # update record
             rdata['time'] = int(rdata['time']) + int(item['time'])
             if rdata['time'] >= 0:
-                return self.collection_page.update(
+                self.collection_page.update(
                     {
                         'user_id': item['user_id'],
                         'vertical_id': item['vertical_id']
@@ -132,10 +140,26 @@ class MongoRecordTimeStore(object):
 
                     }
                 )
+
+                self.set_aggregate_course_time({
+                    'type': 'courseware',
+                    'user_id': item['user_id'],
+                    'course_id': rdata['course_id'],
+                    'time': item['time'],
+                    'page_data': rdata
+                })
         else:
             # first record
             if int(item['time']) >= 0:
-                return self.collection_page.save(item)
+                self.collection_page.save(item)
+
+                self.set_aggregate_course_time({
+                    'type': 'courseware',
+                    'user_id': item['user_id'],
+                    'course_id': item['course_id'],
+                    'time': item['time'],
+                    'page_data': rdata
+                })
 
     # Todo (page time report)
     def return_page_items(self, user_id, skip=0, limit=5):
@@ -352,6 +376,83 @@ class MongoRecordTimeStore(object):
             count_time += int(data['time'])
         return count_time
 
+    # aggregate course time
+
+    def set_aggregate_course_time(self, data):
+        if data['type'] == 'courseware':
+            time = int(data['time'])
+            if data['page_data'] is not None:
+                if int(data['page_data']['time']) + time >= 0:
+                    self.collection_aggregate.update(
+                        {
+                            'user_id': data['user_id'],
+                            'course_id': data['course_id'],
+                            'type': data['type']
+                        },
+                        {
+                            '$inc': {'time': time}
+                        },
+                        True
+                    )
+            else:
+                if time >= 0:
+                    item = {'user_id': data['user_id'],
+                            'course_id': data['course_id'],
+                            'time': time,
+                            'type': data['type']}
+                    self.collection_aggregate.save(item)
+
+    def get_aggregate_course_time(self, user_id, course_id, type='', add_time_out=False):
+        count_time = self.get_adjustment_time(user_id, type, course_id)
+        if type == 'courseware':
+            if course_id is None:
+                results = self.collection_aggregate.find(
+                    {
+                        'user_id': user_id,
+                        'type': type
+                    }
+                )
+
+                for data in results:
+                    time = int(data['time'])
+                    max_time = int(get_course_with_access(user_id, data['course_id'], 'load').maximum_units_time)
+                    if time > max_time:
+                        time = max_time
+                    count_time += time
+            else:
+                results = self.collection_aggregate.find(
+                    {
+                        'user_id': user_id,
+                        'course_id': course_id
+                    }
+                )
+                for data in results:
+                    count_time += int(data['time'])
+
+                max_time = int(get_course_with_access(user_id, course_id, 'load').maximum_units_time)
+                if add_time_out:
+                    fix_time = count_time - settings.PEPPER_SESSION_EXPIRY
+                    if fix_time >= 0:
+                        count_time = fix_time
+                if count_time > max_time:
+                    count_time = max_time
+            return count_time
+
+        elif type == 'discussion':
+            if course_id is None:
+                results = self.collection_discussion.find({'user_id': user_id})
+            else:
+                results = self.collection_discussion.find(
+                    {
+                        'user_id': user_id,
+                        'course_id': course_id
+                    }
+                )
+        elif type == 'portfolio':
+            results = self.collection_portfolio.find({'user_id': user_id})
+        for data in results:
+            count_time += int(data['time'])
+        return count_time
 
 def record_time_store():
     options = {}

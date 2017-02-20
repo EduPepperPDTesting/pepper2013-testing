@@ -116,9 +116,7 @@
                             next = '/' + next;
                         }
                         location.href = next;
-                    } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next']) && urlParams['next'].match(/^\/sso\/idp\/auth/)) {
-
-                        //alert(urlParams)
+                    } else if (urlParams['next'] !== undefined && !isExternal(urlParams['next'])) {
                         location.href = urlParams['next'];
                     }  else {
                         location.href = "${reverse('dashboard')}";
@@ -143,7 +141,7 @@
 
                 <!--@begin:modify LogIn -> Log In-->
                 <!--@date:2013-11-02-->
-                html("${_('Log In').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Courses')}");
+                html("${_('Login').format(platform_name=settings.PLATFORM_NAME)} <span class='orn-plus'>&</span> ${_('Access My Account')}");
                 <!--@end-->
             } else {
                 $submitButton.
@@ -184,7 +182,7 @@
                 <div class="_banner_whatis_title_font">
                     PLEASE LOG IN
                     <div class="_banner_whatis_title_content_font">
-                        to access your account and courses
+                        to access your account
                     </div>
                 </div>
             </div>

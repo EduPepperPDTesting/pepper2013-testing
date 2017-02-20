@@ -153,6 +153,11 @@ class TextbookList(List):
 
 
 class CourseFields(object):
+    paypal_purchase_price = String(help="", default="0", scope=Scope.settings)
+    paypal_purchase_link = String(help="PayPal purchase link for the course", default="", scope=Scope.settings)
+    paypal_discount_code = String(help="", default="", scope=Scope.settings)
+    paypal_discount_link = String(help="", default="", scope=Scope.settings)
+    
     textbooks = TextbookList(help="List of pairs of (title, url) for textbooks used in this course",
                              default=[], scope=Scope.content)
     wiki_slug = String(help="Slug that points to the wiki for this course", scope=Scope.content)
@@ -400,8 +405,27 @@ class CourseFields(object):
 
     display_grades = String(help="grade", default="", scope=Scope.settings)
 
-    display_subject = String(help="subject", default="", scope=Scope.settings)
-    
+    #@begin:change type of display_subject to list 
+    #@date:2016-05-31
+    #display_subject = String(help="subject", default="", scope=Scope.settings)
+    display_subject = List(help="List for the course subject ", scope=Scope.settings)
+    #@end
+
+    #@begin:close course in courses and dashboard
+    #@date:2016-07-06
+    close_course = Boolean(help="True if this course closed", default=False, scope=Scope.settings)
+    #@end
+
+    #@begin:keep the course still in directory(Courses & Workshops page) when close_course sets true
+    #@date:2016-12-17
+    keep_in_directory = Boolean(help="True keep the course still in directory when close_course sets true", default=False, scope=Scope.settings)
+    #@end
+
+    #@begin:Issue Certificate
+    #@date:2016-07-13
+    issue_certificate = Boolean(help="True issue the digital certificate", default=True, scope=Scope.settings)
+    #@end
+
     display_prerequisite = Boolean(help="prerequisite", default=False, scope=Scope.settings)
     
     display_credit = Boolean(help="credit", default=True, scope=Scope.settings)

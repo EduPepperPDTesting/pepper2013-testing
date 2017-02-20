@@ -635,7 +635,10 @@ def modx_dispatch(request, dispatch, location, course_id):
                     percent = grade(student, request, course_descriptor, field_data_cache)['percent']
                     ajax_return_json = json.loads(ajax_return)
                     if ajax_return_json['success'] == u'correct':
-                        completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
+                        if course_descriptor.issue_certificate:
+                            completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your certificate and completed course on your dashboard.</p>'
+                        else:
+                            completed_course_prompt = '<p style=\'color:red\'>Congratulations on completing this course!  You can access your completed course and portfolio from your dashboard.</p>'
                         #@begin:Use dynamic score to judge that if you pass the subject.
                         #@data:2015-11-19
                         uncompleted_course_prompt = '<p style=\'color:red\'>This course requires a passing score of '+str(int(course_descriptor.grade_cutoffs['Pass']*100))+' percent or higher.  Please reference your scores in &quot;My Progress&quot; to retake or complete the assignments.</p>'
@@ -652,12 +655,12 @@ def modx_dispatch(request, dispatch, location, course_id):
                                 tnl_instance.register_completion(student, course_id, percent)
                         else:
                             course_instance.complete_course = False
-                            course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                            course_instance.complete_date = None
                             ajax_return_json['contents'] = uncompleted_course_prompt + ajax_return_json['contents']
                         ajax_return = json.dumps(ajax_return_json)
                     else:
                         course_instance.complete_course = False
-                        course_instance.complete_date = datetime.fromtimestamp(0, UTC())
+                        course_instance.complete_date = None
                         instance.save()
                     course_instance.save()
                 else:

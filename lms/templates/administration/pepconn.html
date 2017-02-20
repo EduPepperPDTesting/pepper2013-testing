@@ -8,6 +8,7 @@ from certificates.models import CertificateStatuses
 from xmodule.modulestore import MONGO_MODULESTORE_TYPE
 from xmodule.modulestore.django import modulestore
 import json
+from administration.models import CustomEmail
 from student.models import State,District,School,Cohort,User,UserProfile
 %>
 
@@ -132,18 +133,18 @@ f.close()
                         </label><br/>
                         <label class="label">State:<br/>
                             <select id="state_single" name="state_id" autocomplete="off">
-                          <option value="" class="null_case"></option>
-                          %for item in State.objects.all().order_by('name'):
-                            <option class="${item.id}" value="${item.id}">${item.name}</option>
-                          %endfor
-                        </select>
+                                <option value="" class="null_case"></option>
+                                %for item in State.objects.all().order_by('name'):
+                                    <option class="${item.id}" value="${item.id}">${item.name}</option>
+                                %endfor
+                            </select>
                         </label><br/>
                         <label class="label required">District ID:<br/>
                             <select id="district_id_single" name="district_id" autocomplete="off" chkmsg="You must select a district." chktype="Require">
-                              <option class="null_case" value="null_case"></option>
-                                  %for item in District.objects.all().order_by('name'):
-                                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
-                                  %endfor
+                                <option class="null_case" value="null_case"></option>
+                                %for item in District.objects.all().order_by('name'):
+                                    <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                                %endfor
                             </select>
                         </label><br/>
                     </div>
@@ -187,14 +188,18 @@ f.close()
             </label>
           </li>
           <li class="customize-email">
-            <label style="cursor:normal !important;">
-              <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+            <label style="cursor: pointer !important;">
+              <input class="custom-email-checkbox" id="cec-1" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
           </li>
           <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_001'" />
         </ul>
         <div style="padding:7px;">
+          <span style="float: right;margin-right: 525px;margin-top: -8px;">
+              <button style="display:none;" id="delete-email-1">Delete Email</button>
+              <button style="display:none;" id="save-email-1">Save Email</button>
+          </span>
           CSV File: <input type="file" name="file" value="" />
           <p style="margin-top:1em;">
             <label style="font-style:normal;color:#555;cursor:default;">
@@ -217,8 +222,8 @@ f.close()
                     </label>
                   </li>
                   <li class="customize-email">
-                    <label style="cursor:normal !important;">
-                      <input class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+                    <label style="cursor: pointer !important;">
+                      <input class="custom-email-checkbox" id="cec-3" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
                       Customize registration email
                     </label>
                   </li>
@@ -227,20 +232,24 @@ f.close()
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}">
 
                 <div style="padding: 1em 7px 7px 7px;">
+                    <span style="float: right;margin-right: 525px;margin-top: -8px;">
+                        <button style="display:none;" id="delete-email-3">Delete Email</button>
+                        <button style="display:none;" id = "save-email-3">Save Email</button>
+                    </span>
                     <label class="label">State:<br/>
                         <select id="user_state_single" name="state" autocomplete="off" chkmsg="You must select a state." chktype="Require">
-                      <option class="null_case" value=""></option>
-                      %for item in State.objects.all().order_by('name'):
-                      <option class="${item.id}" value="${item.id}">${item.name}</option>
-                      %endfor
+                            <option class="null_case" value=""></option>
+                            %for item in State.objects.all().order_by('name'):
+                                <option class="${item.id}" value="${item.id}">${item.name}</option>
+                            %endfor
                     </select>
                     </label><br/>
                     <label class="label required">District:<br/>
                         <select id="user_district_id" name="district" autocomplete="off" chkmsg="You must select a district." chktype="Require">
-                          <option class="null_case" value=""></option>
-                          %for item in District.objects.all().order_by('name'):
-                          <option class="${item.state.id}" value="${item.id}">${item.name}</option>
-                          %endfor
+                            <option class="null_case" value=""></option>
+                            %for item in District.objects.all().order_by('name'):
+                                <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                            %endfor
                         </select>
                     </label><br/>
                     <label class="label required">E-Mail:<br/>
@@ -263,18 +272,18 @@ f.close()
                 </label><br/>
                 <label class="label">State:<br/>
                     <select id="cohort_state_single" name="state_id" autocomplete="off">
-                  <option class="null_case" value=""></option>
-                  %for item in State.objects.all().order_by('name'):
-                  <option class="${item.id}" value="${item.id}">${item.name}</option>
-                  %endfor
-                </select>
+                        <option class="null_case" value=""></option>
+                        %for item in State.objects.all().order_by('name'):
+                            <option class="${item.id}" value="${item.id}">${item.name}</option>
+                        %endfor
+                    </select>
                 </label><br/>
                 <label class="label required">District:<br/>
                     <select id="cohort_district_id" name="district_id" autocomplete="off" chkMsg="District can't be empty." chkType="Require">
-                      <option class="null_case" value=""></option>
-                      %for item in District.objects.all():
-                      <option class="${item.state.id}" value="${item.id}">${item.name}</option>
-                      %endfor
+                        <option class="null_case" value=""></option>
+                        %for item in District.objects.all():
+                            <option parent-class="${item.state.id}" value="${item.id}" class="${item.id}">${item.name}</option>
+                        %endfor
                     </select>
                 </label><br/>
                 <label class="label required">Licences:<br/>
@@ -296,6 +305,7 @@ f.close()
 
   </div>
 </div>
+<span id="organization_obj" o_name="pepconn"></span>
 <div class="data_import_bottom">
   <div class="main, data_import_content">
     <div class="expand_title expand_title_collapse">
@@ -321,14 +331,14 @@ f.close()
                   %endfor
                 </select>
 
-                <input id="District_search" placeholder="Search" class="search-districts" type="search" data-column="all">
-                <img onclick="openBookmark('District')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <input id="District_search" placeholder="Search District" class="search-districts" type="search" data-column="1">
+                <img onclick="openBookmark('District')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
                 <span onclick="$('#district-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
-                <span class="selectall"><input type="checkbox" id="selectalldistrict" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <span class="selectall"><input type="checkbox" id="selectalldistrict" name="district">&nbsp<span><b>Select All</b></span></span>
                 <div  class="select-columns" id="district-select"><br>
-                <input type="checkbox" checked onchange="$('.district_code').toggle();"></input><label><i>District ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.district_name').toggle();"></input><label><i>District Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.district_state_name').toggle();"></input><label><i>State</i></label><br>
+                <input type="checkbox" checked onchange="$('.district_code').toggle();"><label><i>District ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.district_name').toggle();"><label><i>District Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.district_state_name').toggle();"><label><i>State</i></label><br>
                 </div>
                 </div>
         </div>
@@ -377,30 +387,28 @@ f.close()
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
                 <select type="search" class="search-schools" data-column="4" id="School_state_select">
-
-                      <option value="" class="null_case">Select State</option>
-                      %for item in State.objects.all().order_by("name"):
-                      <option class="${item.id}" value="${item.name}">${item.name}</option>
-                      %endfor
+                    <option value="" class="null_case">Select State</option>
+                    %for item in State.objects.all().order_by("name"):
+                        <option class="${item.id}" value="${item.name}">${item.name}</option>
+                    %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
-
-                      <option class="null_case" value="">Select District</option>
-                      %for item in District.objects.all():
-                      <option class="${item.state.id}" value="${item.name}">${item.name}</option>
-                      %endfor
+                    <option class="null_case" value="">Select District</option>
+                    %for item in District.objects.all():
+                        <option parent-class="${item.state.id}" value="${item.name}" value="${item.id}">${item.name}</option>
+                    %endfor
                 </select>
 
-                <input placeholder="Search" class="search-schools" type="search" data-column="all" id="School_search">
-                <img onclick="openBookmark('School')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <input placeholder="Search Schools" class="search-schools" type="search" data-column="1" id="School_search">
+                <img onclick="openBookmark('School')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
                 <span onclick="$('#school-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
-                <span class="selectall"><input type="checkbox" id="selectallschool" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <span class="selectall"><input type="checkbox" id="selectallschool" name="district">&nbsp<span><b>Select All</b></span></span>
                 <div id="school-select" class="select-columns"><br>
-                <input type="checkbox" checked onchange="$('.school_code').toggle();"></input><label><i>School Code</i></label><br>
-                <input type="checkbox" checked onchange="$('.school_name').toggle();"></input><label><i>School Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.school_district_id').toggle();"></input><label><i>District</i></label><br>
-                <input type="checkbox" checked onchange="$('.school_district_two').toggle();"></input><label><i>District ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.school_state').toggle();"></input><label><i>State</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_code').toggle();"><label><i>School Code</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_name').toggle();"><label><i>School Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_district_id').toggle();"><label><i>District</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_district_two').toggle();"><label><i>District ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.school_state').toggle();"><label><i>State</i></label><br>
                 </div>
 
             </div>
@@ -458,19 +466,19 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-                      <option value="" class="-1" name="null_case">Select District</option>
-                      %for item in District.objects.all().order_by('name'):
-                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                      %endfor
+                    <option value="" class="null_case">Select District</option>
+                    %for item in District.objects.all().order_by('name'):
+                        <option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                    %endfor
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                      <option value="" class="null_case">Select School</option>
-                      %for item in School.objects.all().order_by('name'):
-                      <option class="${item.district_id}" value='${item.name}' class="">${item.name}</option>
-                      %endfor
+                    <option value="" class="null_case">Select School</option>
+                    %for item in School.objects.all().order_by('name'):
+                        <option parent-class="${item.district_id}" value='${item.name}' class="${item.id}">${item.name}</option>
+                    %endfor
                 </select>
-                <select type="search" class="search-users" data-column="8" id="User_registration_select">
-                      <option value="" class="null_case">Select Registration Status</option>
+                <select type="search" class="search-users" data-column="10" id="User_registration_select">
+                    <option value="" class="null_case">Select Registration Status</option>
                     <option value="Registered">Registered</option>
                     <option value="Unregistered">Unregistered</option>
                     <option value="Imported">Imported</option>
@@ -480,21 +488,23 @@ f.close()
                 <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
                 <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
                 <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
-                <input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">
-                <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <!--<input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
+                <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
                 <span onclick="$('#user-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
-                <span class="selectall"><input type="checkbox" id="selectalluser" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <span class="selectall"><input type="checkbox" id="selectalluser" name="district">&nbsp<span><b>Select All</b></span></span>
                 <div class="select-columns" id="user-select"><br>
-                <input type="checkbox" checked onchange="$('.user_id_select').toggle();"></input><label><i>User ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_lname').toggle();"></input><label><i>Last Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_fname').toggle();"></input><label><i>First Name</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_email').toggle();"></input><label><i>E-Mail</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_school').toggle();"></input><label><i>State</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_school').toggle();"></input><label><i>School</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_district').toggle();"></input><label><i>District</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_cohort').toggle();"></input><label><i>Cohort</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_registration').toggle();"></input><label><i>Registration Status</i></label><br>
-                <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"></input><label><i>Enrollment Status</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_id_select').toggle();"><label><i>User ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_lname').toggle();"><label><i>Last Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_fname').toggle();"><label><i>First Name</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_email').toggle();"><label><i>E-Mail</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_sso_type').toggle();"><label><i>SSO Type</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_sso_idp').toggle();"><label><i>SSO IDP</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_school').toggle();"><label><i>State</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_school').toggle();"><label><i>School</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_district').toggle();"><label><i>District</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_cohort').toggle();"><label><i>Cohort</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_registration').toggle();"><label><i>Registration Status</i></label><br>
+                <input type="checkbox" checked onchange="$('.user_enrollment_status').toggle();"><label><i>Enrollment Status</i></label><br>
                 </div>
             </div>
         </div>
@@ -561,12 +571,16 @@ f.close()
           </li>
           <li class="customize-email" style="display: list-item">
             <label style="cursor: normal !important; float: right;">
-              <input  class="custom-email-checkbox" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
+              <input  class="custom-email-checkbox" id="cec-2" type="checkbox" name="customize_email" value="true" autocomplete="off"/>
               Customize registration email
             </label>
           </li>
           <%include file="custom_email.html" args="subject_to_edit=subject_to_edit,email_to_edit=email_to_edit,ck_name='custom_email_002'"/>
         </ul>
+        <span style="float: right;margin-right: 525px;margin-top: -8px;">
+            <button style="display:none;" id="delete-email-2">Delete Email</button>
+            <button style="display:none;" id="save-email-2">Save Email</button>
+        </span>
     </div>
     <div class="cohort_table-section table-section">
         <div class="add-area" onclick="$('#filterArea3').slideToggle()">
@@ -581,20 +595,20 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-cohorts" data-column="4" id="Cohort_district_select">
-                      <option value="" class="null_case">Select District</option>
-                      %for item in District.objects.all().order_by('name'):
-                      <option class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                      %endfor
+                    <option value="" class="null_case">Select District</option>
+                    %for item in District.objects.all().order_by('name'):
+                        <option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
+                    %endfor
                 </select>
-                <input placeholder="Search" class="search-cohorts" type="search" data-column="all" id="Cohort_search">
-                <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"></img><br><br>
+                <input placeholder="Search Cohorts" class="search-cohorts" type="search" data-column="0" id="Cohort_search">
+                <img onclick="openBookmark('Cohort')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
                 <span onclick="$('#cohort-select').slideToggle();" class="select-add-area"><b>Select Columns</b></span>
-                <span class="selectall"><input type="checkbox" id="selectallcohort" name="district"></input>&nbsp<span><b>Select All</b></span></span>
+                <span class="selectall"><input type="checkbox" id="selectallcohort" name="district">&nbsp<span><b>Select All</b></span></span>
                 <div id="cohort-select" class="select-columns"><br>
-                <input type="checkbox" checked onchange="$('.cohort_id').toggle();"></input><label><i>Cohort ID</i></label><br>
-                <input type="checkbox" checked onchange="$('.cohort_license').toggle();"></input><label><i>Liscenses</i></label><br>
-                <input type="checkbox" checked onchange="$('.cohort_term').toggle();"></input><label><i>Term Months</i></label><br>
-                <input type="checkbox" checked onchange="$('.cohort_start').toggle();"></input><label><i>Subscription Start Date</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_id').toggle();"><label><i>Cohort ID</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_license').toggle();"><label><i>Liscenses</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_term').toggle();"><label><i>Term Months</i></label><br>
+                <input type="checkbox" checked onchange="$('.cohort_start').toggle();"><label><i>Subscription Start Date</i></label><br>
                 </div>
             </div>
         </div>
@@ -657,8 +671,8 @@ f.close()
     <p>
         Edit District Form
     </p><br>
-    Code:<input type = 'text' id = 'districtCodeValue'></input><br><br>
-    Name:<input type = 'text' id = 'districtNameValue'></input><br><br>
+    Code:<input type = 'text' id = 'districtCodeValue'><br><br>
+    Name:<input type = 'text' id = 'districtNameValue'><br><br>
     <button type = 'submit' id = 'submitDistrictEditButton'>Submit</button>
 </div>
 <script type="text/javascript">
@@ -734,6 +748,42 @@ function editUserData(id){
     }, function (r) {
         var code = r.code;
         new Dialog($('#dialog')).show("Edit User",code);
+        id=$("#userDistrictValue").val();
+        $("#userCohortValue > option").each(function() {
+            if($(this).attr("data-district") != id){
+                $(this).hide();
+            } else $(this).show();
+        });
+        $("#userSchoolValue > option").each(function() {
+            if($(this).attr("data-district") != id){
+                $(this).hide();
+            }else $(this).show();
+        });
+        if($("#userSchoolValue option:selected" ).attr("data-district") != id){
+            $("#userSchoolValue").val("");
+        }
+        if($("#userCohortValue option:selected" ).attr("data-district") != id){
+            $("#userSchoolValue").val("");
+        }
+        $("#userDistrictValue").change(function(){
+            id=$(this).val();
+            $("#userCohortValue > option").each(function() {
+                if($(this).attr("data-district") != id){
+                    $(this).hide();
+                } else $(this).show();
+            });
+            $("#userSchoolValue > option").each(function() {
+                if($(this).attr("data-district") != id){
+                    $(this).hide();
+                }else $(this).show();
+            });
+            if($("#userSchoolValue option:selected" ).attr("data-district") != id){
+                $("#userSchoolValue").val("");
+            }
+            if($("#userCohortValue option:selected" ).attr("data-district") != id){
+                $("#userSchoolValue").val("");
+            }
+        });
     });
 }
 function submitUserEdit(){
@@ -805,7 +855,193 @@ $("#singleUserImportForm").submit(function () {
     return false;
 });
 
+function cleanInput(input){
+    return input.replace("'", "\'");
+}
+
 $(document).ready(function () {
+    var custom_email_loaded = [false, false, false];
+
+    $("input[id^=cec-]").change(function(){
+        var idNum = $(this).attr('id').split('-')[1];
+        $("#save-email-" + idNum).toggle();
+    });
+    $("img[id^=saved_email_button_custom_email_00]").click(function(e) {
+        var idNum = $(this).attr('id').split('00')[1];
+
+        var html = '<div class="email-save-wrapper"> Filter By:<br>';
+        html += '<label><input type="radio" name="ops" value="private" id="user_exclusive" checked></input> Private</label><br>';
+        html += '<label><input type="radio" name="ops" value="public" id="system_exclusive"></input> Public</label><br>';
+        html += '<label><input type="radio" name="ops" value="organization"></input> Organization</label><br>';
+        html += '<span id="ops" style="display: none;">';
+        html += 'State: <select id="state_select"></select><br>';
+        html += 'District: <select id="select_district_email"></select><br>';
+        html += 'School: <select id="school_select_email"></select></span><br><br>';
+        html += 'Email: <select id="custom_email_name_custom_email"></select><br><br>';
+        html += '<button id="load_saved_email_custom_email">Load</button>';
+        html += '</div>';
+
+        var load_dialog = new Dialog($('#dialog'));
+        load_dialog.show('Saved Emails', html);
+
+        // var options = $("#custom_email_name_custom_email > option");
+        var select_id = '#custom_email_name_custom_email';
+        filterOptionsByAttribute(select_id, 'private', true);
+
+        $("input[name=ops]:radio").change(function () {
+            var ops = $(this).val();
+            if (ops == 'organization') {
+                filterDropOptions('state', false, '#state_select');
+                $("#ops").show();
+                $('#custom_email_name_custom_email').html('');
+            } else {
+                $("#ops").hide();
+                filterOptionsByAttribute(select_id, ops, true)
+            }
+        });
+
+        $("#state_select").change(function () {
+            var id = $(this).val();
+            filterDropOptions('district', id, '#select_district_email');
+            $('#school_select_email').html('');
+            filterOptionsByAttribute(select_id, 'state', id);
+        });
+        $("#select_district_email").change(function () {
+            var id = $(this).val();
+            filterDropOptions('school', id, '#school_select_email');
+            filterOptionsByAttribute(select_id, 'district', id);
+        });
+        $("#school_select_email").change(function() {
+            var id = $(this).val();
+            filterOptionsByAttribute(select_id, 'school', id);
+        });
+
+        $("#load_saved_email_custom_email").click(function(){
+            var id = $("#custom_email_name_custom_email").val();
+            $.post("${reverse('pepconn_get_custom_email')}", {id: id}, function(data){
+                CKEDITOR.instances['custom_email_00' + idNum].setData(data.message);
+                load_dialog.hide();
+                $("#delete-email-" + idNum).show();
+                custom_email_loaded[idNum] = id;
+            });
+        });
+    });
+
+    $("button[id^=save-email-]").click(function(e){
+        e.preventDefault();
+
+        var idNum = $(this).attr('id').split("-")[2];
+
+        var private_checked = ' checked';
+        var name_hidden = '';
+
+        var html = '<div class="email-save-wrapper">';
+        if (custom_email_loaded[idNum]) {
+            private_checked = '';
+            name_hidden = ' style="display: none;"';
+            html += '<label><input type="radio" name="ops" value="update" id="update_current" checked></input> Update Current</label><br>';
+        }
+        html += '<label><input type="radio" name="ops" value="private" id="user_exclusive"' + private_checked + '></input> Private</label><br>';
+        html += '<label><input type="radio" name="ops" value="public" id="system_exclusive"></input> Public</label><br>';
+        html += '<label><input type="radio" name="ops" value="organization"></input> Organization</label><br>';
+        html += '<span id="ops" style="display: none;">';
+        html += 'State: <select id="state_select"></select><br>';
+        html += 'District: <select id="select_district_email"></option></select><br>';
+        html += 'School: <select id="school_select_email"></select></span><br><br>';
+        html += '<label' + name_hidden + ' id="email_name_label">Save Name: <input type="text" id="email_name"></input></label><br><br>';
+        html += '<button id="save_email_post">Save</button><br><span id="save_email_message"></span>';
+        html += '</div>';
+
+        new Dialog($('#dialog')).show("Custom Email", html);
+
+        $("input[name=ops]:radio").change(function () {
+            var op = $('input[name=ops]:checked').val();
+            if (op == 'organization') {
+                filterDropOptions('state', false, '#state_select');
+                $("#ops").show();
+                $('#email_name_label').show();
+            } else {
+                $("#ops").hide();
+                if (op == 'update') {
+                    $('#email_name_label').hide();
+                } else {
+                    $('#email_name_label').show();
+                }
+            }
+        });
+
+        $("#state_select").change(function () {
+            var id = $(this).val();
+            filterDropOptions('district', id, '#select_district_email');
+        });
+        $("#select_district_email").change(function () {
+            var id = $(this).val();
+            filterDropOptions('school', id, '#school_select_email');
+        });
+
+        $("#save_email_post").click(function(e){
+            e.preventDefault();
+            var op = $('input[name=ops]:checked').val();
+            var state = $("#state_select").val();
+            var district = $("#select_district_email").val();
+            var school = $("#school_select_email").val();
+            var name = $("#email_name").val();
+            if (op == 'organization' && state == 'null_case') {
+                alert('You must select at least a state if you are saving by organization.');
+            } else if (op != 'update' && !name.length) {
+                alert('You must enter a name for your custom email.')
+            } else {
+                var data = {
+                    "csrfmiddlewaretoken": "${csrf_token}",
+                    "name": name,
+                    "message": CKEDITOR.instances['custom_email_00' + idNum].getData(),
+                    "op": op,
+                    "state": state,
+                    "district": district,
+                    "school": school,
+                    "id": custom_email_loaded[idNum]
+                };
+
+                $.post("${reverse('pepconn_save_custom_email')}", data, function (r) {
+                    if (r.success == true) {
+                        $("#save_email_message").css("color", "green");
+                        $("#save_email_message").html("<br>Successfully " + r.op + " message.");
+                    } else if (r.error == 'duplicate') {
+                        $("#save_email_message").css("color", "red");
+                        $("#save_email_message").html("<br>This email name is already in use.");
+                    } else {
+                        $("#save_email_message").css("color", "red");
+                        $("#save_email_message").html("<br>There was an error saving your email.");
+                    }
+                });
+            }
+        });
+    });
+
+    $("button[id^=delete-email-]").click(function(e){
+        e.preventDefault();
+        var button = this;
+
+        if (confirm('Are you sure you want to delete this message?')) {
+            var idNum = $(this).attr('id').split("-")[2];
+
+            var data = {
+                "csrfmiddlewaretoken": "${csrf_token}",
+                "id": custom_email_loaded[idNum]
+            };
+
+            $.post("${reverse('pepconn_delete_custom_email')}", data, function (r) {
+                if (r.success) {
+                    alert('Message successfully deleted.');
+                    custom_email_loaded[idNum] = false;
+                    $(button).hide();
+                } else {
+                    alert('There was an error deleteing the message. Please contact support.');
+                }
+            });
+        }
+    });
+
     $(".table-section").hide();
     $(".district_table-section").show();
     $("#selectalldistrict").click(function () {
@@ -951,20 +1187,56 @@ $(document).ready(function () {
     });
 
     function filterOptions(item, id) {
-        if ($(item).attr("class") != id) {
+        $(item).removeAttr('selected');
+        if ($(item).attr("parent-class") != id && $(item).attr("class") != "null_case" && id != 'null_case' && $(item).attr('value') != 'null_case') {
             $(item).css("display", "none");
         } else {
             $(item).css("display", "");
         }
-        if (id == "null_case" || $(item).attr("class") == "null_case") {
-            $(this).css("display", "");
+    }
+    function filterDropOptions(item, id, select) {
+        if (id != 'null_case') {
+            var url = '';
+            var data = {};
+            if (item == 'state') {
+                url = "${reverse('pepper_utilities_drop_states')}";
+            } else if (item == 'district') {
+                url = "${reverse('pepper_utilities_drop_districts')}";
+                data['state'] = id;
+            } else if (item == 'school') {
+                url = "${reverse('pepper_utilities_drop_schools')}";
+                data['district'] = id;
+            }
+            $.get(url, data, function (r) {
+                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                $.each(r, function (k, v) {
+                    options += '<option value="' + v.id + '">' + v.name + '</option>';
+                });
+                $(select).html(options);
+            });
+        } else {
+            $(select).html('');
         }
     }
+    function filterOptionsByAttribute(select, attribute, value) {
+        var data = {};
+        data[attribute] = value;
+        $.get("${reverse('pepconn_get_custom_email_list')}", data, function (r) {
+            var options = '';
+            $.each(r, function (k, v) {
+                options += '<option value="' + v.id + '">' + v.name + '</option>';
+            });
+            $(select).html(options);
+        });
+    }
+
     $("#User_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
+        //console.log('Parent: ' + id);
         $("#User_district_select > option").each(function() {
             filterOptions(this, id)
         });
+        $("#User_district_select").trigger('change');
     });
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
@@ -992,14 +1264,8 @@ $(document).ready(function () {
     });
     $("#User_district_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        var name = $(this).children(":selected").attr("name");
         $("#User_school_select > option").each(function () {
-            $(this).css("display", "");
-            if (name != "null_case" || $(this).attr("class") == "null_case") {
-                if ($(this).attr("class") != id) {
-                    $(this).css("display", "none");
-                }
-            }
+            filterOptions(this, id)
         });
     });
     $("#state_single").change(function () {
@@ -1113,6 +1379,8 @@ function openBookmark(table) {
     });
 
 }
+
+
 function saveBookmark(table) {
     var nameData = $("#bookmark_newname_" + table).val();
     var state = $("#" + table + "_state_select :selected").attr("id");
@@ -1179,7 +1447,7 @@ var tablesorterOptions = {
         filter_external: '',
         filter_columnFilters: false,
         filter_placeholder: {search: 'Search...'},
-        filter_saveFilters: true,
+        filter_saveFilters: false,
         filter_reset: '.reset',
         filter_serversideFiltering: true,
         output_saveFileName: 'data.csv'

@@ -9,6 +9,8 @@ if Backbone?
       "click .action-edit": "edit"
       "click .action-delete": "_delete"
       "click .action-openclose": "toggleClosed"
+      "click .action-rating": "actionRating" #201606
+      "click .see-results": "seeResults" #201606
 
     $: (selector) ->
       @$el.find(selector)
@@ -40,7 +42,36 @@ if Backbone?
       @$el.find('.username').attr('href','javascript:void(0);')
       @$el.find('.username').css('cursor','default')
       @$el.find('.username').css('color','#366094')
+      @renderRating() #201606
       @
+
+    #201606
+    renderRating: ->
+      ratingTemp = "0"
+      url = DiscussionUtil.urlFor('get_rating', @model.id)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              option_type: 'get_rating'
+
+          #error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              ratingTemp = response.rating
+              @$el.find('.action-rating').raty({
+                    starOn:'star-on-orange.png',
+                    starHalf:'star-half-orange.png',
+                    hints: ['Poor', 'Fair', 'Average', 'Good', 'Great'],
+                    path:"/static/js/vendor/raty/lib/img",
+                    click: (score, evt) ->
+                      $(@).attr('data-rating',score)
+                    score: ->
+                      #$(@).attr('data-rating')
+                      ratingTemp
+                  })
 
     renderDogear: ->
       if window.user.following(@model)
@@ -132,6 +163,14 @@ if Backbone?
 
     edit: (event) ->
       @trigger "thread:edit", event
+
+    #2016
+    actionRating: (event) ->
+      @trigger "thread:actionRating", event
+
+    #2016
+    seeResults: (event) ->
+      @trigger "thread:seeResults", event
 
     _delete: (event) ->
       @trigger "thread:_delete", event

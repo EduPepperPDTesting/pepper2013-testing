@@ -110,7 +110,9 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
-            {"display_name": "Never", "value": "never"}]
+            {"display_name": "Never", "value": "never"},
+            {"display_name": "Compare and Submit", "value": "compare"}
+            ]
     )
     force_save_button = Boolean(
         help="Whether to force the save button to appear on the page",
@@ -363,6 +365,9 @@ class CapaModule(CapaFields, XModule):
             #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
+
+        if self.showanswer == 'compare':
+            return "Compare and Submit"
 
         return "Final Check" if final_check else "Submit"
 
@@ -689,6 +694,8 @@ class CapaModule(CapaFields, XModule):
         elif self.showanswer == 'past_due':
             return self.is_past_due()
         elif self.showanswer == 'always':
+            return True
+        elif self.showAnswer == 'Compare':
             return True
 
         return False

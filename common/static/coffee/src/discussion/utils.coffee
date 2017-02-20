@@ -83,6 +83,8 @@ class @DiscussionUtil
       #user_profile            : "/courses/#{$$course_id}/discussion/forum/users/#{param}"
       followed_threads        : "/courses/#{$$course_id}/discussion/forum/users/#{param}/followed?tags=default"
       threads                 : "/courses/#{$$course_id}/discussion/forum"
+      set_rating              : "/courses/#{$$course_id}/discussion/threads/#{param}/set_rating"
+      get_rating              : "/courses/#{$$course_id}/discussion/threads/#{param}/get_rating"
       "set_visibility"        : "/courses/#{$$course_id}/discussion/#{param}/set_visibility/#{param1}"
       "enable_notifications"  : "/notification_prefs/enable/"
       "disable_notifications" : "/notification_prefs/disable/"

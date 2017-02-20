@@ -1,0 +1,506 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from django.utils import timezone
+    from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+    import datetime
+%>
+<!--@begin:Hide Dashboard button in this page-->
+<!--@date:2013-11-02-->
+<style type="text/css" media="screen">
+#image_uploading{display:none;}
+/*-----------------------------------*/
+.ds-course-card{
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);
+    float: left;*/
+    width: 213px;/*242px*/
+    /*min-height: 142px;
+    margin: 20px;*/
+    cursor: auto!important;
+    border:1px solid #ccc;
+}
+.ds-image-style{
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:213px
+    ;height:72px;
+}
+.ds-card-link{
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    color: #FFFFFF !important;
+    /*background: rgba(18,111,154,0.95);*/
+    text-decoration: none!important;
+}
+.ds-course-title {
+    height: 60px;
+    width: 215px;
+    position: relative;
+    bottom: 0;
+    left:-1px;
+    font-size:13px;
+    background: rgba(18,111,154,0.95);
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+}
+
+.ds-course-btn .ds-btn-view-portfolio{
+    color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#556370;
+}
+.ds-course-btn .ds-btn-view-course{
+     color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#4ecdc4;
+    margin-left: 1px;
+}
+.ds-view-all-courses{
+    width:215px;
+    text-align:right;
+    margin-top: -15px;
+    border:0px solid;
+}
+.ds-view-all-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-view-all-communities{
+    width:215px;
+    text-align:right;
+    margin-top:-15px;
+    border:0px solid;
+}
+.ds-view-all-communities a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-my-status{
+    width:185px;
+    font-size: 13px;
+    border-radius: 6px;
+    margin-top: 20px;
+    padding: 15px 15px 15px 15px;
+    border:1px solid #666;
+}
+.image-link-style {
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:215px;
+    height:100px;
+    background-size: auto 100px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+
+    border-top: 1px  solid #ccc;
+    border-left: 1px  solid #ccc;
+    border-right: 1px  solid #ccc;
+}
+.image-bottom-style {
+    border-radius: 0 0 5px 5px;
+    -moz-border-radius: 0 0 5px 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+}
+.card-link {
+    display: table-cell;
+    width: 183px;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+}
+.card-link span {
+    color: #FFFFFF;
+    font-size: 13px;
+}
+</style>
+<!--@end-->
+<%inherit file="main_new.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("Dashboard - {username}".format(username=curr_user.username))}</title></%block>
+
+<!--@date:20161222-->
+<script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
+<!--@end-->
+
+<section class="content-wrapper" style="margin-top:0px;">
+    <section class="container dashboard" style="margin-top:10px;">
+        <!--width 275 + 10 + 610 + 10 + 275 = 1180-->
+        <!--width 230 + 720 + 230 = 1180-->
+        <!--Courses Dashboard-->
+        <div class="my-courses" style="border:0px solid;width:220px;">
+            <div class="title" style="width:215px;text-align:center;">
+                <a href="/courses" style="font-size:16px;color:#3C4646;text-decoration:none;cursor:pointer;font-weight:bold;">My Course & Workshops</a>
+            </div>
+            <div style="margin-top:10px;">
+                %for i,course in enumerate(courses_incomplated):
+                    <%
+                        course_target = reverse('courseware', args=[course.id])
+                    %>
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
+                        <div class="ds-course-card" style="cursor:pointer;">
+                            <div class="card-top" style="border:0px solid #f00;">
+                                <div class="field-items">
+                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" style=""  alt="Cover Image"></figure>
+                                </div>
+                                <div class="ds-course-title">
+                                    <div class="field-content">
+                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" style="line-height:20px;"title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
+
+                        <div class="ds-course-btn" style="border:0px solid;line-height:27px;height:28px;margin-top:3px;">
+                            %if course.id in show_courseware_links_for:
+                                %if curr_user == request.user:              
+                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                                %else:
+                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                                %endif
+                                %if curr_user == request.user and not course.close_course:      
+                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                                %endif
+                            %endif
+                        </div>
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-courses">
+                <a href="/my_courses">View All</a>
+            </div>
+            <div class="ds-my-status">
+                <b>My Pepper Achievements Status</b>
+                </br>
+                <b>All Course Time:310 Minutes</b>
+                </br>
+                <b>Collaboration Time:87 Minutes</b>
+                </br>
+                <b>Total Time:397 Minutes</b>
+                </br>
+                </br>
+                <span>Cetificates</span>
+                </br>
+                Pep101x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI141E
+                </br>
+                EDU506
+            </div>
+        </div>
+
+        <!--Post Dashboard-->
+        <!--w:610,min-h:800-->
+        <div id="dashboard_content_posts" class="dashboard_main_content">
+            <div id="post_content" class="post_content" style="margin-bottom:0px;">
+                <table id="" width="100%" border="0" style="margin-bottom:10px;background-color:#f2f2f2;">
+                    <tr class=".post-submit-row" id="post_submit_row">
+                        <td width="60"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
+                        <td style="color:#818181;font-size:15px;">
+                            <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="50" align="right">
+                            <a href = "#" style="color:#06e !important;" id = "add_post_image">
+                                <img src="static/images/newdashboard/add-a-document-button_318-25290.jpg" width="25" height="25"/>
+                            </a>
+                        </td>
+                        <td style="padding-left:10px;color:#818181;font-size:14px;">Photo/Video/Document</td>
+                        <td align="right" style="padding-right:7px;">
+                            <a id="submit_new_post_button" class="post_btn" value="Post">Post</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <table style="display:none;margin-top:5px;" id="add_images_div">
+                                <tr>
+                                    <td style="padding-left:9px;padding-right:10px;"><input id="image_link_input" type="text" placeholder="Enter Image Link Here" style="height:25px;font-size:14px;width:160px;"/></td>
+                                    <td style="padding-top:2px;"><input id="embed_checkbox" type="checkbox"/></td>
+                                    <td style="font-size:14px;">Embed</td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <table style="margin-top:8px;margin-bottom:8px;">
+                <tr>
+                    <td class="filter-word-label">Filter:</td>
+                    <td>
+                        <select id = "post_filter_select">
+                            <option value = 'newest_post'>Newest Posts</option>
+                            <option value = 'oldest_post'>Oldest Posts</option>
+                            <option value = 'latest_reply'>Latest Reply</option>
+                            <option value = 'oldest_reply'>Oldest Reply</option>
+                            <option value = 'alphabetical'>Last Name (A-Z)</option>
+                            <option value = 'reversealpha'>Last Name (Z-A)</option>
+                            <option value = 'alphauname'>Nickname (A-Z)</option>
+                            <option value = 'ralphauname'>Nickname (Z-A)</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <table id="post_content_table" width="100%" border="0">
+                 <tr class="post-content-row" id="post_content_new_row">
+                    <td></td><td></td>
+                </tr>
+            </table>
+            <center><img id="posts_loading_image" src="/static/images/posts-loading.gif"></img></center>
+        </div>
+
+        <!--Community Dashboard-->
+        <div class="my_community" style="border:0px solid #f00;width:220px;">
+            <div class="title" style="width:215px;text-align:center;border:0px solid #f00;">
+                <a href="/communities" style="font-size:16px;color:#3C4646;text-decoration:none;cursor:pointer;font-weight:bold;">Coaching & Collaboration</a>
+            </div>
+            <div style="margin-top:10px;">
+                %for community in communities:
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
+                        <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-communities" style="">
+                <a href="/communities">View All</a>
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+    </section>
+</section>
+<!--@begin:Add for Dashboard Posts-->
+<!--@2016-12-29-->
+<div style="" id="fixed-dialog-likes" class="modal">
+    <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0">
+        <div class="titlebar">
+            <h3 class="dialog-title"></h3>
+            <div class="close-modal" id="dialog_close">✕</div>
+        </div>
+        <div class="content"></div>
+    </div>
+</div>
+<div id = 'user_info_div' class="user-info-div">
+    <span id='user_info' class="user_info_span"></span>
+</div>
+<!--@end-->
+
+<script>
+//@begin:Add for Dashboard Posts
+//@date:2016-12-29
+var size = 0;
+function getPosts(){
+    var local_time =  new Date();
+    var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+    filter = $("#post_filter_select").val()
+    var master_id = "${curr_user.id}";
+    $.post("${reverse('dashboard_get_posts')}", {master_id: master_id, size:size, filter:filter, local_utc_diff_m:local_utc_diff_m}, function (data){
+        if(data.all =="DONE"){
+            $("#posts_loading_image").remove()
+        }
+        $("#post_content_table").find("tr:gt(0)").remove();
+        $('#post_content_table tr:last').after(data.post);
+
+        //control of element produce by views
+        //post function
+        $(".post-like-text").click(function(){
+            $.post("${reverse('dashboard_submit_new_like')}", {post_id: $(this).data('id'), comment_id: '-1', user_id:'${request.user.id}'},function(data){
+                getPosts();
+            });
+        });
+        $(".post-comment-text").click(function(){
+            id=$(this).data('id');
+            if($(this).data('name') != ''){
+                $("#focus"+id).val("@"+$(this).data('name')+" ");
+            }
+            $("#focus"+id).focus();
+        });
+
+        $(".comment-reply-text").click(function(){
+            id=$(this).data('id');
+            if($(this).data('name') != ''){
+                $("#focus"+id).val("@"+$(this).data('name')+" ");
+            }
+            $("#focus"+id).focus();
+        });
+
+        $(".delete-something").click(function(){
+            if($(this).attr("data-postid")){
+                var pid = $(this).data('postid');
+                $.post("${reverse('dashboard_delete_post')}", {post_id:pid, master_id:master_id}, function(data){
+                    getPosts()
+                });
+            }
+            if($(this).attr("data-commentid")){
+                var cid = $(this).data('commentid');
+                $.post("${reverse('dashboard_delete_comment')}", {comment_id:cid, master_id:master_id}, function(data){
+                    getPosts()
+                });
+            }
+        })
+        
+        //comment function
+        $(".comment-like-text").click(function(){
+            $.post("${reverse('dashboard_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
+                getPosts();
+            });
+        });
+
+        //comment submit(press enter)
+        $('.add-comment-text').keyup(function (e) {
+            $("#select_name").remove();
+            if (e.keyCode === 13) {
+                content=$(this).val();
+                post_id=$(this).data('id');
+                $.post("${reverse('dashboard_submit_new_comment')}", {post_id: post_id, content:content, master_id:master_id}, function(data){
+                    getPosts();
+                });
+            }
+            var n = $(this)[0].selectionStart;
+            var at = $(this).val().indexOf("@");
+            if(at > -1){
+                var str = $(this).val().substr(at);
+                var x = str.length;
+                for(var s = str; s.indexOf("@") >-1; s = s.substr(x)){
+                    s = s.substr(1);
+                    x = s.indexOf("@");
+                    if(x>-1)
+                        working = s.substr(0, x).split(' ').slice(0,2).join(' ');
+                    else
+                        working = s.substr(0).split(' ').slice(0,2).join(' ');
+                }
+                loc = $(this).val().indexOf(working);
+                if(n > loc && n <= working.length+loc) {
+                    $.post("${reverse('dashboard_lookup_name')}", {name: working}, function(data){
+                        if(data.content.length > 0) {
+                            displayOptions(data.content);
+                        }
+                    });
+                }
+            }
+        });
+        
+        //show user_info when mouse on photo
+        safety = 0;
+        $(".hoverable-profile").hover(function(event) {
+            safety++;
+            $("#user_info").html("<img class='info-tile-img' src='/static/images/name.png' width=16px height=16px></img>"+$(this).data('name')+"<br><img class='info-tile-img' src='/static/images/username.png' width=16px height=16px></img>"+$(this).data('uname')+"<br><img class='info-tile-img' src='/static/images/email.png' width=16px height=16px></img><a href='mailto:"+$(this).data('email')+"'>"+$(this).data('email')+"</a>");
+            if ($(this).data("skype") !== undefined){
+                $("#user_info").append("<br><img class='info-tile-img' src='/static/images/skype.png' width=16px height=16px></img><a href='skype:"+$(this).data('skype')+"?call'>"+$(this).data('skype')+"</a>")
+                $("#user_info").append("<br><img class='info-tile-img' src='/static/images/hangout_icon.png' width=16px height=16px></img><span style='float:right; padding-right:46px;'>"+$('#hangout_span_'+$(this).data("id")).html()+"</span>");
+            }
+            $("#user_info_div").css({top: $(this).offset().top+20, left: $(this).offset().left}).show();
+        }, function() {
+            if (!$("#user_info_div").is(":hover") && safety > 1){
+                $("#user_info_div").hide();
+                safety = 0;
+            }
+        });
+        $("#user_info_div").hover(function(e){}, function(){
+            $(this).hide()
+        });
+        $(".like-members-anchor").click(function(){
+            var post = $(this).data('post');
+            var comment = $(this).data('comment');
+            $.post("${reverse('dashboard_get_full_likes')}", {'post': post, 'comment': comment}, function (data){
+                new Dialog($('#fixed-dialog-likes')).show("Likes", "<center>"+data.html+"</center>");
+            });
+        });
+    });
+}
+//@end
+
+$(document).ready(function(){
+    //@begin:Add for Dashboard Posts
+    //@date:2016-12-29
+    size = 5;
+
+    $("#post_filter_select").change(function(){
+        getPosts();
+    });
+    $("#add_post_image").click(function(e){
+        e.preventDefault();
+        $("#add_images_div").toggle();
+    });
+    getPosts(); //start
+
+    //--Post function--------------------------------------------
+    //--post button--
+    $("#submit_new_post_button").click(function(){
+        var post = $("#new_post_textarea").val();
+        var master_id = "${curr_user.id}";
+        var images = $("#image_link_input").val()
+        var include_var = "no"
+        if (images != ""){
+            include_var = "yes";
+        }
+        var embed = 0;
+        if ($("#embed_checkbox").is(":checked")){
+            embed = 1;
+        }
+        $.post("${reverse('dashboard_submit_new_post')}", {post: post, master_id: master_id, include_images:include_var, embed:embed, images:images }, function (data) {
+            $("#new_post_textarea").val("");
+            $("#image_link_input").val("");
+            getPosts();
+        });
+    });
+    $('#dashboard_content_posts').on('scroll', function() {
+        if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+            size += 5;
+            getPosts();
+        }
+    });
+    waiting = false;
+    $(window).scroll(function(){
+        if(!waiting) {
+            var a = $(this).scrollTop();
+            var b = $(this).innerHeight();
+            var body = document.body, html = document.documentElement;
+            var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+            if (a + b >= height - 150) {
+                size += 5;
+                waiting = true;
+                setTimeout(function(){
+                    waiting = false;
+                }, 750);
+                getPosts();
+            }
+        }
+    });
+    //@end
+});
+</script>

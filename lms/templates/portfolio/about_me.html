@@ -28,7 +28,9 @@
     <link rel="stylesheet" href="${static.url('candy_res/candy_full.css')}" />
   % endif
 </%block>
-
+<style>
+.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}
+</style>
 <%block name="js_extra">
   <script type="text/javascript" src="${static.url('js/vendor/jquery.scrollTo-1.4.2-min.js')}"></script>
   <script type="text/javascript" src="${static.url('js/vendor/flot/jquery.flot.js')}"></script>
@@ -140,7 +142,25 @@
 
   <script type="text/javascript">
     var $$course_id = "${course.id}";
-
+	
+	function LoadingWin(){
+        this.$loader = null;
+        this.show();
+    }
+    LoadingWin.prototype.show = function () {
+        if (!this.$loader) {
+            this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
+            this.$loader.appendTo(document.body);
+        }
+        this.$loader.css('display','block');
+    };
+    LoadingWin.prototype.hide = function () {
+        if (this.$loader) {
+            this.$loader.remove();
+            this.$loader = null;
+        }
+    };
+	
     $(function(){
         $(".reset-button").remove();
         $(".submit-button").remove();
@@ -169,7 +189,29 @@
             }
           }
           $(this).html(finalTitle);
-        });
+        });	
+	  
+	  	//-------------------------permission_level_filter
+	  	$("#about_me_course_level").change(function(){
+			var data = "${course.id}:" + $(this).val() + ":${ portfolio_user.id }";
+			var loadwin = new LoadingWin();
+			$.get("${reverse('portfolio_settings')}", {flag: "saveOneCourse", content: data}, function (r) {
+				loadwin.hide();
+			});
+	  	});
+		
+		//-------------------------
+		$.getJSON("${reverse('portfolio_settings')}", {flag:"getCourses", s_txt:"${course.id}"}, function (r) {
+			if (r.success) {
+				if(r.rows.length > 0){
+					for(var i in r.rows){
+						$("#about_me_course_level").val(r.rows[i].level);
+						$("#about_me_course_level").show();
+						break;
+					}
+				}
+			}			
+		});
       });
   </script>
 
@@ -271,7 +313,22 @@
 	<section class="container">
   <div class="course-wrapper">
 		<section class="course-index">
-			<div class="sub_tit" style="width:auto;margin:0 auto;"><table><tr><td width="50"><div style="padding-left:20px;"><div style="width:35px; height:35px;margin:5px 5px 5px 0px;background:url(${reverse('user_photo',args=[portfolio_user_id])});background-size:contain;background-repeat:no-repeat;"/></div></td><td><div class="user_name" style="text-overflow:ellipsis;width:170px;text-align:center;overflow:hidden;">${ portfolio_user.username }</div></td></tr></table></div>
+            %if curr_user==request.user:
+            <div class="sub_tit" style="width:auto;margin:0 auto; height:60px !important;"><table><tr><td width="50"><div style="padding-left:20px;"><div style="width:35px; height:35px;margin:5px 5px 5px 0px;background:url(${reverse('user_photo',args=[portfolio_user_id])});background-size:contain;background-repeat:no-repeat;"/></div></td><td><div class="user_name" style="text-overflow:ellipsis;width:180px;text-align:center;overflow:hidden; line-height:30px !important;">${ portfolio_user.username }</div>
+                <select id="about_me_course_level" style="display:none">
+                    <option value="1">Public</option>
+                    <option value="2">State </option>
+                    <option value="3">District</option>
+                    <option value="4">School</option>
+                    <option value="5">Network</option>
+                    <option value="6">District & Network</option>
+                    <option value="7">Private</option>
+                </select>
+            %else:
+                <div class="sub_tit" style="width:auto;margin:0 auto;"><table><tr><td width="50"><div style="padding-left:20px;"><div style="width:35px; height:35px;margin:5px 5px 5px 0px;background:url(${reverse('user_photo',args=[portfolio_user_id])});background-size:contain;background-repeat:no-repeat;"/></div></td><td><div class="user_name" style="text-overflow:ellipsis;width:180px;text-align:center;overflow:hidden;">${ portfolio_user.username }</div>
+            %endif
+            	
+          	</td></tr></table></div>
 			<a class="sub_menu xz" href="${reverse('portfolio_about_me',args=[course.id,portfolio_user_id])}">About Me</a> 
 			<a class="sub_menu" href="${reverse('portfolio_journal_and_reflections',args=[course.id,portfolio_user_id])}">My Coursework</a>
 			<a class="sub_menu" href="${reverse('portfolio_my_discussions',args=[course.id,portfolio_user_id])}">My Discussions</a> 

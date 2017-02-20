@@ -128,6 +128,56 @@ if Backbone?
       @createEditView()
       @renderEditView()
 
+    #201606
+    actionRating: (event) =>
+      rating = @showView.$(".action-rating").attr("data-rating")
+      url = DiscussionUtil.urlFor('set_rating', @model.id)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              rating: rating
+              option_type: 'update_rating'
+
+          #error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              console.log("success")
+      
+    #201606
+    seeResults: (event) =>
+      url = DiscussionUtil.urlFor('get_rating', @model.id)
+      console.log(url)
+      DiscussionUtil.safeAjax
+          url: url
+          type: "POST"
+          dataType: 'json'
+          async: true
+          data:
+              option_type: 'get_avg_rating'
+
+          #error: console.log("fail!")
+          success: (response, textStatus) =>
+            if textStatus == 'success'
+              avg_ratingTemp = response.avg_rating
+              $("#rate_results").find('.avg-rating').raty({
+                  starOn:'star-on-blue.png',
+                  starHalf:'star-half-blue.png',
+                  hints: ['Poor', 'Fair', 'Average', 'Good', 'Great'],
+                  path:"/static/js/vendor/raty/lib/img",
+                  click: (score, evt) ->
+                      $(@).attr('data-rating',score)
+                  readOnly: true
+                  score: ->
+                      avg_ratingTemp
+              })
+              $("#rate_results").find('#hq_rate_num').html(response.avg_rating_count)
+              $("#rate_results").show();
+              $("#lean_overlay").show();
+              $(window).scrollTop(0);
+
     update: (event) =>
 
       newTitle = @editView.$(".edit-post-title").val()
@@ -202,6 +252,8 @@ if Backbone?
       @showView = new DiscussionThreadShowView(model: @model)
       @showView.bind "thread:_delete", @_delete
       @showView.bind "thread:edit", @edit
+      @showView.bind "thread:actionRating", @actionRating #201606
+      @showView.bind "thread:seeResults", @seeResults #201606
 
     renderShowView: () ->
       @renderSubView(@showView)

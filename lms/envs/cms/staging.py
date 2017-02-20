@@ -98,6 +98,15 @@ CHUNKSSTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+DISCUSSION_RATING_STORE = {
+    'OPTIONS': {
+        'db': MONGO_DB_DISCUSS,
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
 RECORDTIMESTORE = {
     'OPTIONS': {
         'db': MONGO_DB_ASSIST,
@@ -108,6 +117,7 @@ RECORDTIMESTORE = {
         'collection_external': 'external_time',
         'collection_result_set': 'result_set',
         'collection_adjustment': 'adjustment_time',
+        'collection_aggregate': 'aggregate_time',
         'host': MONGO_HOST,
         'port': MONGO_PORT,
         'user': MONGO_USER,
@@ -143,6 +153,15 @@ SITESETTINGSSTORE = {
         'port': MONGO_PORT,
         'user': MONGO_USER,
         'password': MONGO_PASSWORD,
+    }
+}
+REPORTINGSTORE = {
+    'OPTIONS': {
+        'db': MONGO3_DB_REPORTING,
+        'host': MONGO3_HOST,
+        'port': MONGO3_PORT,
+        'user': MONGO3_USER,
+        'password': MONGO3_PASSWORD,
     }
 }
 INSTALLED_APPS += (

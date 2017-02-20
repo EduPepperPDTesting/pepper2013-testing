@@ -258,7 +258,7 @@ CourseTimer.prototype.save = function() {
 
     var isCollaboration = RecordTime.getSessionCourseType()!= 'courseware' && RecordTime.getSessionCourseType()!= '';
     if (startTime > 0 && RecordTime.getSessionCourseID() != '' && isCollaboration) {
-        console.log('time:' + self.time)
+        //console.log('time:' + self.time);
         /*
         $.post('/record_time/course_time_save', {
             'user_id': RecordTime.userID,
