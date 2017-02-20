@@ -35,6 +35,8 @@ urlpatterns = ('',  # nopep8
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/export/(?P<name>[^/]+)$',
         'contentstore.views.export_course', name='export_course'),
     url(r'^sync_course/$', 'contentstore.views.sync_course', name='sync_course'),
+    url(r'ajax_get_async_task/$', 'async_task.views.ajax_get_async_task', name='ajax_get_async_task'),
+
     url(r'^(?P<org>[^/]+)/(?P<course>[^/]+)/generate_export/(?P<name>[^/]+)/(?P<filename>[^/]+)$',
         'contentstore.views.generate_export_course', name='generate_export_course'),
 
