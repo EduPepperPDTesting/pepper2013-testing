@@ -867,7 +867,9 @@ INSTALLED_APPS = (
     'sso',
 
     # PD Training Registration
-    'training'
+    'training',
+
+    'async_task'
 )
 
 ######################### MARKETING SITE ###############################

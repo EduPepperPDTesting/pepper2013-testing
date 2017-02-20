@@ -40,6 +40,13 @@ from xmodule.course_module import CourseDescriptor
 import MySQLdb
 from django.contrib.auth.models import User
 from collections import OrderedDict
+from django import db
+from django.db import connection
+from multiprocessing import Process, Queue, Pipe
+from async_task.models import AsyncTask
+from datetime import datetime, timedelta
+from pytz import UTC
+
 
 
 __all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course']
@@ -349,7 +356,7 @@ def remove_course(id_org, id_course, conn=None):
     remove_docs("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
 
 
-def copy_course(id_org, id_course, _from, _to):
+def copy_course(task, id_org, id_course, _from, _to):
     def copy_docs(db_name, collection_name, cond):
         from_db = _from[db_name]
         to_db = _to[db_name]
@@ -358,7 +365,12 @@ def copy_course(id_org, id_course, _from, _to):
         to_collection = to_db[collection_name]
 
         # to_collection.remove(cond)
-        for doc in from_collection.find(cond):
+        cursor = from_collection.find(cond)
+        
+        num_done = 0.0
+        num_total = cursor.count()
+        
+        for doc in cursor:
             d = doc['_id']
             if "__getitem__" in dir(d):
                 doc['_id'] = OrderedDict([("tag", d['tag']),
@@ -368,27 +380,44 @@ def copy_course(id_org, id_course, _from, _to):
                                           ("name", d['name']),
                                           ("revision", d['revision'])])
             to_collection.save(doc)
+            num_done = num_done + 1
+            rate = num_done / num_total if num_total > 0 else 0
+            # print "sync course(%s.%s) progress: %0.2f%%" % (db_name, collection_name, rate)
+            update_task(task, "progress", "sync course(%s.%s) progress: %0.2f%%" %
+                        (db_name, collection_name, rate))
 
     copy_docs("xmodule", "modulestore", {"_id.org": id_org, "_id.course": id_course})
     copy_docs("xcontent", "fs.files", {"_id.org": id_org, "_id.course": id_course})
     copy_docs("xcontent", "fs.chunks", {"files_id.org": id_org, "files_id.course": id_course})
 
 
-@login_required
-def sync_course(request):
+def postpone(function):
+    def decorator(*args, **kwargs):
+        p = Process(target=function, args=args, kwargs=kwargs)
+        p.daemon = True
+        p.start()
+    return decorator
+
+
+def update_task(task, status, message):
+    task.update_time = datetime.now(UTC)
+    task.status = status
+    task.last_message = message
+    task.save()
+    db.transaction.commit()
+
+
+@postpone
+def do_sync_course(task, org, course, name, d, user):
     """
     Sync Course to Another Server
     """
-    org = request.POST.get("id_org", "")
-    course = request.POST.get("id_course", "")
-    name = request.POST.get("id_name", "")
 
     # course_location = "i4x://%s/%s/course/%s" % (org, course, name)
     # course_obj = modulestore().get_instance(course_id, CourseDescriptor.id_to_location(course_id))
     try:
-        dest_id = int(request.POST.get("dest", ""))
-        d = settings.COURSE_SYNC_DEST[dest_id]
-
+        update_task(task, "progress", "grant course permission")
+        
         # ** connect to mysql on dest server
         server = SSHTunnelForwarder(
             d['host'],
@@ -398,7 +427,8 @@ def sync_course(request):
             remote_bind_address=('127.0.0.1', d['mysql_port'])
         )
         server.start()
-        db = MySQLdb.connect(
+        
+        mydb = MySQLdb.connect(
             host="127.0.0.1",
             user=d["mysql_username"],
             passwd=d["mysql_password"],
@@ -423,8 +453,8 @@ def sync_course(request):
                 cursor.execute("insert into auth_user_groups set user_id = '%s', group_id='%s'" % (user_id, group_id))
 
         # ** create course group for the user
-        cursor = db.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute("select * from auth_user where email='%s'" % request.user.email)
+        cursor = mydb.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("select * from auth_user where email='%s'" % user.email)
         user = cursor.fetchone()
         if user is None:
             # *** user(owner) must already exists on the dest server
@@ -432,10 +462,12 @@ def sync_course(request):
         else:
             update_user_group(user['id'], org, course, name, "instructor")
             update_user_group(user['id'], org, course, name, "staff")
-            
-        db.commit()
-        db.close()
+
+        mydb.commit()
+        mydb.close()
         server.stop()
+
+        update_task(task, "progress", "course sync started")
 
         # ** connect to mongo on dest server
         server = SSHTunnelForwarder(
@@ -456,14 +488,41 @@ def sync_course(request):
         # local.admin.authenticate(opt['user'], opt['password'])
 
         # ** sync course to dest server
-        copy_course(org, course, local, dest)
+        copy_course(task, org, course, local, dest)
 
         dest.close()
         server.stop()
-        json_out = {'success': True}
-    except User.DoesNotExist:
-        json_out = {'success': False, 'message': 'user does not exists on the destination server.'}
-    except Exception as e:
-        json_out = {'success': False, 'message': '%s' % e}
-    return HttpResponse(json.dumps(json_out), content_type="application/json")
 
+        update_task(task, "finished", "sync finished")
+    except Exception as e:
+        update_task(task, "error", "task error: %s" % e)
+    finally:
+        task.save()
+        db.transaction.commit()
+        
+        
+@login_required
+def sync_course(request):
+    org = request.POST.get("id_org", "")
+    course = request.POST.get("id_course", "")
+    name = request.POST.get("id_name", "")
+
+    dest_id = int(request.POST.get("dest", ""))
+    d = settings.COURSE_SYNC_DEST[dest_id]
+    
+    task = AsyncTask()
+    task.type = "sync course"
+    task.create_user = request.user
+    task.create_time = datetime.now(UTC)
+    task.update_time = task.create_time
+    task.title = "remotely export course %s/%s/%s to %s" % (org, course, name, d.get("name"))
+    task.last_message = "task started"
+    task.status = "started"
+    task.save()
+    db.transaction.commit()
+
+    connection.close()
+        
+    do_sync_course(task, org, course, name, d, request.user)
+    return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+    

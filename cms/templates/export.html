@@ -144,14 +144,25 @@ from django.conf import settings
     var id_name = "${context_course.location.name}";
     var dest=$("#lstDest").val();
     $(".error-block-sync").html("syncing...");
+
+    function timedUpdateStatus(taskId){
+      setTimeout(function(){
+        $.post("${reverse('ajax_get_async_task', args=[])}", {id: taskId}, function(r){
+          $(".error-block-sync").html(r.last_message);
+          if(r.status != "finished" && r.status != "error")
+            timedUpdateStatus(taskId);
+        });
+      }, 200);
+    }
+    
     $.post("${reverse('sync_course', args=[])}",
            {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest},
            function(r){
-             $(".error-block-sync").html("");
-             if(r.success)
-               alert("finished")
-             else
-               alert("failed! error message:" + r.message);
+             if(r.success){
+               timedUpdateStatus(r.taskId);
+             }else{
+               $(".error-block-sync").html("error occured");
+             }
            });
   });
 </script>
