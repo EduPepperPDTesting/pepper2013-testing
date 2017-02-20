@@ -86,7 +86,14 @@ from datetime import timedelta
 from student.models import (DashboardPosts, DashboardPostsImages, DashboardComments, DashboardLikes)
 #@end
 
-log = logging.getLogger("mitx.student")
+#@begin:Add for Dashboard My Communities
+#@date:2017-02-16
+from operator import itemgetter
+from communities.models import CommunityCommunities, CommunityUsers
+#@end
+
+log = logging.getLogger("tracking") 
+#log = logging.getLogger("mitx.student")
 AUDIT_LOG = logging.getLogger("audit")
 
 Article = namedtuple('Article', 'title url author image deck publication publish_date')
@@ -2216,9 +2223,32 @@ def newdashboard(request, user_id=None):
         pass
     #end
 
+    #@begin:Add for Dashboard My Courses
+    #@date:2017-02-19
+    #Just choose the last 3 courses_incomplated of the user.
+    courses_incomplated_list = list()
+    for k, v in enumerate(courses_incomplated):
+        courses_incomplated_list.append(v)
+        if k > 1:
+            break
+
+    #@end
+
+    #@begin:Add for Dashboard My Communities
+    #@date:2017-02-16
+    community_list = list()
+    #Just filter the last 3 communities the user belongs to.
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:3]
+    for item in items:
+        community_list.append({'id': item.community.id,
+                               'name': item.community.name,
+                               'logo': item.community.logo.upload.url if item.community.logo else '',
+                               'private': item.community.private})
+    #@end
+
     context = {
         'courses_complated': courses_complated,
-        'courses_incomplated': courses_incomplated,
+        'courses_incomplated': courses_incomplated_list,
         'course_optouts': course_optouts,
         'message': message,
         'external_auth_map': external_auth_map,
@@ -2237,8 +2267,9 @@ def newdashboard(request, user_id=None):
         'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
         'alert_text':al_text,
         'alert_enabled':al_enabled,
-        'total_course_times':total_course_times
-    }
+        'total_course_times':total_course_times,
+        'communities': community_list
+    }   
 
     return render_to_response('dashboard_new.html', context)
 
