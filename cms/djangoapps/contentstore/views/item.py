@@ -18,7 +18,6 @@ __all__ = ['save_item', 'create_item', 'delete_item']
 # cdodge: these are categories which should not be parented, they are detached from the hierarchy
 DETACHED_CATEGORIES = ['about', 'static_tab', 'course_info']
 
-
 @login_required
 @expect_json
 def save_item(request):
@@ -89,6 +88,8 @@ def create_item(request):
     category = request.POST['category']
 
     display_name = request.POST.get('display_name')
+    
+    
 
     if not has_access(request.user, parent_location):
         raise PermissionDenied()
