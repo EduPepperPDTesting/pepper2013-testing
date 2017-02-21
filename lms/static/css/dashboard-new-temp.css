@@ -753,52 +753,33 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
 }
 
 .dashboard{
-    margin-top: 25px;
+    margin-top: 10px;
 }
 .dashboard .my-courses{
-    display: block;
-    float:left;
-    width:275px;
-    margin-right: 10px;
 
-    border: 0px solid #f00;
+}
+.dashboard .my-communities{
+
+}
+.dashboard .my-communities td{
+    text-align: left;
 }
 
-.title{
-    font-size: 20px;
-    color: #7f7f7f;
-    font-family: "Arial" !important;
-    font-weight: bold;
-    line-height:25px;
-}
+
+
 
 
 /*------------dashboard post--------------*/
-.dashboard .dashboard_main_content{
-    display: block;
-    float:left;
-    width:610px;
-    margin-right: 10px;
-    min-height: 800px;
 
-    height: 800px;
-    overflow-y:scroll;
-}
+
+
 #new_post_textarea:focus{
   border:0;
   outline: none;
   box-shadow:0 0 0 0;
 }
-.dashboard .my_community{
-    display: block;
-    float:right;
-    width:275px;
 
-    border: 0px solid #f00;
-}
-.dashboard .my_community td{
-    text-align: left;
-}
+
 .comment_info{
     width: 100%;
     border: 0px;
@@ -807,6 +788,7 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     font-family: "Arial" !important;
     /*margin-bottom: 5px;*/
 }
+/*
 .seemore a{
     font-family: "Arial" !important;
     font-size: 16px;
@@ -816,104 +798,8 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
 .seemore a:hover{
     text-decoration: none;
 }
-#searching-text{
-    border:0;
-    height:25px;
-    width: 255px;
-    margin-left: 5px;
-    outline: none;
+*/
 
-    color:#818181;
-    font-size: 15px;
-    font-family: "Arial" !important;
-    font-style:italic;
-}
-
-.post_content{
-    background-color: #f2f2f2;
-    border:2px solid #41719c;
-    padding:5px 10px 10px 10px;
-    border-bottom-left-radius: 18px;
-    border-bottom-right-radius: 18px;
-    border-top-left-radius: 18px;
-    border-top-right-radius: 18px;
-    margin-bottom:0px;
-}
-
-a.post_btn{
-    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
-    color:#fff !important;;
-    font-size:13px !important;
-    background-color:#5b9bd5;
-    border:2px solid #41719c;
-    /*box-shadow: inset 0 1px 0 0 #61b8e1;*/
-    text-decoration: none;
-    padding:0px 23px 0px 23px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    cursor: pointer;
-}
-a.post_btn:hover{
-    text-decoration: none;
-    background-color:#72ace1;
-}
-.ds-post-title{
-    padding:5px 5px 5px 10px;
-    border:0px solid #f00;
-}
-
-/*post width:583(593-L5-R5)*/
-.ds-post-title-photo{
-    width: 40px;
-    position: relative;
-}
-.ds-post-title-text{
-    padding:5px 5px 5px 15px;
-    width: 523px;
-}
-.ds-post-title-delete{
-    width: 20px;
-}
-
-.ds-post-title-name{
-    color:#5c9cd5;
-    font-size:14px;
-    font-weight:bold;
-}
-.ds-post-title-from{
-    color: #8d8d8d;
-    font-size:14px;
-}
-.ds-post-title-position{
-    color:#ff6600;
-    font-size:14px;
-    font-weight:bold;
-}
-.ds-post-title-time{
-    color: #8d8d8d;
-    font-size:13px;
-    font-style: italic;
-}
-.ds-post-content{
-    /*width:100%;*/
-    color: #404040;
-    font-weight: bold;
-    padding:5px 5px 5px 5px;
-    font-size: 15px;
-    line-height: 22px;
-    border:0px solid; 
-}
-.ds-post-footer{
-    border-bottom: 0px solid #3891e0;
-}
-
-.ds-post-end_line{
-    width: 100%;
-    border-bottom: 2px solid #3891e0;
-    margin-bottom: 15px;
-}
 
 
 /*------------------modified------------------*/
@@ -994,6 +880,7 @@ a.post_btn:hover{
     background-color: #f2f2f2;*/
 }
 .post-content-row {
+    background-color: #fff;
     border: 0px;
 }
 .post-submit-profile-image {
@@ -1029,11 +916,13 @@ a.post_btn:hover{
 #post_filter_select{
     font-size: 14px;
 }
+
 .delete-something {
-    float: right;
-    margin-right: 10px;
+    /*float: right;
+    margin-right: 10px;*/
     cursor: pointer;
 }
+
 .img-span-code > img {
     margin-top: 10px;
 }
