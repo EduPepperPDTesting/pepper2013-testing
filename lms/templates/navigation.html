@@ -183,8 +183,16 @@
         text-align:center;
         font-weight:bold;
     }
-    .lean-overlay {background: radial-gradient(circle at 50% 30% , rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)) repeat scroll 0% 0% transparent !important;}
- 	.lean-overlay .loading {width: 128px; height: 128px; display: block; border-radius: 100px; position: absolute; left: 50%; top: 300px; margin-left: -64px;}	
+    .lean-overlay-nav {
+        background: radial-gradient(circle at 50% 30% , rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)) repeat scroll 0% 0% transparent;
+        display: block;
+        height: 100%;
+        left: 0px;
+        position: fixed;
+        top: 0px;
+        width: 100%;
+        z-index: 100;
+    }
     #show_notifications_link:focus { outline: none!important;}
  [class^="icon-"], [class*=" icon-"] {font-family: "FontAwesome" !important;}
 </style>
@@ -1386,25 +1394,26 @@
     </script>
 %endif
 <script type="text/javascript">
-	function LoadingWin(){
+	function LoadingWinNav(){
 		this.$loader = null;
 		this.show();
 	}
-	LoadingWin.prototype.show = function () {
+	LoadingWinNav.prototype.show = function () {
 		if (!this.$loader) {
-			this.$loader = $('<div class="lean-overlay"></div>');
+			this.$loader = $('<div class="lean-overlay-nav"></div>');
 			//this.$loader = $('<div class="lean-overlay"><img class="loading" src="/static/images/loading.gif"></div>');
 			this.$loader.appendTo(document.body);
 		}
 		this.$loader.css('display','block');
 	};
-	LoadingWin.prototype.hide = function () {
+	LoadingWinNav.prototype.hide = function () {
 		if (this.$loader) {
 			this.$loader.remove();
 			this.$loader = null;
 		}
 	};
-	var loadwin = new LoadingWin();
+	var loadwinnav = new LoadingWinNav();
+	
 	//------------------organization_get_info
 	var organization_data;
 	$(function(){
@@ -1412,7 +1421,10 @@
 		if($(".mainlogo").length > 0) 					flag_main = "index";
 		else if($("#organization_obj").length > 0) 	flag_main = $("#organization_obj").attr("o_name");
 		
-				
+		if($("#organization_obj").attr("o_name") == "report"){
+			loadwinnav.hide();
+		}
+					
 		$.post("${reverse('organizational_configuration')}", {flag:"organization_get_info", source:"navigation", flag_main: flag_main}, function (r) {
 			if (r.SiteURL_OK){
 				if(r.flag_main == "index"){
@@ -1496,8 +1508,9 @@
 					}					
 				}
 			}
-			loadwin.hide();
-		});
-		
+			if($("#organization_obj").attr("o_name") != "report"){
+				loadwinnav.hide();
+			}
+		});		
 	});							
 </script>
