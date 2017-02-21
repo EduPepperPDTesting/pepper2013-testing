@@ -111,10 +111,14 @@ class CapaFields(object):
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
             {"display_name": "Never", "value": "never"},
+<<<<<<< HEAD
     #@begin:Submit and Compare
     #@data:2016-02-21
             {"display_name": "Submit and Compare", "value": "compare"}
     #@end
+=======
+            {"display_name": "Compare and Submit", "value": "compare"}
+>>>>>>> ccd7dfe3ee362908226b8d831462d9bfab892e79
             ]
     )
     force_save_button = Boolean(
@@ -369,11 +373,16 @@ class CapaModule(CapaFields, XModule):
         else:
             final_check = False
 
+<<<<<<< HEAD
         #@begin:compare
         #@data:2013-12-10    
         if self.showanswer == 'compare':
             return "Submit and Compare"
         #@end
+=======
+        if self.showanswer == 'compare':
+            return "Compare and Submit"
+>>>>>>> ccd7dfe3ee362908226b8d831462d9bfab892e79
 
         return "Final Check" if final_check else "Submit"
 

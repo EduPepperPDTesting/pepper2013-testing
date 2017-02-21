@@ -32,27 +32,34 @@ def training_join(request, training_id):
     """
     training = PepRegTraining.objects.get(id=training_id)
 
-    for user_id in request.POST.get("user_ids", "").split(","):
-        if not user_id.isdigit():
-            continue
-        try:
-            user = User.objects.get(id=int(user_id))
+    userIdString = request.POST.get("user_ids", "").split(",")
 
-            mems = TrainingUsers.objects.filter(user=user, training=training)
+    studentCount = PepRegStudent.objects.filter(training=training).count()
 
-            if not mems.exists():
-                tu = TrainingUsers(user=user, training=training)
-                tu.save()
+    if training.max_registration > 0 and studentCount + len(userIdString) <= training.max_registration:
 
-                pepmems = PepRegStudent.objects.filter(student=user, training=training)
+        for user_id in userIdString:
+            if not user_id.isdigit():
+                continue
+            try:
+                user = User.objects.get(id=int(user_id))
 
-                if not pepmems.exists():
-                    prs = PepRegStudent(student=user, training=training, user_create=request.user, user_modify=request.user, student_status="Registered")
-                    prs.save()
+                mems = TrainingUsers.objects.filter(user=user, training=training)
 
-        except Exception as e:
-            return HttpResponse(json.dumps({'success': False, 'error': "{0}".format(e)}), content_type="application/json")
+                if not mems.exists():
+                    tu = TrainingUsers(user=user, training=training)
+                    tu.save()
 
+                    pepmems = PepRegStudent.objects.filter(student=user, training=training)
+
+                    if not pepmems.exists():
+                        prs = PepRegStudent(student=user, training=training, user_create=request.user, user_modify=request.user, student_status="Registered")
+                        prs.save()
+
+            except Exception as e:
+                return HttpResponse(json.dumps({'success': False, 'error': "{0}".format(e)}), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps({'success': True, 'error': "The number of students selected is greater than the maximum number allowed. ({0} seats available)".format(training.max_registration-studentCount)}), content_type="application/json")
 
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
