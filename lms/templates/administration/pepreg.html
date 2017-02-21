@@ -1511,8 +1511,6 @@
                             if (r) {
                                 self.deleteStudent(data.id, function () {
                                     $row.remove();
-                                    $(".inner-wrapper").find("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
-                                    $(".inner-wrapper").find("#register_unregister_students").attr("disabled", false);
                                 });
                             }
                         });
