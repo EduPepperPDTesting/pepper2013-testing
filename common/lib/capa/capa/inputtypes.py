@@ -538,7 +538,6 @@ class TextLine(InputTypeBase):
 
     Example:
         <textline math="1" trailing_text="m/s" />
-
     This example will render out a text line with a math preview and the text 'm/s'
     after the end of the text line.
     """
@@ -553,8 +552,6 @@ class TextLine(InputTypeBase):
         """
         return [
             Attribute('size', None),
-
-
             Attribute('hidden', False),
             Attribute('inline', False),
 
@@ -585,7 +582,8 @@ class TextLine(InputTypeBase):
 
     def _extra_context(self):
         return {'do_math': self.do_math,
-                'preprocessor': self.preprocessor, }
+                'preprocessor': self.preprocessor,
+               }
 
 registry.register(TextLine)
 
