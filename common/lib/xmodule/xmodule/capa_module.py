@@ -115,8 +115,6 @@ class CapaFields(object):
     #@data:2016-02-21
             {"display_name": "Submit and Compare", "value": "compare"}
     #@end
-            {"display_name": "Compare and Submit", "value": "compare"}
->>>>>>> ccd7dfe3ee362908226b8d831462d9bfab892e79
             ]
     )
     force_save_button = Boolean(
