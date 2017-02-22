@@ -133,7 +133,7 @@ import datetime
                 <img src="${reverse('user_photo', args=[request.user.id])}" alt="PCG Logo" class="sidebar-logo"/>
 
                 %if is_member(request.user, community):
-                    <div id="community-member">MEMBER</div> <!--\'' + ${community.id} + '\'-->
+                    <div id="community-member">MEMBER</div>
                     %if not is_facilitator(request.user, community):
                         <a href="#" class="side-button red-button small-red-button" onclick="leaveCommunity()">Unenroll</a>
                     %endif
@@ -424,6 +424,7 @@ import datetime
         var user_id = ${request.user.id};
         $('#dialog').css("text-align", "left");
         new Dialog($('#dialog')).showYesNo("Unenroll", "Are you sure you want to leave this community?", function(ans){
+
             this.hide();
             if(ans){
                 $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
@@ -434,7 +435,6 @@ import datetime
                 });
             }
         });
-        $('#dialog').css("text-align", "center");
     }
     function validateDiscussionForm() {
         $('.discussion-error-box').removeClass('discussion-error-box');
