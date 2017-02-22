@@ -364,23 +364,25 @@ def send_notification(action_user, community_id, courses_add=[], courses_del=[],
                     send_html_mail(subject, body, settings.SUPPORT_EMAIL, [user.email])
 
     for member in CommunityUsers.objects.filter(community=community_id):
-        process(member.user, "Delete Course", courses_del)
-        process(member.user, "Add Course", courses_add)
-        process(member.user, "Delete Resource", resources_del)
-        process(member.user, "Add Resource", resources_add)
-        if len(members_del):
-            process(member.user, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
-        if len(members_add):
-            process(member.user, "Add Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_add))])
-        process(member.user, "New Discussion", discussions_new)
-        process(member.user, "Reply Discussion", discussions_reply)
-        process(member.user, "Delete Discussion", discussions_delete)
-        process(member.user, "Delete Reply", replies_delete)
-        process(member.user, "New Post", posts_new)
-        process(member.user, "Reply Post", posts_reply)
-        process(member.user, "Delete Post", posts_delete)
-        process(member.user, "Delete Reply Post", posts_reply_delete)
+        if member.user.id != action_user.id:
+            process(member.user, "Delete Course", courses_del)
+            process(member.user, "Add Course", courses_add)
+            process(member.user, "Delete Resource", resources_del)
+            process(member.user, "Add Resource", resources_add)
+            if len(members_del):
+                process(member.user, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
+            if len(members_add):
+                process(member.user, "Add Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_add))])
+            process(member.user, "New Discussion", discussions_new)
+            process(member.user, "Reply Discussion", discussions_reply)
+            process(member.user, "Delete Discussion", discussions_delete)
+            process(member.user, "Delete Reply", replies_delete)
+            process(member.user, "New Post", posts_new)
+            process(member.user, "Reply Post", posts_reply)
+            process(member.user, "Delete Post", posts_delete)
+            process(member.user, "Delete Reply Post", posts_reply_delete)
 
     if len(members_del):
         for member in members_del:
-            process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])
+            if member.id != action_user.id:
+                process(member, "Delete Member", [",".join(map(lambda x: x.first_name + " " + x.last_name, members_del))])

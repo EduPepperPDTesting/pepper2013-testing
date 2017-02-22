@@ -14,7 +14,341 @@
 <!--@begin:Hide Dashboard button in this page-->
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
-    #image_uploading{display:none;}
+#image_uploading{display:none;}
+/*-----------------------------------*/
+.ds-course-card{
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);
+    float: left;*/
+    width: 213px;/*242px*/
+    /*min-height: 142px;
+    margin: 20px;*/
+    cursor: auto!important;
+    border:1px solid #ccc;
+}
+.ds-image-style{
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:213px
+    ;height:72px;
+}
+.ds-card-link{
+    display: table-cell;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    color: #FFFFFF !important;
+    /*background: rgba(18,111,154,0.95);*/
+    text-decoration: none!important;
+}
+.ds-course-title {
+    height: 60px;
+    width: 215px;
+    position: relative;
+    bottom: 0;
+    left:-1px;
+    font-size:13px;
+    background: rgba(18,111,154,0.95);
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+}
+
+.ds-course-btn .ds-btn-view-portfolio{
+    color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#556370;
+}
+.ds-course-btn .ds-btn-view-course{
+     color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#4ecdc4;
+    margin-left: 1px;
+}
+.ds-view-all-courses{
+    width:215px;
+    text-align:right;
+    margin-top: -15px;
+    border:0px solid;
+}
+.ds-view-all-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-view-all-communities{
+    width:215px;
+    text-align:right;
+    margin-top:-15px;
+    border:0px solid;
+}
+.ds-view-all-communities a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+.ds-my-status{
+    width:185px;
+    font-size: 13px;
+    border-radius: 6px;
+    margin-top: 20px;
+    padding: 15px 15px 15px 15px;
+    border:1px solid #666;
+}
+.image-link-style {
+    border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    -webkit-border-radius: 5px 5px 0px 0px;
+    width:215px;
+    height:100px;
+    background-size: auto 100px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+
+    border-top: 1px  solid #ccc;
+    border-left: 1px  solid #ccc;
+    border-right: 1px  solid #ccc;
+}
+.image-bottom-style {
+    border-radius: 0 0 5px 5px;
+    -moz-border-radius: 0 0 5px 5px;
+    -webkit-border-radius: 0 0 5px 5px;
+}
+.card-link {
+    display: table-cell;
+    width: 183px;
+    height: 60px;
+    vertical-align: middle;
+    padding: 0 17px;
+    font-size: 13px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+}
+.card-link span {
+    color: #FFFFFF;
+    font-size: 13px;
+}
+/*-----------------------*/
+.dashboard .dashboard-post{
+    display: block;
+    float: left;
+    width:660px;
+    min-width: 610px;
+    height: 800px;
+    margin-top: 5px;
+    margin-left: 8px;
+    
+    overflow-y:scroll;
+
+}
+
+/*-----------------------*/
+
+#searching-text{
+    border:0;
+    height:25px;
+    width: 255px;
+    margin-left: 5px;
+    outline: none;
+
+    color:#818181;
+    font-size: 15px;
+    font-family: "Arial" !important;
+    font-style:italic;
+}
+
+.post_content{
+    background-color: #f2f2f2;
+    border:2px solid #41719c;
+    padding:5px 10px 10px 10px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    margin-bottom:0px;
+}
+
+a.post_btn{
+    font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+    color:#fff !important;;
+    font-size:13px !important;
+    background-color:#5b9bd5;
+    border:2px solid #41719c;
+    /*box-shadow: inset 0 1px 0 0 #61b8e1;*/
+    text-decoration: none;
+    padding:0px 23px 0px 23px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    cursor: pointer;
+}
+a.post_btn:hover{
+    text-decoration: none;
+    background-color:#72ace1;
+}
+.ds-post-title{
+    padding:5px 5px 5px 10px;
+    border:0px solid #f00;
+}
+/*85px fixed*/
+.ds-post-title-photo{
+    width: 85px;
+    position: relative;
+    border:0px solid;
+}
+/*520px modified*/
+.ds-post-title-text{
+    padding:5px 5px 5px 5px;
+    width: 520px;
+
+    border:0px solid;
+}
+/*20px fixed*/
+.ds-post-title-delete{
+    text-align: center;
+    width: 20px;
+    border:0px solid;
+}
+
+.ds-post-title-name{
+    color:#5c9cd5;
+    font-size:14px;
+    font-weight:bold;
+}
+.ds-post-title-from{
+    color: #8d8d8d;
+    font-size:14px;
+}
+.ds-post-title-position{
+    color:#ff6600;
+    font-size:14px;
+    font-weight:bold;
+}
+.ds-post-title-time{
+    color: #8d8d8d;
+    font-size:13px;
+    font-style: italic;
+}
+.ds-post-content{
+    /*width:100%;*/
+    color: #404040;
+    font-weight: bold;
+    padding:5px 5px 5px 5px;
+    font-size: 15px;
+    line-height: 22px;
+    border:0px solid; 
+}
+.ds-post-footer{
+    border-bottom: 0px solid #3891e0;
+}
+
+.ds-post-end_line{
+    width: 100%;
+    border-bottom: 2px solid #3891e0;
+    margin-bottom: 15px;
+}
+
+.my-title{
+    width:215px;
+    text-align:center;
+}
+.my-title a{
+    font-size:16px;
+    color:#3C4646;
+    text-decoration:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/*-----------------------------------*/
+.con-maincontent-all{
+    width:680px;
+    margin-left:27px;
+    float:left;
+    margin-bottom:30px;
+    background-color:#e4e4e4;
+    border-top:3px solid #fff;
+    border-left:3px solid #fff;
+    border-right:3px solid #fff;
+}
+.con-feed-activity{
+    width:680px;
+    height:50px;
+    float:left;
+    background-color:#e4e4e4;
+    border:0px solid #000;
+}
+.my-feed-btn{
+    width:130px;
+    height:30px;
+    padding-top:15px;
+
+    margin-left: 7px;
+    margin-top:3px;
+    float:left;
+    text-align:center;
+    font-weight:bold;
+    color:#0b0bdd;
+    cursor: pointer;
+    font-size:18px;
+}
+.my-activity-btn{
+    width:130px;
+    height:30px;
+    padding-top:15px;
+
+    margin-top:3px;
+    float:left;
+    text-align:center;
+    font-weight:bold;
+    color:#0b0bdd;
+    cursor: pointer;
+    font-size:18px;
+}
+.mytab-active{
+    background-color:#fff;
+    border-left:2px solid #cbcbcb;
+    border-top:2px solid #cbcbcb;
+    border-right:2px solid #cbcbcb;
+    border-radius:5px 5px 0px 0px; 
+    cursor: auto !important;
+}
+.my-feed{
+    width:674px;
+    float:left;
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+    display: none;
+}
+.my-activity{
+    width:674px;
+    height:800px;
+
+    float:left;
+    border-top:3px solid #d9d9d9;
+    border-left:3px solid #d9d9d9;
+    border-right:3px solid #d9d9d9;
+    border-radius: 6px 6px 0px 0px; 
+}
 </style>
 <!--@end-->
 <%inherit file="main_new.html" />
@@ -26,130 +360,161 @@
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <!--@end-->
 
-<section class="content-wrapper">
-    <section class="container dashboard">
-        <!--width 275 + 10 + 610 + 10 + 275 = 1180-->
+<section class="content-wrapper1" style="margin-top:0px;background-color:#eee;">
+    <section class="container dashboard" style="margin-top:10px;">
+        <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <div class="my-courses">
-            <div class="title">My Course & Workshops</div>
-            <!--loop start-->
-            % for i,course in enumerate(courses_incomplated):
-                <% 
-                    if i > 1:break;
-                %>
-                <table width="100%" border="0" style="margin:10px 0 15px 0;">
-                    <tr>
-                        <td rowspan="2" scope="col" width="215">
-                            <%include file="course_dashboard.html" args="course=course" />
-                        </td>
-                        <td scope="col" style="padding-left:5px;"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
-                    </tr>
-                    <tr>
-                        <td scope="col" style="padding-left:5px;"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
-                    </tr>
-                </table>
-            % endfor
-            <!--loop end-->
-            <table class="seemore" width="210" height="30" border="0">
-                <tr>
-                    <td><a href="#">See More</a></td>
-                    <td align="right"><a href="#">+ Content</a></td>
-                </tr>
-            </table>
-        </div>
-
-        <!--Post Dashboard-->
-        <!--w:610,min-h:800-->
-        <div id="dashboard_content_posts" class="dashboard_main_content">
-            <div id="post_content" class="post_content" style="margin-bottom:0px;">
-                <table id="" width="100%" border="0" style="margin-bottom:10px;background-color:#f2f2f2;">
-                    <tr class=".post-submit-row" id="post_submit_row">
-                        <td width="60"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
-                        <td style="color:#818181;font-size:15px;">
-                            <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea>
-                        </td>
-                    </tr>
-                </table>
-                <table width="100%" border="0">
-                    <tr>
-                        <td width="50" align="right">
-                            <a href = "#" style="color:#06e !important;" id = "add_post_image">
-                                <img src="static/images/newdashboard/add-a-document-button_318-25290.jpg" width="25" height="25"/>
-                            </a>
-                        </td>
-                        <td style="padding-left:10px;color:#818181;font-size:14px;">Photo/Video/Document</td>
-                        <td align="right" style="padding-right:7px;">
-                            <a id="submit_new_post_button" class="post_btn" value="Post">Post</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <table style="display:none;margin-top:5px;" id="add_images_div">
-                                <tr>
-                                    <td style="padding-left:9px;padding-right:10px;"><input id="image_link_input" type="text" placeholder="Enter Image Link Here" style="height:25px;font-size:14px;width:160px;"/></td>
-                                    <td style="padding-top:2px;"><input id="embed_checkbox" type="checkbox"/></td>
-                                    <td style="font-size:14px;">Embed</td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td></td>
-                    </tr>
-                </table>
+        <div class="my-courses" style="display: block;float:left;width:220px;">
+            <div class="my-title">
+                <a href="/courses" style="">My Course & Workshops</a>
             </div>
-            <table style="margin-top:8px;margin-bottom:8px;">
-                <tr>
-                    <td class="filter-word-label">Filter:</td>
-                    <td>
-                        <select id = "post_filter_select">
-                            <option value = 'newest_post'>Newest Posts</option>
-                            <option value = 'oldest_post'>Oldest Posts</option>
-                            <option value = 'latest_reply'>Latest Reply</option>
-                            <option value = 'oldest_reply'>Oldest Reply</option>
-                            <option value = 'alphabetical'>Last Name (A-Z)</option>
-                            <option value = 'reversealpha'>Last Name (Z-A)</option>
-                            <option value = 'alphauname'>Nickname (A-Z)</option>
-                            <option value = 'ralphauname'>Nickname (Z-A)</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <table id="post_content_table" width="100%" border="0">
-                 <tr class="post-content-row" id="post_content_new_row">
-                    <td></td><td></td>
-                </tr>
-            </table>
-            <center><img id="posts_loading_image" src="/static/images/posts-loading.gif"></img></center>
+            <div style="margin-top:10px;">
+                %for i,course in enumerate(courses_incomplated):
+                    <%
+                        course_target = reverse('courseware', args=[course.id])
+                    %>
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
+                        <div class="ds-course-card" style="cursor:pointer;">
+                            <div class="card-top" style="border:0px solid #f00;">
+                                <div class="field-items">
+                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" style=""  alt="Cover Image"></figure>
+                                </div>
+                                <div class="ds-course-title">
+                                    <div class="field-content">
+                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" style="line-height:20px;"title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
+
+                        <div class="ds-course-btn" style="border:0px solid;line-height:27px;height:28px;margin-top:3px;">
+                            %if course.id in show_courseware_links_for:
+                                %if curr_user == request.user:              
+                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                                %else:
+                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                                %endif
+                                %if curr_user == request.user and not course.close_course:      
+                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                                %endif
+                            %endif
+                        </div>
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-courses">
+                <a href="/my_courses">View All</a>
+            </div>
+            <div class="ds-my-status">
+                <b>My Pepper Achievements Status</b>
+                </br>
+                <b>All Course Time:310 Minutes</b>
+                </br>
+                <b>Collaboration Time:87 Minutes</b>
+                </br>
+                <b>Total Time:397 Minutes</b>
+                </br>
+                </br>
+                <span>Cetificates</span>
+                </br>
+                Pep101x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI141E
+                </br>
+                EDU506
+            </div>
         </div>
 
+        <div class="con-maincontent-all">
+            <div class="con-feed-activity">
+                <div class="my-feed-btn mytab-active">My Feed</div>
+                <div class="my-activity-btn" style="">My Activity</div>
+            </div>
+            <div id="my_feed" class="my-feed">
+                <!--Post Dashboard-->
+                <!--w:660,min-h:800-->
+                <div id="dashboard_content_posts" class="dashboard-post">
+                    <div id="post_content" class="post_content" style="margin-bottom:0px;">
+                        <table id="" width="100%" border="0" style="margin-bottom:10px;background-color:#f2f2f2;">
+                            <tr class=".post-submit-row" id="post_submit_row">
+                                <td width="60"><img src="${reverse('user_photo',args=[request.user.id])}" class="post-submit-profile-image"/></td>
+                                <td style="color:#818181;font-size:15px;">
+                                    <textarea id="new_post_textarea" class="new-post-textarea" placeholder="What's on your mind?"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                        <table width="100%" border="0">
+                            <tr>
+                                <td width="50" align="right">
+                                    <a href = "#" style="color:#06e !important;" id = "add_post_image">
+                                        <img src="static/images/newdashboard/add-a-document-button_318-25290.jpg" width="25" height="25"/>
+                                    </a>
+                                </td>
+                                <td style="padding-left:10px;color:#818181;font-size:14px;">Photo/Video/Document</td>
+                                <td align="right" style="padding-right:7px;">
+                                    <a id="submit_new_post_button" class="post_btn" value="Post">Post</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <table style="display:none;margin-top:5px;" id="add_images_div">
+                                        <tr>
+                                            <td style="padding-left:9px;padding-right:10px;"><input id="image_link_input" type="text" placeholder="Enter Image Link Here" style="height:25px;font-size:14px;width:160px;"/></td>
+                                            <td style="padding-top:2px;"><input id="embed_checkbox" type="checkbox"/></td>
+                                            <td style="font-size:14px;">Embed</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <table style="margin-top:8px;margin-bottom:8px;">
+                        <tr>
+                            <td class="filter-word-label">Filter:</td>
+                            <td>
+                                <select id = "post_filter_select">
+                                    <option value = 'newest_post'>Newest Posts</option>
+                                    <option value = 'oldest_post'>Oldest Posts</option>
+                                    <option value = 'latest_reply'>Latest Reply</option>
+                                    <option value = 'oldest_reply'>Oldest Reply</option>
+                                    <option value = 'alphabetical'>Last Name (A-Z)</option>
+                                    <option value = 'reversealpha'>Last Name (Z-A)</option>
+                                    <option value = 'alphauname'>Nickname (A-Z)</option>
+                                    <option value = 'ralphauname'>Nickname (Z-A)</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--663+17(scroll-y)=680-->
+                    <table id="post_content_table" width="100%" border="0">
+                        <tr class="post-content-row" id="post_content_new_row">
+                            <td></td><td></td>
+                        </tr>
+                    </table>
+                    <center><img id="posts_loading_image" src="/static/images/posts-loading.gif"></img></center>
+                </div>
+            </div>
+
+            <div id="my_activity" class="my-activity">
+            
+            </div>
+        </div>
         <!--Community Dashboard-->
-        <div class="my_community">
-            <div class="title" style="text-align:right">Coaching & Collaboration</div>
-            <!--loop start-->
-            % for i,course in enumerate(courses_incomplated):
-                <% 
-                    if i > 1:break;
-                %>
-                <table width="100%" border="0" style="margin:10px 0 15px 0;">
-                    <tr>
-                        <td scope="col" style="padding-left:7px;"><img src="static/images/newdashboard/open_folder-512.png" width="45"/></td>
-                        <td rowspan="2" scope="col" width="215">
-                            <%include file="course_dashboard.html" args="course=course"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td scope="col" style="padding-left:7px;"><img src="static/images/newdashboard/ocha_activity-training_simple-black_512x512.png" width="45"/></td>
-                    </tr>
-                </table>
-            % endfor
-            <!--loop end-->
-            <table class="seemore" width="100%" height="30" border="0">
-                <tr>
-                    <td width="65"></td>
-                    <td style="text-align:left;"><a href="#">See More<a></td>
-                    <td><a href="#">+ Content<a></td>
-                </tr>
-            </table>
+        <div class="my-communities" style="display:block;float:right;width:220px;">
+            <div class="my-title">
+                <a href="/communities">Coaching & Collaboration</a>
+            </div>
+            <div style="margin-top:10px;">
+                %for community in communities:
+                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
+                        <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                    </div>
+                %endfor
+            </div>
+            <div class="ds-view-all-communities" style="">
+                <a href="/communities">View All</a>
+            </div>
         </div>
         <div style="clear:both;"></div>
     </section>
@@ -353,5 +718,40 @@ $(document).ready(function(){
         }
     });
     //@end
+
+    //20170221------------------------------------------
+    now_show = 1; //1:my feed;2:my activity
+    
+    if(now_show == 1){
+        $(".my-activity-btn").removeClass("mytab-active");
+        $(".my-activity").hide();
+        $(".my-feed-btn").addClass("mytab-active");
+        $(".my-feed").show();   
+    }
+    else{
+        $(".my-activity-btn").addClass("mytab-active");
+        $(".my-activity").show();
+        $(".my-feed-btn").removeClass("mytab-active");
+        $(".my-feed").hide();   
+    }
+
+    $(".my-feed-btn").click(function(){
+        if(now_show == 2){
+            $(".my-activity").hide();
+            $(".my-activity-btn").removeClass("mytab-active");
+            $(".my-feed").show();
+            $(".my-feed-btn").addClass("mytab-active");
+            now_show = 1;
+        }
+    });
+    $(".my-activity-btn").click(function(){
+        if(now_show == 1){
+            $(".my-feed").hide();
+            $(".my-feed-btn").removeClass("mytab-active");
+            $(".my-activity").show();
+            $(".my-activity-btn").addClass("mytab-active");
+            now_show = 2;
+        }
+    });
 });
 </script>

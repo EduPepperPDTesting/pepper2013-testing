@@ -110,7 +110,12 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
-            {"display_name": "Never", "value": "never"}]
+            {"display_name": "Never", "value": "never"},
+    #@begin:Submit and Compare
+    #@data:2016-02-21
+            {"display_name": "Submit and Compare", "value": "compare"}
+    #@end
+            ]
     )
     force_save_button = Boolean(
         help="Whether to force the save button to appear on the page",
@@ -363,6 +368,11 @@ class CapaModule(CapaFields, XModule):
             #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
+        #@begin:compare
+        #@data:2017-2-22    
+        if self.showanswer == 'compare':
+            return "Submit and Compare"
+        #@end
 
         return "Final Check" if final_check else "Submit"
 
@@ -685,12 +695,12 @@ class CapaModule(CapaFields, XModule):
             return self.closed()
         elif self.showanswer == 'finished':
             return self.closed() or self.is_correct()
-
         elif self.showanswer == 'past_due':
             return self.is_past_due()
         elif self.showanswer == 'always':
             return True
-
+        elif self.showanswer == 'compare':
+            return True
         return False
 
     def update_score(self, data):

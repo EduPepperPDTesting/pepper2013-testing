@@ -78,6 +78,7 @@
 	.ui-tooltip, .arrow:after {background: #ffffff; border: 1px solid #000000; color:#000000 !important;}
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
+
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -286,34 +287,45 @@
 </div>
 <div class="modal" id="dlg-students" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
-        <div class="titlebar">
-            <h3 class="dialog-title">Students</h3>
-            <div class="close-modal" id="dialog_close">✕</div>
+        <div  id="dlg-students-info" style="display: block;">
+            <div class="titlebar">
+                <h3 class="dialog-title">Students</h3>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div class="content"
+                 style="height:360px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
+                <table width="100%" cellspacing="" cellpadding="" border="1" class="students">
+                    <thead>
+                    <tr>
+                        <th align="left">User</th>
+                        <th>Status</th>
+                        <th>Attendance</th>
+                        <th>Validation</th>
+                        <th>Credits</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
+                <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
+                <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
+                <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
+                <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn" />
+                <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" />
+            </div>
         </div>
-        <div class="content"
-             style="height:360px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;padding:10px;border-radius:0;">
-            <table width="100%" cellspacing="" cellpadding="" border="1" class="students">
-                <thead>
-                <tr>
-                    <th align="left">User</th>
-                    <th>Status</th>
-                    <th>Attendance</th>
-                    <th>Validation</th>
-                    <th>Credits</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-        <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
-            <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-            <input onclick="location.href='${reverse('training_registration', args=[0])}';" type="button" name="" value="Register/Unregister Students" class="small" id="register_unregister_students" />
-            <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
-	        <input type="button" name="" value="Reminder Email" class="small" id="reminder_mail_btn" />
-            <input type="button" name="" value="Download Excel" class="small download-students-excel" />
+        <!--training registration - akogan-->
+        <div  id="dlg-training-info" style="display: none;">
+            <div class="titlebar">
+                <h3 class="dialog-title">Training Registration</h3>
+                <div class="close-modal" id="dialog_close">✕</div>
+            </div>
+            <div id="dlg-training-content"></div>
         </div>
     </div>
 </div>
+
 <div class="modal" id="dlg-add-training" style="width:800px;margin-left:-400px;height:500px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <!-- <div class="titlebar">
@@ -1424,16 +1436,20 @@
     };
     PepReg.prototype.showStudents = function (training_id) {
         var self = this;
-        console.log('training_id '+training_id)
+
         $.post("${reverse('pepreg_student_list')}", {training_id: training_id}, function (r) {
             console.log('r.success '+r.success)
             if (r.success) {
 				// hide/show register button
-				if(!r.arrive && r.allow_registration && !r.student_limit){ // akogan
-                    //$("#register_unregister_students").replaceWith("<input onclick=\"location.href='${reverse('training_registration', args=[0])}';\" type=\"button\" name=\"\" value=\"Register/Unregister Students\" class=\"small\" id=\"register_unregister_students\" />");
-                    $("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
-                    $("#register_unregister_students").attr("disabled", false);
-                    $("#register_unregister_students").unbind("click").click(function () {
+				if(!r.arrive && r.allow_registration){ // akogan;  && !r.student_limit
+                   $("#register_unregister_students").one("click", {training_id: training_id}, function(e){
+                        e.preventDefault();
+                        $("#dlg-students-info").css("display", "none");
+                        $("#dlg-training-info").find("#dlg-training-content").load("/pepreg/"+e.data.training_id);
+                        $("#dlg-students").height(window.innerHeight).width(window.innerWidth-19)
+                        .css({"position": "absolute", "top":"0px", "left":"0px", "margin-left": "0"});
+                        $("#dlg-students").find(".close-modal").hide();
+                        $("#dlg-training-info").css("display", "block");
 
                     });
 				}else{
@@ -1474,8 +1490,8 @@
                     data.is_validated = data.is_validated ? "checked" : "";
                     data.student_credit = data.student_credit ? data.student_credit + " hours" : "0";
                     var $row = $(self.fillString("<tr student_id='{id}'><td align='left'><a>✕</a> {email}</td><td>{status}</td>\
-<td><input type='checkbox' name='is_attended' {is_attended}/></td>\
-<td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
+                    <td><input type='checkbox' name='is_attended' {is_attended}/></td>\
+                    <td><input type='checkbox' name='is_validated' {is_validated}/></td><td>{student_credit}</td></tr>", data));
                     if ($r)$r.replaceWith($row);
                     if (!r.allow_attendance || !r.arrive)
                         $row.find("input[name=is_attended").remove();
@@ -1495,8 +1511,6 @@
                             if (r) {
                                 self.deleteStudent(data.id, function () {
                                     $row.remove();
-                                    $(".inner-wrapper").find("#register_unregister_students").attr("onclick", "location.href='/pepreg/"+training_id+"'");
-                                    $(".inner-wrapper").find("#register_unregister_students").attr("disabled", false);
                                 });
                             }
                         });
@@ -1540,6 +1554,11 @@
                     window.open("${reverse('pepreg_download_students_excel')}?pdf=" + tmp1 + "&training_id=" + r.training_id);
                 });
             }
+        });
+        $("#dlg-students").find(".close-modal").bind("click", function(){
+            console.log("modal");
+            $('body').removeClass('modal-open');
+            $('.lean-overlay').remove();//.modal-backdrop
         });
     };
     PepReg.prototype.showMap = function (props, training_id) {
@@ -1801,7 +1820,7 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
-        $(".expand_title").click(function () {
+        $(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
                 $div.slideUp();
@@ -1816,6 +1835,7 @@
             e.preventDefault();
             return false;
         });
+
     });
 </script>
 

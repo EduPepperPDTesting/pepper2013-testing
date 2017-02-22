@@ -24,6 +24,7 @@ class @Problem
     @$('section.action input.reset').click @reset
     @$('section.action button.show').click @show
     @$('section.action input.save').click @save
+    @$('section.action input.save').click @show
 
     @bindResetCorrectness()
 
