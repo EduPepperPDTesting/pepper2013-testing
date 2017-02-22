@@ -545,6 +545,12 @@ div.card-bottom table tr:nth-child(2) {
     border-color: #df0000;
     background: #ED2828;
 }
+.small-red-button {
+    max-width: 80px !important;
+    margin-right: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+}
 #poll-form {
     display: none;
     margin-top: 15px;
