@@ -24,7 +24,9 @@ class @Problem
     @$('section.action input.reset').click @reset
     @$('section.action button.show').click @show
     @$('section.action input.save').click @save
-    @$('section.action input.save').click @show
+    @$("section.action input[name='Submit and Compare check']").click @compare
+    if @$("section.action input[name='problem_id']").attr("data") == "Submit and Compare"
+        @inputs.next('.status').hide();
 
     @bindResetCorrectness()
 
@@ -36,6 +38,29 @@ class @Problem
     if MathJax?
       @$('input.math').each (index, element) =>
         MathJax.Hub.Queue [@refreshMath, null, element]
+  
+  compare: =>
+    console.log(111)
+    $.ajaxSettings.async = false
+
+    @check()
+    if !@el.hasClass 'showed'
+      Logger.log 'problem_show', problem: @id
+      $.postWithPrefix "#{@url}/problem_show", (response) =>
+        answers = response.answers
+        $.each answers, (key, value) =>
+          if $.isArray(value)
+            for choice in value
+              @$("label[for='input_#{key}_#{choice}']").attr correct_answer: 'true'
+          else
+            answer = @$("#answer_#{key}, #solution_#{key}")
+            answer.html(value)
+            @$("#answer_#{key}").hide()
+            @$("input[name='Submit and Compare check']").val("Resubmit")
+            Collapsible.setCollapsibles(answer)
+    
+    @inputs.before("<div style='color:blue;font-weight:bold;font-size:0.9em;font-style:normal'>Your Answer:</div>")
+    $.ajaxSettings.async = true
 
   renderProgressState: =>
     detail = @el.data('progress_detail')
