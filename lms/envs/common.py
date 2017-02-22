@@ -862,12 +862,14 @@ INSTALLED_APPS = (
 
     # Reporting
     'reporting',
+    
     # SSO
-    'sso',
+    # 'sso',
 
     # PD Training Registration
-    'training',
+    # 'training',
 
+    # For async tasks like course syncing
     'async_task'
 )
 
