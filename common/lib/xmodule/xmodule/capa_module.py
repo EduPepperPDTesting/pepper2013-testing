@@ -368,9 +368,8 @@ class CapaModule(CapaFields, XModule):
             #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
-
         #@begin:compare
-        #@data:2013-12-10    
+        #@data:2017-2-22    
         if self.showanswer == 'compare':
             return "Submit and Compare"
         #@end
@@ -696,14 +695,12 @@ class CapaModule(CapaFields, XModule):
             return self.closed()
         elif self.showanswer == 'finished':
             return self.closed() or self.is_correct()
-
         elif self.showanswer == 'past_due':
             return self.is_past_due()
         elif self.showanswer == 'always':
             return True
-        elif self.showAnswer == 'Compare':
+        elif self.showanswer == 'Compare':
             return True
-
         return False
 
     def update_score(self, data):
