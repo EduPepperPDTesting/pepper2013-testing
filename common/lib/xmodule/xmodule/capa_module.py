@@ -699,7 +699,7 @@ class CapaModule(CapaFields, XModule):
             return self.is_past_due()
         elif self.showanswer == 'always':
             return True
-        elif self.showanswer == 'Compare':
+        elif self.showanswer == 'compare':
             return True
         return False
 
