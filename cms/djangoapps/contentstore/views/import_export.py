@@ -381,8 +381,7 @@ def copy_course(task, id_org, id_course, _from, _to):
                                           ("revision", d['revision'])])
             to_collection.save(doc)
             num_done = num_done + 1
-            rate = num_done / num_total if num_total > 0 else 0
-            # print "sync course(%s.%s) progress: %0.2f%%" % (db_name, collection_name, rate)
+            rate = (num_done / num_total if num_total > 0 else 0) * 100
             update_task(task, "progress", "sync course(%s.%s) progress: %0.2f%%" %
                         (db_name, collection_name, rate))
 
