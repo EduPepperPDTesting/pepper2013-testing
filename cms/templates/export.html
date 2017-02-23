@@ -147,16 +147,16 @@ from django.conf import settings
 
     function timedUpdateStatus(taskId){
       setTimeout(function(){
-        $.post("${reverse('ajax_get_async_task', args=[])}", {id: taskId}, function(r){
+        $.post("${reverse('ajax_get_async_task', args=[])}", {id: taskId, csrfmiddlewaretoken:'${csrf_token}'}, function(r){
           $(".error-block-sync").html(r.last_message);
           if(r.status != "finished" && r.status != "error")
             timedUpdateStatus(taskId);
         });
-      }, 200);
+      }, 1000);
     }
     
     $.post("${reverse('sync_course', args=[])}",
-           {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest},
+           {id_org: id_org, id_course: id_course, id_name: id_name, dest: dest, csrfmiddlewaretoken:'${csrf_token}'},
            function(r){
              if(r.success){
                timedUpdateStatus(r.taskId);

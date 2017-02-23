@@ -372,13 +372,23 @@ def copy_course(task, id_org, id_course, _from, _to):
         
         for doc in cursor:
             d = doc['_id']
-            if "__getitem__" in dir(d):
+            
+            if "__getitem__" in dir(d) and (d.get("category") == "asset" or d.get("category") == "thumbnail"):
+                doc['_id'] = OrderedDict([("category", d['category']),
+                                          ("name", d['name']),
+                                          ("course", d['course']),
+                                          ("tag", d['tag']),
+                                          ("org", d['org']),
+                                          ("revision", d['revision'])])
+
+            elif "__getitem__" in dir(d):
                 doc['_id'] = OrderedDict([("tag", d['tag']),
                                           ("org", d['org']),
                                           ("course", d['course']),
                                           ("category", d['category']),
                                           ("name", d['name']),
                                           ("revision", d['revision'])])
+
             to_collection.save(doc)
             num_done = num_done + 1
             rate = (num_done / num_total if num_total > 0 else 0) * 100
@@ -498,8 +508,8 @@ def do_sync_course(task, org, course, name, d, user):
     finally:
         task.save()
         db.transaction.commit()
-        
-        
+
+
 @login_required
 def sync_course(request):
     org = request.POST.get("id_org", "")
