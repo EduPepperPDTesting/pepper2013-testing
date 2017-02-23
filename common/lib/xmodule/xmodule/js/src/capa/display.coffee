@@ -40,14 +40,12 @@ class @Problem
         MathJax.Hub.Queue [@refreshMath, null, element]
   
   compare: =>
-    console.log(111)
-    $.ajaxSettings.async = false
-
     @check()
     if !@el.hasClass 'showed'
       Logger.log 'problem_show', problem: @id
       $.postWithPrefix "#{@url}/problem_show", (response) =>
         answers = response.answers
+        @inputs.before("<div style='color:blue;font-weight:bold;font-size:0.9em;font-style:normal'>Your Answer:</div>")
         $.each answers, (key, value) =>
           if $.isArray(value)
             for choice in value
@@ -59,8 +57,6 @@ class @Problem
             @$("input[name='Submit and Compare check']").val("Resubmit")
             Collapsible.setCollapsibles(answer)
     
-    @inputs.before("<div style='color:blue;font-weight:bold;font-size:0.9em;font-style:normal'>Your Answer:</div>")
-    $.ajaxSettings.async = true
 
   renderProgressState: =>
     detail = @el.data('progress_detail')
