@@ -77,8 +77,8 @@
 <div class="data_import_bottom" style="text-align:left;">
     <div class="main data_import_content">
         <div id="back">
-            <a href="${reverse('pepreg')}" class="up_page"></a>&nbsp;
-            <a id="close_registration"> <!-- href="${reverse('pepreg')}" -->
+            <a href="${reverse('pepreg')}"class="up_page"></a>&nbsp;
+            <a id="close_registration" style="cursor: pointer;" > <!-- href="${reverse('pepreg')}" -->
                 Back to Pepper PD Planner
             </a>
         </div>
@@ -291,7 +291,7 @@
         }
         Tab.prototype.show=function(){
             $(".table-tab").css("padding-top", "4px");
-            $(".table-section").hide();
+            $(".inner-wrapper .table-section").hide();
             this.$content.show();
             this.$tab.find(".table-tab").css("padding-top", "10px");
         };
@@ -392,10 +392,10 @@
             return ids;
         };
         //* -----------  init tabs
-        var tabAdd=new Tab($(".add-tab"), $(".add_table-section"));
+        var tabAdd=new Tab($(".add-tab"), $(".inner-wrapper .add_table-section"));
         tabAdd.show();
         checkStudentLimit(${training.id});
-        var tabRemove=new Tab($(".remove-tab"), $(".remove_table-section"));
+        var tabRemove=new Tab($(".remove-tab"), $(".inner-wrapper .remove_table-section"));
         //* ----------- init expand title
         $("#dlg-students").find(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
