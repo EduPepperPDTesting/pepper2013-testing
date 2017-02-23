@@ -545,11 +545,12 @@ div.card-bottom table tr:nth-child(2) {
     border-color: #df0000;
     background: #ED2828;
 }
-.small-red-button {
-    max-width: 80px !important;
+.small-blue-button {
+    max-width: 70px !important;
     margin-right: auto;
     margin-bottom: auto;
     margin-left: auto;
+    font-size: 0.73em !important;
 }
 #poll-form {
     display: none;

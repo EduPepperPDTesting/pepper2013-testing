@@ -135,7 +135,7 @@ import datetime
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
                     %if not is_facilitator(request.user, community):
-                        <a href="#" class="side-button red-button small-red-button" onclick="leaveCommunity()">Unenroll</a>
+                        <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
                     %endif
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
@@ -423,7 +423,7 @@ import datetime
     function leaveCommunity(){
         var user_id = ${request.user.id};
         $('#dialog').css("text-align", "left");
-        new Dialog($('#dialog')).showYesNo("Unenroll", "Are you sure you want to leave this community?", function(ans){
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
 
             this.hide();
             if(ans){
