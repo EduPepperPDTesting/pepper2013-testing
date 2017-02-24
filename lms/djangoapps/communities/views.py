@@ -477,7 +477,7 @@ def discussion(request, discussion_id):
     except CommunityDiscussions.DoesNotExist:
         data = {'error_title': 'Discussion Removed',
                 'error_message': 'The discussion has been removed.',
-                'contact_info':  'Please contact Pepper Support for any questions. <a href="${reverse(\'contact_us\')}">Support Email</a>.',
+                'contact_info':  'Please contact Pepper Support for any questions at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a>.',
                 'window_title': 'Discussion Removed'}
         return render_to_response('error.html', data)
 
