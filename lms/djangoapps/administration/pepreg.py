@@ -17,6 +17,7 @@ from permissions.utils import check_access_level, check_user_perms
 from StringIO import StringIO
 import xlsxwriter
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State, School
+from training.models import TrainingUsers
 from xmodule.modulestore.django import modulestore
 import pymongo
 
@@ -43,6 +44,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
+
+import logging
 
 @login_required
 def index(request):
@@ -647,9 +650,22 @@ def register(request):
                 cea.is_active = True
                 cea.save()
                 CourseEnrollment.enroll(student_user, training.pepper_course)
+
+            #akogan
+            mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+            if not mem.exists():
+                tu = TrainingUsers(user=student_user, training=training)
+                tu.save()
         else:
             student = PepRegStudent.objects.get(training_id=training_id, student=student_user)
             remove_student(student)
+
+            #akogan
+            mem = TrainingUsers.objects.filter(user=student_user, training=training)
+
+            if mem.exists():
+                mem.delete()
 
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -752,6 +768,7 @@ def student_list(request):
         training = PepRegTraining.objects.get(id=training_id)
         students = PepRegStudent.objects.filter(training_id=training_id)
         arrive = datetime.now(UTC).date() >= training.training_date
+        student_limit = reach_limit(training) # akogan
         rows = []
         for item in students:
             rows.append({
@@ -780,7 +797,8 @@ def student_list(request):
                                     'last_date': last_date,
                                     'training_type': training.type,
                                     'training_date': str('{d:%m/%d/%Y}'.format(d=training.training_date)),
-                                    'arrive': arrive
+                                    'arrive': arrive,
+                                    'student_limit': student_limit # akogan
                                     }),
                         content_type="application/json")
 
@@ -830,7 +848,9 @@ def show_map(request):
 def delete_student(request):
     try:
         id = int(request.POST.get("id"))
+        user = PepRegStudent.objects.get(id=id).student
         remove_student(PepRegStudent.objects.get(id=id))
+        TrainingUsers.objects.filter(user=user).delete()
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")

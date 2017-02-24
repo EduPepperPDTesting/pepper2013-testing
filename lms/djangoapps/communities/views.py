@@ -472,7 +472,15 @@ def reply_edit(request):
 
 @login_required
 def discussion(request, discussion_id):
-    discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
+    try:
+        discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
+    except CommunityDiscussions.DoesNotExist:
+        data = {'error_title': 'Discussion Removed',
+                'error_message': 'The discussion has been removed.',
+                'contact_info':  'Please contact Pepper Support for any questions. <a href="${reverse(\'contact_us\')}">Support Email</a>.',
+                'window_title': 'Discussion Removed'}
+        return render_to_response('error.html', data)
+
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
     total = CommunityDiscussions.objects.filter(community=discussion.community).count()
     users = CommunityUsers.objects.filter(community=discussion.community).count()

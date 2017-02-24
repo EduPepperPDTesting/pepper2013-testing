@@ -181,6 +181,7 @@
 }
 #community-content-area span {
     /*font-size: 12px;*/
+    word-break: break-all;
 }
 #community-content {
     width: 220px;
@@ -193,7 +194,6 @@
     width: 270px;
     padding-right: 10px;
     height: 1017px;
-    overflow-x: hidden;
     margin-top: -26px;
     margin-left: -38px;
 }
@@ -545,6 +545,13 @@ div.card-bottom table tr:nth-child(2) {
     border-color: #df0000;
     background: #ED2828;
 }
+.small-blue-button {
+    max-width: 70px !important;
+    margin-right: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    font-size: 0.73em !important;
+}
 #poll-form {
     display: none;
     margin-top: 15px;
@@ -639,7 +646,8 @@ div.card-bottom table tr:nth-child(2) {
     margin: 4px;
 }
 .post-content-right {
-    width: 100%;
+    width: 518px;
+    max-width: 518px;
     vertical-align: middle;
     padding-right: 5px;
     padding-top: 5px;
@@ -886,4 +894,7 @@ div.card-bottom table tr:nth-child(2) {
 }
 .info-tile-img {
     padding-right: 4px !important;
+}
+table.cke_dialog.cke_browser_webkit.cke_ltr {
+    z-index: 100000 !important;
 }

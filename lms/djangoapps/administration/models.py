@@ -1,8 +1,12 @@
 from django.db import models
-from student.models import District
+from student.models import District, School, State
 from django.contrib.auth.models import User
+from student.models import UserProfile
 from django.conf import settings
 import pymongo
+import logging
+log = logging.getLogger("tracking")
+
 
 class ImportTask(models.Model):
     class Meta:
@@ -38,6 +42,28 @@ class EmailTask(models.Model):
     user = models.ForeignKey(User, default=0)
 
 
+class CustomEmail(models.Model):
+    class Meta:
+        db_table = 'admin_custom_emails'
+    email_content = models.TextField(blank=False, null=True)
+    name = models.CharField(blank=False, max_length=30, null=False, unique=True)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
+    district = models.ForeignKey(District, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    system = models.BooleanField(blank=False, null=False)
+    private = models.BooleanField(blank=False, null=False)
+    school = models.ForeignKey(School, on_delete=models.PROTECT, null=True, default=None, blank=True)
+    state = models.ForeignKey(State, on_delete=models.PROTECT, null=True, default=None, blank=True)
+
+
+class CustomEmailLog(models.Model):
+    class Meta:
+        db_table = 'admin_custom_emails_log'
+    email_name = models.CharField(blank=False, max_length=30, null=False)
+    user = models.ForeignKey(User)
+    operation = models.CharField(blank=False, max_length=10, null=False)
+    datetime = models.DateTimeField(auto_now_add=True)
+
+
 class EmailTaskLog(models.Model):
     class Meta:
         db_table = 'admin_email_task_log'
@@ -70,7 +96,7 @@ class AdjustmentTimeLog(models.Model):
     adjustment_time = models.IntegerField(blank=False, default=0)
     create_date = models.DateTimeField(auto_now_add=True, db_index=False)
     course_number = models.CharField(blank=False, null=True, max_length=100, db_index=True)
-    comments = models.CharField(blank=False, null=True, max_length=1000, db_index=True)
+    comments = models.CharField(blank=False, null=True, max_length=756, db_index=True)
 
 
 class TimeReportPerm(models.Model):
@@ -114,6 +140,7 @@ class HangoutPermissions(models.Model):
         db_table = 'hangout_permissions'
     district = models.ForeignKey(District, blank=False)
     permission = models.BooleanField(default=1)
+
 
 class MongoSiteSettingsStore(object):
 

@@ -1,6 +1,7 @@
 <%inherit file="../main.html" />
 <%!
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from courseware.courses import course_image_url, get_course_about_section
 from student.views import course_from_id
 from administration.configuration import has_hangout_perms
@@ -133,6 +134,9 @@ import datetime
 
                 %if is_member(request.user, community):
                     <div id="community-member">MEMBER</div>
+                    %if not is_facilitator(request.user, community):
+                        <a href="#" class="side-button blue-button small-blue-button" onclick="leaveCommunity()">Leave Group</a>
+                    %endif
                 %else:
                     <a href="#" class="side-button green-button" onclick="joinMe()">Add Me</a>
                 %endif
@@ -414,6 +418,22 @@ import datetime
         $.post("${reverse('community_join', args=[community.id])}",{user_ids:user_id}, function(r){
             if(r.success)
                 window.location.reload();
+        });
+    }
+    function leaveCommunity(){
+        var user_id = ${request.user.id};
+        $('#dialog').css("text-align", "left");
+        new Dialog($('#dialog')).showYesNo("Leave Group", "Are you sure you want to leave this community?", function(ans){
+
+            this.hide();
+            if(ans){
+                $.post("${reverse('community_leave',args=[community.id])}",{user_ids:user_id},function(r){
+                    if(r.success)
+                       console.log(r.success);
+                       window.location.replace("${reverse('dashboard',args=[user.id])}");
+                       //return redirect(reverse('dashboard'));
+                });
+            }
         });
     }
     function validateDiscussionForm() {
