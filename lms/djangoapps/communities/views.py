@@ -473,6 +473,7 @@ def reply_edit(request):
 @login_required
 def discussion(request, discussion_id):
     try:
+        raise Exception("discussion try")
         discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
     except CommunityDiscussions.DoesNotExist:
         data = {'error_title': 'Discussion Removed',
