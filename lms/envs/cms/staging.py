@@ -87,6 +87,17 @@ MESSAGESTORE = {
         'password': MONGO_PASSWORD,
     }
 }
+MYACTIVITYSTORE = {
+    'ENGINE': 'xmodule.remindstore.MongoMyActivityStore',
+    'OPTIONS': {
+        'db': MONGO_DB_REMIND,
+        'collection': 'my_activity',
+        'host': MONGO_HOST,
+        'port': MONGO_PORT,
+        'user': MONGO_USER,
+        'password': MONGO_PASSWORD,
+    }
+}
 CHUNKSSTORE = {
     'ENGINE': 'xmodule.remindstore.MongoChunksStore',
     'OPTIONS': {
