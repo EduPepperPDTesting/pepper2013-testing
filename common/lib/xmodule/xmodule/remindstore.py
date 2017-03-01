@@ -190,6 +190,41 @@ class MongoMessageStore(object):
     def get_total(self,id_1,id_2):
         return self.collection.find({'$or':[{'sender_id':id_1,'recipient_id':id_2},{'sender_id':id_2,'recipient_id':id_1},{'sender_id':id_1,'recipient_id':0},{'sender_id':id_2,'recipient_id':0}]}).count()
 
+class MongoMyActivityStore(object):
+
+    # TODO (cpennington): Enable non-filesystem filestores
+    def __init__(self, host, db, collection,port=27017, default_class=None,
+                 user=None, password=None, mongo_options=None, **kwargs):
+
+        super(MongoMyActivityStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        # Force mongo to report errors, at the expense of performance
+        self.collection.safe = True    
+
+    def get_item(self,search_key,order_key,order_order,limit_number):
+        results = self.collection.find(search_key).sort(order_key, order_order).limit(limit_number)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
+    def insert_item(self,item):
+        self.collection.insert(item)
+
 class MongoChunksStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
@@ -277,6 +312,7 @@ class MongoChunksStore(object):
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
 _CHUNKSSTORE = {}
+_MYACTIVITYSTORE = {}
 
 def load_function(path):
     """
@@ -312,6 +348,18 @@ def messagestore(name='default'):
         _MESSAGESTORE[name] = class_(**options)
 
     return _MESSAGESTORE[name]
+
+def myactivitystore(name='default'):
+    if name not in _MYACTIVITYSTORE:
+        class_ = load_function(settings.MYACTIVITYSTORE['ENGINE'])
+        options = {}
+        options.update(settings.MYACTIVITYSTORE['OPTIONS'])
+        if 'ADDITIONAL_OPTIONS' in settings.MYACTIVITYSTORE:
+            if name in settings.MYACTIVITYSTORE['ADDITIONAL_OPTIONS']:
+                options.update(settings.MYACTIVITYSTORE['ADDITIONAL_OPTIONS'][name])
+        _MYACTIVITYSTORE[name] = class_(**options)
+
+    return _MYACTIVITYSTORE[name]
 
 def chunksstore(name='default'):
     if name not in _CHUNKSSTORE:
