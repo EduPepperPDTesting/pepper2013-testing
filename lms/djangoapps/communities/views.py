@@ -26,6 +26,7 @@ from polls.views import poll_data
 from notification import send_notification
 # from student.views import course_from_id
 from courseware.courses import get_course_by_id
+from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger("tracking")
 
@@ -328,6 +329,10 @@ def community_join(request, community_id):
                 cu.community = community
                 cu.save()
                 
+                rs = myactivitystore()
+                my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id}
+                rs.insert_item(my_activity)
+
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
@@ -539,6 +544,11 @@ def discussion_add(request):
             discussion.attachment = attachment
             discussion.save()
         success = True
+
+        rs = myactivitystore()
+        my_activity = {"ActivityType": "Community", "EventType": 4, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": discussion.id}
+        rs.insert_item(my_activity)
+
         discussion_id = discussion.id
         send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
@@ -572,6 +582,11 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 5, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": reply.id}
+    rs.insert_item(my_activity)
+    
     send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
     discussion.date_reply = reply.date_create
     discussion.save()
@@ -1223,6 +1238,11 @@ def submit_new_comment(request):
     comment.user = User.objects.get(id=request.user.id)
     comment.comment = request.POST.get('content')
     comment.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 3, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": comment.id}
+    rs.insert_item(my_activity)
+
     send_notification(request.user, community_id, posts_reply=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
 
@@ -1272,6 +1292,11 @@ def submit_new_post(request):
     post.user = User.objects.get(id=request.user.id)
     post.post = content
     post.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": post.id}
+    rs.insert_item(my_activity)
+
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
         for image in images:
