@@ -166,6 +166,10 @@ urlpatterns = (
     url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
     url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
     url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
+    #@author:scott
+    #@date:2017-02-24
+    url(r'^dashboard/post/top$', 'student.newdashboard.top_post', name='dashboard_top_post'),
+    #@end
     #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
@@ -395,7 +399,10 @@ urlpatterns = (
     url(r'^community/ask/expert', 'communities.views.email_expert', name='community_ask_an_expert'),
     url(r'^community/delete/comment', 'communities.views.delete_comment', name='community_delete_comment'),
     url(r'^community/delete/post', 'communities.views.delete_post', name='community_delete_post'),
-
+    # @author:scott
+    # @date:2017-02-27
+    url(r'^community/top/post', 'communities.views.top_post', name='community_top_post'),
+    # @end
     url(r'^communities/add$', 'communities.views.community_edit', name='community_add'),
     url(r'^communities/process$', 'communities.views.community_edit_process', name='community_edit_process'),
     url(r'^communities/check-user$', 'communities.views.community_check_user', name='community_check_user'),

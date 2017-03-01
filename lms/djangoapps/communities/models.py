@@ -113,7 +113,10 @@ class CommunityPosts(models.Model):
     post = models.TextField(blank=False, max_length=255, db_index=False)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
     date_update = models.DateTimeField(auto_now_add=True, db_index=False)
-
+    # @author:scott
+    # @date:2017-02-27
+    top = models.BooleanField(blank=False, default=0)
+    # @end
 
 class CommunityPostsImages(models.Model):
     class Meta:
@@ -140,4 +143,3 @@ class CommunityLikes(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.ForeignKey(CommunityComments, on_delete=models.CASCADE, null=True, blank=True, default=None)
     date_create = models.DateTimeField(auto_now_add=True, db_index=False)
-

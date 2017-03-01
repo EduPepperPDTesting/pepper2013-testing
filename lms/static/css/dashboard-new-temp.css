@@ -631,6 +631,7 @@ div.card-bottom table tr:nth-child(2) {
 .delete-something:hover {
     cursor: pointer;
 }
+
 .post-textarea {
     border: none;
     resize: none;
@@ -922,7 +923,13 @@ table.cke_dialog.cke_browser_webkit.cke_ltr {
     margin-right: 10px;*/
     cursor: pointer;
 }
-
+/*@author:scott
+  @date:2017-02-23
+*/
+.top-something {
+    cursor: pointer;
+}
+/*@end*/
 .img-span-code > img {
     margin-top: 10px;
 }
