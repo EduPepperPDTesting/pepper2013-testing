@@ -166,10 +166,6 @@ urlpatterns = (
     url(r'^dashboard/post/lookup', 'student.newdashboard.lookup_name', name='dashboard_lookup_name'),
     url(r'^dashboard/post/showlikes', 'student.newdashboard.get_full_likes', name='dashboard_get_full_likes'),
     url(r'^dashboard/post/new$', 'student.newdashboard.submit_new_post', name='dashboard_submit_new_post'),
-    #@author:scott
-    #@date:2017-02-24
-    url(r'^dashboard/post/top$', 'student.newdashboard.top_post', name='dashboard_top_post'),
-    #@end
     #@end
     #@begin:Add for Dashboard My Activity
     #@date:2016-12-29
