@@ -171,6 +171,10 @@ urlpatterns = (
     url(r'^dashboard/post/top$', 'student.newdashboard.top_post', name='dashboard_top_post'),
     #@end
     #@end
+    #@begin:Add for Dashboard My Activity
+    #@date:2016-12-29
+    url(r'^dashboard/my_activity/get$', 'student.newdashboard.get_my_activities', name='get_my_activities'),
+    #@end
 
     url(r'^tnl/domain/add$', 'tnl_integration.views.tnl_domain_add', name="tnl_domain_add"),
     url(r'^tnl/domain/delete$', 'tnl_integration.views.tnl_domain_delete', name="tnl_domain_delete"),

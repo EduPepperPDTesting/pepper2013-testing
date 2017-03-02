@@ -410,6 +410,7 @@ a.post_btn:hover{
     margin-left:5px;
     float:left;
     border-radius:5px;
+    font-size: 14px;
     border:1px solid #ccc;
 }
 .ma-row-cotent-time{
@@ -420,12 +421,14 @@ a.post_btn:hover{
 }
 .ma-row-cotent-info{
     padding: 5px;
-    font-style: italic;
     border:0px solid;
 }
 .ma-row-cotent-info a{
     color: #000;
     cursor: pointer;
+    text-decoration: none !important;
+    font-weight: bold;
+    font-style: italic;
 }
 /*--my activity community ico--*/
 .ma-community-ico{
@@ -464,11 +467,11 @@ a.post_btn:hover{
     padding: 0 17px;
     background: rgba(18,111,154,0.95);
     text-decoration: none !important;
-}
-.ma-community-card-link span {
     color: #FFFFFF;
     font-size: 9px;
+    cursor: default;
 }
+
 
 /*--my activity course ico--*/
 .ma-course-course-card{
@@ -527,6 +530,7 @@ a.post_btn:hover{
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <!--@end-->
+<script src="/static/js/datetime/moment.js"></script>
 
 <section class="content-wrapper1" style="margin-top:0px;background-color:#eee;">
     <section class="container dashboard" style="margin-top:10px;">
@@ -682,59 +686,6 @@ a.post_btn:hover{
                     <span class="ma-btn-filter">Filter</span>
                 </div>
                 <div class="con-ma-rows">
-                    <!--w:674-->
-                    <div class="my-activity-row">
-                        <!--w:120 h:74-->
-                        <div class="ma-row-ico">
-                            <div class="ma-community-ico">
-                                <div class="ma-community-image-link-style" style="background-image: url(/static/images/newdashboard/temp/test_ma_community.png">
-                                    <div style="height:41px;"></div>
-                                    <a href="" class="ma-community-card-link ma-community-image-bottom-style"><span>lvzh test1</span></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="ma-row-cotent">
-                            <div class="ma-row-cotent-time">Today at 4:15 PM</div>
-                            <div class="ma-row-cotent-info">
-                                <a>Replied to <b>Bristol TCS</b> Disscussion - 10.10.16</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="my-activity-row">
-                        <!--w:120 h:74-->
-                        <div class="ma-row-ico">
-                            <table border="0" width="110" height="69" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td><img src="/static/images/newdashboard/header_my_reports_45.png"></img></td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="ma-row-cotent">
-                            <div class="ma-row-cotent-time">Today at 4:15 PM</div>
-                            <div class="ma-row-cotent-info">
-                                <a>Replied to <b>Bristol TCS</b> Disscussion - 10.10.16</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="my-activity-row">
-                        <!--w:120 h:74-->
-                        <div class="ma-row-ico">
-                            <div class="ma-course-course-card">
-                                <div>
-                                    <img typeof="foaf:Image" class="ma-course-image-style" src="/static/images/newdashboard/temp/test_ma_course.jpg" alt="Cover Image">
-                                </div>
-                                <div class="ma-course-course-title">
-                                    <a href="" class="ma-course-card-link" title=""><span>This is a...</span></a>
-                                </div>  
-                            </div>
-                        </div>
-                        <div class="ma-row-cotent">
-                            <div class="ma-row-cotent-time">Today at 4:15 PM</div>
-                            <div class="ma-row-cotent-info">
-                                <a>Replied to <b>Bristol TCS</b> Disscussion - 10.10.16</a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -958,7 +909,7 @@ $(document).ready(function(){
     });
     //@end
 
-    //20170221------------------------------------------
+    //20170221=================================================================================================
     now_show = 2; //1:my feed;2:my activity
     
     if(now_show == 1){
@@ -992,5 +943,117 @@ $(document).ready(function(){
             now_show = 2;
         }
     });
+    get_my_activites();
+
+    $(".ma-btn-filter").click(function(){
+        search_year = $("#my_activity_select_year").val();
+        console.log(search_year);
+    });
+
+    function get_my_activites(){
+        search_year = $("#my_activity_select_year").val();
+        search_month = $("#my_activity_select_year").val();
+
+        $.post("${reverse('get_my_activities')}", {'user_id':'${request.user.id}','search_year':search_year,'search_month':search_month},function(data_obj){
+            my_activitis_init(data_obj);
+        });
+    }
+    function my_activitis_init(data_obj){
+        for(var i=0;i<data_obj.data.length;i++)
+        {
+            my_activity_create(data_obj.data[i]);
+        }
+    }
+    function my_activity_create(data){
+        var displayDate = time_to_local(data.time);
+        my_activity_create_ico(data);
+        
+        element_html = '<div class="my-activity-row">';
+        element_html += '<div class="ma-row-ico">';
+        element_html += data.html_ico;
+        element_html += '</div>';
+        element_html += '<div class="ma-row-cotent">';
+        element_html += '<div class="ma-row-cotent-time">'+displayDate+'</div>';
+        element_html += '<div class="ma-row-cotent-info">';
+        element_html += data.html_text;
+        element_html += '</div>';
+        element_html += '</div>';
+
+        element=$(element_html);
+        $('.con-ma-rows').append(element);
+    }
+    function my_activity_create_ico(data){
+        //switch_ActivityType
+        switch(data.a_type)
+        {
+            case 'Community':
+                data.html_ico = '<div class="ma-community-ico">';
+                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logo+')">';
+                data.html_ico += '<div style="height:41px;"></div>';
+                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.name+'</span>';
+                data.html_ico += '</div>';
+                data.html_ico += '</div>';
+                my_activity_create_community_text(data);
+                break;
+            case 'Course':
+                console.log("switch courses");
+                break;
+            default:
+                console.log("switch others");
+        }
+    }
+
+    function my_activity_create_community_text(data){
+        //switch_EventType
+        switch(data.e_type)
+        {
+            case 1:
+                data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
+                break;
+            case 2:
+                data.html_text = 'Posted on <a href="'+data.url+'">'+data.name+'</a>';
+                break;
+            case 3:
+                data.html_text = 'Posted Comment on <a href="'+data.url+'">'+data.name+'</a>';
+                break;
+            case 4:
+                data.html_text = 'Created <a href="'+data.url+'">'+data.name1+'</a>';
+                break;
+            case 5:
+                data.html_text = 'Replied to <a href="'+data.url+'">'+data.name1+'</a>';
+                break;
+        }
+    }
+
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        displayDate = ""
+
+        if(isToday(time)) {
+           displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        /*
+        today_date = moment(local_time).format('YYYY-MM-DD');
+        time_date = moment(time).format('YYYY-MM-DD');
+        */
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
 });
 </script>
