@@ -18,59 +18,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('administration', ['CustomEmail'])
 
-        # Adding field 'UserLoginInfo.logout_press'
-        db.add_column('user_login_info', 'logout_press',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-        # Adding field 'UserLoginInfo.temp_time'
-        db.add_column('user_login_info', 'temp_time',
-                      self.gf('django.db.models.fields.CharField')(default=None, max_length=30),
-                      keep_default=False)
-
-        # Adding field 'PepRegTraining.last_date'
-        db.add_column('pepreg_training', 'last_date',
-                      self.gf('django.db.models.fields.DateField')(null=True),
-                      keep_default=False)
-
-        # Adding field 'PepRegTraining.school_id'
-        db.add_column('pepreg_training', 'school_id',
-                      self.gf('django.db.models.fields.IntegerField')(default=0),
-                      keep_default=False)
-
-        # Adding field 'PepRegInstructor.all_edit'
-        db.add_column('pepreg_instructor', 'all_edit',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-        # Adding field 'PepRegInstructor.all_delete'
-        db.add_column('pepreg_instructor', 'all_delete',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-
     def backwards(self, orm):
         # Deleting model 'CustomEmail'
         db.delete_table('admin_custom_emails')
-
-        # Deleting field 'UserLoginInfo.logout_press'
-        db.delete_column('user_login_info', 'logout_press')
-
-        # Deleting field 'UserLoginInfo.temp_time'
-        db.delete_column('user_login_info', 'temp_time')
-
-        # Deleting field 'PepRegTraining.last_date'
-        db.delete_column('pepreg_training', 'last_date')
-
-        # Deleting field 'PepRegTraining.school_id'
-        db.delete_column('pepreg_training', 'school_id')
-
-        # Deleting field 'PepRegInstructor.all_edit'
-        db.delete_column('pepreg_instructor', 'all_edit')
-
-        # Deleting field 'PepRegInstructor.all_delete'
-        db.delete_column('pepreg_instructor', 'all_delete')
-
 
     models = {
         'administration.adjustmenttimelog': {
