@@ -2486,21 +2486,21 @@ def get_posts(request):
         
     post_filter = request.POST.get('filter')
     if post_filter == "newest_post":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','-date_create')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('-date_create')[0:size]
     elif post_filter == "oldest_post":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','date_create')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('date_create')[0:size]
     elif post_filter == "latest_reply":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','-date_update')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('-date_update')[0:size]
     elif post_filter == "oldest_reply":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','date_update')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('date_update')[0:size]
     elif post_filter == "alphabetical":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','user__last_name')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('user__last_name')[0:size]
     elif post_filter == "reversealpha":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','-user__last_name')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('-user__last_name')[0:size]
     elif post_filter == "alphauname":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','user__username')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('user__username')[0:size]
     elif post_filter == "ralphauname":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-top','-user__username')[0:size]
+        posts = DashboardPosts.objects.filter(master=c).order_by('-user__username')[0:size]
     usr_img = reverse('user_photo', args=[request.user.id])
     time_diff_m = request.POST.get('local_utc_diff_m')
     c_likes = 0
@@ -2558,17 +2558,6 @@ def get_posts(request):
         html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
         html += "<span class='ds-post-title-time'>"+post_date+" at "+post_h+":"+post_m+" "+post_ampm+"</span>"
         html += "</td>"
-
-        #@author:scott
-        #@date:2017-02-23
-        html += "<td class='ds-post-title-top'>"
-        if(post.top == 0):
-            top_code = "<img src='/static/images/post_unpin.png' top='False' data-postid='"+str(post.id)+"' class='top-something'></img>"
-        else:
-            top_code = "<img src='/static/images/post_pinned.png' top='True' data-postid='"+str(post.id)+"' class='top-something'></img>"
-        html += top_code    
-        html += "</td>"
-        #@end
         
         html += "<td class='ds-post-title-delete'>"
         # or is_facilitator(request.user, c)
@@ -2897,20 +2886,4 @@ def time_to_local(user_time,time_diff_m):
     
     user_time_dt = user_time_time + timedelta(seconds=abs(time_diff_m_int)*60)*plus_sub
     return user_time_dt
-#@end
-#@author:scott
-#@data:2017-02-24
-def top_post(request):
-    domain_name = request.META['HTTP_HOST']
-    master_id = request.POST.get('master_id')
-    pid = request.POST.get("post_id")
-    post = DashboardPosts.objects.get(id=pid)
-    top = request.POST.get('top')
-    if top == 'True':
-        post.top = 0
-    else:
-        post.top = 1
-    
-    post.save()
-    return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 #@end
