@@ -131,7 +131,23 @@ a.post_btn:hover{
     border-bottom: 2px solid #3891e0;
     margin-bottom: 15px;
 }
-/*-------------------------------------------------------------------*/
+
+
+/*--left My Courses--------------------------------------------*/
+.con-my-courses{
+    display:block;
+    float:left;
+    width:220px;
+    /*position: fixed;*/
+}
+/*
+.con-my-courses-placeholder{
+    display:block;
+    float:left;
+    width:220px;
+    height:50px;
+}
+*/
 .my-title{
     width:215px;
     text-align:center;
@@ -143,7 +159,6 @@ a.post_btn:hover{
     cursor:pointer;
     font-weight:bold;
 }
-/*-------------------------------------------------------------------*/
 .my-courses-cards{
     margin-top: 10px;
     float: left;
@@ -243,7 +258,12 @@ a.post_btn:hover{
     float: left;
     border:1px solid #666;
 }
-/*-------------------------------------------------------------------*/
+/*--right My Communities---------------------------------------------*/
+.con-my-communities{
+    display:block;
+    float:right;
+    width:220px;
+}
 .my-communities-cards{
     margin-top: 10px;
     float: left;
@@ -295,12 +315,12 @@ a.post_btn:hover{
     text-decoration: none !important;
     cursor: pointer;
 }
-/*--middle main content-----------------------------------*/
+/*--middle Main Content All-----------------------------------*/
 .con-maincontent-all{
     width:680px;
     margin-left:27px;
     float:left;
-    margin-bottom:30px;
+    margin-bottom:20px;
     background-color:#e4e4e4;
     border-top:3px solid #fff;
     border-left:3px solid #fff;
@@ -359,16 +379,17 @@ a.post_btn:hover{
 }
 .my-activity{
     width:674px;
-    height:800px;
+    /*height:800px;*/
 
     float:left;
     border-top:3px solid #d9d9d9;
     border-left:3px solid #d9d9d9;
     border-right:3px solid #d9d9d9;
-    border-radius: 6px 6px 0px 0px; 
+    border-bottom:3px solid #d9d9d9;
+    border-radius: 6px 6px 6px 6px; 
     background-color: #fff;
 }
-/*----middle main content my activity----*/
+/*----middle Main Content:My Activity----*/
 .con-ma-filter{
     width:659px;
     height:30px;
@@ -460,16 +481,20 @@ a.post_btn:hover{
     display: block;
 }
 .ma-community-card-link {
-    display: table-cell;
-    width: 110px;
-    height: 28px;
+    display: block;
+    width: 100px;
+    height: 18px;
     vertical-align: middle;
-    padding: 0 17px;
     background: rgba(18,111,154,0.95);
     text-decoration: none !important;
     color: #FFFFFF;
     font-size: 9px;
     cursor: default;
+    padding: 5px;
+
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
 }
 
 
@@ -536,9 +561,9 @@ a.post_btn:hover{
     <section class="container dashboard" style="margin-top:10px;">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <div class="my-courses" style="display: block;float:left;width:220px;">
+        <div class="con-my-courses">
             <div class="my-title">
-                <a href="/courses" style="">My Course & Workshops</a>
+                <a href="/courses">My Course & Workshops</a>
             </div>
             <div class="my-courses-cards">
                 %for i,course in enumerate(courses_incomplated):
@@ -587,6 +612,7 @@ a.post_btn:hover{
                 EDU506
             </div>
         </div>
+        <!--<div class="con-my-courses-placeholder"></div>-->
 
         <div class="con-maincontent-all">
             <div class="con-feed-activity">
@@ -663,12 +689,12 @@ a.post_btn:hover{
             <!--w:674 = 680-3*2-->
             <div id="my_activity" class="my-activity">
                 <div class="con-ma-filter">
-                    <select id = "my_activity_select_year">
+                    <select id = "ma_select_year">
                         <option value = ''>year</option>
                         <option value = '2016'>2016</option>
                         <option value = '2017'>2017</option>
                     </select>
-                    <select id = "my_activity_select_month">
+                    <select id = "ma_select_month">
                         <option value = ''>month</option>
                         <option value = '1'>1</option>
                         <option value = '2'>2</option>
@@ -690,7 +716,7 @@ a.post_btn:hover{
             </div>
         </div>
         <!--Community Dashboard-->
-        <div class="my-communities" style="display:block;float:right;width:220px;">
+        <div class="con-my-communities">
             <div class="my-title">
                 <a href="/communities">Coaching & Collaboration</a>
             </div>
@@ -946,15 +972,17 @@ $(document).ready(function(){
     get_my_activites();
 
     $(".ma-btn-filter").click(function(){
-        search_year = $("#my_activity_select_year").val();
-        console.log(search_year);
+        console.log("filter_year: ",$("#ma_select_year").val());
+        console.log("filter_month: ",$("#ma_select_month").val());
+        $(".con-ma-rows").find("div").remove();
+        get_my_activites();
     });
 
     function get_my_activites(){
-        search_year = $("#my_activity_select_year").val();
-        search_month = $("#my_activity_select_year").val();
+        filter_year = $("#ma_select_year").val();
+        filter_month = $("#ma_select_month").val();
 
-        $.post("${reverse('get_my_activities')}", {'user_id':'${request.user.id}','search_year':search_year,'search_month':search_month},function(data_obj){
+        $.post("${reverse('get_my_activities')}", {'user_id':'${request.user.id}','filter_year':filter_year,'filter_month':filter_month},function(data_obj){
             my_activitis_init(data_obj);
         });
     }
@@ -999,31 +1027,45 @@ $(document).ready(function(){
                 console.log("switch courses");
                 break;
             default:
-                console.log("switch others");
+                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
+                data.html_ico += '<tr>';
+                data.html_ico += '<td><img src="/static/images/newdashboard/header_my_reports_45.png"></img></td>';
+                data.html_ico += '</tr>';
+                data.html_ico += '</table>';
+                my_activity_create_others_text(data);
         }
     }
 
     function my_activity_create_community_text(data){
         //switch_EventType
-        switch(data.e_type)
-        {
-            case 1:
-                data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
-                break;
-            case 2:
-                data.html_text = 'Posted on <a href="'+data.url+'">'+data.name+'</a>';
-                break;
-            case 3:
-                data.html_text = 'Posted Comment on <a href="'+data.url+'">'+data.name+'</a>';
-                break;
-            case 4:
-                data.html_text = 'Created <a href="'+data.url+'">'+data.name1+'</a>';
-                break;
-            case 5:
-                data.html_text = 'Replied to <a href="'+data.url+'">'+data.name1+'</a>';
-                break;
+        if(data.e_type==1){
+            data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
+        }
+        else if(data.e_type==2){
+            data.html_text = 'Posted on <a href="'+data.url+'">'+data.name+'</a>';
+        }
+        else if(data.e_type==3){
+            data.html_text = 'Posted Comment on <a href="'+data.url+'">'+data.name+'</a>';
+        }
+        else if(data.e_type==4){
+            data.html_text = 'Created <a href="'+data.url+'">'+data.name1+'</a>';
+        }
+        else if(data.e_type==5){
+            data.html_text = 'Replied to <a href="'+data.url+'">'+data.name1+'</a>';
         }
     }
+
+    function my_activity_create_others_text(data){
+        if(data.e_type=="1"){
+            data.html_text = 'others1';
+        }
+        else if(data.e_type=="2"){
+            data.html_text = 'others2';
+        }
+        else{
+            data.html_text = 'others';
+        }
+     }
 
     function time_to_local(time){
         var local_time =  new Date();
@@ -1037,10 +1079,6 @@ $(document).ready(function(){
         else{
             displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
         }
-        /*
-        today_date = moment(local_time).format('YYYY-MM-DD');
-        time_date = moment(time).format('YYYY-MM-DD');
-        */
         return displayDate;
     }
 
