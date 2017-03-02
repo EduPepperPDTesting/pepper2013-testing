@@ -89,7 +89,12 @@ from student.models import (DashboardPosts, DashboardPostsImages, DashboardComme
 #@begin:Add for Dashboard My Communities
 #@date:2017-02-16
 from operator import itemgetter
-from communities.models import CommunityCommunities, CommunityUsers
+from communities.models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+#@end
+
+#@begin:Add for Dashboard My Activities
+#@date:2017-02-27
+from xmodule.remindstore import myactivitystore
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2273,6 +2278,86 @@ def newdashboard(request, user_id=None):
     }   
 
     return render_to_response('dashboard_new.html', context)
+
+def get_my_activities(request):
+    user_id = int(request.POST.get('user_id'))
+    search_year = request.POST.get('search_year')
+    search_month = request.POST.get('search_month')
+    '''
+    if search_year:
+        year_to = str(int(search_year) + 1)
+    if search_month:
+        if search_month == "12"
+        month_to =  str(int(search_month) + 1)
+
+
+    t1 = datetime.datetime.strptime("2017-01-01 00:00:00", '%Y-%m-%d %H:%M:%S')
+    log.debug("tttttttttttttttttttttt")
+    log.debug(user_id)
+    
+    search_key = {"UsrCre":user_id,"ActivityDateTime":{'$lt':t1}}
+    '''
+    search_key = {"UsrCre":user_id}
+    order_key = "ActivityDateTime"
+    order_order = -1
+    limit_number = 20
+
+    my_activities = myactivitystore().get_item(search_key,order_key,order_order,limit_number)
+
+    ma_list = list()
+
+    for data in my_activities:
+        ma_dict = {}
+        if data["ActivityType"] == "Community":
+            ma_dict = process_data_community(data)
+        
+        ma_dict["a_type"] = data["ActivityType"]
+        ma_dict["e_type"] = int(data["EventType"])
+        ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
+
+        ma_list.append(ma_dict)
+
+    
+    return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
+        
+def process_data_community(data):
+    ma_dict = {}
+    if data["EventType"] == 1:
+        #join
+        item = CommunityCommunities.objects.get(id=data["SourceID"])
+        ma_dict["name"] = item.name
+        ma_dict["name1"] = ""
+        ma_dict["url"] = "/community/" + str(data["SourceID"])
+        ma_dict["logo"] = item.logo.upload.url if item.logo else ''
+    elif data["EventType"] == 2:
+        #post
+        item = CommunityPosts.objects.get(id=data["SourceID"])
+        ma_dict["name"] = item.community.name
+        ma_dict["name1"] = ""
+        ma_dict["url"] = "/community/" + str(item.community.id)
+        ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
+    elif data["EventType"] == 3:
+        #post comment
+        item = CommunityComments.objects.get(id=data["SourceID"])
+        ma_dict["name"] = item.post.community.name
+        ma_dict["name1"] = ""
+        ma_dict["url"] = "/community/" + str(item.post.community.id)
+        ma_dict["logo"] = item.post.community.logo.upload.url if item.post.community.logo else ''
+    elif data["EventType"] == 4:
+        #discussion
+        item = CommunityDiscussions.objects.get(id=data["SourceID"])
+        ma_dict["name"] = item.community.name
+        ma_dict["name1"] = item.subject
+        ma_dict["url"] = "/community/discussion/" + str(item.id)
+        ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
+    elif data["EventType"] == 5:
+        #discussion reply
+        item = CommunityDiscussionReplies.objects.get(id=data["SourceID"])
+        ma_dict["name"] = item.discussion.community.name
+        ma_dict["name1"] = item.discussion.subject
+        ma_dict["url"] = "/community/discussion/" + str(item.discussion.id)
+        ma_dict["logo"] = item.discussion.community.logo.upload.url if item.discussion.community.logo else ''
+    return ma_dict
 
 #@begin:My courses
 #@date:2017-02-09
