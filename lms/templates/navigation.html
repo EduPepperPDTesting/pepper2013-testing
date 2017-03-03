@@ -334,14 +334,14 @@
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li style="margin-right:18px;"><a href="/courses" class="main-link">My Learning Plan</a></li>
+                <li style="margin-right:18px;"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
                 <li style="margin-right:18px;"><a href="/communities" class="main-link">Communities</a></li>
                 <li style="margin-right:18px;"><a href="/my_chunks" class="main-link">My Chunks</a></li>
                 <li style="margin-right:18px;"><a href="/resource_library_global" class="main-link">Resources</a></li>
                 <li style="margin-right:18px;"><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
-                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Learning Plan</a></li>
+                <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
                 <li><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
