@@ -2310,6 +2310,7 @@ def get_my_activities(request):
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
+
     filter_year = filter_con["year"]
     filter_month = filter_con["month"]
     if filter_year:
@@ -2331,6 +2332,10 @@ def create_filter_key(filter_con):
         time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
         time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
+    elif filter_month:
+        current_year = 2018
+        #filter_key["$or"] = []
+
     return filter_key
 
 def process_data_community(data):
@@ -2342,6 +2347,18 @@ def process_data_community(data):
         ma_dict["name1"] = ""
         ma_dict["url"] = "/community/" + str(data["SourceID"])
         ma_dict["logo"] = item.logo.upload.url if item.logo else ''
+        try:
+            list_id = data["user_ids"].split(',')
+            list_id_len = len(list_id)
+            names = ""
+            for k,v in enumerate(list_id):
+                user = User.objects.get(id=int(v))
+                names += (user.first_name + " " + user.last_name)
+                if k < (list_id_len - 1):
+                    names += ", "
+            ma_dict["user_name"] = names
+        except Exception as e:
+            ma_dict["user_name"] = ""
     elif data["EventType"] == 2:
         #post
         item = CommunityPosts.objects.get(id=data["SourceID"])

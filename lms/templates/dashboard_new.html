@@ -415,7 +415,7 @@ a.post_btn:hover{
 }
 .my-activity-row{
     width:674px;
-    height:75px;
+    min-height:75px;
     border:0px solid;
 }
 .ma-row-ico{
@@ -427,7 +427,7 @@ a.post_btn:hover{
 }
 .ma-row-cotent{
     width:540px;
-    height:69px;
+    min-height:69px;
     margin-left:5px;
     float:left;
     border-radius:5px;
@@ -443,6 +443,7 @@ a.post_btn:hover{
 .ma-row-cotent-info{
     padding: 5px;
     border:0px solid;
+    margin-bottom: 9px;
 }
 .ma-row-cotent-info a{
     color: #000;
@@ -1039,7 +1040,14 @@ $(document).ready(function(){
     function my_activity_create_community_text(data){
         //switch_EventType
         if(data.e_type==1){
-            data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
+            console.log("11",data.user_name)
+            if(data.user_name){
+                data.html_text = 'Added users to <a href="'+data.url+'">'+data.name+'</a>:'+data.user_name;
+            }
+            else{
+                data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
+            }
+            
         }
         else if(data.e_type==2){
             data.html_text = 'Posted on <a href="'+data.url+'">'+data.name+'</a>';
