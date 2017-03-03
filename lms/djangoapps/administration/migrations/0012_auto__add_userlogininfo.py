@@ -22,11 +22,56 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('administration', ['UserLoginInfo'])
 
+        # Adding field 'UserLoginInfo.logout_press'
+        db.add_column('user_login_info', 'logout_press',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'UserLoginInfo.temp_time'
+        db.add_column('user_login_info', 'temp_time',
+                      self.gf('django.db.models.fields.CharField')(default=None, max_length=30),
+                      keep_default=False)
+
+        # Adding field 'PepRegTraining.last_date'
+        db.add_column('pepreg_training', 'last_date',
+                      self.gf('django.db.models.fields.DateField')(null=True),
+                      keep_default=False)
+
+        # Adding field 'PepRegTraining.school_id'
+        db.add_column('pepreg_training', 'school_id',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
+
+        # Adding field 'PepRegInstructor.all_edit'
+        db.add_column('pepreg_instructor', 'all_edit',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
+        # Adding field 'PepRegInstructor.all_delete'
+        db.add_column('pepreg_instructor', 'all_delete',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
 
     def backwards(self, orm):
         # Deleting model 'UserLoginInfo'
         db.delete_table('user_login_info')
+        # Deleting field 'UserLoginInfo.logout_press'
+        db.delete_column('user_login_info', 'logout_press')
 
+        # Deleting field 'UserLoginInfo.temp_time'
+        db.delete_column('user_login_info', 'temp_time')
+
+        # Deleting field 'PepRegTraining.last_date'
+        db.delete_column('pepreg_training', 'last_date')
+
+        # Deleting field 'PepRegTraining.school_id'
+        db.delete_column('pepreg_training', 'school_id')
+
+        # Deleting field 'PepRegInstructor.all_edit'
+        db.delete_column('pepreg_instructor', 'all_edit')
+
+        # Deleting field 'PepRegInstructor.all_delete'
+        db.delete_column('pepreg_instructor', 'all_delete')
 
     models = {
         'administration.adjustmenttimelog': {
@@ -116,6 +161,8 @@ class Migration(SchemaMigration):
         },
         'administration.pepreginstructor': {
             'Meta': {'object_name': 'PepRegInstructor', 'db_table': "'pepreg_instructor'"},
+            'all_delete': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'all_edit': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'date_create': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'instructor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
@@ -150,9 +197,11 @@ class Migration(SchemaMigration):
             'geo_location': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'geo_props': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_date': ('django.db.models.fields.DateField', [], {'null': 'True'}),
             'max_registration': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'pepper_course': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'school_id': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'subject': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'training_date': ('django.db.models.fields.DateField', [], {}),
             'training_time_end': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'}),
@@ -183,7 +232,9 @@ class Migration(SchemaMigration):
             'last_session': ('django.db.models.fields.IntegerField', [], {'max_length': '15'}),
             'login_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'login_times': ('django.db.models.fields.IntegerField', [], {'default': '1', 'max_length': '15'}),
+            'logout_press': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'logout_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'temp_time': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'total_session': ('django.db.models.fields.IntegerField', [], {'max_length': '30'}),
             'update_time': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'user_id': ('django.db.models.fields.IntegerField', [], {'max_length': '11'})
