@@ -254,6 +254,7 @@ a.post_btn:hover{
     font-size: 13px;
     border-radius: 6px;
     margin-top: 20px;
+    margin-bottom: 20px;
     padding: 15px 15px 15px 15px;
     float: left;
     border:1px solid #666;
@@ -308,6 +309,7 @@ a.post_btn:hover{
     text-align:right;
     float: left;
     margin-top:-10px;
+    margin-bottom: 20px;
 }
 .ds-view-all-communities a{
     font-size: 16px;
@@ -1042,7 +1044,7 @@ $(document).ready(function(){
         if(data.e_type==1){
             console.log("11",data.user_name)
             if(data.user_name){
-                data.html_text = 'Added users to <a href="'+data.url+'">'+data.name+'</a>:'+data.user_name;
+                data.html_text = 'Added users to <a href="'+data.url+'">'+data.name+'</a>:' + data.user_name;
             }
             else{
                 data.html_text = 'Joined <a href="'+data.url+'">'+data.name+'</a>';
