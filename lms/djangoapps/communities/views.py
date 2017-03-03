@@ -315,6 +315,7 @@ def get_remove_user_rows(request, community_id):
 def community_join(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
+    manage = request.POST.get("manage", "")
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -328,10 +329,16 @@ def community_join(request, community_id):
                 cu.user = user
                 cu.community = community
                 cu.save()
-                
-                rs = myactivitystore()
-                my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id}
-                rs.insert_item(my_activity)
+
+                if manage == "1":
+                    rs = myactivitystore()
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id, "user_id": user_id}
+                    rs.insert_item(my_activity)
+                else:
+                    rs = myactivitystore()
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user_id, "SourceID": community.id}
+                    rs.insert_item(my_activity)
+
 
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
