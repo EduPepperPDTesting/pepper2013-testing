@@ -329,19 +329,24 @@ def community_join(request, community_id):
                 cu.user = user
                 cu.community = community
                 cu.save()
-
+                
                 if manage == "1":
                     rs = myactivitystore()
-                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id, "user_id": user_id}
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, "SourceID": community.id}
                     rs.insert_item(my_activity)
                 else:
                     rs = myactivitystore()
-                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user_id, "SourceID": community.id}
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id}
                     rs.insert_item(my_activity)
-
 
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+
+    if manage == "1":
+        rs = myactivitystore()
+        my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id, "user_ids": request.POST.get("user_ids", "")}
+        rs.insert_item(my_activity)
+
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
         
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
