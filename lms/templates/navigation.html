@@ -343,14 +343,14 @@
 
         %if request.user.is_authenticated():
             %if curr_user==request.user:
-                <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">My Learning Plan</a></li>
+                <li style="margin-right:18px;" id="org_tm_course_workshop_obj"><a href="/courses" class="main-link">Courses &amp; Workshops</a></li>
                 <li style="margin-right:18px;" id="org_tm_communities_obj"><a href="/communities" class="main-link">Communities</a></li>
                 <li style="margin-right:18px;" id="org_tm_my_chunks_obj"><a href="/my_chunks" class="main-link">My Chunks</a></li>
                 <li style="margin-right:18px;" id="org_tm_resources_obj"><a href="/resource_library_global" class="main-link">Resources</a></li>
                 <li style="margin-right:18px;" id="org_tm_people_obj"><a href="${reverse('people')}" class="main-link">People</a></li>
                 <!-- <li><a href="/course_credits" class="main-link">Course Credits</a></li> -->
             %else:
-                <li id="org_tm_course_workshop_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Learning Plan</a></li>
+                <li id="org_tm_course_workshop_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Courses &amp; Workshops</a></li>
                 <li id="org_tm_communities_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Communities</a></li>
                 <li id="org_tm_my_chunks_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">My Chunks</a></li>
                 <li id="org_tm_resources_obj"><a href="" class="main-link" style="cursor:default;" onclick="return false;">Resources</a></li>
