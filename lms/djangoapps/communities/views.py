@@ -12,6 +12,7 @@ from django.core.mail import send_mail
 from courseware.courses import get_courses, course_image_url, get_course_about_section
 from .utils import is_facilitator
 from .models import CommunityComments, CommunityPostsImages, CommunityCommunities, CommunityLikes, CommunityCourses, CommunityResources, CommunityUsers, CommunityDiscussions, CommunityDiscussionReplies, CommunityPosts
+# from .models import CommunityPostTops
 from administration.pepconn import get_post_array
 from operator import itemgetter
 from student.models import User, People
@@ -25,6 +26,7 @@ from polls.views import poll_data
 from notification import send_notification
 # from student.views import course_from_id
 from courseware.courses import get_course_by_id
+from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger("tracking")
 
@@ -313,6 +315,7 @@ def get_remove_user_rows(request, community_id):
 def community_join(request, community_id):
     domain_name = request.META['HTTP_HOST']
     community = CommunityCommunities.objects.get(id=community_id)
+    manage = request.POST.get("manage", "")
     users = []
     for user_id in request.POST.get("user_ids", "").split(","):
         if not user_id.isdigit():
@@ -327,8 +330,23 @@ def community_join(request, community_id):
                 cu.community = community
                 cu.save()
                 
+                if manage == "1":
+                    rs = myactivitystore()
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, "SourceID": community.id}
+                    rs.insert_item(my_activity)
+                else:
+                    rs = myactivitystore()
+                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id}
+                    rs.insert_item(my_activity)
+
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
+
+    if manage == "1":
+        rs = myactivitystore()
+        my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id, "user_ids": request.POST.get("user_ids", "")}
+        rs.insert_item(my_activity)
+
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
         
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
@@ -472,7 +490,15 @@ def reply_edit(request):
 
 @login_required
 def discussion(request, discussion_id):
-    discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
+    try:
+        discussion = CommunityDiscussions.objects.select_related().get(id=discussion_id)
+    except CommunityDiscussions.DoesNotExist:
+        data = {'error_title': 'Discussion Removed',
+                'error_message': 'The discussion has been removed.',
+                'contact_info':  'Please contact Pepper Support for any questions at <a href="mailto:PepperSupport@pcgus.com">PepperSupport@pcgus.com</a>.',
+                'window_title': 'Discussion Removed'}
+        return render_to_response('error.html', data)
+
     replies = CommunityDiscussionReplies.objects.select_related().filter(discussion=discussion_id)
     total = CommunityDiscussions.objects.filter(community=discussion.community).count()
     users = CommunityUsers.objects.filter(community=discussion.community).count()
@@ -530,6 +556,11 @@ def discussion_add(request):
             discussion.attachment = attachment
             discussion.save()
         success = True
+
+        rs = myactivitystore()
+        my_activity = {"ActivityType": "Community", "EventType": 4, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": discussion.id}
+        rs.insert_item(my_activity)
+
         discussion_id = discussion.id
         send_notification(request.user, community.id, discussions_new=[discussion], domain_name=domain_name)
     except Exception as e:
@@ -563,6 +594,11 @@ def discussion_reply(request, discussion_id):
     if attachment:
         reply.attachment = attachment
     reply.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 5, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": reply.id}
+    rs.insert_item(my_activity)
+    
     send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
     discussion.date_reply = reply.date_create
     discussion.save()
@@ -1054,23 +1090,27 @@ def get_posts(request):
     else:
         all = "DONE"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
+    # @author:scott
+    # @date:2017-02-27
+    # tops = CommunityPostTops.objects.filter(user__id=request.user.id, comment=None)
     filter = request.POST.get('filter')
     if filter == "newest_post":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_create')[0:size]
     elif filter == "oldest_post":
-        posts = CommunityPosts.objects.filter(community=c).order_by('date_create')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'date_create')[0:size]
     elif filter == "latest_reply":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_update')[0:size]
     elif filter == "oldest_reply":
-        posts = CommunityPosts.objects.filter(community=c).order_by('date_update')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'date_update')[0:size]
     elif filter == "alphabetical":
-        posts = CommunityPosts.objects.filter(community=c).order_by('user__last_name')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'user__last_name')[0:size]
     elif filter == "reversealpha":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-user__last_name')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-user__last_name')[0:size]
     elif filter == "alphauname":
-        posts = CommunityPosts.objects.filter(community=c).order_by('user__username')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'user__username')[0:size]
     elif filter == "ralphauname":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-user__username')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-user__username')[0:size]
+    #@end
     usr_img=reverse('user_photo', args=[request.user.id])
     c_likes = 0
     for post in posts:
@@ -1079,6 +1119,7 @@ def get_posts(request):
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
+        # top = CommunityPostTops.objects.filter(post=post, user=request.user, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td class='post-content-left'>"
         if active and not (request.user == post.user):
@@ -1094,8 +1135,17 @@ def get_posts(request):
             delete_code = "<img src='../static/images/trash-small.png' data-postid='"+str(post.id)+"' class='delete-something'></img>"
         else:
             delete_code = ""
-        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a>"+delete_code+"<br>"
-
+        # @author:scott
+        # @date:2017-02-27
+        if request.user.is_superuser or is_facilitator(request.user, c):
+            if (post.top == 1):
+                top_code = "<img src='/static/images/post_pinned.png' top='True' data-postid='"+str(post.id)+"' class='top-something'></img>"
+            else:
+                top_code = "<img src='/static/images/post_unpin.png' top='False' data-postid='"+str(post.id)+"' class='top-something'></img>"
+        else:
+            top_code = ""
+        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a>"+delete_code+top_code+"<br>"
+        #@end
         if len(likes) > 0:
             like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.png' class='like-button-image'></img>"
             if user_like == 1:
@@ -1200,6 +1250,11 @@ def submit_new_comment(request):
     comment.user = User.objects.get(id=request.user.id)
     comment.comment = request.POST.get('content')
     comment.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 3, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": comment.id}
+    rs.insert_item(my_activity)
+
     send_notification(request.user, community_id, posts_reply=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
 
@@ -1249,6 +1304,11 @@ def submit_new_post(request):
     post.user = User.objects.get(id=request.user.id)
     post.post = content
     post.save()
+
+    rs = myactivitystore()
+    my_activity = {"ActivityType": "Community", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": post.id}
+    rs.insert_item(my_activity)
+
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
         for image in images:
@@ -1351,3 +1411,21 @@ def active_recent(user):
     else:
         active = False
     return active
+
+
+#@end
+#@author:scott
+# #@data:2017-02-27
+def top_post(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
+    pid = request.POST.get("post_id")
+    post = CommunityPosts.objects.get(id=pid)
+    top = request.POST.get('top')
+    if top == 'True':
+        post.top = 0
+    else:
+        post.top = 1
+    post.save()
+    return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
+#@end

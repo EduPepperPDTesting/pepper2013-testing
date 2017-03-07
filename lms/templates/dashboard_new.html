@@ -15,136 +15,7 @@
 <!--@date:2013-11-02-->
 <style type="text/css" media="screen">
 #image_uploading{display:none;}
-/*-----------------------------------*/
-.ds-course-card{
-    background-color: #FFFFFF;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);
-    float: left;*/
-    width: 213px;/*242px*/
-    /*min-height: 142px;
-    margin: 20px;*/
-    cursor: auto!important;
-    border:1px solid #ccc;
-}
-.ds-image-style{
-    border-radius: 5px 5px 0px 0px;
-    -moz-border-radius: 5px 5px 0px 0px;
-    -webkit-border-radius: 5px 5px 0px 0px;
-    width:213px
-    ;height:72px;
-}
-.ds-card-link{
-    display: table-cell;
-    height: 60px;
-    vertical-align: middle;
-    padding: 0 17px;
-    font-size: 13px;
-    color: #FFFFFF !important;
-    /*background: rgba(18,111,154,0.95);*/
-    text-decoration: none!important;
-}
-.ds-course-title {
-    height: 60px;
-    width: 215px;
-    position: relative;
-    bottom: 0;
-    left:-1px;
-    font-size:13px;
-    background: rgba(18,111,154,0.95);
-    border-radius: 0px 0px 5px 5px;
-    -moz-border-radius: 0px 0px 5px 5px;
-    -webkit-border-radius: 0px 0px 5px 5px;
-}
-
-.ds-course-btn .ds-btn-view-portfolio{
-    color: #fff;
-    text-decoration: none!important;
-    font-size:13px;
-
-    padding:5px 13px 5px 13px;
-    border-radius: 2px;
-    background-color:#556370;
-}
-.ds-course-btn .ds-btn-view-course{
-     color: #fff;
-    text-decoration: none!important;
-    font-size:13px;
-
-    padding:5px 13px 5px 13px;
-    border-radius: 2px;
-    background-color:#4ecdc4;
-    margin-left: 1px;
-}
-.ds-view-all-courses{
-    width:215px;
-    text-align:right;
-    margin-top: -15px;
-    border:0px solid;
-}
-.ds-view-all-courses a{
-    font-size: 16px;
-    color: #0070d5;
-    text-decoration: none !important;
-    cursor: pointer;
-}
-.ds-view-all-communities{
-    width:215px;
-    text-align:right;
-    margin-top:-15px;
-    border:0px solid;
-}
-.ds-view-all-communities a{
-    font-size: 16px;
-    color: #0070d5;
-    text-decoration: none !important;
-    cursor: pointer;
-}
-.ds-my-status{
-    width:185px;
-    font-size: 13px;
-    border-radius: 6px;
-    margin-top: 20px;
-    padding: 15px 15px 15px 15px;
-    border:1px solid #666;
-}
-.image-link-style {
-    border-radius: 5px 5px 0px 0px;
-    -moz-border-radius: 5px 5px 0px 0px;
-    -webkit-border-radius: 5px 5px 0px 0px;
-    width:215px;
-    height:100px;
-    background-size: auto 100px;
-    background-color: white;
-    background-position: 50% 0;
-    background-repeat: no-repeat;
-
-    border-top: 1px  solid #ccc;
-    border-left: 1px  solid #ccc;
-    border-right: 1px  solid #ccc;
-}
-.image-bottom-style {
-    border-radius: 0 0 5px 5px;
-    -moz-border-radius: 0 0 5px 5px;
-    -webkit-border-radius: 0 0 5px 5px;
-}
-.card-link {
-    display: table-cell;
-    width: 183px;
-    height: 60px;
-    vertical-align: middle;
-    padding: 0 17px;
-    font-size: 13px;
-    background: rgba(18,111,154,0.95);
-    text-decoration: none !important;
-}
-.card-link span {
-    color: #FFFFFF;
-    font-size: 13px;
-}
-/*-----------------------*/
+/*--from .css-----------------------------------------------------------------*/
 .dashboard .dashboard-post{
     display: block;
     float: left;
@@ -157,9 +28,6 @@
     overflow-y:scroll;
 
 }
-
-/*-----------------------*/
-
 #searching-text{
     border:0;
     height:25px;
@@ -172,7 +40,6 @@
     font-family: "Arial" !important;
     font-style:italic;
 }
-
 .post_content{
     background-color: #f2f2f2;
     border:2px solid #41719c;
@@ -265,6 +132,22 @@ a.post_btn:hover{
     margin-bottom: 15px;
 }
 
+
+/*--left My Courses--------------------------------------------*/
+.con-my-courses{
+    display:block;
+    float:left;
+    width:220px;
+    /*position: fixed;*/
+}
+/*
+.con-my-courses-placeholder{
+    display:block;
+    float:left;
+    width:220px;
+    height:50px;
+}
+*/
 .my-title{
     width:215px;
     text-align:center;
@@ -276,13 +159,170 @@ a.post_btn:hover{
     cursor:pointer;
     font-weight:bold;
 }
+.my-courses-cards{
+    margin-top: 10px;
+    float: left;
+    width: 220px;
+}
+.my-courses-cards .course-card{
+    background-color: #FFFFFF;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    /*box-shadow: 3px 3px 7px 0px rgba(0,0,0,0.1);*/
+    float: left;
+    width: 215px;
+    height:134px;
+    position: relative;
+    cursor: auto!important;
+    text-align: center;
+}
+.my-courses-cards .card-top{
+    position: relative;
+}
+.my-courses-cards .image-style{
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    display: block;
+    width:215px;
+    height:134px;
 
-/*-----------------------------------*/
+}
+.my-courses-cards .course-title {
+    display: table;
+    position: absolute;
+    bottom: 0;
+}
+.my-courses-cards .card-link{
+    display: table-cell;
+    width: 215px;
+    height: 54px;
+    vertical-align: middle;
+    padding: 0 17px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none!important;
+    border-radius: 0px 0px 6px 6px;
+    -moz-border-radius: 0px 0px 6px 6px;
+    -webkit-border-radius: 0px 0px 6px 6px;
+}
+.my-courses-cards .card-link span{
+    color:#fff;
+    font-size: 13px;
+}
+.ds-course-btn{
+    float:left;
+    line-height:27px;
+    height:28px;
+    margin-top:3px;
+    margin-bottom: 25px;
+}
+.ds-course-btn .ds-btn-view-portfolio{
+    color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#556370;
+}
+.ds-course-btn .ds-btn-view-course{
+     color: #fff;
+    text-decoration: none!important;
+    font-size:13px;
+
+    padding:5px 13px 5px 13px;
+    border-radius: 2px;
+    background-color:#4ecdc4;
+    margin-left: 1px;
+}
+.ds-view-all-courses{
+    width:215px;
+    text-align:right;
+    float: left;
+    margin-top:-10px;
+}
+.ds-view-all-courses a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.ds-my-status{
+    width:185px;
+    font-size: 13px;
+    border-radius: 6px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 15px 15px 15px 15px;
+    float: left;
+    border:1px solid #666;
+}
+/*--right My Communities---------------------------------------------*/
+.con-my-communities{
+    display:block;
+    float:right;
+    width:220px;
+}
+.my-communities-cards{
+    margin-top: 10px;
+    float: left;
+    width: 220px;
+}
+.my-communities-cards .image-link-style {
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    display: block;
+    float: left;
+    width:215px;
+    height:134px;
+    background-size: auto 80px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+    text-align: center;
+    margin-bottom: 25px;
+}
+.my-communities-cards .image-bottom-style {
+    border-radius: 0 0 6px 6px;
+    -moz-border-radius: 0 0 6px 6px;
+    -webkit-border-radius: 0 0 6px 6px;
+    display: block;
+}
+.my-communities-cards .card-link {
+    display: table-cell;
+    width: 215px;
+    height: 54px;
+    vertical-align: middle;
+    padding: 0 17px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+}
+.my-communities-cards .card-link span {
+    color: #FFFFFF;
+    font-size: 13px;
+}
+.ds-view-all-communities{
+    width:215px;
+    text-align:right;
+    float: left;
+    margin-top:-10px;
+    margin-bottom: 20px;
+}
+.ds-view-all-communities a{
+    font-size: 16px;
+    color: #0070d5;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+/*--middle Main Content All-----------------------------------*/
 .con-maincontent-all{
     width:680px;
     margin-left:27px;
     float:left;
-    margin-bottom:30px;
+    margin-bottom:20px;
     background-color:#e4e4e4;
     border-top:3px solid #fff;
     border-left:3px solid #fff;
@@ -341,13 +381,171 @@ a.post_btn:hover{
 }
 .my-activity{
     width:674px;
-    height:800px;
+    /*height:800px;*/
 
     float:left;
     border-top:3px solid #d9d9d9;
     border-left:3px solid #d9d9d9;
     border-right:3px solid #d9d9d9;
-    border-radius: 6px 6px 0px 0px; 
+    border-bottom:3px solid #d9d9d9;
+    border-radius: 6px 6px 6px 6px; 
+    background-color: #fff;
+}
+/*----middle Main Content:My Activity----*/
+.con-ma-filter{
+    width:659px;
+    height:30px;
+    text-align: right;
+    padding-top:8px;
+    padding-right:15px;
+    padding-bottom:3px;
+
+    border:0px solid;
+}
+.con-ma-filter select{
+    margin-right: 10px;
+} 
+.ma-btn-filter{
+    padding:10px;background-color: #556370;
+    padding-bottom: 2px !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px !important;color:#fff;
+    cursor: pointer;
+}
+.con-ma-rows{
+}
+.my-activity-row{
+    width:674px;
+    min-height:75px;
+    border:0px solid;
+}
+.ma-row-ico{
+    width:112px;
+    height:69px;
+    margin-left:10px;
+    float:left;
+    text-align:right;
+}
+.ma-row-cotent{
+    width:540px;
+    min-height:69px;
+    margin-left:5px;
+    float:left;
+    border-radius:5px;
+    font-size: 14px;
+    border:1px solid #ccc;
+}
+.ma-row-cotent-time{
+    margin-top: 9px;
+    padding: 5px;
+    font-style: italic;
+    border:0px solid;
+}
+.ma-row-cotent-info{
+    padding: 5px;
+    border:0px solid;
+    margin-bottom: 9px;
+}
+.ma-row-cotent-info a{
+    color: #000;
+    cursor: pointer;
+    text-decoration: none !important;
+    font-weight: bold;
+    font-style: italic;
+}
+/*--my activity community ico--*/
+.ma-community-ico{
+    width: 110px;
+    height: 69px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+.ma-community-image-link-style {
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    display: block;
+    float: left;
+    width:110px;
+    height:69px;
+    background-size: auto 41px;
+    background-color: white;
+    background-position: 50% 0;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+.ma-community-image-bottom-style {
+    border-radius: 0 0 3px 3px;
+    -moz-border-radius: 0 0 3px 3px;
+    -webkit-border-radius: 0 0 3px 3px;
+    display: block;
+}
+.ma-community-card-link {
+    display: block;
+    width: 100px;
+    height: 18px;
+    vertical-align: middle;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none !important;
+    color: #FFFFFF;
+    font-size: 9px;
+    padding: 5px;
+
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+
+/*--my activity course ico--*/
+.ma-course-course-card{
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    float: left;
+    width: 110px;
+    height:69px;
+    position: relative;
+    cursor: auto!important;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+.ma-course-card-top{
+    position: relative;
+}
+.ma-course-image-style{
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    display: block;
+    width:110px;
+    height:69px;
+
+}
+.ma-course-course-title {
+    display: table;
+    position: absolute;
+    bottom: 0;
+}
+.ma-course-card-link{
+    display: table-cell;
+    width: 110px;
+    height: 28px;
+    vertical-align: middle;
+    padding: 0 17px;
+    background: rgba(18,111,154,0.95);
+    text-decoration: none!important;
+    border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+}
+.ma-course-card-link span{
+    color:#fff;
+    font-size: 9px;
 }
 </style>
 <!--@end-->
@@ -359,46 +557,40 @@ a.post_btn:hover{
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/css/dashboard-new-temp.css" />
 <!--@end-->
+<script src="/static/js/datetime/moment.js"></script>
 
 <section class="content-wrapper1" style="margin-top:0px;background-color:#eee;">
     <section class="container dashboard" style="margin-top:10px;">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
-        <div class="my-courses" style="display: block;float:left;width:220px;">
+        <div class="con-my-courses">
             <div class="my-title">
-                <a href="/courses" style="">My Course & Workshops</a>
+                <a href="/courses">My Course & Workshops</a>
             </div>
-            <div style="margin-top:10px;">
+            <div class="my-courses-cards">
                 %for i,course in enumerate(courses_incomplated):
                     <%
                         course_target = reverse('courseware', args=[course.id])
                     %>
-                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
-                        <div class="ds-course-card" style="cursor:pointer;">
-                            <div class="card-top" style="border:0px solid #f00;">
-                                <div class="field-items">
-                                    <figure><img typeof="foaf:Image" class="ds-image-style" src="${course_image_url(course)}" style=""  alt="Cover Image"></figure>
-                                </div>
-                                <div class="ds-course-title">
-                                    <div class="field-content">
-                                        <a href="${reverse('cabout', args=[course.id])}" class="ds-card-link" style="line-height:20px;"title="${get_course_about_section(course, 'title')}">${get_course_about_section(course, 'title')}</a>
-                                    </div>
-                                </div>  
-                            </div>
+                    <div class="course-card">
+                        <div>
+                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
                         </div>
-
-                        <div class="ds-course-btn" style="border:0px solid;line-height:27px;height:28px;margin-top:3px;">
-                            %if course.id in show_courseware_links_for:
-                                %if curr_user == request.user:              
-                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
-                                %else:
-                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
-                                %endif
-                                %if curr_user == request.user and not course.close_course:      
-                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
-                                %endif
+                        <div class="course-title">
+                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                        </div>  
+                    </div>
+                    <div class="ds-course-btn">
+                        %if course.id in show_courseware_links_for:
+                            %if curr_user == request.user:              
+                                <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                            %else:
+                                <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
                             %endif
-                        </div>
+                            %if curr_user == request.user and not course.close_course:      
+                                <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                            %endif
+                        %endif
                     </div>
                 %endfor
             </div>
@@ -422,6 +614,7 @@ a.post_btn:hover{
                 EDU506
             </div>
         </div>
+        <!--<div class="con-my-courses-placeholder"></div>-->
 
         <div class="con-maincontent-all">
             <div class="con-feed-activity">
@@ -495,20 +688,45 @@ a.post_btn:hover{
                 </div>
             </div>
 
+            <!--w:674 = 680-3*2-->
             <div id="my_activity" class="my-activity">
-            
+                <div class="con-ma-filter">
+                    <select id = "ma_select_year">
+                        <option value = ''>year</option>
+                        <option value = '2016'>2016</option>
+                        <option value = '2017'>2017</option>
+                    </select>
+                    <select id = "ma_select_month">
+                        <option value = ''>month</option>
+                        <option value = '1'>1</option>
+                        <option value = '2'>2</option>
+                        <option value = '3'>3</option>
+                        <option value = '4'>4</option>
+                        <option value = '5'>5</option>
+                        <option value = '6'>6</option>
+                        <option value = '7'>7</option>
+                        <option value = '8'>8</option>
+                        <option value = '9'>9</option>
+                        <option value = '10'>10</option>
+                        <option value = '11'>11</option>
+                        <option value = '12'>12</option>
+                    </select>
+                    <span class="ma-btn-filter">Filter</span>
+                </div>
+                <div class="con-ma-rows">
+                </div>
             </div>
         </div>
         <!--Community Dashboard-->
-        <div class="my-communities" style="display:block;float:right;width:220px;">
+        <div class="con-my-communities">
             <div class="my-title">
                 <a href="/communities">Coaching & Collaboration</a>
             </div>
-            <div style="margin-top:10px;">
+            <div class="my-communities-cards">
                 %for community in communities:
-                    <div style="width:220px;margin-bottom:30px;border:0px solid #f00;">
-                        <div class="image-link-style" style="background-image: url('${community['logo']}');"></div>
-                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                        <div style="height:80px;"></div>
+                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                     </div>
                 %endfor
             </div>
@@ -719,8 +937,8 @@ $(document).ready(function(){
     });
     //@end
 
-    //20170221------------------------------------------
-    now_show = 1; //1:my feed;2:my activity
+    //20170221=================================================================================================
+    now_show = 2; //1:my feed;2:my activity
     
     if(now_show == 1){
         $(".my-activity-btn").removeClass("mytab-active");
@@ -753,5 +971,144 @@ $(document).ready(function(){
             now_show = 2;
         }
     });
+    get_my_activites(); //ma start
+
+    $(".ma-btn-filter").click(function(){
+        console.log("filter_year: ",$("#ma_select_year").val());
+        console.log("filter_month: ",$("#ma_select_month").val());
+        $(".con-ma-rows").find("div").remove();
+        get_my_activites();
+    });
+
+    function get_my_activites(){
+        filter_year = $("#ma_select_year").val();
+        filter_month = $("#ma_select_month").val();
+
+        $.post("${reverse('get_my_activities')}", {'user_id':'${request.user.id}','filter_year':filter_year,'filter_month':filter_month},function(data_obj){
+            my_activitis_init(data_obj);
+        });
+    }
+    function my_activitis_init(data_obj){
+        for(var i=0;i<data_obj.data.length;i++)
+        {
+            my_activity_create(data_obj.data[i]);
+        }
+    }
+    function my_activity_create(data){
+        var displayDate = time_to_local(data.time);
+        my_activity_create_ico(data);
+        
+        element_html = '<div class="my-activity-row">';
+        element_html += '<div class="ma-row-ico">';
+        element_html += data.html_ico;
+        element_html += '</div>';
+        element_html += '<div class="ma-row-cotent">';
+        element_html += '<div class="ma-row-cotent-time">'+displayDate+'</div>';
+        element_html += '<div class="ma-row-cotent-info">';
+        element_html += data.html_text;
+        element_html += '</div>';
+        element_html += '</div>';
+
+        element=$(element_html);
+        $('.con-ma-rows').append(element);
+    }
+    function my_activity_create_ico(data){
+        //switch_ActivityType
+        switch(data.a_type)
+        {
+            case 'Community':
+                data.html_ico = '<a href="'+data.url+'">'
+                data.html_ico += '<div class="ma-community-ico">';
+                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logo+')">';
+                data.html_ico += '<div style="height:41px;"></div>';
+                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.name_c+'</span>';
+                data.html_ico += '</div>';
+                data.html_ico += '</div>';
+                data.html_ico += '</a>';
+                my_activity_create_community_text(data);
+                break;
+            case 'Course':
+                console.log("switch courses");
+                break;
+            default:
+                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
+                data.html_ico += '<tr>';
+                data.html_ico += '<td><a href="#"><img src="/static/images/newdashboard/header_my_reports_45.png"></img></a></td>';
+                data.html_ico += '</tr>';
+                data.html_ico += '</table>';
+                my_activity_create_others_text(data);
+        }
+    }
+
+    function my_activity_create_community_text(data){
+        //switch_EventType
+        if(data.e_type==1){
+            console.log("11",data.user_name)
+            if(data.user_name){
+                if(data.user_name.length > 1){
+                    s_user = "users";
+                }
+                else{
+                    s_user = "user";
+                }
+                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>:'+data.user_name;
+            }
+            else{
+                data.html_text = 'Joined <a href="'+data.url+'">'+data.name_c+'</a>';
+            }
+            
+        }
+        else if(data.e_type==2){
+            data.html_text = 'Posted on <a href="'+data.url+'">'+data.name_c+'</a>';
+        }
+        else if(data.e_type==3){
+            data.html_text = 'Replied to Post on <a href="'+data.url+'">'+data.name_c+'</a>';
+        }
+        else if(data.e_type==4){
+            data.html_text = 'Created discussion <a href="'+data.url+'">'+data.name_d+'</a>';
+        }
+        else if(data.e_type==5){
+            data.html_text = 'Replied to <a href="'+data.url+'">'+data.name_d+'</a>';
+        }
+    }
+
+    function my_activity_create_others_text(data){
+        if(data.e_type=="1"){
+            data.html_text = 'others1';
+        }
+        else if(data.e_type=="2"){
+            data.html_text = 'others2';
+        }
+        else{
+            data.html_text = 'others';
+        }
+     }
+
+    function time_to_local(time){
+        var local_time =  new Date();
+        var local_utc_diff_m = -1 * local_time.getTimezoneOffset();
+        var local_utc_diff_h = local_utc_diff_m / 60;
+        displayDate = ""
+
+        if(isToday(time)) {
+           displayDate = "Today at " + moment(time).add(local_utc_diff_h,'hours').format('hh:mm A') 
+        }
+        else{
+            displayDate = moment(time).add(local_utc_diff_h,'hours').format('MMM DD, YYYY')
+        }
+        return displayDate;
+    }
+
+    function isToday(str){
+        //var d = new Date(str.replace(/-/g,"/"));
+        var d = new Date(str);
+        var todaysDate = new Date();
+        if(d.setHours(0,0,0,0) == todaysDate.setHours(0,0,0,0)){
+            return true;
+        } 
+        else {
+            return false;
+        }
+    }
 });
 </script>

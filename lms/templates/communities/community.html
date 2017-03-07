@@ -767,6 +767,18 @@ import datetime
                     });
                 }
             })
+            // @author:scott
+            // @date:2017-02-27
+            $(".top-something").click(function(){
+                if($(this).attr("data-postid")){
+                    var pid = $(this).data('postid');
+                    var top = $(this).attr('top');
+                    $.post("${reverse('community_top_post')}", {post_id:pid, community_id:community, top:top,user_id:'${request.user.id}'}, function(data){
+                        getPosts()
+                    });
+                }
+            })
+            // @end
             $(".comment-like-text").click(function(){
                 $.post("${reverse('community_submit_new_like')}", {comment_id: $(this).data('id'), post_id:'-1', user_id:'${request.user.id}'},function(data){
                     getPosts();
