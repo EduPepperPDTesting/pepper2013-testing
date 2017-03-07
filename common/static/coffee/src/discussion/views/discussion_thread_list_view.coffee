@@ -11,6 +11,7 @@ if Backbone?
       "click .post-list .list-item a": "threadSelected"
       "click .post-list .more-pages a": "loadMorePages"
       "change .cohort-options": "chooseCohort"
+      "change .pd-group-filter": "choosePdPlan"
       'keyup .browse-topic-drop-search-input': DiscussionFilter.filterDrop
 
     initialize: ->
@@ -133,19 +134,24 @@ if Backbone?
         when 'search'
           options.search_text = @current_search
           if @group_id
-            options.group_id = @group_id          
+            options.group_id = @group_id
+          if @pd_group_id
+            options.pd_group_id = @pd_group_id            
         when 'followed'
           options.user_id = window.user.id
           options.group_id = "all"
+          options.pd_group_id = ""
         when 'commentables'
           options.commentable_ids = @discussionIds
           if @group_id
             options.group_id = @group_id
+          if @pd_group_id
+            options.pd_group_id = @pd_group_id            
         when 'all'
           if @group_id
             options.group_id = @group_id
-        
-    
+          if @pd_group_id
+            options.pd_group_id = @pd_group_id
       @collection.retrieveAnotherPage(@mode, options, {sort_key: @sortBy})
 
     renderThread: (thread) =>
@@ -316,6 +322,12 @@ if Backbone?
     
     chooseCohort: (event) ->
       @group_id = @$('.cohort-options :selected').val()
+      @collection.current_page = 0
+      @collection.reset()
+      @loadMorePages(event)
+
+    choosePdPlan: (event) ->
+      @pd_group_id = @$('.pd-group-filter :selected').val()
       @collection.current_page = 0
       @collection.reset()
       @loadMorePages(event)

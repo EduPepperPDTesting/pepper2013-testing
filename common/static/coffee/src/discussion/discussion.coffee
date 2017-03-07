@@ -42,8 +42,13 @@ if Backbone?
           url = DiscussionUtil.urlFor 'search'
         when 'followed'
           url = DiscussionUtil.urlFor 'followed_threads', options.user_id
+  
       if options['group_id']
         data['group_id'] = options['group_id']
+
+      if options['pd_group_id']
+        data['pd_group_id'] = options['pd_group_id']
+        
       data['sort_key'] = sort_options.sort_key || 'date'
       data['sort_order'] = sort_options.sort_order || 'desc'
       DiscussionUtil.safeAjax

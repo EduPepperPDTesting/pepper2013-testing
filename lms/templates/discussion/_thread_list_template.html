@@ -19,12 +19,19 @@
             </form>
         </div>
     </div>
-    <div class="sort-bar">
+    <div class="sort-bar clearfix">
         <span class="sort-label">${_("Sort by:")}</span>
         <ul>
             <li><a href="#" class="active" data-sort="date">${_("date")}</a></li>
             <li><a href="#" data-sort="votes">${_("votes")}</a></li>
             <li><a href="#" data-sort="comments">${_("comments")}</a></li>
+            %if len(pd_trainings) > 0:
+            <select id="" name="" autocomplate="off" class="pd-group-filter">
+              %for item in pd_trainings:
+              <option value="${item.id}" ${"selected" if item.is_last else ""}>${item.name}</option>
+              %endfor
+            </select>
+            %endif
         </ul>
 
 
@@ -42,4 +49,11 @@
         <ul class="post-list">
         </ul>
     </div>
+    <!-- 
+         <script type="text/javascript">
+         $(".pd-group-filter").change(function(){
+         alert(this)
+         });  
+         </script> -->
+    
 </script>
