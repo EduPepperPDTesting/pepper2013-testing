@@ -37,7 +37,7 @@ data: |
      </stringresponse>
         <solution>
             <div class="detailed-solution">
-                <p>Explanation</p>
+                <p style="color:green">Our Answer</p>
                 <p>Lansing is the capital of Michigan, although it is not Michgan's largest city, or even the seat of the county in which it resides.</p>
             </div>
         </solution>
