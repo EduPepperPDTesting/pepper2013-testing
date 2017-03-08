@@ -1,5 +1,5 @@
 from uuid import uuid4
-
+import re
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 
@@ -41,8 +41,17 @@ def save_item(request):
 
     if request.POST.get('data') is not None:
         data = request.POST['data']
+        # @author:scott
+        # @date:2017.3.8
+        res = data.find('|||')
+        if res != -1:  
+            change = data.split('|||')
+            data = change[1]
+            meta = change[0].split(':')
+            request.POST.get('metadata')[meta[0]] =meta[1] 
+        # @end
         store.update_item(item_location, data)
-
+        
     # cdodge: note calling request.POST.get('children') will return None if children is an empty array
     # so it lead to a bug whereby the last component to be deleted in the UI was not actually
     # deleting the children object from the children collection
@@ -118,7 +127,6 @@ def create_item(request):
         metadata=metadata,
         system=parent.system,
     )
-
     if category not in DETACHED_CATEGORIES:
         get_modulestore(parent.location).update_children(parent_location, parent.children + [dest_location.url()])
 

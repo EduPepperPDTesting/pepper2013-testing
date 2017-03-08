@@ -43,7 +43,8 @@ __all__ = ['OPEN_ENDED_COMPONENT_TYPES',
            'unpublish_unit',
            'module_info']
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
+log = logging.getLogger("tracking")
 
 # NOTE: edit_unit assumes this list is disjoint from ADVANCED_COMPONENT_TYPES
 COMPONENT_TYPES = ['discussion', 'html', 'problem', 'video']
