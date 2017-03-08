@@ -11,10 +11,14 @@ from django.contrib.auth.decorators import login_required
 from xmodule.remindstore import remindstore, messagestore
 import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,timedelta
+from time import mktime
+import random
+from bson.objectid import ObjectId
 from pytz import UTC
 import json
 import logging 
+from xmodule.remindstore import myactivitystore
 log = logging.getLogger("tracking") 
 
 @login_required
@@ -99,8 +103,26 @@ def save_message(request):
     rs = messagestore()
     info = json.loads(request.POST.get('info'))
     info['date']=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    oid = getObjectId()    
+    info['_id']=oid
     rs.insert_item(info)
+
+    rs1 = myactivitystore()
+    my_activity = {"ActivityType": "Messages", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": int(info['sender_id']), "SourceID": oid}
+    rs1.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
+
+def getObjectId():
+    seed = "1234567890abcdef"
+    sa = []
+    for i in range(16):
+        sa.append(random.choice(seed))
+    salt = ''.join(sa)
+    
+    t2 = mktime(datetime.utcnow().timetuple())
+    t3 = str(hex(int(t2)))[2:] + salt    
+    return ObjectId(bytes(t3))
 
 def upload_image(request):
     success = True
