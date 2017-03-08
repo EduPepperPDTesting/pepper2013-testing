@@ -94,7 +94,7 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
-from xmodule.remindstore import myactivitystore
+from xmodule.remindstore import myactivitystore, messagestore
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2298,13 +2298,28 @@ def get_my_activities(request):
         ma_dict = {}
         if data["ActivityType"] == "Community":
             ma_dict = process_data_community(data)
+        elif data["ActivityType"] == "Messages":
+            recipient_name = ""
+            recipient_district = ""
+            my_message = messagestore().get_item({"_id":data["SourceID"]})
+            for msg in my_message:
+                sender = User.objects.get(id=int(msg["recipient_id"]))
+                recipient_name = sender.username
+                try:
+                    district_id = sender.profile.district_id
+                    recipient_district = District.objects.get(id=district_id).name
+                except Exception as e:
+                    recipient_district = ""
+            ma_dict["recipient_name"] = recipient_name
+            ma_dict["recipient_district"] = recipient_district
+            ma_dict["url"] = "/dashboard/" + str(sender.id)
         elif data["ActivityType"] == "ORA":
             pass
+
         ma_dict["a_type"] = data["ActivityType"]
         ma_dict["e_type"] = int(data["EventType"])
         ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
         ma_list.append(ma_dict)
-
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
 
 def create_filter_key(filter_con):
