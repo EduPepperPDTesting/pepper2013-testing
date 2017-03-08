@@ -22,8 +22,8 @@ from xblock.fields import Scope, String, Boolean, Dict, Integer, Float
 from .fields import Timedelta, Date
 from django.utils.timezone import UTC
 
-# log = logging.getLogger("mitx.courseware")
-log = logging.getLogger("tracking")
+log = logging.getLogger("mitx.courseware")
+# log = logging.getLogger("tracking")
 # Generate this many different variants of problems with rerandomize=per_student
 NUM_RANDOMIZATION_BINS = 20
 # Never produce more than this many different seeds, no matter what.
@@ -111,10 +111,10 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
-            {"display_name": "Never", "value": "never"},
+            {"display_name": "Never", "value": "never"}
     #@begin:Submit and Compare
     #@data:2016-02-21
-            {"display_name": "Submit and Compare", "value": "compare"}
+            # {"display_name": "Submit and Compare", "value": "compare"}
     #@end
             ]
     )
@@ -204,9 +204,6 @@ class CapaModule(CapaFields, XModule):
         XModule.__init__(self, *args, **kwargs)
         
         due_date = self.due
-        
-        log.debug(222222222222222222222222222222)
-        log.debug(self)
         
         if self.graceperiod is not None and due_date:
             self.close_date = due_date + self.graceperiod
