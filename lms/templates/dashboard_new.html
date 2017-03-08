@@ -973,13 +973,7 @@ $(document).ready(function(){
     });
     get_my_activites(); //ma start
 
-    $(".ma-btn-filter").click(function(){
-        console.log("filter_year: ",$("#ma_select_year").val());
-        console.log("filter_month: ",$("#ma_select_month").val());
-        $(".con-ma-rows").find("div").remove();
-        get_my_activites();
-    });
-
+    //my activity----------------------------------------------------------------
     function get_my_activites(){
         filter_year = $("#ma_select_year").val();
         filter_month = $("#ma_select_month").val();
@@ -1043,20 +1037,19 @@ $(document).ready(function(){
     function my_activity_create_community_text(data){
         //switch_EventType
         if(data.e_type==1){
-            console.log("11",data.user_name)
             if(data.user_name){
+                users = data.user_name.join(", ");
                 if(data.user_name.length > 1){
                     s_user = "users";
                 }
                 else{
                     s_user = "user";
                 }
-                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>:'+data.user_name;
+                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>: '+users;
             }
             else{
                 data.html_text = 'Joined <a href="'+data.url+'">'+data.name_c+'</a>';
             }
-            
         }
         else if(data.e_type==2){
             data.html_text = 'Posted on <a href="'+data.url+'">'+data.name_c+'</a>';
@@ -1110,5 +1103,12 @@ $(document).ready(function(){
             return false;
         }
     }
+    //my activity event--------------------------------------------------------------------
+    $(".ma-btn-filter").click(function(){
+        console.log("filter_year: ",$("#ma_select_year").val());
+        console.log("filter_month: ",$("#ma_select_month").val());
+        $(".con-ma-rows").find("div").remove();
+        get_my_activites();
+    });
 });
 </script>

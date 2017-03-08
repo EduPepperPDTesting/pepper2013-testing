@@ -2332,7 +2332,26 @@ def create_filter_key(filter_con):
         time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
     elif filter_month:
-        pass
+        filter_key["$or"] = []
+        year_0 = 2016
+        year_now = int(datetime.datetime.utcnow().strftime("%Y"))
+        while year_0 <= year_now:
+            if filter_month == "12":
+                month1 = "%02d" %int(filter_month)
+                month2 = "01"
+                year1 = str(year_0)
+                year2 = str(year_0 + 1)
+            else:
+                month1 = "%02d" %int(filter_month)
+                month2 = "%02d" %(int(filter_month)+1)
+                year1 = str(year_0)
+                year2 = str(year_0)
+            s1 = year1 + "-" + month1 + "-01 00:00:00"
+            s2 = year2 + "-" + month2 + "-01 00:00:00"
+            time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
+            time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
+            year_0 += 1
+            filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
 
 def process_data_community(data):
@@ -2342,8 +2361,8 @@ def process_data_community(data):
         c = CommunityCommunities.objects.filter(id=data["SourceID"])
         if c:
             item = c[0]
-            ma_dict["name_c"] = item.name
-            ma_dict["name_d"] = ""
+            ma_dict["name_c"] = item.name #coummunity name
+            ma_dict["name_d"] = "" #discussion name
             ma_dict["url"] = "/community/" + str(data["SourceID"])
             ma_dict["logo"] = item.logo.upload.url if item.logo else ''
             try:
