@@ -349,3 +349,4 @@ def remove_time():
     rts.collection_portfolio.remove()
     rts.collection_external.remove()
     rts.collection_adjustment.remove()
+    rts.collection_aggregate.remove()
