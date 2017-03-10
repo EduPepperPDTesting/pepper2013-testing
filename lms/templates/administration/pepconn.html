@@ -854,6 +854,15 @@ function cleanInput(input){
 }
 
 $(document).ready(function () {
+    $("#User_state_select").change(function () {
+       var id = $(this).attr("class");
+        filterUserDropOptions('district', id, '#User_district_select');
+    });
+
+    $("#User_district_select").change(function () {
+       var id = $(this).attr("class");
+        filterUserDropOptions('school', id, '#User_school_select');
+    });
     var custom_email_loaded = [false, false, false];
 
     $("input[id^=cec-]").change(function(){
@@ -971,16 +980,6 @@ $(document).ready(function () {
         $("#select_district_email").change(function () {
             var id = $(this).val();
             filterDropOptions('school', id, '#school_select_email');
-        });
-
-        $("#User_state_select").change(function () {
-           var id = $(this).attr("class");
-            filterUserDropOptions('district', id, '#User_district_select');
-        });
-
-        $("#User_district_select").change(function () {
-           var id = $(this).attr("class");
-            filterUserDropOptions('school', id, '#User_school_select');
         });
 
         $("#save_email_post").click(function(e){
