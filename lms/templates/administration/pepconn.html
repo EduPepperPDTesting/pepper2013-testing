@@ -393,10 +393,7 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
-                    <option class="null_case" value="">Select District</option>
-                    %for item in District.objects.all():
-                        <option parent-class="${item.state.id}" value="${item.name}" value="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
 
                 <input placeholder="Search Schools" class="search-schools" type="search" data-column="1" id="School_search">
@@ -855,12 +852,12 @@ function cleanInput(input){
 
 $(document).ready(function () {
     $("#User_state_select").change(function () {
-       var id = $(this).attr("class");
+       var id = $("#User_state_select :selected").attr("class");
         filterUserDropOptions('district', id, '#User_district_select');
     });
 
     $("#User_district_select").change(function () {
-       var id = $(this).attr("class");
+       var id = $("#User_district_select :selected").attr("class");
         filterUserDropOptions('school', id, '#User_school_select');
     });
     var custom_email_loaded = [false, false, false];
@@ -1270,9 +1267,7 @@ $(document).ready(function () {
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#School_district_select > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterUserDropOptions('district', id, '#School_district_select')
     });
     $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
