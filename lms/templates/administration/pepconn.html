@@ -466,16 +466,10 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-                    <option value="" class="null_case">Select District</option>
-                    %for item in District.objects.all().order_by('name'):
-                        <option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                    <option value="" class="null_case">Select School</option>
-                    %for item in School.objects.all().order_by('name'):
-                        <option parent-class="${item.district_id}" value='${item.name}' class="${item.id}">${item.name}</option>
-                    %endfor
+                    
                 </select>
                 <select type="search" class="search-users" data-column="10" id="User_registration_select">
                     <option value="" class="null_case">Select Registration Status</option>
@@ -979,6 +973,16 @@ $(document).ready(function () {
             filterDropOptions('school', id, '#school_select_email');
         });
 
+        $("#User_school_select").change(function () {
+           var id = $(this).attr("class");
+            filterUserDropOptions('district', id, '#User_district_select');
+        });
+
+        $("#User_district_select").change(function () {
+           var id = $(this).attr("class");
+            filterUserDropOptions('school', id, '#User_school_select');
+        });
+
         $("#save_email_post").click(function(e){
             e.preventDefault();
             var op = $('input[name=ops]:checked').val();
@@ -1218,6 +1222,30 @@ $(document).ready(function () {
             $(select).html('');
         }
     }
+    function filterUserDropOptions(item, id, select) {
+        if (id != 'null_case') {
+            var url = '';
+            var data = {};
+            if (item == 'state') {
+                url = "${reverse('pepper_utilities_drop_states')}";
+            } else if (item == 'district') {
+                url = "${reverse('pepper_utilities_drop_districts')}";
+                data['state'] = id;
+            } else if (item == 'school') {
+                url = "${reverse('pepper_utilities_drop_schools')}";
+                data['district'] = id;
+            }
+            $.get(url, data, function (r) {
+                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                $.each(r, function (k, v) {
+                    options += '<option value="' + v.name + '" class="' + v.id + '">' + v.name + '</option>';
+                });
+                $(select).html(options);
+            });
+        } else {
+            $(select).html('');
+        }
+    }
     function filterOptionsByAttribute(select, attribute, value) {
         var data = {};
         data[attribute] = value;
@@ -1229,15 +1257,6 @@ $(document).ready(function () {
             $(select).html(options);
         });
     }
-
-    $("#User_state_select").change(function () {
-        var id = $(this).children(":selected").attr("class");
-        //console.log('Parent: ' + id);
-        $("#User_district_select > option").each(function() {
-            filterOptions(this, id)
-        });
-        $("#User_district_select").trigger('change');
-    });
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
         $("#user_district_id > option").each(function() {
@@ -1262,12 +1281,7 @@ $(document).ready(function () {
             filterOptions(this, id)
         });
     });
-    $("#User_district_select").change(function () {
-        var id = $(this).children(":selected").attr("class");
-        $("#User_school_select > option").each(function () {
-            filterOptions(this, id)
-        });
-    });
+
     $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
         $("#district_id_single > option").each(function() {
