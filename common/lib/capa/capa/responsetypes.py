@@ -238,6 +238,19 @@ class LoncapaResponse(object):
         # log.debug('new_cmap = %s' % new_cmap)
         return new_cmap
 
+    def evaluate_answers_compare(self, student_answers, old_cmap):
+        '''
+        Called by capa_problem.LoncapaProblem to evaluate student answers, and to
+        generate hints (if any).
+
+        Returns the new CorrectMap, with (correctness,msg,hint,hintmode) for each answer_id.
+        '''
+        new_cmap = self.compare_get_score(student_answers)
+        self.get_hints(convert_files_to_filenames(
+            student_answers), new_cmap, old_cmap)
+        # log.debug('new_cmap = %s' % new_cmap)
+        return new_cmap
+
     def get_hints(self, student_answers, new_cmap, old_cmap):
         '''
         Generate adaptive hints for this problem based on student answers, the old CorrectMap,
@@ -676,7 +689,6 @@ class ChoiceResponse(LoncapaResponse):
             choice.set("name", "choice_" + str(index))
 
     def get_score(self, student_answers):
-
         student_answer = student_answers.get(self.answer_id, [])
 
         if not isinstance(student_answer, list):
@@ -985,6 +997,16 @@ class StringResponse(LoncapaResponse):
 
     def get_answers(self):
         return {self.answer_id: self.correct_answer}
+
+    # @author:scott
+    # @date:2016.3.6
+    def compare_get_score(self, student_answers):
+        student_answer = student_answers[self.answer_id].strip()
+        if(student_answer != ""):
+            correct = True
+        else:
+            correct = None
+        return CorrectMap(self.answer_id, 'correct' if correct else 'incorrect')
 
 #-----------------------------------------------------------------------------
 

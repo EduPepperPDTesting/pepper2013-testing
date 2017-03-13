@@ -94,7 +94,7 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
-from xmodule.remindstore import myactivitystore
+from xmodule.remindstore import myactivitystore, messagestore
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2298,14 +2298,28 @@ def get_my_activities(request):
         ma_dict = {}
         if data["ActivityType"] == "Community":
             ma_dict = process_data_community(data)
+        elif data["ActivityType"] == "Messages":
+            recipient_name = ""
+            recipient_district = ""
+            my_message = messagestore().get_item({"_id":data["SourceID"]})
+            for msg in my_message:
+                sender = User.objects.get(id=int(msg["recipient_id"]))
+                recipient_name = sender.username
+                try:
+                    district_id = sender.profile.district_id
+                    recipient_district = District.objects.get(id=district_id).name
+                except Exception as e:
+                    recipient_district = ""
+            ma_dict["recipient_name"] = recipient_name
+            ma_dict["recipient_district"] = recipient_district
+            ma_dict["url"] = "/dashboard/" + str(sender.id)
         elif data["ActivityType"] == "ORA":
             pass
+
         ma_dict["a_type"] = data["ActivityType"]
         ma_dict["e_type"] = int(data["EventType"])
         ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
         ma_list.append(ma_dict)
-
-    
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
 
 def create_filter_key(filter_con):
@@ -2317,76 +2331,101 @@ def create_filter_key(filter_con):
         year1 = "%02d" %int(filter_year)
         year2 = "%02d" %(int(filter_year) + 1)
         month1 = "01"
-        month2 =  "01"
+        month2 = "01"
         if filter_month:
             if filter_month == "12":
                 year2 = "%02d" %(int(filter_year) + 1)
                 month1 = "%02d" %int(filter_month)
-                month2 =  "01"
+                month2 = "01"
             else:
                 year2 = "%02d" %int(filter_year)
                 month1 = "%02d" %int(filter_month)
                 month2 =  "%02d" %(int(filter_month) + 1)
-        s1 = year1 + "-" + month1 + "-01 00:00:00" 
+        s1 = year1 + "-" + month1 + "-01 00:00:00"
         s2 = year2 + "-" + month2 + "-01 00:00:00"
         time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
         time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
     elif filter_month:
-        current_year = 2018
-        #filter_key["$or"] = []
-
+        filter_key["$or"] = []
+        year_0 = 2016
+        year_now = int(datetime.datetime.utcnow().strftime("%Y"))
+        while year_0 <= year_now:
+            if filter_month == "12":
+                month1 = "%02d" %int(filter_month)
+                month2 = "01"
+                year1 = str(year_0)
+                year2 = str(year_0 + 1)
+            else:
+                month1 = "%02d" %int(filter_month)
+                month2 = "%02d" %(int(filter_month)+1)
+                year1 = str(year_0)
+                year2 = str(year_0)
+            s1 = year1 + "-" + month1 + "-01 00:00:00"
+            s2 = year2 + "-" + month2 + "-01 00:00:00"
+            time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
+            time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
+            year_0 += 1
+            filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
 
 def process_data_community(data):
     ma_dict = {}
     if data["EventType"] == 1:
         #join
-        item = CommunityCommunities.objects.get(id=data["SourceID"])
-        ma_dict["name"] = item.name
-        ma_dict["name1"] = ""
-        ma_dict["url"] = "/community/" + str(data["SourceID"])
-        ma_dict["logo"] = item.logo.upload.url if item.logo else ''
-        try:
-            list_id = data["user_ids"].split(',')
-            list_id_len = len(list_id)
-            names = ""
-            for k,v in enumerate(list_id):
-                user = User.objects.get(id=int(v))
-                names += (user.first_name + " " + user.last_name)
-                if k < (list_id_len - 1):
-                    names += ", "
-            ma_dict["user_name"] = names
-        except Exception as e:
-            ma_dict["user_name"] = ""
+        c = CommunityCommunities.objects.filter(id=data["SourceID"])
+        if c:
+            item = c[0]
+            ma_dict["name_c"] = item.name #coummunity name
+            ma_dict["name_d"] = "" #discussion name
+            ma_dict["url"] = "/community/" + str(data["SourceID"])
+            ma_dict["logo"] = item.logo.upload.url if item.logo else ''
+            try:
+                list_id = data["user_ids"].split(',')
+                list_fname = []
+                for d in list_id:
+                    user = User.objects.get(id=int(d))
+                    fname = user.first_name + " " + user.last_name
+                    list_fname.append(fname)
+                    ma_dict["user_name"] = list_fname
+            except Exception as e:
+                ma_dict["user_name"] = ""
     elif data["EventType"] == 2:
         #post
-        item = CommunityPosts.objects.get(id=data["SourceID"])
-        ma_dict["name"] = item.community.name
-        ma_dict["name1"] = ""
-        ma_dict["url"] = "/community/" + str(item.community.id)
-        ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
+        c = CommunityPosts.objects.filter(id=data["SourceID"])
+        if c:
+            item = c[0]
+            ma_dict["name_c"] = item.community.name
+            ma_dict["name_d"] = ""
+            ma_dict["url"] = "/community/" + str(item.community.id)
+            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
     elif data["EventType"] == 3:
         #post comment
-        item = CommunityComments.objects.get(id=data["SourceID"])
-        ma_dict["name"] = item.post.community.name
-        ma_dict["name1"] = ""
-        ma_dict["url"] = "/community/" + str(item.post.community.id)
-        ma_dict["logo"] = item.post.community.logo.upload.url if item.post.community.logo else ''
+        c = CommunityComments.objects.filter(id=data["SourceID"])
+        if c:
+            item = c[0]
+            ma_dict["name_c"] = item.post.community.name
+            ma_dict["name_d"] = ""
+            ma_dict["url"] = "/community/" + str(item.post.community.id)
+            ma_dict["logo"] = item.post.community.logo.upload.url if item.post.community.logo else ''
     elif data["EventType"] == 4:
         #discussion
-        item = CommunityDiscussions.objects.get(id=data["SourceID"])
-        ma_dict["name"] = item.community.name
-        ma_dict["name1"] = item.subject
-        ma_dict["url"] = "/community/discussion/" + str(item.id)
-        ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
+        c = CommunityDiscussions.objects.filter(id=data["SourceID"])
+        if c:
+            item = c[0]
+            ma_dict["name_c"] = item.community.name
+            ma_dict["name_d"] = item.subject
+            ma_dict["url"] = "/community/discussion/" + str(item.id)
+            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
     elif data["EventType"] == 5:
         #discussion reply
-        item = CommunityDiscussionReplies.objects.get(id=data["SourceID"])
-        ma_dict["name"] = item.discussion.community.name
-        ma_dict["name1"] = item.discussion.subject
-        ma_dict["url"] = "/community/discussion/" + str(item.discussion.id)
-        ma_dict["logo"] = item.discussion.community.logo.upload.url if item.discussion.community.logo else ''
+        c = CommunityDiscussionReplies.objects.filter(id=data["SourceID"])
+        if c:
+            item = c[0]
+            ma_dict["name_c"] = item.discussion.community.name
+            ma_dict["name_d"] = item.discussion.subject
+            ma_dict["url"] = "/community/discussion/" + str(item.discussion.id)
+            ma_dict["logo"] = item.discussion.community.logo.upload.url if item.discussion.community.logo else ''
     return ma_dict
 
 #@begin:My courses

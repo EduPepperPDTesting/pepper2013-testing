@@ -174,6 +174,13 @@ class MongoMessageStore(object):
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True
 
+    def get_item(self,search_key):
+        results = self.collection.find(search_key)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
 
     def return_items(self,id_1,id_2,skip=0,limit=5):
 

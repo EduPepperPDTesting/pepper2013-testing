@@ -42,9 +42,10 @@ def preview_dispatch(request, preview_id, location, dispatch=None):
     location: The Location of the module to dispatch to
     dispatch: The action to execute
     """
-
+    # return HttpResponse(dispatch)
     descriptor = modulestore().get_item(location)
     instance = load_preview_module(request, preview_id, descriptor)
+    # return HttpResponse(request)
     # Let the module handle the AJAX
     try:
         ajax_return = instance.handle_ajax(dispatch, request.POST)
@@ -81,7 +82,6 @@ def preview_component(request, location):
         component,
         'xmodule_edit.html'
     )
-
     return render_to_response('component.html', {
         'preview': get_preview_html(request, component, 0),
         'editor': component.runtime.render(component, None, 'studio_view').content,
