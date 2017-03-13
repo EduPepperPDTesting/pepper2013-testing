@@ -181,7 +181,7 @@
 }
 #community-content-area span {
     /*font-size: 12px;*/
-    word-break: break-all;
+    /*word-break: break-all;*/
 }
 #community-content {
     width: 220px;
