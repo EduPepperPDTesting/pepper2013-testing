@@ -8,7 +8,7 @@ import django_comment_client.utils as utils
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from django.contrib.auth.decorators import login_required
-from xmodule.remindstore import remindstore, messagestore
+from xmodule.remindstore import remindstore, messagestore, myactivitystore
 import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
 from datetime import datetime,timedelta
@@ -18,7 +18,7 @@ from bson.objectid import ObjectId
 from pytz import UTC
 import json
 import logging 
-from xmodule.remindstore import myactivitystore
+
 log = logging.getLogger("tracking") 
 
 @login_required
@@ -50,6 +50,7 @@ def save_interactive_info(info):
     rs = remindstore()
     info['date'] = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
     user_id = str(info['user_id']).split(',')
+
     if len(user_id) > 1:
         '''
         for v in user_id:
@@ -64,7 +65,14 @@ def save_interactive_info(info):
 
 def save_interactive_update(request):
     info = json.loads(request.POST.get('info'))
+    oid = getObjectId()
+    info['_id']=oid
     save_interactive_info(info)
+
+    ma_db = myactivitystore()
+    my_activity = {"ActivityType": "MyChunks", "EventType": 3, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+    ma_db.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
 
 def set_interactive_update(request):
