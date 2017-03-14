@@ -2192,7 +2192,7 @@ def get_pepper_stats(request):
     #@end
 
     if user.is_superuser:
-        course_times = {course.id: 100 for course in courses}
+        course_times = {course.id: 0 for course in courses}
         total_course_times = {course.id: 0 for course in courses}
 
         course_time = 0
