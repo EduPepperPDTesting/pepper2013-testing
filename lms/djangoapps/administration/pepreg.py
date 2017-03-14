@@ -406,7 +406,7 @@ def training_json(request):
         "credits": item.credits,
         "attendancel_id": item.attendancel_id,
         "allow_registration": item.allow_registration,
-        "max_registration": item.max_registration if item.max_registration != 0 else '',
+        "max_registration":  '' if (item.max_registration == 0 or item.allow_registration == False) else item.max_registration,
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,

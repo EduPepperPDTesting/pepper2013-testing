@@ -924,7 +924,8 @@
             credits: $form.find("input[name=credits]").val() || 0,
             attendancel_id: $.trim($form.find("input[name=attendancel_id]").val()),
             allow_registration: $form.find("input[name=allow_registration]:checked").val(),
-            max_registration: $form.find("input[name=max_registration]").val() || 0,
+            max_registration: $form.find("input[name=allow_registration]:checked").val()=='true' ?
+                                $form.find("input[name=max_registration]").val() || 0 : 0,
             allow_attendance: $form.find("input[name=allow_attendance]:checked").val(),
             allow_student_attendance: $form.find("input[name=allow_student_attendance]:checked").val(),
             allow_validation: $form.find("input[name=allow_validation]:checked").val()
