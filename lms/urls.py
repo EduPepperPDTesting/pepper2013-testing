@@ -449,6 +449,9 @@ urlpatterns = (
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
 
+    url(r'^user_information$', 'student.newdashboard.user_information', name="user_information"),
+    url(r'^user_information/(?P<user_id>\d+)$', 'student.newdashboard.user_information', name="user_information"),
+
     url(r'^interactive_update/get_info$', 'notifications.views.get_interactive_update', name="get_interactive_update"),
     url(r'^interactive_update/get_range_info$', 'notifications.views.get_interactive_update_range', name="get_interactive_update_range"),
     url(r'^interactive_update/save_info$', 'notifications.views.save_interactive_update', name="save_interactive_update"),

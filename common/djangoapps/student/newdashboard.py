@@ -2047,6 +2047,20 @@ def get_pepper_stats(request):
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
 
+@login_required
+@ensure_csrf_cookie
+def user_information(request, user_id=None):
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        user = User.objects.get(id=request.user.id)
+
+    context = {
+        'curr_user': user
+    }   
+
+    return render_to_response('user_information.html', context)
+
 #test for new style of dashboard
 @login_required
 @ensure_csrf_cookie
