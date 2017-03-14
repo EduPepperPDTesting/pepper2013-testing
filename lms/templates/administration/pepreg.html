@@ -308,7 +308,9 @@
             </div>
             <div style="padding:10px;text-align:right;"> <!--update by ak.)-->
                 <img src="/static/images/pdf_planner_pdf.png" width="35" height="36" id="download-students-pdf" style="float:left; margin:0 0 5px 20px; cursor:pointer" />
-                <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
+                %if check_user_perms(request.user, 'training_registration', 'EnablePDRegistration'):
+                    <input type="button" name="" value="Register/Unregister Students" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="register_unregister_students" />
+                %endif
                 <span id="reminder_mail_date">Last Reminder Email: 08/16/2016</span>
                 <input type="button" name="" value="Reminder Email" class="small small-blue" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" id="reminder_mail_btn" />
                 <input type="button" name="" value="Download Excel" class="small small-blue download-students-excel" style="background-image: linear-gradient(to bottom, #1d9dd9 0%, #006bb8 50%, #0052a9 50%, #0057ab 100%);" />
