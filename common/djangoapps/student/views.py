@@ -2154,7 +2154,6 @@ def drop_schools(request):
 
 @login_required
 def get_pepper_stats(request):
-
     user = User.objects.get(id=request.POST.get('user_id'))
     courses = []
 
@@ -2206,7 +2205,6 @@ def get_pepper_stats(request):
         
     else:
         course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
-
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time

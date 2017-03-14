@@ -15,11 +15,11 @@ metadata:
 
         = Michigan
         
-
-        [explanation]
+    
+        [ouranswer]
         Lansing is the capital of Michigan, although it is not Michgan's largest city, 
         or even the seat of the county in which it resides.
-        [explanation]
+        [ouranswer]
 data: |
     <problem>
     <p>
@@ -37,7 +37,7 @@ data: |
      </stringresponse>
         <solution>
             <div class="detailed-solution">
-                <p style="color:green">Our Answer</p>
+                <span style="color:green;font-size:0.9em;font-weight:bold">Our Answer</span>
                 <p>Lansing is the capital of Michigan, although it is not Michgan's largest city, or even the seat of the county in which it resides.</p>
             </div>
         </solution>
