@@ -2154,6 +2154,7 @@ def drop_schools(request):
 
 @login_required
 def get_pepper_stats(request):
+    return HttpResponse(121231233)
     user = User.objects.get(id=request.POST.get('user_id'))
     courses = []
 
