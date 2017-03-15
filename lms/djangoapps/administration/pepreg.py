@@ -44,7 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
-
+from xmodule.remindstore import myactivitystore
 import logging
 
 @login_required
@@ -643,6 +643,10 @@ def register(request):
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
             student.save()
+
+            ma_db = myactivitystore()
+            my_activity = {"ActivityType": "PDPlanner", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": training.id}
+            ma_db.insert_item(my_activity)
 
             if training.type == "pepper_course":
                 cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
