@@ -2195,7 +2195,7 @@ def get_pepper_stats(request):
         course_times = {course.id: 0 for course in courses}
         total_course_times = {course.id: 0 for course in courses}
 
-        course_time = 100
+        course_time = 0
         discussion_time = 0
         portfolio_time = 0
         all_course_time = 0
@@ -2204,8 +2204,7 @@ def get_pepper_stats(request):
         total_time_in_pepper = 0
         
     else:
-        # course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
-        course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+        course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
