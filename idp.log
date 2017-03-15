@@ -12,3 +12,8 @@
 2017-02-20 01:51:32,966 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/tahoe/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:assertion:Assertion --node-id id-eb561e0829ac051064fb2ad3177322fd --output /tmp/tmpkMHCaq.xml /tmp/tmpPqfqHJ.xml
 2017-02-20 01:51:33,172 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/tahoe/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:protocol:Response --node-id id-3c4a62acf33ff16621e9930ec47a7bed --output /tmp/tmps32KkY.xml /tmp/tmpazngE1.xml
 2017-02-20 01:51:33,186 saml2.entity:INFO HTTP POST
+2017-03-07 19:31:58,118 saml2:INFO Logging started
+2017-03-07 19:31:58,299 saml2.mdstore:DEBUG service(edu2000, spsso_descriptor, assertion_consumer_service, urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST)
+2017-03-07 19:31:58,299 saml2.mdstore:DEBUG service => [{'index': '1', 'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST', '__class__': 'urn:oasis:names:tc:SAML:2.0:metadata&AssertionConsumerService', 'location': 'https://sso.stlucieedu.com/edx.php?idp=pepper'}]
+2017-03-07 19:31:58,306 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/fcl/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:assertion:Assertion --node-id id-c832cc7efed2b9c7e82118e812b3c235 --output /tmp/tmpxbGOZS.xml /tmp/tmpMujnbO.xml
+2017-03-07 19:31:58,378 saml2.sigver:DEBUG xmlsec command: /usr/bin/xmlsec1 --sign --privkey-pem /home/fcl/pepper/sso/sp/edu2000/key.pem --id-attr:ID urn:oasis:names:tc:SAML:2.0:protocol:Response --node-id id-bff7d70a025834d33535472693aba79d --output /tmp/tmpQeQTqg.xml /tmp/tmpTSlTTv.xml

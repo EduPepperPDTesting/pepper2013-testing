@@ -101,7 +101,7 @@ def create_thread(request, course_id, commentable_id):
     else:
         anonymous_to_peers = False
 
-    thread = cc.Thread(**extract(post, ['body', 'title', 'tags']))
+    thread = cc.Thread(**extract(post, ['body', 'title', 'tags', 'pd_plan_id']))
     thread.update_attributes(**{
         'anonymous': anonymous,
         'anonymous_to_peers': anonymous_to_peers,

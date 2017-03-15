@@ -79,9 +79,9 @@ def get_threads(request, course_id, discussion_id=None, per_page=THREADS_PER_PAG
     #so by default, a moderator sees all items, and a student sees his cohort
 
     #** filter for pd plan
-    pd_group_id = request.GET.get('pd_group_id')
-    if pd_group_id:
-        default_query_params["pd_group_id"] = pd_group_id
+    pd_plan_id = request.GET.get('pd_plan_id')
+    if pd_plan_id:
+        default_query_params["pd_plan_id"] = pd_plan_id
          
     query_params = merge_dict(default_query_params,
                               strip_none(extract(request.GET,

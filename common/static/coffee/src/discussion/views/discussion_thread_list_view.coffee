@@ -135,23 +135,23 @@ if Backbone?
           options.search_text = @current_search
           if @group_id
             options.group_id = @group_id
-          if @pd_group_id
-            options.pd_group_id = @pd_group_id            
+          if @pd_plan_id
+            options.pd_plan_id = @pd_plan_id            
         when 'followed'
           options.user_id = window.user.id
           options.group_id = "all"
-          options.pd_group_id = ""
+          options.pd_plan_id = ""
         when 'commentables'
           options.commentable_ids = @discussionIds
           if @group_id
             options.group_id = @group_id
-          if @pd_group_id
-            options.pd_group_id = @pd_group_id            
+          if @pd_plan_id
+            options.pd_plan_id = @pd_plan_id            
         when 'all'
           if @group_id
             options.group_id = @group_id
-          if @pd_group_id
-            options.pd_group_id = @pd_group_id
+          if @pd_plan_id
+            options.pd_plan_id = @pd_plan_id
       @collection.retrieveAnotherPage(@mode, options, {sort_key: @sortBy})
 
     renderThread: (thread) =>
@@ -327,7 +327,7 @@ if Backbone?
       @loadMorePages(event)
 
     choosePdPlan: (event) ->
-      @pd_group_id = @$('.pd-group-filter :selected').val()
+      @pd_plan_id = @$('.pd-group-filter :selected').val()
       @collection.current_page = 0
       @collection.reset()
       @loadMorePages(event)

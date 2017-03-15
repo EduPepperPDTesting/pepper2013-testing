@@ -127,6 +127,7 @@ if Backbone?
           title   = @$(".new-post-title").val()
           body    = @$(".new-post-body").find(".wmd-input").val()
           tags    = @$(".new-post-tags").val()
+          pd_plan_id    = $(".pd-group-filter option:selected").attr("value")
           group = @$(".new-post-group option:selected").attr("value")
 
           anonymous          = false || @$("input.discussion-anonymous").is(":checked")
@@ -135,6 +136,8 @@ if Backbone?
 
           url = DiscussionUtil.urlFor('create_thread', @topicId)
 
+          alert(pd_plan_id)
+          
           DiscussionUtil.safeAjax
               $elem: $(event.target)
               $loading: $(event.target) if event
@@ -150,6 +153,7 @@ if Backbone?
                   anonymous_to_peers: anonymous_to_peers
                   auto_subscribe: follow
                   group_id: group
+                  pd_plan_id: pd_plan_id
               error: DiscussionUtil.formErrorHandler(@$(".new-post-form-errors"))
               success: (response, textStatus) =>
                   # TODO: Move this out of the callback, this makes it feel sluggish

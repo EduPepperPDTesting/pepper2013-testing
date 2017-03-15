@@ -46,8 +46,8 @@ if Backbone?
       if options['group_id']
         data['group_id'] = options['group_id']
 
-      if options['pd_group_id']
-        data['pd_group_id'] = options['pd_group_id']
+      if options['pd_plan_id']
+        data['pd_plan_id'] = options['pd_plan_id']
         
       data['sort_key'] = sort_options.sort_key || 'date'
       data['sort_order'] = sort_options.sort_order || 'desc'
