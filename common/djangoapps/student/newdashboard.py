@@ -94,7 +94,7 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
-from xmodule.remindstore import myactivitystore
+from xmodule.remindstore import myactivitystore, messagestore
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2047,6 +2047,20 @@ def get_pepper_stats(request):
     }
     return HttpResponse(json.dumps(context), content_type="application/json")
 
+@login_required
+@ensure_csrf_cookie
+def user_information(request, user_id=None):
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        user = User.objects.get(id=request.user.id)
+
+    context = {
+        'curr_user': user
+    }   
+
+    return render_to_response('user_information.html', context)
+
 #test for new style of dashboard
 @login_required
 @ensure_csrf_cookie
@@ -2298,13 +2312,28 @@ def get_my_activities(request):
         ma_dict = {}
         if data["ActivityType"] == "Community":
             ma_dict = process_data_community(data)
+        elif data["ActivityType"] == "Messages":
+            recipient_name = ""
+            recipient_district = ""
+            my_message = messagestore().get_item({"_id":data["SourceID"]})
+            for msg in my_message:
+                sender = User.objects.get(id=int(msg["recipient_id"]))
+                recipient_name = sender.username
+                try:
+                    district_id = sender.profile.district_id
+                    recipient_district = District.objects.get(id=district_id).name
+                except Exception as e:
+                    recipient_district = ""
+            ma_dict["recipient_name"] = recipient_name
+            ma_dict["recipient_district"] = recipient_district
+            ma_dict["url"] = "/dashboard/" + str(sender.id)
         elif data["ActivityType"] == "ORA":
             pass
+
         ma_dict["a_type"] = data["ActivityType"]
         ma_dict["e_type"] = int(data["EventType"])
         ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
         ma_list.append(ma_dict)
-
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
 
 def create_filter_key(filter_con):
@@ -2332,7 +2361,26 @@ def create_filter_key(filter_con):
         time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
         filter_key["ActivityDateTime"] = {'$gte': time_start, '$lt': time_end}
     elif filter_month:
-        pass
+        filter_key["$or"] = []
+        year_0 = 2016
+        year_now = int(datetime.datetime.utcnow().strftime("%Y"))
+        while year_0 <= year_now:
+            if filter_month == "12":
+                month1 = "%02d" %int(filter_month)
+                month2 = "01"
+                year1 = str(year_0)
+                year2 = str(year_0 + 1)
+            else:
+                month1 = "%02d" %int(filter_month)
+                month2 = "%02d" %(int(filter_month)+1)
+                year1 = str(year_0)
+                year2 = str(year_0)
+            s1 = year1 + "-" + month1 + "-01 00:00:00"
+            s2 = year2 + "-" + month2 + "-01 00:00:00"
+            time_start = datetime.datetime.strptime(s1, '%Y-%m-%d %H:%M:%S')
+            time_end = datetime.datetime.strptime(s2, '%Y-%m-%d %H:%M:%S')
+            year_0 += 1
+            filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
 
 def process_data_community(data):
@@ -2342,8 +2390,8 @@ def process_data_community(data):
         c = CommunityCommunities.objects.filter(id=data["SourceID"])
         if c:
             item = c[0]
-            ma_dict["name_c"] = item.name
-            ma_dict["name_d"] = ""
+            ma_dict["name_c"] = item.name #coummunity name
+            ma_dict["name_d"] = "" #discussion name
             ma_dict["url"] = "/community/" + str(data["SourceID"])
             ma_dict["logo"] = item.logo.upload.url if item.logo else ''
             try:

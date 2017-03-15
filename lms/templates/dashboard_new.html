@@ -973,13 +973,7 @@ $(document).ready(function(){
     });
     get_my_activites(); //ma start
 
-    $(".ma-btn-filter").click(function(){
-        console.log("filter_year: ",$("#ma_select_year").val());
-        console.log("filter_month: ",$("#ma_select_month").val());
-        $(".con-ma-rows").find("div").remove();
-        get_my_activites();
-    });
-
+    //my activity----------------------------------------------------------------
     function get_my_activites(){
         filter_year = $("#ma_select_year").val();
         filter_month = $("#ma_select_month").val();
@@ -1027,7 +1021,24 @@ $(document).ready(function(){
                 data.html_ico += '</a>';
                 my_activity_create_community_text(data);
                 break;
-            case 'Course':
+            case 'Messages':
+                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
+                data.html_ico += '<tr>';
+                data.html_ico += '<td><a href="'+data.url+'"><img src="/static/images/newdashboard/ma_mail-45.png"></img></a></td>';
+                data.html_ico += '</tr>';
+                data.html_ico += '</table>';
+                my_activity_create_message_text(data);
+                break;
+            case 'ORA':
+                console.log("switch courses");
+                break;
+            case 'bbb':
+                console.log("switch courses");
+                break;
+            case 'ccc':
+                console.log("switch courses");
+                break;
+            case 'ddd':
                 console.log("switch courses");
                 break;
             default:
@@ -1043,20 +1054,19 @@ $(document).ready(function(){
     function my_activity_create_community_text(data){
         //switch_EventType
         if(data.e_type==1){
-            console.log("11",data.user_name)
             if(data.user_name){
+                users = data.user_name.join(", ");
                 if(data.user_name.length > 1){
                     s_user = "users";
                 }
                 else{
                     s_user = "user";
                 }
-                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>:'+data.user_name;
+                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>: '+users;
             }
             else{
                 data.html_text = 'Joined <a href="'+data.url+'">'+data.name_c+'</a>';
             }
-            
         }
         else if(data.e_type==2){
             data.html_text = 'Posted on <a href="'+data.url+'">'+data.name_c+'</a>';
@@ -1071,7 +1081,9 @@ $(document).ready(function(){
             data.html_text = 'Replied to <a href="'+data.url+'">'+data.name_d+'</a>';
         }
     }
-
+    function my_activity_create_message_text(data){
+        data.html_text = 'Sent a Message to <a href="'+data.url+'">'+data.recipient_name+' from '+data.recipient_district+'</a>';
+    }
     function my_activity_create_others_text(data){
         if(data.e_type=="1"){
             data.html_text = 'others1';
@@ -1110,5 +1122,12 @@ $(document).ready(function(){
             return false;
         }
     }
+    //my activity event--------------------------------------------------------------------
+    $(".ma-btn-filter").click(function(){
+        console.log("filter_year: ",$("#ma_select_year").val());
+        console.log("filter_month: ",$("#ma_select_month").val());
+        $(".con-ma-rows").find("div").remove();
+        get_my_activites();
+    });
 });
 </script>

@@ -8,13 +8,17 @@ import django_comment_client.utils as utils
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from django.contrib.auth.decorators import login_required
-from xmodule.remindstore import chunksstore
+from xmodule.remindstore import chunksstore,myactivitystore
 import capa.xqueue_interface as xqueue_interface
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,timedelta
+from time import mktime
+import random
+from bson.objectid import ObjectId
 from pytz import UTC
 import json
 from people.people_in_es import gen_people_search_query, search_people
+
 @login_required
 def mychunks(request,user_id=None):
     if user_id:
@@ -74,11 +78,37 @@ def get_mychunks_range(request):
     info  = rs.return_items(str(request.user.id),int(request.POST.get('skip')),int(request.POST.get('limit')))
     return utils.JsonResponse({'results': info,'count': count})
 
+def getObjectId():
+    seed = "1234567890abcdef"
+    sa = []
+    for i in range(16):
+        sa.append(random.choice(seed))
+    salt = ''.join(sa)
+    
+    t2 = mktime(datetime.utcnow().timetuple())
+    t3 = str(hex(int(t2)))[2:] + salt    
+    return ObjectId(bytes(t3))
+
 def save_mychunk(request):
     rs = chunksstore()
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
+    
+    infos = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
+    if len(infos) == 0:
+        oid = getObjectId()
+        info['_id']=oid
+        EventType = 1
+    else:
+        EventType = 2
+        oid = ObjectId(str(infos[0]['_id']))
+
     rs.save_item(info)
+
+    ma_db = myactivitystore()
+    my_activity = {"ActivityType": "MyChunks", "EventType": EventType, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+    ma_db.insert_item(my_activity)
+
     return utils.JsonResponse({'results':'true'})
 
 def del_mychunk(request):
@@ -92,6 +122,16 @@ def set_rate(request):
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
     rs.set_rate(info)
+    
+    results=rs.collection.find({'user_id':str(request.user.id),'vertical_id':info['vertical_id']})
+    for data in results:
+        oid=ObjectId(str(data['_id']))
+        
+        ma_db = myactivitystore()
+        my_activity = {"ActivityType": "MyChunks", "EventType": 4, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+        ma_db.insert_item(my_activity)
+        break;
+
     return utils.JsonResponse({'results':'true'})
 
 def get_integrate_rate(request):

@@ -1,0 +1,175 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from django.utils import timezone
+    from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+    import datetime
+%>
+
+<style type="text/css" media="screen">
+#image_uploading{display:none;}
+.user_info_con_main{
+    margin:0 auto;
+    max-width:1180px;
+    min-width:760px;
+    width:100%;
+    height:800px;
+    border:1px solid #f00;
+}
+.user_info_con_top{
+    width:100%;
+    border:1px solid;
+    float: left;
+}
+.user_photo{
+    width:200px;
+    height:250px;
+    border:1px solid;
+    float: left;
+}
+.user_info_con_top_right{
+    width:920px;
+    height:250px;
+    border: 1px solid #f00;
+    float: left;
+    margin-left:30px; 
+}
+.user_name{
+    width:900px;
+    height:100px;
+    float: left;
+    padding:10px;
+    border: 1px solid #f0f;
+}
+.user_bio_cert{
+    width:900px;
+    height:115px;
+    float: left;
+    padding: 10px 10px 0px 10px;
+    border: 1px solid;
+}
+.user_bio{
+    width:410px;
+    height:110px;
+    float: left;
+    border: 1px solid;
+}
+.user_cert{
+    width:410px;
+    height:110px;
+    float: left;
+    margin-left:20px;
+    border: 1px solid;
+}
+.user_info_con_bottom{
+    width:100%;
+    border:1px solid;
+    float: left;
+    margin-top:20px; 
+}
+.user_profile{
+    width:500px;
+    height:500px;
+    float: left;
+    border:1px solid;
+}
+.user_info_con_bottom_right{
+    width: 500px;
+    height:500px;
+    float: left;
+    margin-left: 20px;
+    border:1px solid;
+}
+/*------------------------------------------------*/
+.name-icon{
+    background-size: cover;
+    background-image: url(/static/images/portal-icons/course-info-icon.png);
+    width: 19px;
+    height:19px;
+    float:left;
+    margin: 3px 6px 0px 0px;
+    opacity: 0.6;
+}
+.skype-icon{
+    background-size: cover;
+    background-image: url(/static/images/skype-add.png);
+    width: 19px;
+    height:19px;
+    float:left;
+    margin: 3px 6px 0px 0px;
+}
+</style>
+<%inherit file="main_new.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("User_info - {username}".format(username=curr_user.username))}</title></%block>
+
+<div class="user_info_con_main">
+    <div class="user_info_con_top">
+        <div class="user_photo">
+            <img src="/static/images/newdashboard/temp/39.jpg"/>
+        </div>
+        <div class="user_info_con_top_right">
+            <div class="user_name">
+                <div class="full_name">
+                    <div class="icon name-icon"></div><b>${_("Name")}:</b>
+                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">lvzhlvzhlvzh lvzh lvzh lvzh</span>
+                    <script>
+                        /*
+                        var full_name = document.getElementById('full_name_span').textContent;
+                        if(full_name.length>31){
+                            document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
+                        }
+                        */
+                    </script>
+                    %if curr_user==request.user:
+                        <a href="#apply_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                    %endif
+                </div>
+                
+                %if request.user==curr_user:
+                    <div class="skype_name">
+                        <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
+                        <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">skype_username</span>
+                        <a href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                    </div>
+                    <div style="padding-left:25px;">
+                        <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
+                        <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
+                            <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
+                            <!-- <input type="submit" id="pwd_reset_button" value="${_('Reset Password')}" /> -->
+                        </form>
+                    </div>
+                %endif
+            </div>
+
+
+
+            <div class="user_bio_cert">
+                <div class="user_bio">
+                11
+                </div>
+                <div class="user_cert">
+                22
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user_info_con_bottom">
+        <div class="user_profile">
+        </div>
+        <div class="user_info_con_bottom_right">
+        </div>
+    </div>
+</div>
+
+
+<script>
+</script>
+

@@ -44,7 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
-
+from xmodule.remindstore import myactivitystore
 import logging
 
 @login_required
@@ -406,7 +406,7 @@ def training_json(request):
         "credits": item.credits,
         "attendancel_id": item.attendancel_id,
         "allow_registration": item.allow_registration,
-        "max_registration": item.max_registration,
+        "max_registration":  '' if (item.max_registration == 0 or item.allow_registration == False) else item.max_registration,
         "allow_attendance": item.allow_attendance,
         "allow_validation": item.allow_validation,
         "instructor_emails": instructor_emails,
@@ -643,6 +643,10 @@ def register(request):
             student.user_modify = request.user
             student.date_modify = datetime.now(UTC)
             student.save()
+
+            ma_db = myactivitystore()
+            my_activity = {"ActivityType": "PDPlanner", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": training.id}
+            ma_db.insert_item(my_activity)
 
             if training.type == "pepper_course":
                 cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
