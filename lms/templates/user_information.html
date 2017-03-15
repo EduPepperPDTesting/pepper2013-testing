@@ -20,71 +20,83 @@
     min-width:760px;
     width:100%;
     height:800px;
-    border:1px solid #f00;
+    margin-top: 5px;
+    background-color: #e8e8e8;
+    border:0px solid #0ff;
 }
 .user_info_con_top{
     width:100%;
-    border:1px solid;
+    border:0px solid;
+    margin-top: 5px;
     float: left;
 }
 .user_photo{
-    width:200px;
-    height:250px;
-    border:1px solid;
+    width:180px;
+    height:220px;
+    margin-left:20px;
+    border: 3px solid #bebebe;
     float: left;
 }
 .user_info_con_top_right{
-    width:920px;
-    height:250px;
-    border: 1px solid #f00;
+    width:930px;
+    height:220px;
     float: left;
-    margin-left:30px; 
+    margin-left:20px; 
+    border: 0px solid #f00;
 }
 .user_name{
-    width:900px;
-    height:100px;
+    width:930px;
+    height:70px;
     float: left;
-    padding:10px;
-    border: 1px solid #f0f;
+    margin-top: 10px;
+    border: 0px solid #f0f;
 }
 .user_bio_cert{
-    width:900px;
-    height:115px;
+    width:930px;
+    height:116px;
     float: left;
-    padding: 10px 10px 0px 10px;
-    border: 1px solid;
+    margin-top: 29px;
+    border: 0px solid;
 }
 .user_bio{
-    width:410px;
+    width:445px;
     height:110px;
     float: left;
-    border: 1px solid;
+    border: 3px solid #bebebe;
 }
 .user_cert{
-    width:410px;
+    width:445px;
     height:110px;
-    float: left;
+    float: right;
     margin-left:20px;
-    border: 1px solid;
+    border: 3px solid #bebebe;
 }
 .user_info_con_bottom{
     width:100%;
-    border:1px solid;
     float: left;
     margin-top:20px; 
+    border:0px solid;
 }
 .user_profile{
-    width:500px;
+    width:650px;
     height:500px;
     float: left;
-    border:1px solid;
+    margin-left:20px; 
+    border:3px solid #bebebe;
 }
 .user_info_con_bottom_right{
-    width: 500px;
+    width: 448px;
     height:500px;
     float: left;
-    margin-left: 20px;
+    margin-left: 29px;
     border:1px solid;
+}
+.user_profile div{
+    padding:10px 5px 10px 5px;
+    color: #666;
+}
+.user_profile div span{
+    color: #666;
 }
 /*------------------------------------------------*/
 .name-icon{
@@ -112,13 +124,17 @@
 <div class="user_info_con_main">
     <div class="user_info_con_top">
         <div class="user_photo">
-            <img src="/static/images/newdashboard/temp/39.jpg"/>
+            <table width="100%" height="100%" border="0">
+                <tr>
+                    <td style="text-align:center;vertical-align:middle;"><img src="/static/images/newdashboard/temp/39.jpg"/></td>
+                </tr>
+            </table>
         </div>
         <div class="user_info_con_top_right">
             <div class="user_name">
                 <div class="full_name">
                     <div class="icon name-icon"></div><b>${_("Name")}:</b>
-                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">lvzhlvzhlvzh lvzh lvzh lvzh</span>
+                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">lvzhlvzhlvzh lvzh lvzh lvzh</span>
                     <script>
                         /*
                         var full_name = document.getElementById('full_name_span').textContent;
@@ -135,7 +151,7 @@
                 %if request.user==curr_user:
                     <div class="skype_name">
                         <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
-                        <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;">skype_username</span>
+                        <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;;color:#666;">skype_username</span>
                         <a href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
                     </div>
                     <div style="padding-left:25px;">
@@ -147,15 +163,21 @@
                     </div>
                 %endif
             </div>
-
-
-
             <div class="user_bio_cert">
                 <div class="user_bio">
-                11
+                    <div class="user_bio_title" style="font-weight:bold;padding:5px;">
+                        Bio:
+                    </div>
+                    <div class="user_bio_text" style="padding:5px;color:#666;">aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeeeaaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeeeaaaa bbbb ccc dd eeeeee
+                    </div>
                 </div>
                 <div class="user_cert">
-                22
+                    <div class="user_cert_title" style="font-weight:bold;padding:5px;">
+                        Certificates:
+                    </div>
+                    <div class="user_bio_text" style="padding:5px;color:#666;">
+                        aaaaaaaaaaaaa
+                    </div>
                 </div>
             </div>
         </div>
@@ -163,6 +185,36 @@
 
     <div class="user_info_con_bottom">
         <div class="user_profile">
+            <div class="user_profile_title" style="font-weight:bold;color:#000;">
+                My Profile:
+            </div>
+            <div class="user_profile_state">
+                <span style="font-weight:bold;">State: </span> California
+            </div>
+            <div class="user_profile_district" style="font-weight:bold;">
+                District:
+            </div>
+            <div class="user_profile_district_text">
+                Manteca Unified School District
+            </div>
+            <div class="user_profile_school" style="font-weight:bold;">
+                School:
+            </div>
+            <div class="user_profile_grade" style="font-weight:bold;">
+                Grade Level:
+            </div>
+            <div class="user_profile_grade_text">
+                K, 1 ,2
+            </div>
+            <div class="user_profile_grade" style="font-weight:bold;">
+                Major Subject Area:
+            </div>
+            <div class="user_profile_grade">
+                Multiple Subjects
+            </div>
+            <div class="user_profile_years">
+                <span style="font-weight:bold;">Number of Years in Education: </span> 1
+            </div>
         </div>
         <div class="user_info_con_bottom_right">
         </div>
