@@ -110,6 +110,10 @@ def create_thread(request, course_id, commentable_id):
         'user_id': request.user.id,
         'tags':'default',
     })
+    
+    print "============================="
+    print extract(post, ['body', 'title', 'tags', 'pd_plan_id'])
+    
     user = cc.User.from_django_user(request.user)
 
     #kevinchugh because the new requirement is that all groups will be determined
