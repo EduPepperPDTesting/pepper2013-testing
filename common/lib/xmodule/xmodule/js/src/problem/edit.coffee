@@ -269,6 +269,12 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
           return selectString;
       });
 
+      // replace ouranswers
+      xml = xml.replace(/\[ouranswer\]\n?([^\]]*)\[\/?ouranswer\]/gmi, function(match, p1) {
+          var selectString = '<solution>\n<div class="detailed-solution">\n<span style="color:green;font-size:0.9em;font-weight:bold">Our Answer</span>\n\n' + p1 + '\n</div>\n</solution>';
+          return selectString;
+      });
+
       // split scripts and wrap paragraphs
       var splits = xml.split(/(\<\/?script.*?\>)/g);
       var scriptFlag = false;

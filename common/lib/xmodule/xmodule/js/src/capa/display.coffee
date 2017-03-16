@@ -20,10 +20,13 @@ class @Problem
     problem_prefix = @element_id.replace(/problem_/,'')
     @inputs = @$("[id^=input_#{problem_prefix}_]")
     @$('section.action input:button').click @refreshAnswers
-    @$('section.action input.check').click @check_fd
+    @$("section.action input.check[name!='Submit and Compare check']").click @check_fd
     @$('section.action input.reset').click @reset
     @$('section.action button.show').click @show
     @$('section.action input.save').click @save
+    @$("section.action input[name='Submit and Compare check']").click @compare
+    if @$("section.action input[name='problem_id']").attr("data") == "Submit and Compare"
+        @inputs.next('.status').hide();
 
     @bindResetCorrectness()
 
@@ -35,6 +38,34 @@ class @Problem
     if MathJax?
       @$('input.math').each (index, element) =>
         MathJax.Hub.Queue [@refreshMath, null, element]
+  
+  compare: =>
+    $.postWithPrefix "#{@url}/problem_compare", @answers, (response) =>
+      switch response.success
+        when 'incorrect', 'correct'
+          @render(response.contents)
+          @updateProgress response
+          if @el.hasClass 'showed'
+            @el.removeClass 'showed'
+        else
+          @gentle_alert response.success
+      Logger.log 'problem_graded', [@answers, response.contents], @url
+    if !@el.hasClass 'showed'
+      Logger.log 'problem_show', problem: @id
+      $.postWithPrefix "#{@url}/problem_show", (response) =>
+        answers = response.answers
+        @inputs.before("<div style='color:blue;font-weight:bold;font-size:0.9em;font-style:normal'>Your Answer:</div>")
+        $.each answers, (key, value) =>
+          if $.isArray(value)
+            for choice in value
+              @$("label[for='input_#{key}_#{choice}']").attr correct_answer: 'true'
+          else
+            answer = @$("#answer_#{key}, #solution_#{key}")
+            answer.html(value)
+            @$("#answer_#{key}").hide()
+            @$("input[name='Submit and Compare check']").val("Resubmit")
+            Collapsible.setCollapsibles(answer)
+    
 
   renderProgressState: =>
     detail = @el.data('progress_detail')
