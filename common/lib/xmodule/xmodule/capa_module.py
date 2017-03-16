@@ -194,9 +194,9 @@ class CapaModule(CapaFields, XModule):
         Accepts the same arguments as xmodule.x_module:XModule.__init__
         """
         XModule.__init__(self, *args, **kwargs)
-
+        
         due_date = self.due
-
+        
         if self.graceperiod is not None and due_date:
             self.close_date = due_date + self.graceperiod
         else:
@@ -700,7 +700,6 @@ class CapaModule(CapaFields, XModule):
             return True
         elif self.showanswer == 'compare':
             return True
-
         return False
 
     def update_score(self, data):
@@ -890,7 +889,7 @@ class CapaModule(CapaFields, XModule):
             'value': score['score'],
             'max_value': score['total'],
         })
-        
+
     # @author:scott
     # @date:2016.3.6
     def compare_problem(self, data):
@@ -980,6 +979,7 @@ class CapaModule(CapaFields, XModule):
         return {'success': success,
                 'contents': html,
                 }
+
     def check_problem(self, data):
         """
         Checks whether answers to a problem are correct
@@ -1245,7 +1245,6 @@ class CapaDescriptor(CapaFields, RawDescriptor):
     Module implementing problems in the LON-CAPA format,
     as implemented by capa.capa_problem
     """
-
     module_class = CapaModule
 
     has_score = True
