@@ -368,7 +368,6 @@ class CapaModule(CapaFields, XModule):
         if self.showanswer == 'compare':
             return "Submit and Compare"
         #@end
-
         return "Final Check" if final_check else "Submit"
 
     def should_show_check_button(self):
