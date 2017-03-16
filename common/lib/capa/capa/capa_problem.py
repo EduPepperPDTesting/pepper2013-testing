@@ -281,6 +281,12 @@ class LoncapaProblem(object):
         self.student_answers = convert_files_to_filenames(answers)
         return self._grade_answers(answers)
 
+    # @author:scott
+    # @date:2017.3.6
+    def grade_answers_compare(self, answers):
+        self.student_answers = convert_files_to_filenames(answers)
+        return self._grade_answers_compare(answers)
+
     def supports_rescoring(self):
         """
         Checks that the current problem definition permits rescoring.
@@ -347,6 +353,24 @@ class LoncapaProblem(object):
         self.correct_map = newcmap
         return newcmap
 
+    # @author:scott
+    # @date:2017.3.6
+    def _grade_answers_compare(self, student_answers):
+        oldcmap = self.correct_map
+
+        newcmap = CorrectMap()
+        for responder in self.responders.values():
+            if 'filesubmission' in responder.allowed_inputfields and student_answers is None:
+                raise Exception("Cannot rescore problems with possible file submissions")
+
+            if 'filesubmission' in responder.allowed_inputfields and student_answers is not None:
+                results = responder.evaluate_answers_compare(student_answers, oldcmap)
+            else:
+                results = responder.evaluate_answers_compare(self.student_answers, oldcmap)
+            newcmap.update(results)
+        self.correct_map = newcmap
+        return newcmap
+    
     def get_question_answers(self):
         """
         Returns a dict of answer_ids to answer values. If we cannot generate

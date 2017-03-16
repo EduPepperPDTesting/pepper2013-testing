@@ -363,6 +363,11 @@ class CapaModule(CapaFields, XModule):
             #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
+        #@begin:scott
+        #@data:2017-2-22    
+        if self.showanswer == 'compare':
+            return "Submit and Compare"
+        #@end
 
         return "Final Check" if final_check else "Submit"
 
@@ -575,6 +580,10 @@ class CapaModule(CapaFields, XModule):
         handlers = {
             'problem_get': self.get_problem,
             'problem_check': self.check_problem,
+            # @author:scott
+            # @date:2016.3.6
+            'problem_compare': self.compare_problem,
+            # @end
             'problem_reset': self.reset_problem,
             'problem_save': self.save_problem,
             'problem_show': self.get_answer,
@@ -685,10 +694,11 @@ class CapaModule(CapaFields, XModule):
             return self.closed()
         elif self.showanswer == 'finished':
             return self.closed() or self.is_correct()
-
         elif self.showanswer == 'past_due':
             return self.is_past_due()
         elif self.showanswer == 'always':
+            return True
+        elif self.showanswer == 'compare':
             return True
 
         return False
@@ -880,7 +890,96 @@ class CapaModule(CapaFields, XModule):
             'value': score['score'],
             'max_value': score['total'],
         })
+        
+    # @author:scott
+    # @date:2016.3.6
+    def compare_problem(self, data):
+        event_info = dict()
+        event_info['state'] = self.lcp.get_state()
+        event_info['problem_id'] = self.location.url()
 
+        answers = self.make_dict_of_responses(data)
+        event_info['answers'] = convert_files_to_filenames(answers)
+
+        # Too late. Cannot submit
+        if self.closed():
+            event_info['failure'] = 'closed'
+            self.system.track_function('problem_compare_fail', event_info)
+            raise NotFoundError('Problem is closed')
+
+        # Problem submitted. Student should reset before checking again
+        if self.done and self.rerandomize == "always":
+            event_info['failure'] = 'unreset'
+            self.system.track_function('problem_compare_fail', event_info)
+            raise NotFoundError('Problem must be reset before it can be checked again')
+
+        # Problem queued. Students must wait a specified waittime before they are allowed to submit
+        if self.lcp.is_queued():
+            current_time = datetime.datetime.now(UTC())
+            prev_submit_time = self.lcp.get_recentmost_queuetime()
+            waittime_between_requests = self.system.xqueue['waittime']
+            if (current_time - prev_submit_time).total_seconds() < waittime_between_requests:
+                msg = u'You must wait at least {wait} seconds between submissions'.format(
+                    wait=waittime_between_requests)
+                return {'success': msg, 'html': ''}  # Prompts a modal dialog in ajax callback
+
+        try:
+            correct_map = self.lcp.grade_answers_compare(answers)
+            self.attempts = self.attempts + 1
+            self.lcp.done = True
+            self.set_state_from_lcp()
+
+        except (StudentInputError, ResponseError, LoncapaProblemError) as inst:
+            log.warning("StudentInputError in capa_module:problem_compare",
+                        exc_info=True)
+
+            # If the user is a staff member, include
+            # the full exception, including traceback,
+            # in the response
+            if self.system.user_is_staff:
+                msg = u"Staff debug info: {tb}".format(tb=cgi.escape(traceback.format_exc()))
+
+            # Otherwise, display just an error message,
+            # without a stack trace
+            else:
+                msg = u"Error: {msg}".format(msg=inst.message)
+
+            return {'success': msg}
+
+        except Exception as err:
+            if self.system.DEBUG:
+                msg = u"Error checking problem: {}".format(err.message)
+                msg += u'\nTraceback:\n{}'.format(traceback.format_exc())
+                return {'success': msg}
+            raise
+
+        self.publish_grade()
+
+        # success = correct if ALL questions in this problem are correct
+        success = 'correct'
+        for answer_id in correct_map:
+            if not correct_map.is_correct(answer_id):
+                success = 'incorrect'
+
+        #20160105add
+        if success == 'correct':
+            self.question_correct = True
+
+        # NOTE: We are logging both full grading and queued-grading submissions. In the latter,
+        #       'success' will always be incorrect
+        event_info['correct_map'] = correct_map.get_dict()
+        event_info['success'] = success
+        event_info['attempts'] = self.attempts
+        self.system.track_function('problem_compare', event_info)
+
+        if hasattr(self.system, 'psychometrics_handler'):  # update PsychometricsData using callback
+            self.system.psychometrics_handler(self.get_state_for_lcp())
+
+        # render problem into HTML
+        html = self.get_problem_html(encapsulate=False)
+        return {'success': success,
+                'contents': html,
+                }
     def check_problem(self, data):
         """
         Checks whether answers to a problem are correct
