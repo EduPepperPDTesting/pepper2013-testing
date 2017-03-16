@@ -110,6 +110,7 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
+            {"display_name": "Submit and compare", "value": "compare"},
             {"display_name": "Never", "value": "never"}]
     )
     force_save_button = Boolean(
