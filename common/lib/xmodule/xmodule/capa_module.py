@@ -23,7 +23,7 @@ from .fields import Timedelta, Date
 from django.utils.timezone import UTC
 
 log = logging.getLogger("mitx.courseware")
-
+# log = logging.getLogger("tracking")
 # Generate this many different variants of problems with rerandomize=per_student
 NUM_RANDOMIZATION_BINS = 20
 # Never produce more than this many different seeds, no matter what.
@@ -97,6 +97,7 @@ class CapaFields(object):
         help="Amount of time after the due date that submissions will be accepted",
         scope=Scope.settings
     )
+
     showanswer = String(
         display_name="Show Answer",
         help=("Defines when to show the answer to the problem. "
@@ -110,9 +111,14 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
-            {"display_name": "Submit and compare", "value": "compare"},
-            {"display_name": "Never", "value": "never"}]
+            {"display_name": "Never", "value": "never"},
+    #@begin:Submit and Compare
+    #@data:2016-02-21
+            # {"display_name": "Submit and Compare", "value": "compare"}
+    #@end
+            ]
     )
+
     force_save_button = Boolean(
         help="Whether to force the save button to appear on the page",
         scope=Scope.settings,
@@ -194,6 +200,7 @@ class CapaModule(CapaFields, XModule):
         """
         Accepts the same arguments as xmodule.x_module:XModule.__init__
         """
+
         XModule.__init__(self, *args, **kwargs)
         
         due_date = self.due
@@ -364,11 +371,12 @@ class CapaModule(CapaFields, XModule):
             #final_check = (self.attempts >= self.max_attempts - 1)
         else:
             final_check = False
-        #@begin:scott
+        #@begin:compare
         #@data:2017-2-22    
         if self.showanswer == 'compare':
             return "Submit and Compare"
         #@end
+
         return "Final Check" if final_check else "Submit"
 
     def should_show_check_button(self):
