@@ -1064,7 +1064,6 @@ def get_posts(request):
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
     # @author:scott
     # @date:2017-02-27
-    # tops = CommunityPostTops.objects.filter(user__id=request.user.id, comment=None)
     filter = request.POST.get('filter')
     if filter == "newest_post":
         posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_create')[0:size]
@@ -1091,7 +1090,6 @@ def get_posts(request):
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
-        # top = CommunityPostTops.objects.filter(post=post, user=request.user, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td class='post-content-left'>"
         if active and not (request.user == post.user):
