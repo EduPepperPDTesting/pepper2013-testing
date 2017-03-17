@@ -65,7 +65,6 @@ class @Problem
             @$("#answer_#{key}").hide()
             @$("input[name='Submit and Compare check']").val("Resubmit")
             Collapsible.setCollapsibles(answer)
-    
 
   renderProgressState: =>
     detail = @el.data('progress_detail')
