@@ -1062,23 +1062,27 @@ def get_posts(request):
     else:
         all = "DONE"
         extra_data += str(CommunityPosts.objects.filter(community=c).count()) + " ||| " + str(size)
+    # @author:scott
+    # @date:2017-02-27
+    # tops = CommunityPostTops.objects.filter(user__id=request.user.id, comment=None)
     filter = request.POST.get('filter')
     if filter == "newest_post":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-date_create')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_create')[0:size]
     elif filter == "oldest_post":
-        posts = CommunityPosts.objects.filter(community=c).order_by('date_create')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'date_create')[0:size]
     elif filter == "latest_reply":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-date_update')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-date_update')[0:size]
     elif filter == "oldest_reply":
-        posts = CommunityPosts.objects.filter(community=c).order_by('date_update')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'date_update')[0:size]
     elif filter == "alphabetical":
-        posts = CommunityPosts.objects.filter(community=c).order_by('user__last_name')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'user__last_name')[0:size]
     elif filter == "reversealpha":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-user__last_name')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-user__last_name')[0:size]
     elif filter == "alphauname":
-        posts = CommunityPosts.objects.filter(community=c).order_by('user__username')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', 'user__username')[0:size]
     elif filter == "ralphauname":
-        posts = CommunityPosts.objects.filter(community=c).order_by('-user__username')[0:size]
+        posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-user__username')[0:size]
+    #@end
     usr_img=reverse('user_photo', args=[request.user.id])
     c_likes = 0
     for post in posts:
@@ -1087,6 +1091,7 @@ def get_posts(request):
         id=post.user.first_name
         comments = CommunityComments.objects.filter(post=post)
         likes = CommunityLikes.objects.filter(post=post, comment=None)
+        # top = CommunityPostTops.objects.filter(post=post, user=request.user, comment=None)
         user_like = len(CommunityLikes.objects.filter(post=post, user__id=request.user.id))
         html+="<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td class='post-content-left'>"
         if active and not (request.user == post.user):
@@ -1102,8 +1107,17 @@ def get_posts(request):
             delete_code = "<img src='../static/images/trash-small.png' data-postid='"+str(post.id)+"' class='delete-something'></img>"
         else:
             delete_code = ""
-        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a>"+delete_code+"<br>"
-
+        # @author:scott
+        # @date:2017-02-27
+        if request.user.is_superuser or is_facilitator(request.user, c):
+            if (post.top == 1):
+                top_code = "<img src='/static/images/post_pinned.png' top='True' data-postid='"+str(post.id)+"' class='top-something'></img>"
+            else:
+                top_code = "<img src='/static/images/post_unpin.png' top='False' data-postid='"+str(post.id)+"' class='top-something'></img>"
+        else:
+            top_code = ""
+        html+="<a style='font-size:12px; font-weight:bold;' href='/dashboard/"+str(post.user.id)+"' class='post-name-link'>"+post.user.first_name+" "+post.user.last_name+"</a>"+delete_code+top_code+"<br>"
+        #@end
         if len(likes) > 0:
             like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.png' class='like-button-image'></img>"
             if user_like == 1:
@@ -1359,3 +1373,19 @@ def active_recent(user):
     else:
         active = False
     return active
+
+#@author:scott
+# #@data:2017-02-27
+def top_post(request):
+    domain_name = request.META['HTTP_HOST']
+    community_id = request.POST.get('community_id')
+    pid = request.POST.get("post_id")
+    post = CommunityPosts.objects.get(id=pid)
+    top = request.POST.get('top')
+    if top == 'True':
+        post.top = 0
+    else:
+        post.top = 1
+    post.save()
+    return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
+#@end
