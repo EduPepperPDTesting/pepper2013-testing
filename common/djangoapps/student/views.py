@@ -2192,20 +2192,20 @@ def get_pepper_stats(request):
     #@end
 
     if user.is_superuser:
-    #     course_times = {course.id: 0 for course in courses}
-    #     total_course_times = {course.id: 0 for course in courses}
+        course_times = {course.id: 0 for course in courses}
+        total_course_times = {course.id: 0 for course in courses}
 
-    #     course_time = 0
-    #     discussion_time = 0
-    #     portfolio_time = 0
-    #     all_course_time = 0
-    #     collaboration_time = 0
-    #     adjustment_time_totle = 0
-    #     total_time_in_pepper = 0
+        course_time = 0
+        discussion_time = 0
+        portfolio_time = 0
+        all_course_time = 0
+        collaboration_time = 0
+        adjustment_time_totle = 0
+        total_time_in_pepper = 0
         
-    # else:
-        course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware')) for course in courses}
+    else:
         # course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+        course_times = {course.id:study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
@@ -2216,18 +2216,18 @@ def get_pepper_stats(request):
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
         #@end
 
-        #@begin:change to current year course time and total_time
-        #@date:2016-06-21
-        # rs = reporting_store()
-        # rs.set_collection('UserCourseView')
-        # for course in courses:
-        #     results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
-        #     total_time_user = 0
-        #     for v in results:
-        #         total_time_user = total_time_user + v['total_time']
+        # @begin:change to current year course time and total_time
+        # @date:2016-06-21
+        rs = reporting_store()
+        rs.set_collection('UserCourseView')
+        for course in courses:
+            results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
+            total_time_user = 0
+            for v in results:
+                total_time_user = total_time_user + v['total_time']
            
-        #     total_course_times[course.id] = study_time_format(total_time_user) 
-        #@end
+            total_course_times[course.id] = study_time_format(total_time_user) 
+        # @end
 
     context = {
         'all_course_time': study_time_format(all_course_time),

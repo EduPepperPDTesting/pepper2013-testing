@@ -111,7 +111,7 @@ class CapaFields(object):
             {"display_name": "Closed", "value": "closed"},
             {"display_name": "Finished", "value": "finished"},
             {"display_name": "Past Due", "value": "past_due"},
-            {"display_name": "Never", "value": "never"}
+            {"display_name": "Never", "value": "never"},
     #@begin:Submit and Compare
     #@data:2016-02-21
             # {"display_name": "Submit and Compare", "value": "compare"}
