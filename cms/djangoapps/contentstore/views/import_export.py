@@ -492,8 +492,6 @@ def do_sync_course(task, org, course, name, d, user):
             course_id = "%s/%s/%s" % (org, course, name)
             local_cursor.execute("select * from django_comment_client_role where course_id='%s';" % (course_id))
             for role in local_cursor.fetchall():
-                print "=================="
-                print role
                 #** copy role
                 role_id = get_or_create("django_comment_client_role", course_id=course_id, name=role["name"])
                 
@@ -503,7 +501,7 @@ def do_sync_course(task, org, course, name, d, user):
                 #** copy role permissions
                 local_cursor.execute("select * from django_comment_client_permission_roles where role_id='%s';" % (role["id"]))
                 for perm in local_cursor.fetchall():
-                    get_or_create("django_comment_client_permission_roles", permission_id=perm["permission_id"], role_id=perm["role_id"])
+                    get_or_create("django_comment_client_permission_roles", permission_id=perm["permission_id"], role_id=role_id)
             
         # ** create course group for the user
         remote_cursor.execute("select * from auth_user where email='%s'" % user.email)
