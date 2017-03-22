@@ -739,6 +739,17 @@ div.card-bottom table tr:nth-child(2) {
     float: right;
     margin-right: 10px;
 }
+/*@author:scott
+  @date:2017-02-27;  
+*/
+.top-something {
+    float: right;
+    margin-right: 10px;
+}
+.top-something:hover {
+    cursor: pointer;
+}
+/*@end*/
 .comment-delete {
     float: none;
     margin-left: 10px !important;

@@ -119,7 +119,7 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
         {
             data: MarkdownEditingDescriptor.markdownToXml(@markdown_editor.getValue())
             metadata:
-            	markdown: @markdown_editor.getValue()
+              markdown: @markdown_editor.getValue()
         }
     else
        {
@@ -266,6 +266,12 @@ class @MarkdownEditingDescriptor extends XModule.Descriptor
       // replace explanations
       xml = xml.replace(/\[explanation\]\n?([^\]]*)\[\/?explanation\]/gmi, function(match, p1) {
           var selectString = '<solution>\n<div class="detailed-solution">\nExplanation\n\n' + p1 + '\n</div>\n</solution>';
+          return selectString;
+      });
+
+      // replace ouranswers
+      xml = xml.replace(/\[ouranswer\]\n?([^\]]*)\[\/?ouranswer\]/gmi, function(match, p1) {
+          var selectString = '<solution>\n<div class="detailed-solution">\n<span style="color:green;font-size:0.9em;font-weight:bold">Our Answer</span>\n\n' + p1 + '\n</div>\n</solution>';
           return selectString;
       });
 
