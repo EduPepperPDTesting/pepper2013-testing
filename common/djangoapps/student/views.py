@@ -44,6 +44,7 @@ from certificates.models import CertificateStatuses, certificate_status_for_stud
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.modulestore.django import modulestore
+from xmodule.remindstore import myactivitystore
 from collections import namedtuple
 from courseware.courses import get_courses, sort_by_announcement
 from courseware.access import has_access
@@ -718,6 +719,10 @@ def change_enrollment(request):
                                "run:{0}".format(run)])
 
         CourseEnrollment.enroll(user, course.id)
+        
+        ma_db = myactivitystore()
+        my_activity = {"ActivityType": "Courses", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": course.id}
+        ma_db.insert_item(my_activity)
 
         return HttpResponse()
 
@@ -2204,7 +2209,8 @@ def get_pepper_stats(request):
         total_time_in_pepper = 0
         
     else:
-        course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+        # course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
+        course_times = {course.id:study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware') + orig_external_times[course.id]) for course in courses}
         course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
         all_course_time = course_time + external_time
         collaboration_time = discussion_time + portfolio_time
@@ -2215,8 +2221,8 @@ def get_pepper_stats(request):
         total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
         #@end
 
-        #@begin:change to current year course time and total_time
-        #@date:2016-06-21
+        # @begin:change to current year course time and total_time
+        # @date:2016-06-21
         rs = reporting_store()
         rs.set_collection('UserCourseView')
         for course in courses:
@@ -2226,7 +2232,7 @@ def get_pepper_stats(request):
                 total_time_user = total_time_user + v['total_time']
            
             total_course_times[course.id] = study_time_format(total_time_user) 
-        #@end
+        # @end
 
     context = {
         'all_course_time': study_time_format(all_course_time),

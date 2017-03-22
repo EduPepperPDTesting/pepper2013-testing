@@ -134,6 +134,7 @@ from courseware.courses import course_image_url, get_course_about_section
     <table><tr>
     <td height="45"><div class="field-content"><span class="course-org" style="font-size:14px;font-weight:bold;color:#146C99">${format_courseOrg(course.display_organization)}</span> | <span class="course-number" style="font-size:14px;font-weight:bold;">${course.display_number_with_default | h}</span></div>
     <div class="course-grade" style="font-size:14px;font-weight:bold;margin-top:5px;">${course.display_grades}</div></td>
+    <td></td>
     <td style="text-align:center;">
       %if course.display_credit:
       <img src="/static/images/credit.jpg" width="30" height="30" title="Qualifies for Credit"/>
@@ -150,6 +151,10 @@ from courseware.courses import course_image_url, get_course_about_section
       %if course.is_newish:
         <span style="font-size:10px;background:#99cc33;color:#fff;padding:2px;width:27px;">NEW</span>
       %endif
-      </td></tr></table>
+    </td>
+    <td width="40" style="text-align:center;">
+    <span style="font-size:12px;padding:2px;width:27px;"><b>$${course.paypal_purchase_price}</b></span>
+    </td>
+    </tr></table>
 </div>
 </div>

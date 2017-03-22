@@ -13,7 +13,8 @@ from student.models import User, UserProfile
 from django.http import HttpResponse, HttpResponseForbidden
 from pepper_utilities.utils import random_mark
 from xmodule.course_module import CourseDescriptor
-
+import logging
+log = logging.getLogger("tracking") 
 
 def course_list(request):
     email = request.GET.get("email", "")
@@ -22,8 +23,11 @@ def course_list(request):
     except:
         email = ""
     filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$ne": "", "$exists": True}}  # {"$nin": ("", None)}
+    # filterDic = {'_id.category': 'course', 'metadata.paypal_purchase_link': {"$ne": "", "$exists": True},'metadata.paypal_purchase_price':{"$ne":"","$exists":True}}  # {"$nin": ("", None)}
     items = modulestore().collection.find(filterDic).sort("metadata.display_name")
     courses = modulestore()._load_items(list(items), 0)
+    log.debug("-----------11111111111111111---------------------")
+    log.debug(dir(courses))
     return render_to_response("shopping/course_list.html", {'courses': courses, 'email': email})
 
 

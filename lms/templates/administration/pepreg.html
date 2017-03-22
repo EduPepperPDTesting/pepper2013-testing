@@ -514,14 +514,14 @@
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
-                            <input type="checkbox" name="allow_registration" value="true"/>
+                            <input id="allow_registration" type="checkbox" name="allow_registration" value="true" onclick="resetCap()"/>
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">
                               	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
                             </span>
-                            <input type="" name="max_registration" value="" size="10"/>
+                            <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
                             <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
@@ -1840,8 +1840,16 @@
             e.preventDefault();
             return false;
         });
-
     });
+
+    function resetCap(){
+        var allowRegistration = $("#allow_registration").prop("checked");
+        var maxRegistration = $("#max_registration").val();
+
+        if(allowRegistration == false && maxRegistration != ''){
+            $("#max_registration").val(0);
+        }
+    }
 </script>
 
 <script type="text/javascript">
