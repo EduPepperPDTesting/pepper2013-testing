@@ -44,6 +44,7 @@ from certificates.models import CertificateStatuses, certificate_status_for_stud
 from xmodule.course_module import CourseDescriptor
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.modulestore.django import modulestore
+from xmodule.remindstore import myactivitystore
 from collections import namedtuple
 from courseware.courses import get_courses, sort_by_announcement
 from courseware.access import has_access
@@ -718,6 +719,10 @@ def change_enrollment(request):
                                "run:{0}".format(run)])
 
         CourseEnrollment.enroll(user, course.id)
+        
+        ma_db = myactivitystore()
+        my_activity = {"ActivityType": "Courses", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": course.id}
+        ma_db.insert_item(my_activity)
 
         return HttpResponse()
 
