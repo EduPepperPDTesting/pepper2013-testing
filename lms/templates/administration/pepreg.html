@@ -839,15 +839,13 @@
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date);
 			}else if($("#calendar_select_range").val()==2){
-			    //var dayDelta = ($("#calendar_select_range").val()==2) ? 1 : 7;
-			    var dayMonth = _sys_calendar_month; //+ 1;
-			    var dayYear = _sys_calendar_year;
-                if(dayMonth == 13){
-                    dayMonth = 1;
-                    dayYear += 1;
+                if(_sys_calendar_month == 3 && _sys_calendar_day == 1) {
+                    var monthDays = new Date(_sys_calendar_year, 2, 0).getDate();
+			        var picker_date = new Date(_sys_calendar_year, 2, monthDays);
+			    }else{
+			        var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                    picker_date.setUTCDate(picker_date.getDate() - 1);
                 }
-                var picker_date = new Date(dayYear, dayMonth, _sys_calendar_day);
-                picker_date.setUTCDate(picker_date.getDate() - 1);
 			    setSysDate(picker_date);
 			}
 			setPickerValue();
@@ -867,15 +865,12 @@
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date);
 			}else if($("#calendar_select_range").val()==2){
-			    //var dayDelta = ($("#calendar_select_range").val()==2) ? 1 : 7;
-			    var dayMonth = _sys_calendar_month; //+ 1;
-			    var dayYear = _sys_calendar_year;
-                if(dayMonth == 13){
-                    dayMonth = 1;
-                    dayYear += 1;
+			    if(_sys_calendar_month == 1 && _sys_calendar_day == 28) {
+			        var picker_date = new Date(_sys_calendar_year, 1, 29);
+			    }else{
+			        var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                    picker_date.setUTCDate(picker_date.getDate() + 1);
                 }
-                var picker_date = new Date(dayYear, dayMonth, _sys_calendar_day);
-                picker_date.setUTCDate(picker_date.getDate() + 1);
 			    setSysDate(picker_date);
 			}
 			setPickerValue();
