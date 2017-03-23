@@ -603,6 +603,8 @@
 
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
 
+			$(".training-row").has("label").css("padding": "0px");
+
             var labelElem = $(".training-row label");
 			labelElem.css({"position":"relative","bottom":"-1px"});
 			labelElem.attr("style", labelElem.attr("style") + "height: 16px !important;");
