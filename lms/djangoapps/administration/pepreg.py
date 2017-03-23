@@ -704,8 +704,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         if day[1]:
                             i = 0
                             for tmp1 in day[1]:
-                                table_tr_content += dateStart
-                                if(dateStart == dayHour):
+                                if(day[3][i] == dayHour):
                                     table_tr_content += tmp1
                                 i += 1
 
