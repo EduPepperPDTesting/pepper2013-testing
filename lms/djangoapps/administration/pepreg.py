@@ -690,11 +690,14 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     day[0]) + "</span>";
 
                 if not isday:
+                    i=0
                     for tmp1 in day[1]:
                         table_tr_content += tmp1;
+
                         dateStart = day[3][i][0:-5] + "00" + day[3][i][-3:]
                         table_tr_content += dateStart
-
+                        i+=1
+                        
                 table_tr_content += "</div>";
 
                 if isday:
