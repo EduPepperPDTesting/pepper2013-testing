@@ -603,7 +603,9 @@
 
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
 
-			$(".training-row label").css({"height":"16px !important","position":"relative","bottom":"-1px"});
+            var labelElem = $(".training-row label");
+			labelElem.css({"position":"relative","bottom":"-1px"});
+			labelElem.attr("style", labelElem.attr("style) + "; " + "height: 16px !important");
 			
 			$(".alert").mouseover(function () {
 				$("#calendar_alert_title").empty();
