@@ -724,7 +724,15 @@
 	}
 	
 	function setPickerValue(){
-		var m = (_sys_calendar_month < 10) ? "0" + _sys_calendar_month : _sys_calendar_month;
+	    if($("#calendar_select_range").val != 0){
+	        var picker_month = _sys_calendar_month + 1;
+	        if(picker_month == 13){
+	             picker_month = 1;
+	        }
+	    }else{
+	        var picker_month = _sys_calendar_month;
+	    }
+		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
 		$('#calendar_select_data').val(m + "/" + d + "/" + _sys_calendar_year);
 		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
@@ -902,7 +910,7 @@
 		function setSysDate(picker_date){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
-            _sys_calendar_month = picker_date.getUTCMonth()+1;
+            _sys_calendar_month = picker_date.getUTCMonth();
             _sys_calendar_year = picker_date.getUTCFullYear();
             if(_sys_calendar_month == 0){
                 _sys_calendar_month = 12;
