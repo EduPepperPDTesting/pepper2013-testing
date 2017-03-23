@@ -47,9 +47,9 @@ def get_course_by_id(course_id, depth=0):
         course_loc = CourseDescriptor.id_to_location(course_id)
         return modulestore().get_instance(course_id, course_loc, depth=depth)
     except (KeyError, ItemNotFoundError):
-        raise Http404("Course not found.")
+        raise Http404("Course %s not found." % course_id)
     except InvalidLocationError:
-        raise Http404("Invalid location")
+        raise Http404("Invalid location %s" % course_id)
 
 def get_course_with_access(user, course_id, action, depth=0):
     """
