@@ -902,7 +902,7 @@
 		function setSysDate(picker_date){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
-            _sys_calendar_month = picker_date.getUTCMonth();
+            _sys_calendar_month = picker_date.getUTCMonth()+1;
             _sys_calendar_year = picker_date.getUTCFullYear();
             if(_sys_calendar_month == 0){
                 _sys_calendar_month = 12;
