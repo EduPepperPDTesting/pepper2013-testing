@@ -834,9 +834,20 @@
                     _sys_calendar_month = 12;
                     _sys_calendar_year -= 1;
                    }
-			}else{
+			}else if($("#calendar_select_range").val()==1){
 			    var dayDelta = ($("#calendar_select_range").val()==1) ? 7 : 1;
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() - dayDelta);
+			    setSysDate(picker_date);
+			}else if($("#calendar_select_range").val()==2){
+			    var dayDelta = ($("#calendar_select_range").val()==2) ? 1 : 7;
+			    var dayMonth = _sys_calendar_month + 1;
+			    var dayYear = _sys_calendar_year;
+                if(dayMonth == 13){
+                    dayMonth = 1;
+                    dayYear += 1;
+                }
+                var picker_date = new Date(dayYear, dayMonth, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - dayDelta);
 			    setSysDate(picker_date);
 			}
@@ -852,10 +863,21 @@
                     _sys_calendar_month = 1;
                     _sys_calendar_year += 1;
                 }
-			}else{
+			}else if($("#calendar_select_range").val()==1){
 			    var dayDelta = ($("#calendar_select_range").val()==1) ? 7 : 1;
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + dayDelta);
+			    setSysDate(picker_date);
+			}else if($("#calendar_select_range").val()==2){
+			    var dayDelta = ($("#calendar_select_range").val()==2) ? 1 : 7;
+			    var dayMonth = _sys_calendar_month + 1;
+			    var dayYear = _sys_calendar_year;
+                if(dayMonth == 13){
+                    dayMonth = 1;
+                    dayYear += 1;
+                }
+                var picker_date = new Date(dayYear, dayMonth, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() - dayDelta);
 			    setSysDate(picker_date);
 			}
 			setPickerValue();
