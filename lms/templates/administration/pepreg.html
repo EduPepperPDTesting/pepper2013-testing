@@ -580,7 +580,7 @@
 
 	        if($("#calendar_select_range").val()==2){
 	           $("#calendar-month-weekdays").css("text-align", "left");
-	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day)
+	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
 	           var dayNum = getDateDay.getUTCDay()-1;
 	           dayID = (dayNum != -1) ? "#day"+dayNum : "#day6";
 	           $("#calendar-month-weekdays th:not(" + dayID + "):not(#time)").hide();
