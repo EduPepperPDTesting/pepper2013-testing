@@ -580,7 +580,7 @@
 
 	        if($("#calendar_select_range").val()==2){
 	           $("#calendar-month-weekdays").css("text-align", "left");
-	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
+	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day)
 	           var dayNum = getDateDay.getUTCDay()-1;
 	           dayID = (dayNum != -1) ? "#day"+dayNum : "#day6";
 	           $("#calendar-month-weekdays th:not(" + dayID + "):not(#time)").hide();
@@ -728,14 +728,16 @@
 	        var picker_month = _sys_calendar_month + 1;
 	        if(picker_month == 13){
 	             picker_month = 1;
+	             picker_year = _sys_calendar_year + 1;
 	        }
 	    }else{
 	        var picker_month = _sys_calendar_month;
+	        var picker_year = _sys_calendar_year
 	    }
 		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
-		$('#calendar_select_data').val(m + "/" + d + "/" + _sys_calendar_year);
-		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
+		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
+		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + picker_year));
 	}
 	
 	function mathCreditsChecked(){
