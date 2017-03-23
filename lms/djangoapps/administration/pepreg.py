@@ -561,6 +561,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         status = "";
 
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+                    trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                    trainingStartTimes.append(trainingStartHour)
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime
 
@@ -621,8 +623,6 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
                                 occurrences.append(
                                     "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
-
-                trainingStartTimes.append(trainingStartTime)
 
             if date.__str__() == current_day.__str__():
                 current = True
@@ -694,7 +694,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     for tmp1 in day[1]:
                         table_tr_content += tmp1;
 
-                        dateStart = day[3][1]+" "+day[3][i][0:-5] + "00" + day[3][i][-3:]
+                        dateStart = day[3][i]
                         table_tr_content += dateStart
                         i+=1
 
@@ -709,7 +709,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         if day[1]:
                             i = 0
                             for tmp1 in day[1]:
-                                dateStart = day[3][i][0:-5] + "00" + day[3][i][-3:]
+                                dateStart = day[3][i]
                                 table_tr_content += dateStart
                                 if(dateStart == dayHour):
                                     table_tr_content += tmp1
