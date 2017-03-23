@@ -828,6 +828,7 @@
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
+		    console.log(_sys_calendar_month);
 		    if($("#calendar_select_range").val()==0){
                 _sys_calendar_month -= 1;
                 if(_sys_calendar_month == 0){
@@ -846,6 +847,7 @@
 			        var picker_date = new Date(_sys_calendar_year, 0, 31);
 			        console.log(picker_date);
 			    }else{
+			        console.log();
 			        var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                     picker_date.setUTCDate(picker_date.getDate() - 1);
                 }
@@ -857,6 +859,7 @@
 		
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
+		    console.log(_sys_calendar_month);
 		    if($("#calendar_select_range").val()==0){
                 _sys_calendar_month += 1;
                 if(_sys_calendar_month == 13){
