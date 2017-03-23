@@ -702,7 +702,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid black; text-align: right;' id='" + dayHour + "'>&nbsp;"
 
                         if day[1]:
-                            ti = 0
+                            i = 0
                             for tmp1 in day[1]:
                                 if(day[3][i] == dayHour):
                                     table_tr_content += tmp1
