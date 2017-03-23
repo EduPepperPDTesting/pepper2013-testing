@@ -725,6 +725,7 @@
 	
 	function setPickerValue(){
 	    if($("#calendar_select_range").val == 1 || $("#calendar_select_range").val == 2){
+	        console.log(_sys_calendar_month);
 	        var picker_month = _sys_calendar_month + 1;
 	        var picker_year = _sys_calendar_year
 	        if(picker_month == 13){
