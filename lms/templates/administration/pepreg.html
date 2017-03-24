@@ -666,7 +666,7 @@
 			    event.preventDefault();
 			    console.log($(this).prop("checked"));
 			    $(this).prop("checked", !$(this).prop("checked"));
-			    console.log((this).prop("checked"));
+			    console.log($(this).prop("checked"));
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
