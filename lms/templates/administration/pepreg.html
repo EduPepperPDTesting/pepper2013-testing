@@ -646,7 +646,7 @@
 					}
 				}
 			});
-			$(".calendar_check_would").change(function(event){
+			/*$(".calendar_check_would").change(function(event){
 			    event.preventDefault();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 					if (reg)
@@ -658,10 +658,21 @@
 					calendarOpen();
 				})
 			});
-
 			$("label").has(".calendar_check_would").click(function(event){
+			*/
+
+			$(".calendar_check_would").click(function(event){
 				event.preventDefault();
 			    event.stopPropagation();
+                pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+					if (reg)
+						pepreg.warning("Thank you for registering/recording attendance for this training!");
+					else
+						pepreg.warning("Thank you! You are no longer registered for this training.");
+
+					pepreg.reloadTable();
+					calendarOpen();
+				})
 			});
 			
 			$(".calendar_check_attended").each(function(){
