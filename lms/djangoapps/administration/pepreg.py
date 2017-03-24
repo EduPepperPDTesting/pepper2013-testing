@@ -561,13 +561,14 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
                     except:
                         status = "";
-
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
-                    trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
-                    trainingMovePx = trainingStartTime[-4:-3]
+
                     if isday:
-                        labelMovePx = "style='position:relative;top:" + trainingMovePx + "px;'"
-                    trainingStartTimes.append(trainingStartHour)
+                        trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                        trainingMovePx = trainingStartTime[-4:-3]
+                        labelMovePx = "style='position:relative;top:" + trainingMovePx + "px;left: 5px;'"
+                        trainingStartTimes.append(trainingStartHour)
+
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime
 
@@ -710,7 +711,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             i = 0
                             for tmp1 in day[1]:
                                 if(day[3][i] == dayHour):
-                                    table_tr_content += "&nbsp;" + tmp1
+                                    table_tr_content += tmp1
                                 i += 1
 
                         table_tr_content += "</div>"
