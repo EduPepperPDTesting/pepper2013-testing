@@ -647,6 +647,7 @@
 				}
 			});
 			$(".calendar_check_would").change(function(event){
+			    event.preventDefault();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
