@@ -672,11 +672,10 @@
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
-                    console.log(cb.prop("checked"));
 					pepreg.reloadTable();
-					console.log(cb.prop("checked"));
 					calendarOpen();
 				})
+				console.log($(this).prop("checked"));
 			});
 			
 			$(".calendar_check_attended").each(function(){
