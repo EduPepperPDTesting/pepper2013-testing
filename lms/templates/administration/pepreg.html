@@ -665,12 +665,12 @@
 				event.stopImmediatePropagation();
 			    event.preventDefault();
                 pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
-					if (reg[0])
+					if (reg[0].success)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
 					pepreg.reloadTable();
-					console.log(reg[0]);
+					console.log(reg[0].success);
 					$(".calendar_check_would[training_id='"+reg[1]+"']").prop("checked", !$(".calendar_check_would[training_id='"+reg[1]+"']").prop("checked"));
 					calendarOpen();
 				})
