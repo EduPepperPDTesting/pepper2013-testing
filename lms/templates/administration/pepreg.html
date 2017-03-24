@@ -236,6 +236,12 @@
             <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
             <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
 
+            <select name="calendar_select_range" id="calendar_select_range" style="">
+                <option value="0" selected="selected">Month</option>
+                <option value="1">Week</option>
+                <option value="2">Day</option>
+            </select>
+
             <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
                 <option value="0" selected="selected">All Categories</option>
                 <option value="1">Attended Training</option>
@@ -246,7 +252,7 @@
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
-                    <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+                    <th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th><th id="day5">Saturday</th><th id="day6">Sunday</th>
                 </tr>
             </table>
         </div>
@@ -563,17 +569,45 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
 	var _calendar_date = new Date();
 	
 	//-----------------------------------------------calendarOpen
 	function calendarOpen(){
-		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day, year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, catype: $("#calendar_select_categories").val()}, function(data){			
+		$.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
+		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
+		catype: $("#calendar_select_categories").val()}, function(data){
+
+	        if($("#calendar_select_range").val()==2){
+	           $("#calendar-month-weekdays").css("text-align", "left");
+	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
+	           var dayNum = getDateDay.getUTCDay()-1;
+	           dayID = (dayNum != -1) ? "#day"+dayNum : "#day6";
+	           $("#calendar-month-weekdays th:not(" + dayID + "):not(#time)").hide();
+	           $("#calendar-month-weekdays " + dayID).show();
+	           var displayDate=getDateDay.toUTCString().slice(5, 16);
+	           if($("#calendar-month-weekdays th[id='time']").length == 0){
+                  $("#calendar-month-weekdays").prepend("<th id='time' style='width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" + displayDate + "</th>");
+               }else{
+                  $("#time").text(displayDate);
+               }
+	        }else{
+               $("#calendar-month-weekdays").css("text-align", "");
+               $("#calendar-month-weekdays th[id='time']").remove();
+               $("#calendar-month-weekdays th").show();
+	        }
+
 	        _calendar_panel.show();
-			
+
 			$(".calendar-tr-tmp").remove();
-			
+
 			$("#calendar-month-weekdays").parent().append(data.table_tr_content);
+
+			$(".training-row").has("label").css("padding", "0px");
+
+            var labelElem = $(".training-row label");
+			labelElem.css({"position":"relative","bottom":"-1px"});
+			labelElem.attr("style", labelElem.attr("style") + "height: 16px !important;");
 			
 			$(".alert").mouseover(function () {
 				$("#calendar_alert_title").empty();
@@ -612,7 +646,8 @@
 					}
 				}
 			});
-			$(".calendar_check_would").change(function(){
+			$(".calendar_check_would").change(function(event){
+			    event.stopPropagation();
 				pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
@@ -690,10 +725,22 @@
 	}
 	
 	function setPickerValue(){
-		var m = (_sys_calendar_month < 10) ? "0" + _sys_calendar_month : _sys_calendar_month;
+	    if($("#calendar_select_range").val == 1 || $("#calendar_select_range").val == 2){
+	        console.log(_sys_calendar_month);
+	        var picker_month = _sys_calendar_month + 1;
+	        var picker_year = _sys_calendar_year
+	        if(picker_month == 13){
+	             picker_month = 1;
+	             picker_year = _sys_calendar_year + 1;
+	        }
+	    }else{
+	        var picker_month = _sys_calendar_month;
+	        var picker_year = _sys_calendar_year;
+	    }
+		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
-		$('#calendar_select_data').val(m + "/" + d + "/" + _sys_calendar_year);
-		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + _sys_calendar_year));
+		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
+		_calendar_picker.gotoDate(new Date(m + "/" + d + "/" + picker_year));
 	}
 	
 	function mathCreditsChecked(){
@@ -757,10 +804,11 @@
 				setPickerValue();
 				calendarOpen();
 			}
-		});
-					
-		$("#calendar_select_categories").change(function(){
+		});;
+
+		$("#calendar_select_categories, #calendar_select_range").change(function(){
 			calendarOpen();
+			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day)
 		});
 		
 		_sys_calendar_year = _calendar_date.getFullYear();
@@ -769,7 +817,8 @@
 		
 		_sys_calendar_year_now = _calendar_date.getFullYear();
 		_sys_calendar_month_now = _calendar_date.getMonth() + 1;
-		
+		_sys_calendar_day_now = _calendar_date.getDate();
+
 		//-----------------------------------------------getCalendarInfo
 		/*$.getJSON("/pepreg/getCalendarInfo", function(data){	
 			$("#calendar-panel").dialog({title: data.title});			
@@ -781,43 +830,109 @@
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
-			_sys_calendar_month -= 1;
-			if(_sys_calendar_month == 0){
-				_sys_calendar_month = 12;
-				_sys_calendar_year -= 1;
+		    console.log(_sys_calendar_month);
+		    if($("#calendar_select_range").val()==0){
+                _sys_calendar_month -= 1;
+                if(_sys_calendar_month == 0){
+                    _sys_calendar_month = 12;
+                    _sys_calendar_year -= 1;
+                   }
+			}else if($("#calendar_select_range").val()==1){
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() - 7);
+			    setSysDate(picker_date);
+			}else if($("#calendar_select_range").val()==2){
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() - 1);
+			    setSysDate(picker_date);
 			}
 			setPickerValue();
-			calendarOpen();
+            calendarOpen();
 		});
 		
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
-			_sys_calendar_month += 1;
-			if(_sys_calendar_month == 13){
-				_sys_calendar_month = 1;
-				_sys_calendar_year += 1;
+		    console.log(_sys_calendar_month);
+		    if($("#calendar_select_range").val()==0){
+                _sys_calendar_month += 1;
+                if(_sys_calendar_month == 13){
+                    _sys_calendar_month = 1;
+                    _sys_calendar_year += 1;
+                }
+			}else if($("#calendar_select_range").val()==1){
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() + 7);
+			    setSysDate(picker_date);
+			}else if($("#calendar_select_range").val()==2){
+			   var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() + 1);
+                console.log()
+			    setSysDate(picker_date);
 			}
 			setPickerValue();
-			calendarOpen();
+            calendarOpen();
 		});
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous_y").click(function(){
-			_sys_calendar_year -= 1;
-			if(_sys_calendar_year < 1979){
-				_sys_calendar_year = 1979;
-			}
+		    if($("#calendar_select_range").val()==0){
+                _sys_calendar_year -= 1;
+                if(_sys_calendar_year < 1979){
+                    _sys_calendar_year = 1979;
+                }
+            }else if($("#calendar_select_range").val()==1){
+                if(_sys_calendar_year == 1979 && _sys_calendar_month == 1){
+                    picker_date = new Date(1979, 0, 1);
+                }else{
+                    monthDelta = _sys_calendar_month - 1;
+                    if(monthDelta == 0){
+                        monthDelta = 12;
+                        _sys_calendar_year -= 1;
+                    }
+                    monthDays = new Date(_sys_calendar_year, monthDelta, 0).getDate();
+                    picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                    picker_date.setUTCDate(picker_date.getDate() - monthDays);
+			    }
+                setSysDate(picker_date);
+            }else{
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() - 7);
+			    setSysDate(picker_date);
+            }
 			setPickerValue();
 			calendarOpen();
 		});
 		
 		//-----------------------------------------------next
 		$("#calendar_btn_next_y").click(function(){
-			_sys_calendar_year += 1;
+            if($("#calendar_select_range").val()==0){
+                _sys_calendar_year += 1;
+            }else if($("#calendar_select_range").val()==1){
+                monthDays = new Date(_sys_calendar_year, _sys_calendar_month, 0).getDate();
+                picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() + monthDays);
+			    setSysDate(picker_date);
+            }else{
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+                picker_date.setUTCDate(picker_date.getDate() + 7);
+                setSysDate(picker_date);
+            }
 			setPickerValue();
 			calendarOpen();
 		});
-		
+
+		function setSysDate(picker_date){
+		    _calendar_picker_day = picker_date.getUTCDate();
+            _sys_calendar_day = picker_date.getUTCDate();
+            _sys_calendar_month = picker_date.getUTCMonth();
+            if($("#calendar_select_range").val()==2) _sys_calendar_month += 1;
+            _sys_calendar_year = picker_date.getUTCFullYear();
+            if(_sys_calendar_month == 0){
+                _sys_calendar_month = 12;
+                _sys_calendar_year -= 1;
+            }
+		}
+
 		//-----------------------------------------------today
 		$("#calendar_btn_today").click(function(){
 			_sys_calendar_year = _calendar_date.getFullYear();
@@ -1849,6 +1964,15 @@
         if(allowRegistration == false && maxRegistration != ''){
             $("#max_registration").val(0);
         }
+    }
+
+    function pickDayOnClick(pickDate){
+        $("#calendar_select_range option:selected").prop("selected", false);
+        $("#calendar_select_range option[value=2]").prop("selected", true);
+        _sys_calendar_day = parseInt(pickDate);
+        _calendar_picker_day = _sys_calendar_day;
+        setPickerValue();
+        calendarOpen()
     }
 </script>
 
