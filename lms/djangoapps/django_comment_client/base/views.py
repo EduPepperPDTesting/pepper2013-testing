@@ -849,6 +849,13 @@ def set_rating(request, course_id, thread_id):
     discussion_rating = discussion_rating_store()
     discussion_rating.set_rating(thread_id, userid, post_param['rating'])
   
+    thread = cc.Thread.find(thread_id)
+
+    ma_db = myactivitystore()
+    my_activity = {"ActivityType": "Courses", "EventType": "course_ratediscussion", "ActivityDateTime": datetime.utcnow(), 
+    "UsrCre": request.user.id, "course_id": course_id, "commentable_id": thread.commentable_id, "discussionSubject": thread.title, "SourceID": thread.id}
+    ma_db.insert_item(my_activity)
+
     return JsonResponse({})
 
 @require_POST
