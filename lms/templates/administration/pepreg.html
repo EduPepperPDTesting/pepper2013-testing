@@ -664,14 +664,14 @@
 			$(".calendar_check_would").click(function(event){
 				event.stopImmediatePropagation();
 			    event.preventDefault();
-                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg, trID=$(this).attr("training_id")) {
-					if (reg)
+                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
+					if (reg[0])
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
 					pepreg.reloadTable();
-					console.log(trID);
-					$(".calendar_check_would[training_id='"+trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+trID+"']").prop("checked"));
+					console.log(req[1]);
+					$(".calendar_check_would[training_id='"+req[1]+"']").prop("checked", !$(".calendar_check_would[training_id='"+req[1]+"']").prop("checked"));
 					calendarOpen();
 				})
 			});

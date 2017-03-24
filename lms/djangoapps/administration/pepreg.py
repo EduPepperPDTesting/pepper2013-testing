@@ -786,7 +786,7 @@ def register(request):
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
 
 def set_student_attended(request):
