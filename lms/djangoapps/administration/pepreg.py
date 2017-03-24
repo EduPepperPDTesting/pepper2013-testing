@@ -564,7 +564,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
-                    trainingMovePx = trainingStartTime[-5:-4]
+                    trainingMovePx = trainingStartTime[-4:-3]
                     if isday:
                         labelMovePx = "style='position:relative;top:" + trainingMovePx + "px;'"
                     trainingStartTimes.append(trainingStartHour)
@@ -710,7 +710,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             i = 0
                             for tmp1 in day[1]:
                                 if(day[3][i] == dayHour):
-                                    table_tr_content += tmp1
+                                    table_tr_content += "&nbsp;" + tmp1
                                 i += 1
 
                         table_tr_content += "</div>"
