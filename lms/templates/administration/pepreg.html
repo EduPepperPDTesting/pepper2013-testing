@@ -1982,7 +1982,8 @@
         }
     }
 
-    function pickDayOnClick(pickDate){
+    function pickDayOnClick(event, pickDate){
+        event.preventDefault();
         $("#calendar_select_range option:selected").prop("selected", false);
         $("#calendar_select_range option[value=2]").prop("selected", true);
         _sys_calendar_day = parseInt(pickDate);

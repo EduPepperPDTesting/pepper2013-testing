@@ -680,7 +680,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                 class_name = "calendarium-day";
 
             if(not isday and day[0]):
-                clickFunc = " onclick='pickDayOnClick(" + str(day[0]) + ")'"
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ")'"
             else:
                 clickFunc = ""
 
