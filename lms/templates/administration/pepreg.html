@@ -670,8 +670,7 @@
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
 					pepreg.reloadTable();
-					console.log(regData.trID);
-					$(".calendar_check_would[training_id='"+reg[1]+"']").prop("checked", !$(".calendar_check_would[training_id='"+reg[1]+"']").prop("checked"));
+					$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					calendarOpen();
 				})
 			});
@@ -1498,7 +1497,6 @@
                 cb(join);
                 //self.reloadTable();
                 trID=r.training_id;
-                console.log(trID);
                 regData={success: true, trID: trID};
             }
         });
