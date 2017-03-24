@@ -662,7 +662,7 @@
 			*/
 
 			$(".calendar_check_would").click(function(event){
-				event.stopImidiatePropagation();
+				event.stopImmediatePropagation();
 			    //event.stopPropagation();
                 pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
 					if (reg)
