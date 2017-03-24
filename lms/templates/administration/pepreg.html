@@ -670,9 +670,11 @@
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
 					pepreg.reloadTable();
-					console.log(regData.trID);
 					$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					calendarOpen();
+					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+					console.log(regData.trID);
+					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 				})
 			});
 			
