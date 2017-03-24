@@ -37,6 +37,7 @@ from django.conf import settings
 from datetime import datetime
 from pytz import UTC
 from models import *
+from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger(__name__)
 
@@ -138,6 +139,12 @@ def create_thread(request, course_id, commentable_id):
             thread.update_attributes(group_id=group_id)
 
     thread.save()
+
+    ma_db = myactivitystore()
+    my_activity = {"ActivityType": "Courses", "EventType": "course_creatediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "course_id": course_id, "commentable_id": commentable_id, "discussionSubject": thread.title, "SourceID": thread.id}
+    ma_db.insert_item(my_activity)
+
     courseware_context = get_courseware_context(thread, course)
     if courseware_context:
         if str(courseware_context.get('courseware_url')).find('__am')>0:
@@ -219,6 +226,14 @@ def _create_comment(request, course_id, thread_id=None, parent_id=None):
         'parent_id': parent_id,
     })
     comment.save()
+   
+    thread = cc.Thread.find(comment.thread_id)
+
+    ma_db = myactivitystore()
+    my_activity = {"ActivityType": "Courses", "EventType": "course_replydiscussion", "ActivityDateTime": datetime.utcnow(), 
+    "UsrCre": request.user.id, "course_id": course_id, "commentable_id": thread.commentable_id, "discussionSubject": comment.body, "SourceID": thread.id}
+    ma_db.insert_item(my_activity)   
+
     if post.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(request.user)
         user.follow(comment.thread)
