@@ -232,6 +232,9 @@ class MongoMyActivityStore(object):
     def insert_item(self,item):
         self.collection.insert(item)
 
+    def set_item_pd(self,id,name,value):
+        return self.collection.update({'SourceID':id},{'$set':{name:value}},{multi:true})
+
 class MongoChunksStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
