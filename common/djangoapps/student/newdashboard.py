@@ -1841,6 +1841,10 @@ def upload_photo(request):
 
     return redirect(reverse('dashboard'))
 
+def new_upload_photo(request):
+    upload_user_photo(request.user.id,request.FILES.get('photo'))
+    return redirect(reverse('user_information',args=[request.user.id]))
+
 def user_photo(request,user_id=None):
     if not user_id:
         user_id=request.user.id

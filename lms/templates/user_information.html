@@ -32,7 +32,7 @@
 }
 .information_left_top_left{
     width:30%;
-    margin:0;
+    margin:0 0 0 0;
     padding: 20px;
     background-color: #C5E0B4;
     float: left;
@@ -45,15 +45,15 @@
 }
 .information_left_top_right2{
     float: right;
-    height: 100px;
     width:55%;
-    margin-top:75px;
+    min-height: 100px;
+    margin-top:90px;
     margin-right: 25px;
     border: 3px solid #bebebe;
 }
 .information_left_bottom{
     border: 3px solid #bebebe;
-    margin: 25px;
+    margin: 50px 25px 25px 25px;
     height: 56.5%;
 }
 .information_right{
@@ -65,14 +65,14 @@
 .information_right_1{
     float: left;
     width:100%;
-    margin:135px 0 0 0 ;
+    margin:150px 0 0 0 ;
     border: 3px solid #bebebe;
 }
 .information_right_2{
     height: 200px;
     float: left;
     width:100%;
-    margin:25px 0 0 0 ;
+    margin:35px 0 0 0 ;
     border: 3px solid #bebebe;
 }
 .information_right_3{
@@ -123,8 +123,14 @@
 .empty-dashboard-message p{
     line-height: 60px;
 }
-
-
+.user_bio_text{
+    width:100%;
+    height: 100%;
+}
+.user_bio{
+    width:100%;
+    height: 100%;
+}
 
 .btn_grade_level {
     -moz-font-feature-settings: normal;
@@ -175,16 +181,51 @@
     text-shadow: 0 1px #884A0C;
     width: 31px;
 }
+#submit:hover,#submit_email_change:hover,#photo_submit:hover {
+   background:#6e8194;
+   transition-delay: 0s, 0s, 0s;
+   transition-duration: 0.25s, 0.25s, 0.25s;
+   transition-property:color, background,​ box-shadow;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+   transition-duration:0.25s,​ 0.25s,​ 0.25s;
+   color:#fff;
+ }
+ #submit,#submit_email_change,#photo_submit {
+   border-width:0;
+   background:#556370;
+   text-decoration: none;
+   padding-bottom: 7px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 7px;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ #dlg-user-photo{
+     width:140px;
+     height:140px;
+ }
+</style>
+<style type="text/css" media="screen">
+  #image_uploading{display:none;}
 </style>
 <%inherit file="main_new.html" />
 <%namespace name='static' file='static_content.html'/>
-<%block name="title"><title>${_("User_info - {username}".format(username=curr_user.username))}</title></%block>
+<%block name="title"><title>${_("Profile")}</title></%block>
 
 <div class="user_information">
     <div class="information_left">
         <div class="information_left_top">
             <div class="information_left_top_left">
                 <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="200" height="200" />
+                <a href="#change_photo" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
             </div>
             <div class="information_left_top_right1">
                 <div class="user_name">
@@ -219,13 +260,12 @@
                     <div class="user_bio_title title" >
                         Bio:
                     </div>
-                    <div class="user_bio_text" style="padding:5px;color:#666;">
+                    <div class="user_bio_text" style="word-wrap: break-word;word-break: normal;padding:5px;color:#666;word-break:break-all;">
                             %if curr_user.profile.bio:
                             ${curr_user.profile.bio}
                             %else:
                             Add info that you would like to share about yourself here:  
                             %endif
-
                             %if curr_user==request.user:
                             <a href="#change_bio" rel="leanModal" class="edit-name">
                             <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
@@ -328,22 +368,18 @@
                             <section class="empty-dashboard-message" style="text-align: center">
                                 <p><i>${_("You haven’t completed any course yet.")}</i></p>
                             </section>
-                        %else:
-                            <section class="empty-dashboard-message">
-                                <p>
-                            % for course in courses_complated:
-                                % if course.id in show_courseware_links_for:
-                                    %if curr_user == request.user and not course.close_course:
-                                        <span><a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a></span>&nbsp;
-                                    %else:
-                                      <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
-                                    %endif         
-                                % else:
-                                    <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
-                                % endif
-                            % endfor
-                            </p></section>
                         %endif
+                        <section class="empty-dashboard-message"><p>
+                        % for course in courses_complated:
+                             % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+                                %if curr_user == request.user: 
+                                    %if course.issue_certificate:
+                                        <span><a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a></span>&nbsp;
+                                    %endif
+                                %endif
+                            % endif
+                        % endfor
+                        </p></section>
                 </div>
             </div>
         </div>
@@ -373,18 +409,33 @@
                     % if curr_user.profile.percent_lunch:
                     ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
                     % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_lunch" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
                 </div>
                 <div class="user_my_profile_title">
                     <b>IEPs:</b>
                     % if curr_user.profile.percent_iep:
                     ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
                     % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_iep" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
                 </div>
                 <div class="user_my_profile_title">
                     <b>English Learners:</b>
                     % if curr_user.profile.percent_eng_learner:
                     ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
                     % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_eng_learner" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
                 </div>
             </div>
         </div>
@@ -643,6 +694,137 @@
     </div>
   </div>
   <!--@end-->
+</section>
+<section id="change_percent_lunch" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change Free/Reduced Lunch').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_lunch_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_lunch" name="percent_lunch" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- change_percent_iep form -->
+<section id="change_percent_iep" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change IEPs').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_iep_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_iep" name="percent_iep" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- percent_eng_learner form -->
+<section id="change_percent_eng_learner" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change English Learners').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_eng_learner_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_eng_learner" name="percent_eng_learner" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="change_photo" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Add Profile Picture').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="${reverse('new_upload_photo')}">
+      <!--@begin:Shown completed course list-->
+      <!--@date:2013-11-24-->
+      <div id="change_photo_error" class="modal-form-error"> </div>
+      <!--@end-->
+      <fieldset>
+        <div class="input-group">
+          <label>
+            <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
+              <img src="${reverse('user_photo')}" style="" alt="photo" />
+            </div>
+          </label>
+          <label style="margin:20px 0;display:block;">
+            <input type="file" name="photo" id="id_photo" value="Choose a file" />
+          </label>
+          <label>
+            The image will be automatically scaled to fit within 110x110 pixels.
+          </label>  
+          <div id="image_uploading" style="text-align:center;">
+            <img src="/static/images/ora-loading.gif" style=""/> 
+          </div>              
+        </div>
+      </fieldset>
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+      <div class="submit">
+        <input type="submit" class="btnx" id="photo_submit" value="Upload" />
+      </div>          
+    </form>
+    <div class="close-modal" id="change_photo_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <%block name="js_extra">
@@ -911,8 +1093,6 @@
     if (fileImg_ext!="jpg" && fileImg_ext!="peg" && fileImg_ext!="png")
     {
       $("#change_photo_error").html("We accept image only in JPG or PNG.").stop().css("display", "block");
-      //fileImg.select()
-      //document.execCommand("Delete");
       fileImg.focus();
       return false;
     }
@@ -927,11 +1107,10 @@
     }
     <!------------------------------------------>
     document.getElementById("photo_submit").disabled = true;
-    $('#image_uploading').show(); 
-    $('#change_photo_form').submit(); 
+        $('#image_uploading').show(); 
+        $('#change_photo_form').submit(); 
     });
-<!--@begin:clear form content and error information when close the sub page-->
-<!--@date:2013-12-05--> 
+
     $("#change_name_close").click(function(){
       $('#change_name_error').hide();
     });
