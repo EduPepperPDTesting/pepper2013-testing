@@ -2055,7 +2055,62 @@ def user_information(request, user_id=None):
     else:
         user = User.objects.get(id=request.user.id)
 
+    courses_complated = []
+    courses_incomplated = []
+    courses = []
+    external_time = 0
+    external_times = {}
+    exists = 0
+    total_course_times = {}
+    # get none enrolled course count for current login user
+    rts = record_time_store()
+    if user_id != request.user.id:
+        allowed = CourseEnrollmentAllowed.objects.filter(email=user.email, is_active=True).values_list('course_id', flat=True)
+        # make sure the course exists
+        for course_id in allowed:
+            try:
+                # course=course_from_id(course_id)
+                exists = exists + 1
+            except:
+                pass
+
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        try:
+            c = course_from_id(enrollment.course_id)
+            c.student_enrollment_date = enrollment.created
+
+            if enrollment.course_id in allowed:
+                exists = exists - 1
+
+            courses.append(c)
+
+            if user.is_superuser:
+                external_times[c.id] = 0
+            else:
+                external_times[c.id] = rts.get_external_time(str(user.id), c.id)
+                external_time += external_times[c.id]
+                external_times[c.id] = study_time_format(external_times[c.id])
+            field_data_cache = FieldDataCache([c], c.id, user)
+            course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
+
+            if course_instance.complete_course:
+                c.complete_date = course_instance.complete_date
+                c.student_enrollment_date = course_instance.complete_date
+                courses_complated.append(c)
+            else:
+                courses_incomplated.append(c)
+
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+
+
+    show_courseware_links_for = frozenset(course.id for course in courses
+                                          if has_access(user, course, 'load'))
+    courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
     context = {
+        'show_courseware_links_for': show_courseware_links_for,
+        'courses_complated': courses_complated,
         'curr_user': user
     }   
 

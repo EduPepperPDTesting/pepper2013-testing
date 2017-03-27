@@ -1,0 +1,394 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%!
+    from django.core.urlresolvers import reverse
+    from courseware.courses import course_image_url, get_course_about_section
+    from courseware.access import has_access
+    from certificates.models import CertificateStatuses
+    from xmodule.modulestore import MONGO_MODULESTORE_TYPE
+    from xmodule.modulestore.django import modulestore
+    from django.utils import timezone
+    from student.models import School,Cohort,District,SubjectArea,GradeLevel,YearsInEducation
+    from baseinfo.models import Enum
+    import datetime
+%>
+
+<style type="text/css" media="screen">
+#image_uploading{display:none;}
+.user_info_con_main{
+    margin:0 auto;
+    max-width:1180px;
+    min-width:760px;
+    width:100%;
+    height:800px;
+    margin-top: 5px;
+    background-color: #e8e8e8;
+    border:0px solid #0ff;
+}
+.user_info_con_top{
+    width:100%;
+    border:0px solid;
+    margin-top: 5px;
+    float: left;
+}
+.user_photo{
+    width:180px;
+    height:220px;
+    margin-left:20px;
+    border: 3px solid #bebebe;
+    float: left;
+}
+.user_info_con_top_right{
+    width:930px;
+    height:220px;
+    float: left;
+    margin-left:20px; 
+    border: 0px solid #f00;
+}
+.user_name{
+    width:930px;
+    height:70px;
+    float: left;
+    margin-top: 10px;
+    border: 0px solid #f0f;
+}
+.user_bio_cert{
+    width:930px;
+    height:116px;
+    float: left;
+    margin-top: 29px;
+    border: 0px solid;
+}
+.user_bio{
+    width:445px;
+    height:110px;
+    float: left;
+    border: 3px solid #bebebe;
+}
+.user_cert{
+    width:445px;
+    height:110px;
+    float: right;
+    margin-left:20px;
+    border: 3px solid #bebebe;
+}
+.user_info_con_bottom{
+    width:100%;
+    float: left;
+    margin-top:20px; 
+    border:0px solid;
+}
+.user_profile{
+    width:650px;
+    height:500px;
+    float: left;
+    margin-left:20px; 
+    border:3px solid #bebebe;
+}
+.user_info_con_bottom_topright{
+    width: 448px;
+    height:200px;
+    float: left;
+    margin-left: 29px;
+    border:3px solid #BEBEBE;
+}
+.user_info_con_bottom_right{
+    width: 448px;
+    height:200px;
+    float: left;
+    margin-left: 29px;
+    margin-top: 94px;
+    border:3px solid #BEBEBE;
+}
+.user_profile div{
+    padding:10px 5px 10px 5px;
+    color: #666;
+}
+.user_profile div span{
+    color: #666;
+    font-family: "open sans" !important;
+}
+/*------------------------------------------------*/
+.name-icon{
+    background-size: cover;
+    background-image: url(/static/images/portal-icons/course-info-icon.png);
+    width: 19px;
+    height:19px;
+    float:left;
+    margin: 3px 6px 0px 0px;
+    opacity: 0.6;
+}
+.skype-icon{
+    background-size: cover;
+    background-image: url(/static/images/skype-add.png);
+    width: 19px;
+    height:19px;
+    float:left;
+    margin: 3px 6px 0px 0px;
+}
+.title{
+    font-size: 20px;
+    font-weight:bold;color:#000;
+    padding:5px;
+}
+.user_info_con_bottom_topright div{
+    color:#666;
+    padding: 15px 5px;
+}
+.user_info_con_bottom_right div{
+    color:#666;
+    padding: 10px 5px;
+}
+</style>
+<%inherit file="main_new.html" />
+<%namespace name='static' file='static_content.html'/>
+<%block name="title"><title>${_("User_info - {username}".format(username=curr_user.username))}</title></%block>
+
+<div class="user_info_con_main">
+    <div class="user_info_con_top">
+        <div class="user_photo">
+            <table width="100%" height="100%" border="0">
+                <tr>
+                    <td style="text-align:center;vertical-align:middle;background-color: #C5E0B4;"><img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo"/></td>
+                </tr>
+            </table>
+        </div>
+        <div class="user_info_con_top_right">
+            <div class="user_name">
+                <div class="full_name">
+                    <div class="icon name-icon"></div><b>${_("Name")}:</b>
+                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
+                    <script>
+                        /*
+                        var full_name = document.getElementById('full_name_span').textContent;
+                        if(full_name.length>31){
+                            document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
+                        }
+                        */
+                    </script>
+                    %if curr_user==request.user:
+                        <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                
+                %if request.user==curr_user:
+                    <div class="skype_name">
+                        <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
+                        <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;;color:#666;">${ curr_user.profile.skype_username }</span>
+                        <a href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                    </div>
+                    <div style="padding-left:25px;">
+                        <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
+                        <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
+                            <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
+                        </form>
+                    </div>
+                %endif
+            </div>
+            <div class="user_bio_cert">
+                <div class="user_bio">
+                    <div class="user_bio_title title" >
+                        Bio:
+                    </div>
+                    <div class="user_bio_text" style="padding:5px;color:#666;">
+                            %if curr_user.profile.bio:
+                            ${curr_user.profile.bio}
+                            %else:
+                            Add info that you would like to share about yourself here:  
+                            %endif
+
+                            %if curr_user==request.user:
+                            <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                            <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                            </a>
+                            %endif
+                    </div>
+                </div>
+                <div class="user_cert">
+                    <div class="user_cert_title title">
+                        Certificates:
+                    </div>
+                    <div class="user_cert_text" style="padding:5px;color:#666;">
+                        %if not courses_complated:
+                           <section class="empty-dashboard-message">
+                                <p>${_("You haven’t completed any course yet.")}</p>
+                           </section>
+                        %endif
+                        % for course in courses_complated:
+                            <article class="my-course">
+                              <section class="info">
+                                <hgroup>
+                                  <h3>
+                                    % if course.id in show_courseware_links_for:
+                                    %if curr_user == request.user and not course.close_course:
+                                      <a href="${course_target}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                                    %else:
+                                      <a href="" style="cursor:default;" onclick="return false;" course_number="${course.display_number_with_default | h}">${course.display_number_with_default | h} ${course.display_name_with_default}</a>
+                                    %endif         
+                                    % else:
+                                      <span>${course.display_number_with_default | h} ${course.display_name_with_default}</span>
+                                    % endif
+                                  </h3>
+                                </hgroup>
+                                </section>
+                              </article>
+                          % endfor
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user_info_con_bottom">
+        <div class="user_profile">
+            <div class="user_profile_title title" style="color:#000;font-size: 20px">
+                My Profile:
+            </div>
+            <div class="user_profile_state">
+                <span style="font-weight:bold;">State: </span> 
+                % if curr_user.profile.district_id:
+                ${curr_user.profile.district.state.name}
+                % endif
+            </div>
+            <div class="user_profile_district" style="font-weight:bold;">
+                District:
+            </div>
+            <div class="user_profile_district_text">
+                % if curr_user.profile.district_id:
+                ${curr_user.profile.district.name}
+                % endif
+            </div>
+            <div class="user_profile_school" style="font-weight:bold;">
+                School:
+            </div>
+            <div class="user_profile_school_text">
+                % if curr_user.profile.school_id:
+                ${curr_user.profile.school.name}
+                % endif
+
+                %if curr_user==request.user:
+                    <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                    <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                    </a>
+                %endif
+            </div>
+            <div class="user_profile_grade" style="font-weight:bold;">
+                Grade Level:
+            </div>
+            <div class="user_profile_grade_text">
+                <% gn=list() %>
+                % if curr_user.profile.grade_level_id:
+                % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+                % if len(c)>0:
+                <% gn.append(GradeLevel.objects.get(id=c).name) %>
+                % endif
+                % endfor
+                % endif
+                ${", ".join(gn)}
+
+                %if curr_user==request.user:
+                    <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                    <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                    </a>
+                %endif
+            </div>
+            <div class="user_profile_grade" style="font-weight:bold;">
+                Major Subject Area:
+            </div>
+            <div class="user_profile_grade_text">
+                % if curr_user.profile.major_subject_area_id:
+                ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+                % endif
+
+                %if curr_user==request.user:
+                    <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                    <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                    </a>
+                %endif
+            </div>
+            <div class="user_profile_years">
+                <span style="font-weight:bold;">Number of Years in Education: </span> 
+                % if curr_user.profile.years_in_education_id:
+                ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+                % endif
+
+                %if curr_user==request.user:
+                    <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                    <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                    </a>
+                %endif
+            </div>
+        </div>
+        <div class="user_info_con_bottom_topright">
+            <div class="user_my_profile_title title" style="color:#000">
+                <b>My Learners's Profile:</b>
+            </div>
+            <div class="user_my_profile_title">
+                <b>Free/Reduced Lunch:</b>
+                % if curr_user.profile.percent_lunch:
+                ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+                % endif
+            </div>
+            <div class="user_my_profile_title">
+                <b>IEPs:</b>
+                % if curr_user.profile.percent_iep:
+                ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+                % endif
+            </div>
+            <div class="user_my_profile_title">
+                <b>English Learners:</b>
+                % if curr_user.profile.percent_eng_learner:
+                ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+                % endif
+            </div>
+        </div>
+        <div class="user_info_con_bottom_right">
+            <div class="user_pepper_stats title" style="color:#000">
+                My Pepper Stats:
+            </div>
+            <div><b>All Course Time:</b>
+                <span id="all_course_time" style="display:inline;"></span>
+            </div>
+            <div><b>Collaboration Time:</b>
+                <span id="collaboration_time" style="display:inline;"></span>
+            </div>
+            <div><b>Total Time:</b>
+                <span id="total_time_in_pepper" style="display:inline;"></span>
+            </div>
+         </div>
+        </div>
+    </div>
+</div>
+
+
+<section id="apply_picture_change" class="modal">
+  <div class="inner-wrapper">
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+    <header>
+      <h2>Picture uploading</h2>
+      <hr/>
+    </header>
+    <div id="">
+      <form method="" id="" action="">
+       <fieldset>
+          <div class="input-group">
+            <label>Please choose a file.</label>
+            <input type="file" name="file" value="" />
+          </div>
+          <div class="submit">
+            <input type="submit" id="submit" value="Upload now">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+</script>
+

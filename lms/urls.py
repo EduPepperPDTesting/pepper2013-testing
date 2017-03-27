@@ -441,6 +441,7 @@ urlpatterns = (
     url(r'^newdashboard$', 'student.newdashboard.newdashboard', name="newdashboard"),
     url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
+
     url(r'^upload_photo$', 'student.views.upload_photo', name="upload_photo"),
 
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
