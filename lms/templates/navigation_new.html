@@ -346,6 +346,23 @@
     margin-top: 5px;
     margin-left:10px;
 }
+.dropdownusername{
+    display:block;
+    max-width:70px;
+    text-overflow:ellipsis;
+    line-height:12px;
+    height:18px;
+    font-weight:bold;
+    overflow-x:hidden;
+    vertical-align:top;
+}
+.dropdownusername + a:hover{
+    color:#3c3c3c;
+    text-decoration: none;
+}
+.dropdown:hover{
+
+}
 </style>
 
 % if context.get("curr_user"):
@@ -586,30 +603,42 @@
             %if show_extended:
                 <ol class="user admin">
                     <!-- Dashboard button with dropdown -->
-                    <li class="primary">
+                    <!-- <li class="primary">
                         <a href="${reverse('dashboard')}" class="user-link" style="overflow-y:visible;height:28px;margin-top:6px;">
-                            <span class="avatar"></span>
-                            <span class="sr">${_("Dashboard for:")} </span>
                             <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                         </a>
-                    </li>
+                    </li> -->
                     <li class="primary">
-                        <a href="#" class="dropdown" style="height:28px;margin-top:6px;"><span class="sr">${_("More options dropdown")}</span> &#9662;</a>
+                        <a href="#" class="dropdown" style="margin-top: -15px;">
+                            <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="30">
+                            <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        </a>
                         <ul class="dropdown-menu">
+                            <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
+                                margin: 5px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
+                                <div style="float:left;">   
+                                    <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
+                                </div>
+                                <div style="float:right;margin-top: 10px;">
+                                    <span class="dropdownusername" >${curr_user.username}</span>
+                                    <a style="text-decoration:none"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
+                                </div>
+                            </li>
                             <%block name="navigation_dropdown_menu_links" >
                                 <li><a href="/static/resource/Pepper_User_Guide_10_2016.pdf" target="_blank">${_("Help")}</a></li>
                             </%block>
                             <li><a href="/course_credits" class="main-link">Course Credits</a></li>
                             <li><a href="${reverse('logout')}">${_("Log Out")}</a></li>
+                            
                         </ul>
                     </li>
                 </ol>
                 <!-- Userphoto -->
-                <div class="userphoto-div">
+                <!-- <div class="userphoto-div">
                     <a href="${reverse('user_information',args=[curr_user.id])}">
                         <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
                     </a>
-                </div>
+                </div> -->
             %endif
         %endif
 <!--sub dashboard button--> 
