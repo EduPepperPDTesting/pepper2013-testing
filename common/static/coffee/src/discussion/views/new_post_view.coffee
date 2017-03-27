@@ -135,9 +135,7 @@ if Backbone?
           follow             = false || @$("input.discussion-follow").is(":checked")
 
           url = DiscussionUtil.urlFor('create_thread', @topicId)
-
-          alert(pd_plan_id)
-          
+                  
           DiscussionUtil.safeAjax
               $elem: $(event.target)
               $loading: $(event.target) if event

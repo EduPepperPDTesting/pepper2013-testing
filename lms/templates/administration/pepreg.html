@@ -663,15 +663,18 @@
 
 			$(".calendar_check_would").click(function(event){
 				event.stopImmediatePropagation();
-			    //event.stopPropagation();
-                pepreg.registerUser($(this).attr("training_id"), (($(this).attr("checked")) ? true : false), function (reg) {
+			    event.preventDefault();
+                pepreg.registerUser($(this).attr("training_id"), $(this).prop("checked"), function (reg) {
 					if (reg)
 						pepreg.warning("Thank you for registering/recording attendance for this training!");
 					else
 						pepreg.warning("Thank you! You are no longer registered for this training.");
-
 					pepreg.reloadTable();
+					$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked", !$(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 					calendarOpen();
+					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
+					console.log(regData.trID);
+					console.log($(".calendar_check_would[training_id='"+regData.trID+"']").prop("checked"));
 				})
 			});
 			
@@ -1496,6 +1499,8 @@
             if (r.success) {
                 cb(join);
                 //self.reloadTable();
+                trID=r.training_id;
+                regData={success: true, trID: trID};
             }
         });
     };
@@ -1982,7 +1987,8 @@
         }
     }
 
-    function pickDayOnClick(pickDate){
+    function pickDayOnClick(event, pickDate){
+        event.preventDefault();
         $("#calendar_select_range option:selected").prop("selected", false);
         $("#calendar_select_range option[value=2]").prop("selected", true);
         _sys_calendar_day = parseInt(pickDate);
