@@ -576,7 +576,7 @@ def follow_thread(request, course_id, thread_id):
     user.follow(thread)
 
     ma_db = myactivitystore()
-    my_activity = {"GroupType": "Courses", "EventType": "course_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    my_activity = {"GroupType": "Courses", "EventType": "courses_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
     "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
     "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
     ma_db.insert_item(my_activity)
@@ -853,7 +853,7 @@ def set_rating(request, course_id, thread_id):
     thread = cc.Thread.find(thread_id)
 
     ma_db = myactivitystore()
-    my_activity = {"GroupType": "Courses", "EventType": "course_ratediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    my_activity = {"GroupType": "Courses", "EventType": "courses_ratediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
     "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},
     "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
     ma_db.insert_item(my_activity)
