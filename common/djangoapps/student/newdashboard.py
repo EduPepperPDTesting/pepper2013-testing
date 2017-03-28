@@ -1899,7 +1899,7 @@ def district_photo(request,user_id=None):
     if os.path.exists(file):
         f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg','rb')
     else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/state_default.jpg','rb')
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/district_default.jpg','rb')
     response.write(f.read())
     f.close()
     return response

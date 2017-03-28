@@ -603,10 +603,10 @@ a.post_btn:hover{
             <div class="ds-view-all-courses">
                 <a href="/my_courses">View All</a>
             </div>
-            <div class="ds-my-status">
+            <div class="ds-my-status" id="content">
                 <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
                 <div class="my-courses-cards" style="text-align: center">
-                    <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+                    <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
                 </div>
             </div>
         </div>
@@ -726,16 +726,16 @@ a.post_btn:hover{
                     </div>
                 %endfor
             </div>
-            <div class="ds-view-all-communities" style="">
+            <div class="ds-view-all-communities">
                 <a href="/communities">View All</a>
             </div>
         </div>
-        <div class="con-my-communities">
-                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Stabdards</span></div>
-                <div class="my-courses-cards" style="text-align: center">
-                    <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
-                </div>
+        <div class="con-my-communities" id="standards">
+            <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+            <div class="my-courses-cards" style="text-align: center">
+                <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
             </div>
+        </div>
         <div style="clear:both;"></div>
     </section>
 </section>
