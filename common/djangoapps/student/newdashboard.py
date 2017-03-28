@@ -1869,6 +1869,20 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
+def state_photo(request,user_id=None):
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        user = User.objects.get(id=request.user.id)
+    
+    state = user.profile.district.state.name
+    district = user.profile.district.name
+    response = HttpResponse(content_type='image/JPEG')
+    f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/state/'+state+'.png','rb')
+        response.write(f.read())
+        f.close()
+    return response
+
 
 def request_course_access_ajax(request):
     try:
