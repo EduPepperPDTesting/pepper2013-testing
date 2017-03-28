@@ -10,6 +10,7 @@ import re
 import urllib
 import uuid
 import time
+import os
 
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
@@ -1876,9 +1877,29 @@ def state_photo(request,user_id=None):
         user = User.objects.get(id=request.user.id)
     
     state = user.profile.district.state.name
+    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg'
+    response = HttpResponse(content_type='image/JPEG')
+    if os.path.exists(file):
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg','rb')
+    else:
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/state_default.jpg','rb')
+    response.write(f.read())
+    f.close()
+    return response
+
+def district_photo(request,user_id=None):
+    if user_id:
+        user = User.objects.get(id=user_id)
+    else:
+        user = User.objects.get(id=request.user.id)
+    
     district = user.profile.district.name
     response = HttpResponse(content_type='image/JPEG')
-    f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/state/'+state+'.png','rb')
+    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg'
+    if os.path.exists(file):
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg','rb')
+    else:
+        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/state_default.jpg','rb')
     response.write(f.read())
     f.close()
     return response

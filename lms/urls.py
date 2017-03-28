@@ -446,8 +446,11 @@ urlpatterns = (
     url(r'^new_upload_photo$', 'student.newdashboard.new_upload_photo', name="new_upload_photo"),
     url(r'^user_photo/$', 'student.views.user_photo', name="user_photo"),
     url(r'^user_photo/(?P<user_id>\d+)$', 'student.views.user_photo', name="user_photo"),
+    url(r'^state_photo/$', 'student.newdashboard.state_photo', name="state_photo"),
     url(r'^state_photo/(?P<user_id>\d+)$', 'student.newdashboard.state_photo', name="state_photo"),
-
+    url(r'^district_photo/$', 'student.newdashboard.district_photo', name="district_photo"),
+    url(r'^district_photo/(?P<user_id>\d+)$', 'student.newdashboard.district_photo', name="district_photo"),
+    
     url(r'^dashboard/(?P<user_id>\d+)$', 'student.views.dashboard', name="dashboard"),
     url(r'^login$', 'student.views.signin_user', name="signin_user"),
 

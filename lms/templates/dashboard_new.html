@@ -260,12 +260,13 @@ a.post_btn:hover{
     float: left;
     /*border:1px solid #666;*/
 }
-.ds-my-status span{
-    font-size: 20px;
-    font-weight: bold;
-}
 /*--right My Communities---------------------------------------------*/
 .con-my-communities{
+    display:block;
+    float:right;
+    width:220px;
+}
+.my-district{
     display:block;
     float:right;
     width:220px;
@@ -603,8 +604,10 @@ a.post_btn:hover{
                 <a href="/my_courses">View All</a>
             </div>
             <div class="ds-my-status">
-                <span>My Content</span>
-                <div><img src="${reverse('state_photo',args=[request.user.id])}" alt="no picture"></div>
+                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
+                <div class="my-courses-cards" style="text-align: center">
+                    <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+                </div>
             </div>
         </div>
         <!--<div class="con-my-courses-placeholder"></div>-->
@@ -727,6 +730,12 @@ a.post_btn:hover{
                 <a href="/communities">View All</a>
             </div>
         </div>
+        <div class="con-my-communities">
+                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Stabdards</span></div>
+                <div class="my-courses-cards" style="text-align: center">
+                    <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
+                </div>
+            </div>
         <div style="clear:both;"></div>
     </section>
 </section>
