@@ -291,18 +291,14 @@
                     ${curr_user.profile.district.state.name}
                     % endif
                 </div>
-                <div class="user_profile_district" style="font-weight:bold;">
-                    District:
-                </div>
-                <div class="user_profile_district_text">
+                <div class="user_profile_district">
+                    <span style="font-weight:bold;">District: </span> 
                     % if curr_user.profile.district_id:
                     ${curr_user.profile.district.name}
                     % endif
                 </div>
-                <div class="user_profile_school" style="font-weight:bold;">
-                    School:
-                </div>
-                <div class="user_profile_school_text">
+                <div class="user_profile_school" style="word-wrap:break-word">
+                    <span style="font-weight:bold;">School: </span> 
                     % if curr_user.profile.school_id:
                     ${curr_user.profile.school.name}
                     % endif
@@ -313,10 +309,8 @@
                         </a>
                     %endif
                 </div>
-                <div class="user_profile_grade" style="font-weight:bold;">
-                    Grade Level:
-                </div>
-                <div class="user_profile_grade_text">
+                <div class="user_profile_grade">
+                    <span style="font-weight:bold;">Grade Level: </span> 
                     <% gn=list() %>
                     % if curr_user.profile.grade_level_id:
                     % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
@@ -333,10 +327,8 @@
                         </a>
                     %endif
                 </div>
-                <div class="user_profile_grade" style="font-weight:bold;">
-                    Major Subject Area:
-                </div>
-                <div class="user_profile_grade_text">
+                <div class="user_profile_grade" style="word-wrap:break-word">
+                    <span style="font-weight:bold;">Major Subject Area: </span> 
                     % if curr_user.profile.major_subject_area_id:
                     ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
                     % endif
