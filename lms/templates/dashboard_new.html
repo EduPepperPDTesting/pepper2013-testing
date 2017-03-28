@@ -603,22 +603,12 @@ a.post_btn:hover{
             <div class="ds-view-all-courses">
                 <a href="/my_courses">View All</a>
             </div>
-            <div>
-                <div class="ds-my-status" id="content">
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
-                    </div>
+            <div class="ds-my-status" id="content">
+                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
+                <div class="my-courses-cards" style="text-align: center">
+                    <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
                 </div>
-                <div class="con-my-communities" id="standards">
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
-                    </div>
-                </div>
-
             </div>
-            
         </div>
         <!--<div class="con-my-courses-placeholder"></div>-->
 
@@ -740,7 +730,13 @@ a.post_btn:hover{
                 <a href="/communities">View All</a>
             </div>
         </div>
-    <div style="clear:both;"></div>
+        <div class="con-my-communities" id="standards">
+            <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+            <div class="my-courses-cards" style="text-align: center">
+                <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+            </div>
+        </div>
+        <div style="clear:both;"></div>
     </section>
 </section>
 <!--@begin:Add for Dashboard Posts-->
