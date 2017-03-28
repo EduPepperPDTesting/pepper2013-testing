@@ -307,8 +307,11 @@ def report_save(request, report_id):
             report.save()
             
             if action == 'new':
-                ma_db = myactivitystore()
-                my_activity = {"ActivityType": "Reports", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": report.id}
+                ma_db = myactivitystore()                
+                my_activity = {"GroupType": "Reports", "EventType": "reports_createReport", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+                "URLValues": {"report_id": report.id},    
+                "TokenValues": {"report_id": report.id}, 
+                "LogoValues": {"report_id": report.id}}
                 ma_db.insert_item(my_activity)
 
             ReportViews.objects.filter(report=report).delete()
@@ -365,7 +368,15 @@ def report_delete(request):
     report_id = request.POST.get('report_id', False)
     if report_id:
         try:
+            report = Reports.objects.get(id=report_id)
+            rid = report.id
+            rname = report.name
+            
             Reports.objects.get(id=report_id).delete()
+            
+            ma_db = myactivitystore()                
+            ma_db.set_item_reporting(rid, rname)
+
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
             transaction.rollback()
