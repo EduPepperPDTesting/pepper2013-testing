@@ -366,9 +366,15 @@ def delete_training(request):
     try:
         id = request.POST.get("id", None)
         training = PepRegTraining.objects.get(id=id)
+        tid = training.id
+        tname = training.name
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         training.delete()
+
+        ma_db = myactivitystore()        
+        ma_db.set_item_pd(tid, tname)
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -432,6 +438,8 @@ def getCalendarMonth(request):
     _year_n = request.GET.get('year_n');
     _month_n = request.GET.get('month_n');
     _day = request.GET.get('day');
+    _day_n = request.GET.get('day_n');
+    _getrange = request.GET.get('daterange'); #akogan
     _catype = request.GET.get('catype');
 
     if (_year):
@@ -449,6 +457,12 @@ def getCalendarMonth(request):
     if (_day):
         _day = int(_day);
 
+    if (_day_n):
+        _day_n = int(_day_n);
+
+    if not _getrange:
+        _getrange = "0"
+
     if not(_catype):
         _catype = "0";
 
@@ -458,8 +472,6 @@ def getCalendarMonth(request):
     while firstweekday > 6:
         firstweekday -= 7
 
-    month = [[]]
-    week = 0
     start = datetime(year=_year, month=_month, day=1, tzinfo=utc)  # 2016-08-01
     end = datetime(year=_year, month=_month, day=1, tzinfo=utc) + relativedelta(months=1)  # 2016-09-01
 
@@ -479,22 +491,68 @@ def getCalendarMonth(request):
         else:
             all_occurrences = PepRegTraining.objects.prefetch_related().filter(**kwargs)
     else:
-        all_occurrences = PepRegTraining.objects.prefetch_related().all();
+        all_occurrences = PepRegTraining.objects.prefetch_related().all()
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
 
-    current_day = datetime(year=_year_n, month=_month_n, day=_day, tzinfo=utc)  # 2016-08-01
-    tmp_school_id = request.user.profile.school.id
+    current_day = datetime(year=_year_n, month=_month_n, day=_day_n, tzinfo=utc)  # 2016-08-01
+    try:
+        tmp_school_id = request.user.profile.school.id
+    except:
+        tmp_school_id = 0
 
-    for day in cal.itermonthdays(_year, _month):
+    daterangelist = []
+    #akogan datetime.
+    if(_getrange=="0"):
+        daterange = cal.itermonthdays(_year, _month)
+    elif(_getrange=="1"):
+        weekNumber = date(year=_year, month=_month, day=_day).isocalendar()[1]
+        daterange = getweekdays(_year, weekNumber)
+    else:
+        getDay = datetime(year=_year, month=_month, day=_day)
+        daterangelist.append(getDay)
+
+    if not daterangelist:
+        daterangelist = list(daterange)
+
+    name_dict["table_tr_content"] = build_week_rows(_year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
+
+    return HttpResponse(json.dumps(name_dict), content_type="application/json")
+
+#akogan
+def getweekdays(year, weekNumber):
+    firstday = datetime.strptime('%04d-%02d-1' % (year, weekNumber), '%Y-%W-%w')
+    if date(year, 1, 4).isoweekday() > 4:
+        firstday -= timedelta(days=7)
+
+    i = 0
+    while (i < 7):
+        yield firstday + timedelta(days=i)
+        i += 1;
+
+#akogan
+def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
+    isweek = 1 if len(daterange) == 7 else 0
+    isday = 1 if len(daterange) == 1 else 0
+    rangedates = [[]]
+    week = 0
+
+    for day in daterange:
         current = False;
         occurrences = [];
+        trainingStartTime = ""
+        trainingMovePx = ""
+        labelMovePx = ""
+        trainingStartTimes = []
         if day:
-            date = datetime(year=_year, month=_month, day=day, tzinfo=utc)
+            if (isweek or isday):
+                date = utc.localize(day)
+            else:
+                date = datetime(year=year, month=month, day=day, tzinfo=utc)
             for item in all_occurrences:
                 if (item.training_date == date.date()):
-                    if(item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
+                    if (item.school_id and item.school_id != -1 and item.school_id != tmp_school_id):
                         continue;
 
                     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
@@ -509,77 +567,129 @@ def getCalendarMonth(request):
                             status = PepRegStudent.objects.get(student=request.user, training=item).student_status
                     except:
                         status = "";
+                    trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+                    if isday:
+                        trainingMinutes = int(trainingStartTime[-5:-3])
+                        if(trainingMinutes)<30:
+                            trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                        else:
+                            trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
+                        trainingMinutes = int(trainingStartTime[-5:-3])
+                        # trainingMovePx = int(trainingStartTime[-5:-3])*.026
+                        # labelMovePx = "style='position:relative;top:" + str(trainingMovePx) + "px;left: 5px;'"
+                        trainingStartTimes.append(trainingStartHour)
+
                     # &#13;
-                    titlex = item.name + "::" + str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0');
+                    titlex = item.name + "::" + trainingStartTime
 
                     if item.classroom:
-                        titlex = titlex  + "::" + item.classroom;
+                        titlex = titlex + "::" + item.classroom;
 
                     if item.geo_location:
-                        titlex = titlex  + "::" + item.geo_location;
+                        titlex = titlex + "::" + item.geo_location;
 
                     if (arrive == "0" and allow == "0"):
-                        if(_catype == "0" or _catype == "4"):
+                        if (catype == "0" or catype == "4"):
                             occurrences.append(
-                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
+                                "<span class='alert al_4' titlex='" + titlex + "' " + labelMovePx + ">" + item.name + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
-                            if (_catype == "0" or _catype == "5"):
+                            if (catype == "0" or catype == "5"):
                                 occurrences.append(
-                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
+                                    "<span class='alert al_7' titlex='" + titlex + "' " + labelMovePx + ">" + item.name + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
-                                if (_catype == "0" or _catype == "3"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
+                                if (catype == "0" or catype == "3"):
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
+                                        item.id) + "' checked /> ";
                                     occurrences.append(
-                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
-                                if (_catype == "0" or _catype == "2"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
+                                if (catype == "0" or catype == "2"):
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
+                                        item.id) + "' /> ";
                                     occurrences.append(
-                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
-                        #The registration date has passed for this training
+                        # The registration date has passed for this training
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "0"):
-                        #Instructor records attendance.
+                        # Instructor records attendance.
                         pass
 
                     elif (arrive == "1" and allow_student_attendance == "1"):
                         if (status == "Attended" or status == "Validated"):
                             # checked true
-                            if (_catype == "0" or _catype == "1"):
+                            if (catype == "0" or catype == "1"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
                                 occurrences.append(
-                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
-                            if (_catype == "0" or _catype == "3"):
+                            if (catype == "0" or catype == "3"):
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
                                 occurrences.append(
-                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
 
-        month[week].append((day, occurrences, current))
-        if len(month[week]) == 7:
-            month.append([])
-            week += 1
+        rangedates[week].append([day, occurrences, current, trainingStartTimes])
+
+        if (not isweek and not isday):
+            if len(rangedates[week]) == 7:
+                rangedates.append([])
+                week += 1
 
     table_tr_content = "";
-    for week in month:
+    if isweek:
+        colstyle = "style='min-height: 360px !important;'"
+    elif isday:
+        colstyle = "style='min-height: 590px !important;'"
+    else:
+        colstyle = "style='min-height: 60px;'"
+
+    if isday:
+        dayHours = []
+        for p in range(2):
+            for i in range(0, 13):
+                if((p == 0 and i < 6) or i == 0): continue
+                if (p == 0 and i < 12):
+                    d = "AM"
+                elif (p == 1 and i < 12) or (p == 0 and i == 12):
+                    d = "PM"
+                getHour = str(i) if i > 0 else "12"
+                if ((p == 0) or i < 6): getHalfHour = getHour + ":30 " + d
+                getHour += ":00 " + d
+                dayHours.append(getHour)
+                if((p == 0) or i<6): dayHours.append(getHalfHour)
+                if (p == 1 and i == 6): break
+
+    for week in rangedates:
         table_tr_content += "<tr class='calendar-tr-tmp'>";
+
+        if isday:
+            table_tr_content += "<td style='position: relative; height: 100%; width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" \
+                                "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+
+            for dayHour in dayHours:
+                table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
+
+            table_tr_content += "</div></td>";
+
         for day in week:
+            if(isweek or isday):
+                day[0]=day[0].day
             class_name = "";
             if (day[0] == 0):
                 class_name = "calendarium-empty";
@@ -588,23 +698,44 @@ def getCalendarMonth(request):
             else:
                 class_name = "calendarium-day";
 
-            table_tr_content += "<td class='" + class_name + "'>";
+            if(not isday and day[0]):
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ")'"
+            else:
+                clickFunc = ""
+
+            table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
             if (day[0]):
-                table_tr_content += "<div class='calendarium-relative'><span class='calendarium-date'>" + str(
+                table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(
                     day[0]) + "</span>";
-                for tmp1 in day[1]:
-                    table_tr_content += tmp1;
+
+                if not isday:
+                    for tmp1 in day[1]:
+                        table_tr_content += tmp1;
 
                 table_tr_content += "</div>";
+
+                if isday:
+                    table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+
+                    for dayHour in dayHours:
+                        table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+
+                        if day[1]:
+                            i = 0
+                            for tmp1 in day[1]:
+                                if(day[3][i] == dayHour):
+                                    table_tr_content += tmp1
+                                i += 1
+
+                        table_tr_content += "</div>"
+
+                    table_tr_content += "</div>"
 
             table_tr_content += "</td>";
 
         table_tr_content += "</tr>";
 
-    name_dict["table_tr_content"] = table_tr_content;
-
-    return HttpResponse(json.dumps(name_dict), content_type="application/json");
-
+    return table_tr_content;
 
 def remove_student(student):
     if student.training.type == "pepper_course":
@@ -645,7 +776,10 @@ def register(request):
             student.save()
 
             ma_db = myactivitystore()
-            my_activity = {"ActivityType": "PDPlanner", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": training.id}
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"training_id": training.id},    
+            "TokenValues": {"training_id": training.id}, 
+            "LogoValues": {"training_id": training.id}}
             ma_db.insert_item(my_activity)
 
             if training.type == "pepper_course":
@@ -674,7 +808,7 @@ def register(request):
     except Exception as e:
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
 
-    return HttpResponse(json.dumps({'success': True}), content_type="application/json")
+    return HttpResponse(json.dumps({'success': True, 'training_id': training_id}), content_type="application/json")
 
 
 def set_student_attended(request):

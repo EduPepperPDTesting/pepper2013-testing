@@ -37,6 +37,7 @@ from django.conf import settings
 from datetime import datetime
 from pytz import UTC
 from models import *
+from xmodule.remindstore import myactivitystore
 
 log = logging.getLogger(__name__)
 
@@ -138,6 +139,13 @@ def create_thread(request, course_id, commentable_id):
             thread.update_attributes(group_id=group_id)
 
     thread.save()
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_creatediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     courseware_context = get_courseware_context(thread, course)
     if courseware_context:
         if str(courseware_context.get('courseware_url')).find('__am')>0:
@@ -219,6 +227,15 @@ def _create_comment(request, course_id, thread_id=None, parent_id=None):
         'parent_id': parent_id,
     })
     comment.save()
+   
+    thread = cc.Thread.find(comment.thread_id)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_replydiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)   
+
     if post.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(request.user)
         user.follow(comment.thread)
@@ -559,6 +576,13 @@ def follow_thread(request, course_id, thread_id):
     user = cc.User.from_django_user(request.user)
     thread = cc.Thread.find(thread_id)
     user.follow(thread)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     return JsonResponse({})
 
 
@@ -828,6 +852,14 @@ def set_rating(request, course_id, thread_id):
     discussion_rating = discussion_rating_store()
     discussion_rating.set_rating(thread_id, userid, post_param['rating'])
   
+    thread = cc.Thread.find(thread_id)
+
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Courses", "EventType": "courses_ratediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
+    ma_db.insert_item(my_activity)
+
     return JsonResponse({})
 
 @require_POST

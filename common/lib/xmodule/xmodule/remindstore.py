@@ -232,6 +232,49 @@ class MongoMyActivityStore(object):
     def insert_item(self,item):
         self.collection.insert(item)
 
+    def set_item_pd(self,training_id,training_name):        
+        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
+
+    def set_item_reporting(self,report_id,report_name):        
+        self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
+
+class MongoMyActivityStaticStore(object):
+
+    # TODO (cpennington): Enable non-filesystem filestores
+    def __init__(self, host, db, collection,port=27017, default_class=None,
+                 user=None, password=None, mongo_options=None, **kwargs):
+
+        super(MongoMyActivityStaticStore, self).__init__(**kwargs)
+
+        if mongo_options is None:
+            mongo_options = {}
+
+        self.collection = pymongo.connection.Connection(
+            host=host,
+            port=port,
+            tz_aware=True,
+            **mongo_options
+        )[db][collection]
+
+        if user is not None and password is not None:
+            self.collection.database.authenticate(user, password)
+
+        # Force mongo to report errors, at the expense of performance
+        self.collection.safe = True    
+
+    def get_item(self):
+        results = self.collection.find()
+        '''
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        '''
+        return results
+
+    def insert_item(self,item):
+        self.collection.insert(item)
+        
 class MongoChunksStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
@@ -320,6 +363,7 @@ _REMINDSTORE = {}
 _MESSAGESTORE = {}
 _CHUNKSSTORE = {}
 _MYACTIVITYSTORE = {}
+_MYACTIVITYSTATICSTORE = {}
 
 def load_function(path):
     """
@@ -367,6 +411,18 @@ def myactivitystore(name='default'):
         _MYACTIVITYSTORE[name] = class_(**options)
 
     return _MYACTIVITYSTORE[name]
+
+def myactivitystaticstore(name='default'):
+    if name not in _MYACTIVITYSTATICSTORE:
+        class_ = load_function(settings.MYACTIVITYSTATICSTORE['ENGINE'])
+        options = {}
+        options.update(settings.MYACTIVITYSTATICSTORE['OPTIONS'])
+        if 'ADDITIONAL_OPTIONS' in settings.MYACTIVITYSTATICSTORE:
+            if name in settings.MYACTIVITYSTATICSTORE['ADDITIONAL_OPTIONS']:
+                options.update(settings.MYACTIVITYSTATICSTORE['ADDITIONAL_OPTIONS'][name])
+        _MYACTIVITYSTATICSTORE[name] = class_(**options)
+
+    return _MYACTIVITYSTATICSTORE[name]
 
 def chunksstore(name='default'):
     if name not in _CHUNKSSTORE:

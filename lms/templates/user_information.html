@@ -11,94 +11,82 @@
     from baseinfo.models import Enum
     import datetime
 %>
-
-<style type="text/css" media="screen">
-#image_uploading{display:none;}
-.user_info_con_main{
+<style type="text/css">
+.user_information{
     margin:0 auto;
     max-width:1180px;
     min-width:760px;
     width:100%;
     height:800px;
-    margin-top: 5px;
     background-color: #e8e8e8;
     border:0px solid #0ff;
 }
-.user_info_con_top{
+.information_left{
+    height: 800px;
+    float: left;
+    width:55%;
+}
+.information_left_top{
     width:100%;
-    border:0px solid;
-    margin-top: 5px;
     float: left;
 }
-.user_photo{
-    width:180px;
-    height:220px;
-    margin-left:20px;
-    border: 3px solid #bebebe;
+.information_left_top_left{
+    width:30%;
+    margin:0 0 0 0;
+    padding: 20px;
+    background-color: #C5E0B4;
     float: left;
 }
-.user_info_con_top_right{
-    width:930px;
-    height:220px;
-    float: left;
-    margin-left:20px; 
-    border: 0px solid #f00;
-}
-.user_name{
-    width:930px;
-    height:70px;
-    float: left;
-    margin-top: 10px;
-    border: 0px solid #f0f;
-}
-.user_bio_cert{
-    width:930px;
-    height:116px;
-    float: left;
-    margin-top: 29px;
-    border: 0px solid;
-}
-.user_bio{
-    width:445px;
-    height:110px;
-    float: left;
-    border: 3px solid #bebebe;
-}
-.user_cert{
-    width:445px;
-    height:110px;
+.information_left_top_right1{
     float: right;
-    margin-left:20px;
+    height: 30px;
+    margin-top:30px;
+    width:60%;
+}
+.information_left_top_right2{
+    padding-left:5px; 
+    padding-right:5px; 
+    float: right;
+    width:55%;
+    min-height: 100px;
+    margin-top:90px;
+    margin-right: 25px;
     border: 3px solid #bebebe;
 }
-.user_info_con_bottom{
+.information_left_bottom{
+    float: left;
+    width: 91.5%;
+    border: 3px solid #bebebe;
+    margin: 35px 25px 25px 25px;
+}
+.information_right{
+    height: 800px;
+    float: right;
+    width:40%;
+    margin-right: 40px;
+}
+.information_right_1{
+    padding-left:5px; 
+    padding-right:5px; 
+    float: left;
     width:100%;
+    margin:150px 0 0 0 ;
+    border: 3px solid #bebebe;
+}
+.information_right_2{
+    height: 200px;
     float: left;
-    margin-top:20px; 
-    border:0px solid;
+    width:100%;
+    margin:35px 0 0 0 ;
+    border: 3px solid #bebebe;
 }
-.user_profile{
-    width:650px;
-    height:500px;
+.information_right_3{
+    height: 200px;
     float: left;
-    margin-left:20px; 
-    border:3px solid #bebebe;
+    width:100%;
+    margin:50px 0 0 0 ;
+    border: 3px solid #bebebe;
 }
-.user_info_con_bottom_right{
-    width: 448px;
-    height:500px;
-    float: left;
-    margin-left: 29px;
-    border:1px solid;
-}
-.user_profile div{
-    padding:10px 5px 10px 5px;
-    color: #666;
-}
-.user_profile div span{
-    color: #666;
-}
-/*------------------------------------------------*/
 .name-icon{
     background-size: cover;
     background-image: url(/static/images/portal-icons/course-info-icon.png);
@@ -116,112 +104,1074 @@
     float:left;
     margin: 3px 6px 0px 0px;
 }
+.title{
+    font-size: 20px;
+    font-weight:bold;color:#000;
+    padding:5px;
+}
+.user_profile div{
+    padding:10px 5px 10px 5px;
+    color: #666;
+}
+.user_profile div span{
+    color: #666;
+    font-family: "open sans" !important;
+}
+.user_info_con_bottom_topright div{
+    color:#666;
+    padding: 15px 5px;
+}
+.user_info_con_bottom_right div{
+    color:#666;
+    padding: 15px 5px;
+}
+.empty-dashboard-message p{
+    line-height: 60px;
+}
+.user_bio_text{
+    width:100%;
+    height: 100%;
+}
+.user_bio{
+    width:100%;
+    height: 100%;
+}
+
+.btn_grade_level {
+    -moz-font-feature-settings: normal;
+    -moz-font-language-override: normal;
+    background-color: #FFDBB8;
+    background-image: -moz-linear-gradient(center top , #EAEAEA, #FFFFFF 99%);
+    border-radius: 17px 17px 17px 17px;
+    box-shadow: 0 1px #BFBFBF, 0 1px 2px rgba(44, 44, 44, 0.31) inset;
+    color: #666666 !important;
+    float: left;
+    font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;
+    font-size: 10px !important;
+    font-size-adjust: none;
+    font-stretch: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: bold !important;
+    height: 30px;
+    line-height: 30px !important;
+    text-align: center;
+    text-decoration: none;
+    width: 31px;
+}
+.btn_grade_level:hover {
+    background: none repeat scroll 0 0 #FF9933;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px #884A0C;
+}
+.btn_grade_level_active {
+    -moz-font-feature-settings: normal;
+    -moz-font-language-override: normal;
+    background: none repeat scroll 0 0 #FF9933;
+    border-radius: 17px 18px 18px 17px / 17px 17px 17px 17px;
+    box-shadow: 0 1px #BFBFBF, 0 1px 4px rgba(44, 44, 44, 0.31) inset;
+    color: #FFFFFF !important;
+    float: left;
+    font-family: "Open Sans",Verdana,Geneva,sans-serif,sans-serif;
+    font-size: 10px;
+    font-size-adjust: none;
+    font-stretch: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: bold !important;
+    height: 30px;
+    line-height: 30px !important;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px #884A0C;
+    width: 31px;
+}
+#submit:hover,#submit_email_change:hover,#photo_submit:hover {
+   background:#6e8194;
+   transition-delay: 0s, 0s, 0s;
+   transition-duration: 0.25s, 0.25s, 0.25s;
+   transition-property:color, background,​ box-shadow;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+   transition-duration:0.25s,​ 0.25s,​ 0.25s;
+   color:#fff;
+ }
+ #submit,#submit_email_change,#photo_submit {
+   border-width:0;
+   background:#556370;
+   text-decoration: none;
+   padding-bottom: 7px;
+   padding-left: 10px;
+   padding-right: 10px;
+   padding-top: 7px;
+   border-bottom-left-radius: 2px;
+   border-bottom-right-radius: 2px;
+   cursor: pointer;
+   border-top-left-radius: 2px;
+   border-top-right-radius: 2px;
+   font-family: 'Open Sans',Verdana,Geneva,sans-serif;
+   box-shadow: #949494 0px 2px 1px 0px;
+   color:#fff;
+   transition-timing-function: cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1), cubic-bezier(0.42, 0, 0.58, 1);
+ }
+ #dlg-user-photo{
+     width:140px;
+     height:140px;
+ }
+</style>
+<style type="text/css" media="screen">
+  #image_uploading{display:none;}
 </style>
 <%inherit file="main_new.html" />
 <%namespace name='static' file='static_content.html'/>
-<%block name="title"><title>${_("User_info - {username}".format(username=curr_user.username))}</title></%block>
+<%block name="title"><title>${_("Profile")}</title></%block>
 
-<div class="user_info_con_main">
-    <div class="user_info_con_top">
-        <div class="user_photo">
-            <table width="100%" height="100%" border="0">
-                <tr>
-                    <td style="text-align:center;vertical-align:middle;"><img src="/static/images/newdashboard/temp/39.jpg"/></td>
-                </tr>
-            </table>
-        </div>
-        <div class="user_info_con_top_right">
-            <div class="user_name">
-                <div class="full_name">
-                    <div class="icon name-icon"></div><b>${_("Name")}:</b>
-                    <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">lvzhlvzhlvzh lvzh lvzh lvzh</span>
-                    <script>
-                        /*
-                        var full_name = document.getElementById('full_name_span').textContent;
-                        if(full_name.length>31){
-                            document.getElementById('full_name_span').textContent = full_name.substring(0,27)+" ...";
-                        }
-                        */
-                    </script>
-                    %if curr_user==request.user:
-                        <a href="#apply_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+<div class="user_information">
+    <div class="information_left">
+        <div class="information_left_top">
+            <div class="information_left_top_left">
+                <a href="#change_photo" rel="leanModal" class="edit-name"><img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="200" height="200" /></a>
+            </div>
+            <div class="information_left_top_right1">
+                <div class="user_name">
+                    <div class="full_name" style="white-space:nowrap;position: relative;">
+                        <div class="icon name-icon"></div><b>${_("Name")}:</b>
+                        <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
+                            %if curr_user==request.user:
+                            <a href="#apply_name_change" rel="leanModal" class="edit-name">
+                                <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                            </a>
+                            %endif
+                    </div>
+                    
+                    %if request.user==curr_user:
+                        <div class="skype_name" style="width:550px;white-space:nowrap;position: relative;">
+                            <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
+                            <span id="skype_name_span" class="data" style="margin-left:0;font-weight:normal;;color:#666;">${ curr_user.profile.skype_username }</span>
+                            <a style="" href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                        </div>
+                        <div style="padding-left:25px;">
+                            <span class=""><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
+                            <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
+                                <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
+                                <!-- <input type="submit" id="pwd_reset_button" value="${_('Reset Password')}" /> -->
+                            </form>
+                        </div>
                     %endif
                 </div>
-                
-                %if request.user==curr_user:
-                    <div class="skype_name">
-                        <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
-                        <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;;color:#666;">skype_username</span>
-                        <a href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
-                    </div>
-                    <div style="padding-left:25px;">
-                        <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
-                        <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
-                            <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
-                            <!-- <input type="submit" id="pwd_reset_button" value="${_('Reset Password')}" /> -->
-                        </form>
-                    </div>
-                %endif
             </div>
-            <div class="user_bio_cert">
+            <div class="information_left_top_right2">
                 <div class="user_bio">
-                    <div class="user_bio_title" style="font-weight:bold;padding:5px;">
+                    <div class="user_bio_title title" >
                         Bio:
                     </div>
-                    <div class="user_bio_text" style="padding:5px;color:#666;">aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeeeaaaa bbbb ccc dd eeeeee aaaa bbbb ccc dd eeeeeeaaaa bbbb ccc dd eeeeee
+                    <div class="user_bio_text" style="font-size:12px;line-height:15px;word-wrap: break-word;word-break: normal;padding:5px;color:#666;word-break:break-all;">
+                            %if curr_user.profile.bio:
+                            ${curr_user.profile.bio}
+                            %else:
+                            Add info that you would like to share about yourself here:  
+                            %endif
+                            %if curr_user==request.user:
+                            <a href="#change_bio" rel="leanModal" class="edit-name">
+                            <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                            </a>
+                            %endif
                     </div>
                 </div>
-                <div class="user_cert">
-                    <div class="user_cert_title" style="font-weight:bold;padding:5px;">
-                        Certificates:
-                    </div>
-                    <div class="user_bio_text" style="padding:5px;color:#666;">
-                        aaaaaaaaaaaaa
-                    </div>
+            </div>
+        </div>
+        <div class="information_left_bottom">
+            <div class="user_profile">
+                <div class="user_profile_title title" style="color:#000;font-size: 20px">
+                    My Profile:
+                </div>
+                <div class="user_profile_state">
+                    <span style="font-weight:bold;">State: </span> 
+                    % if curr_user.profile.district_id:
+                    ${curr_user.profile.district.state.name}
+                    % endif
+                </div>
+                <div class="user_profile_district">
+                    <span style="font-weight:bold;">District: </span> 
+                    % if curr_user.profile.district_id:
+                    ${curr_user.profile.district.name}
+                    % endif
+                </div>
+                <div class="user_profile_school" style="word-wrap:break-word">
+                    <span style="font-weight:bold;">School: </span> 
+                    % if curr_user.profile.school_id:
+                    ${curr_user.profile.school.name}
+                    % endif
+
+                    %if curr_user==request.user:
+                        <a href="#change_school" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_profile_grade">
+                    <span style="font-weight:bold;">Grade Level: </span> 
+                    <% gn=list() %>
+                    % if curr_user.profile.grade_level_id:
+                    % for i,c in enumerate(curr_user.profile.grade_level_id.split(',')):
+                    % if len(c)>0:
+                    <% gn.append(GradeLevel.objects.get(id=c).name) %>
+                    % endif
+                    % endfor
+                    % endif
+                    ${", ".join(gn)}
+
+                    %if curr_user==request.user:
+                        <a href="#change_grade_level" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_profile_grade" style="word-wrap:break-word">
+                    <span style="font-weight:bold;">Major Subject Area: </span> 
+                    % if curr_user.profile.major_subject_area_id:
+                    ${SubjectArea.objects.get(id=curr_user.profile.major_subject_area_id).name}
+                    % endif
+
+                    %if curr_user==request.user:
+                        <a href="#change_major_subject_area" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_profile_years">
+                    <span style="font-weight:bold;">Number of Years in Education: </span> 
+                    % if curr_user.profile.years_in_education_id:
+                    ${YearsInEducation.objects.get(id=curr_user.profile.years_in_education_id).name}
+                    % endif
+
+                    %if curr_user==request.user:
+                        <a href="#change_years_in_education" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="user_info_con_bottom">
-        <div class="user_profile">
-            <div class="user_profile_title" style="font-weight:bold;color:#000;">
-                My Profile:
-            </div>
-            <div class="user_profile_state">
-                <span style="font-weight:bold;">State: </span> California
-            </div>
-            <div class="user_profile_district" style="font-weight:bold;">
-                District:
-            </div>
-            <div class="user_profile_district_text">
-                Manteca Unified School District
-            </div>
-            <div class="user_profile_school" style="font-weight:bold;">
-                School:
-            </div>
-            <div class="user_profile_grade" style="font-weight:bold;">
-                Grade Level:
-            </div>
-            <div class="user_profile_grade_text">
-                K, 1 ,2
-            </div>
-            <div class="user_profile_grade" style="font-weight:bold;">
-                Major Subject Area:
-            </div>
-            <div class="user_profile_grade">
-                Multiple Subjects
-            </div>
-            <div class="user_profile_years">
-                <span style="font-weight:bold;">Number of Years in Education: </span> 1
+    <div class="information_right">
+        <div class="information_right_1">
+            <div class="user_cert">
+                <div class="user_cert_title title">
+                    Certificates:
+                </div>
+                <div class="user_cert_text" style="padding:5px;color:#666;">
+                        %if not courses_complated:
+                            <section class="empty-dashboard-message" style="text-align: center">
+                                <p><i>${_("You haven’t completed any course yet.")}</i></p>
+                            </section>
+                        %endif
+                        <section class="empty-dashboard-message"><p>
+                        % for course in courses_complated:
+                             % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
+                                %if curr_user == request.user: 
+                                    %if course.issue_certificate:
+                                        <span><a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a></span>&nbsp;
+                                    %endif
+                                %endif
+                            % endif
+                        % endfor
+                        </p></section>
+                </div>
             </div>
         </div>
-        <div class="user_info_con_bottom_right">
+        <div class="information_right_2">
+            <div class="user_info_con_bottom_topright">
+                <div class="user_pepper_stats title" style="color:#000">
+                        My Pepper Stats:
+                </div>
+                <div><b>All Course Time:</b>
+                    <span id="all_course_time" style="display:inline;"></span>
+                </div>
+                <div><b>Collaboration Time:</b>
+                    <span id="collaboration_time" style="display:inline;"></span>
+                </div>
+                <div><b>Total Time:</b>
+                    <span id="total_time_in_pepper" style="display:inline;"></span>
+                </div>
+            </div>
+        </div>
+        <div class="information_right_3">
+            <div class="user_info_con_bottom_right">
+                <div class="user_my_profile_title title" style="color:#000">
+                    <b>My Learner's Profile:</b>
+                </div>
+                <div class="user_my_profile_title">
+                    <b>Free/Reduced Lunch:</b>
+                    % if curr_user.profile.percent_lunch:
+                    ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_lunch" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_my_profile_title">
+                    <b>IEPs:</b>
+                    % if curr_user.profile.percent_iep:
+                    ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_iep" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_my_profile_title">
+                    <b>English Learners:</b>
+                    % if curr_user.profile.percent_eng_learner:
+                    ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_eng_learner" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<section id="password_reset_complete" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Password Reset Email Sent')}</h2>
+      <hr/>
+    </header>
+    <div>
+      <form> <!-- Here for styling reasons -->
+        <section>
+          <p>${_('An email has been sent to {email}. Follow the link in the email to change your password.').format(email=curr_user.email)}</p>
+        </section>
+      </form>
+    </div>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
 
+<section id="apply_name_change" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_("Change your name")}</h2>
+      <hr/>
+    </header>
+    <div id="change_name_body">
+      <form id="change_name_form">
+        <div id="change_name_error" class="modal-form-error"> </div>
+        <p>${_("To uphold the credibility of {platform} certificates, all name changes will be logged and recorded.").format(platform=settings.PLATFORM_NAME)}</p>
+        <br/>
+        <fieldset>
+          <div class="input-group">
+            <label>${_("Enter your desired full name, as it will appear on the {platform} certificates:").format(platform=settings.PLATFORM_NAME)}</label>         
+            <br/><br/>
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">First Name</label>
+            <input id="new_first_name_field" value="${curr_user.first_name}" type="text" autocomplete="off" maxlength="30"/>
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Last Name</label>
+            <input id="new_last_name_field" value="${curr_user.last_name}" type="text" autocomplete="off" maxlength="30"/>
+            <label>${_("Reason for name change:")}</label>
+            <textarea id="name_rationale_field" value=""></textarea>
+          </div>
+          <div class="submit">
+            <input type="submit" id="submit" value="${_('Change My Name')}">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div class="close-modal" id="change_name_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="apply_skype_name_change" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_("Update your Skype Username")}</h2>
+      <hr/>
+    </header>
+    <div id="change_name_body">
+      <form id="change_skype_name_form">
+        <div id="change_skype_name_error" class="modal-form-error"> </div>
+        <fieldset>
+          <div class="input-group">
+            <label>${_("Enter your Skype Username.")}</label>
+            <br/><br/>
+            <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Skype Username</label>
+            <input id="new_skype_name_field" value="${curr_user.profile.skype_username}" type="text" autocomplete="off" maxlength="32"/>
+          </div>
+          <div class="submit">
+            <input type="submit" id="submit" value="${_('Update Skype Username')}">
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div class="close-modal" id="change_name_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_school" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My School').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_school_form" method="post">
+      <fieldset>
+        <div class="input-group">
+            <label id="organization_obj_dashboard_school2">School:</label>
+            <label style="margin:20px 0;display:block;">
+              <select name="school_id" style="width:100%" autocomplete="off">
+                % if curr_user.profile.district_id:
+                %for item in School.objects.filter(district_id=curr_user.profile.district.id).order_by("name"):
+                <option value="${item.id}">${item.name}</option>
+                %endfor
+                % endif
+              </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_grade_level" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My Grade Level').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_grade_level_form" method="post">
+      <fieldset>
+        <label id="">
+          Grade Level-Check all that apply:
+        </label>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <input id="grade_level_id" type="hidden" name="grade_level_id" value="" autocomplete="off"/>
+            %for item in GradeLevel.objects.all():
+            <span class="level">
+              <a href="#" id="grade_btn${item.id}" class="btn_grade_level" onclick="click_grade_btn(${item.id});return false">
+                ${item.name}
+              </a>
+            </span>
+            %endfor
+            <br style="clear:both;"/>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_major_subject_area" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My Subject Area').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_major_subject_area_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="major_subject_area_id" name="major_subject_area_id" style="width:100%" autocomplete="off">
+              %for item in SubjectArea.objects.all().order_by('so'):
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_years_in_education" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change Number of Years in Education').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_years_in_education_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="years_in_education_id" name="years_in_education_id" style="width:100%" autocomplete="off">
+              %for item in YearsInEducation.objects.all():
+              <option value="${item.id}">${item.name}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="change_bio" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change My BIO').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_bio_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label>
+            <textarea maxlength="255" id="txBio" name="bio" rows="" cols="" tabindex=""  style="width:100%;height:100%;height:300px;resize:none;">${curr_user.profile.bio}</textarea>
+          </label>
+          <section style="color:black;">
+            Maximum to 255 Characters <span></span>
+          </section>
+        </div>
+      </fieldset>
+      <script type="text/javascript">
+        var txBio=document.getElementById('txBio');
+        txBio.oninput=function(){
+          $(this).parent().next("section").find("span").html(255-this.value.length)
+        }
+        txBio.oninput()
+      </script>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner" id="change_bio_close">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+  <!--@end-->
+</section>
+<section id="change_percent_lunch" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change Free/Reduced Lunch').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_lunch_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_lunch" name="percent_lunch" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- change_percent_iep form -->
+<section id="change_percent_iep" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change IEPs').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_iep_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_iep" name="percent_iep" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_iep").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- percent_eng_learner form -->
+<section id="change_percent_eng_learner" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Change English Learners').format()}</h2>
+      <hr/>
+    </header>
+    <form id="change_percent_eng_learner_form" method="post">
+      <fieldset>
+        <div class="input-group">
+          <label style="margin:20px 0;display:block;">
+            <select id="percent_eng_learner" name="percent_eng_learner" style="width:100%" autocomplete="off">
+              %for item in Enum.objects.filter(name="percent_lunch").order_by("odr"):
+              <option value="${item.value}">${item.content}</option>
+              %endfor
+            </select>
+          </label>
+        </div>
+      </fieldset>
+      <div class="submit">
+        <input type="submit" class="btnx" id="submit" value="Save Changes" />
+      </div>          
+    </form>
+    <div class="close-modal">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="change_photo" class="modal">
+  <div class="inner-wrapper">
+    <header>
+      <h2>${_('Add Profile Picture').format(course_number='<span id="email_settings_course_number"></span>')}</h2>
+      <hr/>
+    </header>
+    <form id="change_photo_form" method="post" enctype="multipart/form-data" action="${reverse('new_upload_photo')}">
+      <!--@begin:Shown completed course list-->
+      <!--@date:2013-11-24-->
+      <div id="change_photo_error" class="modal-form-error"> </div>
+      <!--@end-->
+      <fieldset>
+        <div class="input-group">
+          <label>
+            <div style="border:5px solid #999;width:110px;height:110px;text-align:center;">
+              <img src="${reverse('user_photo')}" style="" alt="photo" />
+            </div>
+          </label>
+          <label style="margin:20px 0;display:block;">
+            <input type="file" name="photo" id="id_photo" value="Choose a file" />
+          </label>
+          <label>
+            The image will be automatically scaled to fit within 110x110 pixels.
+          </label>  
+          <div id="image_uploading" style="text-align:center;">
+            <img src="/static/images/ora-loading.gif" style=""/> 
+          </div>              
+        </div>
+      </fieldset>
+      <input type="hidden" name="csrfmiddlewaretoken" value="${csrf_token}"/>
+      <div class="submit">
+        <input type="submit" class="btnx" id="photo_submit" value="Upload" />
+      </div>          
+    </form>
+    <div class="close-modal" id="change_photo_close">
+      <div class="inner">
+        <p>&#10005;</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%block name="js_extra">
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script type="text/javascript">
+  /*@begin:Click the round button in grade_level table*/
+  /*@date:2013-11-02*/
+  function click_grade_btn(i){
+    var vals={}
+    $.each($("#grade_level_id").val().split(","),function(i,v){
+      if(v)vals[v]=1;
+    });
+    var link=document.getElementById("grade_btn"+i);
+    if($(link).hasClass("btn_grade_level_active")){
+      $(link).removeClass("btn_grade_level_active");
+      vals[i]='';
+    }else{
+      $(link).addClass("btn_grade_level_active");
+      vals[i]=1;
+    }
+    var arVals=[];
+    $.each(vals,function(i,v){
+      if(v)arVals.push(i)
+    });
+    arVals.sort(function(a,b){return parseInt(a)-parseInt(b)});
+    $("#grade_level_id").val(arVals.join());
+  }
+  /*@end*/
+  (function() {
+    $(".email-settings").click(function(event) {
+      $("#email_settings_course_id").val( $(event.target).data("course-id") );
+      $("#email_settings_course_number").text( $(event.target).data("course-number") );
+      if($(event.target).data("optout") == "False") {
+        $("#receive_emails").prop('checked', true);
+      }
+    });
+    $(".unenroll").click(function(event) {
+      $("#unenroll_course_id").val( $(event.target).data("course-id") );
+      $("#unenroll_course_number").text( $(event.target).data("course-number") );
+    });
+    $('#unenroll_form').on('ajax:complete', function(event, xhr) {
+      if(xhr.status == 200) {
+        location.href = "${reverse('dashboard')}";
+      } else if (xhr.status == 403) {
+        location.href = "${reverse('signin_user')}?course_id=" +
+          $("#unenroll_course_id").val() + "&enrollment_action=unenroll";
+      } else {
+        $('#unenroll_error').html(
+          xhr.responseText ? xhr.responseText : "An error occurred. Please try again later."
+        ).stop().css("display", "block");
+      }
+    });
+    $('#pwd_reset_button').click(function() {
+      $.post('${reverse("password_reset")}',
+             {"email"  : $('#id_email').val()},
+             function(data){
+               //$("#password_reset_complete_link").click();
+             });
+      return false;
+    });
+    $("#change_email_form").submit(function(){
+      var new_email = $('#new_email_field').val();
+      /*@begin:Do not need to confirm passowrd when changing email*/
+      /*@date:2013-11-02*/
+      //var new_password = $('#new_email_password').val();
+      $.post('${reverse("change_email")}',
+             {"new_email" : new_email, "password" : ""},
+             /*@end*/
+             function(data) {
+               if (data.success) {
+                 $("#change_email_title").html("Please verify your new email");
+                 $("#change_email_form").html("<p>You'll receive a confirmation in your " +
+                                              "in-box. Please click the link in the " +
+                                              "email to confirm the email change.</p>");
+                 $("#change_email_form").html("<p>${_('You\'ll receive a confirmation in your in-box. Please click the link in the email to confirm the email change.')}</p>");
+               } else {
+                 $("#change_email_error").html(data.error).stop().css("display", "block");
+               }
+             });
+      return false;
+    });
+    $("#change_skype_name_form").submit(function(){
+       var username = $("#new_skype_name_field").val();
+        $.post('${reverse("change_skype_name")}',
+             {"username":username},
+             function(data) {
+               location.reload();
+             });
+      return false;
+    });
+    $("#change_name_form").submit(function(){
+      /*@begin:Change the name to two fileds*/
+      /*@date:2013-11-02*/
+      var new_first_name = $('#new_first_name_field').val();
+      var new_last_name = $('#new_last_name_field').val();
+      var rationale = $('#name_rationale_field').val();
+      $.post('${reverse("change_name")}',
+             {"new_first_name":new_first_name, "new_last_name":new_last_name,"rationale":rationale},
+             /*@end*/
+             function(data) {
+               if(data.success) {
+                 location.reload();
+                 // $("#change_name_body").html("<p>Name changed.</p>");
+               } else {
+                 $("#change_name_error").html(data.error).stop().css("display", "block");
+               }
+             });
+      return false;
+    });
+<!--@begin:Process the newly added fields in dashboard-->
+<!--@date:2013-11-02-->
+    $("#change_school_form").find("select[name='school_id']").val('${curr_user.profile.school_id}')
+    $("#change_school_form").submit(function(){
+      var school_id = $(this.school_id).val();
+      $.post('${reverse("change_school")}',
+             {"school_id":school_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_school_error").html(data.error).stop().css("display", "block");
+               }
+             });
+       return false;
+    });
+    $.each( '${curr_user.profile.grade_level_id}'.split(',') ,function(i,v){
+      if($.trim(v))
+        click_grade_btn(v);
+    });
+    $("#change_grade_level_form").submit(function(){
+      var grade_level_id = $(this.grade_level_id).val();
+      $.post('${reverse("change_grade_level")}',
+             {"grade_level_id":grade_level_id},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_grade_level_error").html(data.error).stop().css("display", "block");
+               }
+             });
+      return false;
+    });
+    // change_percent_lunch submit
+    $("#change_percent_lunch_form").find("select[name='percent_lunch']").val('${curr_user.profile.percent_lunch}')
+      $("#change_percent_lunch_form").submit(function(){
+        var percent_lunch = $(this.percent_lunch).val();
+        $.post('${reverse("change_percent_lunch")}',
+               {"percent_lunch":percent_lunch},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_lunch_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    // change_percent_iep submit
+    $("#change_percent_iep_form").find("select[name='percent_iep']").val('${curr_user.profile.percent_iep}')
+      $("#change_percent_iep_form").submit(function(){
+        var percent_iep = $(this.percent_iep).val();
+        $.post('${reverse("change_percent_iep")}',
+               {"percent_iep":percent_iep},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_iep_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    // change_percent_eng_learner submit
+    $("#change_percent_eng_learner_form").find("select[name='percent_eng_learner']").val('${curr_user.profile.percent_eng_learner}')
+      $("#change_percent_eng_learner_form").submit(function(){
+        var percent_eng_learner = $(this.percent_eng_learner).val();
+        $.post('${reverse("change_percent_eng_learner")}',
+               {"percent_eng_learner":percent_eng_learner},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_percent_eng_learner_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_major_subject_area_form").find("select[name='major_subject_area_id']").val('${curr_user.profile.major_subject_area_id}')
+      $("#change_major_subject_area_form").submit(function(){
+        var major_subject_area_id = $(this.major_subject_area_id).val();
+        $.post('${reverse("change_major_subject_area")}',
+               {"major_subject_area_id":major_subject_area_id},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_major_subject_area_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_years_in_education_form").find("select[name='years_in_education_id']").val('${curr_user.profile.years_in_education_id}')
+      $("#change_years_in_education_form").submit(function(){
+        var years_in_education_id = $(this.years_in_education_id).val();
+        $.post('${reverse("change_years_in_education")}',
+               {"years_in_education_id":years_in_education_id},
+               function(data) {
+                 if(data.success) {
+                   location.reload();
+                 } else {
+                   $("#change_years_in_education_error").html(data.error).stop().css("display", "block");
+                 }
+               });
+        return false;
+      });
+    $("#change_bio_form").submit(function(){
+      var bio = $(this.bio).val();
+      $.post('${reverse("change_bio")}',
+             {"bio":bio},
+             function(data) {
+               if(data.success) {
+                 location.reload();
+               } else {
+                 $("#change_bio_error").html(data.error).stop().css("display", "block");
+               }
+             });
+      return false;
+    });
+    <!--@end-->
+    $("#email_settings_form").submit(function(){
+      $.ajax({
+        type: "POST",
+        url: '${reverse("change_email_settings")}',
+        data: $(this).serializeArray(),
+        success: function(data) {
+          if(data.success) {
+            location.href = "${reverse('dashboard')}";
+          }
+        },
+        error: function(xhr, textStatus, error) {
+          if (xhr.status == 403) {
+            location.href = "${reverse('signin_user')}";          
+          }
+        }
+      });
+      return false;
+    });
+  })(this)
+  $("#change_photo_form").submit(function(){
+    var AllowImgFileSize=512;
+    var AllowImgWidth=1024;
+    var AllowImgHeight=768; 
+    var fileImg = document.getElementById("id_photo"); 
+    <!--check file choose-->
+    if (fileImg.value=="")
+    {
+      $("#change_photo_error").html("Update your avatar by uploading an image from your computer.").stop().css("display", "block");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+    <!--check file type-->
+    var fileImg_url=fileImg.value.toLowerCase();
+    var fileImg_ext=fileImg_url.substring(fileImg_url.length-3,fileImg_url.length);
+    if (fileImg_ext!="jpg" && fileImg_ext!="peg" && fileImg_ext!="png")
+    {
+      $("#change_photo_error").html("We accept image only in JPG or PNG.").stop().css("display", "block");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+    <!--check file size(less than 2m)-->
+    var file_size =  fileImg.files[0].size;
+    if (file_size>2048*1024)
+    {
+      $("#change_photo_error").html("The file size CANNOT exceed 2MB (2048 KB).").stop().css("display", "block");
+      fileImg.focus();
+      return false;
+    }
+    <!------------------------------------------>
+    document.getElementById("photo_submit").disabled = true;
+        $('#image_uploading').show(); 
+        $('#change_photo_form').submit(); 
+    });
+
+    $("#change_name_close").click(function(){
+      $('#change_name_error').hide();
+    });
+    $("#change_photo_close").click(function(){
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+    });
+    $("#change_bio_close").click(function(){
+      $('#id_bio')[0].value = "";
+    });
+    $("#container_dashboard").click(function(){
+      $('#change_name_error').hide();
+      $('#change_photo_error').hide();
+      $('#id_photo')[0].value = "";
+      $('#id_bio')[0].value = "";
+    });
+<!--@end-->
+  //-----------------------------------------------
+  $(".portfolio-btn").click(function(){
+        if(!$(this).hasClass("disabled_btn")){
+            var curr_user={};
+            var interviewer={};
+            //var course_number=$(this).parent().find("a").eq(0).text().split(' ')[0];
+            var course_number=$(this).parent().find("a").attr("course_number");
+            interviewer.id="${request.user.id}";
+            interviewer.name="${request.user.username}";
+            interviewer.fullname="${request.user.first_name} ${request.user.last_name}";
+            curr_user.id="${curr_user.id}";
+            var datainfo={'info':JSON.stringify({'user_id':curr_user.id,'interviewer_id':interviewer.id,'interviewer_name':interviewer.name,
+                                                 'interviewer_fullname':interviewer.fullname,'type':'view_portfolio',
+                                                 'course_number':course_number,'date':(new Date()).toISOString(),'activate':'false'})};
+            var url = $(this).attr("link");
+            $.post("${reverse('save_interactive_update')}",datainfo,function(){window.open(url,'_self');});
+        }
+   });
+    function imessage_click(obj)
+  {
+    var userInfo=[];
+    userInfo['message_people']={id:$(obj).attr("data-id"),fullname:$(obj).attr("data-fullname"),name:$(obj).attr("data-name")};
+    userInfo['user']={id:'${user.id}',fullname:'${user.first_name} ${user.last_name}',name:'${user.username}'};
+    message_board(userInfo);
+  }
+  </script>
+    <script type="text/javascript" src="https://secure.skypeassets.com/i/scom/js/skype-uri.js"></script>
+<style>
+    .disabled_btn{ cursor:default !important; color:#999999 !important; }
+</style>
 <script>
+    $(document).ready(function(){
+        $(".portfolio-btn").each(function(){
+            var user_id = "${curr_user.id}";
+            var linkx = $(this).attr("link");
+            var course_id = linkx.split("/portfolio")[0];
+            course_id = course_id.replace("/courses/", "");
+            
+            $.getJSON("${reverse('portfolio_settings')}", {flag:"getCourseLevel", linkx:linkx, course_id:course_id, user_id:user_id}, function (r) {
+                if (r.success) {
+                    if(r.level == "1"){
+                        $(".portfolio-btn[link='" + r.linkx + "']").removeClass("disabled_btn");
+                    }
+                }           
+            });
+        });
+        
+        
+    });
 </script>
-
+</%block>
