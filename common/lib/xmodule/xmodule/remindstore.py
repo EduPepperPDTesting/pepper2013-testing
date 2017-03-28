@@ -232,8 +232,8 @@ class MongoMyActivityStore(object):
     def insert_item(self,item):
         self.collection.insert(item)
 
-    def set_item_pd(self,id,name,value):
-        return self.collection.update({'SourceID':id},{'$set':{name:value}},{multi:true})
+    def set_item_pd(self,training_id,training_name):        
+        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
 
 class MongoChunksStore(object):
 

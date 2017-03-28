@@ -44,7 +44,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase.pdfmetrics import stringWidth
-#from xmodule.remindstore import myactivitystore
+from xmodule.remindstore import myactivitystore
 import logging
 
 @login_required
@@ -366,9 +366,15 @@ def delete_training(request):
     try:
         id = request.POST.get("id", None)
         training = PepRegTraining.objects.get(id=id)
+        tid = training.id
+        tname = training.name
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         training.delete()
+
+        ma_db = myactivitystore()        
+        ma_db.set_item_pd(tid, tname)
+
     except Exception as e:
         db.transaction.rollback()
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
@@ -769,9 +775,12 @@ def register(request):
             student.date_modify = datetime.now(UTC)
             student.save()
 
-            # ma_db = myactivitystore()
-            # my_activity = {"ActivityType": "PDPlanner", "EventType": 1, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": training.id}
-            # ma_db.insert_item(my_activity)
+            ma_db = myactivitystore()
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+            "URLValues": {"training_id": training.id},    
+            "TokenValues": {"training_id": training.id}, 
+            "LogoValues": {"training_id": training.id}}
+            ma_db.insert_item(my_activity)
 
             if training.type == "pepper_course":
                 cea, created = CourseEnrollmentAllowed.objects.get_or_create(email=student_user.email,
