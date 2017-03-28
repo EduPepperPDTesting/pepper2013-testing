@@ -28,7 +28,7 @@
 }
 .information_left_top{
     width:100%;
-    height:30%;
+    float: left;
 }
 .information_left_top_left{
     width:30%;
@@ -44,6 +44,8 @@
     width:60%;
 }
 .information_left_top_right2{
+    padding-left:5px; 
+    padding-right:5px; 
     float: right;
     width:55%;
     min-height: 100px;
@@ -52,9 +54,10 @@
     border: 3px solid #bebebe;
 }
 .information_left_bottom{
+    float: left;
+    width: 91.5%;
     border: 3px solid #bebebe;
-    margin: 50px 25px 25px 25px;
-    height: 56.5%;
+    margin: 35px 25px 25px 25px;
 }
 .information_right{
     height: 800px;
@@ -63,6 +66,8 @@
     margin-right: 40px;
 }
 .information_right_1{
+    padding-left:5px; 
+    padding-right:5px; 
     float: left;
     width:100%;
     margin:150px 0 0 0 ;
@@ -229,24 +234,24 @@
             </div>
             <div class="information_left_top_right1">
                 <div class="user_name">
-                    <div class="full_name">
+                    <div class="full_name" style="white-space:nowrap;position: relative;">
                         <div class="icon name-icon"></div><b>${_("Name")}:</b>
                         <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
-                        %if curr_user==request.user:
+                            %if curr_user==request.user:
                             <a href="#apply_name_change" rel="leanModal" class="edit-name">
                                 <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
                             </a>
-                        %endif
+                            %endif
                     </div>
                     
                     %if request.user==curr_user:
-                        <div class="skype_name">
+                        <div class="skype_name" style="width:550px;white-space:nowrap;position: relative;">
                             <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
-                            <span id="skype_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;;color:#666;">${ curr_user.profile.skype_username }</span>
-                            <a href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                            <span id="skype_name_span" class="data" style="margin-left:0;font-weight:normal;;color:#666;">${ curr_user.profile.skype_username }</span>
+                            <a style="" href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
                         </div>
                         <div style="padding-left:25px;">
-                            <span class="title"><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
+                            <span class=""><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
                             <form id="password_reset_form" method="post" data-remote="true" action="${reverse('password_reset')}">
                                 <input id="id_email" type="hidden" name="email" maxlength="75" value="${curr_user.email}" />
                                 <!-- <input type="submit" id="pwd_reset_button" value="${_('Reset Password')}" /> -->
@@ -513,7 +518,7 @@
             <label>${_("Enter your Skype Username.")}</label>
             <br/><br/>
             <label style="font-style:normal;color:#666;font-size:16px;font-family:'open sans'">Skype Username</label>
-            <input id="new_skype_name_field" value="${curr_user.profile.skype_username}" type="text" autocomplete="off" maxlength="255"/>
+            <input id="new_skype_name_field" value="${curr_user.profile.skype_username}" type="text" autocomplete="off" maxlength="32"/>
           </div>
           <div class="submit">
             <input type="submit" id="submit" value="${_('Update Skype Username')}">

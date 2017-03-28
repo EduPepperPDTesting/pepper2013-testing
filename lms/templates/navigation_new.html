@@ -358,10 +358,6 @@
 }
 .dropdownusername + a:hover{
     color:#3c3c3c;
-    text-decoration: none;
-}
-.dropdown:hover{
-
 }
 </style>
 
@@ -609,9 +605,9 @@
                         </a>
                     </li> -->
                     <li class="primary">
-                        <a href="#" class="dropdown" style="margin-top: -15px;">
-                            <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="30">
-                            <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                        <a href="#" class="dropdown" style="margin-top: -8px;">
+                            <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="35">
+                            <span style="display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:15px;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
@@ -619,9 +615,9 @@
                                 <div style="float:left;">   
                                     <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
                                 </div>
-                                <div style="float:right;margin-top: 10px;">
+                                <div style="float:right;margin-top: 10px;color:#60B2D6">
                                     <span class="dropdownusername" >${curr_user.username}</span>
-                                    <a style="text-decoration:none"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
+                                    <a style="text-decoration:none;font-weight: bold;font-size:10px;"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
                                 </div>
                             </li>
                             <%block name="navigation_dropdown_menu_links" >
