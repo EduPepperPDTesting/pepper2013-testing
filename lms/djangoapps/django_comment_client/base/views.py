@@ -141,8 +141,9 @@ def create_thread(request, course_id, commentable_id):
     thread.save()
 
     ma_db = myactivitystore()
-    my_activity = {"ActivityType": "Courses", "EventType": "course_creatediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
-    "course_id": course_id, "commentable_id": commentable_id, "discussionSubject": thread.title, "SourceID": thread.id}
+    my_activity = {"GroupType": "Courses", "EventType": "courses_creatediscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
     ma_db.insert_item(my_activity)
 
     courseware_context = get_courseware_context(thread, course)
@@ -230,8 +231,9 @@ def _create_comment(request, course_id, thread_id=None, parent_id=None):
     thread = cc.Thread.find(comment.thread_id)
 
     ma_db = myactivitystore()
-    my_activity = {"ActivityType": "Courses", "EventType": "course_replydiscussion", "ActivityDateTime": datetime.utcnow(), 
-    "UsrCre": request.user.id, "course_id": course_id, "commentable_id": thread.commentable_id, "discussionSubject": comment.body, "SourceID": thread.id}
+    my_activity = {"GroupType": "Courses", "EventType": "courses_replydiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+    "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+    "TokenValues": {"SourceID": thread.id}, "LogoValues": {"course_id": course_id}}
     ma_db.insert_item(my_activity)   
 
     if post.get('auto_subscribe', 'false').lower() == 'true':

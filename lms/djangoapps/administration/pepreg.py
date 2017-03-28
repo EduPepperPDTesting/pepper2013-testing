@@ -564,9 +564,14 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
                     if isday:
-                        trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
-                        trainingMovePx = int(trainingStartTime[-5:-3])*.026
-                        labelMovePx = "style='position:relative;top:" + str(trainingMovePx) + "px;left: 5px;'"
+                        trainingMinutes = int(trainingStartTime[-5:-3])
+                        if(trainingMinutes)<30:
+                            trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
+                        else:
+                            trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
+                        trainingMinutes = int(trainingStartTime[-5:-3])
+                        # trainingMovePx = int(trainingStartTime[-5:-3])*.026
+                        # labelMovePx = "style='position:relative;top:" + str(trainingMovePx) + "px;left: 5px;'"
                         trainingStartTimes.append(trainingStartHour)
 
                     # &#13;
@@ -644,7 +649,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
     if isweek:
         colstyle = "style='min-height: 360px !important;'"
     elif isday:
-        colstyle = "style='min-height: 535px !important;'"
+        colstyle = "style='min-height: 590px !important;'"
     else:
         colstyle = "style='min-height: 60px;'"
 
@@ -652,15 +657,17 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
         dayHours = []
         for p in range(2):
             for i in range(0, 13):
-                if (p == 1 and i == 0): continue
+                if((p == 0 and i < 6) or i == 0): continue
                 if (p == 0 and i < 12):
                     d = "AM"
                 elif (p == 1 and i < 12) or (p == 0 and i == 12):
                     d = "PM"
                 getHour = str(i) if i > 0 else "12"
+                if ((p == 0) or i < 6): getHalfHour = getHour + ":30 " + d
                 getHour += ":00 " + d
                 dayHours.append(getHour)
-                if (p == 1 and i == 11): break
+                if((p == 0) or i<6): dayHours.append(getHalfHour)
+                if (p == 1 and i == 6): break
 
     for week in rangedates:
         table_tr_content += "<tr class='calendar-tr-tmp'>";

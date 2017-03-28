@@ -721,7 +721,10 @@ def change_enrollment(request):
         CourseEnrollment.enroll(user, course.id)
         
         ma_db = myactivitystore()
-        my_activity = {"ActivityType": "Courses", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": course.id}
+        my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"course_id": course.id},    
+        "TokenValues": {"course_id": course.id}, 
+        "LogoValues": {"course_id": course.id}}
         ma_db.insert_item(my_activity)
 
         return HttpResponse()
