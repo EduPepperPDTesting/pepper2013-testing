@@ -251,13 +251,18 @@ a.post_btn:hover{
 
 .ds-my-status{
     width:185px;
-    font-size: 13px;
-    border-radius: 6px;
+    /*font-size: 20px;*/
+    /*font-weight: bold;*/
+    /*border-radius: 6px;*/
     margin-top: 20px;
     margin-bottom: 20px;
-    padding: 15px 15px 15px 15px;
+    /*padding: 15px 15px 15px 15px;*/
     float: left;
-    border:1px solid #666;
+    /*border:1px solid #666;*/
+}
+.ds-my-status span{
+    font-size: 20px;
+    font-weight: bold;
 }
 /*--right My Communities---------------------------------------------*/
 .con-my-communities{
@@ -598,20 +603,8 @@ a.post_btn:hover{
                 <a href="/my_courses">View All</a>
             </div>
             <div class="ds-my-status">
-                <b>My Pepper Achievements Status</b>
-                </br>
-                <b>All Course Time:310 Minutes</b>
-                </br>
-                <b>Collaboration Time:87 Minutes</b>
-                </br>
-                <b>Total Time:397 Minutes</b>
-                </br>
-                </br>
-                <span>Cetificates</span>
-                </br>
-                Pep101x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SCI141E
-                </br>
-                EDU506
+                <span>My Content</span>
+                <div><img src="${reverse('state_photo',args=[request.user.id])}" alt="no picture"></div>
             </div>
         </div>
         <!--<div class="con-my-courses-placeholder"></div>-->
