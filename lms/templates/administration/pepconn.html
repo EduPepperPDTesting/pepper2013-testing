@@ -456,7 +456,7 @@ f.close()
         </div>
         <div class="filter" style="padding:10px 5px; border: 1px solid #ddd; border-width: 1px 0; height:auto;">
             <div id="filterArea2">
-                <select type="search" class="search-users" data-column="5" id="User_state_select">
+                <select type="search" class="search-users" data-column="6" id="User_state_select">
                     <option value="" class="null_case">Select State</option>
                     %for item in State.objects.all().order_by('name'):
                         <option class="${item.id}" value="${item.name}">${item.name}</option>
@@ -477,7 +477,7 @@ f.close()
                 </select>
                 <input placeholder="Search by Last Name" class="search-users" type="search" data-column="1" id="User_search_last">
                 <input placeholder="Search by First Name" class="search-users" type="search" data-column="2" id="User_search_first">
-                <input placeholder="Search by Cohort" class="search-users" type="search" data-column="6" id="User_search_cohort">
+                <input placeholder="Search by Cohort" class="search-users" type="search" data-column="5" id="User_search_cohort">
                 <input placeholder="Search by Email" class="search-users" type="search" data-column="7" id="User_search_email">
                 <!--<input placeholder="Search All" class="search-users" type="search" data-column="all" id="User_search">-->
                 <img onclick="openBookmark('User')" class="bookmark_icon" src="/static/images/bookmark.png"><br><br>
