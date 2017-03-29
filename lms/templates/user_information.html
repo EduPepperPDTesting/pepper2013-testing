@@ -51,12 +51,14 @@
     min-height: 100px;
     margin-top:90px;
     margin-right: 25px;
-    border: 3px solid #bebebe;
+    border: 3px solid #C2C2C2;
+    background-color: #EEEEEE;
 }
 .information_left_bottom{
     float: left;
     width: 91.5%;
-    border: 3px solid #bebebe;
+    border: 3px solid #C2C2C2;
+    background-color: #EEEEEE;
     margin: 35px 25px 25px 25px;
 }
 .information_right{
@@ -71,21 +73,23 @@
     float: left;
     width:100%;
     margin:150px 0 0 0 ;
-    border: 3px solid #bebebe;
+    border: 3px solid #C2C2C2;
+    background-color: #EEEEEE;
 }
 .information_right_2{
-    height: 200px;
     float: left;
     width:100%;
     margin:35px 0 0 0 ;
-    border: 3px solid #bebebe;
+    border: 3px solid #C2C2C2;
+    background-color: #EEEEEE;
 }
 .information_right_3{
     height: 200px;
     float: left;
     width:100%;
     margin:50px 0 0 0 ;
-    border: 3px solid #bebebe;
+    border: 3px solid #C2C2C2;
+    background-color: #EEEEEE;
 }
 .name-icon{
     background-size: cover;
@@ -238,7 +242,7 @@
                         <span id="full_name_span" class="data" style="display:inline;margin-left:0;font-weight:normal;color:#666;">${ curr_user.first_name | h } ${ curr_user.last_name | h }</span>
                             %if curr_user==request.user:
                             <a href="#apply_name_change" rel="leanModal" class="edit-name">
-                                <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                                <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                             </a>
                             %endif
                     </div>
@@ -247,7 +251,7 @@
                         <div class="skype_name" style="width:550px;white-space:nowrap;position: relative;">
                             <div class="icon skype-icon"></div><b>${_("Skype")}:</b>
                             <span id="skype_name_span" class="data" style="margin-left:0;font-weight:normal;;color:#666;">${ curr_user.profile.skype_username }</span>
-                            <a style="" href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/></a>
+                            <a style="" href="#apply_skype_name_change" rel="leanModal" class="edit-name"><img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/></a>
                         </div>
                         <div style="padding-left:25px;">
                             <span class=""><a href="#password_reset_complete" rel="leanModal" id="pwd_reset_button">${_("Reset Password")}</a></span>
@@ -272,7 +276,7 @@
                             %endif
                             %if curr_user==request.user:
                             <a href="#change_bio" rel="leanModal" class="edit-name">
-                            <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                            <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                             </a>
                             %endif
                     </div>
@@ -304,7 +308,7 @@
 
                     %if curr_user==request.user:
                         <a href="#change_school" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                         </a>
                     %endif
                 </div>
@@ -322,7 +326,7 @@
 
                     %if curr_user==request.user:
                         <a href="#change_grade_level" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                         </a>
                     %endif
                 </div>
@@ -334,7 +338,7 @@
 
                     %if curr_user==request.user:
                         <a href="#change_major_subject_area" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                         </a>
                     %endif
                 </div>
@@ -346,7 +350,7 @@
 
                     %if curr_user==request.user:
                         <a href="#change_years_in_education" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
                         </a>
                     %endif
                 </div>
@@ -355,7 +359,59 @@
     </div>
     <div class="information_right">
         <div class="information_right_1">
-            <div class="user_cert">
+            <div class="user_info_con_bottom_topright">
+                <div class="user_my_profile_title title" style="color:#000">
+                    <b>My Learner's Profile:</b>
+                </div>
+                <div class="user_my_profile_title">
+                    <b>Free/Reduced Lunch:</b>
+                    % if curr_user.profile.percent_lunch:
+                    ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_lunch" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_my_profile_title">
+                    <b>IEPs:</b>
+                    % if curr_user.profile.percent_iep:
+                    ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_iep" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+                <div class="user_my_profile_title">
+                    <b>English Learners:</b>
+                    % if curr_user.profile.percent_eng_learner:
+                    ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
+                    % endif
+                    %if curr_user==request.user:
+                        <a href="#change_percent_eng_learner" rel="leanModal" class="edit-name">
+                        <img src="/static/images/newdashboard/edit_pen_30.png" width="18" style="margin-top:-5px;"/>
+                        </a>
+                    %endif
+                </div>
+            </div>
+        </div>
+        <div class="information_right_2">
+            <div class="user_info_con_bottom_right">
+                <div class="user_pepper_stats title" style="color:#000">
+                        My Pepper Stats:
+                </div>
+                <div><b>All Course Time:</b>
+                    <span id="all_course_time" style="display:inline;"></span>
+                </div>
+                <div><b>Collaboration Time:</b>
+                    <span id="collaboration_time" style="display:inline;"></span>
+                </div>
+                <div><b>Total Time:</b>
+                    <span id="total_time_in_pepper" style="display:inline;"></span>
+                </div>
                 <div class="user_cert_title title">
                     Certificates:
                 </div>
@@ -376,62 +432,6 @@
                             % endif
                         % endfor
                         </p></section>
-                </div>
-            </div>
-        </div>
-        <div class="information_right_2">
-            <div class="user_info_con_bottom_topright">
-                <div class="user_pepper_stats title" style="color:#000">
-                        My Pepper Stats:
-                </div>
-                <div><b>All Course Time:</b>
-                    <span id="all_course_time" style="display:inline;"></span>
-                </div>
-                <div><b>Collaboration Time:</b>
-                    <span id="collaboration_time" style="display:inline;"></span>
-                </div>
-                <div><b>Total Time:</b>
-                    <span id="total_time_in_pepper" style="display:inline;"></span>
-                </div>
-            </div>
-        </div>
-        <div class="information_right_3">
-            <div class="user_info_con_bottom_right">
-                <div class="user_my_profile_title title" style="color:#000">
-                    <b>My Learner's Profile:</b>
-                </div>
-                <div class="user_my_profile_title">
-                    <b>Free/Reduced Lunch:</b>
-                    % if curr_user.profile.percent_lunch:
-                    ${Enum.objects.get(name='percent_lunch',value=curr_user.profile.percent_lunch).content}
-                    % endif
-                    %if curr_user==request.user:
-                        <a href="#change_percent_lunch" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
-                        </a>
-                    %endif
-                </div>
-                <div class="user_my_profile_title">
-                    <b>IEPs:</b>
-                    % if curr_user.profile.percent_iep:
-                    ${Enum.objects.get(name='percent_iep',value=curr_user.profile.percent_iep).content}
-                    % endif
-                    %if curr_user==request.user:
-                        <a href="#change_percent_iep" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
-                        </a>
-                    %endif
-                </div>
-                <div class="user_my_profile_title">
-                    <b>English Learners:</b>
-                    % if curr_user.profile.percent_eng_learner:
-                    ${Enum.objects.get(name='percent_eng_learner',value=curr_user.profile.percent_eng_learner).content}
-                    % endif
-                    %if curr_user==request.user:
-                        <a href="#change_percent_eng_learner" rel="leanModal" class="edit-name">
-                        <img src="/static/images/newdashboard/edit_pen_60.png" width="18" style="margin-top:-5px;"/>
-                        </a>
-                    %endif
                 </div>
             </div>
         </div>
