@@ -735,9 +735,9 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                         for dayHour in dayHours:
                             if (day[3][0] == dayHour):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;" + day[3][0]
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[4][i]
                             else:
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;" + day[3][0]
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[4][i]
 
                             if day[1]:
                                 i = 0
@@ -750,6 +750,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                         endHour = int(day[4][i][0:find(":")])
 
                                         h = startHour
+                                        endHour = endHour if endHour <= 6 else 6
+
                                         while(h <= endHour):
                                             midHour = str(h) + ":00 AM"
                                             if(day[3][i] != midHour and midHour == dayHour):
