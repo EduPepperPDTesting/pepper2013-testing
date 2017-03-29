@@ -547,9 +547,9 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
         current = False;
         occurrences = [];
         trainingStartTime = ""
-        trainingMovePx = ""
-        labelMovePx = ""
-        trainingStartTimes = []
+        trainingEndTime = ""
+        trainingTimes = [[]]
+
         if day:
             if (isweek or isday):
                 date = utc.localize(day)
@@ -573,15 +573,22 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     except:
                         status = "";
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+                    trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
                     if isday:
-                        trainingMinutes = int(trainingStartTime[-5:-3])
-                        if(trainingMinutes)<30:
+                        trainingStartMinutes = int(trainingStartTime[-5:-3])
+                        if(trainingStartMinutes)<30:
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
                         else:
                             trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
-                        
-                        trainingStartTimes.append(trainingStartHour)
+
+                        trainingEndMinutes = int(trainingStartTime[-5:-3])
+                        if (trainingEndMinutes) < 30:
+                            trainingEndHour = trainingEndTime[0:-5] + "00" + trainingEndTime[-3:]
+                        else:
+                            trainingEndHour = trainingEndTime[0:-5] + "30" + trainingEndTime[-3:]
+
+                        trainingTimes.append([trainingStartHour, trainingEndHour])
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime
@@ -647,7 +654,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
             if date.__str__() == current_day.__str__():
                 current = True
 
-        rangedates[week].append([day, occurrences, current, trainingStartTimes])
+        rangedates[week].append([day, occurrences, current, trainingTimes])
 
         if (not isweek and not isday):
             if len(rangedates[week]) == 7:
@@ -731,8 +738,37 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             if day[1]:
                                 i = 0
                                 for tmp1 in day[1]:
-                                    if(day[3][i] == dayHour):
+                                    if(day[3][i][0] == dayHour):
                                         table_tr_content += tmp1
+
+                                    if(day[3][i][0] != undefined and day[3][i][1] != undefined and (day[3][i][0] != day[3][i][1]) and day[3][i][1] == dayHour):
+                                        startHour = int(day[3][i][0][0:find(":")])
+                                        endHour = int(day[3][i][1][0:find(":")])
+
+                                        h = startHour
+                                        while(h <= endHour):
+                                            midHour = str(h) + ":00 AM"
+                                            if(day[3][i][0] != midHour and midHour == dayHour):
+                                                table_tr_content += tmp1
+                                                break
+
+                                            midHour = str(h) + ":30 AM"
+                                            if (day[3][i][0] != midHour and midHour == dayHour):
+                                                table_tr_content += tmp1
+                                                break
+
+                                            midHour = str(h) + ":00 PM"
+                                            if (day[3][i][0] != midHour and midHour == dayHour):
+                                                table_tr_content += tmp1
+                                                break
+
+                                            midHour = str(h) + ":30 PM"
+                                            if (day[3][i][0] != midHour and midHour == dayHour):
+                                                table_tr_content += tmp1
+                                                break
+
+                                            h += 1
+
                                     i += 1
 
                             table_tr_content += "</div>"
