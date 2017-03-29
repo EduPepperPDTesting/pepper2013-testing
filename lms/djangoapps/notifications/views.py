@@ -69,8 +69,11 @@ def save_interactive_update(request):
     info['_id']=oid
     save_interactive_info(info)
 
-    ma_db = myactivitystore()
-    my_activity = {"ActivityType": "MyChunks", "EventType": 3, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+    ma_db = myactivitystore()    
+    my_activity = {"GroupType": "MyChunks", "EventType": "myChunks_shareChunk", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"url": info['location']},
+    "TokenValues": {"user_id":info['user_id'], "SourceID": oid}, 
+    "LogoValues": {"SourceID": oid}}    
     ma_db.insert_item(my_activity)
 
     return utils.JsonResponse({'results':'true'})

@@ -98,15 +98,18 @@ def save_mychunk(request):
     if len(infos) == 0:
         oid = getObjectId()
         info['_id']=oid
-        EventType = 1
+        EventType = "myChunks_createChunk"
     else:
-        EventType = 2
+        EventType = "myChunks_editChunk"
         oid = ObjectId(str(infos[0]['_id']))
 
     rs.save_item(info)
 
     ma_db = myactivitystore()
-    my_activity = {"ActivityType": "MyChunks", "EventType": EventType, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+    my_activity = {"GroupType": "MyChunks", "EventType": EventType, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"url": info['url']},
+    "TokenValues": {"SourceID": oid}, 
+    "LogoValues": {"SourceID": oid}}
     ma_db.insert_item(my_activity)
 
     return utils.JsonResponse({'results':'true'})
@@ -122,13 +125,17 @@ def set_rate(request):
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
     rs.set_rate(info)
-    
+    mychunk_url = info['url']
+
     results=rs.collection.find({'user_id':str(request.user.id),'vertical_id':info['vertical_id']})
     for data in results:
         oid=ObjectId(str(data['_id']))
         
-        ma_db = myactivitystore()
-        my_activity = {"ActivityType": "MyChunks", "EventType": 4, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, "SourceID": oid}
+        ma_db = myactivitystore()        
+        my_activity = {"GroupType": "MyChunks", "EventType": "myChunks_rateChunk", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"url": mychunk_url},
+        "TokenValues": {"SourceID": oid}, 
+        "LogoValues": {"SourceID": oid}}
         ma_db.insert_item(my_activity)
         break;
 
