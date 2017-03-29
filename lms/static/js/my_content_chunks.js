@@ -495,7 +495,7 @@ function rate_init(element)
   $.fn.raty.defaults.path = '/static/js/vendor/raty/lib/img';
   element.find('.rateItem').raty({hints:['Poor','Fair','Average','Good','Great'],click: function(score, evt) {
       var This=this;
-      var datainfo={'info':JSON.stringify({'rate_name':$(this).attr('data-name'),'rate_value':score,'vertical_id':$(this).parent().parent().parent().parent().parent().attr('data-id')})};
+      var datainfo={'info':JSON.stringify({'url':$(this).parent().parent().parent().parent().parent().parent().parent().find(".chunk_title").attr("href"), 'rate_name':$(this).attr('data-name'),'rate_value':score,'vertical_id':$(this).parent().parent().parent().parent().parent().attr('data-id')})};
       $(this).parent().parent().parent().parent().find('.rateItem').raty('readOnly',true);
       $.post("/my_chunks/set_rate",datainfo,function(){
         $(This).parent().parent().parent().parent().find('.rateItem').raty('readOnly',false);
