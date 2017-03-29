@@ -550,6 +550,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
         trainingEndTime = ""
         trainingStartHour = ""
         trainingEndHour = ""
+        trainingStartHours = []
+        trainingEndHours = []
 
         if day:
             if (isweek or isday):
@@ -588,6 +590,9 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             trainingEndHour = trainingEndTime[0:-5] + "00" + trainingEndTime[-3:]
                         else:
                             trainingEndHour = trainingEndTime[0:-5] + "30" + trainingEndTime[-3:]
+
+                        trainingStartHours.append(trainingStartHour)
+                        trainingEndHours.append(trainingEndHour)
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime
@@ -653,7 +658,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
             if date.__str__() == current_day.__str__():
                 current = True
 
-        rangedates[week].append([day, occurrences, current, trainingStartHour, trainingEndHour])
+        rangedates[week].append([day, occurrences, current, trainingStartHours, trainingEndHours])
 
         if (not isweek and not isday):
             if len(rangedates[week]) == 7:
