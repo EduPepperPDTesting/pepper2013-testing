@@ -243,8 +243,8 @@ class MongoMyActivityStore(object):
     def insert_item(self,item):
         self.collection.insert(item)
 
-    def set_item_pd(self,training_id,training_name):        
-        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
+    def set_item_pd(self,training_id,training_name, training_date):        
+        self.collection.update({'EventType':'PDTraining_registration','TokenValues':{'training_id':training_id}},{'$set':{'TokenValues':{'training_id':training_id, 'training_name':training_name, 'training_date':training_date}}}, multi=True)
 
     def set_item_reporting(self,report_id,report_name):        
         self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)

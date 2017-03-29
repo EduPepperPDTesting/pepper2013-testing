@@ -368,12 +368,13 @@ def delete_training(request):
         training = PepRegTraining.objects.get(id=id)
         tid = training.id
         tname = training.name
+        tdate = training.training_date
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
         training.delete()
 
         ma_db = myactivitystore()        
-        ma_db.set_item_pd(tid, tname)
+        ma_db.set_item_pd(tid, tname, tdate)
 
     except Exception as e:
         db.transaction.rollback()
