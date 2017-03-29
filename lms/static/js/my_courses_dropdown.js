@@ -1,11 +1,11 @@
 $(document).ready(function () {
-  	$('a.dropdown').focus(function() {
+  	$('#dropdown').click(function(event) {
 	    $('ul.dropdown-menu').addClass("expanded");
-	    $('a.dropdown').addClass("active");
-  });
-
-  $('a.dropdown').blur(function() {
-    $('ul.dropdown-menu').removeClass("expanded");
-    $('a.dropdown').removeClass("active");
+	    $('#dropdown').addClass("active");
+	    $(document).one("click", function(){
+    		$('ul.dropdown-menu').removeClass("expanded");
+    		$('#dropdown').removeClass("active");
+    });
+	    event.stopPropagation();
   });
 });
