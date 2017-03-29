@@ -737,10 +737,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             if day[1]:
                                 i = 0
                                 for tmp1 in day[1]:
-                                    if(day[3][i] != undefined and day[3][i] == dayHour):
+                                    if(day[3][i] == dayHour):
                                         table_tr_content += tmp1
 
-                                    if(day[3][i] != undefined and day[4][i] != undefined and (day[3][i] != day[4][i]) and day[4][i] == dayHour):
+                                    if(day[4][i] != "" and (day[3][i] != day[4][i]) and day[4][i] == dayHour):
                                         startHour = int(day[3][i][0:find(":")])
                                         endHour = int(day[4][i][0:find(":")])
 
