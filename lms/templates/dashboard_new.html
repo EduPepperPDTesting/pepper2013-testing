@@ -289,7 +289,7 @@ a.post_btn:hover{
     background-position: 50% 0;
     background-repeat: no-repeat;
     text-align: center;
-    margin-bottom: 25px;
+    margin: 28px 0 28px 0;
 }
 .my-communities-cards .image-bottom-style {
     border-radius: 0 0 6px 6px;
@@ -610,7 +610,7 @@ a.post_btn:hover{
                         <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
                     </div>
                 </div>
-                <div id="standards1" style="position: absolute;left:1290px;">   
+                <div id="standards1" style="position: absolute;margin-left: 960px;">   
                     <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
                     <div class="my-courses-cards" style="text-align: center">
                         <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
@@ -738,19 +738,20 @@ a.post_btn:hover{
                 <a href="/communities">View All</a>
             </div>
             <div class="con-my-communities" style="margin-bottom: 20px;">
-            <div id="content2" style="position: absolute;right: 1290px;">
-                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
-                <div class="my-courses-cards" style="text-align: center">
-                    <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
+                <div id="content2" style="position: absolute;margin-left: -960px;">
+                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
+                    <div class="my-courses-cards" style="text-align: center">
+                        <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
+                        
+                    </div>
+                </div>
+                <div id="standards2">
+                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+                    <div class="my-courses-cards" style="text-align: center">
+                        <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+                    </div>
                 </div>
             </div>
-            <div id="standards2">
-                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                <div class="my-courses-cards" style="text-align: center">
-                    <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
-                </div>
-            </div>
-        </div>
         </div>
         
         <script type="text/javascript">

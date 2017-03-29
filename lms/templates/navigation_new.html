@@ -348,7 +348,7 @@
 }
 .dropdownusername{
     display:block;
-    max-width:70px;
+    max-width:200px;
     text-overflow:ellipsis;
     line-height:12px;
     height:18px;
@@ -444,31 +444,31 @@
         % if curr_user.is_authenticated():
             % if curr_user==request.user:
                 <ol class="authenticated nav-option-ol">
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="/my_courses"><img src="/static/images/newdashboard/header_my_courses_45.png" width="45"/></a>
                         <div class="nav-option-text">My Courses</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="#"><img src="/static/images/newdashboard/header_my_standards_45.png" width="45"/></a>
                         <div class="nav-option-text">My Standards</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="#"><img src="/static/images/newdashboard/header_my_content_45.png" width="45"/></a>
                         <div class="nav-option-text">My Content</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="/communities"><img src="/static/images/newdashboard/header_my_communities_45.png" width="45"/></a>
                         <div class="nav-option-text">My Communities</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="/pepreg"><img src="/static/images/newdashboard/header_my_pd_planner_45.png" width="45"/></a>
                         <div class="nav-option-text">My PD Planner</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="/reporting"><img src="/static/images/newdashboard/header_my_reports_45.png" width="45"/></a>
                         <div class="nav-option-text">My Reports</div>
                     </li>
-                    <li style="margin-left:5px;margin-right:0px;">
+                    <li style="margin-left:25px;margin-right:0px;">
                         <a href="/people"><img src="/static/images/newdashboard/header_my_network_people_45.png" width="45"/></a>
                         <div class="nav-option-text">My Network / People Search</div>
                     </li>
@@ -476,7 +476,7 @@
                     %if show_extended:
                         <!-- if resolve(request.path_info).url_name in ["dashboard", "configuration", "pepreg", "pepconn", "permissions_view", "time_report", "reporting_reports", "sso_idp_metadata_edit", "sso_sp_metadata_edit", "tnl_configuration", "alert_message"]: -->
                         <!-- Administration -->
-                        <li style="margin-left:5px;margin-right:0px;" class="admin-menu-holder">
+                        <li style="margin-left:25px;margin-right:0px;" class="admin-menu-holder">
                             <a href="#" class="configuration" onclick="$('.admin-dropdown-menu').toggle()">
                                 <img src="/static/images/newdashboard/header_my_admin_tools_45.png" width="45"/>
                                 <div class="nav-option-text">Tools</div>
@@ -555,7 +555,7 @@
 <!--sub nav option Notifications--> 
                     %if show_extended:
                         <!-- Notifications -->
-                        <li class="imessage_style" style="margin-left:5px;margin-right:0px;">
+                        <li class="imessage_style" style="margin-left:25px;margin-right:0px;">
                             <a href="#show_notifications" rel="leanModal" id="show_notifications_link" style="text-decoration:none !important;">
                                 <div class="info_count_btn" style="width:50px;height:50px;background:url(/static/images/newdashboard/chat_active_50.png);display:none;">
                                     <table  width="50" height="50" border="0" cellpadding="0" cellspacing="0">
@@ -604,19 +604,20 @@
                             <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                         </a>
                     </li> -->
-                    <li class="primary">
-                        <span><a href="#" class="dropdown" id="dropdown" style="margin-top: -8px;">
+                    <li class="primary" style="margin-top:  -10px;">
+                        <span><a href="#" class="dropdown" id="dropdown">
                             <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="35">
-                            <span style="display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:15px;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
+                            <span style="display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">${curr_user.username}</span>
                         </a></span>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" style="width:300px;top:64px;"> 
                             <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
-                                margin: 5px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
+                                margin: 15px 0;overflow: hidden;padding: 3px 5px 4px;text-overflow: ellipsis;white-space: nowrap;">
                                 <div style="float:left;">   
                                     <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="50"/>
                                 </div>
-                                <div style="float:right;margin-top: 10px;color:#60B2D6">
-                                    <span class="dropdownusername" >${curr_user.username}</span>
+                                <div style="float:left;margin: 0 0 0 10px;color:#60B2D6">
+                                    <span class="dropdownusername" >${ curr_user.first_name | h }</span>
+                                    <span class="dropdownusername" >${ curr_user.last_name | h }</span>
                                     <a style="text-decoration:none;font-weight: bold;font-size:10px;"  href="${reverse('user_information',args=[curr_user.id])}">View Profile</a>
                                 </div>
                             </li>
