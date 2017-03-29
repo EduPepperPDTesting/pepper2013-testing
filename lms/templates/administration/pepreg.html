@@ -25,7 +25,7 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
 
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
@@ -43,7 +43,7 @@
 <script type="text/javascript" src="/static/js/pikaday.min1.js"></script>
 <link rel="stylesheet" href="/static/css/pikaday1.css"/>
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <style>
     input[type="button"], button, .button {box-shadow: none !important;}
@@ -84,7 +84,15 @@
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 
-    #calendar_select_range .btn-active {background-color:#204d74;}
+    #calendar_select_range li{background: #337ab7;}
+
+    #calendar_select_range .week-parent{width: 120px;}
+
+    #calendar_select_range .btn-active, #calendar_select_range .list-active{background-color:#204d74;}
+
+    #calendar_select_range ul{min-width: 135px; padding: 0px;}
+
+    #dlg-warning {height: 310px;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -227,7 +235,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="calendar-panel" style="width:1000px;margin-left:-500px;border-radius:0;">
+<div class="modal" id="calendar-panel" style="width:1000px;height:600px;margin-left:-500px;border-radius:0;">
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
@@ -242,25 +250,18 @@
             <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
             <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
 
-            <!--<select name="calendar_select_range" id="calendar_select_range" style="">
-                <option value="0">Month</option>
-                <option value="1" selected="selected">Week</option>
-                <option value="2">Day</option>
-            </select>
-
-             <div class="dropdown">
-                <button type="button" name="calendar_select_range" id="calendar_select_range"
-                        data-toggle="dropdown" class="btn btn-primary dropdown-toggle" value="1">Week<span class="caret"></span></button>
-                <ul class="dropdown-menu">
-                    <li value="0"><a href="#">Month</a></li>
-                    <li value="1"><a href="#">Week</a></li>
-                    <li value="2"><a href="#">Day</a></li>
-                </ul>
-            </div-->
-
             <div class="btn-group" id="calendar_select_range" value="1">
                 <button type="button" class="btn btn-primary btn-sm" value="0">Month</button>
-                <button type="button" class="btn btn-primary btn-sm  btn-active" value="1">Week</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm btn-active week-parent" value="1">Calendar Week</button>
+                    <button type="button" class="btn btn-primary btn-sm btn-active dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret" style="color: white !important;"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li class="list-group-item list-group-item-info list-active" value="1" style="color: white !important;">Calendar Week</li>
+                        <li class="list-group-item list-group-item-info" value="3" style="color: white !important;">Work Week</li>
+                    </ul>
+                </div>
                 <button type="button" class="btn btn-primary btn-sm" value="2">Day</button>
             </div>
 
@@ -274,7 +275,7 @@
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
-                    <th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th><th id="day5">Saturday</th><th id="day6">Sunday</th>
+                    <th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th><th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>
                 </tr>
             </table>
         </div>
@@ -615,7 +616,7 @@
                   $("#time").text(displayDate);
                }
 	        }else{
-	            console.log("val - "+ ($("#calendar_select_range").val().length==0));
+	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
                $("#calendar-month-weekdays th[id='time']").remove();
                $("#calendar-month-weekdays th").show();
@@ -766,20 +767,18 @@
 			});
 		});
 	}
-	
-	function setPickerValue(){
-	    if($("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "2"){
-	        console.log(_sys_calendar_month);
-	        var picker_month = _sys_calendar_month + 1;
+
+		    /*if($("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "2"){
+		    var picker_month = _sys_calendar_month + 1;
 	        var picker_year = _sys_calendar_year
 	        if(picker_month == 13){
 	             picker_month = 1;
-	             picker_year = _sys_calendar_year + 1;
-	        }
-	    }else{
-	        var picker_month = _sys_calendar_month;
-	        var picker_year = _sys_calendar_year;
-	    }
+	             picker_year = _sys_calendar_year + 1;}  }*/
+	function setPickerValue(){
+
+        var picker_month = _sys_calendar_month;
+        var picker_year = _sys_calendar_year;
+
 		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
 		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
@@ -854,16 +853,81 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-		$("#calendar_select_range button").click(function(event){
+		$("#calendar_select_range>button").click(function(event){
 		    event.preventDefault();
 		    //$("#calendar_select_range button[class='btn-active']").attr("class", "btn btn-primary btn-sm");
+
 		    $(this).siblings(".btn-active").removeClass("btn-active");
+		    $(this).siblings().find("button.btn-active").removeClass("btn-active");
 		    $(this).addClass("btn-active");
+
 		    var rangeVal = $(this).val();
+
+		    if(rangeVal != 2) $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+
 		    $("#calendar_select_range").val(rangeVal);
 			calendarOpen();
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
+
+		$("#calendar_select_range").find(".week-parent").click(function(event){
+		    event.preventDefault();
+
+		    $(this).parent().parent().find(".btn-active").removeClass("btn-active");
+
+		    $(this).parent().find("button").addClass("btn-active");
+
+		    var rangeVal = $(this).siblings().find("li.list-active").val();
+
+            if(rangeVal=="3"){
+                $(".week-parent").text("Work Week");
+                $(".weekend").remove();
+            }else{
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }
+
+		    $("#calendar_select_range").val(rangeVal);
+			calendarOpen();
+			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+		});
+
+        $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
+            event.preventDefault();
+
+            $(this).css("cursor", "default");
+        });
+
+        $("#calendar_select_range ul").on("mouseover", "li:not(.list-active)", function(event){
+            event.preventDefault();
+
+            $(this).css("cursor", "pointer");
+        });
+
+        $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
+            event.preventDefault();
+
+            $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
+
+            $("#calendar_select_range .btn-group").find("button").addClass("btn-active");
+
+            $(this).parent().find("li.list-active").removeClass("list-active");
+            $(this).addClass("list-active");
+
+            var rangeVal = $(this).val();
+
+            if(rangeVal=="1"){
+                $(".week-parent").text("Calendar Week")
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }else if(rangeVal=="3"){
+                $(".week-parent").text("Work Week");
+                $(".weekend").remove();
+            }else{
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }
+
+            $("#calendar_select_range").val(rangeVal);
+            calendarOpen();
+        });
 
 		_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
@@ -885,17 +949,18 @@
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
 		    console.log(_sys_calendar_month);
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal=="0"){
                 _sys_calendar_month -= 1;
                 if(_sys_calendar_month == 0){
                     _sys_calendar_month = 12;
                     _sys_calendar_year -= 1;
                    }
-			}else if($("#calendar_select_range").val() == "1"){
+			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date);
-			}else if($("#calendar_select_range").val() == "2"){
+			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
 			    setSysDate(picker_date);
@@ -907,17 +972,18 @@
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
 		    console.log(_sys_calendar_month);
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal == "0"){
                 _sys_calendar_month += 1;
                 if(_sys_calendar_month == 13){
                     _sys_calendar_month = 1;
                     _sys_calendar_year += 1;
                 }
-			}else if($("#calendar_select_range").val() == "1"){
+			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date);
-			}else if($("#calendar_select_range").val() == "2"){
+			}else if(rangeVal == "2"){
 			   var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
@@ -929,12 +995,13 @@
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous_y").click(function(){
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal == "0"){
                 _sys_calendar_year -= 1;
                 if(_sys_calendar_year < 1979){
                     _sys_calendar_year = 1979;
                 }
-            }else if($("#calendar_select_range").val() == "1"){
+            }else if(rangeVal == "1" || rangeVal == "3"){
                 if(_sys_calendar_year == 1979 && _sys_calendar_month == 1){
                     picker_date = new Date(1979, 0, 1);
                 }else{
@@ -959,9 +1026,10 @@
 		
 		//-----------------------------------------------next
 		$("#calendar_btn_next_y").click(function(){
-            if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+            if(rangeVal == "0"){
                 _sys_calendar_year += 1;
-            }else if($("#calendar_select_range").val() == "1"){
+            }else if(rangeVal == "1" || rangeVal == "3"){
                 monthDays = new Date(_sys_calendar_year, _sys_calendar_month, 0).getDate();
                 picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + monthDays);
@@ -2011,6 +2079,11 @@
             e.preventDefault();
             return false;
         });
+
+        if($("#calendar_select_range li.list-active").val=="1")
+            $(".week-parent").text("Calendar Week")
+        else if($("#calendar_select_range li.list-active").val=="3")
+            $(".week-parent").text("Work Week");
     });
 
     function resetCap(){

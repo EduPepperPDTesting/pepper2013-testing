@@ -372,7 +372,7 @@ def delete_training(request):
         PepRegStudent.objects.filter(training=training).delete()
         training.delete()
 
-        ma_db = myactivitystore()        
+        ma_db = myactivitystore()
         ma_db.set_item_pd(tid, tname)
 
     except Exception as e:
@@ -506,9 +506,9 @@ def getCalendarMonth(request):
     #akogan datetime.
     if(_getrange=="0"):
         daterange = cal.itermonthdays(_year, _month)
-    elif(_getrange=="1"):
+    elif(_getrange=="1" or _getrange=="3"):
         weekNumber = date(year=_year, month=_month, day=_day).isocalendar()[1]
-        daterange = getweekdays(_year, weekNumber)
+        daterange = getweekdays(_year, weekNumber, _getrange)
     else:
         getDay = datetime(year=_year, month=_month, day=_day)
         daterangelist.append(getDay)
@@ -521,14 +521,18 @@ def getCalendarMonth(request):
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
 #akogan
-def getweekdays(year, weekNumber):
+def getweekdays(year, weekNumber, getrange):
     firstday = datetime.strptime('%04d-%02d-1' % (year, weekNumber), '%Y-%W-%w')
     if date(year, 1, 4).isoweekday() > 4:
         firstday -= timedelta(days=7)
 
     i = 0
     while (i < 7):
-        yield firstday + timedelta(days=i)
+        yieldDay = firstday + timedelta(days=i)
+        if(yieldDay.isoweekday() in (6, 7) and getrange == "3"):
+            yield 0
+        else:
+            yield yieldDay
         i += 1;
 
 #akogan
@@ -575,9 +579,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                             trainingStartHour = trainingStartTime[0:-5] + "00" + trainingStartTime[-3:]
                         else:
                             trainingStartHour = trainingStartTime[0:-5] + "30" + trainingStartTime[-3:]
-                        trainingMinutes = int(trainingStartTime[-5:-3])
-                        # trainingMovePx = int(trainingStartTime[-5:-3])*.026
-                        # labelMovePx = "style='position:relative;top:" + str(trainingMovePx) + "px;left: 5px;'"
+                        
                         trainingStartTimes.append(trainingStartHour)
 
                     # &#13;
@@ -592,13 +594,13 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     if (arrive == "0" and allow == "0"):
                         if (catype == "0" or catype == "4"):
                             occurrences.append(
-                                "<span class='alert al_4' titlex='" + titlex + "' " + labelMovePx + ">" + item.name + "</span>");
+                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
                                 occurrences.append(
-                                    "<span class='alert al_7' titlex='" + titlex + "' " + labelMovePx + ">" + item.name + "</span>");
+                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
@@ -606,7 +608,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
                                         item.id) + "' checked /> ";
                                     occurrences.append(
-                                        "<label class='alert al_6' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                             else:
                                 # checked false
@@ -614,7 +616,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
                                         item.id) + "' /> ";
                                     occurrences.append(
-                                        "<label class='alert al_5' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
@@ -631,7 +633,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
                                 occurrences.append(
-                                    "<label class='alert al_3' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
                         else:
                             # checked false
@@ -639,7 +641,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
                                 occurrences.append(
-                                    "<label class='alert al_6' titlex='" + titlex + "' " + labelMovePx + ">" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
@@ -653,7 +655,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
     table_tr_content = "";
     if isweek:
-        colstyle = "style='min-height: 360px !important;'"
+        colstyle = "style='min-height: 355px !important;'"
     elif isday:
         colstyle = "style='min-height: 590px !important;'"
     else:
@@ -689,7 +691,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
         for day in week:
             if(isweek or isday):
-                day[0]=day[0].day
+                if day[0] != 0: day[0]=day[0].day
             class_name = "";
             if (day[0] == 0):
                 class_name = "calendarium-empty";
@@ -703,35 +705,37 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
             else:
                 clickFunc = ""
 
-            table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
-            if (day[0]):
-                table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(
-                    day[0]) + "</span>";
+            if(not (day[0] == 0 and isweek)):
 
-                if not isday:
-                    for tmp1 in day[1]:
-                        table_tr_content += tmp1;
+                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
+                if (day[0]):
+                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(
+                        day[0]) + "</span>";
 
-                table_tr_content += "</div>";
+                    if not isday:
+                        for tmp1 in day[1]:
+                            table_tr_content += tmp1;
 
-                if isday:
-                    table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
+                    table_tr_content += "</div>";
 
-                    for dayHour in dayHours:
-                        table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                    if isday:
+                        table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
 
-                        if day[1]:
-                            i = 0
-                            for tmp1 in day[1]:
-                                if(day[3][i] == dayHour):
-                                    table_tr_content += tmp1
-                                i += 1
+                        for dayHour in dayHours:
+                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+
+                            if day[1]:
+                                i = 0
+                                for tmp1 in day[1]:
+                                    if(day[3][i] == dayHour):
+                                        table_tr_content += tmp1
+                                    i += 1
+
+                            table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
-                    table_tr_content += "</div>"
-
-            table_tr_content += "</td>";
+                table_tr_content += "</td>";
 
         table_tr_content += "</tr>";
 
@@ -776,9 +780,9 @@ def register(request):
             student.save()
 
             ma_db = myactivitystore()
-            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
-            "URLValues": {"training_id": training.id},    
-            "TokenValues": {"training_id": training.id}, 
+            my_activity = {"GroupType": "PDPlanner", "EventType": "PDTraining_registration", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id,
+            "URLValues": {"training_id": training.id},
+            "TokenValues": {"training_id": training.id},
             "LogoValues": {"training_id": training.id}}
             ma_db.insert_item(my_activity)
 
