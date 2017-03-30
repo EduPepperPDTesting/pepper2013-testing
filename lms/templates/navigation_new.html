@@ -337,7 +337,19 @@
     display:none;
     border:1px solid #666;
     white-space:nowrap;
-
+}
+.nav-option-text-left{
+    position:absolute;
+    top:50px;
+    right: 5px;
+    z-index:100;
+    padding:5px;
+    background-color:#eff0f6;
+    border-radius: 3px;
+    color:#666;
+    display:none;
+    border:1px solid #666;
+    white-space:nowrap;
 }
 .tempdiv{
     width: 240px;
@@ -608,7 +620,7 @@
                         <span><a href="#" class="dropdown" id="dropdown">
                             <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
                             <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
-                            <div class="nav-option-text">${curr_user.username} </div>
+                            <div class="nav-option-text-left">${curr_user.username} </div>
                         </a></span>
                         <ul class="dropdown-menu" style="width:300px;top:64px;"> 
                             <li style="-moz-box-sizing: border-box;-moz-transition: padding 0.15s linear 0s;border: 1px solid transparent;border-radius: 3px 3px 3px 3px;color: #1D9DD9;cursor: pointer;display: block;
@@ -727,10 +739,10 @@
 %endif
     <script> 
         $("#dropdown").mouseover(function(){
-            $(this).find(".nav-option-text").show();
+            $(this).find(".nav-option-text-left").show();
         })
         $("#dropdown").mouseout(function(){
-           $(this).find(".nav-option-text").hide();
+           $(this).find(".nav-option-text-left").hide();
         })
         $(".nav-option-ol li").mouseover(function(){
             $(this).find(".nav-option-text").show();
