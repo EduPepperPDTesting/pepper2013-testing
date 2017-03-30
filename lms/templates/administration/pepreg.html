@@ -1103,7 +1103,11 @@
 
             slots.map(function(){
 
-                var slotClass = $(this).first().attr("class").split(" ").last();
+                var slotFirstSpan = $(this).first();
+
+                console.log(slotFirstSpan);
+
+                var slotClass = slotFirstSpan.attr("class").split(" ").last();
 
                 var uniqueSpan = "span." + slotClass;
 
