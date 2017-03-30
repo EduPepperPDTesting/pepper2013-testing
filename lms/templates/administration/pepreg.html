@@ -1096,19 +1096,21 @@
 
     function uniqueTrainingSlot() {
 
+        getSlots = getElementsByClassName("training-slot");
+
         var slots = [];
 
-        slots = $(".training-slot").toArray();
-            console.log(slots);
+        slots = Array.from(getSlots);
+         console.log(slots);
+
+        //slots = $(".training-slot").toArray();
 
         getTrainingSlots(slots);
 
         function getTrainingSlots(slots){
 
             for ( var i = 0; i < slots.length; i++ ) {
-                var slotFirstSpan = slots[i].first();
-
-                var slotFirstSpan = $(this).first();
+                var slotFirstSpan = slots[i][0];
 
                 console.log(slotFirstSpan);
 
