@@ -289,7 +289,7 @@ a.post_btn:hover{
     background-position: 50% 0;
     background-repeat: no-repeat;
     text-align: center;
-    margin: 28px 0 28px 0;
+    margin: 0 0 56px 0;
 }
 .my-communities-cards .image-bottom-style {
     border-radius: 0 0 6px 6px;
@@ -607,7 +607,11 @@ a.post_btn:hover{
                 <div id="content1" style="float:left">
                     <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
                     <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
+                        <!-- <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture"> -->
+                        <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
+                        </div>
                     </div>
                 </div>
                 <div id="standards1" style="position: absolute;margin-left: 960px;">   
@@ -733,6 +737,14 @@ a.post_btn:hover{
                         <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                     </div>
                 %endfor
+                <div class="image-link-style">
+                        <div style="height:80px;"></div>
+                        <a href="" class="card-link image-bottom-style"><span>123123</span></a>
+                    </div>
+                    <div class="image-link-style">
+                        <div style="height:80px;"></div>
+                        <a href="" class="card-link image-bottom-style"><span>123123</span></a>
+                    </div
             </div>
             <div class="ds-view-all-communities">
                 <a href="/communities">View All</a>
@@ -741,8 +753,11 @@ a.post_btn:hover{
                 <div id="content2" style="position: absolute;margin-left: -960px;">
                     <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
                     <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture">
-                        
+                        <!-- <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture"> -->
+                        <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
+                        </div>
                     </div>
                 </div>
                 <div id="standards2">
@@ -756,10 +771,12 @@ a.post_btn:hover{
         
         <script type="text/javascript">
             $(document).ready(function(){
+
+                $(".image-link-style1").each(function(){
+                    getCollectionIcon(this, 'district', $(this).attr("key"));
+                });
                 var height1 = $("#content1").offset().top;
                 var height2 = $("#content2").offset().top;
-                console.log(height1)
-                console.log(height2)
                 if(height1 > height2){
                     $("#content1").show();
                     $("#standards1").show();
@@ -772,6 +789,21 @@ a.post_btn:hover{
                     $("#content1").hide();
                 }
             })
+            function getCollectionIcon(self, type , key){
+                var path = "/static/images/" + type + "/";
+                key = key.replace(new RegExp(" ", "gm"), "_");
+                key = key.replace(new RegExp("'", "gm"), "");
+                var img = new Image();
+                img.src = path + key + ".jpg";
+                $(self).css("background-image","url("+img.src+")");
+                img.onerror = function () {
+                    img.src = path + type + "_default.jpg";
+                    self.style.backgroundImage = img.src;
+                    $(self).css("background-image","url("+img.src+")");
+                    this.onerror = null;
+                    // console.log(self)
+                };
+            }
         </script>
         <div style="clear:both;"></div>
     </section>
@@ -1170,3 +1202,4 @@ $(document).ready(function(){
     });
 });
 </script>
+
