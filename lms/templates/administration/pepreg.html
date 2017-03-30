@@ -929,7 +929,7 @@
             calendarOpen();
         });
 
-        $("#calendar_select_range").on("show", "span.training-slot", function(event){
+        $("#calendar_select_range span.training-slot").on("load", function(event){
 
             var slotClass = $(this).attr('class').split(' ').last();
 
