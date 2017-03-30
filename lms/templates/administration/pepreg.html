@@ -1101,8 +1101,9 @@
             slots = $(".training-slot").toArray();
                 console.log(slots);
 
-            slots.map(function(slot){
-                var slotClass = slot.first().attr("class").split(" ").last();
+            slots.map(function(){
+
+                var slotClass = $(this).first().attr("class").split(" ").last();
 
                 var uniqueSpan = "span." + slotClass;
 
