@@ -735,17 +735,16 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                         for dayHour in dayHours:
                             if (day[3][0] == dayHour):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[4][0][:day[4][0].index(":")]
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
                             else:
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[4][0][:day[4][0].index(":")]
-
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
                             if day[1]:
                                 i = 0
                                 for tmp1 in day[1]:
                                     if(day[3][i] == dayHour):
                                         table_tr_content += tmp1
 
-                                    if(day[4][i] != "" and (day[3][i] != day[4][i]) and day[4][i] == dayHour):
+                                    if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         endHour = int(day[4][i][:day[4][i].index(":")])
 
