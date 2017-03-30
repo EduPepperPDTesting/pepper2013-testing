@@ -945,7 +945,7 @@
 
             firstSlot.css({"bottom": lastSlotCoord, "position": "absolute"});
 
-            $(uniqueSpan:gt(0)).remove();
+            $(uniqueSpan).not(":eq(0)").remove();
         });
 
 		_sys_calendar_year = _calendar_date.getFullYear();
