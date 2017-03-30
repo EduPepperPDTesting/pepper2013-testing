@@ -798,10 +798,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                     i += 1
 
-                            table_tr_content += "</div>"
-
                             if (day[3][0] != dayHour or h > endHour ):
                                 table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+
+                            table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
 
