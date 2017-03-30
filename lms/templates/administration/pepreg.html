@@ -1096,12 +1096,17 @@
 
     function uniqueTrainingSlot() {
 
-            var slots = [];
+        var slots = [];
 
-            slots = $(".training-slot").toArray();
-                console.log(slots);
+        slots = $(".training-slot").toArray();
+            console.log(slots);
 
-            slots.map(function(){
+        getTrainingSlots(slots);
+
+        function getTrainingSlots(slots){
+
+            for ( var i = 0; i < slots.length; i++ ) {
+                var slotFirstSpan = slots[i].first();
 
                 var slotFirstSpan = $(this).first();
 
@@ -1124,7 +1129,8 @@
                 firstSlot.css({"bottom": lastSlotCoord, "position": "absolute"});
 
                 $(uniqueSpan).not(":eq(0)").remove();
-            });
+            }
+        }
     };
 
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
