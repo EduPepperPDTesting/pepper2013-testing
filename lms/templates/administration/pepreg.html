@@ -1096,11 +1096,13 @@
 
     function uniqueTrainingSlot() {
 
-            var slots = $("#calendar_select_range").find("span.training-slot");
+            var slots = [];
+
+            slots = $("#calendar_select_range").find("span.training-slot").toArray();
                 console.log(slots);
 
-            slots.map(function(){
-                var slotClass = $(this).first().attr("class").split(" ").last();
+            slots.map(function(slot){
+                var slotClass = slot.first().attr("class").split(" ").last();
 
                 var uniqueSpan = "span." + slotClass;
 
