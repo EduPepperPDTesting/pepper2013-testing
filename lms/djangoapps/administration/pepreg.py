@@ -721,14 +721,11 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                 table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(
-                        day[0]) + "</span>";
+                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
-
-                    table_tr_content += "</div>";
 
                     if isday:
                         table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
@@ -807,6 +804,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+str(h)
 
                         table_tr_content += "</div>"
+
+                    table_tr_content += "</div>";
 
                 table_tr_content += "</td>";
 
