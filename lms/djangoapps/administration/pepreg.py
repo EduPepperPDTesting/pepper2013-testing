@@ -734,6 +734,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                             h = 0
                             endHour = 0
+                            divAdded = 0
 
                             if day[1]:
                                 i = 0
@@ -742,6 +743,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                         if(i == 0):
                                             table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                            divAdded = 1
 
 
                                         table_tr_content += tmp1
@@ -797,9 +799,11 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                             h += 1
 
+                                    if h <= endHour: divAdded = 1
+                                        
                                     i += 1
 
-                            else: #day[3][0] != dayHour and h > endHour
+                            if ( not divAdded ):
                                 table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
 
                             table_tr_content += "</div>"
