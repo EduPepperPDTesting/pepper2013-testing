@@ -752,25 +752,28 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                         endHour = endHour if endHour <= 6 else 6
 
                                         while(h <= endHour):
-                                            midHour = str(h) + ":00 AM"
-                                            if(day[3][i] != midHour and midHour == dayHour):
-                                                table_tr_content += tmp1
-                                                break
 
-                                            midHour = str(h) + ":30 AM"
-                                            if (day[3][i] != midHour and midHour == dayHour):
-                                                table_tr_content += tmp1
-                                                break
+                                            if day[3][i][-3:] == "AM":
+                                                midHour = str(h) + ":00 AM"
+                                                if(day[3][i] != midHour and midHour == dayHour):
+                                                    table_tr_content += tmp1
+                                                    break
 
-                                            midHour = str(h) + ":00 PM"
-                                            if (day[3][i] != midHour and midHour == dayHour):
-                                                table_tr_content += tmp1
-                                                break
+                                                midHour = str(h) + ":30 AM"
+                                                if (day[3][i] != midHour and midHour == dayHour):
+                                                    table_tr_content += tmp1
+                                                    break
 
-                                            midHour = str(h) + ":30 PM"
-                                            if (day[3][i] != midHour and midHour == dayHour):
-                                                table_tr_content += tmp1
-                                                break
+                                            if(day[3][i][-3:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
+                                                midHour = str(h) + ":00 PM"
+                                                if (day[3][i] != midHour and midHour == dayHour):
+                                                    table_tr_content += tmp1
+                                                    break
+
+                                                midHour = str(h) + ":30 PM"
+                                                if (day[3][i] != midHour and midHour == dayHour):
+                                                    table_tr_content += tmp1
+                                                    break
 
                                             h += 1
 
