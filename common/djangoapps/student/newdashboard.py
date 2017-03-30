@@ -96,6 +96,13 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
 from xmodule.remindstore import myactivitystore, messagestore
+
+#GroupType:Courses
+from courseware.courses import get_course_by_id, course_image_url 
+import comment_client as cc
+
+#GroupType:PDPlanner
+from administration.models import PepRegTraining
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2403,32 +2410,95 @@ def get_my_activities(request):
 
     ma_list = list()
     for data in my_activities:
-        ma_dict = {}
-        if data["ActivityType"] == "Community":
-            ma_dict = process_data_community(data)
-        elif data["ActivityType"] == "Messages":
-            recipient_name = ""
-            recipient_district = ""
-            my_message = messagestore().get_item({"_id":data["SourceID"]})
-            for msg in my_message:
-                sender = User.objects.get(id=int(msg["recipient_id"]))
-                recipient_name = sender.username
+        if data["EventType"] in ["courses_courseEnrollment","courses_creatediscussion","courses_replydiscussion","PDTraining_registration"]:
+            ma_dict = {}
+            #URL
+            ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
+            
+            #DisplayInfo
+            info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
+            DisplayInfoValues = {}
+            for k in info_key_list:
                 try:
-                    district_id = sender.profile.district_id
-                    recipient_district = District.objects.get(id=district_id).name
-                except Exception as e:
-                    recipient_district = ""
-            ma_dict["recipient_name"] = recipient_name
-            ma_dict["recipient_district"] = recipient_district
-            ma_dict["url"] = "/dashboard/" + str(sender.id)
-        elif data["ActivityType"] == "ORA":
-            pass
+                    t = eval("get_" + k)
+                    DisplayInfoValues[k] = t(data["TokenValues"])
+                except:
+                    pass
+            info = replace_values(data["DisplayInfo"],DisplayInfoValues)
+            ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
 
-        ma_dict["a_type"] = data["ActivityType"]
-        ma_dict["e_type"] = int(data["EventType"])
-        ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
-        ma_list.append(ma_dict)
+            #Logo
+            if data["Logo"]:
+                ma_dict["Logo"] = data["Logo"]
+            else:
+                ma_dict["Logo"] = get_logo(data["GroupType"],data["LogoValues"])
+
+            #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
+            ma_dict["OtherInfo"] = get_otherinfo(data["GroupType"],data["URLValues"])
+
+            #GroupType
+            ma_dict["g_type"] = data["GroupType"]
+
+            #time
+            ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
+
+            ma_list.append(ma_dict)
+    log.debug("ooooooooooooooooooooooooo")
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
+
+def get_PDTrainingName(token_values):
+    value = ""
+    pdtraining = PepRegTraining.objects.filter(id=token_values["training_id"])
+    if pdtraining:
+        value = pdtraining[0].name
+    else:
+        value = token_values["training_name"]
+    return value
+
+def get_PDTrainingDate(token_values):
+    value = ""
+    pdtraining = PepRegTraining.objects.filter(id=token_values["training_id"])
+    if pdtraining:
+        value = pdtraining[0].training_date
+    else:
+        value = token_values["training_date"]
+    return value
+
+def get_discussionSubject(token_values):
+    thread = cc.Thread.find(token_values["SourceID"])
+    return thread.title
+
+def get_otherinfo(g_type, url_values):
+    value = ""
+    if g_type == "Courses":
+        value = get_course_by_id(url_values["course_id"]).display_name_with_default
+    elif g_type == "Communities":
+        value = "__communitiy_Name"
+    return value
+
+def get_logo(g_type, logo_values):
+    value = ""
+    logo_id = ""
+    for k in logo_values:
+        logo_id = logo_values[k]
+        break
+    if g_type == "Courses":
+        course = get_course_by_id(logo_id)
+        value = course_image_url(course)
+    elif g_type == "Communities":
+        value = "__communitiy_Logo"
+    return value
+
+def get_courseDisplayName(token_values):
+    value = get_course_by_id(token_values["course_id"]).display_name_with_default
+    return value
+
+def get_courseDisplayNumber(token_values):
+    value = get_course_by_id(token_values["course_id"]).display_number_with_default
+    return value
+
+def replace_values(body, values):
+    return re.sub("{[\w ]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
@@ -2476,65 +2546,6 @@ def create_filter_key(filter_con):
             year_0 += 1
             filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
-
-def process_data_community(data):
-    ma_dict = {}
-    if data["EventType"] == 1:
-        #join
-        c = CommunityCommunities.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.name #coummunity name
-            ma_dict["name_d"] = "" #discussion name
-            ma_dict["url"] = "/community/" + str(data["SourceID"])
-            ma_dict["logo"] = item.logo.upload.url if item.logo else ''
-            try:
-                list_id = data["user_ids"].split(',')
-                list_fname = []
-                for d in list_id:
-                    user = User.objects.get(id=int(d))
-                    fname = user.first_name + " " + user.last_name
-                    list_fname.append(fname)
-                    ma_dict["user_name"] = list_fname
-            except Exception as e:
-                ma_dict["user_name"] = ""
-    elif data["EventType"] == 2:
-        #post
-        c = CommunityPosts.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.community.name
-            ma_dict["name_d"] = ""
-            ma_dict["url"] = "/community/" + str(item.community.id)
-            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
-    elif data["EventType"] == 3:
-        #post comment
-        c = CommunityComments.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.post.community.name
-            ma_dict["name_d"] = ""
-            ma_dict["url"] = "/community/" + str(item.post.community.id)
-            ma_dict["logo"] = item.post.community.logo.upload.url if item.post.community.logo else ''
-    elif data["EventType"] == 4:
-        #discussion
-        c = CommunityDiscussions.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.community.name
-            ma_dict["name_d"] = item.subject
-            ma_dict["url"] = "/community/discussion/" + str(item.id)
-            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
-    elif data["EventType"] == 5:
-        #discussion reply
-        c = CommunityDiscussionReplies.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.discussion.community.name
-            ma_dict["name_d"] = item.discussion.subject
-            ma_dict["url"] = "/community/discussion/" + str(item.discussion.id)
-            ma_dict["logo"] = item.discussion.community.logo.upload.url if item.discussion.community.logo else ''
-    return ma_dict
 
 #@begin:My courses
 #@date:2017-02-09
