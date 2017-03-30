@@ -929,6 +929,25 @@
             calendarOpen();
         });
 
+        $("#calendar_select_range").on("show", "span.training-slot", function(event){
+
+            var slotClass = $(this).attr('class').split(' ').last();
+
+            var uniqueSpan = "span." + slotClass
+
+            var lastSlot = $("#calendar_select_range).find(uniqueSpan).last();
+
+            var lastSlotCoord = lastSlot.getBoundingClientRect().bottom + window.scrollY;
+
+            var lastSlotCoord = lastSlotCoord + "px";
+
+            var firstSlot = $("#calendar_select_range).find(uniqueSpan).first();
+
+            firstSlot.css({"bottom": lastSlotCoord, "position": "absolute"});
+
+            $(uniqueSpan:gt(0)).remove();
+        });
+
 		_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
