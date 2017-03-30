@@ -227,16 +227,15 @@ class MongoMyActivityStore(object):
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
+            data['URL'] = ""
+            data['Logo'] = ""
+            data['DisplayInfo'] = ""
             for data_s in my_activitiy_static:
                 if data['EventType'] == data_s['EventType']:
                     data['URL'] = data_s['URL']
                     data['Logo'] = data_s['Logo']
                     data['DisplayInfo'] = data_s['DisplayInfo']
                     break
-                else:
-                    data['URL'] = ""
-                    data['Logo'] = ""
-                    data['DisplayInfo'] = ""
             r.append(data)
         return r
 
@@ -275,13 +274,11 @@ class MongoMyActivityStaticStore(object):
 
     def get_item(self):
         results = self.collection.find()
-        '''
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
             r.append(data)
-        '''
-        return results
+        return r
 
     def insert_item(self,item):
         self.collection.insert(item)

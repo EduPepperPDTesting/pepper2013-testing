@@ -457,8 +457,10 @@ a.post_btn:hover{
     color: #000;
     cursor: pointer;
     text-decoration: none !important;
+    /*
     font-weight: bold;
     font-style: italic;
+    */
 }
 /*--my activity community ico--*/
 .ma-community-ico{
@@ -530,7 +532,6 @@ a.post_btn:hover{
     display: block;
     width:110px;
     height:69px;
-
 }
 .ma-course-course-title {
     display: table;
@@ -543,6 +544,7 @@ a.post_btn:hover{
     height: 28px;
     vertical-align: middle;
     padding: 0 17px;
+    line-height: 11px;
     background: rgba(18,111,154,0.95);
     text-decoration: none!important;
     border-radius: 0px 0px 3px 3px;
@@ -1038,102 +1040,47 @@ $(document).ready(function(){
         element_html += '<div class="ma-row-cotent">';
         element_html += '<div class="ma-row-cotent-time">'+displayDate+'</div>';
         element_html += '<div class="ma-row-cotent-info">';
-        element_html += data.html_text;
+        element_html += data.DisplayInfo;
         element_html += '</div>';
         element_html += '</div>';
 
-        element=$(element_html);
+        element = $(element_html);
         $('.con-ma-rows').append(element);
     }
     function my_activity_create_ico(data){
         //switch_ActivityType
-        switch(data.a_type)
+        switch(data.g_type)
         {
-            case 'Community':
-                data.html_ico = '<a href="'+data.url+'">'
+            case 'Communities':
+                data.html_ico = '<a href="'+data.URL+'">'
                 data.html_ico += '<div class="ma-community-ico">';
-                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logo+')">';
+                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.Logo+')">';
                 data.html_ico += '<div style="height:41px;"></div>';
-                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.name_c+'</span>';
+                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.OtherInfo+'</span>';
                 data.html_ico += '</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</a>';
-                my_activity_create_community_text(data);
                 break;
-            case 'Messages':
-                data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
-                data.html_ico += '<tr>';
-                data.html_ico += '<td><a href="'+data.url+'"><img src="/static/images/newdashboard/ma_mail-45.png"></img></a></td>';
-                data.html_ico += '</tr>';
-                data.html_ico += '</table>';
-                my_activity_create_message_text(data);
-                break;
-            case 'ORA':
-                console.log("switch courses");
-                break;
-            case 'bbb':
-                console.log("switch courses");
-                break;
-            case 'ccc':
-                console.log("switch courses");
-                break;
-            case 'ddd':
-                console.log("switch courses");
+            case 'Courses':
+                data.html_ico = '<a href="'+data.URL+'">';
+                data.html_ico += '<div class="ma-course-course-card">';
+                data.html_ico += '<div>';
+                data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.Logo+'" alt="Cover Image">';
+                data.html_ico += '</div>';
+                data.html_ico += '<div class="ma-course-course-title">';
+                data.html_ico += '<span class="ma-course-card-link"><span>'+data.OtherInfo+'</span></span>';
+                data.html_ico += '</div>';
+                data.html_ico += '</div>';
+                data.html_ico += '</a>';
                 break;
             default:
                 data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
                 data.html_ico += '<tr>';
-                data.html_ico += '<td><a href="#"><img src="/static/images/newdashboard/header_my_reports_45.png"></img></a></td>';
+                data.html_ico += '<td><a href="'+data.URL+'"><img src="'+data.Logo+'"></img></a></td>';
                 data.html_ico += '</tr>';
                 data.html_ico += '</table>';
-                my_activity_create_others_text(data);
         }
     }
-
-    function my_activity_create_community_text(data){
-        //switch_EventType
-        if(data.e_type==1){
-            if(data.user_name){
-                users = data.user_name.join(", ");
-                if(data.user_name.length > 1){
-                    s_user = "users";
-                }
-                else{
-                    s_user = "user";
-                }
-                data.html_text = 'Added '+s_user+' to <a href="'+data.url+'">'+data.name_c+'</a>: '+users;
-            }
-            else{
-                data.html_text = 'Joined <a href="'+data.url+'">'+data.name_c+'</a>';
-            }
-        }
-        else if(data.e_type==2){
-            data.html_text = 'Posted on <a href="'+data.url+'">'+data.name_c+'</a>';
-        }
-        else if(data.e_type==3){
-            data.html_text = 'Replied to Post on <a href="'+data.url+'">'+data.name_c+'</a>';
-        }
-        else if(data.e_type==4){
-            data.html_text = 'Created discussion <a href="'+data.url+'">'+data.name_d+'</a>';
-        }
-        else if(data.e_type==5){
-            data.html_text = 'Replied to <a href="'+data.url+'">'+data.name_d+'</a>';
-        }
-    }
-    function my_activity_create_message_text(data){
-        data.html_text = 'Sent a Message to <a href="'+data.url+'">'+data.recipient_name+' from '+data.recipient_district+'</a>';
-    }
-    function my_activity_create_others_text(data){
-        if(data.e_type=="1"){
-            data.html_text = 'others1';
-        }
-        else if(data.e_type=="2"){
-            data.html_text = 'others2';
-        }
-        else{
-            data.html_text = 'others';
-        }
-     }
 
     function time_to_local(time){
         var local_time =  new Date();
