@@ -735,9 +735,9 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                         for dayHour in dayHours:
                             if (day[3][0] == dayHour):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[3][0][-3:]
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[3][0][-2:]
                             else:
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[3][0][-3:]
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"+day[3][0][-2:]
                             if day[1]:
                                 i = 0
                                 for tmp1 in day[1]:
@@ -753,7 +753,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                         while(h <= endHour):
 
-                                            if day[3][i][-3:] == "AM":
+                                            if day[3][i][-2:] == "AM":
                                                 midHour = str(h) + ":00 AM"
                                                 if(day[3][i] != midHour and midHour == dayHour):
                                                     table_tr_content += tmp1
@@ -764,7 +764,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                                     table_tr_content += tmp1
                                                     break
 
-                                            if(day[3][i][-3:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
+                                            if(day[3][i][-2:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
                                                 midHour = str(h) + ":00 PM"
                                                 if (day[3][i] != midHour and midHour == dayHour):
                                                     table_tr_content += tmp1
