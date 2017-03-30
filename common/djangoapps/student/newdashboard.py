@@ -95,7 +95,8 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
-from xmodule.remindstore import myactivitystore, messagestore
+##GroupType:MyChunks
+from xmodule.remindstore import myactivitystore, messagestore, chunksstore
 
 #GroupType:Courses
 from courseware.courses import get_course_by_id, course_image_url 
@@ -103,6 +104,10 @@ import comment_client as cc
 
 #GroupType:PDPlanner
 from administration.models import PepRegTraining
+#@end
+
+#GroupType:Reports
+from reporting.models import Reports
 #@end
 
 # log = logging.getLogger("mitx.student")
@@ -2410,31 +2415,40 @@ def get_my_activities(request):
 
     ma_list = list()
     for data in my_activities:
-        if data["EventType"] in ["courses_courseEnrollment","courses_creatediscussion","courses_replydiscussion","PDTraining_registration"]:
+        templist = ["courses_courseEnrollment",
+                    "courses_creatediscussion",
+                    "courses_replydiscussion",
+                    "PDTraining_registration",
+                    "reports_createReport",
+                    "people_sendMessage",
+                    "myChunks_createChunk",
+                    "myChunks_editChunk",
+                    "myChunks_shareChunk",
+                    "myChunks_rateChunk"]
+        if data["EventType"] in templist:
             ma_dict = {}
             #URL
             ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
             
-            #DisplayInfo
+            #DisplayInfo       
             info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
             DisplayInfoValues = {}
             for k in info_key_list:
                 try:
                     t = eval("get_" + k)
-                    DisplayInfoValues[k] = t(data["TokenValues"])
+                    DisplayInfoValues[k] = t(data)
                 except:
                     pass
             info = replace_values(data["DisplayInfo"],DisplayInfoValues)
             ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
+            if not ma_dict["DisplayInfo"]:
+                ma_dict["DisplayInfo"] = data["EventType"]
 
             #Logo
-            if data["Logo"]:
-                ma_dict["Logo"] = data["Logo"]
-            else:
-                ma_dict["Logo"] = get_logo(data["GroupType"],data["LogoValues"])
+            ma_dict["Logo"] = get_logo(data)
 
             #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
-            ma_dict["OtherInfo"] = get_otherinfo(data["GroupType"],data["URLValues"])
+            ma_dict["OtherInfo"] = get_otherinfo(data)
 
             #GroupType
             ma_dict["g_type"] = data["GroupType"]
@@ -2446,56 +2460,90 @@ def get_my_activities(request):
     log.debug("ooooooooooooooooooooooooo")
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
 
-def get_PDTrainingName(token_values):
+def get_chunkTitle(data):
     value = ""
-    pdtraining = PepRegTraining.objects.filter(id=token_values["training_id"])
-    if pdtraining:
-        value = pdtraining[0].name
-    else:
-        value = token_values["training_name"]
+    mychunk = chunksstore().get_item({"user_id":str(data["UsrCre"]),"url":data["URLValues"]["url"]})
+    if mychunk:
+        value = mychunk[0]["chunkTitle"]
     return value
 
-def get_PDTrainingDate(token_values):
+def get_recipientName(data):
     value = ""
-    pdtraining = PepRegTraining.objects.filter(id=token_values["training_id"])
-    if pdtraining:
-        value = pdtraining[0].training_date
-    else:
-        value = token_values["training_date"]
+    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
+    if recipient:
+        value = recipient[0].username
     return value
 
-def get_discussionSubject(token_values):
-    thread = cc.Thread.find(token_values["SourceID"])
-    return thread.title
-
-def get_otherinfo(g_type, url_values):
+def get_recipientDistrict(data):
     value = ""
-    if g_type == "Courses":
-        value = get_course_by_id(url_values["course_id"]).display_name_with_default
-    elif g_type == "Communities":
+    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
+
+    if recipient:
+        try:
+            district_id = recipient[0].profile.district_id
+            value = District.objects.get(id=district_id).name
+        except:
+            pass
+    return value
+
+def get_reportName(data):
+    '''
+    report can be deleted
+    '''
+    report = Reports.objects.filter(id=data["TokenValues"]["report_id"])
+    if report:
+        return report[0].name
+    else:
+        return data["TokenValues"]["report_name"]
+
+def get_PDTrainingName(data):
+    '''
+    PDTraining can be deleted
+    '''
+    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
+    if pdtraining:
+        return pdtraining[0].name
+    else:
+        return data["TokenValues"]["training_name"]
+
+def get_PDTrainingDate(data):
+    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
+    if pdtraining:
+        return pdtraining[0].training_date
+    else:
+        return data["TokenValues"]["training_date"]
+
+def get_discussionSubject(data):
+    return cc.Thread.find(data["TokenValues"]["SourceID"]).title
+
+def get_otherinfo(data):
+    value = ""
+    if data["GroupType"] == "Courses":
+        value = get_course_by_id(data["URLValues"]["course_id"]).display_name_with_default
+    elif data["GroupType"] == "Communities":
         value = "__communitiy_Name"
     return value
 
-def get_logo(g_type, logo_values):
+def get_logo(data):
     value = ""
-    logo_id = ""
-    for k in logo_values:
-        logo_id = logo_values[k]
-        break
-    if g_type == "Courses":
-        course = get_course_by_id(logo_id)
-        value = course_image_url(course)
-    elif g_type == "Communities":
-        value = "__communitiy_Logo"
+    if data["Logo"]:
+        value = data["Logo"]
+    else:
+        logo_id = ""
+        for k in data["LogoValues"]:
+            logo_id = data["LogoValues"][k]
+            break
+        if data["GroupType"] == "Courses":
+            value = course_image_url(get_course_by_id(logo_id))
+        elif data["GroupType"] == "Communities":
+            value = "_communitiy_Logo"
     return value
 
-def get_courseDisplayName(token_values):
-    value = get_course_by_id(token_values["course_id"]).display_name_with_default
-    return value
+def get_courseDisplayName(data):
+    return get_course_by_id(data["TokenValues"]["course_id"]).display_name_with_default
 
-def get_courseDisplayNumber(token_values):
-    value = get_course_by_id(token_values["course_id"]).display_number_with_default
-    return value
+def get_courseDisplayNumber(data):
+    return get_course_by_id(data["TokenValues"]["course_id"]).display_number_with_default
 
 def replace_values(body, values):
     return re.sub("{[\w ]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
