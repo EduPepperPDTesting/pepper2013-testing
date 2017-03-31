@@ -686,7 +686,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                 if ((p == 0) or i < 6): getHalfHour = getHour + ":30 " + d
                 getHour += ":00 " + d
                 dayHours.append(getHour)
-                if((p == 0) or i<6): dayHours.append(getHalfHour)
+                if ((p == 0) or i < 6): dayHours.append(getHalfHour)
                 if (p == 1 and i == 6): break
 
     for week in rangedates:
