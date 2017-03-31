@@ -1095,11 +1095,11 @@
 	});	
 
     function uniqueTrainingSlot() {
-        for ( var a = 0; a < 2; a++ ) {
-            bStart = (a == 0) ? 6 : 1;
+        for ( var a = 0; a < 2; a++ ) { console.log(a);
+         /*   bStart = (a == 0) ? 6 : 1;
             bLimit = (a == 0) ? 12 : 6;
             tClass = (a = 0) ? ".AM" : ".PM";
-            for ( var b = bStart; b < bLimit; b++ ) {
+            for ( var b = bStart; b <= bLimit; b++ ) {
                 dh = (b < 10) ? ".0" + b : "." + b;
                 hClass = tClass + dh;
                 var cLimit = $(hClass).length;
@@ -1111,7 +1111,7 @@
                     $(iClass).not(":eq(0)").remove();
                     $(iClass).css({"bottom": bottomY, "position": "absolute"});
                 }
-            }
+            }*/
         }
     };
 
