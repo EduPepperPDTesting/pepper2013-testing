@@ -1110,7 +1110,7 @@
                         bottomY = bottomY;
                         //$(iClass).not(":eq(0)").remove();
                         var position = $(iClass).first().offset();
-                        //topY = $(iClass).first().offset().top;
+                        topY = position.top;
                         //leftX = $(iClass).first().offset().left;
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
