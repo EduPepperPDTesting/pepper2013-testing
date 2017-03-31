@@ -2461,7 +2461,7 @@ def get_my_activities(request):
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
 
 def get_chunkTitle(data):
-    value = ""
+    value = "Deleted"
     mychunk = chunksstore().get_item({"user_id":str(data["UsrCre"]),"url":data["URLValues"]["url"]})
     if mychunk:
         value = mychunk[0]["chunkTitle"]
