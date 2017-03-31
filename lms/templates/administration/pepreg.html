@@ -1103,7 +1103,7 @@
                 hClass = tClass + "." + b;
                 var cLimit = JQuery.uniqueSort(hClass).length;
                 for ( var c = 0; c < cLimit; c++ ) {
-                    iClass = hClass + "." c;
+                    iClass = hClass + "." + c;
                     var lastSpan = $(iClass).last();
                     var bottomY = lastSpan.offset() + 10;
                     bottomY = bottomY + "px";
