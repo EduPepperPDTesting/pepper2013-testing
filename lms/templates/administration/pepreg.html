@@ -1109,10 +1109,10 @@
                     var bottomY = lastSpan.offset().top + 16;
                     bottomY = bottomY + "px";
                     //$(iClass).not(":eq(0)").remove();
-                    topY = $(iClass).offset().top;
+                    topY = $(iClass).first().offset().top;
                     height = bottomY - topY;
                     console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
-                    $(iClass).find("label").css({"height": height.toString(), "position": "absolute"});
+                    $(iClass).first().find("label").css({"height": height.toString(), "position": "absolute"});
                 }
             }
         }
