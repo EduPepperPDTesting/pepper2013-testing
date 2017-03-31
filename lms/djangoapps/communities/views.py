@@ -702,7 +702,7 @@ def community_delete(request, community_id):
         community = CommunityCommunities.objects.get(id=community_id)
         cid = community.id
         cname = community.name
-        # community.delete()
+        community.delete()
 
         ma_db = myactivitystore()                
         ma_db.set_item_community(cid, cname)
@@ -1341,10 +1341,7 @@ def submit_new_post(request):
     "URLValues": {"community_id": post.community.id},
     "TokenValues": {"community_id":post.community.id, "post_id": post.id}, 
     "LogoValues": {"community_id": post.community.id}}
-    ma_db.insert_item(my_activity)
-    
-    # my_activity = {"ActivityType": "Community", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": post.id}
-    # rs.insert_item(my_activity)
+    ma_db.insert_item(my_activity)   
 
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')
