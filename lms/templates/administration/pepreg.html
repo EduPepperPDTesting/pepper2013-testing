@@ -1107,12 +1107,12 @@
                     iClass = hClass + ".span-" + c;
                     if($(iClass).length) {
                         var bottomY = $(iClass).last().offset().top + 16;
-                        bottomY = bottomY + "px";
+                        bottomY = bottomY;
                         //$(iClass).not(":eq(0)").remove();
                         topY = $(iClass).first().offset().top;
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
-                        $(iClass).first().find("label").css({"height": height.toString(), "position": "absolute"});
+                        $(iClass).first().find("label").css({"height": height.toString() + "px", "position": "absolute"});
                     }
                 }
             }
