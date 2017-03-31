@@ -1109,16 +1109,17 @@
                         var bottomY = $(iClass).last().offset().top + 16;
                         bottomY = bottomY;
                         //$(iClass).not(":eq(0)").remove();
-                        topY = $(iClass).first().offset().top;
-                        leftX = $(iClass).first().offset().left;
+                        var position = $(iClass).first().offset();
+                        //topY = $(iClass).first().offset().top;
+                        //leftX = $(iClass).first().offset().left;
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
                         //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
-                        $(iClass).find("label").css("z-index","1");
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $(iClass).first().append("<div class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='z-index: 2; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; '>" + labelHtml + "</div>"); //position: relative; top:" + topY + "px; left:" + leftX + "px;
+                        $("#"+iClass).css(position);
                     }
                 }
             }
