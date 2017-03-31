@@ -12,8 +12,6 @@
     from permissions.utils import check_access_level, check_user_perms
 %>
 <%inherit file="../main.html"/>
-<script type="text/javascript" src="/static/js/jquery-blink/jquery-1.3.2.min.js"></script>
-
 <script type="text/javascript" src="/static/js/ckeditor/ckeditor.js" charset="utf-8"></script>
 <script type="text/javascript" src="/static/js/admin_ui_controls.js"></script>
 <script type="text/javascript" src="/static/js/jquery-blink.js"></script>
@@ -1103,7 +1101,7 @@
             tClass = (a = 0) ? ".AM" : ".PM";
             for ( var b = bStart; b < bLimit; b++ ) {
                 hClass = tClass + "." + b;
-                var cLimit = JQuery.uniqueSort(hClass).length;
+                var cLimit = $.uniqueSort(hClass).length;
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + "." + c;
                     var lastSpan = $(iClass).last();
