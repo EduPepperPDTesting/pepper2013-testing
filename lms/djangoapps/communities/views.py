@@ -610,7 +610,7 @@ def discussion_reply(request, discussion_id):
     rs = myactivitystore()
     my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
     "URLValues": {"discussion_id": discussion.id},
-    "TokenValues": {"discussion_id":discussion.id, "reply_id": reply.id}, 
+    "TokenValues": {"discussion_id":discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
     "LogoValues": {"discussion_id": discussion.id}}
     rs.insert_item(my_activity)
     
