@@ -1114,10 +1114,11 @@
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
                         //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
+                        $(iClass).find("label").css("z-index","1");
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $("#calendar_select_range").append("<div class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: relative; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).first().append("<div class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='z-index: 2; height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
                     }
                 }
             }
