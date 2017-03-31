@@ -1109,7 +1109,9 @@
                     var bottomY = lastSpan.offset() + 10;
                     bottomY = bottomY + "px";
                     $(iClass).not(":eq(0)").remove();
-                    $(iClass).css({"bottom": bottomY, "position": "absolute"});
+                    topY = $(iClass).offset();
+                    height = bottomY - topY;
+                    $(iClass).find("label").css({"height": bottomY.toString(), "position": "absolute"});
                 }
             }
         }
