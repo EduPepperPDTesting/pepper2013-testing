@@ -1100,7 +1100,8 @@
             bLimit = (a == 0) ? 12 : 6;
             tClass = (a = 0) ? ".AM" : ".PM";
             for ( var b = bStart; b < bLimit; b++ ) {
-                hClass = tClass + "." + b;
+                dh = (b < 10) ? ".0" + b : "." + b;
+                hClass = tClass + dh;
                 var cLimit = $(hClass).length;
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + "." + c;
