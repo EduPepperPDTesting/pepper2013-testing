@@ -1106,9 +1106,9 @@
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + "." + c;
                     var lastSpan = $(iClass).last();
-                    var bottomY = lastSpan.offset() + 10;
+                    var bottomY = lastSpan.offset() + 16;
                     bottomY = bottomY + "px";
-                    $(iClass).not(":eq(0)").remove();
+                    //$(iClass).not(":eq(0)").remove();
                     topY = $(iClass).offset();
                     height = bottomY - topY;
                     $(iClass).find("label").css({"height": bottomY.toString(), "position": "absolute"});
