@@ -743,10 +743,17 @@ a.post_btn:hover{
             </div>
             <div class="my-communities-cards">
                 %for community in communities:
+                    %if community['order'] < 3:
                     <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                        <div style="height:80px;"></div>
+                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}${community['order']}</span></a>
+                    </div>
+                    %else:
+                    <div class="image-link-style" id="communities_1" style="display:none;background-image: url('${community['logo']}');">
                         <div style="height:80px;"></div>
                         <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                     </div>
+                    %endif
                 %endfor
             </div>
             <div class="ds-view-all-communities">
@@ -759,6 +766,9 @@ a.post_btn:hover{
                 $(".image-link-style1").each(function(){
                     getCollectionIcon(this, 'district', $(this).attr("key"));
                 });
+                $(".image-link-style2").each(function(){
+                    getCollectionIcon1(this, 'state', $(this).attr("key"));
+                });
             })
             function getCollectionIcon(self, type , key){
                 var path = "/static/images/" + type + "/";
@@ -770,28 +780,47 @@ a.post_btn:hover{
                 img.onerror = function () {
                     $(".my_course_4").show();
                     $(self).parent().parent("div").hide();
-                    // $(self).parent().parent("div").siblings().css("position","absolute");
-                    // $(self).parent().parent("div").siblings().css("top","685px");
+                    $(self).parent().parent("div").siblings().css("margin-left","965px");
+                    $(self).parent().parent("div").siblings().css("position","absolute");
+                    $(self).parent().parent("div").siblings().css("top","700px");
+                };
+            }
+            function getCollectionIcon1(self, type , key){
+                var path = "/static/images/" + type + "/";
+                key = key.replace(new RegExp(" ", "gm"), "_");
+                key = key.replace(new RegExp("'", "gm"), "");
+                var img = new Image();
+                img.src = path + key + ".jpg";
+                $(self).css("background-image","url("+img.src+")");
+                img.onerror = function () {
+                    $("#communities_1").show();
+                    $(self).parent().parent("div").hide();
+                    $(self).parent().parent("div").prev().css("margin-bottom","20px");
+                    $(self).parent().parent("div").prev().css("margin-top","-220px");
                 };
             }
         </script>
         <div style="clear:both;"></div>
-        <div class="con-my-communities" style="float: left;margin-bottom: 20px;">
-            <div>
+        <div style="margin:20px 0 20px 0 ;">
+            <div style="float: left">
                 <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
                 <div class="my-courses-cards" style="text-align: center">
-                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
+                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:155px;background-size:100% 100%;">
                         <div style="height:100px;"></div>
                         <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
                     </div>
                 </div>
             </div>
-            <div style="margin-left: 965px;">
+            <div style="float: left;margin-left: 740px;margin-bottom: 20px;" id="">
                 <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
                 <div class="my-courses-cards" style="text-align: center">
-                    <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+                    <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="width:215px;height:155px;background-size:100% 100%;">
+                            <div style="height:100px;"></div>
+                            <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
+                        </div>
                 </div>
             </div>
+        </div>
         </div>  
     </section>
 </section>

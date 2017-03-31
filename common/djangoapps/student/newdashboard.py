@@ -1882,41 +1882,6 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
-def state_photo(request,user_id=None):
-    if user_id:
-        user = User.objects.get(id=user_id)
-    else:
-        user = User.objects.get(id=request.user.id)
-    
-    state = user.profile.district.state.name
-    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg'
-    response = HttpResponse(content_type='image/JPEG')
-    if os.path.exists(file):
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg','rb')
-    else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/state_default.jpg','rb')
-    response.write(f.read())
-    f.close()
-    return response
-
-def district_photo(request,user_id=None):
-    if user_id:
-        user = User.objects.get(id=user_id)
-    else:
-        user = User.objects.get(id=request.user.id)
-    
-    district = user.profile.district.name
-    response = HttpResponse(content_type='image/JPEG')
-    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg'
-    if os.path.exists(file):
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg','rb')
-    else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/district_default.jpg','rb')
-    response.write(f.read())
-    f.close()
-    return response
-
-
 def request_course_access_ajax(request):
     try:
         course=get_course_by_id(request.POST.get('course_id'))
@@ -2363,15 +2328,16 @@ def newdashboard(request, user_id=None):
     #@begin:Add for Dashboard My Communities
     #@date:2017-02-16
     community_list = list()
+    i = 0
     #Just filter the last 3 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:4]
+    items = CommunityUsers.objects.select_related().filter().order_by('-id')[0:4]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,
                                'logo': item.community.logo.upload.url if item.community.logo else '',
-                               'private': item.community.private})
-    #@end
-
+                               'private': item.community.private,
+                               'order': i})
+        i = i + 1;
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
