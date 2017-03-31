@@ -2350,7 +2350,7 @@ def newdashboard(request, user_id=None):
     courses_incomplated_list = list()
     for k, v in enumerate(courses_incomplated):
         courses_incomplated_list.append(v)
-        if k > 1:
+        if k > 2:
             break
 
     #@end
@@ -2359,7 +2359,7 @@ def newdashboard(request, user_id=None):
     #@date:2017-02-16
     community_list = list()
     #Just filter the last 3 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:3]
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:4]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,

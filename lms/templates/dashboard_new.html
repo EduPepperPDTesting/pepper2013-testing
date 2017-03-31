@@ -577,51 +577,59 @@ a.post_btn:hover{
             </div>
             <div class="my-courses-cards">
                 %for i,course in enumerate(courses_incomplated):
-                    <%
-                        course_target = reverse('courseware', args=[course.id])
-                    %>
-                    <div class="course-card">
-                        <div>
-                            <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                    %if i < 3:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-card">
+                            <div>
+                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                            </div>
+                            <div class="course-title">
+                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                            </div>  
                         </div>
-                        <div class="course-title">
-                            <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
-                        </div>  
-                    </div>
-                    <div class="ds-course-btn">
-                        %if course.id in show_courseware_links_for:
-                            %if curr_user == request.user:              
-                                <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
-                            %else:
-                                <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                        <div class="ds-course-btn">
+                            %if course.id in show_courseware_links_for:
+                                %if curr_user == request.user:              
+                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                                %else:
+                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                                %endif
+                                %if curr_user == request.user and not course.close_course:      
+                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                                %endif
                             %endif
-                            %if curr_user == request.user and not course.close_course:      
-                                <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                        </div>
+                    %else:
+                        <%
+                            course_target = reverse('courseware', args=[course.id])
+                        %>
+                        <div class="course-card my_course_4" style="display:none;">
+                            <div>
+                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
+                            </div>
+                            <div class="course-title">
+                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
+                            </div>  
+                        </div>
+                        <div class="ds-course-btn my_course_4"  style="display:none;">
+                            %if course.id in show_courseware_links_for:
+                                %if curr_user == request.user:              
+                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
+                                %else:
+                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
+                                %endif
+                                %if curr_user == request.user and not course.close_course:      
+                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
+                                %endif
                             %endif
-                        %endif
-                    </div>
+                        </div>
+                    %endif
                 %endfor
             </div>
             <div class="ds-view-all-courses">
                 <a href="/my_courses">View All</a>
-            </div>
-            <div class="ds-my-status" >
-                <div id="content1" style="float:left">
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <!-- <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture"> -->
-                        <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
-                        </div>
-                    </div>
-                </div>
-                <div id="standards1" style="position: absolute;margin-left: 960px;">   
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
-                    </div>
-                </div>
             </div>
         </div>
         <!--<div class="con-my-courses-placeholder"></div>-->
@@ -743,45 +751,13 @@ a.post_btn:hover{
             <div class="ds-view-all-communities">
                 <a href="/communities">View All</a>
             </div>
-            <div class="con-my-communities" style="margin-bottom: 20px;">
-                <div id="content2" style="position: absolute;margin-left: -960px;">
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <!-- <img class="image-style" src="${reverse('district_photo',args=[request.user.id])}" alt="no picture"> -->
-                        <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
-                        </div>
-                    </div>
-                </div>
-                <div id="standards2">
-                    <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                    <div class="my-courses-cards" style="text-align: center">
-                        <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
-                    </div>
-                </div>
-            </div>
         </div>
         
         <script type="text/javascript">
             $(document).ready(function(){
-
                 $(".image-link-style1").each(function(){
                     getCollectionIcon(this, 'district', $(this).attr("key"));
                 });
-                var height1 = $("#content1").offset().top;
-                var height2 = $("#content2").offset().top;
-                if(height1 > height2){
-                    $("#content1").show();
-                    $("#standards1").show();
-                    $("#content2").hide();
-                    $("#standards2").hide();
-                }else{
-                    $("#standards2").show();
-                    $("#content2").show();
-                    $("#standards1").hide();
-                    $("#content1").hide();
-                }
             })
             function getCollectionIcon(self, type , key){
                 var path = "/static/images/" + type + "/";
@@ -791,15 +767,31 @@ a.post_btn:hover{
                 img.src = path + key + ".jpg";
                 $(self).css("background-image","url("+img.src+")");
                 img.onerror = function () {
-                    img.src = path + type + "_default.jpg";
-                    self.style.backgroundImage = img.src;
-                    $(self).css("background-image","url("+img.src+")");
-                    this.onerror = null;
-                    // console.log(self)
+                    $(".my_course_4").show();
+                    $(self).parent().parent("div").hide();
+                    // $(self).parent().parent("div").siblings().css("position","absolute");
+                    // $(self).parent().parent("div").siblings().css("top","685px");
                 };
             }
         </script>
         <div style="clear:both;"></div>
+        <div class="con-my-communities" style="float: left;margin-bottom: 20px;">
+            <div>
+                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
+                <div class="my-courses-cards" style="text-align: center">
+                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="width:215px;height:150px;background-size:100% 100%;">
+                        <div style="height:100px;"></div>
+                        <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 965px;">
+                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+                <div class="my-courses-cards" style="text-align: center">
+                    <img class="image-style" src="${reverse('state_photo',args=[request.user.id])}" alt="no picture">
+                </div>
+            </div>
+        </div>  
     </section>
 </section>
 <!--@begin:Add for Dashboard Posts-->

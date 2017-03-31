@@ -551,7 +551,7 @@ def dashboard(request, user_id=None):
     else:
         course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
-        #@begin:change to current year course time and total_time
+        #@begin:change to current year course time and total_timetahoe
         #@date:2016-06-21
         rs = reporting_store()
         rs.set_collection('UserCourseView')

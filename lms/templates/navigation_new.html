@@ -362,8 +362,8 @@
     display:block;
     max-width:200px;
     text-overflow:ellipsis;
-    line-height:12px;
-    height:18px;
+    line-height:18px;
+    height:20px;
     font-weight:bold;
     overflow-x:hidden;
     vertical-align:top;
@@ -617,7 +617,7 @@
                         </a>
                     </li> -->
                     <li class="primary" style="margin-top:  -10px;">
-                        <span><a href="#" class="dropdown" id="dropdown">
+                        <span><a href="#" class="" id="dropdown">
                             <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
                             <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
                             <div class="nav-option-text-left">${curr_user.username} </div>
@@ -737,7 +737,18 @@
         </section>
     %endif
 %endif
-    <script> 
+    <script>
+            $(document).ready(function () {
+            $('#dropdown').click(function(event) {
+                $('ul.dropdown-menu').addClass("expanded");
+                $('#dropdown').addClass("active");
+                $(document).one("click", function(){
+                    $('ul.dropdown-menu').removeClass("expanded");
+                    $('#dropdown').removeClass("active");
+            });
+                event.stopPropagation();
+          });
+        }); 
         $("#dropdown").mouseover(function(){
             $(this).find(".nav-option-text-left").show();
         })
