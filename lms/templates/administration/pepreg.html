@@ -630,6 +630,10 @@
 
 			$(".training-row").has("label").css("padding", "0px");
 
+			if($("#calendar_select_range").val() == "2"){
+			    uniqueTrainingSlot();
+			}
+
             var labelElem = $(".training-row label");
 			labelElem.css({"position":"relative","bottom":"-1px"});
 			labelElem.attr("style", labelElem.attr("style") + "height: 16px !important;");
@@ -929,7 +933,7 @@
             calendarOpen();
         });
 
-		_sys_calendar_year = _calendar_date.getFullYear();
+        _sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
 		
@@ -1089,7 +1093,48 @@
 			}
 		});
 	});	
-	
+
+    function uniqueTrainingSlot() {
+
+        getSlots = document.getElementsByClassName("training-slot");
+
+        var slots = [];
+
+        slots = Array.from(getSlots);
+         console.log(slots);
+
+        //slots = $(".training-slot").toArray();
+
+        getTrainingSlots(slots);
+
+        function getTrainingSlots(slots){
+
+            for ( var i = 0; i < slots.length; i++ ) {
+                var slotFirstSpan = slots[i][0];
+
+                console.log(slotFirstSpan);
+
+                var slotClass = slotFirstSpan.attr("class").split(" ").last();
+
+                var uniqueSpan = "span." + slotClass;
+
+                var lastSlot = $("#calendar_select_range").find(uniqueSpan).last();
+
+                var lastSlotCoord = lastSlot.getBoundingClientRect().bottom + window.scrollY;
+
+                var lastSlotCoord = lastSlotCoord + "px";
+
+                console.log(lastSlotCoord);
+
+                var firstSlot = $("#calendar_select_range").find(uniqueSpan).first();
+
+                firstSlot.css({"bottom": lastSlotCoord, "position": "absolute"});
+
+                $(uniqueSpan).not(":eq(0)").remove();
+            }
+        }
+    };
+
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);

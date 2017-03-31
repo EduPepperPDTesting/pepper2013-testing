@@ -367,6 +367,14 @@ class MongoChunksStore(object):
             pa_score=r['pa_rate']['sum']/float(r['pa_rate']['count'])
         return {'hq_rate':{'score':hq_score,'count':r['hq_rate']['count']},'ie_rate':{'score':ie_score,'count':r['ie_rate']['count']},'pa_rate':{'score':pa_score,'count':r['pa_rate']['count']}}
 
+    def get_item(self,search_key):
+        results = self.collection.find(search_key)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
+
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
 _CHUNKSSTORE = {}

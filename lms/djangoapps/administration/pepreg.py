@@ -721,28 +721,33 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                 table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
                 if (day[0]):
-                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(
-                        day[0]) + "</span>";
+                    table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
                     if not isday:
                         for tmp1 in day[1]:
                             table_tr_content += tmp1;
 
-                    table_tr_content += "</div>";
-
                     if isday:
                         table_tr_content += "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
 
                         for dayHour in dayHours:
-                            if (day[3][0] == dayHour):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
-                            else:
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+
+                            h = 0
+                            endHour = 0
+                            divAdded = 0
+
                             if day[1]:
                                 i = 0
                                 for tmp1 in day[1]:
                                     if(day[3][i] == dayHour):
-                                        table_tr_content += tmp1
+                                        if(i == 0):
+                                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>"
+                                            divAdded = 1
+
+                                        t = "0" if day[3][i][-2:] == "AM" else "1"
+                                        dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
+
+                                        table_tr_content += "<span class='training-slot " + t + dh + str(i) + "'>" + tmp1 + "</span>"
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
@@ -756,34 +761,41 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                             if day[3][i][-2:] == "AM":
                                                 midHour = str(h) + ":00 AM"
                                                 checkHour = str(h) + ":30 AM"
-                                                if(day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour):
-                                                    table_tr_content += tmp1
-                                                    break
+                                                if(day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
 
                                                 midHour = str(h) + ":30 AM"
-                                                if (day[3][i] != midHour and midHour == dayHour):
-                                                    table_tr_content += tmp1
-                                                    break
+                                                if (day[3][i] != midHour and midHour == dayHour): break
 
                                             if(day[3][i][-2:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
                                                 midHour = str(h) + ":00 PM"
                                                 checkHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour):
-                                                    table_tr_content += tmp1
-                                                    break
+                                                if (day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
 
                                                 midHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and midHour == dayHour):
-                                                    table_tr_content += tmp1
-                                                    break
+                                                if (day[3][i] != midHour and midHour == dayHour): break
 
                                             h += 1
 
+                                    if h <= endHour:
+                                        if i == 0:
+                                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>"
+                                            divAdded = 1
+
+                                        t = "0" if day[3][i][-2:] == "AM" else "1"
+                                        dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
+
+                                        table_tr_content += "<span class='training-slot " + t + dh + str(i) + "'>" + tmp1 + "</span>"
+
                                     i += 1
+
+                            if ( not divAdded ):
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
 
                             table_tr_content += "</div>"
 
                         table_tr_content += "</div>"
+
+                    table_tr_content += "</div>";
 
                 table_tr_content += "</td>";
 

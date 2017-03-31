@@ -422,9 +422,11 @@ a.post_btn:hover{
 .con-ma-rows{
 }
 .my-activity-row{
+    float: left;
     width:674px;
-    min-height:75px;
-    border:0px solid;
+    min-height:72px;
+    border:0px solid #f00;
+    margin-bottom: 3px;
 }
 .ma-row-ico{
     width:112px;
@@ -539,21 +541,20 @@ a.post_btn:hover{
     bottom: 0;
 }
 .ma-course-card-link{
-    display: table-cell;
-    width: 110px;
-    height: 28px;
-    vertical-align: middle;
-    padding: 0 17px;
-    line-height: 11px;
+    width: 100px;
+    height: 21px;
+    padding: 7px 5px 0px;
     background: rgba(18,111,154,0.95);
     text-decoration: none!important;
     border-radius: 0px 0px 3px 3px;
     -moz-border-radius: 0px 0px 3px 3px;
     -webkit-border-radius: 0px 0px 3px 3px;
-}
-.ma-course-card-link span{
     color:#fff;
-    font-size: 9px;
+    font-size: 12px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 </style>
 <!--@end-->
@@ -1084,7 +1085,7 @@ $(document).ready(function(){
                 data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.Logo+'" alt="Cover Image">';
                 data.html_ico += '</div>';
                 data.html_ico += '<div class="ma-course-course-title">';
-                data.html_ico += '<span class="ma-course-card-link"><span>'+data.OtherInfo+'</span></span>';
+                data.html_ico += '<div class="ma-course-card-link">'+data.OtherInfo+'</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</a>';
