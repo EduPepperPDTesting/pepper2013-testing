@@ -1114,9 +1114,10 @@
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
                         //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
-                        var labelClass=$(iClass).first().find("label").attr("class");
-                        var labelTitlex=$(iClass).first().find("label").attr("titlex");
-                        $(iClass).append("<label class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'></label>");
+                        var labelClass = $(iClass).first().find("label").attr("class");
+                        var labelTitlex = $(iClass).first().find("label").attr("titlex");
+                        var labelHtml = $(iClass).first().find("label").html();
+                        $(iClass).append("<label class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</label>");
                     }
                 }
             }
