@@ -744,10 +744,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                             table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>"
                                             divAdded = 1
 
-                                        t = "0" if day[3][i][-2:] == "AM" else "1"
+                                        t =  day[3][i][-2:]
                                         dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
 
-                                        table_tr_content += "<span class='training-slot " + t + dh + str(i) + "'>" + tmp1 + "</span>"
+                                        table_tr_content += "<span class='" + t + " " + dh + " " + str(i) + "'>" + tmp1 + "</span>"
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
@@ -781,10 +781,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                             table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>"
                                             divAdded = 1
 
-                                        t = "0" if day[3][i][-2:] == "AM" else "1"
+                                        t = day[3][i][-2:]
                                         dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
 
-                                        table_tr_content += "<span class='training-slot " + t + dh + str(i) + "'>" + tmp1 + "</span>"
+                                        table_tr_content += "<span class='" + t + " " + dh + " " + str(i) + "'>" + tmp1 + "</span>"
 
                                     i += 1
 
