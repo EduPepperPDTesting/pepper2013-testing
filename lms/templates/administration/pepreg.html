@@ -1112,7 +1112,7 @@
                         topY = $(iClass).first().offset().top;
                         height = bottomY - topY;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
-                        $(iClass).first().find("label").css({"height": height.toString() + "px", "position": "absolute"});
+                        $(iClass).first().find("label").css("height", "").css({"height": height.toString() + "px !important", "position": "absolute"});
                     }
                 }
             }
