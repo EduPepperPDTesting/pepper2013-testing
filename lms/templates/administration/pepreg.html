@@ -1104,13 +1104,14 @@
                 hClass = tClass + dh;
                 var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
-                    iClass = hClass + "." + c;
+                    iClass = hClass + ".span-" + c;
                     var lastSpan = $(iClass).last();
                     var bottomY = lastSpan.offset() + 16;
                     bottomY = bottomY + "px";
                     //$(iClass).not(":eq(0)").remove();
                     topY = $(iClass).offset();
                     height = bottomY - topY;
+                    console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
                     $(iClass).find("label").css({"height": height.toString(), "position": "absolute"});
                 }
             }
