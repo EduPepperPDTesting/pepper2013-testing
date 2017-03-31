@@ -1117,8 +1117,8 @@
                         //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
-                        var labelHtml = $(iClass).first().find("label").html(); //$(iClass).first()
-                        $("#calendar_select_range").append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; '>" + labelHtml + "</div>"); //position: relative; top:" + topY + "px; left:" + leftX + "px;
+                        var labelHtml = $(iClass).first().find("label").html();
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; '>" + labelHtml + "</div>"); //position: relative; top:" + topY + "px; left:" + leftX + "px;
                         $("#"+iClass).css(position);
                     }
                 }
