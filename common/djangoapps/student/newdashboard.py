@@ -2438,7 +2438,7 @@ def get_usersFullname(data):
         if user:
             fname = user[0].first_name + " " + user[0].last_name
         if fname:
-            if fname = " ":
+            if fname == " ":
                 list_fname.append("None None")
             else:
                 list_fname.append(fname)
