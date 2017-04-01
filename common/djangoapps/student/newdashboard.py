@@ -2329,8 +2329,9 @@ def newdashboard(request, user_id=None):
     #@date:2017-02-16
     community_list = list()
     i = 0
-    #Just filter the last 3 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter().order_by('-id')[0:4]
+    # Just filter the last 3 communities the user belongs to.
+    # items = CommunityUsers.objects.select_related().filter().order_by('-id')[0:4]
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:4]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,

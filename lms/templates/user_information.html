@@ -17,12 +17,12 @@
     max-width:1180px;
     min-width:760px;
     width:100%;
-    height:800px;
+    /*height:800px;*/
     background-color: #e8e8e8;
     border:0px solid #0ff;
 }
 .information_left{
-    height: 800px;
+    /*height: 800px;*/
     float: left;
     width:55%;
 }
@@ -62,7 +62,7 @@
     margin: 35px 25px 25px 25px;
 }
 .information_right{
-    height: 800px;
+    /*height: 800px;*/
     float: right;
     width:40%;
     margin-right: 40px;
@@ -79,7 +79,7 @@
 .information_right_2{
     float: left;
     width:100%;
-    margin:35px 0 0 0 ;
+    margin:35px 0 35px 0 ;
     border: 3px solid #C2C2C2;
     background-color: #EEEEEE;
 }
@@ -422,20 +422,23 @@
                             </section>
                         %endif
                         <section class="empty-dashboard-message"><p>
+                        <span style="word-wrap:break-word;">
                         % for course in courses_complated:
                              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
                                 %if curr_user == request.user: 
                                     %if course.issue_certificate:
-                                        <span><a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a></span>&nbsp;
+                                        <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a>&nbsp;
                                     %endif
                                 %endif
                             % endif
                         % endfor
+                        </span>
                         </p></section>
                 </div>
             </div>
         </div>
     </div>
+    <div style="clear: both"></div>
 </div>
 
 <section id="password_reset_complete" class="modal">

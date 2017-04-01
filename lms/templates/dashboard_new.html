@@ -781,8 +781,13 @@ a.post_btn:hover{
                     $(".my_course_4").show();
                     $(self).parent().parent("div").hide();
                     $(self).parent().parent("div").siblings().css("margin-left","965px");
-                    $(self).parent().parent("div").siblings().css("position","absolute");
-                    $(self).parent().parent("div").siblings().css("top","700px");
+                    if($(".my_course_4").eq(1).length > 0 ){
+                        $(self).parent().parent("div").siblings().css("position","absolute");
+                        $(self).parent().parent("div").siblings().css("top","700px");
+                    }else{
+                        $(self).parent().parent("div").siblings().css("position","relative");
+                    }
+                    
                 };
             }
             function getCollectionIcon1(self, type , key){
@@ -796,7 +801,10 @@ a.post_btn:hover{
                     $("#communities_1").show();
                     $(self).parent().parent("div").hide();
                     $(self).parent().parent("div").prev().css("margin-bottom","20px");
-                    $(self).parent().parent("div").prev().css("margin-top","-220px");
+                    if($("#communities_1").length > 0){
+                        console.log($("#communities_1"))
+                        $(self).parent().parent("div").prev().css("margin-top","-220px");
+                    }
                 };
             }
         </script>
@@ -811,8 +819,8 @@ a.post_btn:hover{
                     </div>
                 </div>
             </div>
-            <div style="float: left;margin-left: 740px;margin-bottom: 20px;" id="">
-                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+            <div style="float: left;margin-left: 740px;margin-bottom: 20px;">
+                <div class="my-title"><span style="position:relative;color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
                 <div class="my-courses-cards" style="text-align: center">
                     <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="width:215px;height:155px;background-size:100% 100%;">
                             <div style="height:100px;"></div>
