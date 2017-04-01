@@ -25,7 +25,7 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
 
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
@@ -1095,42 +1095,33 @@
 	});	
 
     function uniqueTrainingSlot() {
-
-        getSlots = document.getElementsByClassName("training-slot");
-
-        var slots = [];
-
-        slots = Array.from(getSlots);
-         console.log(slots);
-
-        //slots = $(".training-slot").toArray();
-
-        getTrainingSlots(slots);
-
-        function getTrainingSlots(slots){
-
-            for ( var i = 0; i < slots.length; i++ ) {
-                var slotFirstSpan = slots[i][0];
-
-                console.log(slotFirstSpan);
-
-                var slotClass = slotFirstSpan.attr("class").split(" ").last();
-
-                var uniqueSpan = "span." + slotClass;
-
-                var lastSlot = $("#calendar_select_range").find(uniqueSpan).last();
-
-                var lastSlotCoord = lastSlot.getBoundingClientRect().bottom + window.scrollY;
-
-                var lastSlotCoord = lastSlotCoord + "px";
-
-                console.log(lastSlotCoord);
-
-                var firstSlot = $("#calendar_select_range").find(uniqueSpan).first();
-
-                firstSlot.css({"bottom": lastSlotCoord, "position": "absolute"});
-
-                $(uniqueSpan).not(":eq(0)").remove();
+        for ( var a = 0; a < 2; a++ ) { console.log(a);
+            bStart = (a == 0) ? 6 : 1;
+            bLimit = (a == 0) ? 12 : 6;
+            tClass = (a == 0) ? ".AM" : ".PM";
+            for ( var b = bStart; b <= bLimit; b++ ) {
+                dh = (b < 10) ? ".0" + b : "." + b;
+                hClass = tClass + dh;
+                var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
+                for ( var c = 0; c < cLimit; c++ ) {
+                    iClass = hClass + ".span-" + c;
+                    if($(iClass).length > 1) {
+                        var bottomY = $(iClass).last().offset().top + 16;
+                        bottomY = bottomY;
+                        //$(iClass).not(":eq(0)").remove();
+                        var position = $(iClass).first().offset();
+                        topY = position.top;
+                        //leftX = $(iClass).first().offset().left;
+                        height = bottomY - topY;
+                        console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
+                        //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
+                        var labelClass = $(iClass).first().find("label").attr("class");
+                        var labelTitlex = $(iClass).first().find("label").attr("titlex");
+                        var labelHtml = $(iClass).first().find("label").html();
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; '>" + labelHtml + "</div>"); //position: relative; top:" + topY + "px; left:" + leftX + "px;
+                        $("#"+iClass).css(position);
+                    }
+                }
             }
         }
     };
