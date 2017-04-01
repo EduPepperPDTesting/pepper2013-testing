@@ -2381,50 +2381,79 @@ def get_my_activities(request):
 
     ma_list = list()
     for data in my_activities:
-        templist = ["courses_courseEnrollment",
-                    "courses_creatediscussion",
-                    "courses_replydiscussion",
-                    "PDTraining_registration",
-                    "reports_createReport",
-                    "people_sendMessage",
-                    "myChunks_createChunk",
-                    "myChunks_editChunk",
-                    "myChunks_shareChunk",
-                    "myChunks_rateChunk"]
-        if data["EventType"] in templist:
-            ma_dict = {}
-            #URL
-            ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
+        ma_dict = {}
+        #URL
+        ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
             
-            #DisplayInfo       
-            info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
-            DisplayInfoValues = {}
-            for k in info_key_list:
-                try:
-                    t = eval("get_" + k)
-                    DisplayInfoValues[k] = t(data)
-                except:
-                    pass
-            info = replace_values(data["DisplayInfo"],DisplayInfoValues)
-            ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
-            if not ma_dict["DisplayInfo"]:
-                ma_dict["DisplayInfo"] = data["EventType"]
+        #DisplayInfo       
+        info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
+        DisplayInfoValues = {}
+        for k in info_key_list:
+            try:
+                t = eval("get_" + k)
+                DisplayInfoValues[k] = t(data)
+            except:
+                pass
+        info = replace_values(data["DisplayInfo"],DisplayInfoValues)
+        ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
+        if not ma_dict["DisplayInfo"]:
+            ma_dict["DisplayInfo"] = data["EventType"]
 
-            #Logo
-            ma_dict["Logo"] = get_logo(data)
+        #Logo
+        ma_dict["Logo"] = get_logo(data)
 
-            #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
-            ma_dict["OtherInfo"] = get_otherinfo(data)
+        #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
+        ma_dict["OtherInfo"] = get_otherinfo(data)
 
-            #GroupType
-            ma_dict["g_type"] = data["GroupType"]
+        #GroupType
+        ma_dict["g_type"] = data["GroupType"]
 
-            #time
-            ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
+        #time
+        ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
 
-            ma_list.append(ma_dict)
-    log.debug("ooooooooooooooooooooooooo")
+        ma_list.append(ma_dict)
+    log.debug("fin-------------------------------------")
     return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
+
+def get_communityDiscussionSubject(data):
+    '''
+    If communityDiscussion is deleted, use discussion_name from DB
+    '''
+    value = ""
+    try:
+        value = data["LogoValues"]["discussion_name"]
+    except:
+        cd = CommunityDiscussions.objects.filter(id=data["TokenValues"]["discussion_id"])
+        if cd:
+            value = cd[0].subject
+    return value
+
+def get_usersFullname(data):
+    value = ""
+    list_id = data["TokenValues"]["user_ids"].split(',')
+    list_fname = []
+    for d in list_id:
+        fname = ""
+        user = User.objects.filter(id=int(d))
+        if user:
+            fname = user[0].first_name + " " + user[0].last_name
+        if fname:
+            list_fname.append(fname)
+    value = ", ".join(list_fname)
+    return value
+
+def get_communityName(data):
+    '''
+    If community is deleted, use community_name from DB
+    '''
+    value = "Deleted Community"
+    try:
+        value = data["LogoValues"]["community_name"]
+    except:
+        c = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
+        if c:
+            value = c[0].name
+    return value
 
 def get_chunkTitle(data):
     value = "Deleted"
@@ -2454,9 +2483,9 @@ def get_recipientDistrict(data):
 
 def get_reportName(data):
     '''
-    report can be deleted
+    If report is deleted, use report_name from DB
     '''
-    report = Reports.objects.filter(id=data["TokenValues"]["report_id"])
+    report = Reports.objects.filter(id=data["LogoValues"]["report_id"])
     if report:
         return report[0].name
     else:
@@ -2464,9 +2493,9 @@ def get_reportName(data):
 
 def get_PDTrainingName(data):
     '''
-    PDTraining can be deleted
+    If PDTraining is deleted, use training_name from DB
     '''
-    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
+    pdtraining = PepRegTraining.objects.filter(id=data["LogoValues"]["training_id"])
     if pdtraining:
         return pdtraining[0].name
     else:
@@ -2483,11 +2512,14 @@ def get_discussionSubject(data):
     return cc.Thread.find(data["TokenValues"]["SourceID"]).title
 
 def get_otherinfo(data):
+    '''
+    communityName, courseDisplayName
+    '''
     value = ""
     if data["GroupType"] == "Courses":
-        value = get_course_by_id(data["URLValues"]["course_id"]).display_name_with_default
-    elif data["GroupType"] == "Communities":
-        value = "__communitiy_Name"
+        value = get_courseDisplayName(data)
+    elif data["GroupType"] == "Community":
+        value = get_communityName(data)
     return value
 
 def get_logo(data):
@@ -2501,15 +2533,17 @@ def get_logo(data):
             break
         if data["GroupType"] == "Courses":
             value = course_image_url(get_course_by_id(logo_id))
-        elif data["GroupType"] == "Communities":
-            value = "_communitiy_Logo"
+        elif data["GroupType"] == "Community":
+            community = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
+            if community:
+                value = community[0].logo.upload.url if community[0].logo else ''
     return value
 
 def get_courseDisplayName(data):
-    return get_course_by_id(data["TokenValues"]["course_id"]).display_name_with_default
+    return get_course_by_id(data["URLValues"]["course_id"]).display_name_with_default
 
 def get_courseDisplayNumber(data):
-    return get_course_by_id(data["TokenValues"]["course_id"]).display_number_with_default
+    return get_course_by_id(data["URLValues"]["course_id"]).display_number_with_default
 
 def replace_values(body, values):
     return re.sub("{[\w ]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
