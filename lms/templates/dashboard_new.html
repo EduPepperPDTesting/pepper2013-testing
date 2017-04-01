@@ -746,7 +746,7 @@ a.post_btn:hover{
                     %if community['order'] < 3:
                     <div class="image-link-style" style="background-image: url('${community['logo']}');">
                         <div style="height:80px;"></div>
-                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}${community['order']}</span></a>
+                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
                     </div>
                     %else:
                     <div class="image-link-style" id="communities_1" style="display:none;background-image: url('${community['logo']}');">
