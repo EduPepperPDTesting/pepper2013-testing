@@ -427,7 +427,7 @@
                              % if settings.MITX_FEATURES['ENABLE_INSTRUCTOR_EMAIL'] and modulestore().get_modulestore_type(course.id) == MONGO_MODULESTORE_TYPE:
                                 %if curr_user == request.user: 
                                     %if course.issue_certificate:
-                                        <a href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a>&nbsp;
+                                        <a style="white-space:nowrap;" href="${reverse('download_certificate',args=[course.id,("{end_date:%Y-%m-%d}").format(end_date=course.student_enrollment_date)])}" target="blank"> ${course.display_number_with_default | h} </a>&nbsp;
                                     %endif
                                 %endif
                             % endif
