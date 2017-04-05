@@ -570,7 +570,7 @@ def discussion_add(request):
         my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
         "URLValues": {"discussion_id": discussion.id},
         "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
-        "LogoValues": {"discussion_id": discussion.id, "community_id": community.id}}
+        "LogoValues": {"discussion_id": discussion.id}}
         rs.insert_item(my_activity)
 
         discussion_id = discussion.id
@@ -640,7 +640,7 @@ def discussion_delete(request, discussion_id):
     
     ma_db = myactivitystore()                
     ma_db.set_item_community_discussion(did, dname)
-    
+
     send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:
     #     log.warning('There was an error deleting a discussion: {0}'.format(e))
