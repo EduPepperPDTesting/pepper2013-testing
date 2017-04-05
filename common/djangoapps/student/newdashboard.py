@@ -2376,9 +2376,10 @@ def get_my_activities(request):
     filter_key = create_filter_key(filter_con)
     order_key = "ActivityDateTime"
     order_order = -1
-    limit_number = 20
+    skip_rows = int(request.POST.get('skip_rows'))
+    get_rows = int(request.POST.get('get_rows'))
 
-    my_activities = myactivitystore().get_item(filter_key,order_key,order_order,limit_number)
+    my_activities = myactivitystore().get_item(filter_key,order_key,order_order,skip_rows,get_rows)
 
     ma_list = list()
     for data in my_activities:
