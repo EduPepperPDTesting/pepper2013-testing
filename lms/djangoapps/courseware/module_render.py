@@ -698,7 +698,7 @@ def modx_dispatch(request, dispatch, location, course_id):
 
     ma_db = myactivitystore()
     my_activity = {"GroupType": "Course", "EventType": "course_ora Completion", "ActivityDateTime": datetime.utcnow(),
-    "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"1id":id1,"2id":id2,"page":page},
+    "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"SourceID":id1,"commentable_id":id2,"page":page},
     "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id,"ORAdisplayName":display_name},
     }
     ma_db.insert_item(my_activity)
