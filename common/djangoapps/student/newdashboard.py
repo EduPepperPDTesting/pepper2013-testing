@@ -2490,28 +2490,28 @@ def get_reportName(data):
     '''
     If report is deleted, use report_name from DB
     '''
-    report = Reports.objects.filter(id=data["LogoValues"]["report_id"])
+    report = Reports.objects.filter(id=data["TokenValues"]["report_id"])
     if report:
         return report[0].name
     else:
-        return data["TokenValues"]["report_name"]
+        return data["LogoValues"]["report_name"]
 
 def get_PDTrainingName(data):
     '''
     If PDTraining is deleted, use training_name from DB
     '''
-    pdtraining = PepRegTraining.objects.filter(id=data["LogoValues"]["training_id"])
+    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
     if pdtraining:
         return pdtraining[0].name
     else:
-        return data["TokenValues"]["training_name"]
+        return data["LogoValues"]["training_name"]
 
 def get_PDTrainingDate(data):
     pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
     if pdtraining:
         return pdtraining[0].training_date
     else:
-        return data["TokenValues"]["training_date"]
+        return data["LogoValues"]["training_date"]
 
 def get_discussionSubject(data):
     return cc.Thread.find(data["TokenValues"]["SourceID"]).title
