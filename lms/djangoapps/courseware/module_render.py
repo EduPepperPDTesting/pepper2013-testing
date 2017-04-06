@@ -26,7 +26,7 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.x_module import ModuleSystem
 from xmodule_modifiers import replace_course_urls, replace_jump_to_id_urls, replace_static_urls, add_histogram, wrap_xmodule, save_module  # pylint: disable=F0401
-from xmodule.remindstore import myactivitystore
+
 
 import static_replace
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
@@ -561,13 +561,6 @@ def modx_dispatch(request, dispatch, location, course_id):
     module raises any other error, it will escape this function.
     '''
     # ''' (fix emacs broken parsing)
-    referer = request.META['HTTP_REFERER']
-    page = request.META['HTTP_REFERER'].split("/")[-1]
-    if page == "":
-        page = 1
-        referer = request.META['HTTP_REFERER'] + page;
-
-    display_name = request.POST.get('display_name')
     # Check parameters and fail fast if there's a problem
     if not Location.is_valid(location):
         raise Http404("Invalid location")
@@ -696,11 +689,6 @@ def modx_dispatch(request, dispatch, location, course_id):
         log.exception("error processing ajax call")
         raise
 
-    ma_db = myactivitystore()
-    my_activity = {"GroupType": "Course", "EventType": "course_oraCompletion", "ActivityDateTime": datetime.utcnow(),
-    "UsrCre": request.user.id, "URLValues": referer,"TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
-    "DisplayInfo" : "Completed Coursework <a href=#><i><b>"+display_name+"</b></i></a>"}
-    ma_db.insert_item(my_activity)
     # Return whatever the module wanted to return to the client/caller
     return HttpResponse(ajax_return)
 
