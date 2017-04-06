@@ -505,6 +505,7 @@ class @CombinedOpenEnded
       fd.append('student_answer', @get_text())
       fd.append('student_file', "")
       fd.append('can_upload_files', @can_upload_files)
+      fd.append('display_name',@$('.problemtype').text())
       settings =
         type: "POST"
         data: fd
