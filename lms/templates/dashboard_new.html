@@ -815,7 +815,7 @@ a.post_btn:hover{
             <div style="float: left">
                 <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
                 <div class="my-courses-cards" style="text-align: center">
-                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 0 0 6px 6px;width:215px;height:155px;background-size:100% 100%;">
+                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 6px 6px 6px 6px;width:215px;height:150px;background-size:100% 100%;">
                         <div style="height:100px;"></div>
                         <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
                     </div>
@@ -824,7 +824,7 @@ a.post_btn:hover{
             <div style="float: left;margin-left: 740px;margin-bottom: 20px;">
                 <div class="my-title"><span style="position:relative;color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
                 <div class="my-courses-cards" style="text-align: center">
-                    <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 0 0 6px 6px;width:215px;height:155px;background-size:100% 100%;">
+                    <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 6px 6px 6px 6px;width:215px;height:150px;background-size:100% 100%;">
                             <div style="height:100px;"></div>
                             <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
                         </div>
