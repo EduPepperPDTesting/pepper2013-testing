@@ -561,11 +561,11 @@ def modx_dispatch(request, dispatch, location, course_id):
     module raises any other error, it will escape this function.
     '''
     # ''' (fix emacs broken parsing)
-    referer = request.META['HTTP_REFERER']
     page = request.META['HTTP_REFERER'].split("/")[-1]
+    id2 = request.META['HTTP_REFERER'].split("/")[-2]
+    id1 = request.META['HTTP_REFERER'].split("/")[-3]
     if page == "":
         page = '1'
-        referer = request.META['HTTP_REFERER'] + page
 
     display_name = request.POST.get('display_name')
     # Check parameters and fail fast if there's a problem
@@ -697,9 +697,10 @@ def modx_dispatch(request, dispatch, location, course_id):
         raise
 
     ma_db = myactivitystore()
-    my_activity = {"GroupType": "Course", "EventType": "course_oraCompletion", "ActivityDateTime": datetime.utcnow(),
-    "UsrCre": request.user.id, "URLValues": referer,"TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
-    "DisplayInfo" : "Completed Coursework <a href=#><i><b>"+display_name+"</b></i></a>"}
+    my_activity = {"GroupType": "Course", "EventType": "course_ora Completion", "ActivityDateTime": datetime.utcnow(),
+    "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"1id":id1,"2id":id2,"page":page},
+    "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id,"ORAdisplayName":display_name},
+    }
     ma_db.insert_item(my_activity)
     # Return whatever the module wanted to return to the client/caller
     return HttpResponse(ajax_return)
