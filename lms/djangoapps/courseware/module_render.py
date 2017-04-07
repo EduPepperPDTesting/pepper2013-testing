@@ -14,7 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from requests.auth import HTTPBasicAuth
 from statsd import statsd
-
 from capa.xqueue_interface import XQueueInterface
 from mitxmako.shortcuts import render_to_string
 from xblock.runtime import DbModel
@@ -52,7 +51,8 @@ from django.utils.timezone import UTC
 # True North Logic integration
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
+log = logging.getLogger("tracking")
 
 
 if settings.XQUEUE_INTERFACE.get('basic_auth') is not None:
@@ -649,6 +649,12 @@ def modx_dispatch(request, dispatch, location, course_id):
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
+                            ma_db = myactivitystore()
+                            my_activity = {"GroupType": "Course", "EventType": "course_course Completion", "ActivityDateTime": datetime.utcnow(),
+                            "UsrCre": request.user.id, "URLValues": {"course_id":course_id},
+                            "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id,"complete_date":course_instance.complete_date, "display_name":course_descriptor.display_name},
+                            }
+                            ma_db.insert_item(my_activity)
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)
