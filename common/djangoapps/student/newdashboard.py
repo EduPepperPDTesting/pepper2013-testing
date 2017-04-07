@@ -2379,6 +2379,7 @@ def get_my_activities(request):
     skip_rows = int(request.POST.get('skip_rows'))
     get_rows = int(request.POST.get('get_rows'))
 
+    my_activities_count = myactivitystore().get_item_count(filter_key)
     my_activities = myactivitystore().get_item(filter_key,order_key,order_order,skip_rows,get_rows)
 
     ma_list = list()
@@ -2415,7 +2416,7 @@ def get_my_activities(request):
 
         ma_list.append(ma_dict)
     log.debug("fin-------------------------------------")
-    return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
+    return HttpResponse(json.dumps({'data': ma_list,'data_count':my_activities_count,'Success': 'True'}), content_type='application/json')
 
 def get_communityDiscussionSubject(data):
     '''

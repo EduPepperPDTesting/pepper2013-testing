@@ -418,10 +418,9 @@ a.post_btn:hover{
 }
 
 .con-ma-rows{
-    /*width: 692px;*/
-    height:674px;
+    /*width: 692px;
+    height:674px;*/
     float: left;
-    overflow-y:hidden;
 }
 .my-activity-row{
     float: left;
@@ -734,8 +733,12 @@ a.post_btn:hover{
                     </select>
                     <span class="ma-btn-filter">Filter</span>
                 </div>
-
-                <div class="con-ma-rows">
+                <div class="con-ma-rows-out" style="width:692px;height:674px;overflow:hidden;float:left;overflow-y:hidden;border:0px solid #f00;">
+                    <div class="con-ma-rows">
+                    </div>
+                    <div class="info_div" style="width:670px;height:81px;font-size:15px;border:0px solid #f00;float:left;">
+                        <center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1039,6 +1042,11 @@ $(document).ready(function(){
     //20170221=================================================================================================
     var now_show = 2; //1:my feed;2:my activity
     
+    var data_all = 0;
+    var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
+    var html_end = '<div style="width:100%;text-align:center;padding-top:25px;font-size:18px;font-weight:bold;"></div>';
+
+    //variable for init
     var get_rows_init = 0;
     var skip_rows_init = 0;
     var get_rows_scroll = 0;
@@ -1081,12 +1089,13 @@ $(document).ready(function(){
 
     //my activity----------------------------------------------------------------
     function my_activitis_init(){
-        get_rows_init = 9 + 3;
+        get_rows_init = 9;
         skip_rows_init = 0;
         get_rows_scroll = 3;
         skip_rows_scroll = get_rows_init
         data_count = 0;
-        $(".con-ma-rows").css({"height":"674px"});
+        $(".con-ma-rows-out").css({"height":"674px"});
+        $(".info_div").html(html_loading);
     }
 
     function get_my_activites(get_rows,skip_rows){
@@ -1100,6 +1109,7 @@ $(document).ready(function(){
              'get_rows':get_rows,
              'skip_rows':skip_rows},
             function(data_obj){
+                data_all = data_obj.data_count;
                 my_activitis_create(data_obj);
         });
     }
@@ -1109,10 +1119,13 @@ $(document).ready(function(){
             my_activity_create(data_obj.data[i]);
         }
         if(data_count == 0){
-            $(".con-ma-rows").css({"overflow-y":"hidden"});
+            $(".con-ma-rows-out").css({"overflow-y":"hidden"});
         }
         else{
-            $(".con-ma-rows").css({"overflow-y":"scroll"});
+            $(".con-ma-rows-out").css({"overflow-y":"scroll"});
+        }
+        if(data_all <= 9){
+            $(".info_div").html(html_end);
         }
     }
     function my_activity_create(data){
@@ -1202,8 +1215,12 @@ $(document).ready(function(){
         get_my_activites(get_rows_init,skip_rows_init);
     });
 
-    $('.con-ma-rows').on('scroll', function() {
+    $('.con-ma-rows-out').on('scroll', function() {
         if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+            if(skip_rows_scroll >= data_all){
+                //$(".info_div").hide();
+                $(".info_div").html(html_end);
+            }
             get_my_activites(get_rows_scroll,skip_rows_scroll)
             skip_rows_scroll += get_rows_scroll;
         }
