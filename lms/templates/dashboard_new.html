@@ -418,10 +418,9 @@ a.post_btn:hover{
 }
 
 .con-ma-rows{
-    /*width: 692px;*/
-    height:674px;
+    /*width: 692px;
+    height:674px;*/
     float: left;
-    overflow-y:hidden;
 }
 .my-activity-row{
     float: left;
@@ -734,8 +733,9 @@ a.post_btn:hover{
                     </select>
                     <span class="ma-btn-filter">Filter</span>
                 </div>
-
-                <div class="con-ma-rows">
+                <div class="con-ma-rows-out" style="width:692px;height:674px;overflow:hidden;float:left;overflow-y:hidden;border:0px solid #f00;">
+                    <div class="con-ma-rows">
+                    </div>
                 </div>
             </div>
         </div>
@@ -1084,7 +1084,7 @@ $(document).ready(function(){
         get_rows_scroll = 3;
         skip_rows_scroll = get_rows_init
         data_count = 0;
-        $(".con-ma-rows").css({"height":"674px"});
+        $(".con-ma-rows-out").css({"height":"674px"});
     }
 
     function get_my_activites(get_rows,skip_rows){
@@ -1107,10 +1107,10 @@ $(document).ready(function(){
             my_activity_create(data_obj.data[i]);
         }
         if(data_count == 0){
-            $(".con-ma-rows").css({"overflow-y":"hidden"});
+            $(".con-ma-rows-out").css({"overflow-y":"hidden"});
         }
         else{
-            $(".con-ma-rows").css({"overflow-y":"scroll"});
+            $(".con-ma-rows-out").css({"overflow-y":"scroll"});
         }
     }
     function my_activity_create(data){
@@ -1200,7 +1200,7 @@ $(document).ready(function(){
         get_my_activites(get_rows_init,skip_rows_init);
     });
 
-    $('.con-ma-rows').on('scroll', function() {
+    $('.con-ma-rows-out').on('scroll', function() {
         if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
             get_my_activites(get_rows_scroll,skip_rows_scroll)
             skip_rows_scroll += get_rows_scroll;
