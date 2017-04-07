@@ -221,6 +221,10 @@ class MongoMyActivityStore(object):
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True    
 
+    def get_item_count(self,search_key):
+        count = self.collection.find(search_key).count()
+        return count
+
     def get_item(self,search_key,order_key,order_order,skip,limit):
         results = self.collection.find(search_key).sort(order_key, order_order).skip(skip).limit(limit)
         my_activitiy_static = myactivitystaticstore().get_item()
