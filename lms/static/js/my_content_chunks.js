@@ -35,12 +35,13 @@ $(function () {
       var This=this;
       var content=$(".mychunks_content");
       var verticalID=$("#show_mychunks").attr("data-id");
+      var url_id = $("#show_mychunks").attr("url-id");
       if(mychunks_notes_status=="update")
       {
         if(content.text().length<=mychunks_maxCharNum)
         {
           $(this).hide();
-          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID,'url':window.location.pathname})};
+          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID,'url':url_id})};
           $.post("/my_chunks/save_info",datainfo,function(data){
             mychunks_updateMaxCharNum();
             mychunks_notes_text=content.html();
@@ -307,7 +308,13 @@ function mychunks_content_createItem(data)
     $(window).scrollTop(0);
     mychunks_setNotesStatus("edit")
     var vertical_id=$(this).parent().attr("data-id");
+    var url_id = $(this).parent().prev().children().attr("href");
+    var course_title = $(this).parent().prev().children().attr("course_title");
+    var display_name = $(this).parent().prev().children().text();
     $("#show_mychunks").attr("data-id",vertical_id)
+    $("#show_mychunks").attr("url-id",url_id)
+    $("#course_title").attr("url-id",course_title)
+    $("#display_name").attr("url-id",display_name)
     var datainfo={'info':JSON.stringify({'vertical_id':vertical_id})};
     $.post("/my_chunks/get_info",datainfo,function(data){
       mychunks_focus=1;

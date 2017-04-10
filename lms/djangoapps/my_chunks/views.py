@@ -96,10 +96,8 @@ def save_mychunk(request):
     rs = chunksstore()
     info = json.loads(request.POST.get('info'))
     info['user_id']=str(request.user.id)
-    
     infos = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
-    log.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-    log.debug(info)
+
     if len(infos) == 0:
         oid = getObjectId()
         info['_id']=oid
@@ -117,6 +115,8 @@ def save_mychunk(request):
     "LogoValues": {"SourceID": oid}}
     ma_db.insert_item(my_activity)
 
+    log.debug("uyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+    log.debug(my_activity)
     return utils.JsonResponse({'results':'true'})
 
 def del_mychunk(request):
