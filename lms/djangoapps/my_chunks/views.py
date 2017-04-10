@@ -2,6 +2,7 @@ from django.http import Http404
 from mitxmako.shortcuts import render_to_response
 from django.db import connection
 
+import logging
 from student.models import CourseEnrollment
 from django.contrib.auth.models import User
 import django_comment_client.utils as utils
@@ -18,6 +19,8 @@ from bson.objectid import ObjectId
 from pytz import UTC
 import json
 from people.people_in_es import gen_people_search_query, search_people
+
+log = logging.getLogger("tracking")
 
 @login_required
 def mychunks(request,user_id=None):
@@ -95,6 +98,8 @@ def save_mychunk(request):
     info['user_id']=str(request.user.id)
     
     infos = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
+    log.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    log.debug(info)
     if len(infos) == 0:
         oid = getObjectId()
         info['_id']=oid

@@ -40,7 +40,7 @@ $(function () {
         if(content.text().length<=mychunks_maxCharNum)
         {
           $(this).hide();
-          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID})};
+          var datainfo={'info':JSON.stringify({'note':content.html(),'vertical_id':verticalID,'url':window.location.pathname})};
           $.post("/my_chunks/save_info",datainfo,function(data){
             mychunks_updateMaxCharNum();
             mychunks_notes_text=content.html();
