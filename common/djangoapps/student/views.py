@@ -1420,7 +1420,12 @@ def activate_account(request, key):
             for cea in ceas:
                 if cea.auto_enroll:
                     CourseEnrollment.enroll(student[0], cea.course_id)
-
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": student[0].id, 
+                    "URLValues": {"course_id": cea.course_id},    
+                    "TokenValues": {"course_id": cea.course_id}, 
+                    "LogoValues": {"course_id": cea.course_id}}
+                    ma_db.insert_item(my_activity)
         resp = render_to_response(
             "registration/activation_complete.html",
             {
