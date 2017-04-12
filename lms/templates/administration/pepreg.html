@@ -224,6 +224,19 @@
       </span>
         </div>
     </div>
+    %if check_user_perms(request.user, 'end_of_year_roll_over',['administer'], exclude_superuser=True):
+    <!-- End of Year Roll Over -->
+    <div class = "all_time_init_bottom">
+      <div class="main, data_import_content">
+        <div class="expand_title expand_title_collapse">
+          End of Year Roll Over <div class="icon"></div>
+        </div>
+        <div class="expand_div">
+            <input id="btnRollOver" type="button" name="" value="Roll Over" class="Submit" style="margin:20px;"/>
+        </div>
+      </div>
+    </div>
+    %endif
 </div>
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
     <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
@@ -2212,4 +2225,27 @@
     }).on("mouseleave", function () {
         $(this).removeClass("on");
     });
+
+
+    //------- End of Year Roll Over Initialization ---------//
+
+    var timeInit = {
+      submit: function () {
+          $.ajax({
+              url: "${reverse('configuration_roll_over')}",
+              data: {},
+              success: function (data) {
+              }
+          });
+      },
+      init: function () {
+        self = this;
+        $("#btnRollOver").click(function(){
+          self.submit();
+        });
+      }
+    };
+
+
+    timeInit.init();
 </script>
