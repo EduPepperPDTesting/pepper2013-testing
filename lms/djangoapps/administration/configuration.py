@@ -350,3 +350,7 @@ def remove_time():
     rts.collection_external.remove()
     rts.collection_adjustment.remove()
     rts.collection_aggregate.remove()
+
+
+def PD_planner_roll_over():
+    pass
