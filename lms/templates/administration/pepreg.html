@@ -46,8 +46,10 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <style>
+    /*akogan*/
     .label {color: #000000 !important;}
     .switch i{ bottom: 15px !important;}
+    .step-page .move {right: 25px !important;}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -482,19 +484,19 @@
                     <div class="step-content">
                         <h5>Create Your Training or PD Event: Step 3 of 6</h5>
                         <h4>Training or PD Event Schedule</h4>
-                        <div class="form-row">
-                            <span class="label" style="width:180px">Please Select the Training Date:</span>
+                        <div class="form-row"><!-- akogan. modified style. width from 180 to 200 -->
+                            <span class="label" style="width:200px">Please Select the Training Date:</span>
                             <input type="" name="training_date" class="datePickText lock_past" value=""
                                    readonly='true'/>
                             <img src="/static/images/calendar-icon-2.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:180px">Please Select Start Time:</span>
+                            <span class="label" style="width:200px">Please Select Start Time:</span>
                             <input type="" name="training_time_start" value="" class="timePickText"/>
                             <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:180px">Please Select End Time:</span>
+                            <span class="label" style="width:200px">Please Select End Time:</span>
                             <input type="" name="training_time_end" value="" class="timePickText"/>
                             <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
@@ -548,7 +550,7 @@
                     <div class="step-content">
                         <h5>Create Your Training or PD Event: Step 6 of 6 - Almost There!</h5>
                         <h4>Registration & Attendance Tracking</h4>
-                        <div class="form-row">
+                        <div class="form-row"><!-- akogan. modified style. width from 230 to 260 & 270 -->
                             <span class="label"
                                   style="width:260px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
