@@ -938,7 +938,9 @@
 
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
-            $("#calendar_select_range .btn-group").find("button").addClass("btn-active");
+            $(this).parent().parent().addClass("btn-active");
+            $(".week-parent").addClass("btn-active");
+            //$("#calendar_select_range .btn-group").find("button").addClass("btn-active");
 
             $(this).parent().find("li.list-active").removeClass("list-active");
             $(this).addClass("list-active");
