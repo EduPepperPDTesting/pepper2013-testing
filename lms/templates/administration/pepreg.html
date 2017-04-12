@@ -605,7 +605,7 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_month;
 	var _calendar_date = new Date();
 	
 	//-----------------------------------------------calendarOpen
@@ -796,6 +796,11 @@
         var picker_month = _sys_calendar_month;
         var picker_year = _sys_calendar_year;
 
+        if(picker_month == 13){
+             picker_month = 1;
+            picker_year = _sys_calendar_year + 1;
+        }
+
 		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
 		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
@@ -858,6 +863,7 @@
 			onSelect: function(date) {
 				_sys_calendar_year = date.getFullYear();
 				_sys_calendar_month = date.getMonth() + 1;
+				_old_month = _sys_calendar_month;
 				_calendar_picker_day = date.getDate();
 				
 				setPickerValue();
@@ -1001,7 +1007,7 @@
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date);
 			}else if(rangeVal == "2"){
-			   var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
 			    setSysDate(picker_date);
@@ -1063,6 +1069,9 @@
 		function setSysDate(picker_date){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
+
+            _old_month = _sys_calendar_month;
+
             _sys_calendar_month = picker_date.getUTCMonth();
             if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
             _sys_calendar_year = picker_date.getUTCFullYear();
@@ -2144,8 +2153,20 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate){
+    function pickDayOnClick(event, pickDate, nextMonth, prevMonth, dateToCompare){
         event.preventDefault();
+        console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
+
+        var rangeVal = $("#calendar_select_range").val();
+        if(rangeVal == "1" || rangeVal == "3"){
+            console.log("old month-"+_old_month +" new month-"+_sys_calendar_month)
+            if(nextMonth == true){
+                console.log("nextMonth");_sys_calendar_month += 1
+            }else if(prevMonth == true){
+                console.log("prevMonth");_sys_calendar_month -= 1
+            }
+        }
+
         $("#calendar_select_range .btn-active").removeClass("btn-active");
         $("#calendar_select_range button[value='2']").addClass("btn-active");
         $("#calendar_select_range").val("2");

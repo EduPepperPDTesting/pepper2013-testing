@@ -371,6 +371,7 @@ def delete_training(request):
         tdate = training.training_date
         PepRegInstructor.objects.filter(training=training).delete()
         PepRegStudent.objects.filter(training=training).delete()
+        TrainingUsers.objects.filter(training=training).delete()
         training.delete()
 
         ma_db = myactivitystore()
@@ -713,7 +714,21 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                 class_name = "calendarium-day";
 
             if(not isday and day[0]):
-                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ")'"
+                if(isweek and week[0][0] > day[0]):
+                    nextMonth = "true"
+                else:
+                    nextMonth = "false"
+
+                if(type(week[6][0]) is not datetime):
+                    dateToCompare = week[6][0]
+                else:
+                    dateToCompare = week[6][0].day
+                if (isweek and dateToCompare < day[0]):
+                    prevMonth = "true"
+                else:
+                    prevMonth = "false"
+
+                clickFunc = " onclick='pickDayOnClick(event, " + str(day[0]) + ", " + nextMonth + "," + prevMonth + "," + str(dateToCompare) + ")'"
             else:
                 clickFunc = ""
 
