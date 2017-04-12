@@ -353,4 +353,4 @@ def remove_time():
 
 
 def PD_planner_roll_over():
-    pass
+    return HttpResponse(json.dumps({'success': 1}), content_type="application/json")
