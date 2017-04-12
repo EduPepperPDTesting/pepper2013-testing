@@ -46,6 +46,9 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <style>
+    .label {color: #000000 !important;}
+    .switch i{ bottom: 15px !important;}
+
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
     .mapbox-directions-route-summary {position: absolute !important;}
@@ -1331,7 +1334,8 @@
                 ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
         // ************* add dlg close button to each step
         $("#dlg-add-training").find(".close-modal").remove();
-        $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
+        //akogan - modified style, right from 0 to -50
+        $("<div class='close-modal' style='right:-50px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
             dlg.hide();
         });
         // ************* before switch to another page
