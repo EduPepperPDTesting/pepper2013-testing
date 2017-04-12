@@ -99,8 +99,7 @@
 
     #dlg-warning {height: 310px;}
 
-    .btn-input-grp{border-left-width: 0px; padding-left: 5px; padding-right: 5px; margin-right: 0px;
-}
+    .btn-input-grp{border-left-width: 0px !important; padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -272,7 +271,7 @@
             <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
 
             <div class="btn-group" id="calendar_select_range" value="1">
-                <input type="button" class="btn btn-primary btn-input-grp" value="Month" data="0">
+                <input type="button" class="btn btn-primary btn-input-grp btn-active" value="Month" name="0">
                 <div class="btn-group">
                     <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Work Week">
                     <input type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
@@ -281,7 +280,7 @@
                         <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
                     </ul>
                 </div>
-                <input type="button" class="btn btn-primary btn-input-grp" value="Day" data="2">
+                <input type="button" class="btn btn-primary btn-input-grp" value="Day" name="2">
             </div>
 
             <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
@@ -882,7 +881,7 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-		$("#calendar_select_range>button:not(.week-parent)").click(function(event){
+		$("#calendar_select_range>button:not(.week-parent, .btn-active)").click(function(event){
 		    event.preventDefault();
 		    //$("#calendar_select_range button[class='btn-active']").attr("class", "btn btn-primary btn-sm");
 
@@ -890,7 +889,7 @@
 		    $(this).siblings().find("button.btn-active").removeClass("btn-active");
 		    $(this).addClass("btn-active");
 
-		    var rangeVal = parseInt($(this).attr('data'));
+		    var rangeVal = parseInt($(this).attr('name'));
 
 		    if(rangeVal != 2) $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
 
@@ -899,7 +898,7 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-		$("#calendar_select_range").find(".week-parent").click(function(event){
+		$("#calendar_select_range").find(".week-parent:not(.btn-active)").click(function(event){
 		    event.preventDefault();
 
 		    $(this).parent().parent().find(".btn-active").removeClass("btn-active");
@@ -2146,9 +2145,9 @@
         });
 
         if($("#calendar_select_range li.list-active").val=="1")
-            $(".week-parent").text("Calendar Week")
+            $(".week-parent").val("Calendar Week")
         else if($("#calendar_select_range li.list-active").val=="3")
-            $(".week-parent").text("Work Week");
+            $(".week-parent").val("Work Week");
     });
 
     function resetCap(){
