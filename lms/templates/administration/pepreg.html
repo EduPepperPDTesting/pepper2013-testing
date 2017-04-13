@@ -881,8 +881,7 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-        $("#calendar_select_range").on("click", "input:not(.week-parent, .btn-active)", function(event){
-		//$("#calendar_select_range>input:not(.week-parent, .btn-active)").click(function(event){
+        $("#calendar_select_range").on("click", "input:not(.week-parent, .btn-active, .dropdown-toggle)", function(event){
 		    event.preventDefault();
 		    //$("#calendar_select_range button[class='btn-active']").attr("class", "btn btn-primary btn-sm");
 
@@ -900,7 +899,6 @@
 		});
 
         $("#calendar_select_range").on("click", ".week-parent:not(.btn-active)", function(event){
-		//$("#calendar_select_range").find(".week-parent:not(.btn-active)").click(function(event){
 		    event.preventDefault();
 
 		    $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
