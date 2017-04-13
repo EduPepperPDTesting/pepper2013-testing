@@ -267,7 +267,7 @@
                 <input type="button" class="btn btn-primary btn-input-grp" value="Month" name="0">
                 <div class="btn-group" style="margin-left: 0px !important;">
                     <input type="button" class="btn btn-primary week-parent btn-input-grp btn-active" value="Calendar Week">
-                    <input type="button" class="btn btn-primary dropdown-toggle btn-active arrow-down" data-toggle="dropdown" value="&#9660;" style="margin-right: 0px; border-left-width: 0px;">
+                    <input type="button" class="btn btn-primary dropdown-toggle btn-active arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                     <ul class="dropdown-menu" role="menu">
                         <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
                         <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
@@ -927,10 +927,9 @@
         $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
-            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
-            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9660;");
-            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-up");
-            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-down");
+            $(".arrow-up").removeAttr("value");
+            $(".arrow-up").attr("value","&#9660;");
+            $(".arrow-up").addClass("arrow-down").removeClass("arrow-up");
 
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
@@ -957,7 +956,7 @@
         $("#calendar_select_range").on("click", ".arrow-down", function(event){
             console.log("up");
             $(this).removeAttr("value");
-            $(this).attr("value","&#9650;");
+            $(this).attr("value","▲");
             $(this).removeClass("arrow-down");
             $(this).addClass("arrow-up");
         });
@@ -965,7 +964,7 @@
         $("#calendar_select_range").on("click", ".arrow-up", function(event){
             console.log("up");
             $(this).removeAttr("value");
-            $(this).attr("value","&#9660;");
+            $(this).attr("value","▼");
             $(this).removeClass("arrow-up");
             $(this).addClass("arrow-down");
         });
