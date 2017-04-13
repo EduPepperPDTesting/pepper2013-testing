@@ -273,7 +273,7 @@
             <div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">
                 <input type="button" class="btn btn-primary btn-input-grp btn-active" value="Month" name="0">
                 <div class="btn-group" style="margin-left: 0px !important;">
-                    <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Work Week">
+                    <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Calendar Week">
                     <input type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                     <ul class="dropdown-menu" role="menu">
                         <li class="list-group-item list-group-item-info" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
@@ -939,11 +939,8 @@
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
             $(this).parent().siblings().addClass("btn-active");
-            //$(".week-parent").addClass("btn-active");
-            //$("#calendar_select_range .btn-group").find("button").addClass("btn-active");
 
-            $(this).parent().find("li.list-active").removeClass("list-active");
-            $(this).addClass("list-active");
+            $(this).parent().find("li").toggleClass("list-active");
 
             var rangeVal = $(this).val();
 
