@@ -903,9 +903,9 @@
 		//$("#calendar_select_range").find(".week-parent:not(.btn-active)").click(function(event){
 		    event.preventDefault();
 
-		    $(this).parent().parent().find(".btn-active").removeClass("btn-active");
+		    $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
-		    $(this).parent().find("input").addClass("btn-active");
+		    $(this).addClass("btn-active");
 
 		    var rangeVal = $(this).siblings().find("li.list-active").val();
 
@@ -938,8 +938,8 @@
 
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
-            $(this).parent().parent().addClass("btn-active");
-            $(".week-parent").addClass("btn-active");
+            $(this).parent().siblings().addClass("btn-active");
+            //$(".week-parent").addClass("btn-active");
             //$("#calendar_select_range .btn-group").find("button").addClass("btn-active");
 
             $(this).parent().find("li.list-active").removeClass("list-active");
