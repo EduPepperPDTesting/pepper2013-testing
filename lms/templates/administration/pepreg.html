@@ -927,10 +927,10 @@
         $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeAttr('value');
-            $("#calendar-month-weekdays").find(".dropdown-toggle").attr("value","&#9660;");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeClass("arrow-up");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").addClass("arrow-down");
+            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
+            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9660;");
+            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-up");
+            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-down");
 
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
@@ -956,18 +956,18 @@
 
         $("#calendar_select_range").on("click", ".arrow-down", function(event){
             console.log("up");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeAttr('value');
-            $("#calendar-month-weekdays").find(".dropdown-toggle").attr("value","&#9650;");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeClass("arrow-down");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").addClass("arrow-up");
+            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
+            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9650;");
+            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-down");
+            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-up");
         });
 
         $("#calendar_select_range").on("click", ".arrow-up", function(event){
             console.log("up");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeAttr('value');
-            $("#calendar-month-weekdays").find(".dropdown-toggle").attr("value","&#9660;");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").removeClass("arrow-up");
-            $("#calendar-month-weekdays").find(".dropdown-toggle").addClass("arrow-down");
+            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
+            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9660;");
+            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-up");
+            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-down");
         });
 
         _sys_calendar_year = _calendar_date.getFullYear();
