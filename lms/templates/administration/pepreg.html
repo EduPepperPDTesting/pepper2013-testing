@@ -93,7 +93,13 @@
 
     #calendar_select_range .week-parent{width: 120px;}
 
-    #calendar_select_range .btn-active, #calendar_select_range .list-active{background-color:#204d74;}
+    #calendar_select_range .list-active{background-color:#204d74;}
+
+    #calendar_select_range .btn-active{
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #105f84),color-stop(50%, #024e86),color-stop(50%, #01356d),color-stop(100%, #023669));
+        background-image: -webkit-linear-gradient(top,#105f84 0%,#024e86 50%,#01356d 50%,#023669 100%);
+        background-image: linear-gradient(to bottom,#105f84 0%,#024e86 50%,#01356d 50%,#023669 100%);
+    }
 
     #calendar_select_range ul{min-width: 135px; padding: 0px;}
 
@@ -276,8 +282,8 @@
                     <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Calendar Week">
                     <input type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                     <ul class="dropdown-menu" role="menu">
-                        <li class="list-group-item list-group-item-info" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
-                        <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
+                        <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
+                        <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
                     </ul>
                 </div>
                 <input type="button" class="btn btn-primary btn-input-grp" value="Day" name="2">
@@ -886,7 +892,7 @@
 		    //$("#calendar_select_range button[class='btn-active']").attr("class", "btn btn-primary btn-sm");
 
 		    $(this).siblings(".btn-active").removeClass("btn-active");
-		    $(this).siblings().find("input.btn-active").removeClass("btn-active");
+		    $(this).siblings().find("input.btn-active").removeClass("btn-active").attr(;
 		    $(this).addClass("btn-active");
 
 		    var rangeVal = parseInt($(this).attr('name'));
