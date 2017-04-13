@@ -207,7 +207,6 @@ urlpatterns = (
     url(r'^configuration/certificate/save$', 'administration.configuration.certificate_save', name="configuration_certificate_save"),
     url(r'^configuration/certificate/load_data$', 'administration.configuration.certificate_loadData', name="configuration_certificate_loadData"),
     url(r'^configuration/end_of_year_roll_over/roll_over$', 'administration.configuration.roll_over', name="configuration_roll_over"),
-    url(r'^configuration/end_of_year_roll_over/PD_planner_roll_over$', 'administration.configuration.PD_planner_roll_over', name="PD_planner_roll_over"),
     url(r'^configuration/tnl$', 'tnl_integration.views.tnl_configuration', name='tnl_configuration'),
 
     url(r'^user-info$', 'administration.configuration.get_user_info', name="get_user_info"),

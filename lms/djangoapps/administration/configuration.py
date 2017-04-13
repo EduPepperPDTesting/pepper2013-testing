@@ -352,7 +352,3 @@ def remove_time():
     rts.collection_aggregate.remove()
 
 
-
-@user_has_perms('end_of_year_roll_over', ['administer'], exclude_superuser=True)
-def PD_planner_roll_over(request):
-    return HttpResponse(json.dumps({'success': 1}), content_type="application/json")
