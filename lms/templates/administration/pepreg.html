@@ -1139,16 +1139,18 @@
                         bottomY = bottomY;
                         //$(iClass).not(":eq(0)").remove();
                         var position = $(iClass).first().offset();
-                        topY = position.top - 572;
+                        topY = position.top;
                         leftX = $(iClass).first().offset().left - 1262;
                         height = bottomY - topY;
+                        topY = position.top - 572;
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
                         //$(iClass).first().find("label").css({"height": height.toString() + "px !important", "position": "absolute"});
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>"); 
-                        $("#"+iClass).css(position);
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        //$("#"+iClass).css(position);
+                        $(iClass).first().remove();
                     }
                 }
             }
