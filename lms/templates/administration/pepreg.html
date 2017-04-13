@@ -1149,8 +1149,8 @@
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
-                        //$("#"+iClass).css(position);
-                        $(iClass).children().last().remove();
+                        $("#"+iClass).css(position);
+                        $(iClass).find("label").remove();
                     }
                 }
             }
