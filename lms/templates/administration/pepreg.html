@@ -1581,7 +1581,7 @@
             this.hide();
             if (r) {
                 $.post("${reverse('pepreg_delete_training')}", {id: id}, function (r) {
-                    console.log("tr del");
+                    console.log("r.success-"+r.success);
                     if (r.success)
                         self.reloadTable();
                 });
