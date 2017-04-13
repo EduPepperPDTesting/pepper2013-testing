@@ -267,7 +267,7 @@
                 <input type="button" class="btn btn-primary btn-input-grp" value="Month" name="0">
                 <div class="btn-group" style="margin-left: 0px !important;">
                     <input type="button" class="btn btn-primary week-parent btn-input-grp btn-active" value="Calendar Week">
-                    <input type="button" class="btn btn-primary dropdown-toggle btn-active" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
+                    <input type="button" class="btn btn-primary dropdown-toggle btn-active" data-toggle="dropdown" value="&#9660;" style="margin-right: 0px; border-left-width: 0px;">
                     <ul class="dropdown-menu" role="menu">
                         <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
                         <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
@@ -927,6 +927,8 @@
         $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
+            $("#calendar-month-weekdays .dropdown-toggle").val("&#9660;");
+
             $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
 
             $(this).parent().siblings().addClass("btn-active");
@@ -947,6 +949,14 @@
 
             $("#calendar_select_range").val(rangeVal);
             calendarOpen();
+        });
+
+        $("#calendar_select_range").on("click", ".dropdown-toggle[value='&#9660;']", function(event){
+            $("#calendar-month-weekdays .dropdown-toggle").val("&#9650;");
+        });
+
+        $("#calendar_select_range").on("click", ".dropdown-toggle[value='&#9650;']", function(event){
+            $("#calendar-month-weekdays .dropdown-toggle").val("&#9660;");
         });
 
         _sys_calendar_year = _calendar_date.getFullYear();
