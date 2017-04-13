@@ -943,10 +943,10 @@
             var rangeVal = $(this).val();
 
             if(rangeVal=="1"){
-                $(".week-parent").text("Calendar Week")
+                $(".week-parent").val("Calendar Week")
                 $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
             }else if(rangeVal=="3"){
-                $(".week-parent").text("Work Week");
+                $(".week-parent").val("Work Week");
                 $(".weekend").remove();
             }else{
                 $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
