@@ -2245,26 +2245,4 @@
         $(this).removeClass("on");
     });
 
-
-    //------- End of Year Roll Over Initialization ---------//
-
-    var timeInit = {
-      submit: function () {
-          $.ajax({
-              url: "${reverse('PD_planner_roll_over')}",
-              data: {},
-              success: function (data) {
-              }
-          });
-      },
-      init: function () {
-        self = this;
-        $("#btnRollOver").click(function(){
-          self.submit();
-        });
-      }
-    };
-
-
-    timeInit.init();
 </script>
