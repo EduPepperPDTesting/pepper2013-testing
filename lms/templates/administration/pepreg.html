@@ -956,18 +956,18 @@
 
         $("#calendar_select_range").on("click", ".arrow-down", function(event){
             console.log("up");
-            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
-            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9650;");
-            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-down");
-            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-up");
+            $(this).removeAttr("value");
+            $(this).attr("value","&#9650;");
+            $(this).removeClass("arrow-down");
+            $(this).addClass("arrow-up");
         });
 
         $("#calendar_select_range").on("click", ".arrow-up", function(event){
             console.log("up");
-            $("#calendar-month-weekdays .dropdown-toggle").removeAttr("value");
-            $("#calendar-month-weekdays .dropdown-toggle").attr("value","&#9660;");
-            $("#calendar-month-weekdays .dropdown-toggle").removeClass("arrow-up");
-            $("#calendar-month-weekdays .dropdown-toggle").addClass("arrow-down");
+            $(this).removeAttr("value");
+            $(this).attr("value","&#9660;");
+            $(this).removeClass("arrow-up");
+            $(this).addClass("arrow-down");
         });
 
         _sys_calendar_year = _calendar_date.getFullYear();
