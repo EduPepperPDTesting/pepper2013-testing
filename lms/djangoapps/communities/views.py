@@ -897,7 +897,7 @@ def community_edit_process(request):
             # Set the facilitator flag to true.
             community_user.facilitator = True
             community_user.save()
-            if old_facilitator[0].user_id:
+            if old_facilitator:
                 if old_facilitator[0].user_id != community_user.user_id:
                     ma_db = myactivitystore()
                     my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
