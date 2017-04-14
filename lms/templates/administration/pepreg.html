@@ -643,11 +643,11 @@
 
 			if($("#calendar_select_range").val() == "2"){
 			    uniqueTrainingSlot();
-			}
 
-            var labelElem = $(".training-row label");
-			labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
-			labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
+                var labelElem = $(".training-row label");
+                labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
+                labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
+			}
 			
 			$(".alert").mouseover(function () {
 				$("#calendar_alert_title").empty();
@@ -1146,9 +1146,9 @@
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
                         $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
-                        $(iClass).find("label").parent().parent().css("padding","5px");
+                        $(iClass).find("label").parent().parent(":not(:contains('label')").css("padding","5px");
                         $(iClass+":eq(0)").find("label").remove();
-                        $(iClass).parent(":not(:contains('label')").css("height", "26px");
+                        $(iClass).parent(":not(:contains('label'))").css("height", "26px");
                         $(iClass+":gt(0)").remove();
                     }
                 }
