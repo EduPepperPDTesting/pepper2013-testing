@@ -1149,7 +1149,7 @@
                         $(iClass).find("label").remove();
                         $(iClass).parent(":not(:contains('label'))").css({"padding": "5px", "height": "26px"});
                         $(iClass+":gt(0)").remove();
-                        $(iClass).html($(iClass).html().replace(/&nbsp;/,'')); //html($(this).html().split("&nbsp;").join(""));
+                        $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
                     }
                 }
             }
