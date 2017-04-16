@@ -1124,6 +1124,8 @@
 	});	
 
     function uniqueTrainingSlot() {
+        existingSlots = $(.calendarium-day .alert").length;
+
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
             bLimit = (a == 0) ? 12 : 6;
@@ -1139,7 +1141,7 @@
                         var topY = $(iClass).first().find("label").offset().top;
                         height = bottomY - topY;
                         topY -= 269;
-                        leftX = $(iClass).first().find("label").offset().left - 453;
+                        leftX = $(iClass).first().find("label").offset().left - (453 + 105 * existingSlots);
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
 
                         var labelClass = $(iClass).first().find("label").attr("class");
