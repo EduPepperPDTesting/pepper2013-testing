@@ -766,10 +766,18 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
+                                        startHourAMPM = int(day[3][i][-2:])
+
                                         endHour = int(day[4][i][:day[4][i].index(":")])
+                                        endHourAMPM = int(day[3][i][-2:])
 
                                         h = startHour
-                                        endHour = endHour if endHour <= 6 else 6
+                                        endHourLast = endHour
+
+                                        if(startHourAMPM != endHourAMPM):
+                                            endHour = 12
+                                        else:
+                                            endHour = endHour if endHour <= 6 else 6
 
                                         while(h <= endHour):
 
@@ -790,6 +798,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                                 if (day[3][i] != midHour and midHour == dayHour): break
 
                                             h += 1
+                                            if(h == endHour and endHour != endHourLast):
+                                                endHour = endHourLast
 
                                     if h <= endHour:
                                         if i == 0:
@@ -1043,6 +1053,7 @@ def get_courses_drop(state_name, district_code):
         'metadata.display_state': {'$in': matches_district},
         'metadata.display_district': {'$in': matches_state}
     }
+
 
     courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(courses), 0)
