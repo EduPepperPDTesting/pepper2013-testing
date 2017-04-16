@@ -766,18 +766,19 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
-                                        startHourAMPM = int(day[3][i][-2:])
+                                        startHourAMPM = day[3][i][-2:]
 
                                         endHour = int(day[4][i][:day[4][i].index(":")])
-                                        endHourAMPM = int(day[3][i][-2:])
+                                        endHourAMPM = day[4][i][-2:]
 
                                         h = startHour
-                                        endHourLast = endHour
 
                                         if(startHourAMPM != endHourAMPM):
+                                            endHourLast = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
                                             endHour = 12
                                         else:
-                                            endHour = endHour if endHour <= 6 else 6
+                                            endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
+                                            endHourLast = endHour
 
                                         while(h <= endHour):
 
