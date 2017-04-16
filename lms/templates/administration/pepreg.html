@@ -1124,7 +1124,7 @@
 	});	
 
     function uniqueTrainingSlot() {
-        existingSlots = $(".calendarium-day .alert").length;
+        existingSlots = $(".calendarium-day .completeSlot").length;
 
         for ( var a = 0; a < 2; a++ ) { console.log(a);
             bStart = (a == 0) ? 6 : 1;
@@ -1147,7 +1147,7 @@
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
                         $(iClass).find("label").remove();
                         $(iClass).parent(":not(:contains('label'))").css({"padding": "5px", "height": "26px"});
                         $(iClass+":gt(0)").remove();
