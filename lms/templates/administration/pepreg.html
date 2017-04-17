@@ -1135,8 +1135,10 @@
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
                     if($(iClass).length > 1) {
-                        var bottomY = $(iClass).last().find("label").offset().top + 16;
-                        var topY = $(iClass).first().find("label").offset().top;
+                        //var bottomY = $(iClass).last().find("label").offset().top + 16;
+                        //var topY = $(iClass).first().find("label").offset().top;
+                        var bottomY = $(iClass).last().find("label").position().top + 16;
+                        var topY = $(iClass).first().find("label").position().top;
                         height = bottomY - topY;
                         topY -= 269;
                         existingSlots = $(".completeSlot:not(" + iClass + ")").length;
