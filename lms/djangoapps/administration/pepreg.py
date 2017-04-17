@@ -595,8 +595,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
+                    trainingDuration = item.training_time_end - item.training_time_start
+
                     # &#13;
-                    titlex = item.name + "::" + trainingStartTime
+                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime + "::" + trainingDuration
 
                     if item.classroom:
                         titlex = titlex + "::" + item.classroom;
