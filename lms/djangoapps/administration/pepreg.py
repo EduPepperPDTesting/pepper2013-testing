@@ -762,9 +762,9 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                         endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
-                                        startHour = startHour if(startHourAMPM == "PM" or startHour >= 6) else 6
+                                        startHour = startHour if(startHourAMPM == "AM" and startHour >= 6) else 6
 
-                                        if(startHourAMPM == "PM" or startHour > 6):
+                                        if((startHourAMPM == "PM" and (startHour == 12 or startHour <= 6)) or (startHourAMPM == "AM" and startHour >= 6)):
                                             endHour = int(day[4][i][:day[4][i].index(":")])
                                             endHourAMPM = day[4][i][-2:]
 
