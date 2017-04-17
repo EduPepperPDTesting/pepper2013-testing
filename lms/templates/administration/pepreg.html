@@ -1670,14 +1670,15 @@
         return false;
     };
 	PepReg.prototype.openCalendar = function () {
-	console.log("openCalendar");
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		//if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
-		$("#calendar_select_range input:not(.week-parent)").removeClass(".btn-active");
+		$("#calendar_select_range").find("input:not(.week-parent)").filter(function() {
+            return $(this).hasClass("btn-active");
+        }).removeClass("btn-active");
 		$("#calendar_select_range").val("1");
-		$(".week-parent:not(.btn-active)").addClass(".btn-active");
-		$(".week-parent").text("Calendar Week");
+		$(".week-parent:not(.btn-active)").addClass("btn-active");
+		$(".week-parent").val("Calendar Week");
 		_calendar_picker_day = _sys_calendar_day;
 		setPickerValue();
 	   	calendarOpen();
