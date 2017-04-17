@@ -756,44 +756,46 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 divAdded = 1
 
                                 for tmp1 in day[1]:
-                                    h = 0
-                                    endHour = 0
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
+                                        h = 0
+                                        endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
                                         startHourAMPM = day[3][i][-2:]
+                                        startHour = startHour if(startHourAMPM == "PM" or startHour >= 6) else 6
 
-                                        endHour = int(day[4][i][:day[4][i].index(":")])
-                                        endHourAMPM = day[4][i][-2:]
+                                        if(startHourAMPM == "PM" or startHour > 6):
+                                            endHour = int(day[4][i][:day[4][i].index(":")])
+                                            endHourAMPM = day[4][i][-2:]
 
-                                        h = startHour
-                                        hourAMPM = "AM"
+                                            h = startHour
+                                            hourAMPM = "AM"
 
-                                        if(startHourAMPM != endHourAMPM):
-                                            endHourLast = endHour if(endHour <= 6) else 6
-                                            endHour = 12
-                                        else:
-                                            endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
-                                            endHourLast = endHour
+                                            if(startHourAMPM != endHourAMPM):
+                                                endHourLast = endHour if(endHour == 12 or endHour <= 6) else 6
+                                                endHour = 12
+                                            else:
+                                                endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
+                                                endHourLast = endHour
 
-                                        while(h <= endHour):
+                                            while(h <= endHour):
 
-                                            fullHour = str(h) + ":00 " + hourAMPM
-                                            midHour = str(h) + ":30 " + hourAMPM
+                                                fullHour = str(h) + ":00 " + hourAMPM
+                                                midHour = str(h) + ":30 " + hourAMPM
 
-                                            firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
-                                            if ((fullHour == dayHour and (i > 0 or firstHalfHour )) or (midHour == dayHour and (i > 0 or not firstHalfHour ))): break
+                                                firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
+                                                if ((fullHour == dayHour and (i > 0 or firstHalfHour )) or (midHour == dayHour and (i > 0 or not firstHalfHour ))): break
 
-                                            h += 1
-                                            if(h == endHour and endHour != endHourLast):
-                                                h = 1
-                                                endHour = endHourLast
-                                                hourAMPM = "PM"
+                                                h += 1
+                                                if(h == endHour and endHour != endHourLast):
+                                                    h = 1
+                                                    endHour = endHourLast
+                                                    hourAMPM = "PM"
 
-                                    if (h <= endHour):
-                                        t = day[3][i][-2:]
-                                        dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                        if (h <= endHour):
+                                            t = day[3][i][-2:]
+                                            dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
+                                            table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
 
                                     i += 1
 
