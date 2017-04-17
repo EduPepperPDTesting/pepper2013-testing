@@ -763,7 +763,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                         h = startHour
 
                                         if(startHourAMPM != endHourAMPM):
-                                            endHourLast = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
+                                            endHourLast = endHour if(endHour <= 6) else 6
                                             endHour = 12
                                         else:
                                             endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
@@ -771,27 +771,17 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                         while(h <= endHour):
 
-                                            if day[3][i][-2:] == "AM":
-                                                midHour = str(h) + ":00 AM"
-                                                checkHour = str(h) + ":30 AM"
-                                                if(day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
+                                            fullHour = str(h) + ":00 " + day[3][i][-2:]
+                                            midHour = str(h) + ":30 " + day[3][i][-2:]
 
-                                                midHour = str(h) + ":30 AM"
-                                                if (day[3][i] != midHour and midHour == dayHour): break
-
-                                            if(day[3][i][-2:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
-                                                midHour = str(h) + ":00 PM"
-                                                checkHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
-
-                                                midHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and midHour == dayHour): break
+                                            if (fullHour == dayHour or midHour == dayHour): break
 
                                             h += 1
                                             if(h == endHour and endHour != endHourLast):
+                                                h = 1
                                                 endHour = endHourLast
 
-                                        if h <= endHour:
+                                        if(h <= endHour):
                                             if i == 0:
                                                 table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
                                                 divAdded = 1
