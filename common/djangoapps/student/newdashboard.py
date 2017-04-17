@@ -112,6 +112,8 @@ from reporting.models import Reports
 #@end
 
 from bson import json_util
+from permissions.utils import check_access_level, check_user_perms
+
 
 # log = logging.getLogger("mitx.student")
 log = logging.getLogger("tracking")
@@ -2794,20 +2796,13 @@ def my_courses(request, user_id=None):
     return render_to_response('my_courses.html', context)
 #@end
 
-#@begin:Add for Dashboard Posts
-#@date:2016-12-29
-def get_posts(request):
-    filter_group = request.POST.get("filter_group")
-    filter_year = request.POST.get("filter_year")
-    filter_month = request.POST.get("filter_month")
-    time_diff_m = request.POST.get('local_utc_diff_m', 0)
-    last_id = request.POST.get("last_id")
-    page_size = request.POST.get("page_size", 5)
-    
-    store = dashboard_feeding_store()
-    posts = store.top_level_for_user(request.user.id, type=filter_group,
-                                     year=filter_year, month=filter_month, page_size=int(page_size), page_after=last_id)
 
+
+
+
+def attach_post_info(p, time_diff_m, user):
+    store = dashboard_feeding_store()
+    
     def format_feeding_date(post_time_utc):
         now_utc = datetime.datetime.utcnow()
         
@@ -2841,52 +2836,81 @@ def get_posts(request):
             return ""
         buf = []
         for lk in likes:
-            if lk["user_id"] == request.user.id:
+            if lk["user_id"] == user.id:
                 buf.insert(0, "You")
             else:
-                user = User.object.get(id=lk["user_id"])
-                buf.append(user.first_name + " " + last_name)
+                author = User.objects.get(id=lk["user_id"])
+                buf.append(user.first_name + " " + author.last_name)
         ending = ""
         if len(buf) > 3:
             buf = buf[:3]
-        else:
             ending = " and more"
-        return ", ".join(buf) + ending  
+            
+        return ", ".join(buf) + ending
    
-    def attach_info(p, master_id):
-        user = User.objects.get(id=p["user_id"])
-        (post_date, post_h, post_m, post_ampm, debug) = format_feeding_date(p["date"])
+    
+    author = User.objects.get(id=p["user_id"])
+    (post_date, post_h, post_m, post_ampm, debug) = format_feeding_date(p["date"])
 
-        p["content"] =  filter_at(p["content"])
-        p["first_name"] = user.first_name
-        p["last_name"] = user.last_name
-        p["username"] = user.username
-        p["email"] = user.email
-        p["district_name"] = user.profile.district.name
-        p["sub"] = store.get_sub(p["_id"])
-        p["is_my_like"] = store.is_like(p["_id"], request.user.id)
-        p["who_like_text"] = format_like(p.get("likes"))
-        p["likes"] = len(p.get("likes")) if p.get("likes") else 0
-        p["post_date"] = post_date
-        p["post_h"] = post_h
-        p["post_m"] = post_m
-        p["post_ampm"] = post_ampm
-        p["post_date_debug"] = debug
-        p["is_owner"] = (user == request.user)
-        p["removable"] = request.user.id == master_id \
-                         or request.user.is_superuser or request.user.id == p["user_id"]
+    p["content"] =  filter_at(p["content"])
+    p["first_name"] = author.first_name
+    p["last_name"] = author.last_name
+    p["username"] = author.username
+    p["email"] = author.email
+    p["district_name"] = author.profile.district.name
+    p["sub"] = store.get_sub(p["_id"])
+    p["is_my_like"] = store.is_like(p["_id"], user.id)
+    p["who_like_text"] = format_like(p.get("likes"))
+    p["likes"] = len(p.get("likes")) if p.get("likes") else 0
+    p["post_date"] = post_date
+    p["post_h"] = post_h
+    p["post_m"] = post_m
+    p["post_ampm"] = post_ampm
+    p["post_date_debug"] = debug
+    p["is_owner"] = (author == user)
+    p["removable"] = user.id == author.id or user.is_superuser
 
-        if active_recent(user) and request.user != user:
-            p["online"] = 1
-            if user.profile.skype_username:
-                p["skype_username"] = user.profile.skype_username
-            else:
-                p["skype_username"] = "Not Set."
+    if active_recent(author) and user != author:
+        p["online"] = 1
+        if author.profile.skype_username:
+            p["skype_username"] = author.profile.skype_username
+        else:
+            p["skype_username"] = "Not Set."
+
+    for s in p["sub"]:
+        attach_post_info(s, time_diff_m, user)            
+
+
+def get_post(request):
+    _id = request.POST.get("_id")
+    store = dashboard_feeding_store()
+    post = store.get_feeding(_id)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+    attach_post_info(post, time_diff_m, request.user)
+    return HttpResponse(json_util.dumps(post), content_type='application/json')
+
+
+def get_posts(request):
+    filter_group = request.POST.get("filter_group")
+    filter_year = request.POST.get("filter_year")
+    filter_month = request.POST.get("filter_month")
+    # last_id = request.POST.get("last_id")
+    page = request.POST.get("page", 0)
+    page_size = request.POST.get("page_size", 5)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+
+    now_utc = datetime.datetime.utcnow()
+    if int(time_diff_m) != 0:
+        now_utc = time_to_local(now_utc, time_diff_m)
+
+    store = dashboard_feeding_store()
+  
+    posts = store.top_level_for_user(request.user.id, type=filter_group,
+                                     year=filter_year, month=filter_month,
+                                     page_size=int(page_size), page=int(page), before=now_utc)
             
     for a in posts:
-        attach_info(a, a["user_id"])
-        for b in a["sub"]:
-            attach_info(b, a["user_id"])         
+        attach_post_info(a,time_diff_m, request.user)
 
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
@@ -3126,15 +3150,15 @@ def get_posts(request):
     
 def submit_new_like(request):
     user_id = request.user.id
-    post_id = pid = request.POST.get('post_id')
+    feeding_id = request.POST.get('feeding_id')
     
     store = dashboard_feeding_store()
     
-    if store.is_like(post_id, user_id):
-        store.remove_like(post_id, request.user.id)
+    if store.is_like(feeding_id, user_id):
+        store.remove_like(feeding_id, request.user.id)
     else:
         date = datetime.datetime.utcnow()
-        store.add_like(post_id, request.user.id, date)
+        store.add_like(feeding_id, request.user.id, date)
         
     return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')    
 
@@ -3218,19 +3242,19 @@ def lookup_name(request):
     return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
 
 def get_full_likes(request):
-    comment_id = request.POST.get('comment')
-    post_id = request.POST.get('post')
+    feeding_id = request.POST.get('feeding_id')
     html = "<table>"
-    if comment_id != '':
-        likes = DashboardLikes.objects.filter(comment__id=comment_id)
-    else:
-        likes = DashboardLikes.objects.filter(post__id=post_id)
+
+    store = dashboard_feeding_store()
+    likes = store.get_likes(feeding_id)
+    
     for like in likes:
-        html += " <tr><td><img src='"+reverse('user_photo', args=[like.user.id])+"' width='24px'></img></td><td>"+like.user.first_name + " " + like.user.last_name + "</td></tr>"
+        user = User.objects.get(id=like["user_id"])
+        html += " <tr><td><img src='"+reverse('user_photo', args=[user.id])+"' width='24px'></img></td><td>"+user.first_name + " " + user.last_name + "</td></tr>"
     html += "</table>"
     return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
 
-from permissions.utils import check_access_level, check_user_perms
+
 def submit_new_post(request):
     store = dashboard_feeding_store()
     content = parse_urls(request.POST.get("post", ""))

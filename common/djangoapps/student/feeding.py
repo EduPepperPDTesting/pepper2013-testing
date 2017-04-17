@@ -10,6 +10,8 @@ import datetime
 
 log = logging.getLogger("tracking")
 from bson import ObjectId
+from collections import OrderedDict
+
 
 class MongoBaseStore(object):
     def __init__(self, host, db, port, collection="",
@@ -38,19 +40,22 @@ class MongoBaseStore(object):
 
     def insert(self, item):
         return self.collection.insert(item)
-    
+
     def find(self, cond):
         return self.collection.find(cond)
 
+    def find_one(self, cond):
+        return self.collection.find_one(cond)
+
     def aggregate(self, cond):
         return self.collection.aggregate(cond)
-    
+
     def update(self, cond, item, upsert=False, multi=True):
         self.collection.update(cond, item, upsert=upsert, multi=multi)
 
     def remove(self, cond):
         self.collection.remove(cond)
-        
+
     def set_item(self, name, value, user_id, vertical_id, start_time):
         return self.collection.update({
                 'user_id': user_id,
@@ -66,9 +71,17 @@ class DashboardFeedingStore(MongoBaseStore):
         # super(MongoBaseStore, self).__init__(**kwargs)
         MongoBaseStore.__init__(self, host, db, collection="dashboard_feeding", port=port, **kwargs)
 
+    def get_likes(self, feeding_id):
+        doc = self.find_one({"_id": ObjectId(feeding_id)})
+        return doc["likes"] if doc else []
+
+    def get_feeding(self, feeding_id):
+        doc = self.find_one({"_id": ObjectId(feeding_id)})
+        return doc
+
     def is_like(self, feeding_id, user_id):
         return self.find({"_id": ObjectId(feeding_id), "likes": {"$elemMatch": {"user_id": long(user_id)}}}).count()
-    
+
     def add_like(self, feeding_id, user_id, date):
         # $addToSet == "insert if not exists" else use $push
         self.remove_like(feeding_id, user_id)
@@ -79,17 +92,25 @@ class DashboardFeedingStore(MongoBaseStore):
         self.update({"_id": ObjectId(feeding_id)},
                     {"$pull": {"likes": {"user_id": long(user_id)}}}, False, True)
 
-    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_after=None, page_size=None):
+    def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, before=None):
         results = []
 
-        fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1, "images": 1, "type": 1, "sub_of": 1, "receivers": 1, "likes": 1}
+        # ** fields needed
+        fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1,
+                  "images": 1, "type": 1, "sub_of": 1, "receivers": 1, "likes": 1}
         fields["month"] = {"$month": '$date'}
         fields["year"] = {"$year": '$date'}
 
-        cond = {"$or": [{"receivers": {"$elemMatch": {"$eq": user_id}}},  # user is receiver
-                        {"receivers": {"$elemMatch": {"$eq": 0}}}],  # announce ment
+
+        # ** cond
+        cond = {"$and": [{"$or": [{"receivers": {"$elemMatch": {"$eq": user_id}}},  # user is receiver
+                                  {"receivers": {"$elemMatch": {"$eq": 0}}}]},      # for every one
+                         {"$or": [{"expiration_date": {"$gte": before}},  # before expiration
+                                  {"expiration_date": {"$eq": None}       # expiration not setted
+                                   }]}],
                 "sub_of": None}  # is top leve;
 
+        # *** filter cond
         if month:
             cond["month"] = int(month)
 
@@ -99,14 +120,16 @@ class DashboardFeedingStore(MongoBaseStore):
         if type:
             cond["type"] = type
 
-        if page_after:
-            cond["_id"] = {"$lt": ObjectId(page_after)}
+        # ** sort order
+        so = OrderedDict([("type", 1), ("date", -1)])
 
-        command = [{"$project": fields}, {"$match": cond}, {"$sort": {"date": -1}}]
-        
-        if page_size:
-            command.append({"$limit": page_size})
-            
+        command = [{"$project": fields}, {"$match": cond}, {"$sort": so}]
+
+        # ** paged
+        if page > 0:
+            command.append({"$skip": page * page_size})
+        command.append({"$limit": page_size})
+
         cursor = self.aggregate(command)
 
         # cursor = self.find({"$or": [{"receivers": {"$elemMatch": {"$eq": 1}}},
@@ -121,7 +144,7 @@ class DashboardFeedingStore(MongoBaseStore):
     def remove_feeding(self, feeding_id):
         self.remove({"_id": ObjectId(feeding_id)})
         self.remove({"sub_of": ObjectId(feeding_id)})
-    
+
     def get_sub(self, feeding_id):
         results = []
         cursor = self.find({"sub_of": ObjectId(feeding_id)})
@@ -135,18 +158,11 @@ class DashboardFeedingStore(MongoBaseStore):
         for p in cursor:
             results.append(p)
         return results
-    
-    # def get_sub(self, feeding_id):
-    #     results = []
-    #     cursor = self.find({"sub_of": feeding_id})
-    #     for p in cursor:
-    #         needed = dict((k, p[k]) for k in ("_id", "content", "user_id"))
-    #         results.append(needed)
-    #     return results
 
-    def create(self, user_id, type, content, date, receivers=[], sub_of=None, top_level=None, expiration_date=None, images=None):
+    def create(self, user_id, type, content, date, receivers=[],
+               sub_of=None, top_level=None, expiration_date=None, images=None):
         data = {"type": type, "user_id": user_id, "content": content, "receivers": receivers, "date": date}
-        
+
         if sub_of:
             data["sub_of"] = ObjectId(sub_of)
 
@@ -158,7 +174,7 @@ class DashboardFeedingStore(MongoBaseStore):
 
         if images:
             data["images"] = images
-                    
+
         return self.insert(data)
 
 
@@ -170,6 +186,7 @@ FEEDINGSTORE = {
         'user': "",
         'password': ""}
 }
+
 
 def dashboard_feeding_store():
     options = {}
