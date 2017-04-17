@@ -579,6 +579,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
+                    itemData = item.name
+
                     if isday:
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
@@ -595,27 +597,29 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
-                    trainingDuration = item.training_time_end - item.training_time_start
+                        itemData += "<br/>From: " + trainingStartTime + "<br/>To: " + trainingEndTime
 
                     # &#13;
-                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime + "::" + trainingDuration
+                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
-                        titlex = titlex + "::" + item.classroom;
+                        titlex = titlex + "::" + item.classroom
+                        if isday: itemData += "<br/>Classroom: " + item.classroom
 
                     if item.geo_location:
-                        titlex = titlex + "::" + item.geo_location;
+                        titlex = titlex + "::" + item.geo_location
+                        if isday: itemData += "<br/>Location: " + item.geo_location
 
                     if (arrive == "0" and allow == "0"):
                         if (catype == "0" or catype == "4"):
                             occurrences.append(
-                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
+                                "<span class='alert al_4' titlex='" + titlex + "'>" + itemData + "</span>");
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
                                 occurrences.append(
-                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
+                                    "<span class='alert al_7' titlex='" + titlex + "'>" + itemData + "</span>");
                         else:
                             if (status == "Registered"):
                                 # checked true
@@ -623,7 +627,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
                                         item.id) + "' checked /> ";
                                     occurrences.append(
-                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + itemData + "</span></label>");
 
                             else:
                                 # checked false
@@ -631,7 +635,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                     tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
                                         item.id) + "' /> ";
                                     occurrences.append(
-                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + itemData + "</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
@@ -648,7 +652,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
                                 occurrences.append(
-                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + itemData + "</span></label>");
 
                         else:
                             # checked false
@@ -656,7 +660,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
                                     item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
                                 occurrences.append(
-                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + itemData + "</span></label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
