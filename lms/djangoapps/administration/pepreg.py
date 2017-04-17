@@ -761,6 +761,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                         endHourAMPM = day[4][i][-2:]
 
                                         h = startHour
+                                        hourAMPM = "AM"
 
                                         if(startHourAMPM != endHourAMPM):
                                             endHourLast = endHour if(endHour <= 6) else 6
@@ -771,15 +772,16 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                                         while(h <= endHour):
 
-                                            fullHour = str(h) + ":00 " + day[3][i][-2:]
-                                            midHour = str(h) + ":30 " + day[3][i][-2:]
+                                            fullHour = str(h) + ":00 " + hourAMPM
+                                            midHour = str(h) + ":30 " + hourAMPM
 
-                                            if ((fullHour == dayHour and int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30 ) or (midHour == dayHour and int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) >= 30 )): break
+                                            if ((fullHour == dayHour and (i > 0 or int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30 )) or (midHour == dayHour and (i > 0 or int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) >= 30 ))): break
 
                                             h += 1
                                             if(h == endHour and endHour != endHourLast):
                                                 h = 1
                                                 endHour = endHourLast
+                                                hourAMPM = "PM"
 
                                         if(h <= endHour):
                                             if i == 0:
