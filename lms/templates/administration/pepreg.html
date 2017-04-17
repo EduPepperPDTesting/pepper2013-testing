@@ -1140,7 +1140,11 @@
                         height = bottomY - topY;
                         topY -= 269;
                         existingSlots = $(".completeSlot:not(" + iClass + ")").length;
-                        leftX = $(iClass).first().find("label").offset().left - (453 - (105 * existingSlots));
+                        if(existingSlots == 0){
+                            leftX = $(iClass).first().find("label").offset().left - 453;
+                        }else{
+                            leftX = $(".completeSlot:not(" + iClass + ")").last().left + 105;
+                        }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
                         var labelClass = $(iClass).first().find("label").attr("class");
