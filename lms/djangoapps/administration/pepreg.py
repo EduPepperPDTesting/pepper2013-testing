@@ -751,7 +751,14 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                             if day[1]:
                                 i = 0
+
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                divAdded = 1
+
                                 for tmp1 in day[1]:
+                                    h = 0
+                                    endHour = 0
+                                    completeClass = ""
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
@@ -775,7 +782,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                             fullHour = str(h) + ":00 " + hourAMPM
                                             midHour = str(h) + ":30 " + hourAMPM
 
-                                            if ((fullHour == dayHour and (i > 0 or int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30 )) or (midHour == dayHour and (i > 0 or int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) >= 30 ))): break
+                                            firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
+                                            if ((fullHour == dayHour and (i > 0 or firstHalfHour )) or (midHour == dayHour and (i > 0 or not firstHalfHour ))): break
 
                                             h += 1
                                             if(h == endHour and endHour != endHourLast):
@@ -783,23 +791,13 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                                 endHour = endHourLast
                                                 hourAMPM = "PM"
 
-                                        if(h <= endHour):
-                                            if i == 0:
-                                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
-                                                divAdded = 1
-
-                                            t = day[3][i][-2:]
-                                            dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-
-                                            table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
                                     elif(day[3][i] == dayHour):
-                                        if (i == 0):
-                                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
-                                            divAdded = 1
+                                        completeClass = " completeSlot"
 
+                                    if (h <= endHour or completeClass == " completeSlot"):
                                         t = day[3][i][-2:]
                                         dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + " completeSlot'>" + tmp1 + "</span>"
+                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + completeClass +"'>" + tmp1 + "</span>"
 
                                     i += 1
 
