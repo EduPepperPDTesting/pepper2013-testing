@@ -1153,10 +1153,11 @@
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
-                        $(iClass).find("label").remove();
-                        $(iClass).parent(":not(:contains('label'))").css({"padding": "5px", "height": "26px"});
                         $(iClass+":gt(0)").remove();
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(".training-row:not(:has('.completeSlot'))").filter(function() {
+                            return $(this).height() == 24;
+                        }).css({"padding": "5px", "height": "26px"});
                         $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
                     }
                 }
