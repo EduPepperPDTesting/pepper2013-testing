@@ -551,7 +551,7 @@ def dashboard(request, user_id=None):
     else:
         course_times = {course.id: study_time_format(rts.get_aggregate_course_time(str(user.id), course.id, 'courseware')) for course in courses}
 
-        #@begin:change to current year course time and total_time
+        #@begin:change to current year course time and total_timetahoe
         #@date:2016-06-21
         rs = reporting_store()
         rs.set_collection('UserCourseView')
@@ -1842,7 +1842,12 @@ def activate_imported_account(post_vars, photo):
         for cea in ceas:
             if cea.auto_enroll:
                 CourseEnrollment.enroll(profile.user, cea.course_id)
-
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Courses", "EventType": "courses_courseEnrollment", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": profile.user.id, 
+                "URLValues": {"course_id": cea.course_id},    
+                "TokenValues": {"course_id": cea.course_id}, 
+                "LogoValues": {"course_id": cea.course_id}}
+                ma_db.insert_item(my_activity)
         # CourseEnrollment.enroll(User.objects.get(id=user_id), 'PCG_Education/PEP101.1/S2016')
 
         d = {"first_name": profile.user.first_name, "last_name": profile.user.last_name, "district": profile.district.name}

@@ -96,7 +96,19 @@ from communities.models import CommunityComments, CommunityPostsImages, Communit
 
 #@begin:Add for Dashboard My Activities
 #@date:2017-02-27
-from xmodule.remindstore import myactivitystore, messagestore
+##GroupType:MyChunks
+from xmodule.remindstore import myactivitystore, messagestore, chunksstore
+
+#GroupType:Courses
+from courseware.courses import get_course_by_id, course_image_url 
+import comment_client as cc
+
+#GroupType:PDPlanner
+from administration.models import PepRegTraining
+#@end
+
+#GroupType:Reports
+from reporting.models import Reports
 #@end
 
 from bson import json_util
@@ -1873,41 +1885,6 @@ def user_photo(request,user_id=None):
         f.close()
     return response
 
-def state_photo(request,user_id=None):
-    if user_id:
-        user = User.objects.get(id=user_id)
-    else:
-        user = User.objects.get(id=request.user.id)
-    
-    state = user.profile.district.state.name
-    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg'
-    response = HttpResponse(content_type='image/JPEG')
-    if os.path.exists(file):
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/'+state+'.jpg','rb')
-    else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/state/state_default.jpg','rb')
-    response.write(f.read())
-    f.close()
-    return response
-
-def district_photo(request,user_id=None):
-    if user_id:
-        user = User.objects.get(id=user_id)
-    else:
-        user = User.objects.get(id=request.user.id)
-    
-    district = user.profile.district.name
-    response = HttpResponse(content_type='image/JPEG')
-    file = settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg'
-    if os.path.exists(file):
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/'+district+'.jpg','rb')
-    else:
-        f=open(settings.PROJECT_ROOT.dirname().dirname() + '/edx-platform/lms/static/images/newdashboard/district/district_default.jpg','rb')
-    response.write(f.read())
-    f.close()
-    return response
-
-
 def request_course_access_ajax(request):
     try:
         course=get_course_by_id(request.POST.get('course_id'))
@@ -2346,7 +2323,7 @@ def newdashboard(request, user_id=None):
     courses_incomplated_list = list()
     for k, v in enumerate(courses_incomplated):
         courses_incomplated_list.append(v)
-        if k > 1:
+        if k > 2:
             break
 
     #@end
@@ -2354,15 +2331,17 @@ def newdashboard(request, user_id=None):
     #@begin:Add for Dashboard My Communities
     #@date:2017-02-16
     community_list = list()
-    #Just filter the last 3 communities the user belongs to.
-    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:3]
+    i = 0
+    # Just filter the last 3 communities the user belongs to.
+    # items = CommunityUsers.objects.select_related().filter().order_by('-id')[0:4]
+    items = CommunityUsers.objects.select_related().filter(user=request.user).order_by('-id')[0:4]
     for item in items:
         community_list.append({'id': item.community.id,
                                'name': item.community.name,
                                'logo': item.community.logo.upload.url if item.community.logo else '',
-                               'private': item.community.private})
-    #@end
-
+                               'private': item.community.private,
+                               'order': i})
+        i = i + 1;
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
@@ -2400,38 +2379,183 @@ def get_my_activities(request):
     filter_key = create_filter_key(filter_con)
     order_key = "ActivityDateTime"
     order_order = -1
-    limit_number = 20
+    skip_rows = int(request.POST.get('skip_rows'))
+    get_rows = int(request.POST.get('get_rows'))
 
-    my_activities = myactivitystore().get_item(filter_key,order_key,order_order,limit_number)
+    my_activities_count = myactivitystore().get_item_count(filter_key)
+    my_activities = myactivitystore().get_item(filter_key,order_key,order_order,skip_rows,get_rows)
 
     ma_list = list()
     for data in my_activities:
         ma_dict = {}
-        if data["ActivityType"] == "Community":
-            ma_dict = process_data_community(data)
-        elif data["ActivityType"] == "Messages":
-            recipient_name = ""
-            recipient_district = ""
-            my_message = messagestore().get_item({"_id":data["SourceID"]})
-            for msg in my_message:
-                sender = User.objects.get(id=int(msg["recipient_id"]))
-                recipient_name = sender.username
-                try:
-                    district_id = sender.profile.district_id
-                    recipient_district = District.objects.get(id=district_id).name
-                except Exception as e:
-                    recipient_district = ""
-            ma_dict["recipient_name"] = recipient_name
-            ma_dict["recipient_district"] = recipient_district
-            ma_dict["url"] = "/dashboard/" + str(sender.id)
-        elif data["ActivityType"] == "ORA":
-            pass
+        #URL
+        ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
+            
+        #DisplayInfo       
+        info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
+        DisplayInfoValues = {}
+        for k in info_key_list:
+            try:
+                t = eval("get_" + k)
+                DisplayInfoValues[k] = t(data)
+            except:
+                pass
+        info = replace_values(data["DisplayInfo"],DisplayInfoValues)
+        ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
+        if not ma_dict["DisplayInfo"]:
+            ma_dict["DisplayInfo"] = data["EventType"]
 
-        ma_dict["a_type"] = data["ActivityType"]
-        ma_dict["e_type"] = int(data["EventType"])
+        #Logo
+        ma_dict["Logo"] = get_logo(data)
+
+        #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
+        ma_dict["OtherInfo"] = get_otherinfo(data)
+
+        #GroupType
+        ma_dict["g_type"] = data["GroupType"]
+
+        #time
         ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
+
         ma_list.append(ma_dict)
-    return HttpResponse(json.dumps({'data': ma_list,'Success': 'True'}), content_type='application/json')
+    log.debug("fin-------------------------------------")
+    return HttpResponse(json.dumps({'data': ma_list,'data_count':my_activities_count,'Success': 'True'}), content_type='application/json')
+
+def get_communityDiscussionSubject(data):
+    '''
+    If communityDiscussion is deleted, use discussion_name from DB
+    '''
+    value = ""
+    try:
+        value = data["LogoValues"]["discussion_name"]
+    except:
+        cd = CommunityDiscussions.objects.filter(id=data["TokenValues"]["discussion_id"])
+        if cd:
+            value = cd[0].subject
+    return value
+
+def get_usersFullname(data):
+    value = ""
+    list_id = data["TokenValues"]["user_ids"].split(',')
+    list_fname = []
+    for d in list_id:
+        fname = ""
+        user = User.objects.filter(id=int(d))
+        if user:
+            fname = user[0].first_name + " " + user[0].last_name
+        if fname:
+            if fname == " ":
+                list_fname.append("None None")
+            else:
+                list_fname.append(fname)
+    value = ", ".join(list_fname)
+    return value
+
+def get_communityName(data):
+    '''
+    If community is deleted, use community_name from DB
+    '''
+    value = "Deleted Community"
+    try:
+        value = data["LogoValues"]["community_name"]
+    except:
+        c = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
+        if c:
+            value = c[0].name
+    return value
+
+def get_chunkTitle(data):
+    value = "Deleted"
+    mychunk = chunksstore().get_item({"user_id":str(data["UsrCre"]),"url":data["URLValues"]["url"]})
+    if mychunk:
+        value = mychunk[0]["chunkTitle"]
+    return value
+
+def get_recipientName(data):
+    value = ""
+    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
+    if recipient:
+        value = recipient[0].username
+    return value
+
+def get_recipientDistrict(data):
+    value = ""
+    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
+
+    if recipient:
+        try:
+            district_id = recipient[0].profile.district_id
+            value = District.objects.get(id=district_id).name
+        except:
+            pass
+    return value
+
+def get_reportName(data):
+    '''
+    If report is deleted, use report_name from DB
+    '''
+    report = Reports.objects.filter(id=data["TokenValues"]["report_id"])
+    if report:
+        return report[0].name
+    else:
+        return data["LogoValues"]["report_name"]
+
+def get_PDTrainingName(data):
+    '''
+    If PDTraining is deleted, use training_name from DB
+    '''
+    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
+    if pdtraining:
+        return pdtraining[0].name
+    else:
+        return data["LogoValues"]["training_name"]
+
+def get_PDTrainingDate(data):
+    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
+    if pdtraining:
+        return pdtraining[0].training_date
+    else:
+        return data["LogoValues"]["training_date"]
+
+def get_discussionSubject(data):
+    return cc.Thread.find(data["TokenValues"]["SourceID"]).title
+
+def get_otherinfo(data):
+    '''
+    communityName, courseDisplayName
+    '''
+    value = ""
+    if data["GroupType"] == "Courses":
+        value = get_courseDisplayName(data)
+    elif data["GroupType"] == "Community":
+        value = get_communityName(data)
+    return value
+
+def get_logo(data):
+    value = ""
+    if data["Logo"]:
+        value = data["Logo"]
+    else:
+        logo_id = ""
+        for k in data["LogoValues"]:
+            logo_id = data["LogoValues"][k]
+            break
+        if data["GroupType"] == "Courses":
+            value = course_image_url(get_course_by_id(logo_id))
+        elif data["GroupType"] == "Community":
+            community = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
+            if community:
+                value = community[0].logo.upload.url if community[0].logo else ''
+    return value
+
+def get_courseDisplayName(data):
+    return get_course_by_id(data["URLValues"]["course_id"]).display_name_with_default
+
+def get_courseDisplayNumber(data):
+    return get_course_by_id(data["URLValues"]["course_id"]).display_number_with_default
+
+def replace_values(body, values):
+    return re.sub("{[\w ]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
@@ -2479,65 +2603,6 @@ def create_filter_key(filter_con):
             year_0 += 1
             filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
-
-def process_data_community(data):
-    ma_dict = {}
-    if data["EventType"] == 1:
-        #join
-        c = CommunityCommunities.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.name #coummunity name
-            ma_dict["name_d"] = "" #discussion name
-            ma_dict["url"] = "/community/" + str(data["SourceID"])
-            ma_dict["logo"] = item.logo.upload.url if item.logo else ''
-            try:
-                list_id = data["user_ids"].split(',')
-                list_fname = []
-                for d in list_id:
-                    user = User.objects.get(id=int(d))
-                    fname = user.first_name + " " + user.last_name
-                    list_fname.append(fname)
-                    ma_dict["user_name"] = list_fname
-            except Exception as e:
-                ma_dict["user_name"] = ""
-    elif data["EventType"] == 2:
-        #post
-        c = CommunityPosts.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.community.name
-            ma_dict["name_d"] = ""
-            ma_dict["url"] = "/community/" + str(item.community.id)
-            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
-    elif data["EventType"] == 3:
-        #post comment
-        c = CommunityComments.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.post.community.name
-            ma_dict["name_d"] = ""
-            ma_dict["url"] = "/community/" + str(item.post.community.id)
-            ma_dict["logo"] = item.post.community.logo.upload.url if item.post.community.logo else ''
-    elif data["EventType"] == 4:
-        #discussion
-        c = CommunityDiscussions.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.community.name
-            ma_dict["name_d"] = item.subject
-            ma_dict["url"] = "/community/discussion/" + str(item.id)
-            ma_dict["logo"] = item.community.logo.upload.url if item.community.logo else ''
-    elif data["EventType"] == 5:
-        #discussion reply
-        c = CommunityDiscussionReplies.objects.filter(id=data["SourceID"])
-        if c:
-            item = c[0]
-            ma_dict["name_c"] = item.discussion.community.name
-            ma_dict["name_d"] = item.discussion.subject
-            ma_dict["url"] = "/community/discussion/" + str(item.discussion.id)
-            ma_dict["logo"] = item.discussion.community.logo.upload.url if item.discussion.community.logo else ''
-    return ma_dict
 
 #@begin:My courses
 #@date:2017-02-09

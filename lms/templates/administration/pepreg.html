@@ -25,7 +25,7 @@
 <script type="text/javascript" src="/static/js/jquery.balloon.js"></script>
 <script src="/static/js/leaflet/leaflet.js"></script>
 
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"/>
 
 <link rel="stylesheet" href="/static/js/timedropper/timedropper.css" media="screen"/>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen"/>
@@ -43,9 +43,14 @@
 <script type="text/javascript" src="/static/js/pikaday.min1.js"></script>
 <link rel="stylesheet" href="/static/css/pikaday1.css"/>
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <style>
+    /*akogan*/
+    .label {color: #000000 !important;}
+    .switch i{ bottom: 15px !important;}
+    .step-page .move {right: 25px !important;}
+
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
     .mapbox-directions-route-summary {position: absolute !important;}
@@ -84,7 +89,23 @@
 	.ui-tooltip {max-wi1qdth:600px; padding: 10px 20px; color: white; border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; box-shadow: 0 0 7px black; z-index:20000 !important;}
 	#calendar_alert_title{position:fixed; display:none; max-width:500px; border:2px solid #000000; background-color:#FFFFFF; color:#000000; font-size:12px; padding:10px;border-radius: 20px; font: bold 14px "Helvetica Neue", Sans-Serif; z-index:10000;}
 
-    #calendar_select_range .btn-active {background-color:#204d74;}
+    #calendar_select_range li{background-color: #337ab7;}
+
+    #calendar_select_range .week-parent{width: 120px;}
+
+    #calendar_select_range .list-active{background-color:#204d74;}
+
+    #calendar_select_range .btn-active{
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #105f84),color-stop(50%, #024e86),color-stop(50%, #01356d),color-stop(100%, #023669));
+        background-image: -webkit-linear-gradient(top,#105f84 0%,#024e86 50%,#01356d 50%,#023669 100%);
+        background-image: linear-gradient(to bottom,#105f84 0%,#024e86 50%,#01356d 50%,#023669 100%);
+    }
+
+    #calendar_select_range ul{min-width: 135px; padding: 0px;}
+
+    #dlg-warning {height: 310px;}
+
+    .btn-input-grp{border-left-width: 0px !important; padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -227,7 +248,7 @@
              style="padding:30px;overflow-x:auto;overflow-y:auto;position:relative;background:#fff;border-radius:0;"></div>
     </div>
 </div>
-<div class="modal" id="calendar-panel" style="width:1000px;margin-left:-500px;border-radius:0;">
+<div class="modal" id="calendar-panel" style="width:1000px;height:600px;margin-left:-500px;border-radius:0;">
 	<div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
         <div class="titlebar">
             <h3 class="dialog-title">My Calendar</h3>
@@ -242,26 +263,17 @@
             <input class1="btn btn-default" type="button" id="calendar_btn_next_y" value=">|" />
             <input class1="btn btn-default" type="button" id="calendar_btn_today" value="Today" />
 
-            <!--<select name="calendar_select_range" id="calendar_select_range" style="">
-                <option value="0">Month</option>
-                <option value="1" selected="selected">Week</option>
-                <option value="2">Day</option>
-            </select>
-
-             <div class="dropdown">
-                <button type="button" name="calendar_select_range" id="calendar_select_range"
-                        data-toggle="dropdown" class="btn btn-primary dropdown-toggle" value="1">Week<span class="caret"></span></button>
-                <ul class="dropdown-menu">
-                    <li value="0"><a href="#">Month</a></li>
-                    <li value="1"><a href="#">Week</a></li>
-                    <li value="2"><a href="#">Day</a></li>
-                </ul>
-            </div-->
-
-            <div class="btn-group" id="calendar_select_range" value="1">
-                <button type="button" class="btn btn-primary btn-sm" value="0">Month</button>
-                <button type="button" class="btn btn-primary btn-sm  btn-active" value="1">Week</button>
-                <button type="button" class="btn btn-primary btn-sm" value="2">Day</button>
+            <div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">
+                <input type="button" class="btn btn-primary btn-input-grp" value="Month" name="0">
+                <div class="btn-group" style="margin-left: 0px !important;">
+                    <input type="button" class="btn btn-primary week-parent btn-input-grp btn-active" value="Calendar Week">
+                    <input type="button" class="btn btn-primary dropdown-toggle btn-active arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
+                    <ul class="dropdown-menu" role="menu">
+                        <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
+                        <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
+                    </ul>
+                </div>
+                <input type="button" class="btn btn-primary btn-input-grp" value="Day" name="2">
             </div>
 
             <select name="calendar_select_categories" id="calendar_select_categories" style="float:right;">
@@ -274,7 +286,7 @@
             </select>
             <table id="calendar-month" style="width:960px !important;">
                 <tr id="calendar-month-weekdays">
-                    <th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th><th id="day5">Saturday</th><th id="day6">Sunday</th>
+                    <th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th><th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>
                 </tr>
             </table>
         </div>
@@ -465,19 +477,19 @@
                     <div class="step-content">
                         <h5>Create Your Training or PD Event: Step 3 of 6</h5>
                         <h4>Training or PD Event Schedule</h4>
-                        <div class="form-row">
-                            <span class="label" style="width:180px">Please Select the Training Date:</span>
+                        <div class="form-row"><!-- akogan. modified style. width from 180 to 200 -->
+                            <span class="label" style="width:200px">Please Select the Training Date:</span>
                             <input type="" name="training_date" class="datePickText lock_past" value=""
                                    readonly='true'/>
                             <img src="/static/images/calendar-icon-2.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:180px">Please Select Start Time:</span>
+                            <span class="label" style="width:200px">Please Select Start Time:</span>
                             <input type="" name="training_time_start" value="" class="timePickText"/>
                             <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:180px">Please Select End Time:</span>
+                            <span class="label" style="width:200px">Please Select End Time:</span>
                             <input type="" name="training_time_end" value="" class="timePickText"/>
                             <img src="/static/images/120px-Nuvola_apps_clock.png" class="training_date_icon" alt="" width="24"/>
                         </div>
@@ -531,9 +543,9 @@
                     <div class="step-content">
                         <h5>Create Your Training or PD Event: Step 6 of 6 - Almost There!</h5>
                         <h4>Registration & Attendance Tracking</h4>
-                        <div class="form-row">
+                        <div class="form-row"><!-- akogan. modified style. width from 230 to 260 & 270 -->
                             <span class="label"
-                                  style="width:230px;text-align:left;padding-left:20px;">Credit Hours:</span>
+                                  style="width:260px;text-align:left;padding-left:20px;">Credit Hours:</span>
                             <input type="" name="credits" value=""/>
                             <span class="check-mark" alt="Set PD time credit in 0.5 Hr increments
                             Time Credit will be automatically calculated from clock settings"></span>
@@ -541,35 +553,35 @@
 
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Registration:</span>
+                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Registration:</span>
                             <input id="allow_registration" type="checkbox" name="allow_registration" value="true" onclick="resetCap()"/>
                             <span class="check-mark" alt="Valid only before the training date."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">
+                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">
                               	<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum Registration Cap:</i>
                             </span>
                             <input id="max_registration" type="" name="max_registration" value="" size="10"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Student can record attendance:</span>
+                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Student can record attendance:</span>
                             <input type="checkbox" name="allow_student_attendance" value="true"/>
                             <span class="check-mark"
                                   alt="This should only be used for trainings or PD events that do not have an instructor."></span>
                         </div>
                         <div class="form-row">
                             <span class="label"
-                                  style="width:230px;text-align:left;padding-left:20px;">Training ID:</span>
+                                  style="width:270px;text-align:left;padding-left:20px;">Training ID:</span>
                             <input type="" name="attendancel_id" value="" />
                             <span class="check-mark"
                                   alt="Set a unique training ID to allow users to record their own attendance after the training date is past."></span>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
+                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Turn-on Instructor Attendance Recording:</span>
                             <input type="checkbox" name="allow_attendance" value="true"/>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="width:230px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
+                            <span class="label" style="width:270px;text-align:left;padding-left:20px;">Allow Attendance Validation:</span>
                             <input type="checkbox" name="allow_validation" value="true"/>
                             <span class="check-mark"
                                   alt="This allows an instructor to validate that a user attended a training. PD time credit is not awarded until validation occurs if this field is checked."></span>
@@ -591,7 +603,7 @@
 %endif
 
 <script type="text/javascript">
-	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker;
+	var _sys_calendar_year, _sys_calendar_month, _sys_calendar_day, _sys_calendar_year_now, _sys_calendar_month_now, _sys_calendar_day_now, _calendar_picker_day, _calendar_panel, _calendar_picker, _old_month;
 	var _calendar_date = new Date();
 	
 	//-----------------------------------------------calendarOpen
@@ -615,7 +627,7 @@
                   $("#time").text(displayDate);
                }
 	        }else{
-	            console.log("val - "+ ($("#calendar_select_range").val().length==0));
+	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
                $("#calendar-month-weekdays th[id='time']").remove();
                $("#calendar-month-weekdays th").show();
@@ -629,9 +641,13 @@
 
 			$(".training-row").has("label").css("padding", "0px");
 
-            var labelElem = $(".training-row label");
-			labelElem.css({"position":"relative","bottom":"-1px"});
-			labelElem.attr("style", labelElem.attr("style") + "height: 16px !important;");
+			if($("#calendar_select_range").val() == "2"){
+			    uniqueTrainingSlot();
+
+                var labelElem = $(".training-row label");
+                labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
+                labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
+			}
 			
 			$(".alert").mouseover(function () {
 				$("#calendar_alert_title").empty();
@@ -766,20 +782,23 @@
 			});
 		});
 	}
-	
-	function setPickerValue(){
-	    if($("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "2"){
-	        console.log(_sys_calendar_month);
-	        var picker_month = _sys_calendar_month + 1;
+
+		    /*if($("#calendar_select_range").val() == "1" || $("#calendar_select_range").val() == "2"){
+		    var picker_month = _sys_calendar_month + 1;
 	        var picker_year = _sys_calendar_year
 	        if(picker_month == 13){
 	             picker_month = 1;
-	             picker_year = _sys_calendar_year + 1;
-	        }
-	    }else{
-	        var picker_month = _sys_calendar_month;
-	        var picker_year = _sys_calendar_year;
-	    }
+	             picker_year = _sys_calendar_year + 1;}  }*/
+	function setPickerValue(){
+
+        var picker_month = _sys_calendar_month;
+        var picker_year = _sys_calendar_year;
+
+        if(picker_month == 13){
+             picker_month = 1;
+            picker_year = _sys_calendar_year + 1;
+        }
+
 		var m = (picker_month < 10) ? "0" + picker_month : picker_month;
 		var d = (_calendar_picker_day < 10) ? "0" + _calendar_picker_day : _calendar_picker_day;
 		$('#calendar_select_data').val(m + "/" + d + "/" + picker_year);
@@ -842,6 +861,7 @@
 			onSelect: function(date) {
 				_sys_calendar_year = date.getFullYear();
 				_sys_calendar_month = date.getMonth() + 1;
+				_old_month = _sys_calendar_month;
 				_calendar_picker_day = date.getDate();
 				
 				setPickerValue();
@@ -854,18 +874,92 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-		$("#calendar_select_range button").click(function(event){
+        $("#calendar_select_range").on("click", "input:not(.week-parent, .btn-active, .dropdown-toggle)", function(event){
 		    event.preventDefault();
 		    //$("#calendar_select_range button[class='btn-active']").attr("class", "btn btn-primary btn-sm");
+
 		    $(this).siblings(".btn-active").removeClass("btn-active");
+		    $(this).siblings().find("input.btn-active").removeClass("btn-active");
 		    $(this).addClass("btn-active");
-		    var rangeVal = $(this).val();
+
+		    var rangeVal = parseInt($(this).attr('name'));
+
+		    if(rangeVal != 2) $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+
 		    $("#calendar_select_range").val(rangeVal);
 			calendarOpen();
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
 
-		_sys_calendar_year = _calendar_date.getFullYear();
+        $("#calendar_select_range").on("click", ".week-parent:not(.btn-active)", function(event){
+		    event.preventDefault();
+
+		    $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
+
+		    $(this).addClass("btn-active");
+
+		    var rangeVal = $(this).siblings().find("li.list-active").val();
+
+            if(rangeVal=="3"){
+                $(".week-parent").val("Work Week");
+                $(".weekend").remove();
+            }else{
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }
+
+		    $("#calendar_select_range").val(rangeVal);
+			calendarOpen();
+			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
+		});
+
+        $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
+            event.preventDefault();
+
+            $(this).css("cursor", "default");
+        });
+
+        $("#calendar_select_range ul").on("mouseover", "li:not(.list-active)", function(event){
+            event.preventDefault();
+
+            $(this).css("cursor", "pointer");
+        });
+
+        $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
+            event.preventDefault();
+
+            $(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+
+            $("#calendar_select_range").find(".btn-active").removeClass("btn-active");
+
+            $(this).parent().siblings().addClass("btn-active");
+
+            $(this).parent().find("li").toggleClass("list-active");
+
+            var rangeVal = $(this).val();
+
+            if(rangeVal=="1"){
+                $(".week-parent").val("Calendar Week")
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }else if(rangeVal=="3"){
+                $(".week-parent").val("Work Week");
+                $(".weekend").remove();
+            }else{
+                $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+            }
+
+            $("#calendar_select_range").val(rangeVal);
+            calendarOpen();
+        });
+
+        $("#calendar_select_range").on("click", ".arrow-down", function(event){
+            $(this).removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");
+        });
+
+        $("#calendar_select_range").on("click", ".arrow-up", function(event){
+            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+        });
+
+        _sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		_sys_calendar_day = _calendar_date.getDate();
 		
@@ -885,17 +979,18 @@
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous").click(function(){
 		    console.log(_sys_calendar_month);
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal=="0"){
                 _sys_calendar_month -= 1;
                 if(_sys_calendar_month == 0){
                     _sys_calendar_month = 12;
                     _sys_calendar_year -= 1;
                    }
-			}else if($("#calendar_select_range").val() == "1"){
+			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 7);
 			    setSysDate(picker_date);
-			}else if($("#calendar_select_range").val() == "2"){
+			}else if(rangeVal == "2"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() - 1);
 			    setSysDate(picker_date);
@@ -907,18 +1002,19 @@
 		//-----------------------------------------------next
 		$("#calendar_btn_next").click(function(){
 		    console.log(_sys_calendar_month);
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal == "0"){
                 _sys_calendar_month += 1;
                 if(_sys_calendar_month == 13){
                     _sys_calendar_month = 1;
                     _sys_calendar_year += 1;
                 }
-			}else if($("#calendar_select_range").val() == "1"){
+			}else if(rangeVal == "1" || rangeVal == "3"){
                 var picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 7);
 			    setSysDate(picker_date);
-			}else if($("#calendar_select_range").val() == "2"){
-			   var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
+			}else if(rangeVal == "2"){
+                var picker_date = new Date(_sys_calendar_year, _sys_calendar_month-1, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + 1);
                 console.log()
 			    setSysDate(picker_date);
@@ -929,12 +1025,13 @@
 		
 		//-----------------------------------------------previous
 		$("#calendar_btn_previous_y").click(function(){
-		    if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+		    if(rangeVal == "0"){
                 _sys_calendar_year -= 1;
                 if(_sys_calendar_year < 1979){
                     _sys_calendar_year = 1979;
                 }
-            }else if($("#calendar_select_range").val() == "1"){
+            }else if(rangeVal == "1" || rangeVal == "3"){
                 if(_sys_calendar_year == 1979 && _sys_calendar_month == 1){
                     picker_date = new Date(1979, 0, 1);
                 }else{
@@ -959,9 +1056,10 @@
 		
 		//-----------------------------------------------next
 		$("#calendar_btn_next_y").click(function(){
-            if($("#calendar_select_range").val()=="0"){
+		    var rangeVal = $("#calendar_select_range").val();
+            if(rangeVal == "0"){
                 _sys_calendar_year += 1;
-            }else if($("#calendar_select_range").val() == "1"){
+            }else if(rangeVal == "1" || rangeVal == "3"){
                 monthDays = new Date(_sys_calendar_year, _sys_calendar_month, 0).getDate();
                 picker_date = new Date(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
                 picker_date.setUTCDate(picker_date.getDate() + monthDays);
@@ -978,6 +1076,9 @@
 		function setSysDate(picker_date){
 		    _calendar_picker_day = picker_date.getUTCDate();
             _sys_calendar_day = picker_date.getUTCDate();
+
+            _old_month = _sys_calendar_month;
+
             _sys_calendar_month = picker_date.getUTCMonth();
             if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
             _sys_calendar_year = picker_date.getUTCFullYear();
@@ -1021,7 +1122,41 @@
 			}
 		});
 	});	
-	
+
+    function uniqueTrainingSlot() {
+        for ( var a = 0; a < 2; a++ ) { console.log(a);
+            bStart = (a == 0) ? 6 : 1;
+            bLimit = (a == 0) ? 12 : 6;
+            tClass = (a == 0) ? ".AM" : ".PM";
+            for ( var b = bStart; b <= bLimit; b++ ) {
+                dh = (b < 10) ? ".0" + b : "." + b;
+                hClass = tClass + dh;
+                var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
+                for ( var c = 0; c < cLimit; c++ ) {
+                    iClass = hClass + ".span-" + c;
+                    if($(iClass).length > 1) {
+                        var bottomY = $(iClass).last().find("label").offset().top + 16;
+                        var topY = $(iClass).first().find("label").offset().top;
+                        height = bottomY - topY;
+                        topY -= 269;
+                        existingSlots = $(".completeSlot:not(" + iClass + ")").length;
+                        leftX = $(iClass).first().find("label").offset().left - (453 - (105 * existingSlots));
+                        console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots"+existingSlots);
+
+                        var labelClass = $(iClass).first().find("label").attr("class");
+                        var labelTitlex = $(iClass).first().find("label").attr("titlex");
+                        var labelHtml = $(iClass).first().find("label").html();
+                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(iClass).find("label").remove();
+                        $(iClass).parent(":not(:contains('label'))").css({"padding": "5px", "height": "26px"});
+                        $(iClass+":gt(0)").remove();
+                        $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
+                    }
+                }
+            }
+        }
+    };
+
 	var map_show = null, map_show_directions = null, flag_input_js_origin = true;
     function toTwentyFour(time) {
         var apart = time.split(/[ :]/);
@@ -1205,7 +1340,8 @@
                 ["#A6CE69", "#8CBE41", "#5FC4ED", "#38B6E9", "#F6B262", "#F18200"]);
         // ************* add dlg close button to each step
         $("#dlg-add-training").find(".close-modal").remove();
-        $("<div class='close-modal' style='right:0px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
+        //akogan - modified style, right from 0 to -50
+        $("<div class='close-modal' style='right:-50px;'>✕</div>").appendTo($("#dlg-add-training").find(".step-content")).click(function () {
             dlg.hide();
         });
         // ************* before switch to another page
@@ -1447,6 +1583,7 @@
             this.hide();
             if (r) {
                 $.post("${reverse('pepreg_delete_training')}", {id: id}, function (r) {
+                    console.log("r.success-"+r.success+" error-"+r.error);
                     if (r.success)
                         self.reloadTable();
                 });
@@ -2006,11 +2143,16 @@
                 $(this).addClass("expand_title_expanded");
             }
         });
-        $(".expand_title").click();
+        // $(".expand_title").click();
         $(".print-map").click(function (e) {
             e.preventDefault();
             return false;
         });
+
+        if($("#calendar_select_range li.list-active").val=="1")
+            $(".week-parent").val("Calendar Week")
+        else if($("#calendar_select_range li.list-active").val=="3")
+            $(".week-parent").val("Work Week");
     });
 
     function resetCap(){
@@ -2022,10 +2164,22 @@
         }
     }
 
-    function pickDayOnClick(event, pickDate){
+    function pickDayOnClick(event, pickDate, nextMonth, prevMonth, dateToCompare){
         event.preventDefault();
+        console.log("pickDate-"+pickDate+" nextMonth-"+nextMonth+" prevMonth-"+prevMonth+" dateToCompare-"+dateToCompare);
+
+        var rangeVal = $("#calendar_select_range").val();
+        if(rangeVal == "1" || rangeVal == "3"){
+            console.log("old month-"+_old_month +" new month-"+_sys_calendar_month)
+            if(nextMonth == true){
+                console.log("nextMonth");_sys_calendar_month += 1
+            }else if(prevMonth == true){
+                console.log("prevMonth");_sys_calendar_month -= 1
+            }
+        }
+
         $("#calendar_select_range .btn-active").removeClass("btn-active");
-        $("#calendar_select_range button[value='2']").addClass("btn-active");
+        $("#calendar_select_range input[name='2']").addClass("btn-active");
         $("#calendar_select_range").val("2");
         _sys_calendar_day = parseInt(pickDate);
         _calendar_picker_day = _sys_calendar_day;
@@ -2103,4 +2257,5 @@
     }).on("mouseleave", function () {
         $(this).removeClass("on");
     });
+
 </script>

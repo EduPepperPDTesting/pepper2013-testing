@@ -350,3 +350,29 @@ def remove_time():
     rts.collection_external.remove()
     rts.collection_adjustment.remove()
     rts.collection_aggregate.remove()
+
+
+def save_pd_planner_time(task, request):
+    gevent.sleep(0)
+    count_success = 0
+    rs = reporting_store()
+    try:
+        year = time.strftime('%Y', time.localtime(time.time()))
+        year = str(int(year) - 1) + '-' + year
+        i = 0
+        for collection in school_year_collection:
+            rs.set_collection(collection)
+            rs.collection.update({'school_year': 'current'}, {'$set': {"school_year": year}}, multi=True)
+            i += 1
+            task.process_lines = i
+        remove_time()
+    except Exception as e:
+            db.transaction.rollback()
+            log.debug("import error %s" % e)
+
+    finally:
+        count_success += 1
+        task.success_lines = count_success
+        task.update_time = datetime.now(UTC)
+        task.save()
+        db.transaction.commit()

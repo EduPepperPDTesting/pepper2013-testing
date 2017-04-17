@@ -221,33 +221,50 @@ class MongoMyActivityStore(object):
         # Force mongo to report errors, at the expense of performance
         self.collection.safe = True    
 
-    def get_item(self,search_key,order_key,order_order,limit_number):
-        results = self.collection.find(search_key).sort(order_key, order_order).limit(limit_number)
+    def get_item_count(self,search_key):
+        count = self.collection.find(search_key).count()
+        return count
+
+    def get_item(self,search_key,order_key,order_order,skip,limit):
+        results = self.collection.find(search_key).sort(order_key, order_order).skip(skip).limit(limit)
         my_activitiy_static = myactivitystaticstore().get_item()
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
+            data['URL'] = ""
+            data['Logo'] = ""
+            data['DisplayInfo'] = ""
             for data_s in my_activitiy_static:
                 if data['EventType'] == data_s['EventType']:
                     data['URL'] = data_s['URL']
                     data['Logo'] = data_s['Logo']
                     data['DisplayInfo'] = data_s['DisplayInfo']
                     break
-                else:
-                    data['URL'] = ""
-                    data['Logo'] = ""
-                    data['DisplayInfo'] = ""
             r.append(data)
         return r
 
     def insert_item(self,item):
         self.collection.insert(item)
 
-    def set_item_pd(self,training_id,training_name):        
-        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name}}}, multi=True)
+    def set_item_pd(self,training_id,training_name, training_date):        
+        self.collection.update({'EventType':'PDTraining_registration','LogoValues':{'training_id':training_id}},{'$set':{'LogoValues':{'training_id':training_id, 'training_name':training_name, 'training_date':training_date}}}, multi=True)
 
     def set_item_reporting(self,report_id,report_name):        
         self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
+
+    def set_item_community(self,community_id,community_name):        
+        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+
+    def set_item_community_discussion(self,discussion_id,discussion_name):
+        self.collection.update({'EventType':'community_creatediscussion','LogoValues':{'discussion_id':discussion_id}},
+            {'$set':{'LogoValues':{'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+        
+        self.collection.update({'EventType':'community_replydiscussion','LogoValues':{'discussion_id':discussion_id}},
+            {'$set':{'LogoValues':{'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
 
 class MongoMyActivityStaticStore(object):
 
@@ -275,13 +292,11 @@ class MongoMyActivityStaticStore(object):
 
     def get_item(self):
         results = self.collection.find()
-        '''
         r = []
         for data in results:
             data['_id'] = str(data['_id'])
             r.append(data)
-        '''
-        return results
+        return r
 
     def insert_item(self,item):
         self.collection.insert(item)
@@ -369,6 +384,14 @@ class MongoChunksStore(object):
         if r['pa_rate']['count']>0:
             pa_score=r['pa_rate']['sum']/float(r['pa_rate']['count'])
         return {'hq_rate':{'score':hq_score,'count':r['hq_rate']['count']},'ie_rate':{'score':ie_score,'count':r['ie_rate']['count']},'pa_rate':{'score':pa_score,'count':r['pa_rate']['count']}}
+
+    def get_item(self,search_key):
+        results = self.collection.find(search_key)
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        return r
 
 _REMINDSTORE = {}
 _MESSAGESTORE = {}

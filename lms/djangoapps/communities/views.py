@@ -331,21 +331,30 @@ def community_join(request, community_id):
                 cu.save()
                 
                 if manage == "1":
-                    rs = myactivitystore()
-                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, "SourceID": community.id}
-                    rs.insert_item(my_activity)
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": user.id, 
+                    "URLValues": {"community_id": community.id},
+                    "TokenValues": {"community_id":community.id}, 
+                    "LogoValues": {"community_id": community.id}}    
+                    ma_db.insert_item(my_activity)                    
                 else:
-                    rs = myactivitystore()
-                    my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id}
-                    rs.insert_item(my_activity)
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_addMe", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+                    "URLValues": {"community_id": community.id},
+                    "TokenValues": {"community_id":community.id}, 
+                    "LogoValues": {"community_id": community.id}}
+                    ma_db.insert_item(my_activity)
 
         except Exception as e:
             return HttpResponse(json.dumps({'success': False, 'error': str(e)}), content_type="application/json")
 
     if manage == "1":
-        rs = myactivitystore()
-        my_activity = {"ActivityType": "Community", "EventType": 1, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": community.id, "user_ids": request.POST.get("user_ids", "")}
-        rs.insert_item(my_activity)
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Community", "EventType": "community_registration_Admin", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"community_id": community.id},
+        "TokenValues": {"community_id":community.id, "user_ids": request.POST.get("user_ids", "")}, 
+        "LogoValues": {"community_id": community.id}}
+        ma_db.insert_item(my_activity)
 
     send_notification(request.user, community.id, members_add=users, domain_name=domain_name)
         
@@ -558,7 +567,10 @@ def discussion_add(request):
         success = True
 
         rs = myactivitystore()
-        my_activity = {"ActivityType": "Community", "EventType": 4, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": discussion.id}
+        my_activity = {"GroupType": "Community", "EventType": "community_creatediscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"discussion_id": discussion.id},
+        "TokenValues": {"discussion_id":discussion.id, "community_id": community.id}, 
+        "LogoValues": {"discussion_id": discussion.id}}
         rs.insert_item(my_activity)
 
         discussion_id = discussion.id
@@ -596,7 +608,10 @@ def discussion_reply(request, discussion_id):
     reply.save()
 
     rs = myactivitystore()
-    my_activity = {"ActivityType": "Community", "EventType": 5, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": reply.id}
+    my_activity = {"GroupType": "Community", "EventType": "community_replydiscussion", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"discussion_id": discussion.id},
+    "TokenValues": {"discussion_id":discussion.id, "reply_id": reply.id, "community_id": discussion.community.id}, 
+    "LogoValues": {"discussion_id": discussion.id}}
     rs.insert_item(my_activity)
     
     send_notification(request.user, discussion.community.id, discussions_reply=[reply], domain_name=domain_name)
@@ -609,6 +624,9 @@ def discussion_reply(request, discussion_id):
 def discussion_delete(request, discussion_id):
     domain_name = request.META['HTTP_HOST']
     discussion = CommunityDiscussions.objects.get(id=discussion_id)
+    did = discussion.id
+    dname = discussion.subject
+
     redirect_url = reverse('community_view', args=[discussion.community.id])
     # try:
     view_connect = view_counter_store()
@@ -619,6 +637,9 @@ def discussion_delete(request, discussion_id):
         poll_connect.delete_poll('discussion', discussion_id)
 
     discussion.delete()
+    
+    ma_db = myactivitystore()                
+    ma_db.set_item_community_discussion(did, dname)
 
     send_notification(request.user, discussion.community_id, discussions_delete=[discussion], domain_name=domain_name)
     # except Exception as e:
@@ -678,7 +699,14 @@ def communities(request):
 @login_required
 def community_delete(request, community_id):
     try:
-        CommunityCommunities.objects.get(id=community_id).delete()
+        community = CommunityCommunities.objects.get(id=community_id)
+        cid = community.id
+        cname = community.name
+        community.delete()
+
+        ma_db = myactivitystore()                
+        ma_db.set_item_community(cid, cname)
+
         return redirect(reverse('communities'))
     except Exception as e:
         data = {'error_title': 'Problem Deleting Community',
@@ -869,6 +897,21 @@ def community_edit_process(request):
             # Set the facilitator flag to true.
             community_user.facilitator = True
             community_user.save()
+            if old_facilitator:
+                if old_facilitator[0].user_id != community_user.user_id:
+                    ma_db = myactivitystore()
+                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                    "URLValues": {"community_id": community_object.id},
+                    "TokenValues": {"community_id":community_object.id}, 
+                    "LogoValues": {"community_id": community_object.id}}    
+                    ma_db.insert_item(my_activity)
+            else:
+                ma_db = myactivitystore()
+                my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                "URLValues": {"community_id": community_object.id},
+                "TokenValues": {"community_id":community_object.id}, 
+                "LogoValues": {"community_id": community_object.id}}    
+                ma_db.insert_item(my_activity)
         else:
             raise Exception('A valid facilitator is required to create a community.')
 
@@ -1251,9 +1294,12 @@ def submit_new_comment(request):
     comment.comment = request.POST.get('content')
     comment.save()
 
-    rs = myactivitystore()
-    my_activity = {"ActivityType": "Community", "EventType": 3, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": comment.id}
-    rs.insert_item(my_activity)
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Community", "EventType": "community_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"community_id": long(community_id)},
+    "TokenValues": {"community_id":long(community_id), "post_id": post.id}, 
+    "LogoValues": {"community_id": long(community_id)}}
+    ma_db.insert_item(my_activity)
 
     send_notification(request.user, community_id, posts_reply=[comment], domain_name=domain_name)
     return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
@@ -1305,9 +1351,12 @@ def submit_new_post(request):
     post.post = content
     post.save()
 
-    rs = myactivitystore()
-    my_activity = {"ActivityType": "Community", "EventType": 2, "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, "SourceID": post.id}
-    rs.insert_item(my_activity)
+    ma_db = myactivitystore()
+    my_activity = {"GroupType": "Community", "EventType": "community_createPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"community_id": post.community.id},
+    "TokenValues": {"community_id":post.community.id, "post_id": post.id}, 
+    "LogoValues": {"community_id": post.community.id}}
+    ma_db.insert_item(my_activity)   
 
     if request.POST.get('include_images') == "yes":
         images = request.POST.get('images').split(',')

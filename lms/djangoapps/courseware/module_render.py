@@ -14,7 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from requests.auth import HTTPBasicAuth
 from statsd import statsd
-
 from capa.xqueue_interface import XQueueInterface
 from mitxmako.shortcuts import render_to_string
 from xblock.runtime import DbModel
@@ -26,6 +25,7 @@ from xmodule.modulestore.django import modulestore
 from xmodule.modulestore.exceptions import ItemNotFoundError
 from xmodule.x_module import ModuleSystem
 from xmodule_modifiers import replace_course_urls, replace_jump_to_id_urls, replace_static_urls, add_histogram, wrap_xmodule, save_module  # pylint: disable=F0401
+from xmodule.remindstore import myactivitystore
 
 import static_replace
 from psychometrics.psychoanalyze import make_psychometrics_data_update_handler
@@ -51,7 +51,8 @@ from django.utils.timezone import UTC
 # True North Logic integration
 from tnl_integration.utils import TNLInstance, tnl_course, tnl_domain_from_user
 
-log = logging.getLogger(__name__)
+# log = logging.getLogger(__name__)
+log = logging.getLogger("tracking")
 
 
 if settings.XQUEUE_INTERFACE.get('basic_auth') is not None:
@@ -560,7 +561,6 @@ def modx_dispatch(request, dispatch, location, course_id):
     module raises any other error, it will escape this function.
     '''
     # ''' (fix emacs broken parsing)
-
     # Check parameters and fail fast if there's a problem
     if not Location.is_valid(location):
         raise Http404("Invalid location")
@@ -571,6 +571,7 @@ def modx_dispatch(request, dispatch, location, course_id):
     # Get the submitted data
     data = request.POST.copy()
 
+     
     # Get and check submitted files
     files = request.FILES or {}
     error_msg = _check_files_limits(files)
@@ -648,6 +649,12 @@ def modx_dispatch(request, dispatch, location, course_id):
                             course_instance.complete_date = datetime.now(UTC())
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
+                            ma_db = myactivitystore()
+                            my_activity = {"GroupType": "Course", "EventType": "course_course Completion", "ActivityDateTime": datetime.utcnow(),
+                            "UsrCre": request.user.id, "URLValues": {"course_id":course_id},
+                            "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id,"complete_date":course_instance.complete_date, "display_name":course_descriptor.display_name},
+                            }
+                            ma_db.insert_item(my_activity)
                             # True North Logic integration
                             if tnl_course(student, course_id):
                                 domain = tnl_domain_from_user(student)
@@ -688,6 +695,17 @@ def modx_dispatch(request, dispatch, location, course_id):
         log.exception("error processing ajax call")
         raise
 
+    if dispatch == "save_answer":
+        id2 = request.META['HTTP_REFERER'].split("/")[-2]
+        id1 = request.META['HTTP_REFERER'].split("/")[-3]
+        display_name = request.POST.get('display_name')
+        page = request.POST.get('page')
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Course", "EventType": "course_ora Completion", "ActivityDateTime": datetime.utcnow(),
+        "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"SourceID":id1,"commentable_id":id2,"page":page},
+        "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id, "ORAdisplayName":display_name},
+        }
+        ma_db.insert_item(my_activity)
     # Return whatever the module wanted to return to the client/caller
     return HttpResponse(ajax_return)
 
