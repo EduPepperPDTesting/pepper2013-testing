@@ -774,7 +774,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                             fullHour = str(h) + ":00 " + day[3][i][-2:]
                                             midHour = str(h) + ":30 " + day[3][i][-2:]
 
-                                            if (fullHour == dayHour or midHour == dayHour): break
+                                            if ((fullHour == dayHour and int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30 ) or (midHour == dayHour and int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) >= 30 )): break
 
                                             h += 1
                                             if(h == endHour and endHour != endHourLast):
