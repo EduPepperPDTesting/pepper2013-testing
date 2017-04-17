@@ -1143,7 +1143,8 @@
                         if(existingSlots == 0){
                             leftX = $(iClass).first().find("label").offset().left - 453;
                         }else{
-                            leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
+                            //leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
+                            leftX = $(".completeSlot:not(" + iClass + ")").last().position().left + 110;
                         }
                         console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
