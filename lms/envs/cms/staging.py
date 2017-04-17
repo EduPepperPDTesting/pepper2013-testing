@@ -186,6 +186,15 @@ REPORTINGSTORE = {
         'password': MONGO3_PASSWORD,
     }
 }
+FEEDINGSTORE = {
+    'OPTIONS': {
+        'db': MONGO3_DB_REPORTING,
+        'host': MONGO3_HOST,
+        'port': MONGO3_PORT,
+        'user': MONGO3_USER,
+        'password': MONGO3_PASSWORD
+    }
+}
 INSTALLED_APPS += (
     # Mongo perf stats
     'debug_toolbar_mongo',

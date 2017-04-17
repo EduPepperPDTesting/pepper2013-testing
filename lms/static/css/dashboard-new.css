@@ -1,3 +1,36 @@
+.selection_name {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    padding-left: 6px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+#select_name {
+    margin-left: 50px;
+    background-color: white;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: 1px solid #afafaf;
+    color: #000;
+    position: absolute;
+    width: 340px;
+}
+
+.selection_name:hover {
+    cursor: pointer;
+}
+.anchor-container-select:hover {
+    background-color: #4c4cff ;
+    color: #fff !important;
+}
+.anchor-container-select {
+    width: 100%;
+}
+
+
+
+
 /*
 .remove_skype_span:hover {
     cursor: pointer;
@@ -657,37 +690,6 @@ div.card-bottom table tr:nth-child(2) {
     font-size: larger;
     padding-bottom: 8px;
 }
-
-.selection_name {
-    font-size: 16px !important;
-    font-weight: bold !important;
-    padding-left: 6px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-#select_name {
-    margin-left: 50px;
-    background-color: white;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    border: 1px solid #afafaf;
-    color: #000;
-    position: absolute;
-    width: 340px;
-}
-
-.selection_name:hover {
-    cursor: pointer;
-}
-.anchor-container-select:hover {
-    background-color: #4c4cff ;
-    color: #fff !important;
-}
-.anchor-container-select {
-    width: 100%;
-}
-
 
 
 
