@@ -758,7 +758,6 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 for tmp1 in day[1]:
                                     h = 0
                                     endHour = 0
-                                    completeClass = ""
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
                                         startHour = int(day[3][i][:day[3][i].index(":")])
@@ -791,13 +790,10 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                                 endHour = endHourLast
                                                 hourAMPM = "PM"
 
-                                    elif(day[3][i] == dayHour):
-                                        completeClass = " completeSlot"
-
-                                    if (h <= endHour or completeClass == " completeSlot"):
+                                    if (h <= endHour):
                                         t = day[3][i][-2:]
                                         dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + completeClass +"'>" + tmp1 + "</span>"
+                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
 
                                     i += 1
 

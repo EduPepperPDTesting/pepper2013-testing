@@ -50,6 +50,7 @@
     .label {color: #000000 !important;}
     .switch i{ bottom: 15px !important;}
     .step-page .move {right: 25px !important;}
+    .ui-datepicker-month {color: black !important}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -1134,7 +1135,7 @@
                 var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
-                    if($(iClass).length > 1) {
+                    if($(iClass).length > 0) {
                         //var bottomY = $(iClass).last().find("label").offset().top + 16;
                         //var topY = $(iClass).first().find("label").offset().top;
                         var bottomY = $(iClass).last().find("label").position().top + 16;
