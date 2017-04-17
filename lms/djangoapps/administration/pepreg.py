@@ -597,18 +597,18 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
-                        itemData = "<div>From: " + trainingStartTime + "\nTo: " + trainingEndTime
+                        itemData = "<br/><div>From: " + trainingStartTime + "<br/>\nTo: " + trainingEndTime
 
                     # &#13;
                     titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
                         titlex = titlex + "::" + item.classroom
-                        if isday: itemData += "\nClassroom: " + item.classroom
+                        if isday: itemData += "<br/>\nClassroom: " + item.classroom
 
                     if item.geo_location:
                         titlex = titlex + "::" + item.geo_location
-                        if isday: itemData += "\nLocation: " + item.geo_location
+                        if isday: itemData += "<br/>\nLocation: " + item.geo_location
 
                     if isday: itemData += "</div>"
 
