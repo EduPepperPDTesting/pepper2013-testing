@@ -1,0 +1,79 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%! from django.core.urlresolvers import reverse %>
+<%! from time import strftime %>
+
+
+<%namespace name='static' file='static_content.html'/>
+<%inherit file="main.html" />
+
+<%block name="title"><title>${_("Course Credits")}</title></%block>
+
+<style>
+  #page-nav,#page-footer{
+  width:1180px;
+  }
+
+.main_div{
+	font-family:Verdana, Geneva, sans-serif;
+	background:#FFF;
+	margin:0px;
+	padding:0px; line-height:24px;
+}
+td, div, li, select, input, textarea {
+	margin:0;
+}
+p{ clear:both;}
+input {
+	line-height:1.3;
+	color:#333333
+}
+a {
+	color:#3461ad;
+	text-decoration:underline
+}
+a:hover {
+	color:#1b6fbc;
+	text-decoration:underline
+}
+.form_main {
+  	width:1180px;
+	margin:0px auto;
+	/*height:700px;*/
+}
+.form_container { margin:20px;}
+.form_tit { margin:30px; font-size:24px; font-family:Verdana, Geneva, sans-serif; text-align:center; line-height:30px; color: #489FDF}
+.form_logo { text-align:center;  margin:20px 20px; }
+.form_logo img {margin:10px 50px 10px 50px;}
+.form_list { width:300px; margin:0px auto; clear:both; text-align:center; line-height:26px; }
+.xhx { text-decoration:underline;}
+</style>
+
+
+<style type="text/css" media="screen">
+  section.content-wrapper{background:transparent !important;}
+</style>
+
+<div class="form_main main_div">
+	<div class=" form_container" style="margin-top:0;padding-top:20px;">
+	<div class="form_logo"> <a href="/course_credits_tcsj"><img src="/static/images/course_credits/baker_univesity.png" width="350" height="97" /></a></div>
+	  <!-- <div class="form_tit"><strong>Would you like to earn credits for the courses you are taking?</strong></div> -->
+	  <p>To receive professional development credit units for your completed Pepper course through Baker University's of Graduate Education, please click on the link below. You will be able to select the Pepper course that you would like to obtain credit for, submit documentation and pay online.</p>
+
+	  <div class="form_tit"><p><strong>Baker University Graduate School of Education: Pepper Professional</strong></p></div>
+	<!-- <ol class="">
+	<li>Download the <a href="/static/resource/TCSJ_CourseCredt_37May20164.docx" target="_blank">Course Completion Form</a> and fill out the required information</li>
+	<li>Print a copy of your Course Certificate from your Pepper dashboard</li>
+	<li> Make a check for $75 for one unit out to<strong> San Joaquin County Office of Education</strong></li>
+	</ol>
+	<p>And finally … mail the form, the certificate and the check to: </p>
+	<div class="form_list">
+	 San Joaquin County Office of Education<br />
+	 Teacher Development Department/TCSJ<br />
+	 Attn:  Admissions/Esmeralda Capello<br />
+	 P.O. Box 213030<br />
+	 Stockton, CA 95213-9030
+	</div> -->
+	<p><strong>Important note:</strong> Please check with your Human Resources Department to confirm that these credits are applicable for certification and salary growth opportunities.</p>
+	<!-- <p>For more specific questions, please contact Esmeralda Capello at <a href="mailto:ecapello@sjcoe.net">ecapello@sjcoe.net</a>.</p> -->
+	</div>
+</div>
