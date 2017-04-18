@@ -107,7 +107,7 @@
 
     #dlg-warning {height: 310px;}
 
-    .btn-input-grp{border-left-width: 0px !important; padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important;}
+    .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -278,10 +278,9 @@
                 <!--<input type="button" class="btn btn-primary btn-input-grp" value="Day" name="2">-->
             <!--</div>-->
             <div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">
-                <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Calendar Week">
+                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar Week">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-
                     <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="0">Month</li>
@@ -925,6 +924,10 @@
 			calendarOpen();
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
+
+		$("#calendar_select_range").on("click", ".btn-input-grp", function(event){
+            $("#calendar_select_range .dropdown-toggle").trigger("click");
+        });
 
         $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
             event.preventDefault();
