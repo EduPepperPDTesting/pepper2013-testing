@@ -572,8 +572,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                     status = ""
                     try:
-                        if PepRegStudent.objects.filter(student=request.user, training=item.id).exists():
-                            status = PepRegStudent.objects.get(student=request.user, training=item.id).student_status
+                        if PepRegStudent.objects.filter(student=request.user, training=item).exists():
+                            status = PepRegStudent.objects.get(student=request.user, training=item).student_status
                     except:
                         status = ""
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
@@ -610,7 +610,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         titlex = titlex + "::" + item.geo_location
                         if isday: itemData += "<br/>\nLocation: " + item.geo_location
 
-                    titlex += arrive + "::" + allow + "::" + item.id
+                    titlex += arrive + "::" + allow + "::" + item
 
                     if isday: itemData += "</div>"
 
