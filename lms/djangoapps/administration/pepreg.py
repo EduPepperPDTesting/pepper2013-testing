@@ -600,7 +600,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
                         itemData = "<br/><div>From: " + trainingStartTime + "<br/>\nTo: " + trainingEndTime
 
                     # &#13;
-                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
+                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime + "::" + str(request.User)
 
                     if item.classroom:
                         titlex = titlex + "::" + item.classroom
