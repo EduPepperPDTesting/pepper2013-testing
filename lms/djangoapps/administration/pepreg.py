@@ -575,7 +575,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     status = ""
                     try:
                         if PepRegStudent.objects.filter(student=userObj, training=item).exists():
-                            status = PepRegStudent.objects.get(userObj=userObj, training=item).student_status
+                            status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
                         status = ""
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
