@@ -954,7 +954,7 @@
 
             if(rangeVal=="3"){
                 $(".week-parent").val("Work Week");
-                $(".btn-input-grp th.weekend").remove();
+                $("th.weekend").remove();
             }else{
                 $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
                 if(rangeVal=="0"){
