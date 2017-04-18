@@ -926,7 +926,7 @@
 		});*/
 
 		$("#calendar_select_range").on("click", ".btn-input-grp", function(event){
-            $("#calendar_select_range .dropdown-toggle").trigger("click").toggleClass("open");
+            $("#calendar_select_range .dropdown-toggle").trigger("click").dropdown('toggle');
         });
 
         $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
