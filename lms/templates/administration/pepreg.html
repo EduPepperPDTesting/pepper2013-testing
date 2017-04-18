@@ -281,7 +281,7 @@
                 <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Calendar Week">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Month</li>
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="0">Month</li>
                     <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="2">Day</li>
@@ -456,8 +456,8 @@
                                       tabindex=""></textarea>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;max-width: 470px !important;">Pepper Course:</span>
-                            <select name="pepper_course" autocomplate="off">
+                            <span class="label" style="margin-right:-5px;">Pepper Course:</span>
+                            <select name="pepper_course" style="max-width: 470px !important;" autocomplate="off">
                                 <option value=""></option>
                                 %for item in courses:
                                     <option value="${item.id}">${item.display_name}</option>
