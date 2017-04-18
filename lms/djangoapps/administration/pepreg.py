@@ -518,6 +518,9 @@ def getCalendarMonth(request):
     if not daterangelist:
         daterangelist = list(daterange)
 
+    userObj = request.user
+    request.session['user_obj'] = userObj
+
     name_dict["table_tr_content"] = build_week_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
@@ -572,8 +575,9 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
 
                     status = ""
                     try:
-                        if PepRegStudent.objects.filter(student=request.User, training=item).exists():
-                            status = PepRegStudent.objects.get(student=request.User, training=item).student_status
+                        userObj = request.session.get('user_obj', None)
+                        if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                            status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
                         status = ""
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
