@@ -518,7 +518,7 @@ def getCalendarMonth(request):
     if not daterangelist:
         daterangelist = list(daterange)
 
-    name_dict["table_tr_content"] = build_week_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist, getUser) #akogan
+    name_dict["table_tr_content"] = build_week_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -538,7 +538,7 @@ def getweekdays(year, weekNumber, getrange):
         i += 1;
 
 #akogan
-def build_week_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange, userObj):
+def build_week_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
