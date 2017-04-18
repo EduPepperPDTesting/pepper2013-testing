@@ -612,6 +612,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         titlex = titlex + "::" + item.geo_location
                         if isday: itemData += "<br/>\nLocation: " + item.geo_location
 
+                    titlex += "::" + userObj
+
                     if isday: itemData += "</div>"
 
                     if (arrive == "0" and allow == "0"):
