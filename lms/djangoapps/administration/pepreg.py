@@ -579,6 +579,8 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 
+                    itemData = ""
+
                     if isday:
                         trainingStartMinutes = int(trainingStartTime[-5:-3])
                         if(trainingStartMinutes)<30:
@@ -595,41 +597,41 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         trainingStartHours.append(trainingStartHour)
                         trainingEndHours.append(trainingEndHour)
 
+                        itemData = "<br/><div>From: " + trainingStartTime + "<br/>\nTo: " + trainingEndTime
+
                     # &#13;
-                    titlex = item.name + "::" + trainingStartTime
+                    titlex = item.name + "::" + trainingStartTime + "::" + trainingEndTime
 
                     if item.classroom:
-                        titlex = titlex + "::" + item.classroom;
+                        titlex = titlex + "::" + item.classroom
+                        if isday: itemData += "<br/>\nClassroom: " + item.classroom
 
                     if item.geo_location:
-                        titlex = titlex + "::" + item.geo_location;
+                        titlex = titlex + "::" + item.geo_location
+                        if isday: itemData += "<br/>\nLocation: " + item.geo_location
+
+                    if isday: itemData += "</div>"
 
                     if (arrive == "0" and allow == "0"):
                         if (catype == "0" or catype == "4"):
-                            occurrences.append(
-                                "<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>");
+                            occurrences.append("<span class='alert al_4' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
 
                     elif (arrive == "0" and allow == "1"):
                         if (status == "" and r_l == "1"):
                             if (catype == "0" or catype == "5"):
-                                occurrences.append(
-                                    "<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>");
+                                occurrences.append("<span class='alert al_7' titlex='" + titlex + "'>" + item.name + "</span>"+itemData);
                         else:
                             if (status == "Registered"):
                                 # checked true
                                 if (catype == "0" or catype == "3"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
-                                        item.id) + "' checked /> ";
-                                    occurrences.append(
-                                        "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' checked /> ";
+                                    occurrences.append("<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                             else:
                                 # checked false
                                 if (catype == "0" or catype == "2"):
-                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(
-                                        item.id) + "' /> ";
-                                    occurrences.append(
-                                        "<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</label>");
+                                    tmp_ch = "<input type = 'checkbox' class ='calendar_check_would' training_id='" + str(item.id) + "' /> ";
+                                    occurrences.append("<label class='alert al_5' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                     elif (arrive == "1" and status == "" and allow == "1"):
                         # The registration date has passed for this training
@@ -643,18 +645,14 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                         if (status == "Attended" or status == "Validated"):
                             # checked true
                             if (catype == "0" or catype == "1"):
-                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
-                                    item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
-                                occurrences.append(
-                                    "<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' checked /> ";
+                                occurrences.append("<label class='alert al_3' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
                         else:
                             # checked false
                             if (catype == "0" or catype == "3"):
-                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(
-                                    item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
-                                occurrences.append(
-                                    "<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span></label>");
+                                tmp_ch = "<input type = 'checkbox' class ='calendar_check_attended' training_id='" + str(item.id) + "' attendancel_id='" + attendancel_id + "' /> ";
+                                occurrences.append("<label class='alert al_6' titlex='" + titlex + "'>" + tmp_ch + "<span>" + item.name + "</span>"+itemData+"</label>");
 
             if date.__str__() == current_day.__str__():
                 current = True
@@ -698,7 +696,7 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
                                 "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
 
             for dayHour in dayHours:
-                table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
+                table_tr_content += "<div style='display: block; width: 100%; box-sizing: border-box; height: 27px; padding: 5px; border-bottom: 1px solid #ccc; text-align: right; padding-right: 50px;'>" + dayHour + "</div>"
 
             table_tr_content += "</div></td>";
 
@@ -747,64 +745,60 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                         for dayHour in dayHours:
 
-                            h = 0
-                            endHour = 0
                             divAdded = 0
 
                             if day[1]:
                                 i = 0
+
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; height: 24px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                divAdded = 1
+
                                 for tmp1 in day[1]:
-                                    if(day[3][i] == dayHour):
-                                        if(i == 0):
-                                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
-                                            divAdded = 1
-
-                                        t =  day[3][i][-2:]
-                                        dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-
-                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
 
                                     if(day[4][i] != "" and (day[3][i] != day[4][i])):
+                                        h = 0
+                                        endHour = 0
                                         startHour = int(day[3][i][:day[3][i].index(":")])
-                                        endHour = int(day[4][i][:day[4][i].index(":")])
+                                        startHourAMPM = day[3][i][-2:]
+                                        startHour = startHour if(startHourAMPM == "AM" and startHour >= 6) else 6
 
-                                        h = startHour
-                                        endHour = endHour if endHour <= 6 else 6
+                                        if((startHourAMPM == "PM" and (startHour == 12 or startHour <= 6)) or (startHourAMPM == "AM" and startHour >= 6)):
+                                            endHour = int(day[4][i][:day[4][i].index(":")])
+                                            endHourAMPM = day[4][i][-2:]
 
-                                        while(h <= endHour):
+                                            h = startHour
+                                            hourAMPM = "AM"
 
-                                            if day[3][i][-2:] == "AM":
-                                                midHour = str(h) + ":00 AM"
-                                                checkHour = str(h) + ":30 AM"
-                                                if(day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
+                                            if(startHourAMPM != endHourAMPM):
+                                                endHourLast = endHour if(endHour == 12 or endHour <= 6) else 6
+                                                endHour = 12
+                                            else:
+                                                endHour = endHour if(endHourAMPM == "AM" or endHour == 12 or endHour <= 6) else 6
+                                                endHourLast = endHour
 
-                                                midHour = str(h) + ":30 AM"
-                                                if (day[3][i] != midHour and midHour == dayHour): break
+                                            while(h <= endHour):
 
-                                            if(day[3][i][-2:] == "PM" or day[3][i][:day[3][i].index(" ")] == "11:30"):
-                                                midHour = str(h) + ":00 PM"
-                                                checkHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and checkHour != day[3][i] and midHour == dayHour): break
+                                                fullHour = str(h) + ":00 " + hourAMPM
+                                                midHour = str(h) + ":30 " + hourAMPM
 
-                                                midHour = str(h) + ":30 PM"
-                                                if (day[3][i] != midHour and midHour == dayHour): break
+                                                firstHalfHour = int(day[3][i][day[3][i].index(":")+1:day[3][i].index(" ")]) < 30
+                                                if ((fullHour == dayHour and firstHalfHour) or (midHour == dayHour and not firstHalfHour)): break
 
-                                            h += 1
+                                                h += 1
+                                                if(h == endHour and endHour != endHourLast):
+                                                    h = 1
+                                                    endHour = endHourLast
+                                                    hourAMPM = "PM"
 
-                                    if h <= endHour:
-                                        if i == 0:
-                                            table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 0px; padding-left: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
-                                            divAdded = 1
-
-                                        t = day[3][i][-2:]
-                                        dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
-
-                                        table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
+                                        if (h <= endHour):
+                                            t = day[3][i][-2:]
+                                            dh = day[3][i][:day[3][i].index(":")] if len(day[3][i][:day[3][i].index(":")]) == 2 else "0" + day[3][i][:day[3][i].index(":")]
+                                            table_tr_content += "<span class='" + t + " " + dh + " span-" + str(i) + "'>" + tmp1 + "</span>"
 
                                     i += 1
 
                             if ( not divAdded ):
-                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; text-align: right;' id='" + dayHour + "'>&nbsp;"
+                                table_tr_content += "<div class='training-row' style='display: block; width: 100%; box-sizing: border-box; padding: 5px; border-bottom: 1px solid #ccc; height: 26px !important; text-align: right;' id='" + dayHour + "'>&nbsp;"
 
                             table_tr_content += "</div>"
 
@@ -1043,6 +1037,7 @@ def get_courses_drop(state_name, district_code):
         'metadata.display_state': {'$in': matches_district},
         'metadata.display_district': {'$in': matches_state}
     }
+
 
     courses = modulestore().collection.find(flt).sort("metadata.display_name", pymongo.ASCENDING)
     courses = modulestore()._load_items(list(courses), 0)

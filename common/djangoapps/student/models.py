@@ -332,6 +332,9 @@ class UserProfile(models.Model):
     def set_meta(self, js):
         self.meta = json.dumps(js)
 
+    def getFullname(self):
+        return self.user.first_name + " " + self.user.last_name
+
 
 TEST_CENTER_STATUS_ACCEPTED = "Accepted"
 TEST_CENTER_STATUS_ERROR = "Error"

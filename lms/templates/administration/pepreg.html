@@ -50,6 +50,8 @@
     .label {color: #000000 !important;}
     .switch i{ bottom: 15px !important;}
     .step-page .move {right: 25px !important;}
+    .ui-datepicker-month {color: black !important}
+    /*.training-row {font-family: "open sans" !important;}*/
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -643,11 +645,11 @@
 
 			if($("#calendar_select_range").val() == "2"){
 			    uniqueTrainingSlot();
-			}
 
-            var labelElem = $(".training-row label");
-			labelElem.css({"position":"relative","bottom":"-1px"});
-			labelElem.attr("style", labelElem.attr("style") + "height: 16px !important;");
+                var labelElem = $(".training-row label");
+                labelElem.css({"position":"relative","bottom":"-1px", "border-bottom-width": "0px", "padding-bottom": "0px", "padding-top": "0px", "border-top-width": "0px", "margin-bottom": "0px"});
+                labelElem.attr("style", labelElem.attr("style") + "height: 20px !important;");
+			}
 			
 			$(".alert").mouseover(function () {
 				$("#calendar_alert_title").empty();
@@ -1107,7 +1109,7 @@
 				$("input[name='credits']").val($(this).attr("bak_val"));
 			}
 		});
-		
+
 		$("#district_id").change(function(){
 			if($("#school_id").attr("flag_system") == "1"){
 				$.get("${reverse('pepreg_map')}", {district_id: $(this).val()}, function (data) {
@@ -1134,20 +1136,32 @@
                 var cLimit = $(hClass).length; console.log("# els: "+cLimit+" hClass: "+hClass);
                 for ( var c = 0; c < cLimit; c++ ) {
                     iClass = hClass + ".span-" + c;
-                    if($(iClass).length > 1) {
-                        var bottomY = $(iClass).last().find("label").offset().top + 16;
-                        var topY = $(iClass).first().find("label").offset().top;
+                    if($(iClass).length > 0) {
+                        //var bottomY = $(iClass).last().find("label").offset().top + 16;
+                        //var topY = $(iClass).first().find("label").offset().top;
+                        var bottomY = $(iClass).last().find("label").position().top + 19;
+                        var topY = $(iClass).first().find("label").position().top;
                         height = bottomY - topY;
-                        topY -= 263;
-                        leftX = $(iClass).first().find("label").offset().left - 458;
-                        console.log("height="+height+" bottomY="+bottomY+" topY="+topY);
+                        topY += 2; //-= 269;
+                        existingSlots = $(".completeSlot:not(" + iClass + ")").length;
+                        if(existingSlots == 0){
+                            leftX = $(iClass).first().find("label").offset().left - 453;
+                        }else{
+                            //leftX = $(".completeSlot:not(" + iClass + ")").last().offset().left + 105;
+                            leftX = $(".completeSlot:not(" + iClass + ")").last().position().left + 110;
+                        }
+                        console.log("height="+height+" bottomY="+bottomY+" topY="+topY+" other Slots="+existingSlots);
 
                         var labelClass = $(iClass).first().find("label").attr("class");
                         var labelTitlex = $(iClass).first().find("label").attr("titlex");
                         var labelHtml = $(iClass).first().find("label").html();
-                        $(iClass).first().append("<div id='" + iClass + "' class='"+ labelClass +"' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
-
-                        $(iClass).find("label").remove();
+                        $(iClass+":gt(0)").remove();
+                        $(iClass+" label").remove();
+                        $(iClass).append("<div id='" + iClass + "' class='"+ labelClass +" completeSlot' titlex='"+ labelTitlex +"' style='height:" + height.toString() + "px !important; position: absolute; top:" + topY + "px; left:" + leftX + "px;'>" + labelHtml + "</div>");
+                        $(".training-row:not(:has('.completeSlot'))").filter(function() {
+                            return $(this).height() == 24;
+                        }).css({"padding": "5px", "height": "26px"});
+                        $(iClass).parent().html($(iClass).parent().html().replace(/&nbsp;/,''));
                     }
                 }
             }
@@ -1658,6 +1672,13 @@
 	PepReg.prototype.openCalendar = function () {
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
+		//if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
+		$("#calendar_select_range").find("input:not(.week-parent)").filter(function() {
+            return $(this).hasClass("btn-active");
+        }).removeClass("btn-active");
+		$("#calendar_select_range").val("1");
+		$(".week-parent:not(.btn-active)").addClass("btn-active");
+		$(".week-parent").val("Calendar Week");
 		_calendar_picker_day = _sys_calendar_day;
 		setPickerValue();
 	   	calendarOpen();

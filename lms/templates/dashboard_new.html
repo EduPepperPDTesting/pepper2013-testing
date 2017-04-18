@@ -1153,9 +1153,9 @@ $(document).ready(function(){
             case 'Community':
                 data.html_ico = '<a href="'+data.URL+'">'
                 data.html_ico += '<div class="ma-community-ico">';
-                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.Logo+')">';
+                data.html_ico += '<div class="ma-community-image-link-style" style="background-image:url('+data.logoUrl+')">';
                 data.html_ico += '<div style="height:41px;"></div>';
-                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.OtherInfo+'</span>';
+                data.html_ico += '<span class="ma-community-card-link ma-community-image-bottom-style">'+data.logoName+'</span>';
                 data.html_ico += '</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</a>';
@@ -1164,10 +1164,10 @@ $(document).ready(function(){
                 data.html_ico = '<a href="'+data.URL+'">';
                 data.html_ico += '<div class="ma-course-course-card">';
                 data.html_ico += '<div>';
-                data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.Logo+'" alt="Cover Image">';
+                data.html_ico += '<img typeof="foaf:Image" class="ma-course-image-style" src="'+data.logoUrl+'" alt="Cover Image">';
                 data.html_ico += '</div>';
                 data.html_ico += '<div class="ma-course-course-title">';
-                data.html_ico += '<div class="ma-course-card-link">'+data.OtherInfo+'</div>';
+                data.html_ico += '<div class="ma-course-card-link">'+data.logoName+'</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</div>';
                 data.html_ico += '</a>';
@@ -1175,7 +1175,7 @@ $(document).ready(function(){
             default:
                 data.html_ico = '<table border="0" width="110" height="69" cellpadding="0" cellspacing="0">';
                 data.html_ico += '<tr>';
-                data.html_ico += '<td><a href="'+data.URL+'"><img src="'+data.Logo+'"></img></a></td>';
+                data.html_ico += '<td><a href="'+data.URL+'"><img src="'+data.logoUrl+'"></img></a></td>';
                 data.html_ico += '</tr>';
                 data.html_ico += '</table>';
         }
