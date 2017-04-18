@@ -281,9 +281,10 @@
                 <input type="button" class="btn btn-primary week-parent btn-input-grp" value="Calendar Week">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="0">Month</li>
+
                     <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="0">Month</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="2">Day</li>
                 </ul>
             </div>
@@ -456,7 +457,7 @@
                                       tabindex=""></textarea>
                         </div>
                         <div class="form-row">
-                            <span class="label" style="margin-right:-5px;">Pepper Course:</span>
+                            <span class="label" style="padding-left: 0px;margin-right:-5px;">Pepper Course:</span>
                             <select name="pepper_course" style="max-width: 470px !important;" autocomplate="off">
                                 <option value=""></option>
                                 %for item in courses:
@@ -943,10 +944,10 @@
             $(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
 
             //$("#calendar_select_range").find(".btn-active").removeClass("btn-active");
-
             //$(this).parent().siblings().addClass("btn-active");
+            //$(this).parent().find("li").toggleClass("list-active");
 
-            $(this).parent().find("li").toggleClass("list-active");
+            $(this).addClass("list-active");
 
             var rangeVal = $(this).val();
 
@@ -1688,7 +1689,7 @@
 	   	_sys_calendar_year = _calendar_date.getFullYear();
 		_sys_calendar_month = _calendar_date.getMonth() + 1;
 		//if($("#calendar_select_range").val() == "2") _sys_calendar_month += 1;
-		$("#calendar_select_range").find("li[value!='Calendar Week']").filter(function() {
+		$("#calendar_select_range").find("li[value!='2']").filter(function() {
             return $(this).hasClass("list-active");
         }).removeClass("list-active");
 		$("#calendar_select_range").val("1");
