@@ -16,7 +16,7 @@ class OrganizationMetadata(models.Model):
 class OrganizationDataitems(models.Model):
     class Meta:
         db_table = 'organization_dataitems'
-    DataItem = models.CharField(blank=False, max_length=255, db_index=False)
+    DataItem = models.TextField(blank=False, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
 class OrganizationDistricts(models.Model):
