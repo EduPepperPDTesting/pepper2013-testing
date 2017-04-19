@@ -292,7 +292,7 @@
                 </ul>
             </div>
 
-            <div class="btn-group" id="view_select" value="1" style="margin-left: 10px !important;">
+            <div class="btn-group" id="view_select" value="0" style="margin-left: 10px !important;">
                 <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
@@ -1019,7 +1019,7 @@
             $(this).addClass("list-active");
 
             var viewVal = $(this).val();
-
+            console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
                 $("#view_select btn-input-grp").val("Calendar View");
             }else if(viewVal == "1"){
