@@ -869,6 +869,9 @@ INSTALLED_APPS = (
     # PD Training Registration
     'training',
 
+    #organization
+    'organization',
+
     'async_task'
 )
 
