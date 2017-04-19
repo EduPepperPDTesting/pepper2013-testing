@@ -1018,12 +1018,14 @@
             $("#view_select").find(".list-active").removeClass("list-active");
             $(this).addClass("list-active");
 
-            if($(this).val==0)
-                $("#view_select btn-input-grp").val("Calendar View");
-            else
-                $("#view_select btn-input-grp").val("Print View");
-
             var viewVal = $(this).val();
+
+            if(viewVal == "0"){
+                $("#view_select btn-input-grp").val("Calendar View");
+            }else if(viewVal == "1"){
+                $("#view_select btn-input-grp").val("Print View");
+            }
+
             $("#view_select").val(viewVal);
             calendarOpen();
         });
