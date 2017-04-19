@@ -926,6 +926,7 @@
 		});*/
 
 		$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
+		    event.preventDefault();
 		    if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-down']")) {$(".arrow-down").removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");}
             else if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-up']")) {$(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");}
 		    event.stopPropagation();
@@ -2174,6 +2175,7 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
+        $div.slideDown(); //akogan
         $(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
