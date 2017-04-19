@@ -112,7 +112,7 @@
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
     <div class="main, data_import_content">
-        <div class="expand_title expand_title_collapse">
+        <div class="expand_title expand_title_collapse expand_title_expanded">
             Pepper PD Planner
             <div class="icon"></div>
         </div>
@@ -925,7 +925,7 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
 
-		$("#calendar_select_range").on("click", ".btn-input-grp", function(event){
+		$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
 		    if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-down']")) {$(".arrow-down").removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");}
             else if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-up']")) {$(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");}
 		    event.stopPropagation();
