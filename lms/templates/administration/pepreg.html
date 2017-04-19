@@ -105,6 +105,10 @@
 
     #calendar_select_range ul{min-width: 135px; padding: 0px;}
 
+    #view_select li{background-color: #337ab7;}
+
+    #view_select .list-active{background-color:#204d74;}
+
     #dlg-warning {height: 310px;}
 
     .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;}
@@ -285,6 +289,15 @@
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Work Week</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="0">Month</li>
                     <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="2">Day</li>
+                </ul>
+            </div>
+
+            <div class="btn-group" id="view_select" value="1" style="margin-left: 10px !important;">
+                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
+                <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
+                <ul class="dropdown-menu" role="menu">
+                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar View</li>
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Print View</li>
                 </ul>
             </div>
 
@@ -925,13 +938,15 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
 
-		$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
+        //akogan - needs solution for repeated click events on .btn-input-grp to trigger dropdown-toggle class change
+		/*$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
 		    event.preventDefault();
 		    if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-down']")) {$(".arrow-down").removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");}
             else if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-up']")) {$(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");}
 		    event.stopPropagation();
             $("#calendar_select_range .dropdown-toggle").dropdown('toggle');
-        });
+        });*/
+        $("#calendar_select_range .btn-input-grp").off("click").css("cursor", "default");
 
         $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
             event.preventDefault();
@@ -982,6 +997,17 @@
         });
 
         $("#calendar_select_range").on("click", ".arrow-up", function(event){
+            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+        });
+
+        //
+        $("#view_select .btn-input-grp").off("click").css("cursor", "default");
+
+        $("#view_select").on("click", ".arrow-down", function(event){
+            $(this).removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");
+        });
+
+       $("#view_select").on("click", ".arrow-up", function(event){
             $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
         });
 
