@@ -178,17 +178,7 @@ class DashboardFeedingStore(MongoBaseStore):
         return self.insert(data)
 
 
-FEEDINGSTORE = {
-    'OPTIONS': {
-        'db': "feeding",
-        'host': "127.0.0.1",
-        'port': 27017,
-        'user': "",
-        'password': ""}
-}
-
-
 def dashboard_feeding_store():
     options = {}
-    options.update(FEEDINGSTORE['OPTIONS'])
+    options.update(settings.FEEDINGSTORE['OPTIONS'])
     return DashboardFeedingStore(**options)
