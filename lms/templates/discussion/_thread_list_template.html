@@ -19,22 +19,12 @@
             </form>
         </div>
     </div>
-    <div class="sort-bar clearfix">
+    <div class="sort-bar">
         <span class="sort-label">${_("Sort by:")}</span>
         <ul>
             <li><a href="#" class="active" data-sort="date">${_("date")}</a></li>
             <li><a href="#" data-sort="votes">${_("votes")}</a></li>
             <li><a href="#" data-sort="comments">${_("comments")}</a></li>
-            %try:
-                %if len(pd_trainings) > 0:
-                    <select id="" name="" autocomplate="off" class="pd-group-filter">
-                    %for item in pd_trainings:
-                        <option value="${item.id}" ${"selected" if item.is_last else ""}>${item.name}</option>
-                    %endfor
-                    </select>
-                %endif
-            %except:
-            %endtry
         </ul>
 
 

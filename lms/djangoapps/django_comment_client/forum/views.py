@@ -77,11 +77,6 @@ def get_threads(request, course_id, discussion_id=None, per_page=THREADS_PER_PAG
         default_query_params["group_id"] = group_id
 
     #so by default, a moderator sees all items, and a student sees his cohort
-
-    #** filter for pd plan
-    pd_plan_id = request.GET.get('pd_plan_id')
-    if pd_plan_id:
-        default_query_params["pd_plan_id"] = pd_plan_id
          
     query_params = merge_dict(default_query_params,
                               strip_none(extract(request.GET,
@@ -246,46 +241,6 @@ def inline_discussion(request, course_id, discussion_id,tags_type):
     })
 
 
-from administration.models import PepRegTraining, PepRegStudent, PepRegInstructor
-import datetime
-
-def get_user_course_pds(user_id, course_id):
-    import sys
-
-    pds = {}
-    last_pd_date = [datetime.date(year=1999, month=1, day=1)]
-    last_pd_index = [-1]
-
-    def push_training(training):
-        training.is_last = False
-        if training.date_create >= last_pd_date[0]:
-            if last_pd_index[0] > -1:
-                pds[last_pd_index[0]].is_last = False
-
-            last_pd_date[0] = training.date_create
-            last_pd_index[0] = training.id
-            training.is_last = True
-        pds[training.id] = training
-
-    for training in PepRegTraining.objects.filter(user_create_id=user_id) \
-            .filter(type='pepper_course').filter(pepper_course=course_id):
-        push_training(training)
-    for item in PepRegStudent.objects.filter(student=user_id) \
-            .filter(training__type='pepper_course').filter(training__pepper_course=course_id):
-        training = PepRegTraining.objects.get(id=item.training.id)
-        push_training(training)
-    for item in PepRegInstructor.objects.filter(instructor=user_id) \
-            .filter(training__type='pepper_course').filter(training__pepper_course=course_id):
-        training = PepRegTraining.objects.get(id=item.training.id)
-        push_training(training)
-
-    def sort_pds(a, b):
-        return 1 if a.name.lower() > b.name.lower() else -1
-
-    sys.stdout.flush()
-    return sorted(pds.values(), cmp=sort_pds)
-
-
 @login_required
 def forum_form_discussion(request, course_id):
     """
@@ -378,8 +333,7 @@ def forum_form_discussion(request, course_id):
             'cohorts': cohorts,
             'user_cohort': user_cohort_id,
             'cohorted_commentables': cohorted_commentables,
-            'is_course_cohorted': is_course_cohorted(course_id),
-            'pd_trainings': get_user_course_pds(request.user.id, course.id)
+            'is_course_cohorted': is_course_cohorted(course_id)
         }
         # print "start rendering.."
         return render_to_response('discussion/index.html', context)
