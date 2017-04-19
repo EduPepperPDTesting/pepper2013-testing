@@ -2175,7 +2175,7 @@
         //** init controller
         window.pepreg = new PepReg($(".expand_div").eq(0));
         //** init expand title
-        $div.slideDown(); //akogan
+        $(".expand_title").next("div.expand_div").slideDown(); //akogan
         $(".expand_title").off("click").bind("click", function () {
             var $div = $(this).next("div.expand_div");
             if ($div.is(':visible')) {
