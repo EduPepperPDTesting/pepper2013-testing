@@ -525,8 +525,15 @@ def get_cache_collection(request, report_id):
     Returns the name of the aggregate collection.
     :param request: Request object.
     :return: aggregate collection name.
-    """
-    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id)
+    """    
+   
+    tmp1 = request.GET.get('school_year')
+    if tmp1:
+        tmp1 = str(tmp1).replace("-","_")
+    else:
+        tmp1 = ""
+
+    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id) + '_' + tmp1
 
 
 @postpone
