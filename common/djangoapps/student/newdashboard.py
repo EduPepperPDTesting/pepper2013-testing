@@ -2408,10 +2408,10 @@ def get_my_activities(request):
             ma_dict["DisplayInfo"] = data["EventType"]
 
         #Logo
-        ma_dict["Logo"] = get_logo(data)
+        ma_dict["logoUrl"] = get_logoUrl(data)
 
-        #OtherInfo, just for GroupType of Communities and Courses, get communityName and courseName
-        ma_dict["OtherInfo"] = get_otherinfo(data)
+        #Just for GroupType of Communities and Courses, get communityName and courseName
+        ma_dict["logoName"] = get_logoName(data)
 
         #GroupType
         ma_dict["g_type"] = data["GroupType"]
@@ -2522,7 +2522,7 @@ def get_PDTrainingDate(data):
 def get_discussionSubject(data):
     return cc.Thread.find(data["TokenValues"]["SourceID"]).title
 
-def get_otherinfo(data):
+def get_logoName(data):
     '''
     communityName, courseDisplayName
     '''
@@ -2533,7 +2533,7 @@ def get_otherinfo(data):
         value = get_communityName(data)
     return value
 
-def get_logo(data):
+def get_logoUrl(data):
     value = ""
     if data["Logo"]:
         value = data["Logo"]

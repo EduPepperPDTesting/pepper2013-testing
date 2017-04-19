@@ -436,6 +436,8 @@ urlpatterns = (
     url(r'^certificate_preview$', 'certificates.views.certificate_preview', name="certificate_preview"),
     url(r'^(?P<course_id>[^/]+/[^/]+/[^/]+)/(?P<completed_time>[^/]+)/download_certificate$', 'certificates.views.download_certificate', name="download_certificate"),
     url(r'^course_credits$', 'certificates.views.course_credits', name="course_credits"),
+    url(r'^course_credits_tcsj$', 'certificates.views.course_credits_tcsj', name="course_credits_tcsj"),
+    url(r'^course_credits_baker_univesity$', 'certificates.views.course_credits_baker_univesity', name="course_credits_baker_univesity"),
 
     url(r'^download_certificate_demo$', 'certificates.views.download_certificate_demo'),
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware

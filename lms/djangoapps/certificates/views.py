@@ -177,6 +177,14 @@ def download_certificate(request,course_id,completed_time):
 def course_credits(request):
      return render_to_response('course_credits.html', {})
 
+@login_required
+def course_credits_tcsj(request):
+     return render_to_response('course_credits_tcsj.html', {})
+
+@login_required
+def course_credits_baker_univesity(request):
+     return render_to_response('course_credits_baker_univesity.html', {})
+
 @ensure_csrf_cookie
 @cache_if_anonymous
 def download_certificate_demo(request):
