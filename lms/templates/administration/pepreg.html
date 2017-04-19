@@ -939,22 +939,6 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
 
-        $(".btn-input-grp").hover(function() {
-            $(this).css({
-                "background-color": "#108ec7 !important",
-                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
-                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
-                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
-            });
-        }, function() {
-            $(this).css({
-                "background-color": "#108ec7 !important",
-                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
-                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
-                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
-            });
-        });
-
         //akogan - needs solution for repeated click events on .btn-input-grp to trigger dropdown-toggle class change
 		/*$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
 		    event.preventDefault();
@@ -2282,6 +2266,22 @@
             $("#calendar_select_range .btn-input-grp").val("Day");
         else if($("#calendar_select_range li.list-active").val=="3")
             $("#calendar_select_range .btn-input-grp").val("Work Week");
+
+        $(".btn-input-grp").hover(function() {
+            $(this).css({
+                "background-color": "#108ec7 !important",
+                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
+                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
+                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
+            });
+        }, function() {
+            $(this).css({
+                "background-color": "#108ec7 !important",
+                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
+                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
+                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
+            });
+        });
     });
 
     function resetCap(){
