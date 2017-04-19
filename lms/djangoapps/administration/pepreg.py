@@ -518,7 +518,10 @@ def getCalendarMonth(request):
     if not daterangelist:
         daterangelist = list(daterange)
 
-    name_dict["table_tr_content"] = build_week_rows(_year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
+    userObj = request.user
+    request.session['user_obj'] = userObj
+
+    name_dict["table_tr_content"] = build_week_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -538,7 +541,7 @@ def getweekdays(year, weekNumber, getrange):
         i += 1;
 
 #akogan
-def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
+def build_week_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
@@ -572,10 +575,11 @@ def build_week_rows(year, month, catype, all_occurrences, current_day, tmp_schoo
 
                     status = ""
                     try:
-                        if PepRegStudent.objects.filter(student=request.user, training=item).exists():
-                            status = PepRegStudent.objects.get(student=request.user, training=item).student_status
+                        userObj = request.session.get('user_obj', None)
+                        if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                            status = PepRegStudent.objects.get(student=userObj, training=item).student_status
                     except:
-                        status = "";
+                        status = ""
                     trainingStartTime = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
                     trainingEndTime = str('{d:%I:%M %p}'.format(d=item.training_time_end)).lstrip('0')
 

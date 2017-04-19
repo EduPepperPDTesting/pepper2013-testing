@@ -67,6 +67,7 @@ from mail import send_html_mail
 from courseware.courses import get_course_by_id
 from study_time.models import record_time_store
 from administration.models import site_setting_store
+from feeding import dashboard_feeding_store
 
 #@begin:add pd_time to total_time
 #@date:2016-06-06
@@ -109,6 +110,10 @@ from administration.models import PepRegTraining
 #GroupType:Reports
 from reporting.models import Reports
 #@end
+
+from bson import json_util
+from permissions.utils import check_access_level, check_user_perms
+
 
 # log = logging.getLogger("mitx.student")
 log = logging.getLogger("tracking")
@@ -2791,84 +2796,28 @@ def my_courses(request, user_id=None):
     return render_to_response('my_courses.html', context)
 #@end
 
-#@begin:Add for Dashboard Posts
-#@date:2016-12-29
-def get_posts(request):
-    id = 0
-    size = request.POST.get('size')
-    # c = User.objects.get(id=request.POST.get('master_id'))
-    c = request.POST.get('master_id')
-    html = ""
-    extra_data = ""
-    total = int(DashboardPosts.objects.filter(master=c).count())
-    if total >= int(size):
-        all = "NO"
-        extra_data += str(DashboardPosts.objects.filter(master=c).count()) + " ||| " + str(size)
-    elif total == 0:
-        all = "DONE"
-        extra_data += "No Posts"
-    else:
-        all = "DONE"
-        extra_data += str(DashboardPosts.objects.filter(master=c).count()) + " ||| " + str(size)
+
+
+
+
+def attach_post_info(p, time_diff_m, user):
+    store = dashboard_feeding_store()
+    
+    def format_feeding_date(post_time_utc):
+        now_utc = datetime.datetime.utcnow()
         
-    post_filter = request.POST.get('filter')
-    if post_filter == "newest_post":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-date_create')[0:size]
-    elif post_filter == "oldest_post":
-        posts = DashboardPosts.objects.filter(master=c).order_by('date_create')[0:size]
-    elif post_filter == "latest_reply":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-date_update')[0:size]
-    elif post_filter == "oldest_reply":
-        posts = DashboardPosts.objects.filter(master=c).order_by('date_update')[0:size]
-    elif post_filter == "alphabetical":
-        posts = DashboardPosts.objects.filter(master=c).order_by('user__last_name')[0:size]
-    elif post_filter == "reversealpha":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-user__last_name')[0:size]
-    elif post_filter == "alphauname":
-        posts = DashboardPosts.objects.filter(master=c).order_by('user__username')[0:size]
-    elif post_filter == "ralphauname":
-        posts = DashboardPosts.objects.filter(master=c).order_by('-user__username')[0:size]
-    usr_img = reverse('user_photo', args=[request.user.id])
-    time_diff_m = request.POST.get('local_utc_diff_m')
-    c_likes = 0
-    for post in posts:
-        img = reverse('user_photo', args=[post.user.id])
-
-        try:
-            district = District.objects.get(id=post.user.profile.district_id).name
-        except Exception as e:
-            pass
-
-        active = active_recent(post.user)
-        id = post.user.first_name
-        comments = DashboardComments.objects.filter(post=post)
-        likes = DashboardLikes.objects.filter(post=post, comment=None)
-        user_like = len(DashboardLikes.objects.filter(post=post, user__id=request.user.id))
-
-        html += "<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td>"
-        html += "<div class='ds-post-title'>"
-        html += "<table>"
-        html += "<tr>"
-        html += "<td class='ds-post-title-photo'>"
-        if active and not (request.user == post.user):
-            html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
-            if post.user.profile.skype_username:
-                skype_username = post.user.profile.skype_username
-            else:
-                skype_username = "Not Set."
-            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
-        else:
-           html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
-        html += "</td>"
-
-        post_time_local = post.date_create
-        now_local = datetime.datetime.now()
         if int(time_diff_m) != 0:
-            post_time_local = time_to_local(post.date_create, time_diff_m)   
-            now_local = time_to_local(datetime.datetime.now(), time_diff_m)   
-        now_local_last_str = now_local.strftime('%Y-%m-%d') + ' 23:59:59'
-        post_time_local_str =post_time_local.strftime('%Y-%m-%d %H:%M:%S')  
-        if (datetime.datetime.strptime(now_local_last_str, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(post_time_local_str, '%Y-%m-%d %H:%M:%S')).days < 1: 
+            post_time_local = time_to_local(post_time_utc, time_diff_m)   
+            now_local = time_to_local(now_utc, time_diff_m)
+        else:
+            post_time_local = post_time_utc
+
+        # now_local_last_str = now_local.strftime('%Y-%m-%d') + ' 23:59:59'
+        # post_time_local_str = post_time_local.strftime('%Y-%m-%d %H:%M:%S')
+
+        diff = (post_time_utc.replace(tzinfo=None) - datetime.datetime.utcnow())
+     
+        if diff.days < 1: 
             post_date = 'Today'
         else:
             post_year = post_time_local.strftime("%Y")
@@ -2879,198 +2828,404 @@ def get_posts(request):
         post_m = post_time_local.strftime("%M")
         post_ampm = post_time_local.strftime("%p")
 
-        html += "<td class='ds-post-title-text'>"
-        html += "<a class='ds-post-title-name' href='/dashboard/"+str(post.user.id)+"'>"+post.user.first_name+" "+post.user.last_name+"</a>"
-        html += "&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;"
-        html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
-        html += "<span class='ds-post-title-time'>"+post_date+" at "+post_h+":"+post_m+" "+post_ampm+"</span>"
-        html += "</td>"
+        hour_diff = int((diff.days * 86400 + diff.seconds) / (60 * 60))
+        return post_date, post_h, post_m, post_ampm , hour_diff
+
+    def format_like(likes):
+        if not likes:
+            return ""
+        buf = []
+        for lk in likes:
+            if lk["user_id"] == user.id:
+                buf.insert(0, "You")
+            else:
+                author = User.objects.get(id=lk["user_id"])
+                buf.append(user.first_name + " " + author.last_name)
+        ending = ""
+        if len(buf) > 3:
+            buf = buf[:3]
+            ending = " and more"
+            
+        return ", ".join(buf) + ending
+   
+    
+    author = User.objects.get(id=p["user_id"])
+    (post_date, post_h, post_m, post_ampm, debug) = format_feeding_date(p["date"])
+
+    p["content"] =  filter_at(p["content"])
+    p["first_name"] = author.first_name
+    p["last_name"] = author.last_name
+    p["username"] = author.username
+    p["email"] = author.email
+    p["district_name"] = author.profile.district.name
+    p["sub"] = store.get_sub(p["_id"])
+    p["is_my_like"] = store.is_like(p["_id"], user.id)
+    p["who_like_text"] = format_like(p.get("likes"))
+    p["likes"] = len(p.get("likes")) if p.get("likes") else 0
+    p["post_date"] = post_date
+    p["post_h"] = post_h
+    p["post_m"] = post_m
+    p["post_ampm"] = post_ampm
+    p["post_date_debug"] = debug
+    p["is_owner"] = (author == user)
+    p["removable"] = user.id == author.id or user.is_superuser
+
+    if active_recent(author) and user != author:
+        p["online"] = 1
+        if author.profile.skype_username:
+            p["skype_username"] = author.profile.skype_username
+        else:
+            p["skype_username"] = "Not Set."
+
+    for s in p["sub"]:
+        attach_post_info(s, time_diff_m, user)            
+
+
+def get_post(request):
+    _id = request.POST.get("_id")
+    store = dashboard_feeding_store()
+    post = store.get_feeding(_id)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+    attach_post_info(post, time_diff_m, request.user)
+    return HttpResponse(json_util.dumps(post), content_type='application/json')
+
+
+def get_posts(request):
+    filter_group = request.POST.get("filter_group")
+    filter_year = request.POST.get("filter_year")
+    filter_month = request.POST.get("filter_month")
+    # last_id = request.POST.get("last_id")
+    page = request.POST.get("page", 0)
+    page_size = request.POST.get("page_size", 5)
+    time_diff_m = request.POST.get('local_utc_diff_m', 0)
+
+    now_utc = datetime.datetime.utcnow()
+    if int(time_diff_m) != 0:
+        now_utc = time_to_local(now_utc, time_diff_m)
+
+    store = dashboard_feeding_store()
+  
+    posts = store.top_level_for_user(request.user.id, type=filter_group,
+                                     year=filter_year, month=filter_month,
+                                     page_size=int(page_size), page=int(page), before=now_utc)
+            
+    for a in posts:
+        attach_post_info(a,time_diff_m, request.user)
+
+    return HttpResponse(json_util.dumps(posts), content_type='application/json')
+
+  
+#     id = 0
+#     size = request.POST.get('size')
+#     # c = User.objects.get(id=request.POST.get('master_id'))
+#     c = request.POST.get('master_id')
+#     html = ""
+#     extra_data = ""
+#     total = int(DashboardPosts.objects.filter(master=c).count())
+#     if total >= int(size):
+#         all = "NO"
+#         extra_data += str(DashboardPosts.objects.filter(master=c).count()) + " ||| " + str(size)
+#     elif total == 0:
+#         all = "DONE"
+#         extra_data += "No Posts"
+#     else:
+#         all = "DONE"
+#         extra_data += str(DashboardPosts.objects.filter(master=c).count()) + " ||| " + str(size)
         
-        html += "<td class='ds-post-title-delete'>"
-        # or is_facilitator(request.user, c)
-        if request.user.id == post.user.id or request.user.is_superuser or request.user.id == post.master.id:
-            delete_code = "<img src='/static/images/trash-small.png' data-postid='"+str(post.id)+"' class='delete-something'></img>"
-        else:
-            delete_code = ""
-        html += delete_code    
-        html += "</td>"
-        html += "</tr>"
-        html += "</table>"
-        html += "</div>"
+#     post_filter = request.POST.get('filter')
+#     if post_filter == "newest_post":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('-date_create')[0:size]
+#     elif post_filter == "oldest_post":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('date_create')[0:size]
+#     elif post_filter == "latest_reply":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('-date_update')[0:size]
+#     elif post_filter == "oldest_reply":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('date_update')[0:size]
+#     elif post_filter == "alphabetical":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('user__last_name')[0:size]
+#     elif post_filter == "reversealpha":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('-user__last_name')[0:size]
+#     elif post_filter == "alphauname":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('user__username')[0:size]
+#     elif post_filter == "ralphauname":
+#         posts = DashboardPosts.objects.filter(master=c).order_by('-user__username')[0:size]
+#     usr_img = reverse('user_photo', args=[request.user.id])
+#     time_diff_m = request.POST.get('local_utc_diff_m')
+#     c_likes = 0
+#     for post in posts:
+#         img = reverse('user_photo', args=[post.user.id])
 
-        if len(likes) > 0:
-            like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.png' class='like-button-image'></img>"
-            if user_like == 1:
-                like_text += "You, "
-            if len(likes) > 2:
-                for like in likes[:2]:
-                    if like.user.username != request.user.username:
-                        like_text += like.user.username+", "
-                if len(likes) == 3 and user_like == 1:
-                    like_text = like_text[:-2]
-                else:
-                    like_text += " and " + str(len(c_likes)-2) + "more."
-            else:
-                for like in likes:
-                    if like.user.username != request.user.username:
-                        like_text += like.user.username + ", "
-                like_text = like_text[:-2]
-            like_text += "</a>"
-        else:
-            like_text = ""
+#         try:
+#             district = District.objects.get(id=post.user.profile.district_id).name
+#         except Exception as e:
+#             pass
 
-        images = DashboardPostsImages.objects.filter(post=post)
-        img_code = ""
-        for img in images:
-            if "youtube" in img.link and img.embed:
-                img_code += "<br><br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
-            elif "youtu.be" in img.link and img.embed:
-                img_code += "<br><br><iframe src='"+img.link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>"
-            elif "youtube" in img.link or "youtu.be" in img.link:
-                img_code += "<p><a style='word-wrap:break-word;' href='"+img.link+"'>"+img.link+"</a></p>"
-            elif img.embed:
-                img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
-            else:
-                img_code += "<p><a style='word-wrap: break-word;' href='" + img.link + "'>" + img.link + "</a></p>"
+#         active = active_recent(post.user)
+#         id = post.user.first_name
+#         comments = DashboardComments.objects.filter(post=post)
+#         likes = DashboardLikes.objects.filter(post=post, comment=None)
+#         user_like = len(DashboardLikes.objects.filter(post=post, user__id=request.user.id))
 
-        html += "<div id='post_textarea' class='ds-post-content'>"
-        html += filter_at(post.post) + img_code
-        html += "</div>"
+#         html += "<tr class='post-content-row' id='post_content_new_row_"+str(post.id)+"'><td>"
+#         html += "<div class='ds-post-title'>"
+#         html += "<table>"
+#         html += "<tr>"
+#         html += "<td class='ds-post-title-photo'>"
 
-        html += "<div class='ds-post-footer'>"
-        if user_like == 1:
-            html += "<div class='post-like-text' data-id='"+str(post.id)+"'><img src='/static/images/newdashboard/ds-post-unlike.png' width='30'/>Unlike</div>"
-        else:
-            html += "<div class='post-like-text' data-id='"+str(post.id)+"'><img src='/static/images/newdashboard/ds-post-like.png' width='30'/>Like</div>"
-        html += "<div class='post-comment-text' data-id='"+str(post.id)+"' data-name=''><img src='/static/images/newdashboard/Comment-512.png' width='35'/>Comment</div>"
-        html += "<div class='post-total-likes'>"+str(likes.count())+" Likes</div>"
-        html += "<div class='post-total-comments'>"+str(comments.count())+" Comments</div>"
-        html += "</div>"
 
-        '''
-        if user_like == 1:
-            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
-        else:
-            html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
-        html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment.png' class='comment-image'></img>Comment</a>"
-        html+="<a data-id='"+str(post.id)+"' data-type='post' data-master='"+str(post.master.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share.png' class='share-image'></img>Share</a>"+like_text+"<br>"
-        '''
-        html +="<div class='comment-section'>"
-        for comment in comments:
-            active = active_recent(comment.user)
-            try:
-                c_likes = DashboardLikes.objects.filter(comment=comment)
-            except Exception as e:
-                c_likes = 0
-            c_user_like = len(DashboardLikes.objects.filter(comment=comment, user__id=request.user.id))
-            comment_img = reverse('user_photo', args=[comment.user.id])
-            c_like_html=""
-            html+="<table><tr><td>"
-            if c_user_like == 1:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
-            else:
-                c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
-            if len(c_likes) > 0:
-                like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.png' class='like-button-image'></img>"
-                if c_user_like == 1:
-                    like_text += "You, "
-                if len(c_likes) > 2:
-                    for like in c_likes[:2]:
-                        if like.user.username != request.user.username:
-                            like_text += like.user.username+", "
-                    if len(c_likes) == 3 and c_user_like == 1:
-                        like_text = like_text[:-2]
-                    else:
-                        like_text += " and " + str(len(c_likes)-2) + "more."
-                else:
-                    for like in c_likes:
-                        if like.user.username != request.user.username:
-                            like_text += like.user.username + ", "
-                    like_text = like_text[:-2]
-                like_text += "</a>"
-            else:
-                like_text = ""
-            if active and not (request.user == post.user):
-                html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
-                if comment.user.profile.skype_username:
-                    skype_username = comment.user.profile.skype_username
-                else:
-                    skype_username = "Not Set."
-                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-id='"+str(post.user.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
-            else:
-                html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-id='"+str(post.user.id)+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
-            # or is_facilitator(request.user, c)
-            if request.user.id == post.user.id or request.user.id == comment.user.id or request.user.is_superuser or request.user.id == post.master.id:
-                delete_code = "<img src='../static/images/trash-small.png' data-commentid='"+str(comment.id)+"' class='delete-something comment-delete'></img>"
-            else:
-                delete_code = ""
-            html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
-            html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='comment-reply-text'><img src='/static/images/comment.png' class='comment-image'></img>Reply</a>"+delete_code+like_text+"</td></tr></table>"
-        html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
-        html += "<div class='ds-post-end_line'></div>"
-        html+="</td></tr>"
-    return HttpResponse(json.dumps({'data': extra_data,'id':id, 'len': len(posts), 'Success': 'True', 'all':all, 'post': html, 'community': request.POST.get('master_id')}), content_type='application/json')
+
+#         if active and not (request.user == post.user):
+#             html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+#             if post.user.profile.skype_username:
+#                 skype_username = post.user.profile.skype_username
+#             else:
+#                 skype_username = "Not Set."
+#             html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-skype='"+skype_username+"' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
+
+
+#         else:
+#            html+="<img src='"+img+"' class='post-profile-image hoverable-profile' data-name='"+post.user.first_name+" "+post.user.last_name+"' data-uname='"+post.user.username+"' data-email='"+post.user.email+"' data-id='"+str(post.user.id)+"'></img>"
+#         html += "</td>"
+
+
+
+#         post_time_local = post.date_create
+#         now_local = datetime.datetime.now()
+#         if int(time_diff_m) != 0:
+#             post_time_local = time_to_local(post.date_create, time_diff_m)   
+#             now_local = time_to_local(datetime.datetime.now(), time_diff_m)
+
+
+#         now_local_last_str = now_local.strftime('%Y-%m-%d') + ' 23:59:59'
+#         post_time_local_str =post_time_local.strftime('%Y-%m-%d %H:%M:%S')
+
+
+#         if (datetime.datetime.strptime(now_local_last_str, '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(post_time_local_str, '%Y-%m-%d %H:%M:%S')).days < 1: 
+#             post_date = 'Today'
+#         else:
+#             post_year = post_time_local.strftime("%Y")
+#             post_month = str(int(post_time_local.strftime("%m")))
+#             post_day = str(int(post_time_local.strftime("%d")))
+#             post_date = post_year + '-' + post_month + '-' + post_day
+#         post_h = str(int(post_time_local.strftime("%I")))
+#         post_m = post_time_local.strftime("%M")
+#         post_ampm = post_time_local.strftime("%p")
+
+#         html += "<td class='ds-post-title-text'>"
+#         html += "<a class='ds-post-title-name' href='/dashboard/"+str(post.user.id)+"'>"+post.user.first_name+" "+post.user.last_name+"</a>"
+#         html += "&nbsp;<span class='ds-post-title-from'>from</span>&nbsp;"
+#         html += "<span class='ds-post-title-position'>"+district+" District</span><br/>"
+#         html += "<span class='ds-post-title-time'>"+post_date+" at "+post_h+":"+post_m+" "+post_ampm+"</span>"
+#         html += "</td>"
+        
+#         html += "<td class='ds-post-title-delete'>"
+#         # or is_facilitator(request.user, c)
+#         if request.user.id == post.user.id or request.user.is_superuser or request.user.id == post.master.id:
+#             delete_code = "<img src='/static/images/trash-small.png' data-postid='"+str(post.id)+"' class='delete-something'></img>"
+#         else:
+#             delete_code = ""
+#         html += delete_code    
+#         html += "</td>"
+#         html += "</tr>"
+#         html += "</table>"
+#         html += "</div>"
+
+#         if len(likes) > 0:
+#             like_text="<a class='like-members-anchor' data-post='"+str(post.id)+"' data-comment=''><img src='/static/images/like.png' class='like-button-image'></img>"
+#             if user_like == 1:
+#                 like_text += "You, "
+#             if len(likes) > 2:
+#                 for like in likes[:2]:
+#                     if like.user.username != request.user.username:
+#                         like_text += like.user.username+", "
+#                 if len(likes) == 3 and user_like == 1:
+#                     like_text = like_text[:-2]
+#                 else:
+#                     like_text += " and " + str(len(c_likes)-2) + "more."
+#             else:
+#                 for like in likes:
+#                     if like.user.username != request.user.username:
+#                         like_text += like.user.username + ", "
+#                 like_text = like_text[:-2]
+#             like_text += "</a>"
+#         else:
+#             like_text = ""
+
+#         images = DashboardPostsImages.objects.filter(post=post)
+#         img_code = ""
+#         for img in images:
+#             if "youtube" in img.link and img.embed:
+#                 img_code += "<br><br><iframe src='"+img.link.replace('watch?v=', 'embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+#             elif "youtu.be" in img.link and img.embed:
+#                 img_code += "<br><br><iframe src='"+img.link.replace('youtu.be', 'youtube.com/embed/')+"' width='384' height='216' allowfullscreen></iframe>"
+#             elif "youtube" in img.link or "youtu.be" in img.link:
+#                 img_code += "<p><a style='word-wrap:break-word;' href='"+img.link+"'>"+img.link+"</a></p>"
+#             elif img.embed:
+#                 img_code += "<span class='img-span-code'><img src='" + img.link + "' style='max-width:400px;max-height:400px;'></img></span>"
+#             else:
+#                 img_code += "<p><a style='word-wrap: break-word;' href='" + img.link + "'>" + img.link + "</a></p>"
+
+#         html += "<div id='post_textarea' class='ds-post-content'>"
+#         html += filter_at(post.post) + img_code
+#         html += "</div>"
+
+#         html += "<div class='ds-post-footer'>"
+#         if user_like == 1:
+#             html += "<div class='post-like-text' data-id='"+str(post.id)+"'><img src='/static/images/newdashboard/ds-post-unlike.png' width='30'/>Unlike</div>"
+#         else:
+#             html += "<div class='post-like-text' data-id='"+str(post.id)+"'><img src='/static/images/newdashboard/ds-post-like.png' width='30'/>Like</div>"
+#         html += "<div class='post-comment-text' data-id='"+str(post.id)+"' data-name=''><img src='/static/images/newdashboard/Comment-512.png' width='35'/>Comment</div>"
+#         html += "<div class='post-total-likes'>"+str(likes.count())+" Likes</div>"
+#         html += "<div class='post-total-comments'>"+str(comments.count())+" Comments</div>"
+#         html += "</div>"
+
+#         '''
+#         if user_like == 1:
+#             html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
+#         else:
+#             html+="<div id='post_textarea' class='post-textarea'>"+filter_at(post.post)+img_code+"</div><a data-id='"+str(post.id)+"' class='post-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
+#         html+="<a data-id='"+str(post.id)+"' data-name='' class='post-comment-text'><img src='/static/images/comment.png' class='comment-image'></img>Comment</a>"
+#         html+="<a data-id='"+str(post.id)+"' data-type='post' data-master='"+str(post.master.id)+"' data-content='"+post.post+"' data-poster='"+post.user.first_name+" "+post.user.last_name+"' class='post-share-text'><img src='/static/images/share.png' class='share-image'></img>Share</a>"+like_text+"<br>"
+#         '''
+#         html +="<div class='comment-section'>"
+#         for comment in comments:
+#             active = active_recent(comment.user)
+#             try:
+#                 c_likes = DashboardLikes.objects.filter(comment=comment)
+#             except Exception as e:
+#                 c_likes = 0
+#             c_user_like = len(DashboardLikes.objects.filter(comment=comment, user__id=request.user.id))
+#             comment_img = reverse('user_photo', args=[comment.user.id])
+#             c_like_html=""
+#             html+="<table><tr><td>"
+#             if c_user_like == 1:
+#                 c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/unlike.png' class='like-button-image'></img>Unlike</a>"
+#             else:
+#                 c_like_html+="<a data-id='"+str(comment.id)+"' class='comment-like-text'><img src='/static/images/like.png' class='like-button-image'></img>Like</a>"
+#             if len(c_likes) > 0:
+#                 like_text="<a class='like-members-anchor comment-like-anchor' data-post='' data-comment='"+str(comment.id)+"'><img src='/static/images/like.png' class='like-button-image'></img>"
+#                 if c_user_like == 1:
+#                     like_text += "You, "
+#                 if len(c_likes) > 2:
+#                     for like in c_likes[:2]:
+#                         if like.user.username != request.user.username:
+#                             like_text += like.user.username+", "
+#                     if len(c_likes) == 3 and c_user_like == 1:
+#                         like_text = like_text[:-2]
+#                     else:
+#                         like_text += " and " + str(len(c_likes)-2) + "more."
+#                 else:
+#                     for like in c_likes:
+#                         if like.user.username != request.user.username:
+#                             like_text += like.user.username + ", "
+#                     like_text = like_text[:-2]
+#                 like_text += "</a>"
+#             else:
+#                 like_text = ""
+#             if active and not (request.user == post.user):
+#                 html+="<img src='/static/images/online-3.png' class='smallcircle'></img>"
+#                 if comment.user.profile.skype_username:
+#                     skype_username = comment.user.profile.skype_username
+#                 else:
+#                     skype_username = "Not Set."
+#                 html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-skype='"+skype_username+"' data-id='"+str(post.user.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+#             else:
+#                 html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'><img class='comment-profile-image hoverable-profile' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' data-id='"+str(post.user.id)+"' data-uname='"+comment.user.username+"' data-email='"+comment.user.email+"' src='"+comment_img+"'></img></a></td><td>"
+#             # or is_facilitator(request.user, c)
+#             if request.user.id == post.user.id or request.user.id == comment.user.id or request.user.is_superuser or request.user.id == post.master.id:
+#                 delete_code = "<img src='../static/images/trash-small.png' data-commentid='"+str(comment.id)+"' class='delete-something comment-delete'></img>"
+#             else:
+#                 delete_code = ""
+#             html += "<a href='/dashboard/"+str(comment.user.id)+"' class='comment-anchor-text'>"+comment.user.first_name+" "+comment.user.last_name+"</a><span>"+filter_at(comment.comment)+"</span><br>" + c_like_html
+#             html += "<a data-id='"+str(post.id)+"' data-name='"+comment.user.first_name+" "+comment.user.last_name+"' class='comment-reply-text'><img src='/static/images/comment.png' class='comment-image'></img>Reply</a>"+delete_code+like_text+"</td></tr></table>"
+#         html+="<img src='"+usr_img+"' class='comment-profile-image'></img><textarea class='add-comment-text' data-id='"+str(post.id)+"' placeholder='Add a comment...' id='focus"+str(post.id)+"'></textarea></div>"
+#         html += "<div class='ds-post-end_line'></div>"
+#         html+="</td></tr>"
+
+
+
+        
+#     from mitxmako.shortcuts import render_to_string
+#     return HttpResponse(json.dumps({'data': extra_data,'id':id, 'len': len(posts), 'Success': 'True', 'all':all, 'post': render_to_string("feeding/post.html",{}), 'community': request.POST.get('master_id')}), content_type='application/json')
     
 def submit_new_like(request):
-    pid = request.POST.get('post_id')
-    comment = None
-    post = None
-    try:
-        post = DashboardPosts.objects.get(id=request.POST.get('post_id'))
-    except:
-        None
-    try:
-        comment = DashboardComments.objects.get(id=request.POST.get('comment_id'))
-    except:
-        None
-    if post:
-        found=len(DashboardLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    user_id = request.user.id
+    feeding_id = request.POST.get('feeding_id')
+    
+    store = dashboard_feeding_store()
+    
+    if store.is_like(feeding_id, user_id):
+        store.remove_like(feeding_id, request.user.id)
     else:
-        found=len(DashboardLikes.objects.filter(comment=comment, user__id=request.POST.get('user_id')))
-    if found == 1:
-        DashboardLikes.objects.filter(post=post, comment=comment, user__id=request.user.id).delete()
-        return HttpResponse(json.dumps({'Success': 'True', 'Liked':'Removed'}), content_type='application/json')
-    else:
-        like = DashboardLikes()
-        if comment:
-            like.comment = comment
-        if post:
-            like.post = post
-        like.user = User.objects.get(id=request.user.id)
-        like.save()
-        return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
+        date = datetime.datetime.utcnow()
+        store.add_like(feeding_id, request.user.id, date)
+        
+    return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')    
+
+    # comment = None
+    # post = None
+    # try:
+    #     post = DashboardPosts.objects.get(id=request.POST.get('post_id'))
+    # except:
+    #     None
+    # try:
+    #     comment = DashboardComments.objects.get(id=request.POST.get('comment_id'))
+    # except:
+    #     None
+    # if post:
+    #     found=len(DashboardLikes.objects.filter(post=post, user__id=request.POST.get('user_id')))
+    # else:
+    #     found=len(DashboardLikes.objects.filter(comment=comment, user__id=request.POST.get('user_id')))
+    # if found == 1:
+    #     DashboardLikes.objects.filter(post=post, comment=comment, user__id=request.user.id).delete()
+    #     return HttpResponse(json.dumps({'Success': 'True', 'Liked':'Removed'}), content_type='application/json')
+    # else:
+    #     like = DashboardLikes()
+    #     if comment:
+    #         like.comment = comment
+    #     if post:
+    #         like.post = post
+    #     like.user = User.objects.get(id=request.user.id)
+    #     like.save()
+    #     return HttpResponse(json.dumps({'Success': 'True', 'Liked': str(found)}), content_type='application/json')
 
 def delete_post(request):
-    domain_name = request.META['HTTP_HOST']
-    master_id = request.POST.get('master_id')
-    pid = request.POST.get("post_id")
-    post = DashboardPosts.objects.get(id=pid)
-    post.delete()
+    # domain_name = request.META['HTTP_HOST']
+    # master_id = request.POST.get('master_id')
+    # pid = request.POST.get("post_id")
+    # post = DashboardPosts.objects.get(id=pid)
+    # post.delete()
     # send_notification(request.user, master_id, posts_delete=[post], domain_name=domain_name)
+
+    feeding_id = request.POST.get("post_id")
+    store = dashboard_feeding_store()
+    store.remove_feeding(feeding_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 def delete_comment(request):
-    domain_name = request.META['HTTP_HOST']
-    master_id = request.POST.get('master_id')
-    cid = request.POST.get("comment_id")
-    comment = DashboardComments.objects.get(id=cid)
-    comment.delete()
+    # domain_name = request.META['HTTP_HOST']
+    # master_id = request.POST.get('master_id')
+    # cid = request.POST.get("comment_id")
+    # comment = DashboardComments.objects.get(id=cid)
+    # comment.delete()
     # send_notification(request.user, master_id, posts_reply_delete=[comment], domain_name=domain_name)
+
+    feeding_id = request.POST.get("comment_id")
+    store = dashboard_feeding_store()
+    store.remove_feeding(feeding_id)
+    
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
 
 def submit_new_comment(request):
-    domain_name = request.META['HTTP_HOST']
-    master_id = request.POST.get('master_id')
-    comment = DashboardComments()
-    post = DashboardPosts.objects.get(id=request.POST.get('post_id'))
-    post.date_update = datetime.datetime.now()
-    post.save()
-    comment.post = post
-    comment.user = User.objects.get(id=request.user.id)
-    comment.comment = request.POST.get('content')
-    comment.save()
-    # send_notification(request.user, master_id, posts_reply=[comment], domain_name=domain_name)
-    return HttpResponse(json.dumps({'Success': 'True', 'post':request.POST.get('content')}), content_type='application/json')
+    store = dashboard_feeding_store()
+    post_id = request.POST.get('post_id', '')
+    content = request.POST.get('content')
+    _id = store.create(user_id=request.user.id,
+                       type="comment",
+                       content=content,
+                       sub_of=post_id, top_level=post_id,
+                       date=datetime.datetime.utcnow())
+    return HttpResponse(json_util.dumps({'Success': 'True', '_id':_id}), content_type='application/json')
 
 def lookup_name(request):
     name = request.POST.get("name").split()
@@ -3087,48 +3242,62 @@ def lookup_name(request):
     return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
 
 def get_full_likes(request):
-    comment_id = request.POST.get('comment')
-    post_id = request.POST.get('post')
+    feeding_id = request.POST.get('feeding_id')
     html = "<table>"
-    if comment_id != '':
-        likes = DashboardLikes.objects.filter(comment__id=comment_id)
-    else:
-        likes = DashboardLikes.objects.filter(post__id=post_id)
+
+    store = dashboard_feeding_store()
+    likes = store.get_likes(feeding_id)
+    
     for like in likes:
-        html += " <tr><td><img src='"+reverse('user_photo', args=[like.user.id])+"' width='24px'></img></td><td>"+like.user.first_name + " " + like.user.last_name + "</td></tr>"
+        user = User.objects.get(id=like["user_id"])
+        html += " <tr><td><img src='"+reverse('user_photo', args=[user.id])+"' width='24px'></img></td><td>"+user.first_name + " " + user.last_name + "</td></tr>"
     html += "</table>"
     return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
 
+
 def submit_new_post(request):
-    domain_name = request.META['HTTP_HOST']
-    master_id = request.POST.get('master_id')
-    post = DashboardPosts()
-    content = request.POST.get('post')
-    content = parse_urls(content)
-    post.master = User.objects.get(id=request.POST.get('master_id'))
-    post.user = User.objects.get(id=request.user.id)
-    post.post = content
-    post.save()
+    store = dashboard_feeding_store()
+    content = parse_urls(request.POST.get("post", ""))
+
+    type = request.POST.get("type")
+    expiration_date = request.POST.get("expiration_date", None)
+    expiration_date = datetime.datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S") if expiration_date else None
+
+    receiver_ids = None
+    if type == "announcement":
+        up = request.user.profile
+        level = check_access_level(request.user, "dashboard_announcement", "create")
+        if level == "System":
+            receiver_ids = [0]
+        elif level == "State":
+            receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
+        elif level == "Districe":
+            receiver_ids = list(UserProfile.objects.filter(district_id=up.district_id).values_list('user_id', flat=True))
+        elif level == "School":
+            receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
+    else:
+        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % request.user.id]).values_list('user_id', flat=True))
+        receiver_ids.append(request.user.id)
+
+    images = []
+    
     if request.POST.get('include_images') == "yes":
-        images = request.POST.get('images').split(',')
-        for image in images:
-            image = image.rstrip('/')
-            image = image.rstrip('\\')
+        for image in request.POST.get('images', "").split(','):
+            image = image.rstrip('/').rstrip('\\')
             ext = image[-3:]
+            data = {"link": image}
             if ext == "png" or ext == "jpg" or ext == "gif" or ("youtube" in image) or ("youtu.be" in image):
-                img = DashboardPostsImages()
-                img.post = post
-                img.link = image
-                img.embed = int(request.POST.get('embed'))
-                img.save()
+                data["embed"] = int(request.POST.get('embed'))
             else:
-                img = DashboardPostsImages()
-                img.post = post
-                img.link = image
-                img.embed = 0
-                img.save()
-    #send_notification(request.user, master_id, posts_new=[post], domain_name=domain_name)
-    return HttpResponse(json.dumps({'Success': 'True', 'post': request.POST.get('post'), 'master_id': request.POST.get('master_id')}), content_type='application/json')
+                data["embed"] = 0
+            images.append(data)
+
+    _id = store.create(type=type, user_id=request.user.id, content=content,
+                       receivers=receiver_ids, date=datetime.datetime.utcnow(),
+                       expiration_date=expiration_date, images=images)
+        
+    return HttpResponse(json.dumps({'Success': 'True', "_id": str(_id), 'post': request.POST.get('post'),
+                                    'master_id': request.POST.get('master_id')}), content_type='application/json')
 
 def parse_urls(content):
     final = ""

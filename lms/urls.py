@@ -158,7 +158,10 @@ urlpatterns = (
 
     #@begin:Add for Dashboard Posts
     #@date:2016-12-29
-    url(r'^dashboard/post/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
+    url(r'^dashboard/posts/get$', 'student.newdashboard.get_posts', name='dashboard_get_posts'),
+    
+    url(r'^dashboard/post/get$', 'student.newdashboard.get_post', name='dashboard_get_post'),
+    
     url(r'^dashboard/post/like$', 'student.newdashboard.submit_new_like', name='dashboard_submit_new_like'),
     url(r'^dashboard/delete/post', 'student.newdashboard.delete_post', name='dashboard_delete_post'),
     url(r'^dashboard/delete/comment', 'student.newdashboard.delete_comment', name='dashboard_delete_comment'),
@@ -440,7 +443,7 @@ urlpatterns = (
     url(r'^$', 'branding.views.index', name="root"),   # Main marketing page, or redirect to courseware
     url(r'^dashboard$', 'student.views.dashboard', name="dashboard"),
     url(r'^dashboard/get_pepper_stats$', 'student.views.get_pepper_stats', name="get_pepper_stats"),
-    url(r'^newdashboard$', 'student.newdashboard.newdashboard', name="newdashboard"),
+    url(r'^newdashboard/$', 'student.newdashboard.newdashboard', name="newdashboard"),
     url(r'^my_courses$', 'student.newdashboard.my_courses', name="my_courses"),
 
 
