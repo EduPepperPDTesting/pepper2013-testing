@@ -1018,9 +1018,10 @@
             $("#view_select").find(".list-active").removeClass("list-active");
             $(this).addClass("list-active");
 
-            $("#view_select btn-input-grp").val($(this).text());
-            var viewVal = $(this).val();
+            ver liText = $(this).text();
+            $("#view_select btn-input-grp").val(liText);
 
+            var viewVal = $(this).val();
             $("#view_select").val(viewVal);
             calendarOpen();
         });
