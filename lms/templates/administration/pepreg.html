@@ -938,6 +938,8 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
 
+        $(".btn-input-grp").off("mouseover");
+
         //akogan - needs solution for repeated click events on .btn-input-grp to trigger dropdown-toggle class change
 		/*$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
 		    event.preventDefault();
@@ -1021,9 +1023,9 @@
             var viewVal = $(this).val();
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
-                $("#view_select btn-input-grp").removeAttr("value").val("Calendar View");
+                $("#view_select .btn-input-grp").val("Calendar View");
             }else if(viewVal == "1"){
-                $("#view_select btn-input-grp").removeAttr("value").val("Print View");
+                $("#view_select .btn-input-grp").val("Print View");
             }
 
             $("#view_select").val(viewVal);
