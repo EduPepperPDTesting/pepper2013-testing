@@ -21,7 +21,7 @@ class Migration(SchemaMigration):
         # Adding model 'OrganizationDataitems'
         db.create_table('organization_dataitems', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('DataItem', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('DataItem', self.gf('django.db.models.fields.TextField')),
             ('organization', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['organization.OrganizationMetadata'])),
         ))
         db.send_create_signal('organization', ['OrganizationDataitems'])
