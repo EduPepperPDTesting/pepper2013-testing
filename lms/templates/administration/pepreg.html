@@ -111,13 +111,8 @@
 
     #dlg-warning {height: 310px;}
 
-    .btn-input-grp:disabled{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;
-        background-color: #108ec7 !important;
-        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important;
-        background-image: -webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important;
-        background-image: linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important;
-    }
-    
+    .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;}
+
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -288,7 +283,7 @@
                 <!--<input type="button" class="btn btn-primary btn-input-grp" value="Day" name="2">-->
             <!--</div>-->
             <div class="btn-group" id="calendar_select_range" value="1" style="margin-left: 10px !important;">
-                <input type="button" class="btn btn-primary btn-input-grp " value="Calendar Week" disabled>
+                <input type="button" class="btn btn-primary btn-input-grp " value="Calendar Week">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
                     <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar Week</li>
@@ -299,7 +294,7 @@
             </div>
 
             <div class="btn-group" id="view_select" value="0" style="margin-left: 10px !important;">
-                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View" disabled>
+                <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
                     <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Calendar View</li>
@@ -944,7 +939,21 @@
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});*/
 
-        $(".btn-input-grp").off("mouseover");
+        $(".btn-input-grp").hover(function() {
+            $(this).css({
+                "background-color": "#108ec7 !important",
+                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
+                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
+                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
+            });
+        }, function() {
+            $(this).css({
+                "background-color": "#108ec7 !important",
+                "background-image": "-webkit-gradient(linear, left top, left bottom, color-stop(0%, #108ec7),color-stop(50%, #005fa6),color-stop(50%, #004897),color-stop(100%, #004d9a)) !important",
+                "background-image": "-webkit-linear-gradient(top, #108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important",
+                "background-image": "linear-gradient(to bottom,#108ec7 0%,#005fa6 50%,#004897 50%,#004d9a 100%) !important"
+            });
+        });
 
         //akogan - needs solution for repeated click events on .btn-input-grp to trigger dropdown-toggle class change
 		/*$("#calendar_select_range .btn-input-grp").off("click").on("click", function(event){
