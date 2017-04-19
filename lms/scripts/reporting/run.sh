@@ -29,7 +29,7 @@ mongo2_db_assist="$EDX_PLATFORM_MONGO_DB_ASSIST"
 
 
 echo -e "tahoe" | sudo -S netstat -tlnp
-mongo3_path="/home/tahoe/mongo321/mongodb-linux-x86_64-ubuntu1204-3.2.1/bin"
+mongo3_path="/home/tahoe/mongo3/bin"
 
 echo '-------------------------------------------'
 echo 'User information conversion'
