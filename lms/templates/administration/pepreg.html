@@ -296,8 +296,8 @@
                 <input type="button" class="btn btn-primary btn-input-grp" value="Calendar View">
                 <input type="button" class="btn btn-primary dropdown-toggle arrow-down" data-toggle="dropdown" value="▼" style="margin-right: 0px; border-left-width: 0px;">
                 <ul class="dropdown-menu" role="menu">
-                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="1">Calendar View</li>
-                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="3">Print View</li>
+                    <li class="list-group-item list-group-item-info list-active" style="color: white !important; cursor: default;" value="0">Calendar View</li>
+                    <li class="list-group-item list-group-item-info" style="color: white !important; cursor: pointer;" value="1">Print View</li>
                 </ul>
             </div>
 
@@ -963,7 +963,7 @@
         $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
-            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+            $("#calendar_select_range dropdown-toggle").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
 
             //$("#calendar_select_range").find(".btn-active").removeClass("btn-active");
             //$(this).parent().siblings().addClass("btn-active");
@@ -975,16 +975,16 @@
             var rangeVal = $(this).val();
 
             if(rangeVal=="3"){
-                $(".btn-input-grp").val("Work Week");
+                $("#calendar_select_range .btn-input-grp").val("Work Week");
                 $("th.weekend").remove();
             }else{
                 $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
                 if(rangeVal=="0"){
-                    $(".btn-input-grp").val("Month");
+                    $("#calendar_select_range .btn-input-grp").val("Month");
                 }else if(rangeVal=="1"){
-                    $(".btn-input-grp").val("Calendar Week")
+                    $("#calendar_select_range .btn-input-grp").val("Calendar Week")
                 }else if(rangeVal=="2"){
-                    $(".btn-input-grp").val("Day");
+                    $("#calendar_select_range .btn-input-grp").val("Day");
                 }
             }
 
@@ -1013,13 +1013,15 @@
         $("#view_select ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
-            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+            $("#view_select dropdown-toggle").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
 
             $("#view_select").find(".list-active").removeClass("list-active");
             $(this).addClass("list-active");
 
-            var liText = $(this).text();  
-            $("#view_select btn-input-grp").val(liText);
+            if($(this).val==0)
+                $("#view_select btn-input-grp").val("Calendar View");
+            else
+                $("#view_select btn-input-grp").val("Print View");
 
             var viewVal = $(this).val();
             $("#view_select").val(viewVal);
