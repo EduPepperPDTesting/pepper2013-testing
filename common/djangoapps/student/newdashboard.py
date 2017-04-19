@@ -33,7 +33,7 @@ from views import course_from_id, cert_info, exam_registration_info, study_time_
 from django.http import HttpResponse
 from datetime import timedelta
 from xmodule.remindstore import myactivitystore
-from student.models import CourseEnrollment, CourseEnrollmentAllowed
+from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfile
 from communities.models import CommunityUsers
 from permissions.utils import check_access_level
 
