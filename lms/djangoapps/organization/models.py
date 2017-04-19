@@ -16,7 +16,7 @@ class OrganizationMetadata(models.Model):
 class OrganizationDataitems(models.Model):
     class Meta:
         db_table = 'organization_dataitems'
-    DataItem = models.CharField(blank=False, db_index=False)
+    DataItem = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
 class OrganizationDistricts(models.Model):
@@ -31,7 +31,7 @@ class OrganizationAttributes(models.Model):
         db_table = 'organization_attributes'
     LogoHome = models.CharField(blank=False, max_length=255, db_index=False)
     LogoProfile = models.CharField(blank=False, max_length=255, db_index=False)
-    Motto = models.CharField(blank=False, db_index=False)
+    Motto = models.CharField(blank=False, max_length=255, db_index=False)
     organization = models.ForeignKey(OrganizationMetadata)
 
 class MainPageConfiguration(models.Model):
@@ -44,3 +44,28 @@ class MainPageConfiguration(models.Model):
     MainPageBottomImage = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonText = models.CharField(blank=False, max_length=255, db_index=False)
     MainPageButtonLink = models.CharField(blank=False, max_length=255, db_index=False)
+
+class OrganizationMenuitem(models.Model):
+    class Meta:
+        db_table = 'organization_menuitem'
+    MenuItem = models.CharField(blank=False, max_length=255, db_index=False)
+    Url = models.CharField(blank=False, max_length=255, db_index=False)
+    Icon = models.CharField(blank=False, max_length=255, db_index=False)    
+    isAdmin = models.BooleanField(blank=False, default=0)
+    rowNum = models.IntegerField(blank=False, default=0)
+    ParentID = models.IntegerField(blank=False, default=0)
+    organization = models.ForeignKey(OrganizationMetadata)
+
+class OrganizationMenu(models.Model):
+    class Meta:
+        db_table = 'organization_menu'
+    itemType = models.CharField(blank=False, max_length=255, db_index=False)
+    itemValue = models.CharField(blank=False, max_length=255, db_index=False)
+    organization = models.ForeignKey(OrganizationMetadata)
+
+class OrganizationDashboard(models.Model):
+    class Meta:
+        db_table = 'organization_dashboard'
+    itemType = models.CharField(blank=False, max_length=255, db_index=False)
+    itemValue = models.CharField(blank=False, max_length=255, db_index=False)
+    organization = models.ForeignKey(OrganizationMetadata)
