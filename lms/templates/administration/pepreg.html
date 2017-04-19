@@ -107,7 +107,7 @@
 
     #dlg-warning {height: 310px;}
 
-    .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important;}
+    .btn-input-grp{border-left-width: 0px !important; border-right-width: 0px !important;padding-left: 5px !important; padding-right: 5px !important; margin-right: 0px !important; min-width: 120px;}
 </style>
 <span id="organization_obj" o_name="pepreg"></span>
 <div class="data_import_bottom">
@@ -959,7 +959,7 @@
             var rangeVal = $(this).val();
 
             if(rangeVal=="3"){
-                $(".week-parent").val("Work Week");
+                $(".btn-input-grp").val("Work Week");
                 $("th.weekend").remove();
             }else{
                 $("#calendar-month-weekdays:not(:has(th.weekend))").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
