@@ -103,7 +103,7 @@
         background-image: linear-gradient(to bottom,#105f84 0%,#024e86 50%,#01356d 50%,#023669 100%);
     }
 
-    #calendar_select_range ul{min-width: 135px; padding: 0px;}
+    #calendar_select_range ul, #view_select ul{min-width: 135px; padding: 0px;}
 
     #view_select li{background-color: #337ab7;}
 
@@ -963,7 +963,7 @@
         $("#calendar_select_range ul").on("click", "li:not(.list-active)", function(event){
             event.preventDefault();
 
-            $(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
 
             //$("#calendar_select_range").find(".btn-active").removeClass("btn-active");
             //$(this).parent().siblings().addClass("btn-active");
@@ -1000,7 +1000,31 @@
             $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
         });
 
-        //
+       $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
+            event.preventDefault();
+            $(this).css("cursor", "default");
+        });
+
+        $("#calendar_select_range ul").on("mouseover", "li:not(.list-active)", function(event){
+            event.preventDefault();
+            $(this).css("cursor", "pointer");
+        });
+
+        $("#view_select ul").on("click", "li:not(.list-active)", function(event){
+            event.preventDefault();
+
+            $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+
+            $("#view_select").find(".list-active").removeClass("list-active");
+            $(this).addClass("list-active");
+
+            $("#view_select btn-input-grp").val($(this).text());
+            var viewVal = $(this).val();
+
+            $("#view_select").val(viewVal);
+            calendarOpen();
+        });
+
         $("#view_select .btn-input-grp").off("click").css("cursor", "default");
 
         $("#view_select").on("click", ".arrow-down", function(event){
@@ -1009,6 +1033,16 @@
 
        $("#view_select").on("click", ".arrow-up", function(event){
             $(this).removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");
+        });
+
+        $("#view_select ul").on("mouseover", "li.list-active", function(event){
+            event.preventDefault();
+            $(this).css("cursor", "default");
+        });
+
+        $("#view_select ul").on("mouseover", "li:not(.list-active)", function(event){
+            event.preventDefault();
+            $(this).css("cursor", "pointer");
         });
 
         _sys_calendar_year = _calendar_date.getFullYear();
