@@ -926,10 +926,10 @@
 		});*/
 
 		$("#calendar_select_range").on("click", ".btn-input-grp", function(event){
+		    if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-down']")) {$(".arrow-down").removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");}
+            else if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-up']")) {$(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");}
 		    event.stopPropagation();
             $("#calendar_select_range .dropdown-toggle").dropdown('toggle');
-            if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-down']")) {$(".arrow-down").removeAttr("value").attr("value","▲").addClass("arrow-up").removeClass("arrow-down");}
-            else if($("#calendar_select_range").has(".dropdown-toggle[class='arrow-up']")) {$(".arrow-up").removeAttr("value").attr("value","▼").addClass("arrow-down").removeClass("arrow-up");}
         });
 
         $("#calendar_select_range ul").on("mouseover", "li.list-active", function(event){
