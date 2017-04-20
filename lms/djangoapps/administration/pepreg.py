@@ -444,6 +444,8 @@ def getCalendarMonth(request):
     _getrange = request.GET.get('daterange'); #akogan
     _catype = request.GET.get('catype');
 
+    _cal_view = request.GET.get('calview')
+
     if (_year):
         _year = int(_year);
 
