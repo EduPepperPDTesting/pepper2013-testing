@@ -1024,16 +1024,10 @@
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
                 $("#view_select .btn-input-grp").val("Calendar View");
-                $("#calendar-month tr:eq(0)").HTML(
-                     '<th id="day0">Monday</th>
-                     <th id="day1">Tuesday</th>
-                     <th id="day2">Wednesday</th>
-                     <th id="day3">Thursday</th>
-                     <th id="day4">Friday</th>
-                ');
+                $("#calendar-month-weekdays").HTML('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
                 if($("#calendar-select-range").val() != "3"){
-                    $("#calendar-month tr:eq(0)").append(
-                         <th id="day5" class="weekend">Saturday</th>
+                    $("#calendar-month-weekdays").append(
+                         '<th id="day5" class="weekend">Saturday</th>
                          <th id="day6" class="weekend">Sunday</th>'
                     );
                 }
