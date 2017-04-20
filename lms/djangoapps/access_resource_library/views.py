@@ -188,6 +188,9 @@ def index_list(request):
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
     
+    if request.user._id == 24:
+        return render_to_response('temporary.html', {"states": 123,"districts": 123})
+
     for course in courses:
         if request.user.is_superuser is False:
             if request.user.profile.district.state.name in course.display_state:
