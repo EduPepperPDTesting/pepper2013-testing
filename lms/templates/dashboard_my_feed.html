@@ -90,7 +90,7 @@ from permissions.utils import check_access_level, check_user_perms
       return "&#" + b.charCodeAt(0) +";"
     });
   }
-  String.prototype.fillData=function(data) {
+  String.prototype.fillData = function(data) {
     var c = 1;
     var s = this.replace(/{(.+)}/g, function(a, b) {
       return "{" + b.escape("?:!") + "}";
@@ -111,6 +111,9 @@ from permissions.utils import check_access_level, check_user_perms
       });
     }
     return s;
+  }
+  String.prototype.htmlEncode = function(value){
+    return $('<div/>').text(this).html();
   }
 </script>
 <div id="dashboard_content_posts" class="dashboard-post">
@@ -223,6 +226,7 @@ from permissions.utils import check_access_level, check_user_perms
   <tr class='post-content-row clearfix'>
   <td style="vertical-align:top"><img src="/static/images/{group_image}" class="" alt="" width="100" height=""/></td>
   <td>
+  {exp}
   <div class='ds-post-title'>
   <input type="hidden" name="post_id" value="{_id}" />
   <table>
@@ -257,8 +261,8 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div class='comment-section'>
   {sub_html}
-  <img src='/user_photo/{user_id}' class='comment-profile-image'> </img>
-  <textarea class='add-comment-text' placeholder='Add a comment...'></textarea>
+  {comment_disabled!<img src='/user_photo/{user_id}' class='comment-profile-image'> </img>}
+  {comment_disabled!<textarea class='add-comment-text' placeholder='Add a comment...'></textarea>}
   </div>
   <div class='ds-post-end_line'></div>
   </td>
@@ -376,7 +380,7 @@ from permissions.utils import check_access_level, check_user_perms
         var content=$(this).val();
         $(self).val("");
         $.post("${reverse('dashboard_submit_new_comment')}",
-               {post_id:post_id, content:content},
+               {post_id:post_id, content:content.htmlEncode()},
                function(data){
                  updatePostElement($row)
                });
@@ -549,7 +553,7 @@ from permissions.utils import check_access_level, check_user_perms
       $("#add_images_div").toggle();
     });
     $("#submit_new_post_button").click(function(){
-      var post = $("#new_post_textarea").val();
+      var post = $("#new_post_textarea").val().htmlEncode();
       var images = $("#image_link_input").val()
       var include_images = "no"
       if (images != ""){

@@ -95,19 +95,20 @@ class DashboardFeedingStore(MongoBaseStore):
     def top_level_for_user(self, user_id, type=None, year=None, month=None, page_size=None, page=None, before=None):
         results = []
 
+        # {$project: {doc: "$$ROOT", birth_month: {$month: "$birthdate"}}}
+        
         # ** fields needed
-        fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1,
-                  "images": 1, "type": 1, "sub_of": 1, "receivers": 1, "likes": 1}
+        fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1, "keep_top": {"$and": [
+            {"$eq": ["$type", "announcement"]},
+            {"$gte": ["$expiration_date", before]}]},
+            "images": 1, "type": 1, "sub_of": 1, "receivers": 1, "likes": 1}
         fields["month"] = {"$month": '$date'}
         fields["year"] = {"$year": '$date'}
-
 
         # ** cond
         cond = {"$and": [{"$or": [{"receivers": {"$elemMatch": {"$eq": user_id}}},  # user is receiver
                                   {"receivers": {"$elemMatch": {"$eq": 0}}}]},      # for every one
-                         {"$or": [{"expiration_date": {"$gte": before}},  # before expiration
-                                  {"expiration_date": {"$eq": None}       # expiration not setted
-                                   }]}],
+                         ],
                 "sub_of": None}  # is top leve;
 
         # *** filter cond
@@ -121,7 +122,7 @@ class DashboardFeedingStore(MongoBaseStore):
             cond["type"] = type
 
         # ** sort order
-        so = OrderedDict([("type", 1), ("date", -1)])
+        so = OrderedDict([("keep_top", -1), ("date", -1)])
 
         command = [{"$project": fields}, {"$match": cond}, {"$sort": so}]
 
