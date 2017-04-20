@@ -26,16 +26,22 @@ from feeding import dashboard_feeding_store
 from django.db.models import Sum
 from administration.models import PepRegStudent
 from reporting.models import reporting_store
-from administration.models import PepRegTraining
-from reporting.models import Reports
 from bson import json_util
 from views import course_from_id, cert_info, exam_registration_info, study_time_format, upload_user_photo
 from django.http import HttpResponse
 from datetime import timedelta
-from xmodule.remindstore import myactivitystore
 from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfile
-from communities.models import CommunityUsers
 from permissions.utils import check_access_level
+
+#@begin:my activity
+#@date:2017-04-20
+from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers
+from xmodule.remindstore import myactivitystore, chunksstore
+from courseware.courses import get_course_by_id, course_image_url 
+import comment_client as cc
+from administration.models import PepRegTraining
+from reporting.models import Reports
+#@end
 
 log = logging.getLogger("tracking")
 
