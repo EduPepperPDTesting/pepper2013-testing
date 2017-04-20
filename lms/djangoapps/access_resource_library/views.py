@@ -11,8 +11,6 @@ from django.views.decorators.cache import cache_control
 from student.models import UserTestGroup, CourseEnrollment, UserProfile, District, State
 from .models import Resource, GenericResource
 from courseware.courses import get_courses, sort_by_custom
-import logging
-log = logging.getLogger("tracking")
 
 def index_bak(request):
 
@@ -188,10 +186,9 @@ def index_list(request):
     
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
-    log.debug("11111111111111111111111111111111111111111111111111111111111111111")
-    log.debug(request.user.id)
-    # if request.user.id == 24:
-    #     return render_to_response('temporary.html', {"states": 123,"districts": 123})
+
+    if request.user.id == 24:
+        return render_to_response('temporary.html')
 
     for course in courses:
         if request.user.is_superuser is False:
