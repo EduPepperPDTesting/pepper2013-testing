@@ -651,7 +651,7 @@ def modx_dispatch(request, dispatch, location, course_id):
                             instance.save()
                             ma_db = myactivitystore()
                             complete_date = "%s-%s-%s" % (course_instance.complete_date.year,course_instance.complete_date.month,course_instance.complete_date.day)
-                            my_activity = {"GroupType": "Course", "EventType": "course_course Completion", "ActivityDateTime": datetime.utcnow(),
+                            my_activity = {"GroupType": "Courses", "EventType": "course_courseCompletion", "ActivityDateTime": datetime.utcnow(),
                             "UsrCre": request.user.id, "URLValues": {"course_id":course_id, "complete_date":complete_date},
                             "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
@@ -703,7 +703,7 @@ def modx_dispatch(request, dispatch, location, course_id):
         display_name.strip()
         page = request.POST.get('page')
         ma_db = myactivitystore()
-        my_activity = {"GroupType": "Course", "EventType": "course_ora Completion", "ActivityDateTime": datetime.utcnow(),
+        my_activity = {"GroupType": "Courses", "EventType": "course_oraCompletion", "ActivityDateTime": datetime.utcnow(),
         "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"SourceID":id1,"commentable_id":id2,"page":page},
         "TokenValues": {"course_id": course_id, "ORAdisplayName":display_name}, "LogoValues": {"course_id": course_id},
         }
