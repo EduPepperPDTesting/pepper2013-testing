@@ -650,9 +650,10 @@ def modx_dispatch(request, dispatch, location, course_id):
                             ajax_return_json['contents'] = completed_course_prompt + ajax_return_json['contents']
                             instance.save()
                             ma_db = myactivitystore()
+                            complete_date = "%s-%s-%s" % (course_instance.complete_date.year,course_instance.complete_date.month,course_instance.complete_date.day)
                             my_activity = {"GroupType": "Course", "EventType": "course_course Completion", "ActivityDateTime": datetime.utcnow(),
-                            "UsrCre": request.user.id, "URLValues": {"course_id":course_id},
-                            "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id,"complete_date":course_instance.complete_date, "display_name":course_descriptor.display_name},
+                            "UsrCre": request.user.id, "URLValues": {"course_id":course_id, "complete_date":complete_date},
+                            "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id},
                             }
                             ma_db.insert_item(my_activity)
                             # True North Logic integration
@@ -699,11 +700,12 @@ def modx_dispatch(request, dispatch, location, course_id):
         id2 = request.META['HTTP_REFERER'].split("/")[-2]
         id1 = request.META['HTTP_REFERER'].split("/")[-3]
         display_name = request.POST.get('display_name')
+        display_name.strip()
         page = request.POST.get('page')
         ma_db = myactivitystore()
         my_activity = {"GroupType": "Course", "EventType": "course_ora Completion", "ActivityDateTime": datetime.utcnow(),
         "UsrCre": request.user.id, "URLValues": {"course_id":course_id,"SourceID":id1,"commentable_id":id2,"page":page},
-        "TokenValues": {"course_id": course_id}, "LogoValues": {"course_id": course_id, "ORAdisplayName":display_name},
+        "TokenValues": {"course_id": course_id, "ORAdisplayName":display_name}, "LogoValues": {"course_id": course_id},
         }
         ma_db.insert_item(my_activity)
     # Return whatever the module wanted to return to the client/caller

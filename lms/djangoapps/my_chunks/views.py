@@ -115,8 +115,6 @@ def save_mychunk(request):
     "LogoValues": {"SourceID": oid}}
     ma_db.insert_item(my_activity)
 
-    log.debug("uyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
-    log.debug(my_activity)
     return utils.JsonResponse({'results':'true'})
 
 def del_mychunk(request):
