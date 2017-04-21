@@ -111,7 +111,7 @@ def save_mychunk(request):
     ma_db = myactivitystore()
     my_activity = {"GroupType": "MyChunks", "EventType": EventType, "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
     "URLValues": {"url": info['url']},
-    "TokenValues": {"SourceID": oid}, 
+    "TokenValues": {"UsrCre": request.user.id, "url": info['url']}, #"TokenValues": {"SourceID": oid}, 
     "LogoValues": {"SourceID": oid}}
     ma_db.insert_item(my_activity)
 
@@ -139,7 +139,7 @@ def set_rate(request):
         ma_db = myactivitystore()        
         my_activity = {"GroupType": "MyChunks", "EventType": "myChunks_rateChunk", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
         "URLValues": {"url": mychunk_url},
-        "TokenValues": {"SourceID": oid}, 
+        "TokenValues": {"UsrCre": request.user.id, "url": mychunk_url},#"TokenValues": {"SourceID": oid}, 
         "LogoValues": {"SourceID": oid}}
         ma_db.insert_item(my_activity)
         break;
