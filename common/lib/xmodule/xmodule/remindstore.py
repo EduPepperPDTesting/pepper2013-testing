@@ -393,6 +393,19 @@ class MongoChunksStore(object):
             r.append(data)
         return r
 
+    def get_chunkTitle(self,user_id,url):
+        results = self.collection.find({"user_id":str(user_id),"url":url})
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        
+        chunkTitle = ''
+        if r:
+            chunkTitle = r[0]['chunkTitle']
+        return chunkTitle
+        
+
 _REMINDSTORE = {}
 _MESSAGESTORE = {}
 _CHUNKSSTORE = {}
