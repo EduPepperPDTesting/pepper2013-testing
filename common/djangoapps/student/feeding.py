@@ -96,7 +96,7 @@ class DashboardFeedingStore(MongoBaseStore):
         results = []
 
         # {$project: {doc: "$$ROOT", birth_month: {$month: "$birthdate"}}}
-        
+
         # ** fields needed
         fields = {"date": 1, "content": 1, "user_id": 1, "expiration_date": 1, "keep_top": {"$and": [
             {"$eq": ["$type", "announcement"]},

@@ -970,7 +970,7 @@ def submit_new_post(request):
             receiver_ids = [0]
         elif level == "State":
             receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
-        elif level == "Districe":
+        elif level == "District":
             receiver_ids = list(UserProfile.objects.filter(district_id=up.district_id).values_list('user_id', flat=True))
         elif level == "School":
             receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
