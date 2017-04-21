@@ -397,6 +397,7 @@ def report_view(request, report_id):
     :param report_id: The ID of the report to be edited.
     :return: The Report page.
     """
+    school_year = ""
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
@@ -413,6 +414,10 @@ def report_view(request, report_id):
         elif request.user.is_superuser:
             allowed = True
         if allowed:
+            school_year = request.GET.get('school_year', '')
+            if school_year:
+                school_year = str(school_year).replace("-","_")
+
             rs = reporting_store()
             collection = get_cache_collection(request, report_id)
 
@@ -444,6 +449,7 @@ def report_view(request, report_id):
         return render_to_response('error.html', data, status=404)
 
     data = {'report': report,
+            'school_year': school_year,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
@@ -520,20 +526,14 @@ def build_sorts_and_filters(columns, sorts, filters):
     return order, filter
 
 
-def get_cache_collection(request, report_id):
+def get_cache_collection(request, report_id, school_year=""):
     """
     Returns the name of the aggregate collection.
     :param request: Request object.
     :return: aggregate collection name.
-    """    
-   
-    tmp1 = request.GET.get('school_year')
-    if tmp1:
-        tmp1 = str(tmp1).replace("-","_")
-    else:
-        tmp1 = ""
+    """
 
-    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id) + '_' + tmp1
+    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id) + school_year
 
 
 @postpone

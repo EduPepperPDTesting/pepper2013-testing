@@ -259,12 +259,12 @@ class MongoMyActivityStore(object):
         self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
         self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
 
-    def set_item_community_discussion(self,discussion_id,discussion_name):
+    def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
         self.collection.update({'EventType':'community_creatediscussion','LogoValues':{'discussion_id':discussion_id}},
-            {'$set':{'LogoValues':{'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+            {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
         
         self.collection.update({'EventType':'community_replydiscussion','LogoValues':{'discussion_id':discussion_id}},
-            {'$set':{'LogoValues':{'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
+            {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
 
 class MongoMyActivityStaticStore(object):
 
