@@ -375,7 +375,7 @@ def delete_training(request):
         training.delete()
 
         ma_db = myactivitystore()
-        ma_db.set_item_pd(tid, tname)
+        ma_db.set_item_pd(tid, tname, str(tdate))
 
     except Exception as e:
         db.transaction.rollback()
