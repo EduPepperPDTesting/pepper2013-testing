@@ -32,16 +32,13 @@ from django.http import HttpResponse
 from datetime import timedelta
 from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfile
 from permissions.utils import check_access_level
-
-#@begin:my activity
-#@date:2017-04-20
 from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers
 from xmodule.remindstore import myactivitystore, chunksstore
 from courseware.courses import get_course_by_id, course_image_url 
 import comment_client as cc
 from administration.models import PepRegTraining
 from reporting.models import Reports
-#@end
+from django.core.urlresolvers import reverse
 
 log = logging.getLogger("tracking")
 
