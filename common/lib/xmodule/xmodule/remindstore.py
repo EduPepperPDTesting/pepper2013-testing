@@ -253,11 +253,12 @@ class MongoMyActivityStore(object):
         self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
 
     def set_item_community(self,community_id,community_name):        
-        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_facilitator','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
 
     def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
         self.collection.update({'EventType':'community_creatediscussion','LogoValues':{'discussion_id':discussion_id}},

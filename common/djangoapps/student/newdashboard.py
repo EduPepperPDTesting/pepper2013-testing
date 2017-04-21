@@ -422,7 +422,7 @@ def get_displayInfo(data):
                         e2 = eval("d." + dt['models2'])
                         e2_list.append(e2)
                         value = ", ".join(e2_list)
-        else:
+        elif t1[0] == 'mongo':
             dt = {}
             dt['db'] = t1[0]
             dt['models'] = re.sub("/([\w _]*)/", lambda x: str(data['TokenValues'].get(x.group(1))), t1[1])
@@ -432,6 +432,9 @@ def get_displayInfo(data):
                 value = eval(dt['models'])
             except:
                 pass
+        else:
+            info = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["DisplayInfo"])
+            return info
 
         displayInfo_values[dt['key_name']] = value
     info = replace_values(data["DisplayInfo"],displayInfo_values,dt['db'])
@@ -455,11 +458,13 @@ def get_logoInfo(data,ma_dict):
             dt['getby'] = t22[0]
             dt['key'] = data['LogoValues'][t22[1]]
             dt['key_name'] = t1[3]
-
-            str_get = dt['models'] + '.objects.filter(' + dt['getby'] + '=' + str(dt['key']) + ')'
-            e1 = eval(str_get)
-            for d in e1:
-                value = eval("d." + dt['models2'])
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                str_get = dt['models'] + '.objects.filter(' + dt['getby'] + '=' + str(dt['key']) + ')'
+                e1 = eval(str_get)
+                for d in e1:
+                    value = eval("d." + dt['models2'])
         else:
             dt = {}
             dt['db'] = t1[0]
