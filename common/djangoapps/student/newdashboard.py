@@ -775,34 +775,37 @@ def my_courses(request, user_id=None):
 
 def attach_post_info(p, time_diff_m, user):
     store = dashboard_feeding_store()
-    
+
     def format_feeding_date(post_time_utc):
         now_utc = datetime.datetime.utcnow()
-        
+
         if int(time_diff_m) != 0:
-            post_time_local = time_to_local(post_time_utc, time_diff_m)   
-            now_local = time_to_local(now_utc, time_diff_m)
+            post_time_local = time_to_local(post_time_utc, time_diff_m)
+            # now_local = time_to_local(now_utc, time_diff_m)
         else:
             post_time_local = post_time_utc
 
         # now_local_last_str = now_local.strftime('%Y-%m-%d') + ' 23:59:59'
         # post_time_local_str = post_time_local.strftime('%Y-%m-%d %H:%M:%S')
 
-        diff = (post_time_utc.replace(tzinfo=None) - datetime.datetime.utcnow())
-     
-        if diff.days < 1: 
+        unow = datetime.datetime.utcnow()
+        diff = unow - post_time_utc.replace(tzinfo=None)
+
+        post_year = post_time_local.strftime("%Y")
+        post_month = post_time_local.strftime("%b")
+        post_day = post_time_local.strftime("%d")
+        
+        if diff.days < 1 and post_day == unow.strftime("%d"):
             post_date = 'Today'
+            # post_date = post_year + '-' + post_month + '-' + post_day
         else:
-            post_year = post_time_local.strftime("%Y")
-            post_month = str(int(post_time_local.strftime("%m")))
-            post_day = str(int(post_time_local.strftime("%d")))
-            post_date = post_year + '-' + post_month + '-' + post_day
+            post_date =  post_month + ' ' + post_day + ", " + post_year
         post_h = str(int(post_time_local.strftime("%I")))
         post_m = post_time_local.strftime("%M")
         post_ampm = post_time_local.strftime("%p")
 
         hour_diff = int((diff.days * 86400 + diff.seconds) / (60 * 60))
-        return post_date, post_h, post_m, post_ampm , hour_diff
+        return post_date, post_h, post_m, post_ampm, hour_diff
 
     def format_like(likes):
         if not likes:
