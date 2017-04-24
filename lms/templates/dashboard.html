@@ -795,7 +795,13 @@ Add info that you would like to share about yourself here:
 <!--@date:2013-11-02-->
 <section class="my-courses">
   <header style="width:886px;height:246px;margin:auto;position:relative;border-bottom:none;margin-bottom:30px;">
-    <div style="position:absolute;background:url(${static.url('images/p15.png')});width:886px;height:246px;">
+    <div style="position:absolute;
+    %if request.user.id == 24:
+    background:url(${static.url('images/for24.png')});
+    %else:
+    background:url(${static.url('images/p15.png')});
+    %endif
+    width:886px;height:246px;">
       <a href="http://www.pepperpcg.blogspot.com" target="_blank" style="margin:170px 0 0 227px;position:absolute;" class="btnx dashboard-btn1">${_('Latest News')}</a>
     </div>
   </header>
