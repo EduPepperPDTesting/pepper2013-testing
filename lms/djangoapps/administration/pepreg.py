@@ -701,6 +701,8 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
         else:
             addBorder = ""
 
+        table_tr_content += "<tr class='calendar-tr-tmp'>"
+
         if isday:
             table_tr_content += "<td style='position: relative; height: 100%; width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" \
                                 "<div style='display: flex; flex-direction: column; justify-content: space-between; position: absolute; top:0px; bottom:0px; left:0px; width: 100%;'>";
@@ -742,7 +744,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
 
             if(not (day[0] == 0 and isweek)):
 
-                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;border-bottom: 1px #ccc solid;'" + clickFunc +">"
+                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;border-bottom: 1px solid #ccc;'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
