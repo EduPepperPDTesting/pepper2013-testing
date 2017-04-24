@@ -716,8 +716,10 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
             if(isweek or isday):
                 if day[0] != 0: day[0]=day[0].day
             class_name = "";
+            cell_border = "border-right: 1px solid #ccc;border-bottom: 1px solid #ccc;"
             if (day[0] == 0):
                 class_name = "calendarium-empty";
+                cell_border = ""
             elif (day[2]):
                 class_name = "calendarium-current";
             else:
@@ -744,7 +746,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
 
             if(not (day[0] == 0 and isweek)):
 
-                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;border-bottom: 1px solid #ccc;'" + clickFunc +">"
+                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
