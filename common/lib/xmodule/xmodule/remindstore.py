@@ -14,6 +14,7 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger(__name__)
 from bson import ObjectId
 from django.contrib.auth.models import User
+
 # TODO (cpennington): This code currently operates under the assumption that
 # there is only one revision for each item. Once we start versioning inside the CMS,
 # that assumption will have to change
@@ -292,6 +293,7 @@ class MongoMyActivityStaticStore(object):
         self.collection.safe = True    
 
     def get_item(self):
+        #results = self.collection.find()
         results = self.collection.find()
         r = []
         for data in results:
@@ -301,7 +303,15 @@ class MongoMyActivityStaticStore(object):
 
     def insert_item(self,item):
         self.collection.insert(item)
-        
+
+    def get_grouptype(self):
+        results = self.collection.find({},{"GroupType":1,"_id":0}).sort("GroupType",1)
+        r = []
+        for data in results:
+            if data['GroupType'] not in r:
+                r.append(data['GroupType'])
+        return r
+
 class MongoChunksStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
