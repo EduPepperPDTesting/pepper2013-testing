@@ -697,8 +697,10 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
     weekLen = len(rangedates) - 2
     for weekNum, week in enumerate(rangedates):
         if((not isweek and not isday) and weekNum == weekLen):
-            table_tr_content += "<tr class='calendar-tr-tmp' style='border-bottom: 1px #ccc solid;'>"
+            addBorder = "border-bottom: 1px #ccc solid;"
+            table_tr_content += "<tr class='calendar-tr-tmp'>"
         else:
+            addBorder = ""
             table_tr_content += "<tr class='calendar-tr-tmp'>"
 
         table_tr_content += "<span>"+str(weekNum)+" "+str(weekLen)+"</span>"
@@ -744,7 +746,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
 
             if(not (day[0] == 0 and isweek)):
 
-                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
+                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;"+ addBorder +"'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 
