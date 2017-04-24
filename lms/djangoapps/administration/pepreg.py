@@ -694,9 +694,9 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
                 if ((p == 0) or i < 6): dayHours.append(getHalfHour)
                 if (p == 1 and i == 6): break
 
-    lastWeek = rangedates[len(rangedates) - 1]
-    for week in rangedates:
-        if((not isweek and not isday) and week == lastWeek):
+    weekLen = len(rangedates) - 1
+    for weekNum, week in enumerate(rangedates):
+        if((not isweek and not isday) and weekNum == weekLen):
             table_tr_content += "<tr class='calendar-tr-tmp' style='border:1px solid #ccc;'>"
         else:
             table_tr_content += "<tr class='calendar-tr-tmp'>";
