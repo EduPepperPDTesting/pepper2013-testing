@@ -844,7 +844,7 @@ def attach_post_info(p, time_diff_m, user):
         pl = [int(e) if e.isdigit() else e for e in user.profile.people_of.split(',')]
         p["comment_disabled"] = not ((author.id in pl) or (author.id == user.id))
     else:
-        p["comment_disabled"] = False
+        p["comment_disabled"] = True  # disable announcement comment
 
     if active_recent(author) and user != author:
         p["online"] = 1
