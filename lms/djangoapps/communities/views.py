@@ -901,14 +901,14 @@ def community_edit_process(request):
             if old_facilitator:
                 if old_facilitator[0].user_id != community_user.user_id:
                     ma_db = myactivitystore()
-                    my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                    my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
                     "URLValues": {"community_id": community_object.id},
                     "TokenValues": {"community_id":community_object.id}, 
                     "LogoValues": {"community_id": community_object.id}}    
                     ma_db.insert_item(my_activity)
             else:
                 ma_db = myactivitystore()
-                my_activity = {"GroupType": "Community", "EventType": "community_registration_User", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
+                my_activity = {"GroupType": "Community", "EventType": "community_facilitator", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": community_user.user_id, 
                 "URLValues": {"community_id": community_object.id},
                 "TokenValues": {"community_id":community_object.id}, 
                 "LogoValues": {"community_id": community_object.id}}    

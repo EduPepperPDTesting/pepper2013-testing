@@ -14,6 +14,7 @@ from xmodule.modulestore.exceptions import ItemNotFoundError
 log = logging.getLogger(__name__)
 from bson import ObjectId
 from django.contrib.auth.models import User
+
 # TODO (cpennington): This code currently operates under the assumption that
 # there is only one revision for each item. Once we start versioning inside the CMS,
 # that assumption will have to change
@@ -253,17 +254,18 @@ class MongoMyActivityStore(object):
         self.collection.update({'EventType':'reports_createReport','LogoValues':{'report_id':report_id}},{'$set':{'LogoValues':{'report_id':report_id, 'report_name':report_name}}}, multi=True)
 
     def set_item_community(self,community_id,community_name):        
-        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
-        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_addMe','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_Admin','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_registration_User','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_createPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_commentPost','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
+        self.collection.update({'EventType':'community_facilitator','LogoValues':{'community_id':community_id}},{'$set':{'LogoValues':{'community_id':community_id, 'community_name':community_name, 'logoName':community_name}}}, multi=True)
 
     def set_item_community_discussion(self,community_id,discussion_id,discussion_name):
-        self.collection.update({'EventType':'community_creatediscussion','LogoValues':{'discussion_id':discussion_id}},
+        self.collection.update({'EventType':'community_creatediscussion','URLValues':{'discussion_id':discussion_id}},
             {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
         
-        self.collection.update({'EventType':'community_replydiscussion','LogoValues':{'discussion_id':discussion_id}},
+        self.collection.update({'EventType':'community_replydiscussion','URLValues':{'discussion_id':discussion_id}},
             {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
 
 class MongoMyActivityStaticStore(object):
@@ -291,6 +293,7 @@ class MongoMyActivityStaticStore(object):
         self.collection.safe = True    
 
     def get_item(self):
+        #results = self.collection.find()
         results = self.collection.find()
         r = []
         for data in results:
@@ -300,7 +303,15 @@ class MongoMyActivityStaticStore(object):
 
     def insert_item(self,item):
         self.collection.insert(item)
-        
+
+    def get_grouptype(self):
+        results = self.collection.find({},{"GroupType":1,"_id":0}).sort("GroupType",1)
+        r = []
+        for data in results:
+            if data['GroupType'] not in r:
+                r.append(data['GroupType'])
+        return r
+
 class MongoChunksStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores
@@ -392,6 +403,19 @@ class MongoChunksStore(object):
             data['_id'] = str(data['_id'])
             r.append(data)
         return r
+
+    def get_chunkTitle(self,user_id,url):
+        results = self.collection.find({"user_id":str(user_id),"url":url})
+        r = []
+        for data in results:
+            data['_id'] = str(data['_id'])
+            r.append(data)
+        
+        chunkTitle = ''
+        if r:
+            chunkTitle = r[0]['chunkTitle']
+        return chunkTitle
+        
 
 _REMINDSTORE = {}
 _MESSAGESTORE = {}

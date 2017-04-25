@@ -375,7 +375,7 @@ def delete_training(request):
         training.delete()
 
         ma_db = myactivitystore()
-        ma_db.set_item_pd(tid, tname)
+        ma_db.set_item_pd(tid, tname, str(tdate))
 
     except Exception as e:
         db.transaction.rollback()
@@ -694,8 +694,14 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
                 if ((p == 0) or i < 6): dayHours.append(getHalfHour)
                 if (p == 1 and i == 6): break
 
-    for week in rangedates:
-        table_tr_content += "<tr class='calendar-tr-tmp'>";
+    weekLen = len(rangedates) - 2
+    for weekNum, week in enumerate(rangedates):
+        if((not isweek and not isday) and weekNum == weekLen):
+            addBorder = "border-bottom: 1px #ccc solid;"
+        else:
+            addBorder = ""
+
+        table_tr_content += "<tr class='calendar-tr-tmp'>"
 
         if isday:
             table_tr_content += "<td style='position: relative; height: 100%; width: -moz-calc(2.5%) !important; width: -webkit-calc(2.5%) !important; width: calc(2.5%) !important;'>" \
@@ -710,8 +716,10 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
             if(isweek or isday):
                 if day[0] != 0: day[0]=day[0].day
             class_name = "";
+            cell_border = "border-right: 1px solid #ccc;border-bottom: 1px solid #ccc;"
             if (day[0] == 0):
                 class_name = "calendarium-empty";
+                cell_border = ""
             elif (day[2]):
                 class_name = "calendarium-current";
             else:
@@ -738,7 +746,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
 
             if(not (day[0] == 0 and isweek)):
 
-                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;'" + clickFunc +">"
+                table_tr_content += "<td class='" + class_name + "' style='position: relative; height: 100%;"+cell_border+"'" + clickFunc +">"
                 if (day[0]):
                     table_tr_content += "<div class='calendarium-relative' "+ colstyle +"><span class='calendarium-date'>" + str(day[0]) + "</span>";
 

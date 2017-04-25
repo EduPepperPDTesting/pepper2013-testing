@@ -33,7 +33,7 @@ from datetime import timedelta
 from student.models import CourseEnrollment, CourseEnrollmentAllowed, UserProfile
 from permissions.utils import check_access_level
 from communities.models import CommunityCommunities, CommunityDiscussions, CommunityUsers
-from xmodule.remindstore import myactivitystore, chunksstore
+from xmodule.remindstore import myactivitystore, myactivitystaticstore, chunksstore
 from courseware.courses import get_course_by_id, course_image_url 
 import comment_client as cc
 from administration.models import PepRegTraining
@@ -127,12 +127,7 @@ def newdashboard(request, user_id=None):
     courses_complated = []
     courses_incomplated = []
     courses = []
-
-    external_time = 0
-    external_times = {}
     exists = 0
-
-    total_course_times = {}
 
     # get none enrolled course count for current login user
     rts = record_time_store()
@@ -153,35 +148,8 @@ def newdashboard(request, user_id=None):
 
             if enrollment.course_id in allowed:
                 exists = exists - 1
-
-            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=1)
-            # chapter_count=len(model_data_cache.descriptors)
-            # model_data_cache = FieldDataCache.cache_for_descriptor_descendents(c.id, user, c, depth=2)
-            # count_history=0
-            # c.is_completed=False
-            # chapter_count=len(model_data_cache.descriptors)-chapter_count
-            # for m in model_data_cache.descriptors:
-            #     if m.ispublic:
-            #         chapter_count=chapter_count+1
-            #     if len(StudentModule.objects.filter(student_id=user.id,
-            #                                         course_id=c.id,
-            #                                         module_type='sequential',
-            #                                         module_id=m.location)) > 0:
-            #         count_history=count_history+1
-
             courses.append(c)
 
-            # grade_precent=grade(user,request,c)['percent']
-            # if count_history==chapter_count and grade_precent >= 0.85:
-            #     courses_complated.append(c)
-            # else:
-            #     courses_incomplated.append(c)
-            if user.is_superuser:
-                external_times[c.id] = 0
-            else:
-                external_times[c.id] = rts.get_external_time(str(user.id), c.id)
-                external_time += external_times[c.id]
-                external_times[c.id] = study_time_format(external_times[c.id])
             field_data_cache = FieldDataCache([c], c.id, user)
             course_instance = get_module(user, request, c.location, field_data_cache, c.id, grade_bucket_type='ajax')
 
@@ -199,6 +167,7 @@ def newdashboard(request, user_id=None):
     courses_complated = sorted(courses_complated, key=lambda x: x.complete_date, reverse=True)
     courses_incomplated = sorted(courses_incomplated, key=lambda x: x.student_enrollment_date, reverse=True)
 
+    
     course_optouts = Optout.objects.filter(user=user).values_list('course_id', flat=True)
     message = ""
     if not user.is_active:
@@ -214,85 +183,6 @@ def newdashboard(request, user_id=None):
     show_courseware_links_for = frozenset(course.id for course in courses
                                           if has_access(user, course, 'load'))
 
-    cert_statuses = {course.id: cert_info(user, course) for course in courses}
-    exam_registrations = {course.id: exam_registration_info(request.user, course) for course in courses}
-    if user.is_superuser:
-        course_times = {course.id: 0 for course in courses}
-        total_course_times = {course.id: 0 for course in courses}
-    else:
-        course_times = {course.id: study_time_format(rts.get_course_time(str(user.id), course.id, 'courseware')) for course in courses}
-
-        #@begin:change to current year course time and total_time
-        #@date:2016-06-21
-        rs = reporting_store()
-        rs.set_collection('UserCourseView')
-        for course in courses:
-            results = rs.collection.find({"user_id":request.user.id,"course_id":course.id},{"_id":0,"total_time":1})
-            total_time_user = 0
-            for v in results:
-                total_time_user = total_time_user + v['total_time']
-           
-            total_course_times[course.id] = study_time_format(total_time_user) 
-        #@end
-
-    # get info w.r.t ExternalAuthMap
-    external_auth_map = None
-    try:
-        external_auth_map = ExternalAuthMap.objects.get(user=user)
-    except ExternalAuthMap.DoesNotExist:
-        pass
-
-    #@begin:add pd_time to total_time
-    #@date:2016-06-06
-    id_of_user = ''
-    if user_id:
-        id_of_user = user_id
-    else:
-        id_of_user = request.user.id
-    pd_time = 0;
-    pd_time_tmp = PepRegStudent.objects.values('student_id').annotate(credit_sum=Sum('student_credit')).filter(student_id=id_of_user)
-    if pd_time_tmp:
-        pd_time = pd_time_tmp[0]['credit_sum'] * 3600
-    #@end
-
-    if user.is_superuser:
-
-        course_time = 0
-        discussion_time = 0
-        portfolio_time = 0
-        all_course_time = 0
-        collaboration_time = 0
-        adjustment_time_totle = 0
-        total_time_in_pepper = 0
-    else:
-        course_time, discussion_time, portfolio_time = rts.get_stats_time(str(user.id))
-        all_course_time = course_time + external_time
-        collaboration_time = discussion_time + portfolio_time
-        adjustment_time_totle = rts.get_adjustment_time(str(user.id), 'total', None)
-        #@begin:add pd_time to total_time
-        #@date:2016-06-06
-        #total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle
-        total_time_in_pepper = all_course_time + collaboration_time + adjustment_time_totle + pd_time
-        #@end
-
-    #20160413 load alert_message
-    #begin
-    site_settings = site_setting_store()
-    al_text = "__NONE__"
-    try:
-        al_text = site_settings.get_item('alert_text')['value']
-    except Exception as e:
-        pass
-    if al_text == "__NONE__":
-        al_text = ""
-
-    al_enabled = "un_enabled"
-    try:
-        al_enabled = site_settings.get_item('alert_enabled')['value']
-    except Exception as e:
-        pass
-    #end
-
     #@begin:Add for Dashboard My Courses
     #@date:2017-02-19
     #Just choose the last 3 courses_incomplated of the user.
@@ -301,7 +191,6 @@ def newdashboard(request, user_id=None):
         courses_incomplated_list.append(v)
         if k > 2:
             break
-
     #@end
 
     #@begin:Add for Dashboard My Communities
@@ -318,29 +207,19 @@ def newdashboard(request, user_id=None):
                                'private': item.community.private,
                                'order': i})
         i = i + 1;
+
+    #@begin:Get my activity Group
+    #@date:2017-04-24
+    my_activity_group_list = myactivitystaticstore().get_grouptype()
+    #@end
+
     context = {
         'courses_complated': courses_complated,
         'courses_incomplated': courses_incomplated_list,
-        'course_optouts': course_optouts,
-        'message': message,
-        'external_auth_map': external_auth_map,
-        'staff_access': staff_access,
-        'errored_courses': errored_courses,
         'show_courseware_links_for': show_courseware_links_for,
-        'cert_statuses': cert_statuses,
-        'exam_registrations': exam_registrations,
         'curr_user': user,
-        'havent_enroll': exists,
-        'all_course_time': study_time_format(all_course_time),
-        'collaboration_time': study_time_format(collaboration_time),
-        'total_time_in_pepper': study_time_format(total_time_in_pepper),
-        'course_times': course_times,
-        'external_times': external_times,
-        'totle_adjustment_time': study_time_format(adjustment_time_totle, True),
-        'alert_text':al_text,
-        'alert_enabled':al_enabled,
-        'total_course_times':total_course_times,
-        'communities': community_list
+        'communities': community_list,
+        'ma_group_list': my_activity_group_list
     }   
 
     return render_to_response('dashboard_new.html', context)
@@ -351,6 +230,7 @@ def get_my_activities(request):
     filter_con["user_id"] = int(request.POST.get('user_id'))
     filter_con["year"] = request.POST.get('filter_year')
     filter_con["month"] = request.POST.get('filter_month')
+    filter_con["group"] = request.POST.get('filter_group')
     
     filter_key = create_filter_key(filter_con)
     order_key = "ActivityDateTime"
@@ -364,177 +244,132 @@ def get_my_activities(request):
     ma_list = list()
     for data in my_activities:
         ma_dict = {}
+
         #URL
-        ma_dict["URL"] =  replace_values(data["URL"],data["URLValues"])
-            
-        #DisplayInfo       
-        info_key_list = re.findall("{[\w ]*,([\w ]*)}", data["DisplayInfo"])
-        DisplayInfoValues = {}
-        for k in info_key_list:
-            try:
-                t = eval("get_" + k)
-                DisplayInfoValues[k] = t(data)
-            except:
-                pass
-        info = replace_values(data["DisplayInfo"],DisplayInfoValues)
-        ma_dict["DisplayInfo"] = info.replace('href=#','href=' + ma_dict["URL"])
-        if not ma_dict["DisplayInfo"]:
-            ma_dict["DisplayInfo"] = data["EventType"]
-
-        #Logo
-        ma_dict["logoUrl"] = get_logoUrl(data)
-
-        #Just for GroupType of Communities and Courses, get communityName and courseName
-        ma_dict["logoName"] = get_logoName(data)
-
+        ma_dict["URL"] =  re.sub("{([\w ]*)}", lambda x: str(data["URLValues"].get(x.group(1))), data["URL"])
+       
         #GroupType
         ma_dict["g_type"] = data["GroupType"]
 
         #time
         ma_dict["time"] = str(data["ActivityDateTime"])[0:19]
 
+        ma_dict["DisplayInfo"] = get_displayInfo(data).replace('href=#','href=' + ma_dict["URL"])
+
+        get_logoInfo(data,ma_dict)
+
         ma_list.append(ma_dict)
-    log.debug("fin-------------------------------------")
+    log.debug("fin ooooooooooooooooooooooooooooo")
     return HttpResponse(json.dumps({'data': ma_list,'data_count':my_activities_count,'Success': 'True'}), content_type='application/json')
 
-def get_communityDiscussionSubject(data):
-    '''
-    If communityDiscussion is deleted, use discussion_name from DB
-    '''
-    value = ""
-    try:
-        value = data["LogoValues"]["discussion_name"]
-    except:
-        cd = CommunityDiscussions.objects.filter(id=data["TokenValues"]["discussion_id"])
-        if cd:
-            value = cd[0].subject
-    return value
+def get_displayInfo(data):
+    displayInfo_values = {}
+    info_list = re.findall("{([\w |,.()'_/]*)}", data["DisplayInfo"])
+    dt = {}
+    for d in info_list:
+        t1 =  d.split(',')
+        value = ''
+        if t1[0] == 'mysql':
+            dt = {}
+            t21 = t1[1].split('|')
+            t22 = t1[2].split('|')
+            dt['db'] = t1[0]
+            dt['models'] = t21[0]
+            dt['models2'] = t21[1]
+            dt['getby'] = t22[0]
+            dt['key'] = data['TokenValues'][t22[1]]
+            dt['key_name'] = t1[3]
 
-def get_usersFullname(data):
-    value = ""
-    list_id = data["TokenValues"]["user_ids"].split(',')
-    list_fname = []
-    for d in list_id:
-        fname = ""
-        user = User.objects.filter(id=int(d))
-        if user:
-            fname = user[0].first_name + " " + user[0].last_name
-        if fname:
-            if fname == " ":
-                list_fname.append("None None")
-            else:
-                list_fname.append(fname)
-    value = ", ".join(list_fname)
-    return value
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                list_key = str(dt['key']).split(',')
+                _symbol = '='
+                if len(list_key) > 1:
+                    dt['key'] = []
+                    _symbol = '__in='
+                    for d in list_key:
+                        dt['key'].append(int(d))
+                str_get = dt['models'] + '.objects.filter(' + dt['getby'] + _symbol + str(dt['key']) + ')'
+                e1 = eval(str_get)
 
-def get_communityName(data):
-    '''
-    If community is deleted, use community_name from DB
-    '''
-    value = "Deleted Community"
-    try:
-        value = data["LogoValues"]["community_name"]
-    except:
-        c = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
-        if c:
-            value = c[0].name
-    return value
+                value = ""
+                e2_list = []
+                for d in e1:
+                    if len(e1) == 1:
+                        value = eval("d." + dt['models2'])   
+                    else:
+                        e2 = eval("d." + dt['models2'])
+                        e2_list.append(e2)
+                        value = ", ".join(e2_list)
+        elif t1[0] == 'mongo':
+            dt = {}
+            dt['db'] = t1[0]
+            dt['models'] = re.sub("/([\w _]*)/", lambda x: str(data['TokenValues'].get(x.group(1))), t1[1])
+            dt['models'] = dt['models'].replace('|',',')
+            dt['key_name'] = t1[2]
+            try:
+                value = eval(dt['models'])
+            except:
+                pass
+        else:
+            info = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["DisplayInfo"])
+            return info
 
-def get_chunkTitle(data):
-    value = "Deleted"
-    mychunk = chunksstore().get_item({"user_id":str(data["UsrCre"]),"url":data["URLValues"]["url"]})
-    if mychunk:
-        value = mychunk[0]["chunkTitle"]
-    return value
+        displayInfo_values[dt['key_name']] = value
+    info = replace_values(data["DisplayInfo"],displayInfo_values,dt['db'])
+    return info
 
-def get_recipientName(data):
-    value = ""
-    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
-    if recipient:
-        value = recipient[0].username
-    return value
+def get_logoInfo(data,ma_dict):
+    ma_dict['logoUrl'] = ''
+    ma_dict['logoName'] = ''
+    logo_list = re.findall("{([\w |,.()'_/]*)}", data["Logo"])
+    dt = {}
+    for d in logo_list:
+        t1 =  d.split(',')
+        value = ''
+        if t1[0] == 'mysql':
+            dt = {}
+            t21 = t1[1].split('|')
+            t22 = t1[2].split('|')
+            dt['db'] = t1[0]
+            dt['models'] = t21[0]
+            dt['models2'] = t21[1]
+            dt['getby'] = t22[0]
+            dt['key'] = data['LogoValues'][t22[1]]
+            dt['key_name'] = t1[3]
+            try:
+                value = data['LogoValues'][dt['key_name']]
+            except:
+                str_get = dt['models'] + '.objects.filter(' + dt['getby'] + '=' + str(dt['key']) + ')'
+                e1 = eval(str_get)
+                for d in e1:
+                    try:
+                        value = eval("d." + dt['models2'])
+                    except:
+                        pass
+        else:
+            dt = {}
+            dt['db'] = t1[0]
+            dt['models'] = re.sub("/([\w _]*)/", lambda x: str(data['LogoValues'].get(x.group(1))), t1[1])
+            dt['key_name'] = t1[2]
+            value = eval(dt['models'])
 
-def get_recipientDistrict(data):
-    value = ""
-    recipient = User.objects.filter(id=int(data["TokenValues"]["recipient_id"]))
+        ma_dict[dt['key_name']] = value
+    if not logo_list:
+        ma_dict['logoUrl'] = data["Logo"]
 
-    if recipient:
-        try:
-            district_id = recipient[0].profile.district_id
-            value = District.objects.get(id=district_id).name
-        except:
-            pass
-    return value
-
-def get_reportName(data):
-    '''
-    If report is deleted, use report_name from DB
-    '''
-    report = Reports.objects.filter(id=data["TokenValues"]["report_id"])
-    if report:
-        return report[0].name
+def replace_values(body, values, dbtype):
+    if dbtype == 'mysql':
+        return re.sub("{[\w |,.()]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
     else:
-        return data["LogoValues"]["report_name"]
-
-def get_PDTrainingName(data):
-    '''
-    If PDTraining is deleted, use training_name from DB
-    '''
-    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
-    if pdtraining:
-        return pdtraining[0].name
-    else:
-        return data["LogoValues"]["training_name"]
-
-def get_PDTrainingDate(data):
-    pdtraining = PepRegTraining.objects.filter(id=data["TokenValues"]["training_id"])
-    if pdtraining:
-        return pdtraining[0].training_date
-    else:
-        return data["LogoValues"]["training_date"]
-
-def get_discussionSubject(data):
-    return cc.Thread.find(data["TokenValues"]["SourceID"]).title
-
-def get_logoName(data):
-    '''
-    communityName, courseDisplayName
-    '''
-    value = ""
-    if data["GroupType"] == "Courses":
-        value = get_courseDisplayName(data)
-    elif data["GroupType"] == "Community":
-        value = get_communityName(data)
-    return value
-
-def get_logoUrl(data):
-    value = ""
-    if data["Logo"]:
-        value = data["Logo"]
-    else:
-        logo_id = ""
-        for k in data["LogoValues"]:
-            logo_id = data["LogoValues"][k]
-            break
-        if data["GroupType"] == "Courses":
-            value = course_image_url(get_course_by_id(logo_id))
-        elif data["GroupType"] == "Community":
-            community = CommunityCommunities.objects.filter(id=data["TokenValues"]["community_id"])
-            if community:
-                value = community[0].logo.upload.url if community[0].logo else ''
-    return value
-
-def get_courseDisplayName(data):
-    return get_course_by_id(data["URLValues"]["course_id"]).display_name_with_default
-
-def get_courseDisplayNumber(data):
-    return get_course_by_id(data["URLValues"]["course_id"]).display_number_with_default
-
-def replace_values(body, values):
-    return re.sub("{[\w ]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
+        return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
+
+    if filter_con["group"]:
+        filter_key["GroupType"] = filter_con["group"]
 
     filter_year = filter_con["year"]
     filter_month = filter_con["month"]

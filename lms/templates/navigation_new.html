@@ -211,7 +211,7 @@
         position: absolute;
         right: -12px;
         top: 50px;
-        width: 200px;
+        width: 262px;
         z-index: 3;
     }
     ul.admin-dropdown-menu li {
@@ -388,7 +388,7 @@
         <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
     % else:
         % if curr_user==request.user:
-          <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+          <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
         % else:
           <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
         % endif
@@ -500,6 +500,9 @@
                                 <!--<li><a href="${reverse('pepreg')}">Pepper PD Planner</a></li>-->
                                 %if check_user_perms(curr_user, 'pepconn'):
                                     <li><a href="${reverse('pepconn')}">PepConn</a></li>
+                                %endif
+                                %if curr_user.is_superuser:
+                                    <li><a href="${reverse('organizational_configuration')}">Organizational Configuration</a></li>
                                 %endif
                                 %if check_user_perms(curr_user, 'permissions'):
                                     <li><a href="${reverse('permissions_view')}">Roles &amp; Permissions</a></li>
