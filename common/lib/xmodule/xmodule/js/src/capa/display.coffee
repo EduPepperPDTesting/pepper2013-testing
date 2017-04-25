@@ -40,6 +40,9 @@ class @Problem
         MathJax.Hub.Queue [@refreshMath, null, element]
   
   compare: =>
+    $.ajaxSetup({
+        async: false
+    }); 
     $.postWithPrefix "#{@url}/problem_compare", @answers, (response) =>
       switch response.success
         when 'incorrect', 'correct'
@@ -65,6 +68,9 @@ class @Problem
             @$("#answer_#{key}").hide()
             @$("input[name='Submit and Compare check']").val("Resubmit")
             Collapsible.setCollapsibles(answer)
+    $.ajaxSetup({
+        async: true
+    });
 
   renderProgressState: =>
     detail = @el.data('progress_detail')
