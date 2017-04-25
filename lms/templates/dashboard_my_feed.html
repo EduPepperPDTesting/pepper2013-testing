@@ -250,16 +250,17 @@ from permissions.utils import check_access_level, check_user_perms
   </table>
   </div>
   <div id='post_textarea' class='ds-post-content'>{content}{image_code}</div>
-  <div class='ds-post-footer'>
-  <div class='post-like-text'>
-  <img src='/static/images/newdashboard/ds-post-{is_my_like?un}like.png' width='30'/>{is_my_like?Unlike:Like}
+  <div class='ds-post-footer' style="display:{is_announcement?none;}">
+    <div class='post-like-text'>
+      <img src='/static/images/newdashboard/ds-post-{is_my_like?un}like.png' width='30'/>{is_my_like?Unlike:Like}
+    </div>
+    <div class='post-comment-text' data-name=''>
+      <img src='/static/images/newdashboard/Comment-512.png' width='35'/>Comment
+    </div>
+    <div class='post-total-likes'>{likes} Likes</div>
+    <div class='post-total-comments'>{sub_count} Comments</div>
   </div>
-  <div class='post-comment-text' data-name=''>
-  <img src='/static/images/newdashboard/Comment-512.png' width='35'/>Comment
-  </div>
-  <div class='post-total-likes'>{likes} Likes</div><div class='post-total-comments'>{sub_count} Comments</div>
-  </div>
-  <div class='comment-section'>
+  <div class='comment-section' style="display:{is_announcement?none;}">
   {sub_html}
   {comment_disabled!<img src='/user_photo/{user_id}' class='comment-profile-image'> </img>}
   {comment_disabled!<textarea class='add-comment-text' placeholder='Add a comment...'></textarea>}
@@ -323,6 +324,7 @@ from permissions.utils import check_access_level, check_user_perms
       });
       p["image_code"] = image_code;
     }
+    p["is_announcement"] = p["type"] == "announcement";
     p["group_image"] = p["type"] == "dashboard" ? "dashboard-feeding.jpg" : "announcement.jpg";
     p["sub_count"] = p["sub"].length;
     p["_id"] = p["_id"]["$oid"];
