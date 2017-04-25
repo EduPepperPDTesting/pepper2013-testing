@@ -344,7 +344,10 @@ def get_logoInfo(data,ma_dict):
                 str_get = dt['models'] + '.objects.filter(' + dt['getby'] + '=' + str(dt['key']) + ')'
                 e1 = eval(str_get)
                 for d in e1:
-                    value = eval("d." + dt['models2'])
+                    try:
+                        value = eval("d." + dt['models2'])
+                    except:
+                        pass
         else:
             dt = {}
             dt['db'] = t1[0]
