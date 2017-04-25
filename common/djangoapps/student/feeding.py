@@ -29,12 +29,6 @@ class MongoBaseStore(object):
 
         self.collection.safe = True
 
-    # def _find_one(self):
-    #     item = self.collection.find_one(
-    #         sort=[('date', pymongo.ASCENDING)],
-    #     )
-    #     return item
-
     def get_item(self, cond):
         return self.collection.find_one(cond)
 
@@ -55,14 +49,6 @@ class MongoBaseStore(object):
 
     def remove(self, cond):
         self.collection.remove(cond)
-
-    def set_item(self, name, value, user_id, vertical_id, start_time):
-        return self.collection.update({
-                'user_id': user_id,
-                'vertical_id': vertical_id,
-                'start_time': start_time
-            },
-            {'$set': {name: value}})
 
 
 class DashboardFeedingStore(MongoBaseStore):
@@ -149,13 +135,6 @@ class DashboardFeedingStore(MongoBaseStore):
     def get_sub(self, feeding_id):
         results = []
         cursor = self.find({"sub_of": ObjectId(feeding_id)})
-        for p in cursor:
-            results.append(p)
-        return results
-
-    def get_all_sub(self, feeding_id):
-        results = []
-        cursor = self.find({"top_level": ObjectId(feeding_id)})
         for p in cursor:
             results.append(p)
         return results

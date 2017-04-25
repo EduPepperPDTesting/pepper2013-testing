@@ -580,8 +580,7 @@ def create_filter_key(filter_con):
             filter_key["$or"].append({"ActivityDateTime":{'$gte': time_start, '$lt': time_end}})
     return filter_key
 
-#@begin:My courses
-#@date:2017-02-09
+
 @login_required
 @ensure_csrf_cookie
 def my_courses(request, user_id=None):
@@ -768,7 +767,7 @@ def my_courses(request, user_id=None):
     }
 
     return render_to_response('my_courses.html', context)
-#@end
+
 
 def attach_post_info(p, time_diff_m, user):
     store = dashboard_feeding_store()
@@ -824,7 +823,7 @@ def attach_post_info(p, time_diff_m, user):
     author = User.objects.get(id=p["user_id"])
     (post_date, post_h, post_m, post_ampm, debug) = format_feeding_date(p["date"])
 
-    p["content"] =  filter_at(p["content"])
+    p["content"] = filter_at(p["content"])
     p["first_name"] = author.first_name
     p["last_name"] = author.last_name
     p["username"] = author.username
@@ -857,6 +856,7 @@ def attach_post_info(p, time_diff_m, user):
     for s in p["sub"]:
         attach_post_info(s, time_diff_m, user)            
 
+
 def get_post(request):
     _id = request.POST.get("_id")
     store = dashboard_feeding_store()
@@ -864,6 +864,7 @@ def get_post(request):
     time_diff_m = request.POST.get('local_utc_diff_m', 0)
     attach_post_info(post, time_diff_m, request.user)
     return HttpResponse(json_util.dumps(post), content_type='application/json')
+
 
 def get_posts(request):
     filter_group = request.POST.get("filter_group")
@@ -889,6 +890,7 @@ def get_posts(request):
 
     return HttpResponse(json_util.dumps(posts), content_type='application/json')
 
+
 def submit_new_like(request):
     user_id = request.user.id
     feeding_id = request.POST.get('feeding_id')
@@ -903,11 +905,13 @@ def submit_new_like(request):
         
     return HttpResponse(json.dumps({'Success': 'True'}), content_type='application/json')    
 
+
 def delete_post(request):
     feeding_id = request.POST.get("post_id")
     store = dashboard_feeding_store()
     store.remove_feeding(feeding_id)
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
+
 
 def delete_comment(request):
     feeding_id = request.POST.get("comment_id")
@@ -915,6 +919,26 @@ def delete_comment(request):
     store.remove_feeding(feeding_id)
     
     return HttpResponse(json.dumps({"Success": "True"}), content_type='application/json')
+
+
+def get_receivers(user, post_type):
+    receiver_ids = None
+    if type == "announcement":
+        up = user.profile
+        level = check_access_level(user, "dashboard_announcement", "create")
+        if level == "System":
+            receiver_ids = [0]
+        elif level == "State":
+            receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
+        elif level == "District":
+            receiver_ids = list(UserProfile.objects.filter(district_id=up.district_id).values_list('user_id', flat=True))
+        elif level == "School":
+            receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
+    else:
+        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % user.id]).values_list('user_id', flat=True))
+        receiver_ids.append(user.id)
+    return receiver_ids
+
 
 def submit_new_comment(request):
     store = dashboard_feeding_store()
@@ -925,7 +949,8 @@ def submit_new_comment(request):
                        content=content,
                        sub_of=post_id, top_level=post_id,
                        date=datetime.datetime.utcnow())
-    return HttpResponse(json_util.dumps({'Success': 'True', '_id':_id}), content_type='application/json')
+    return HttpResponse(json_util.dumps({'Success': 'True', '_id': _id}), content_type='application/json')
+
 
 def lookup_name(request):
     name = request.POST.get("name").split()
@@ -941,6 +966,7 @@ def lookup_name(request):
         str.append(user.first_name + " " + user.last_name)
     return HttpResponse(json.dumps({'Success': 'True', 'content': str}), content_type='application/json')
 
+
 def get_full_likes(request):
     feeding_id = request.POST.get('feeding_id')
     html = "<table>"
@@ -954,6 +980,7 @@ def get_full_likes(request):
     html += "</table>"
     return HttpResponse(json.dumps({'Success': 'True', 'html': html}), content_type='application/json')
 
+
 def submit_new_post(request):
     store = dashboard_feeding_store()
     content = parse_urls(request.POST.get("post", ""))
@@ -962,24 +989,8 @@ def submit_new_post(request):
     expiration_date = request.POST.get("expiration_date", None)
     expiration_date = datetime.datetime.strptime(expiration_date + " 23:59:59", "%m/%d/%Y %H:%M:%S") if expiration_date else None
 
-    receiver_ids = None
-    if type == "announcement":
-        up = request.user.profile
-        level = check_access_level(request.user, "dashboard_announcement", "create")
-        if level == "System":
-            receiver_ids = [0]
-        elif level == "State":
-            receiver_ids = list(UserProfile.objects.filter(district__state_id=up.district.state.id).values_list('user_id', flat=True))
-        elif level == "District":
-            receiver_ids = list(UserProfile.objects.filter(district_id=up.district_id).values_list('user_id', flat=True))
-        elif level == "School":
-            receiver_ids = list(UserProfile.objects.filter(school_id=up.school_id).values_list('user_id', flat=True))
-    else:
-        receiver_ids = list(UserProfile.objects.extra(where=['FIND_IN_SET(%s, people_of)' % request.user.id]).values_list('user_id', flat=True))
-        receiver_ids.append(request.user.id)
-
     images = []
-    
+
     if request.POST.get('include_images') == "yes":
         for image in request.POST.get('images', "").split(','):
             image = image.rstrip('/').rstrip('\\')
@@ -992,9 +1003,9 @@ def submit_new_post(request):
             images.append(data)
 
     _id = store.create(type=type, user_id=request.user.id, content=content,
-                       receivers=receiver_ids, date=datetime.datetime.utcnow(),
+                       receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
                        expiration_date=expiration_date, images=images)
-        
+
     return HttpResponse(json.dumps({'Success': 'True', "_id": str(_id), 'post': request.POST.get('post'),
                                     'master_id': request.POST.get('master_id')}), content_type='application/json')
 
@@ -1047,6 +1058,7 @@ def filter_at(content):
             string = s[x:]
     return final
 
+
 def active_recent(user):
     use = user
     utc_month = datetime.datetime.utcnow().strftime("%m")
@@ -1062,6 +1074,7 @@ def active_recent(user):
     else:
         active = False
     return active
+
 
 def time_to_local(user_time,time_diff_m):
     '''
