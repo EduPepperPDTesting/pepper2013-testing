@@ -612,17 +612,20 @@
                 <div class="con-ma-filter">
                     <select id = "ma_select_group" style="margin-right:30px;">
                         <option value = ''>Group</option>
-                        %for grouptype in ma_group_list:
-                            <option value = ${grouptype}>${grouptype}</option>
-                        %endfor
+                        <option value = 'Community'>Community</option>
+                        <option value = 'Courses'>Courses</option>
+                        <option value = 'Messages'>Messages</option>
+                        <option value = 'MyChunks'>My Chunks</option>
+                        <option value = 'PDPlanner'>PD Planner</option>
+                        <option value = 'Reports'>Reports</option>
                     </select>
                     <select id = "ma_select_year">
-                        <option value = ''>year</option>
+                        <option value = ''>Year</option>
                         <option value = '2016'>2016</option>
                         <option value = '2017'>2017</option>
                     </select>
                     <select id = "ma_select_month">
-                        <option value = ''>month</option>
+                        <option value = ''>Month</option>
                         <option value = '1'>1</option>
                         <option value = '2'>2</option>
                         <option value = '3'>3</option>
@@ -765,7 +768,7 @@ $(document).ready(function(){
         $(window).scrollTop(0);
     });
 
-    var now_show = 2; //1:my feed;2:my activity
+    var now_show = 1; //1:my feed;2:my activity
     
     var data_all = 0;
     var html_loading = '<center><img id="posts_loading_image1" src="/static/images/posts-loading.gif"></img></center>';
