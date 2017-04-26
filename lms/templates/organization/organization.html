@@ -1111,8 +1111,7 @@
 	//-----------------------------------------------------------------------organizationDashboardUploadFile
 	function organizationDashboardUploadFile(fileElementId){
 		if($("#" + fileElementId).val() != ""){
-			var loadwin = new LoadingWin();
-			//$(this).attr("id", "menu_items_icon_" + (i + 1));
+			var loadwin = new LoadingWin();			
 			var rowNum = fileElementId.replace("menu_items_icon_", "");			
 			$.ajaxFileUpload({
 				url: "${reverse('organizational_configuration')}", 
@@ -1121,22 +1120,18 @@
 				dataType: 'JSON',
 				data: {flag: 'org_dashboard_upload', rowNum: rowNum, csrfmiddlewaretoken: '${csrf_token}', oid: org_current_id},
 				success: function (data, status){
-					var tmp2 = eval("(" + $(data).html() + ")");
-					alert($(data).html());
-					if(tmp2.Success){
-						//<span class="organizational_dashboard_menu_icon"><input type="file" class="menu_items_icon" id="menu_items_icon_1" name="menu_items_icon_1"></span>
-						/*$("#" + eid + "_p").empty();
-						$("#" + eid + "_p").append('<input type="file" id="' + eid + '" name="' + eid + '">');
+					var tmp2 = eval("(" + $(data).html() + ")");					
+					if(tmp2.Success){						
+						var el_parent = $("#" + fileElementId).parent();
+						el_parent.empty();
+						el_parent.append('<input type="file" class="menu_items_icon" id="' + fileElementId + '" name="' + fileElementId + '">');
 						
-						if(org_current_id != ""){
-							$("#" + eid + "_p").next().empty();
-							if(name){
-								var src = "/static/uploads/organization/" + org_current_id + "/" + name;				
-								$("#" + eid + "_p").next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="#" class="org_logo_remmove" onclick="org_logo_remmove(\'' + eid + '\')"></a>');
-							}
-						}*/
-						//organizationAddFileImgInit(fileElementId);
-						//organizationAddFileImg(fileElementId, tmp2.name);
+						var el_view = el_parent.next();
+						el_parent.next().empty();
+						if(tmp2.name){
+							var src = "/static/uploads/organization/" + org_current_id + "/" + tmp2.name;				
+							el_parent.next().append('<a href="' + src + '" target="_blank"><img src="' + src + '?r=' + Math.random() + '" width="50" /></a><a href="#" class="org_logo_remmove" onclick="org_logo_remmove(\'' + fileElementId + '\')"></a>');
+						}
 					}else{
 						alert("ajaxFileUpload error: " + tmp2.Error);
 					}
@@ -1208,7 +1203,8 @@
 				
 				clonex.find(".menu_items_menu_item").val("");
 				clonex.find(".menu_items_url").val("");
-				clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' name='menu_items_icon'>");
+				clonex.find(".menu_items_icon").parent().html("").append("<input type='file' class='menu_items_icon' >");
+				clonex.find(".organizational_dashboard_menu_icon_view").empty();
 				clonex.find(".menu_items_admin").prop("checked", false);
 				clonex.find("fieldset .sub_menu_item").val("");
 				clonex.find("fieldset .sub_menu_url").val("");
