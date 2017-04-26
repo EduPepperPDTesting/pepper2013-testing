@@ -96,16 +96,19 @@
     display:block;
     float:left;
     width:220px;
-    /*position: fixed;*/
+    position: fixed;
+
+    /*height:780px;
+    border:1px solid #f00;*/
 }
-/*
+
 .con-my-courses-placeholder{
     display:block;
     float:left;
     width:220px;
     height:50px;
 }
-*/
+
 .my-title{
     width:215px;
     text-align:center;
@@ -173,7 +176,7 @@
     line-height:27px;
     height:28px;
     margin-top:3px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 .ds-course-btn .ds-btn-view-portfolio{
     color: #fff;
@@ -185,7 +188,7 @@
     background-color:#556370;
 }
 .ds-course-btn .ds-btn-view-course{
-     color: #fff;
+    color: #fff;
     text-decoration: none!important;
     font-size:13px;
 
@@ -223,7 +226,10 @@
     display:block;
     float:right;
     width:220px;
+
+    border:1px solid;
 }
+
 .my-district{
     display:block;
     float:right;
@@ -231,7 +237,7 @@
 }
 .my-communities-cards{
     margin-top: 10px;
-    float: left;
+    /*float: left;*/
     width: 220px;
 }
 .my-communities-cards .image-link-style {
@@ -239,7 +245,7 @@
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     display: block;
-    float: left;
+    /*float: left;*/
     width:215px;
     height:134px;
     background-size: auto 80px;
@@ -247,7 +253,7 @@
     background-position: 50% 0;
     background-repeat: no-repeat;
     text-align: center;
-    margin: 0 0 56px 0;
+    margin-bottom:50px;
 }
 .my-communities-cards .image-bottom-style {
     border-radius: 0 0 6px 6px;
@@ -271,9 +277,8 @@
 .ds-view-all-communities{
     width:215px;
     text-align:right;
-    float: left;
-    margin-top:-10px;
-    margin-bottom: 20px;
+    /*margin-top:-15px;
+    margin-bottom: 20px;*/
 }
 .ds-view-all-communities a{
     font-size: 16px;
@@ -286,6 +291,7 @@
     width:680px;
     margin-left:27px;
     float:left;
+    position: relative;
     margin-bottom:0px;
     background-color:#e4e4e4;
     border-top:3px solid #fff;
@@ -353,7 +359,7 @@
     border-radius: 6px 6px 0px 0px; 
     background-color: #fff;
 
-    min-height:707px;
+    min-height:727px;
     padding-bottom: 3px;
 }
 /*----middle Main Content:My Activity----*/
@@ -531,9 +537,43 @@
 <script src="/static/js/datetime/moment.js"></script>
 
 <section class="content-wrapper1" style="margin-top:0px;background-color:#eee;">
-    <section class="container dashboard" style="margin-top:10px;">
+    <section class="container dashboard">
         <!--width 220 + 40 + 660 + 40 + 220 = 1180-->
         <!--Courses Dashboard-->
+        <!--Community Dashboard-->
+        <div class="con-my-communities">
+            <div style="border:1px solid #f00;position:fixed;">
+                <div class="my-title" style="">
+                    <a href="/communities">Coaching & Collaboration</a>
+                </div>
+                <div class="my-communities-cards" style="border:1px solid #0ff;">
+                    %for i,community in enumerate(communities):
+                        %if i < 3:
+                        <div class="image-link-style" style="background-image: url('${community['logo']}');">
+                            <div style="height:80px;"></div>
+                            <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
+                        </div>
+                        %endif
+                    %endfor 
+
+                    <div class="ds-view-all-communities" style="border:1px solid;">
+                        <a href="/communities">View All</a>
+                    </div>
+
+                    %if len(communities) < 3:
+                        <div class="my-standards" style="border:1px solid #f00;margin-top:10px;">
+                            <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
+                            <div class="my-courses-cards" style="text-align: center;">
+                                <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
+                                        <div style="height:100px;"></div>
+                                        <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    %endif
+                </div>
+            </div>
+        </div>
         <div class="con-my-courses">
             <div class="my-title">
                 <a href="/courses">My Course & Workshops</a>
@@ -564,38 +604,27 @@
                                 %endif
                             %endif
                         </div>
-                    %else:
-                        <%
-                            course_target = reverse('courseware', args=[course.id])
-                        %>
-                        <div class="course-card my_course_4" style="display:none;">
-                            <div>
-                                <img typeof="foaf:Image" class="image-style" src="${course_image_url(course)}" alt="${course.display_number_with_default | h} ${get_course_about_section(course, 'title')} Cover Image">
-                            </div>
-                            <div class="course-title">
-                                <a href="${reverse('cabout', args=[course.id])}" class="card-link" title="${get_course_about_section(course, 'title')}"><span>${get_course_about_section(course, 'title')}</span></a>
-                            </div>  
-                        </div>
-                        <div class="ds-course-btn my_course_4"  style="display:none;">
-                            %if course.id in show_courseware_links_for:
-                                %if curr_user == request.user:              
-                                    <a href="${reverse('portfolio_about_me',args=[course.id])}" class="ds-btn-view-portfolio">${_('View Portfolio')}</a>
-                                %else:
-                                    <a href="javascript:void(0)" class="ds-btn-view-portfolio" link="${reverse('portfolio_about_me',args=[course.id,curr_user.id])}">${_('View Portfolio')}</a>
-                                %endif
-                                %if curr_user == request.user and not course.close_course:      
-                                    <a href="${course_target}" class="ds-btn-view-course">${_('View Course')}</a>
-                                %endif
-                            %endif
-                        </div>
                     %endif
                 %endfor
-            </div>
-            <div class="ds-view-all-courses">
-                <a href="/my_courses">View All</a>
+                <div class="ds-view-all-courses">
+                    <a href="/my_courses">View All</a>
+                </div>
+                %if len(courses_incomplated) < 3:
+                    <div class="my-content" style="float:left;">
+                        <div class="my-title">
+                            <span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span>
+                        </div>
+                        <div class="my-courses-cards" style="text-align: center">
+                            <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
+                                <div style="height:100px;"></div>
+                                <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
+                            </div>
+                        </div>
+                    </div>
+                %endif
             </div>
         </div>
-        <!--<div class="con-my-courses-placeholder"></div>-->
+        <div class="con-my-courses-placeholder"></div>
 
         <div class="con-maincontent-all">
             <div class="con-feed-activity">
@@ -650,31 +679,8 @@
    
             </div>
         </div>
-        <!--Community Dashboard-->
-        <div class="con-my-communities">
-            <div class="my-title">
-                <a href="/communities">Coaching & Collaboration</a>
-            </div>
-            <div class="my-communities-cards">
-                %for community in communities:
-                    %if community['order'] < 3:
-                    <div class="image-link-style" style="background-image: url('${community['logo']}');">
-                        <div style="height:80px;"></div>
-                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                    </div>
-                    %else:
-                    <div class="image-link-style" id="communities_1" style="display:none;background-image: url('${community['logo']}');">
-                        <div style="height:80px;"></div>
-                        <a href="${reverse('community_view', args=[community['id']])}" class="card-link image-bottom-style"><span>${community['name']}</span></a>
-                    </div>
-                    %endif
-                %endfor
-            </div>
-            <div class="ds-view-all-communities">
-                <a href="/communities">View All</a>
-            </div>
-        </div>
         
+
         <script type="text/javascript">
             $(document).ready(function(){
                 $(".image-link-style1").each(function(){
@@ -721,28 +727,6 @@
                 };
             }
         </script>
-        <div style="clear:both;"></div>
-        <div style="margin:20px 0 20px 0 ;position: relative;">
-            <div style="float: left;position: absolute;top: -210px;">
-                <div class="my-title"><span style="color: #3c4646;font-size: 16px;font-weight: bold;">My Content</span></div>
-                <div class="my-courses-cards" style="text-align: center">
-                    <div class="image-link-style1" key="${curr_user.profile.district.code}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                        <div style="height:100px;"></div>
-                        <a href="${reverse('resource_library_global_resources')}?collection_type=district&collection=${curr_user.profile.district.code}" class="card-link image-bottom-style"><span>${curr_user.profile.district.name}</span></a>
-                    </div>
-                </div>
-            </div>
-            <div style="float: left;position: absolute;top: -210px;margin-left: 965px;margin-bottom: 20px;">
-                <div class="my-title"><span style="position:relative;color: #3c4646;font-size: 16px;font-weight: bold;">My Standards</span></div>
-                <div class="my-courses-cards" style="text-align: center">
-                    <div class="image-link-style2" key="${curr_user.profile.district.state.name}" style="-webkit-border-radius: 6px 6px 6px 6px;width:212px;height:150px;background-size:100% 100%;">
-                            <div style="height:100px;"></div>
-                            <a href="${reverse('resource_library_global_resources')}?collection_type=state&collection=${curr_user.profile.district.state.name}" class="card-link image-bottom-style"><span>${curr_user.profile.district.state.name}</span></a>
-                        </div>
-                </div>
-            </div>
-            <div style="clear:both;"></div>
-        </div>
         <div style="clear:both;"></div>
         </div>  
     </section>
@@ -964,21 +948,18 @@ $(document).ready(function(){
 　　    var windowHeight = $(this).height();
         if(scrollTop + windowHeight == scrollHeight)
         {
-            console.log("到底了 :");
             if(skip_rows_scroll >= data_all){
                 //$(".info_div").hide();
                 ////$(".info_div").html(html_end);
             }else{
                 //$(".info_div").show();
                 ////$(".info_div").html(html_loading);
-                get_my_activites(get_rows_scroll,skip_rows_scroll)
-                skip_rows_scroll += get_rows_scroll; 
+                if(now_show ==2 ){
+                    get_my_activites(get_rows_scroll,skip_rows_scroll)
+                    skip_rows_scroll += get_rows_scroll; 
+                } 
             }
         }
-       
-        console.log("scrollTop :",scrollTop);
-        console.log("scrollHeight :",scrollHeight);
-        console.log("windowHeight :",windowHeight);
     });
 });
 </script>

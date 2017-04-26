@@ -371,6 +371,11 @@
 .dropdownusername + a:hover{
     color:#3c3c3c;
 }
+.nav-fixed{
+    position: fixed !important;
+    top:0px;
+    z-index:21 !important;
+}
 </style>
 
 % if context.get("curr_user"):
@@ -379,22 +384,25 @@
     <% curr_user=user %>
 % endif
 
+% if curr_user.is_authenticated():
+    <div style="width:100%;height:77px"></div>
+% endif
 <!--header-->
 % if curr_user.is_authenticated():
     % if course:
          <style type="text/css" media="screen">
             header.global.slim h1.logo::before{top:15px;}      
         </style>
-        <header class="global slim" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+        <header class="global slim nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
     % else:
         % if curr_user==request.user:
           <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
         % else:
-          <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
+          <header class="global nav-fixed" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;">
         % endif
     % endif
 % else:
-    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#C5E0B4;">
+    <header class="global" aria-label="${_('Global Navigation')}" style="box-sizing:content-box !important;background-color:#fff;">
 % endif
 
 <!--nav-->
