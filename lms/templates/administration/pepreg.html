@@ -1024,6 +1024,7 @@
             var viewVal = $(this).val();
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
+                $(".printview").remove();
                 $("#view_select .btn-input-grp").val("Calendar View");
                 $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
                 if($("#calendar_select_range").val() != "3"){

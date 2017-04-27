@@ -569,12 +569,12 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
         i = 0
         table_tr_content = ""
         while(i < array_length):
-            table_tr_content += "<tr>"
+            table_tr_content += "<tr class='printview'>"
 
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][0]) + " " + str(print_row[i][1]) +"</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][0]) + "<br/>" + str(print_row[i][1]) +"</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + " " + str(print_row[i][5]) + "</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + "<br/>" + str(print_row[i][5]) + "</td>"
 
             table_tr_content += "</tr>"
 
