@@ -282,6 +282,7 @@
         },
         downloadReportExcel: function(){
             this.postToNewTab("${reverse('report_download_excel',args=[report.id])}?school_year=${school_year}",safeJSON({}));
+			
         },
         selectSchoolYear: function(){
             $(".school_year_select").change(function(){

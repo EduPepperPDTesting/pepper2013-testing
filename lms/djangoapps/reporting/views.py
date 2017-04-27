@@ -446,6 +446,7 @@ def report_view(request, report_id):
                 'window_title': 'Report Not Found'}
         return render_to_response('error.html', data, status=404)
 
+
     data = {'report': report,
             'school_year': school_year,
             'display_columns': selected_columns,
