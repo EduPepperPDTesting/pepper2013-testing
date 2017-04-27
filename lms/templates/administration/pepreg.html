@@ -899,6 +899,9 @@
 		});;
 
 		$("#calendar_select_categories").change(function(){
+		    if($("#view_select").val == "1"){
+		        $(".printview").remove()
+		    }
 			calendarOpen();
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
@@ -1037,6 +1040,7 @@
                  _cal_view="print";
             }
             console.log(_cal_view);
+            $("#view_select").attr("value", "");
             $("#view_select").val(viewVal);
             calendarOpen();
         });
