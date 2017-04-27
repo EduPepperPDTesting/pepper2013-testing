@@ -554,7 +554,13 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
         training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
-        print_row.append([item.name, item.description, item.training_date, training_start_time, item.classroom, item.geo_location])
+        print_row[i].append(item.name)
+        print_row[i].append(item.description)
+        print_row[i].append(item.training_date)
+        print_row[i].append(training_start_time)
+        print_row[i].append(item.classroom)
+        print_row[i].append(item.geo_location)
+
         raise Exception(str(print_row[0]))
         if(i < array_length - 1):
             i += 1
