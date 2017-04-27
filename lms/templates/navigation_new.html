@@ -321,9 +321,10 @@
     text-decoration: none;
 }
 .nav-option-ol{
-    margin-top:-4px;
+    margin-top:14px;
     margin-left:10px;
-    float:left;width:auto;
+    float:left;
+    width:auto;
 }
 .nav-option-text{
     position:absolute;
@@ -406,12 +407,12 @@
 % endif
 
 <!--nav-->
-<nav id="page-nav">
+<nav id="page-nav" style="height:76px;width:1180px;padding:0px;">
 <!--sub logo-->
     % if course:
-      <h1 class="logo" style="margin-top:-10px;margin-left:0px;margin-right:30px;">
+      <h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:30px;">
     % else:
-      <h1 class="logo" style="margin-top:-10px;margin-left:0px;margin-right:0px;">
+      <h1 class="logo" style="margin-top:8px;margin-left:0px;margin-right:0px;">
     % endif
         <!--@begin:Choose the link of the top logo according user's login status-->
         <!--@date:2013-11-02-->
@@ -627,7 +628,7 @@
                             <span style="display:block;max-width:70px;text-overflow:ellipsis;line-height:12px;height:18px;font-weight:bold;overflow-x:hidden;vertical-align:top;">${curr_user.username}</span>
                         </a>
                     </li> -->
-                    <li class="primary" style="margin-top:  -10px;">
+                    <li class="primary" style="margin-top:8px;">
                         <span><a href="#" class="" id="dropdown">
                             <img src="${reverse('user_photo',args=[curr_user.id])}" alt="photo" width="50" height="45">
                             <span style="text-align:center;display:block;max-width:50px;text-overflow:ellipsis;font-size:15px;line-height:20px;overflow:hidden;vertical-align:top;">Me</span>
