@@ -12,7 +12,6 @@ from student.models import UserTestGroup, CourseEnrollment, UserProfile, Distric
 from .models import Resource, GenericResource
 from courseware.courses import get_courses, sort_by_custom
 
-
 def index_bak(request):
 
     def custom_compare_key(item):
@@ -187,7 +186,10 @@ def index_list(request):
     
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
-    
+
+    if request.user.id == 24:
+        return render_to_response('temporary.html')
+
     for course in courses:
         if request.user.is_superuser is False:
             if request.user.profile.district.state.name in course.display_state:

@@ -42,7 +42,7 @@ class @Problem
   compare: =>
     $.ajaxSetup({
         async: false
-    }); 
+    });
     $.postWithPrefix "#{@url}/problem_compare", @answers, (response) =>
       switch response.success
         when 'incorrect', 'correct'

@@ -795,7 +795,13 @@ Add info that you would like to share about yourself here:
 <!--@date:2013-11-02-->
 <section class="my-courses">
   <header style="width:886px;height:246px;margin:auto;position:relative;border-bottom:none;margin-bottom:30px;">
-    <div style="position:absolute;background:url(${static.url('images/p15.png')});width:886px;height:246px;">
+    <div style="position:absolute;
+    %if request.user.id == 24:
+    background:url(${static.url('images/for24.png')});
+    %else:
+    background:url(${static.url('images/p15.png')});
+    %endif
+    width:886px;height:246px;">
       <a href="http://www.pepperpcg.blogspot.com" target="_blank" style="margin:170px 0 0 227px;position:absolute;" class="btnx dashboard-btn1">${_('Latest News')}</a>
     </div>
   </header>
@@ -829,7 +835,23 @@ Add info that you would like to share about yourself here:
     <header>
       <h2>${_("MY LEARNING PLAN")}</h2>
     </header>
-
+    % if request.user.id == 24:
+      <article class="my-course">
+          <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="cover" style="cursor:pointer;">
+              <img src="/static/images/Paths to College and Career.png" style="width:200px;height:104px;" alt="Paths to College and Career" />
+          </a>
+          <section class="info">
+            <hgroup>
+                <h2 class="university">PCG Education</h2>
+              <h3>
+                  <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" style="cursor:pointer;">Path to College and Career Readiness</a>
+              </h3>
+            </hgroup>
+            <link rel="stylesheet" href="/static/tmp-resource/css/main.css" type="text/css" media="screen" />   
+                    <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="enter-course dashboard-btn2">${_('View Resource')}</a>
+          </section>
+      </article> 
+    % endif
     % if len(courses_incomplated) > 0:
 <!--@begin:Change the disply of the courses list in Dashboard-->
 <!--@date:2013-11-02-->    
