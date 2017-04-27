@@ -565,7 +565,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     if(print_row):
         i = 0
         table_tr_content += "<tr>"
-        while(i < array_length)
+        while(i < array_length):
             table_tr_content += "<td class='" + class_name + "'style='position: relative; height: 100%;'>" + print_row[i][0] + " " + print_row[i][1] +"</td/>"
             table_tr_content += "<td class='" + class_name + "'style='position: relative; height: 100%;'>" + print_row[i][2] + "</td>"
             table_tr_content += "<td class='" + class_name + "'style='position: relative; height: 100%;'>" + print_row[i][3] + "</td>"
