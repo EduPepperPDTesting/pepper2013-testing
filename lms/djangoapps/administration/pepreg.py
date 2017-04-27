@@ -550,7 +550,7 @@ def build_print_rows(request, year, month, catype, all_occurrences, current_day,
     print_row = [[]]
     i = 1
     array_length = len(all_occurrences)
-    for item in all_occurrences
+    for item in all_occurrences:
         print_row[i].append(item.name)
         print_row[i].append(item.description)
         print_row[i].append(item.training_date)
