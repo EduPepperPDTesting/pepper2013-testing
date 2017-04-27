@@ -23,6 +23,9 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
+import logging
+log = logging.getLogger("tracking")
+
 
 def postpone(function):
     """
@@ -342,8 +345,8 @@ def report_save(request, report_id):
                 report_filter.save()
            
             rs = reporting_store()
-            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
-            if report_has_school_year(selected_columns):                
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+            if report_has_school_year(selected_columns): 
                 for item in get_school_year_item():
                     collection = get_cache_collection(request, report_id, item)
                     rs.del_collection(collection)
@@ -560,6 +563,12 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
+    log.debug("___________________________________>>")
+    log.debug(aggregate_config['collection'])
+    log.debug("___________________________________>>")
+    log.debug(aggregate_query)
+    log.debug("___________________________________>>")
+    log.debug(report.distinct)
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
