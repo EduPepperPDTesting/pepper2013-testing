@@ -160,6 +160,13 @@ def create_thread(request, course_id, commentable_id):
     if post.get('auto_subscribe', 'false').lower() == 'true':
         user = cc.User.from_django_user(request.user)
         user.follow(thread)
+
+        ma_db = myactivitystore()
+        my_activity = {"GroupType": "Courses", "EventType": "courses_followdiscussion", "ActivityDateTime": datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"course_id": course_id, "commentable_id": thread.commentable_id, "SourceID": thread.id},    
+        "TokenValues": {"SourceID": thread.id, "course_id": course_id}, "LogoValues": {"course_id": course_id}}
+        ma_db.insert_item(my_activity)
+
     courseware_context = get_courseware_context(thread, course)
     data = thread.to_dict()
     if courseware_context:
