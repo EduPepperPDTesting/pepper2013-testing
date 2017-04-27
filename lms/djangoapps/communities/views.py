@@ -1083,7 +1083,6 @@ def get_posts(request):
         posts = CommunityPosts.objects.filter(community=c).order_by('-top', '-user__username')[0:size]
     #@end
     usr_img=reverse('user_photo', args=[request.user.id])
-    c_likes = 0
     for post in posts:
         img = reverse('user_photo', args=[post.user.id])
         active = active_recent(post.user)
@@ -1127,7 +1126,7 @@ def get_posts(request):
                 if len(likes) == 3 and user_like == 1:
                     like_text = like_text[:-2]
                 else:
-                    like_text += " and " + str(len(c_likes)-2) + "more."
+                    like_text += " and " + str(len(likes)-2) + "more."
             else:
                 for like in likes:
                     if like.user.username != request.user.username:
@@ -1160,7 +1159,7 @@ def get_posts(request):
             try:
                 c_likes = CommunityLikes.objects.filter(comment=comment)
             except Exception as e:
-                c_likes = 0
+                c_likes = dict()
             c_user_like = len(CommunityLikes.objects.filter(comment=comment, user__id=request.user.id))
             comment_img = reverse('user_photo', args=[comment.user.id])
             c_like_html=""

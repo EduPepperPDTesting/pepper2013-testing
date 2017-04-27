@@ -23,7 +23,6 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 
-
 def postpone(function):
     """
     Decorator for processing in a separate thread through gevent.
@@ -58,6 +57,7 @@ def reports_view(request):
             qs |= Q(access_level='District', access_id=request.user.profile.district.id)
         if not access_level or levels[access_level] > 2:
             qs |= Q(access_level='School', access_id=request.user.profile.school.id)
+        qs |= Q(author_id=request.user.id)
         reports = Reports.objects.select_related('author__first_name', 'author__last_name').filter(qs).order_by('order')
     categories = Categories.objects.all().order_by('order')
 
@@ -73,6 +73,8 @@ def reports_view(request):
     if admin_rights or create_rights:
         report_list = list()
         qs = Q(category__isnull=True)
+        ####Original logic
+        '''
         if not admin_rights:
             if access_level == 'School':
                 qs &= Q(access_level='School') & Q(access_id=request.user.profile.school.id)
@@ -80,6 +82,9 @@ def reports_view(request):
                 qs &= Q(access_level='District') & Q(access_id=request.user.profile.district.id)
             elif access_level == 'State':
                 qs &= Q(access_level='State') & Q(access_id=request.user.profile.district.state.id)
+        '''
+        if not request.user.is_superuser:
+            qs &= Q(author_id=request.user.id)
         category_reports = reports.filter(qs)
         for category_report in category_reports:
             report_list.append({'id': category_report.id,
@@ -298,7 +303,7 @@ def report_save(request, report_id):
                 report.access_id = request.user.profile.district.id
             elif access_level == 'School':
                 report.access_id = request.user.profile.school.id
-            report.save()
+            report.save()           
 
             ReportViews.objects.filter(report=report).delete()
             for i, view in views.iteritems():
@@ -326,9 +331,19 @@ def report_save(request, report_id):
                 report_filter.operator = filter_operators[i]
                 report_filter.order = int(i)
                 report_filter.save()
-
+           
             rs = reporting_store()
-            collection = get_cache_collection(request, report_id)
+            selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')            
+            if report_has_school_year(selected_columns):                
+                for item in get_school_year_item():
+                    collection = get_cache_collection(request, report_id, item)
+                    rs.del_collection(collection)
+
+                collection = get_cache_collection(request, report_id, "all")
+                rs.del_collection(collection)
+
+            
+            collection = get_cache_collection(request, report_id, "")
             rs.del_collection(collection)
 
         else:
@@ -354,7 +369,12 @@ def report_delete(request):
     report_id = request.POST.get('report_id', False)
     if report_id:
         try:
-            Reports.objects.get(id=report_id).delete()
+            report = Reports.objects.get(id=report_id)
+            rid = report.id
+            rname = report.name
+            
+            Reports.objects.get(id=report_id).delete()          
+
         except Exception as e:
             data = {'success': False, 'error': '{0}'.format(e)}
             transaction.rollback()
@@ -375,6 +395,7 @@ def report_view(request, report_id):
     :param report_id: The ID of the report to be edited.
     :return: The Report page.
     """
+    school_year = ""
     try:
         allowed = False
         report = Reports.objects.get(id=report_id)
@@ -391,11 +412,15 @@ def report_view(request, report_id):
         elif request.user.is_superuser:
             allowed = True
         if allowed:
+            school_year = request.GET.get('school_year', '')
+            if school_year:
+                school_year = str(school_year).replace("-","_")
+
             rs = reporting_store()
-            collection = get_cache_collection(request, report_id)
+            collection = get_cache_collection(request, report_id, school_year)
 
             stats = int(rs.get_collection_stats(collection)['ok'])
-            if (not (stats)):
+            if(not(stats)):
                 rs.del_collection(collection)
                 selected_view = ReportViews.objects.filter(report=report)[0]
                 report_filters = ReportFilters.objects.filter(report=report).order_by('order')
@@ -421,7 +446,9 @@ def report_view(request, report_id):
                 'window_title': 'Report Not Found'}
         return render_to_response('error.html', data, status=404)
 
+
     data = {'report': report,
+            'school_year': school_year,
             'display_columns': selected_columns,
             'school_year_item': school_year_item}
     return render_to_response('reporting/view-report.html', data)
@@ -439,13 +466,14 @@ def report_get_rows(request):
     page = int(request.GET['page'])
     size = int(request.GET['size'])
     report_id = request.GET['report_id']
+    school_year = request.GET.get('school_year', '')
     start = page * size
     rows = []
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report).order_by('order')
     sorts, filters = build_sorts_and_filters(selected_columns, sorts, filters)
     rs = reporting_store()
-    collection = get_cache_collection(request, report_id)
+    collection = get_cache_collection(request, report_id, school_year)
     data = rs.get_page(collection, start, size, filters, sorts)
     total = rs.get_count(collection, filters)
 
@@ -498,13 +526,14 @@ def build_sorts_and_filters(columns, sorts, filters):
     return order, filter
 
 
-def get_cache_collection(request, report_id):
+def get_cache_collection(request, report_id, school_year=""):
     """
     Returns the name of the aggregate collection.
     :param request: Request object.
     :return: aggregate collection name.
     """
-    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id)
+
+    return 'tmp_collection_' + str(request.user.id) + '_' + str(report_id) + school_year
 
 
 @postpone
@@ -533,10 +562,15 @@ def aggregate_query_format(request, query, report, columns, filters, report_id, 
     :param out: Whether to generate aggregate collection.
     :return: The formatted query.
     """
+    
+    school_year = request.GET.get('school_year', '')
+    if school_year:
+        school_year = str(school_year).replace("-","_")
+
     query = query_ref_variable(query, request, report, columns, filters)
     query = query.replace('\n', '').replace('\r', '')
     if out:
-        query += ',{"$out":"' + get_cache_collection(request, report_id) + '"}'
+        query += ',{"$out":"' + get_cache_collection(request, report_id, school_year) + '"}'
     query = eval(query)
     return query
 
@@ -703,13 +737,14 @@ def report_download_excel(request, report_id):
     workbook = xlsxwriter.Workbook(output, {'constant_memory': True})
     worksheet = workbook.add_worksheet()
     report = Reports.objects.get(id=report_id)
-    columns = ReportViewColumns.objects.filter(report=report).order_by('order')
+    columns = ReportViewColumns.objects.filter(report=report).order_by('order')    
+    school_year = request.GET.get('school_year', '')
 
     for i, k in enumerate(columns):
         worksheet.write(0, i, k.column.name)
     row = 1
     rs = reporting_store()
-    rs.set_collection(get_cache_collection(request, report_id))
+    rs.set_collection(get_cache_collection(request, report_id, school_year))
     results = rs.collection.find()
     for p in results:
         for i, k in enumerate(columns):
@@ -733,9 +768,10 @@ def report_get_progress(request, report_id):
     Checks the status of the collection creation progress.
     :param request: Request object.
     :return: JSON representation of the status.
-    """
+    """    
+    school_year = request.GET.get('school_year', '')
     rs = reporting_store()
-    collection = get_cache_collection(request, report_id)
+    collection = get_cache_collection(request, report_id, school_year)
     stats = int(rs.get_collection_stats(collection)['ok'])
     return render_json_response({'success': stats, 'collection':collection})
 
@@ -747,8 +783,9 @@ def report_get_custom_filters(request, report_id):
     :param Report object.
     """
     data = []
+    school_year = request.GET.get('school_year', '')
     rs = reporting_store()
-    collection = get_cache_collection(request, report_id)
+    collection = get_cache_collection(request, report_id, school_year)
     rs.set_collection(collection)
     report = Reports.objects.get(id=report_id)
     selected_columns = ReportViewColumns.objects.filter(report=report, column__custom_filter=1).order_by('order')
