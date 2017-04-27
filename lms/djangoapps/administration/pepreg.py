@@ -548,17 +548,15 @@ def getweekdays(year, weekNumber, getrange):
 
 def build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist):
     print_row = [[]]
-    i = 1
+    i = 0
     array_length = len(all_occurrences)
     for item in all_occurrences:
-        print_row[i].append(item.name)
-        print_row[i].append(item.description)
-        print_row[i].append(item.training_date)
-        print_row[i].append(str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0'))
-        print_row[i].append(item.classroom)
-        print_row[i].append(item.geo_location)
 
-        if(i < array_length):
+        training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+        print_row[i].append([item.name, item.description, item.training_date, training_start_time, item.classroom, item.geo_location])
+
+        if(i < array_length - 1):
             i += 1
             print_row.append([])
 
