@@ -527,7 +527,7 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id)
+        name_dict["table_tr_content"] = build_print_rows(request, all_occurrences, current_day)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
