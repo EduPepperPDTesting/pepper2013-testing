@@ -527,7 +527,7 @@ def getCalendarMonth(request):
     if(_cal_view == 'screen'):
         name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
     elif(_cal_view == 'print'):
-        name_dict["table_tr_content"] = build_print_rows(request, all_occurrences, current_day)
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -546,7 +546,7 @@ def getweekdays(year, weekNumber, getrange):
             yield yieldDay
         i += 1
 
-def build_print_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id):
+def build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist):
     print_row = [[]]
     i = 1
     array_length = len(all_occurrences)
