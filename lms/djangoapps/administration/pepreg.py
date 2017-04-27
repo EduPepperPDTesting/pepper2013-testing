@@ -555,7 +555,7 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
         training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
 
         print_row[i].append([item.name, item.description, item.training_date, training_start_time, item.classroom, item.geo_location])
-
+        raise Exception(print_row)
         if(i < array_length - 1):
             i += 1
             print_row.append([])
@@ -569,13 +569,13 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][0]) + " " + str(print_row[i][1]) +"</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
             table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
-            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + " " + str(print_row[i][3]) + "</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + " " + str(print_row[i][5]) + "</td>"
 
             table_tr_content += "</tr>"
 
             i += 1
 
-    return table_tr_content
+        return table_tr_content
 
 #akogan
 def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
