@@ -561,7 +561,6 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
         print_row[i].append(item.classroom)
         print_row[i].append(item.geo_location)
 
-        raise Exception(str(print_row[0]))
         if(i < array_length - 1):
             i += 1
             print_row.append([])
