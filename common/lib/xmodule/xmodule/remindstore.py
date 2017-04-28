@@ -268,6 +268,12 @@ class MongoMyActivityStore(object):
         self.collection.update({'EventType':'community_replydiscussion','URLValues':{'discussion_id':discussion_id}},
             {'$set':{'LogoValues':{'community_id':community_id, 'discussion_id':discussion_id, 'discussion_name':discussion_name}}}, multi=True)
 
+    def set_item_my_chunks(self,usrcre,url,chunkTitle):
+        self.collection.update(
+            {'GroupType':'MyChunks','TokenValues':{'UsrCre':usrcre,"url":url}},
+            {'$set':{'LogoValues':{'SourceID':'', 'chunkTitle':chunkTitle}}}, 
+        multi=True)
+
 class MongoMyActivityStaticStore(object):
 
     # TODO (cpennington): Enable non-filesystem filestores

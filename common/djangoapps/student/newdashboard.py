@@ -309,9 +309,12 @@ def get_displayInfo(data):
             dt['models'] = dt['models'].replace('|',',')
             dt['key_name'] = t1[2]
             try:
-                value = eval(dt['models'])
+                value = data['LogoValues'][dt['key_name']]
             except:
-                pass
+                try:
+                    value = eval(dt['models'])
+                except:
+                    pass
         else:
             info = re.sub("{([\w ]*)}", lambda x: str(data["TokenValues"].get(x.group(1))), data["DisplayInfo"])
             return info
