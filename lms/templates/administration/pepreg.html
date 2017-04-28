@@ -1046,9 +1046,11 @@
                 if($("#calendar_select_range").val() != "2"){
                     var day_text = $("#calendar-month-weekdays #time").text();
                     $("#calendar-month-weekdays #time").html("Training Name and description");
+                    $("#calendar-month-weekdays").append("<th>Training Date</th><th>Start Time</th><th>Location</th>");
+                }else{
+                    $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
                 }
-                $("#calendar-month-weekdays").append("<th>Training Date</th><th>Start Time</th><th>Location</th>");
-		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
+                $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
 		        $(this).parent().parent().siblings().children().attr('disabled', true);
 		        $("#calendar_btn_previous_y").css("margin-left", "15px");
                  _cal_view="print";
