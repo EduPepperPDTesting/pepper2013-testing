@@ -206,23 +206,34 @@ def organization_remove_img(request):
                     break;
             else:
                 if(oid):
-                    for tmp1 in OrganizationMetadata.objects.filter(id=oid):
-                        for tmp2 in OrganizationAttributes.objects.filter(organization=tmp1):
-                            if (column == "LogoHome"):
-                                filename = tmp2.LogoHome
-                                tmp2.LogoHome = ""
-                            else:
-                                filename = tmp2.LogoProfile
-                                tmp2.LogoProfile = ""
+                    if (column == "LogoHome"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):                           
+                            for tmp2 in OrganizationMenu.objects.filter(organization=tmp1, itemType="logo"):                               
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + tmp2.itemValue
+                                tmp2.itemValue = ""
+                                tmp2.save()
 
-                            filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + filename
-                            if os.path.isfile(filename):
-                                os.remove(filename)
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
+                                
+                                data = {'Success': True}
+                                break;
+                            break;
+                            
+                    elif (column == "LogoProfile"):
+                        for tmp1 in OrganizationMetadata.objects.filter(id=oid):
+                            for tmp2 in OrganizationAttributes.objects.filter(organization=tmp1):
+                                if (column == "LogoProfile"):
+                                    filename = tmp2.LogoProfile
+                                    tmp2.LogoProfile = ""
 
-                            tmp2.save()
-                        data = {'Success': True}
-                        break;
+                                filename = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + "/" + filename
+                                if os.path.isfile(filename):
+                                    os.remove(filename)
 
+                                tmp2.save()
+                            data = {'Success': True}
+                            break;
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
@@ -294,6 +305,31 @@ def organization_get(request):
                         data['motto'] = tmp1.Motto
                         data['New'] = False
                         break;
+                    
+                    # --------------OrganizationDashboard
+                    for tmp1 in OrganizationDashboard.objects.filter(organization=organizations):
+                        data[tmp1.itemType] = tmp1.itemValue
+
+                    # --------------OrganizationMenu
+                    for tmp1 in OrganizationMenu.objects.filter(organization=organizations):
+                        data[tmp1.itemType] = tmp1.itemValue
+
+                    # --------------OrganizationMenu
+                    menu_items = ""
+                    for tmp1 in OrganizationMenuitem.objects.filter(organization=organizations,ParentID=0):
+                        if menu_items != "":
+                            menu_items = menu_items + "=<="
+
+                        menu_items_child = ""
+                        for tmp2 in OrganizationMenuitem.objects.filter(organization=organizations,ParentID=tmp1.id):
+                            if menu_items_child != "":
+                                menu_items_child = menu_items_child + "_<_"
+                            
+                            menu_items_child = menu_items_child + str(tmp2.rowNum) + "_>_" + tmp2.MenuItem + "_>_" + tmp2.Url + "_>_" + str(tmp2.isAdmin)
+
+                        menu_items = menu_items + str(tmp1.rowNum) + "=>=" + tmp1.MenuItem + "=>=" + tmp1.Url + "=>=" + str(tmp1.isAdmin) + "=>=" + menu_items_child + "=>=" + tmp1.Icon
+                    
+                    data["menu_items"] = menu_items
 
                     break;
             else:
@@ -361,19 +397,18 @@ def organizational_save_base(request):
                     org_dis.organization = org_metadata
                     org_dis.save();
 
-            # --------------OrganizationAttributes
-            if (motto):
-                org_menu = OrganizationMenu();
-                org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
-                for tmp1 in org_attr_list:
-                    org_attr = tmp1
-                    break;
+            # --------------OrganizationAttributes            
+            org_menu = OrganizationMenu();
+            org_attr_list = OrganizationAttributes.objects.filter(organization=org_metadata)
+            for tmp1 in org_attr_list:
+                org_attr = tmp1
+                break;
 
-                org_attr.Motto = motto
-                org_attr.organization = org_metadata
+            org_attr.Motto = motto
+            org_attr.organization = org_metadata
 
-                org_attr.save();
-
+            org_attr.save();
+ 
             # --------------OrganizationMenuitem
             OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
             if (menu_items):                
@@ -384,26 +419,29 @@ def organizational_save_base(request):
                     org_menu_item.organization = org_metadata
                     org_menu_item.MenuItem = tmp2[1]
                     org_menu_item.Url = tmp2[2]
+                    if tmp2[5] != "":
+                        org_menu_item.Icon = tmp2[5]
+                            
                     if tmp2[3] == "1":
                         org_menu_item.isAdmin = True
                     else:
                         org_menu_item.isAdmin = False
                     org_menu_item.rowNum = tmp2[0]
                     org_menu_item.save()
-
-                    for tmp3 in tmp2[4].split("_<_"):
-                        tmp4 = tmp3.split("_>_")
-                        org_menu_item1 = OrganizationMenuitem()
-                        org_menu_item1.organization = org_metadata
-                        org_menu_item1.MenuItem = tmp4[1]
-                        org_menu_item1.Url = tmp4[2]
-                        if tmp4[3] == "1":
-                            org_menu_item1.isAdmin = True
-                        else:
-                            org_menu_item1.isAdmin = False
-                        org_menu_item1.rowNum = tmp4[0]
-                        org_menu_item1.ParentID = org_menu_item.id
-                        org_menu_item1.save()                       
+                    if tmp2[4]:
+                        for tmp3 in tmp2[4].split("_<_"):
+                            tmp4 = tmp3.split("_>_")
+                            org_menu_item1 = OrganizationMenuitem()
+                            org_menu_item1.organization = org_metadata
+                            org_menu_item1.MenuItem = tmp4[1]
+                            org_menu_item1.Url = tmp4[2]
+                            if tmp4[3] == "1":
+                                org_menu_item1.isAdmin = True
+                            else:
+                                org_menu_item1.isAdmin = False
+                            org_menu_item1.rowNum = tmp4[0]
+                            org_menu_item1.ParentID = org_menu_item.id
+                            org_menu_item1.save()                       
 
 
             # --------------OrganizationMenu Menu color
@@ -652,23 +690,22 @@ def org_dashboard_upload(request):
             organization = OrganizationMetadata.objects.get(id=oid)            
             imgx = request.FILES.get("menu_items_icon_" + rowNum, None)
             path = settings.PROJECT_ROOT.dirname().dirname() + '/uploads/organization/' + oid + '/'
-            
+           
             if not os.path.exists(path):
                 os.mkdir(path)
 
             if imgx:
-                ext = os.path.splitext(imgx.name)[1]
-                destination = open(path + rowNum + ext, 'wb+')
+                destination = open(path + imgx.name, 'wb+')
                 for chunk in imgx.chunks():
                     destination.write(chunk)
                 destination.close()
                 
                 for org_menu_item in OrganizationMenuitem.objects.filter(organization=organization,rowNum=int(rowNum),ParentID=0):
-                    org_menu_item.Icon = rowNum + ext
+                    org_menu_item.Icon = imgx.name
                     org_menu_item.save()
                     break;              
 
-                data = {'Success': True, 'name': rowNum + ext}
+                data = {'Success': True, 'name': imgx.name}
 
     except Exception as e:
         data = {'Success': False, 'Error': '{0}'.format(e)}
