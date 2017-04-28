@@ -758,7 +758,7 @@ def delete_comment(request):
 
 def get_receivers(user, post_type):
     receiver_ids = None
-    if type == "announcement":
+    if post_type == "announcement":
         up = user.profile
         level = check_access_level(user, "dashboard_announcement", "create")
         if level == "System":
