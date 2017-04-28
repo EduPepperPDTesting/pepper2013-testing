@@ -20,11 +20,9 @@ from permissions.utils import check_access_level, check_user_perms
    float: left;
    width:660px;
    min-width: 610px;
-   height: 800px;
    margin-top: 5px;
    margin-left: 8px;
-   overflow-x:hidden;
-   overflow-y:hidden;
+   overflow-y:visible;
  }
  .post_content{
    background-color: #f2f2f2;
@@ -199,7 +197,7 @@ from permissions.utils import check_access_level, check_user_perms
   </table>
   <center><img id="posts_loading_image" src="/static/images/posts-loading.gif"></img></center>
 </div>
-</div>
+
 <div class="modal" id="dlg-warning" style="width:500px;margin-left:-250px;border-radius:0;">
   <div class="inner-wrapper" style="border:0;border-radius:5px;padding:0;border-radius:0;">
     <div class="titlebar">
@@ -512,10 +510,11 @@ from permissions.utils import check_access_level, check_user_perms
     getPosts();
   });
   // [event scroll] all posts
-  $('.dashboard-post').mousewheel(function(event) {
-    event.preventDefault()
-    $(this).scrollTop($(this).scrollTop() - event.deltaY * event.deltaFactor)
-    if($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+  $(window).bind("scroll", function(){
+    var scrollTop = $(this).scrollTop();
+    　　    var scrollHeight = $(document).height();
+    　　    var windowHeight = $(this).height();
+    if(scrollTop + windowHeight == scrollHeight) {
       getPosts(true)
     }
   });

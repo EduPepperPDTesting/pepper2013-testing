@@ -348,6 +348,10 @@
     border-right:3px solid #d9d9d9;
     border-radius: 6px 6px 0px 0px; 
     display: none;
+
+  min-height:727px;
+  padding-bottom: 3px;
+  
 }
 .my-activity{
     width:674px;
@@ -626,16 +630,16 @@
         </div>
         <div class="con-my-courses-placeholder"></div>
 
-        <div class="con-maincontent-all">
+        <div class="con-maincontent-all clearfix">
             <div class="con-feed-activity">
                 <div class="my-feed-btn mytab-active">My Feed</div>
                 <div class="my-activity-btn" style="">My Activity</div>
             </div>
-            <div id="my_feed" class="my-feed">
+            <div id="my_feed" class="my-feed ">
                 <!--Post Dashboard-->
                 <!--w:660,min-h:800-->
                 <%include file="dashboard_my_feed.html" />
-
+            </div>
             <!--w:674 = 680-3*2-->
             <div id="my_activity" class="my-activity">
                 <div class="con-ma-filter">
