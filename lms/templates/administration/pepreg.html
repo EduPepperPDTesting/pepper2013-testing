@@ -641,7 +641,7 @@
 		year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
 		catype: $("#calendar_select_categories").val(), calview: _cal_view}, function(data){
 
-	        if($("#calendar_select_range").val() == "2"){
+	        if($("#calendar_select_range").val() == "2" && $("#view_select").val() == "0"){
 	           $("#calendar-month-weekdays").css("text-align", "left");
 	           var getDateDay = new Date(_sys_calendar_year, _sys_calendar_month - 1, _sys_calendar_day)
 	           var dayNum = getDateDay.getUTCDay()-1;
@@ -654,7 +654,7 @@
                }else{
                   $("#time").text(displayDate);
                }
-	        }else{
+	        }else if($("#view_select").val() == "0"){
 	            console.log("val - "+ $("#calendar_select_range").val());
                $("#calendar-month-weekdays").css("text-align", "");
                $("#calendar-month-weekdays th[id='time']").remove();
@@ -1029,14 +1029,18 @@
             if(viewVal == "0"){
                 $(".printview").remove();
                 $("#view_select .btn-input-grp").val("Calendar View");
+                $("#calendar-month-weekdays .print_col").remove();
                 if($("#calendar_select_range").val() != "2"){
-                    $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
+                    $("#calendar-month-weekdays th").show();
                 }else{
-                    //$("#calendar-month-weekdays").html('');
-                    $("#calendar-month-weekdays").find("th[value='th_day']").show();
+                    $("#calendar-month-weekdays").find("th[id='time']").show();
+                    for(i=0, i<7; i++){
+                        if($("#calendar-month-weekdays th[value='day"+i+"']").length > 0)
+                            $("#calendar-month-weekdays").find("th[value='day"+i+"']").attr("value', '').show();
+                    }
                 }
                 if($("#calendar_select_range").val() != "3" && $("#calendar_select_range").val() != "2" ){
-                    $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
+                    $("#calendar-month-weekdays .weekend").show();
                 }
 		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
 		        $(this).parent().parent().siblings().children().attr('disabled', false);
@@ -1045,10 +1049,14 @@
             }else if(viewVal == "1"){
                 $("#view_select .btn-input-grp").val("Print View");
                 if($("#calendar_select_range").val() == "2"){
-                    $("#calendar-month-weekdays").find("th:visible").attr("value", "th_day");
-                    //$("#calendar-month-weekdays th").hide();
+                    var th_id = $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('id');
+                    $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('value', th_id);
+                    $("#calendar-month-weekdays").find("th:visible").hide();
                 }
-                $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
+                if($("#calendar_select_range").val() != "3" && $("#calendar_select_range").val() != "2" ){
+                    $("#calendar-month-weekdays .weekend").hide();
+                }
+                $("#calendar-month-weekdays").append("<th class="print_col">Training Name and description</th><th class="print_col">Training Date</th><th class="print_col">Start Time</th><th class="print_col">Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
 		        $(this).parent().parent().siblings().children().attr('disabled', true);
 		        $("#calendar_btn_previous_y").css("margin-left", "15px");
