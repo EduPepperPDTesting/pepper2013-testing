@@ -52,6 +52,7 @@
     .step-page .move {right: 25px !important;}
     .ui-datepicker-month {color: black !important}
     /*.training-row {font-family: "open sans" !important;}*/
+    .step-content { width: 700px !important;}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -898,6 +899,9 @@
 		});;
 
 		$("#calendar_select_categories").change(function(){
+		    if($("#view_select").val() == "1"){
+		        $(".printview").remove()
+		    }
 			calendarOpen();
 			console.log(_sys_calendar_year, _sys_calendar_month, _sys_calendar_day);
 		});
@@ -1023,6 +1027,7 @@
             var viewVal = $(this).val();
             console.log("viewVal - "+viewVal);
             if(viewVal == "0"){
+                $(".printview").remove();
                 $("#view_select .btn-input-grp").val("Calendar View");
                 $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
                 if($("#calendar_select_range").val() != "3"){
@@ -1034,8 +1039,9 @@
                 $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
                  _cal_view="print";
             }
-
-            $("#view_select").val(viewVal);
+            console.log(_cal_view);
+            $("#view_select").attr("value", "");
+            $("#view_select").attr("value", viewVal);
             calendarOpen();
         });
 

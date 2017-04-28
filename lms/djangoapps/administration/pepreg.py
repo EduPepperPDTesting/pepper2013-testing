@@ -523,7 +523,11 @@ def getCalendarMonth(request):
     userObj = request.user
     request.session['user_obj'] = userObj
 
-    name_dict["table_tr_content"] = build_week_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist) #akogan
+    # akogan
+    if(_cal_view == 'screen'):
+        name_dict["table_tr_content"] = build_screen_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
+    elif(_cal_view == 'print'):
+        name_dict["table_tr_content"] = build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist)
 
     return HttpResponse(json.dumps(name_dict), content_type="application/json")
 
@@ -540,18 +544,54 @@ def getweekdays(year, weekNumber, getrange):
             yield 0
         else:
             yield yieldDay
-        i += 1;
+        i += 1
+
+def build_print_rows(request, _year, _month, _catype, all_occurrences, current_day, tmp_school_id, daterangelist):
+    print_row = [[]]
+    i = 0
+    array_length = len(all_occurrences)
+    for item in all_occurrences:
+
+        training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+        print_row[i].append(item.name)
+        print_row[i].append(item.description)
+        print_row[i].append(item.training_date)
+        print_row[i].append(training_start_time)
+        print_row[i].append(item.classroom)
+        print_row[i].append(item.geo_location)
+
+        if(i < array_length - 1):
+            i += 1
+            print_row.append([])
+
+    if(print_row):
+        i = 0
+        table_tr_content = ""
+        while(i < array_length):
+            table_tr_content += "<tr class='printview'>"
+
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][0]) + "<br/>" + str(print_row[i][1]) +"</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][2]) + "</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][3]) + "</td>"
+            table_tr_content += "<td style='position: relative; height: 100%; width: auto; border: 1px #ccc solid;'>" + str(print_row[i][4]) + "<br/>" + str(print_row[i][5]) + "</td>"
+
+            table_tr_content += "</tr>"
+
+            i += 1
+
+        return table_tr_content
 
 #akogan
-def build_week_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
+def build_screen_rows(request, year, month, catype, all_occurrences, current_day, tmp_school_id, daterange):
     isweek = 1 if len(daterange) == 7 else 0
     isday = 1 if len(daterange) == 1 else 0
     rangedates = [[]]
     week = 0
 
     for day in daterange:
-        current = False;
-        occurrences = [];
+        current = False
+        occurrences = []
         trainingStartTime = ""
         trainingEndTime = ""
         trainingStartHour = ""
@@ -572,8 +612,8 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
                     arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
                     allow = "1" if item.allow_registration else "0"
                     r_l = "1" if reach_limit(item) else "0"
-                    allow_student_attendance = "1" if item.allow_student_attendance else "0";
-                    attendancel_id = item.attendancel_id;
+                    allow_student_attendance = "1" if item.allow_student_attendance else "0"
+                    attendancel_id = item.attendancel_id
 
                     status = ""
                     try:
@@ -670,7 +710,7 @@ def build_week_rows(request, year, month, catype, all_occurrences, current_day, 
                 rangedates.append([])
                 week += 1
 
-    table_tr_content = "";
+    table_tr_content = ""
     if isweek:
         colstyle = "style='min-height: 355px !important;'"
     elif isday:
