@@ -119,12 +119,13 @@ def save_message(request):
     info['_id']=oid
     rs.insert_item(info)
 
-    ma_db = myactivitystore()    
-    my_activity = {"GroupType": "Messages", "EventType": "people_sendMessage", "ActivityDateTime": datetime.utcnow(), "UsrCre": int(info['sender_id']), 
-    "URLValues": {"recipient_id": int(info['recipient_id'])},
-    "TokenValues": {"recipient_id": int(info['recipient_id'])}, 
-    "LogoValues": {"SourceID": oid}}
-    ma_db.insert_item(my_activity)
+    if int(info['recipient_id']) != 0:
+        ma_db = myactivitystore()    
+        my_activity = {"GroupType": "Messages", "EventType": "people_sendMessage", "ActivityDateTime": datetime.utcnow(), "UsrCre": int(info['sender_id']), 
+        "URLValues": {"recipient_id": int(info['recipient_id'])},
+        "TokenValues": {"recipient_id": int(info['recipient_id'])}, 
+        "LogoValues": {"SourceID": oid}}
+        ma_db.insert_item(my_activity)
 
     return utils.JsonResponse({'results':'true'})
 
