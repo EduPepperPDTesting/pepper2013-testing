@@ -120,6 +120,16 @@ def save_mychunk(request):
 def del_mychunk(request):
     rs = chunksstore()
     info = json.loads(request.POST.get('info'))
+    
+    chunk_url = ''
+    chunk_title = ''
+    items = rs.return_vertical_item(str(request.user.id),info['vertical_id'])
+    if items:
+        chunk_title = items[0]['chunkTitle']
+        chunk_url = items[0]['url']   
+    ma_db = myactivitystore()
+    ma_db.set_item_my_chunks(int(request.user.id),chunk_url,chunk_title)
+
     rs.delete_item(str(request.user.id),info['vertical_id'])
     return utils.JsonResponse({'results':'true'})
 
