@@ -1031,10 +1031,9 @@
                 $("#view_select .btn-input-grp").val("Calendar View");
                 if($("#calendar_select_range").val() != "2"){
                     $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
-                }else if($("#calendar_select_range").val() == "2"){
-                    var day_val = $("#calendar-month-weekdays #time").val();
-                    $("#calendar-month-weekdays #time").text(day_val);
-                    $("#calendar-month-weekdays #time").attr("value", "");
+                }else{
+                    $("#calendar-month-weekdays").html('');
+                    $("#calendar-month-weekdays th[value='th_day']").show();
                 }
                 if($("#calendar_select_range").val() != "3" && $("#calendar_select_range").val() != "2" ){
                     $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
@@ -1046,13 +1045,10 @@
             }else if(viewVal == "1"){
                 $("#view_select .btn-input-grp").val("Print View");
                 if($("#calendar_select_range").val() == "2"){
-                    var day_text = $("#calendar-month-weekdays #time").text();
-                    $("#calendar-month-weekdays #time").attr("value", day_text)
-                    $("#calendar-month-weekdays #time").text("Training Name and description");
-                    $("#calendar-month-weekdays").append("<th>Training Date</th><th>Start Time</th><th>Location</th>");
-                }else{
-                    $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
+                    $("#calendar-month-weekdays th:visible").val("th_day");
+                    $("#calendar-month-weekdays th").hide();
                 }
+                $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
 		        $(this).parent().parent().siblings().children().attr('disabled', true);
 		        $("#calendar_btn_previous_y").css("margin-left", "15px");
