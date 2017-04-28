@@ -575,6 +575,7 @@ def org_upload(request):
 
     return HttpResponse(json.dumps(data), content_type="application/json")
 
+
 #-------------------------------------------------------------------organization_main_page_configuration_get
 @login_required
 def organization_main_page_configuration_get(request):
