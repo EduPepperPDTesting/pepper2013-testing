@@ -1034,7 +1034,7 @@
                     $("#calendar-month-weekdays th").show();
                 }else{
                     $("#calendar-month-weekdays").find("th[id='time']").show();
-                    for(i=0, i<7; i++){
+                    for(i=0; i<7; i++){
                         if($("#calendar-month-weekdays th[value='day"+i+"']").length > 0)
                             $("#calendar-month-weekdays").find("th[value='day"+i+"']").attr("value', '').show();
                     }
