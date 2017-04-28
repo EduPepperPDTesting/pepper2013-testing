@@ -54,7 +54,7 @@
     /*.training-row {font-family: "open sans" !important;}*/
     .step-content { width: 700px !important;}
 
-    .print_col {background-color: #9bf442; border: 1px #ccc solid;}
+    .print_col {background-color: #9bf442; border: 1px #aaa solid;}
 
     input[type="button"], button, .button {box-shadow: none !important;}
     #dlg-map .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {margin: 0 0 50px 10px !important;}
@@ -1056,7 +1056,7 @@
                 }
                 $("#calendar-month-weekdays").append("<th class='print_col'>Training Name and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col'>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
-		        $(this).parent().parent().siblings().children().attr('disabled', true);
+		        $(this).parent().parent().siblings(":not(#calendar_select_categories)").children().attr('disabled', true);
 		        $("#calendar_btn_previous_y").css("margin-left", "15px");
                  _cal_view="print";
             }
