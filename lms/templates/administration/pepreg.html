@@ -1050,7 +1050,7 @@
                     $("#calendar-month-weekdays").find("th:visible:not(id='time')").attr('value', th_id);
                     $("#calendar-month-weekdays").find("th:visible").hide();
                 }else{
-                    $("#calendar-month-weekdays th).hide();
+                    $("#calendar-month-weekdays th").hide();
                 }
                 $("#calendar-month-weekdays").append("<th class='print_col'>Training Name and description</th><th class='print_col'>Training Date</th><th class='print_col'>Start Time</th><th class='print_col'>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
