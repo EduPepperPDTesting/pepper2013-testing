@@ -408,7 +408,7 @@ def organizational_save_base(request):
             org_attr.organization = org_metadata
 
             org_attr.save();
-
+ 
             # --------------OrganizationMenuitem
             OrganizationMenuitem.objects.filter(organization=org_metadata).delete()
             if (menu_items):                
