@@ -1046,7 +1046,7 @@
                 $("#view_select .btn-input-grp").val("Print View");
                 if($("#calendar_select_range").val() == "2"){
                     $("#calendar-month-weekdays").find("th:visible").attr("value", "th_day");
-                    $("#calendar-month-weekdays th").hide();
+                    //$("#calendar-month-weekdays th").hide();
                 }
                 $("#calendar-month-weekdays").html("<th>Training Name and description</th><th>Training Date</th><th>Start Time</th><th>Location</th>");
                 $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', true);
