@@ -16,7 +16,6 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
-<script type="text/javascript" src="/static/js/jscolor.min.js"></script>
 
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
@@ -376,7 +375,7 @@
             </tr>
             <tr>
                 <td width="250" class="org_td1">Top Menu Color: </td>
-                <td width="280"><button id="organizational_menu_color" class="jscolor {valueElement:null}" style="width:30px; height:25px;"></button></td>
+                <td width="280"><input id="organizational_menu_color" type="color" /> </td>
                 <td></td>
             </tr>
             <tr>
@@ -398,7 +397,7 @@
             </tr>
             <tr>
                 <td class="org_td1" style="padding-left:30px;">Color: </td>
-                <td><button id="organizational_dashboard_menu_text_color" class="jscolor {valueElement:null}" style="width:30px; height:25px;"></button></td>
+                <td><input id="organizational_dashboard_menu_text_color" type="color" /> </td>
                 <td></td>
             </tr>
             <tr>
@@ -903,13 +902,17 @@
 									$("#organizational_base_for_district").val(r.DistrictType);
 									$("#organizational_base_for_school").val(r.SchoolType);										
 									$("#organizational_base_motto").val(r.motto);
-									
+									try{
 									//----------
 									$("input[name='organizational_dashboard_option'][value='" + r["Dashboard option etc"] + "']").attr("checked", "checked");
-									document.getElementById('organizational_menu_color').jscolor.fromString(r["Menu Color"].replace("#", ""));
+									if(r["Menu Color"]){
+										$("#organizational_menu_color").val(r["Menu Color"]);
+									}
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");
 									if(r["Is Icon With Text"] == "1")	$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");
-									document.getElementById('organizational_dashboard_menu_text_color').jscolor.fromString(r["Text Color"].replace("#", ""));
+									if(r["Text Color"]){
+										$("#organizational_dashboard_menu_text_color").val(r["Text Color"]);
+									}
 									$("#organizational_dashboard_menu_text_font").val(r["Text Font"]);
 									$("#organizational_dashboard_menu_text_size").val(r["Text Size"]);
 									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);
@@ -1007,7 +1010,9 @@
 										$(this).find(".sub_menu_btn").val("-");
 										$(this).find(".sub_menu_btn:last").val("+");
 									});	
-									
+									}catch(edee){
+										alert(edee);
+									}
 									if(r.New){
 										//----------
 										$(".expand_title_parent").each(function(i){
@@ -1800,10 +1805,10 @@
 				return;
 			}
 			var dashboard_option = $("input[name='organizational_dashboard_option']:checked").val();
-			var menu_color = document.getElementById('organizational_menu_color').jscolor.toHEXString();
+			var menu_color = $("#organizational_menu_color").val();//document.getElementById('organizational_menu_color').jscolor.toHEXString();
 			var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
 			var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
-			var menu_text_color = document.getElementById('organizational_dashboard_menu_text_color').jscolor.toHEXString();
+			var menu_text_color = $("#organizational_dashboard_menu_text_color").val();//document.getElementById('organizational_dashboard_menu_text_color').jscolor.toHEXString();
 			var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
 			var menu_text_size = $("#organizational_dashboard_menu_text_size").val();
 			var space_between_items = $("#organizational_dashboard_space_between").val();				
