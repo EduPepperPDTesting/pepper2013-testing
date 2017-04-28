@@ -1035,7 +1035,8 @@
                     var day_val = $("#calendar-month-weekdays #time").val();
                     $("#calendar-month-weekdays #time").text(day_val);
                     $("#calendar-month-weekdays #time").attr("value", "");
-                }else if($("#calendar_select_range").val() != "3"){
+                }
+                if($("#calendar_select_range").val() != "3" && $("#calendar_select_range").val() != "2" ){
                     $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
                 }
 		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
