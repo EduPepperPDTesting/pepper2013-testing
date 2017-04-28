@@ -23,6 +23,8 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
+import logging
+log = logging.getLogger("tracking")
 
 def postpone(function):
     """
@@ -444,6 +446,17 @@ def report_view(request, report_id):
                 for f in report_filters:
                     filters.append(f)
 
+                log.debug("____________>>>>")
+                log.debug(report)
+                log.debug("____________>>>>")
+                log.debug(selected_view)
+                log.debug("____________>>>>")
+                log.debug(columns)
+                log.debug("____________>>>>")
+                log.debug(filters)
+                log.debug("____________>>>>")
+                log.debug(report_id)
+                log.debug("____________>>>>")
                 create_report_collection(request, report, selected_view, columns, filters, report_id)
 
             school_year_item = []
@@ -560,6 +573,10 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
+    log.debug("____________>>>>____________>>>>")
+    log.debug(aggregate_query)
+    log.debug("____________>>>>____________>>>>")
+    log.debug(aggregate_config['collection'])
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
