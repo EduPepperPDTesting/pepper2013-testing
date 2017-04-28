@@ -1029,13 +1029,14 @@
             if(viewVal == "0"){
                 $(".printview").remove();
                 $("#view_select .btn-input-grp").val("Calendar View");
-                $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
-                if($("#calendar_select_range").val() != "3"){
-                    $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
-                }else if($("#calendar_select_range").val() != "2"){
+                if($("#calendar_select_range").val() != "2"){
+                    $("#calendar-month-weekdays").html('<th id="day0">Monday</th><th id="day1">Tuesday</th><th id="day2">Wednesday</th><th id="day3">Thursday</th><th id="day4">Friday</th>');
+                }else if($("#calendar_select_range").val() == "2"){
                     var day_val = $("#calendar-month-weekdays #time").val();
                     $("#calendar-month-weekdays #time").text(day_val);
                     $("#calendar-month-weekdays #time").attr("value", "");
+                }else if($("#calendar_select_range").val() != "3"){
+                    $("#calendar-month-weekdays").append('<th id="day5" class="weekend">Saturday</th><th id="day6" class="weekend">Sunday</th>');
                 }
 		        $(this).parent().parent().siblings().not("#calendar_select_categories").attr('disabled', false);
 		        $(this).parent().parent().siblings().children().attr('disabled', false);
@@ -1043,7 +1044,7 @@
                 _cal_view="screen";
             }else if(viewVal == "1"){
                 $("#view_select .btn-input-grp").val("Print View");
-                if($("#calendar_select_range").val() != "2"){
+                if($("#calendar_select_range").val() == "2"){
                     var day_text = $("#calendar-month-weekdays #time").text();
                     $("#calendar-month-weekdays #time").html("Training Name and description");
                     $("#calendar-month-weekdays").append("<th>Training Date</th><th>Start Time</th><th>Location</th>");
