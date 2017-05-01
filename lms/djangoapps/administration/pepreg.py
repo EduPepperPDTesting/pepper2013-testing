@@ -583,7 +583,11 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
             i += 1
 
-        table_tr_content += '<br/><img src = "/static/images/pdf_planner_pdf.png" width = "35" height = "36" id = "download_calendar_pdf" style = "float:left; margin:0 0 5px 20px; cursor:pointer;"/>'
+        table_tr_content += "<tr class='printview'>" \
+                            "<td colspan='4' style='height:38px;'>" \
+                            "<img src = '/static/images/pdf_planner_pdf.png' width = '35'  height = '36' id = 'download_calendar_pdf' style = 'float:left; margin:0 0 5px 20px; cursor:pointer;'/>" \
+                            "</td>" \
+                            "</tr>"
 
         return table_tr_content
 
