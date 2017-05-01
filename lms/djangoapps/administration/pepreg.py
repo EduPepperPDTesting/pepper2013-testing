@@ -1,5 +1,5 @@
 from mitxmako.shortcuts import render_to_response, render_to_string
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 import json
 from models import PepRegTraining, PepRegInstructor, PepRegStudent
 from django import db
@@ -517,7 +517,7 @@ def getCalendarMonth(request):
                 i += 1
                 print_row.append([])
 
-        return JsonResponse(training_list, safe=False)
+        return HttpResponse(json.dumps(training_list), content_type="application/json")
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
