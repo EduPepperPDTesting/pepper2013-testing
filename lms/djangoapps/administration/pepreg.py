@@ -510,7 +510,7 @@ def getCalendarMonth(request):
 
             training_list[i].append(item.name)
             training_list[i].append(item.description)
-            training_list[i].append(item.training_date)
+            training_list[i].append(item.classroom)#(item.training_date)
             training_list[i].append(training_start_time)
             training_list[i].append(item.classroom)
             training_list[i].append(item.geo_location)
@@ -583,7 +583,7 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
         print_row[i].append(item.name)
         print_row[i].append(item.description)
-        print_row[i].append(item.classroom)#(item.training_date)
+        print_row[i].append(item.training_date)
         print_row[i].append(training_start_time)
         print_row[i].append(item.classroom)
         print_row[i].append(item.geo_location)
