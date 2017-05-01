@@ -2324,11 +2324,10 @@
             catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'true'}, function(trainingList){
                 console.log(trainingList);
                 var allTrainings = [];
-                var trainingObj = JSON.parse(trainingList);
                 var i = 0;
 
-                for (var training_id in trainingObj) {
-                    allTrainings.push(training_id);
+                for (var training_id in trainingList) {
+                    allTrainings.push(trainingList[training_id]);
                     i++;
                 }
 
