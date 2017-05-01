@@ -497,7 +497,7 @@ def getCalendarMonth(request):
     else:
         all_occurrences = PepRegTraining.objects.prefetch_related().all()
 
-    if(request.GET.get('printpdf') == 1):
+    if(request.GET.get('printpdf') == 'true'):
         training_list=[[]]
         i = 0
         array_length = len(all_occurrences)
