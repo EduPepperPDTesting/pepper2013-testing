@@ -1164,7 +1164,7 @@ def delete_student(request):
 
 #akogan
 def download_calendar_pdf(request):
-    training_list = request.GET.get("training_list")
+    traininglistObj = request.GET.get("training_list")
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="training_calendar".pdf'
@@ -1212,6 +1212,7 @@ def download_calendar_pdf(request):
     base_font_size = 8
     ty = base_table_y
     training_index = 0
+    training_list = json.loads(traininglistObj)
     lastpos = len(training_list) - 1
 
     table_style = styleSheet['BodyText']
@@ -1252,8 +1253,7 @@ def download_calendar_pdf(request):
         if (training_info):
             training_info_width = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_info_width > 100):
-                training_desc_length = int(len(training_desc) / 2)
-                raise Exception('training_desc_length '+ str(training_desc_length))
+                training_desc_length = round((int(len(training_desc) / 2)), 0)
                 while 1:
                     training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica", base_font_size)
                     if (training_desc_length > 100):
@@ -1277,7 +1277,7 @@ def download_calendar_pdf(request):
         if (training_loc):
             training_loc_width = stringWidth(training_loc, "Helvetica", base_font_size)
             if (training_loc_width > 100):
-                training_geo_length = len(training_geo) / 2
+                training_geo_length = round((int(len(training_geo) / 2)), 0)
                 while 1:
                     training_geo_length = stringWidth(training_desc[0: training_geo_length], "Helvetica",
                                                       base_font_size)

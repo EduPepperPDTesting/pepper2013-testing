@@ -2331,7 +2331,7 @@
                     i++;
                 }
 
-                window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + allTrainings);
+                window.open("${reverse('pepreg_download_calendar_pdf')}?training_list=" + JSON.stringify(allTrainings));
             });
         });
     });
