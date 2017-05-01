@@ -1262,8 +1262,8 @@ def download_calendar_pdf(request):
                         training_desc_length += 1
 
                 c.drawString(13, ty + tr_height - 3, training_name)
-                c.drawString(13, ty + tr_height - 13, training_desc[0: training_desc_length])
-                c.drawString(13, ty + tr_height - 23, training_desc[training_desc_length:])
+                c.drawString(13, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
+                c.drawString(13, ty + tr_height - 23, training_desc[int(training_desc_length):])
             else:
                 c.drawCentredString(60, ty + tr_height - 10, training_name)
                 c.drawCentredString(60, ty + tr_height - 20, training_desc)
@@ -1286,8 +1286,8 @@ def download_calendar_pdf(request):
                         training_geo_length += 1
 
                 c.drawString(328, ty + tr_height - 3, training_room)
-                c.drawString(328, ty + tr_height - 13, training_geo[0: training_geo_length])
-                c.drawString(328, ty + tr_height - 23, training_geo[training_geo_length:])
+                c.drawString(328, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
+                c.drawString(328, ty + tr_height - 23, training_geo[int(training_geo_length):])
             else:
                 c.drawCentredString(385, ty + tr_height - 10, training_room)
                 c.drawCentredString(385, ty + tr_height - 20, training_geo)
