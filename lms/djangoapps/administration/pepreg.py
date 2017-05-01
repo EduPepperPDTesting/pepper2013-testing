@@ -1255,7 +1255,7 @@ def download_calendar_pdf(request):
 
                 c.drawString(13, ty + tr_height - 3, training_name)
                 c.drawString(13, ty + tr_height - 13, training_desc[0: training_desc_length])
-                c.drawString(13, ty + tr_height - 23, reg_stu.student.first_name[training_desc_length:])
+                c.drawString(13, ty + tr_height - 23, training_desc[training_desc_length:])
             else:
                 c.drawCentredString(60, ty + tr_height - 10, training_name)
                 c.drawCentredString(60, ty + tr_height - 20, training_desc)
