@@ -580,6 +580,8 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
             i += 1
 
+        table_tr_content += '<br/><img src = "/static/images/pdf_planner_pdf.png" width = "35" height = "36" id = "download_calendar_pdf" style = "float:left; margin:0 0 5px 20px; cursor:pointer" onclick="buildCalendarPDF('+all_occurrences+')"/>'
+
         return table_tr_content
 
 #akogan
@@ -1127,6 +1129,164 @@ def delete_student(request):
         return HttpResponse(json.dumps({'success': False, 'error': '%s' % e}), content_type="application/json")
     return HttpResponse(json.dumps({'success': True}), content_type="application/json")
 
+#akogan
+def download_calendar_pdf(request):
+    training_list = request.GET.get("training_list")
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="training_calendar".pdf'
+
+    buffer = BytesIO()
+
+    c = canvas.Canvas(buffer, pagesize=A4)
+
+    # ------------------------------------------------------------------------------------logo
+    try:
+        logo = ImageReader("https://" + request.get_host() + '/static/images/pd_pdf2.png')
+    except:
+        logo = ImageReader("http://" + request.get_host() + '/static/images/pd_pdf2.png')
+
+    c.drawImage(logo, 330, 750, 200, 73);
+
+    c.setFont("Helvetica", 20)
+    c.drawString(370, 710, "Training Calendar")
+
+    styleSheet = getSampleStyleSheet()
+    style = styleSheet['BodyText']
+    style.fontName = "Helvetica"
+    style.fontSize = 16
+    style.leading = 15
+
+    # ------------------------------------------------------------------------------------head
+    c.setFillColor(colors.lawngreen)
+
+    base_table_y = 510
+    c.rect(10, base_table_y, 115, 30, fill=1)
+    c.rect(115, base_table_y, 115, 30, fill=1)
+    c.rect(220, base_table_y, 115, 30, fill=1)
+    c.rect(325, base_table_y, 115, 30, fill=1)
+
+    c.setStrokeColor(colors.black)
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica", 10)
+
+    c.drawCentredString(50, base_table_y + 10, "Training Name and description")
+    c.drawCentredString(155, base_table_y + 10, "Training Date")
+    c.drawCentredString(260, base_table_y + 10, "Start Time")
+    c.drawCentredString(365, base_table_y + 10, "Location")
+
+    # ------------------------------------------------------------------------------------tr
+    base_font_size = 8
+    ty = base_table_y
+    training_index = 0
+    lastpos = len(training_list) - 1
+
+    table_style = styleSheet['BodyText']
+    table_style.fontName = "Helvetica"
+    table_style.fontSize = base_font_size
+    table_style.leading = 10
+    c.setFont("Helvetica", base_font_size)
+
+    for training in training_list:
+        tr_height = 30
+
+        if (training):
+            try:
+                training_name = training.name
+                training_desc = training.description
+                training_info = training_name + training_desc
+                info_cell_width = int(len(training_info) / 3)
+
+                training_room = training.classroom
+                training_geo = training.geo_location
+                training_loc = training_room + training_geo
+                loc_cell_width = int(len(training_loc) / 3)
+            except:
+                training_info = ""
+                training_loc = ""
+
+            long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+            long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
+            if (long_cell_width > 105):
+                p = Paragraph(long_cell, table_style)
+                w2, h2 = p.wrap(105, 100)
+                h2 += 10
+                if (h2 > tr_height):
+                    tr_height = h2
+
+                p.drawOn(c, 265, ty - tr_height + 5)
+            else:
+                c.drawCentredString(305, ty - 15, tmp_name)
+
+        ty -= tr_height
+
+        c.rect(10, ty, 115, tr_height, fill=0)
+        c.rect(115, ty, 115, tr_height, fill=0)
+        c.rect(220, ty, 115, tr_height, fill=0)
+        c.rect(325, ty, 115, tr_height, fill=0)
+
+        if (training_info):
+            training_info_width = stringWidth(training_desc, "Helvetica", base_font_size)
+            if (training_info_width > 100):
+                training_desc_length = int(len(training_desc) / 2)
+                while 1:
+                    training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica",
+                                                       base_font_size)
+                    if (training_desc_length > 100):
+                        break;
+                    else:
+                        training_desc_length += 1
+
+                c.drawString(13, ty + tr_height - 3, training_name)
+                c.drawString(13, ty + tr_height - 13, training_desc[0: training_desc_length])
+                c.drawString(13, ty + tr_height - 23, reg_stu.student.first_name[training_desc_length:])
+            else:
+                c.drawCentredString(60, ty + tr_height - 10, training_name)
+                c.drawCentredString(60, ty + tr_height - 20, training_desc)
+
+        if (training.training_date):
+            c.drawCentredString(175, ty + tr_height - 15, str('{d:%m/%d/%Y}'.format(d=training.training_date)))
+
+        if (training.training_time_start):
+            c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
+
+        if (training_loc):
+            training_loc_width = stringWidth(training_loc, "Helvetica", base_font_size)
+            if (training_loc_width > 100):
+                training_geo_length = len(training_geo) / 2
+                while 1:
+                    training_geo_length = stringWidth(training_desc[0: training_geo_length], "Helvetica",
+                                                      base_font_size)
+                    if (training_geo_length > 100):
+                        break;
+                    else:
+                        training_geo_length += 1
+
+                c.drawString(328, ty + tr_height - 3, training_room)
+                c.drawString(328, ty + tr_height - 13, training_geo[0: training_geo_length])
+                c.drawString(328, ty + tr_height - 23, training_geo[training_geo_length:])
+            else:
+                c.drawCentredString(385, ty + tr_height - 10, training_room)
+                c.drawCentredString(385, ty + tr_height - 20, training_geo)
+
+        if training_index == lastpos:
+            c.showPage()
+        else:
+            if (ty < 60):
+                ty = 790
+                c.showPage()
+                c.setStrokeColor(colors.black)
+                c.setFillColor(colors.black)
+                c.setFont("Helvetica", base_font_size)
+
+            training_index += 1
+
+    c.save()
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
 
 def download_students_excel(request):
     training_id = request.GET.get("training_id")

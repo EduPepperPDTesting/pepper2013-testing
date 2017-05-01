@@ -90,6 +90,7 @@ urlpatterns = (
     url(r'^pepreg/map/$', 'administration.pepreg.show_map', name="pepreg_map"),
     url(r'^pepreg/download_students_excel/$', 'administration.pepreg.download_students_excel', name="pepreg_download_students_excel"),
     url(r'^pepreg/download_students_pdf/$', 'administration.pepreg.download_students_pdf', name="pepreg_download_students_pdf"),
+    url(r'^pepreg/download_calendar_pdf/$', 'administration.pepreg.download_calendar_pdf', name="pepreg_download_calendar_pdf"),#akogan
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)$', 'training.views.training_registration', name="training_registration"),
     #url(r'^pepreg/training_registration/$', 'training.views.training_registration', name="training_registration"),
     url(r'^pepreg/(?P<training_id>[a-zA-Z0-9_]+)/join/$', 'training.views.training_join', name='training_join'),

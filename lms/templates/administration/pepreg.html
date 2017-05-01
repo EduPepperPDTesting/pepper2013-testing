@@ -2351,6 +2351,10 @@
         setPickerValue();
         calendarOpen()
     }
+
+    function buildCalendarPDF(trainingList){
+        window.open("${reverse('pepreg_download_calendar_pdf')}?"&training_list=" + trainingList);
+    }
 </script>
 
 <script type="text/javascript">
