@@ -515,7 +515,7 @@ def getCalendarMonth(request):
 
             if (i < array_length - 1):
                 i += 1
-                print_row.append([])
+                training_list.append([])
 
         return HttpResponse(json.dumps(training_list), content_type="application/json")
 
