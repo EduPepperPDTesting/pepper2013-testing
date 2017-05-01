@@ -499,11 +499,10 @@ def getCalendarMonth(request):
 
     if(request.GET.get('printpdf') == 'true'):
         array_length = len(all_occurrences)
-        training_list=[[]]
+        training_list=[]
         training_keys = list(range(array_length)) #['name', 'info', 'date', 'time', 'room', 'geo']
         training_dict = {}
         i = 0
-
 
         for item in all_occurrences:
 
@@ -516,9 +515,8 @@ def getCalendarMonth(request):
             # training_list[i].append(item.classroom)
             # training_list[i].append(item.geo_location)
 
-            training_list[].append(item.id)
-
-
+            training_list.append(item.id)
+            
         training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
 
             # if (i < array_length - 1):
