@@ -1208,24 +1208,25 @@ def download_calendar_pdf(request):
                 training_geo = training.geo_location
                 training_loc = training_room + training_geo
                 loc_cell_width = int(len(training_loc) / 3)
+
+                long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+                long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
+                if (long_cell_width > 105):
+                    tr_height += 10
             except:
                 training_info = ""
                 training_loc = ""
 
-            long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
-            long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-            if (long_cell_width > 105):
-                p = Paragraph(long_cell, table_style)
-                w2, h2 = p.wrap(105, 100)
-                h2 += 10
-                if (h2 > tr_height):
-                    tr_height = h2
+            # long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+            # long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
+            # if (long_cell_width > 105):
+            #     # p = Paragraph(long_cell, table_style)
+            #     # w2, h2 = p.wrap(105, 100)
+            #     h2 += 10
+            #     if (h2 > tr_height):
+            #         tr_height = h2
 
-                p.drawOn(c, 265, ty - tr_height + 5)
-            else:
-                c.drawCentredString(305, ty - 15, tmp_name)
-
-        ty -= tr_height
+        #ty -= tr_height
 
         c.rect(10, ty, 115, tr_height, fill=0)
         c.rect(115, ty, 115, tr_height, fill=0)
