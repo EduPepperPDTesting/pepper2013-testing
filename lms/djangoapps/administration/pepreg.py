@@ -1251,8 +1251,8 @@ def download_calendar_pdf(request):
         c.rect(325, ty, 115, tr_height, fill=0)
 
         if (training_info):
-            training_info_width = stringWidth(training_desc, "Helvetica", base_font_size)
-            if (training_info_width > 100):
+            training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
+            if (training_desc_length > 100):
                 training_desc_length = round((int(len(training_desc) / 2)), 0)
                 while 1:
                     training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica", base_font_size)
@@ -1275,14 +1275,13 @@ def download_calendar_pdf(request):
             c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
 
         if (training_loc):
-            training_loc_width = stringWidth(training_loc, "Helvetica", base_font_size)
-            if (training_loc_width > 100):
+            training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
+            if (training_geo_length > 100):
                 training_geo_length = round((int(len(training_geo) / 2)), 0)
                 while 1:
-                    training_geo_length = stringWidth(training_desc[0: training_geo_length], "Helvetica",
-                                                      base_font_size)
+                    training_geo_length = stringWidth(training_desc[0: training_geo_length], "Helvetica", base_font_size)
                     if (training_geo_length > 100):
-                        break;
+                        break
                     else:
                         training_geo_length += 1
 
