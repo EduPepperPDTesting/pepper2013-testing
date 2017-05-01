@@ -516,7 +516,7 @@ def getCalendarMonth(request):
 
             training_dict[i] = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list[i])}
 
-                if (i < array_length - 1):
+            if (i < array_length - 1):
                 i += 1
                 training_list.append([])
 
