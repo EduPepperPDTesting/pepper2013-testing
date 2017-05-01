@@ -497,6 +497,9 @@ def getCalendarMonth(request):
     else:
         all_occurrences = PepRegTraining.objects.prefetch_related().all()
 
+    if(request.GET.get('printpdf') == 1):
+        return all_occurrences
+
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
 
@@ -580,7 +583,7 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
             i += 1
 
-        table_tr_content += '<br/><img src = "/static/images/pdf_planner_pdf.png" width = "35" height = "36" id = "download_calendar_pdf" style = "float:left; margin:0 0 5px 20px; cursor:pointer" onclick="buildCalendarPDF('+all_occurrences+')"/>'
+        table_tr_content += '<br/><img src = "/static/images/pdf_planner_pdf.png" width = "35" height = "36" id = "download_calendar_pdf" style = "float:left; margin:0 0 5px 20px; cursor:pointer;"/>'
 
         return table_tr_content
 
