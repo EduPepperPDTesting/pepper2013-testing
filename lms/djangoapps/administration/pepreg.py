@@ -499,7 +499,7 @@ def getCalendarMonth(request):
 
     if(request.GET.get('printpdf') == 'true'):
         training_list=[[]]
-        training_keys = {name, info, date, time, room, geo}
+        training_keys = ['name', 'info', 'date', 'time', 'room', 'geo']
         i = 0
         array_length = len(all_occurrences)
 
