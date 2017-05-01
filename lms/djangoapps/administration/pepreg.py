@@ -498,28 +498,32 @@ def getCalendarMonth(request):
         all_occurrences = PepRegTraining.objects.prefetch_related().all()
 
     if(request.GET.get('printpdf') == 'true'):
+        array_length = len(all_occurrences)
         training_list=[[]]
-        training_keys = ['name', 'info', 'date', 'time', 'room', 'geo']
+        training_keys = list(range(array_length)) #['name', 'info', 'date', 'time', 'room', 'geo']
         training_dict = {}
         i = 0
-        array_length = len(all_occurrences)
+
 
         for item in all_occurrences:
 
-            training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+            # training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+            #
+            # training_list[i].append(item.name)
+            # training_list[i].append(item.description)
+            # training_list[i].append(item.classroom)#(item.training_date)
+            # training_list[i].append(training_start_time)
+            # training_list[i].append(item.classroom)
+            # training_list[i].append(item.geo_location)
 
-            training_list[i].append(item.name)
-            training_list[i].append(item.description)
-            training_list[i].append(item.classroom)#(item.training_date)
-            training_list[i].append(training_start_time)
-            training_list[i].append(item.classroom)
-            training_list[i].append(item.geo_location)
+            training_list[].append(item.id)
 
-            training_dict[i] = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list[i])}
 
-            if (i < array_length - 1):
-                i += 1
-                training_list.append([])
+        training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
+
+            # if (i < array_length - 1):
+            #     i += 1
+            #     training_list.append([])
 
 
         return HttpResponse(json.dumps(training_dict), content_type="application/json")
