@@ -516,7 +516,7 @@ def getCalendarMonth(request):
             # training_list[i].append(item.geo_location)
 
             training_list.append(item.id)
-            
+
         training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
 
             # if (i < array_length - 1):
@@ -1220,18 +1220,20 @@ def download_calendar_pdf(request):
     table_style.leading = 10
     c.setFont("Helvetica", base_font_size)
 
-    for training in training_list:
+    for training_id in training_list:
         tr_height = 30
 
-        if (training):
+        if (training_id):
             try:
-                training_name = training[0]
-                training_desc = training[1]
+                training = PepRegTraining.objects.get(id=training_id)
+
+                training_name = training.name
+                training_desc = training.description
                 training_info = training_name + training_desc
                 info_cell_width = int(len(training_info) / 3)
 
-                training_room = training[4]
-                training_geo = training[5]
+                training_room = training.classroom
+                training_geo = training.geo_location
                 training_loc = training_room + training_geo
                 loc_cell_width = int(len(training_loc) / 3)
 
@@ -1256,7 +1258,7 @@ def download_calendar_pdf(request):
                     training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica",
                                                        base_font_size)
                     if (training_desc_length > 100):
-                        break;
+                        break
                     else:
                         training_desc_length += 1
 
@@ -1267,11 +1269,11 @@ def download_calendar_pdf(request):
                 c.drawCentredString(60, ty + tr_height - 10, training_name)
                 c.drawCentredString(60, ty + tr_height - 20, training_desc)
 
-        if (training[2]):
-            c.drawCentredString(175, ty + tr_height - 15, training[2])
+        if (training.training_date):
+            c.drawCentredString(175, ty + tr_height - 15, training.training_date)
 
-        if (training[3]):
-            c.drawCentredString(280, ty + tr_height - 15, training[3])
+        if (training.training_time_start):
+            c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
 
         if (training_loc):
             training_loc_width = stringWidth(training_loc, "Helvetica", base_font_size)
