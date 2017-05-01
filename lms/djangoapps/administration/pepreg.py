@@ -1253,9 +1253,9 @@ def download_calendar_pdf(request):
             training_info_width = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_info_width > 100):
                 training_desc_length = int(len(training_desc) / 2)
+                raise Exception('training_desc_length '+training_desc_length)
                 while 1:
-                    training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica",
-                                                       base_font_size)
+                    training_desc_length = stringWidth(training_desc[0: training_desc_length], "Helvetica", base_font_size)
                     if (training_desc_length > 100):
                         break
                     else:
