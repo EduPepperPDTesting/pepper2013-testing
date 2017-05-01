@@ -498,7 +498,26 @@ def getCalendarMonth(request):
         all_occurrences = PepRegTraining.objects.prefetch_related().all()
 
     if(request.GET.get('printpdf') == 1):
-        return all_occurrences
+        training_list=[[]]
+        i = 0
+        array_length = len(all_occurrences)
+
+        for item in all_occurrences:
+
+            training_start_time = str('{d:%I:%M %p}'.format(d=item.training_time_start)).lstrip('0')
+
+            training_list[i].append(item.name)
+            training_list[i].append(item.description)
+            training_list[i].append(item.training_date)
+            training_list[i].append(training_start_time)
+            training_list[i].append(item.classroom)
+            training_list[i].append(item.geo_location)
+
+            if (i < array_length - 1):
+                i += 1
+                print_row.append([])
+
+        return training_list
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
@@ -1199,13 +1218,13 @@ def download_calendar_pdf(request):
 
         if (training):
             try:
-                training_name = training.name
-                training_desc = training.description
+                training_name = training[0]
+                training_desc = training[1]
                 training_info = training_name + training_desc
                 info_cell_width = int(len(training_info) / 3)
 
-                training_room = training.classroom
-                training_geo = training.geo_location
+                training_room = training[4]
+                training_geo = training[5]
                 training_loc = training_room + training_geo
                 loc_cell_width = int(len(training_loc) / 3)
 
@@ -1216,17 +1235,6 @@ def download_calendar_pdf(request):
             except:
                 training_info = ""
                 training_loc = ""
-
-            # long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
-            # long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-            # if (long_cell_width > 105):
-            #     # p = Paragraph(long_cell, table_style)
-            #     # w2, h2 = p.wrap(105, 100)
-            #     h2 += 10
-            #     if (h2 > tr_height):
-            #         tr_height = h2
-
-        #ty -= tr_height
 
         c.rect(10, ty, 115, tr_height, fill=0)
         c.rect(115, ty, 115, tr_height, fill=0)
@@ -1252,11 +1260,11 @@ def download_calendar_pdf(request):
                 c.drawCentredString(60, ty + tr_height - 10, training_name)
                 c.drawCentredString(60, ty + tr_height - 20, training_desc)
 
-        if (training.training_date):
-            c.drawCentredString(175, ty + tr_height - 15, str('{d:%m/%d/%Y}'.format(d=training.training_date)))
+        if (training[2]):
+            c.drawCentredString(175, ty + tr_height - 15, training[2])
 
-        if (training.training_time_start):
-            c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
+        if (training[3]):
+            c.drawCentredString(280, ty + tr_height - 15, training[3])
 
         if (training_loc):
             training_loc_width = stringWidth(training_loc, "Helvetica", base_font_size)
