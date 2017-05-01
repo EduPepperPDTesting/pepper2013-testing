@@ -499,6 +499,7 @@ def getCalendarMonth(request):
 
     if(request.GET.get('printpdf') == 'true'):
         training_list=[[]]
+        training_keys = {name, info, date, time, room, geo}
         i = 0
         array_length = len(all_occurrences)
 
@@ -513,11 +514,14 @@ def getCalendarMonth(request):
             training_list[i].append(item.classroom)
             training_list[i].append(item.geo_location)
 
-            if (i < array_length - 1):
+            training_dict[i] = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list[i])}
+
+                if (i < array_length - 1):
                 i += 1
                 training_list.append([])
 
-        return HttpResponse(json.dumps(training_list), content_type="application/json")
+
+        return HttpResponse(json.dumps(training_dict), content_type="application/json")
 
     cal = calendar.Calendar()
     cal.setfirstweekday(firstweekday)
