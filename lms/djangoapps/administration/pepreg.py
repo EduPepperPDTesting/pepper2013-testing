@@ -1242,8 +1242,7 @@ def download_calendar_pdf(request):
                 if (long_cell_width > 105):
                     tr_height += 10
             except:
-                training_info = ""
-                training_loc = ""
+                raise Exception(training_id + ' No Training')
 
         c.rect(10, ty, 115, tr_height, fill=0)
         c.rect(115, ty, 115, tr_height, fill=0)
