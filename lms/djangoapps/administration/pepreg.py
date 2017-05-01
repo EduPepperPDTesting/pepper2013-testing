@@ -583,7 +583,7 @@ def build_print_rows(request, _year, _month, _catype, all_occurrences, current_d
 
         print_row[i].append(item.name)
         print_row[i].append(item.description)
-        print_row[i].append(item.training_date)
+        print_row[i].append(item.classroom)#(item.training_date)
         print_row[i].append(training_start_time)
         print_row[i].append(item.classroom)
         print_row[i].append(item.geo_location)
