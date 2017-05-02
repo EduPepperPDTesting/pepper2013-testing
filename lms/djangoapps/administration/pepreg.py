@@ -1215,6 +1215,7 @@ def download_calendar_pdf(request):
     training_index = 0
     training_list = json.loads(traininglistObj)
     lastpos = len(training_list) - 1
+    after_long_text = 0
 
     table_style = styleSheet['BodyText']
     table_style.fontName = "Helvetica"
@@ -1231,17 +1232,23 @@ def download_calendar_pdf(request):
 
                 training_name = training.name
                 training_desc = training.description
-                info_cell_width = int(len(training_desc) / 2)
+                info_text_width = int(len(training_desc) / 2)
 
                 training_room = training.classroom
                 training_geo = training.geo_location
-                loc_cell_width = int(len(training_geo) / 2)
+                loc_text_width = int(len(training_geo) / 2)
 
-                long_cell = training_desc if info_cell_width >= loc_cell_width else training_geo
-                long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-                if (long_cell_width > 130):
+                long_text = training_desc if info_text_width >= loc_text_width else training_geo
+                long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
+                if (long_text_width > 130):
                     tr_height += 10
                     ty -= 10
+                    after_long_text = 1
+                elif(after_long_text):
+                    after_long_text = 0
+                    ty += 10
+                else:
+                    after_long_text = 0                     
             except:
                 raise Exception(training_id + ' No Training')
 
