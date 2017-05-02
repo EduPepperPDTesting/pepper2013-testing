@@ -1209,101 +1209,101 @@ def download_calendar_pdf(request):
     c.drawCentredString(365, base_table_y + 10, "Location")
 
     # ------------------------------------------------------------------------------------tr
-    base_font_size = 8
-    ty = base_table_y
-    training_index = 0
-    training_list = json.loads(traininglistObj)
-    lastpos = len(training_list) - 1
-
-    table_style = styleSheet['BodyText']
-    table_style.fontName = "Helvetica"
-    table_style.fontSize = base_font_size
-    table_style.leading = 10
-    c.setFont("Helvetica", base_font_size)
-
-    for training_id in training_list:
-        tr_height = 30
-
-        if (training_id):
-            try:
-                training = PepRegTraining.objects.get(id=training_id)
-
-                training_name = training.name
-                training_desc = training.description
-                training_info = training_name + training_desc
-                info_cell_width = int(len(training_info) / 3)
-
-                training_room = training.classroom
-                training_geo = training.geo_location
-                training_loc = training_room + training_geo
-                loc_cell_width = int(len(training_loc) / 3)
-
-                long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
-                long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-                if (long_cell_width > 105):
-                    tr_height += 10
-            except:
-                raise Exception(training_id + ' No Training')
-
-        c.rect(10, ty, 115, tr_height, fill=0)
-        c.rect(115, ty, 115, tr_height, fill=0)
-        c.rect(220, ty, 115, tr_height, fill=0)
-        c.rect(325, ty, 115, tr_height, fill=0)
-
-        if (training_info):
-            training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
-            if (training_desc_length > 100):
-                training_desc_length = round((int(len(training_desc) / 2)), 0)
-                while 1:
-                    training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
-                    if (training_desc_length > 100):
-                        break
-                    else:
-                        training_desc_length += 1
-
-                c.drawString(13, ty + tr_height - 3, training_name)
-                c.drawString(13, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
-                c.drawString(13, ty + tr_height - 23, training_desc[int(training_desc_length):])
-            else:
-                c.drawCentredString(60, ty + tr_height - 10, training_name)
-                c.drawCentredString(60, ty + tr_height - 20, training_desc)
-
-        if (training.training_date):
-            c.drawCentredString(175, ty + tr_height - 15, 'training.training_date')
-
-        if (training.training_time_start):
-            c.drawCentredString(280, ty + tr_height - 15, 'training.training_time_start')
-
-        if (training_loc):
-            training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
-            if (training_geo_length > 100):
-                training_geo_length = round((int(len(training_geo) / 2)), 0)
-                while 1:
-                    training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
-                    if (training_geo_length > 100):
-                        break
-                    else:
-                        training_geo_length += 1
-
-                c.drawString(328, ty + tr_height - 3, training_room)
-                c.drawString(328, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
-                c.drawString(328, ty + tr_height - 23, training_geo[int(training_geo_length):])
-            else:
-                c.drawCentredString(385, ty + tr_height - 10, training_room)
-                c.drawCentredString(385, ty + tr_height - 20, training_geo)
-
-        if training_index == lastpos:
-            c.showPage()
-        else:
-            if (ty < 60):
-                ty = 790
-                c.showPage()
-                c.setStrokeColor(colors.black)
-                c.setFillColor(colors.black)
-                c.setFont("Helvetica", base_font_size)
-
-            training_index += 1
-
+    # base_font_size = 8
+    # ty = base_table_y
+    # training_index = 0
+    # training_list = json.loads(traininglistObj)
+    # lastpos = len(training_list) - 1
+    #
+    # table_style = styleSheet['BodyText']
+    # table_style.fontName = "Helvetica"
+    # table_style.fontSize = base_font_size
+    # table_style.leading = 10
+    # c.setFont("Helvetica", base_font_size)
+    #
+    # for training_id in training_list:
+    #     tr_height = 30
+    #
+    #     if (training_id):
+    #         try:
+    #             training = PepRegTraining.objects.get(id=training_id)
+    #
+    #             training_name = training.name
+    #             training_desc = training.description
+    #             training_info = training_name + training_desc
+    #             info_cell_width = int(len(training_info) / 3)
+    #
+    #             training_room = training.classroom
+    #             training_geo = training.geo_location
+    #             training_loc = training_room + training_geo
+    #             loc_cell_width = int(len(training_loc) / 3)
+    #
+    #             long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+    #             long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
+    #             if (long_cell_width > 105):
+    #                 tr_height += 10
+    #         except:
+    #             raise Exception(training_id + ' No Training')
+    #
+    #     c.rect(10, ty, 115, tr_height, fill=0)
+    #     c.rect(115, ty, 115, tr_height, fill=0)
+    #     c.rect(220, ty, 115, tr_height, fill=0)
+    #     c.rect(325, ty, 115, tr_height, fill=0)
+    #
+    #     if (training_info):
+    #         training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
+    #         if (training_desc_length > 100):
+    #             training_desc_length = round((int(len(training_desc) / 2)), 0)
+    #             while 1:
+    #                 training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
+    #                 if (training_desc_length > 100):
+    #                     break
+    #                 else:
+    #                     training_desc_length += 1
+    #
+    #             c.drawString(13, ty + tr_height - 3, training_name)
+    #             c.drawString(13, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
+    #             c.drawString(13, ty + tr_height - 23, training_desc[int(training_desc_length):])
+    #         else:
+    #             c.drawCentredString(60, ty + tr_height - 10, training_name)
+    #             c.drawCentredString(60, ty + tr_height - 20, training_desc)
+    #
+    #     if (training.training_date):
+    #         c.drawCentredString(175, ty + tr_height - 15, 'training.training_date')
+    #
+    #     if (training.training_time_start):
+    #         c.drawCentredString(280, ty + tr_height - 15, 'training.training_time_start')
+    #
+    #     if (training_loc):
+    #         training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
+    #         if (training_geo_length > 100):
+    #             training_geo_length = round((int(len(training_geo) / 2)), 0)
+    #             while 1:
+    #                 training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
+    #                 if (training_geo_length > 100):
+    #                     break
+    #                 else:
+    #                     training_geo_length += 1
+    #
+    #             c.drawString(328, ty + tr_height - 3, training_room)
+    #             c.drawString(328, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
+    #             c.drawString(328, ty + tr_height - 23, training_geo[int(training_geo_length):])
+    #         else:
+    #             c.drawCentredString(385, ty + tr_height - 10, training_room)
+    #             c.drawCentredString(385, ty + tr_height - 20, training_geo)
+    #
+    #     if training_index == lastpos:
+    #         c.showPage()
+    #     else:
+    #         if (ty < 60):
+    #             ty = 790
+    #             c.showPage()
+    #             c.setStrokeColor(colors.black)
+    #             c.setFillColor(colors.black)
+    #             c.setFont("Helvetica", base_font_size)
+    #
+    #         training_index += 1
+    c.showPage()
     c.save()
 
     pdf = buffer.getvalue()
