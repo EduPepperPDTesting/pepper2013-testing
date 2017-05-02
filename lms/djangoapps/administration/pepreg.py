@@ -1279,9 +1279,12 @@ def download_calendar_pdf(request):
                 num = 0
                 start_index = 0
                 while(num < num_string):
-                    c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[start_index: int(string_desc_length)]))
-                    start_index += 130
-                    string_desc_length += 130
+                    if (len(str(training_desc)) > int(string_desc_length)):
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[start_index: int(string_desc_length)]))
+                    else:
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[start_index:]))
+                    start_index += string_desc_length
+                    string_desc_length = string_desc_length + string_desc_length
                     num += 1
                     # c.drawString(34, ty + tr_height - 13, str(training_desc[0: int(string_desc_length)]))
                     # c.drawString(34, ty + tr_height - 23, str(training_desc[int(string_desc_length):]))
@@ -1303,7 +1306,7 @@ def download_calendar_pdf(request):
                 num_string = num_string if (round(num_string) == num_string) else num_string + 1
                 string_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
                 while 1:
-                    training_geo_length = stringWidth(training_desc[0: int(string_geo_length)], "Helvetica", base_font_size)
+                    training_geo_length = stringWidth(training_geo[0: int(string_geo_length)], "Helvetica", base_font_size)
                     if (training_geo_length == 130):
                         break
                     else:
@@ -1314,9 +1317,12 @@ def download_calendar_pdf(request):
                 num = 0
                 start_index = 0
                 while (num < num_string):
-                    c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[start_index: int(string_geo_length)]))
-                    start_index += 130
-                    string_geo_length += 130
+                    if(len(str(training_geo)) > int(string_geo_length)):
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[start_index: int(string_geo_length)]))
+                    else:
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[start_index:]))
+                    start_index += string_geo_length
+                    string_geo_length = string_geo_length + string_geo_length
                     num += 1
                     # c.drawString(448, ty + tr_height - 13, str(training_geo[0: int(string_geo_length)]))
                     # c.drawString(448, ty + tr_height - 23, str(training_geo[int(string_geo_length):]))
