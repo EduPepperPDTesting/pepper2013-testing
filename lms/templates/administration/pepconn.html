@@ -1209,6 +1209,32 @@ $(document).ready(function () {
             $(select).html('');
         }
     }
+
+    function filterImportDropOptions(item, id, select) {
+        if (id != 'null_case') {
+            var url = '';
+            var data = {};
+            if (item == 'state') {
+                url = "${reverse('pepper_utilities_drop_states')}";
+            } else if (item == 'district') {
+                url = "${reverse('pepper_utilities_drop_districts')}";
+                data['state'] = id;
+            } else if (item == 'school') {
+                url = "${reverse('pepper_utilities_drop_schools')}";
+                data['district'] = id;
+            }
+            $.get(url, data, function (r) {
+                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                $.each(r, function (k, v) {
+                    options += '<option value="' + v.id + '" class="' + v.id + '">' + v.name + '</option>';
+                });
+                $(select).html(options);
+            });
+        } else {
+            $(select).html('');
+        }
+    }
+
     function filterUserDropOptions(item, id, select) {
         if (id != 'null_case') {
             var url = '';
@@ -1246,11 +1272,11 @@ $(document).ready(function () {
     }
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        filterUserDropOptions('district', id, "#user_district_id");
+        filterImportDropOptions('district', id, "#user_district_id");
     });
     $("#cohort_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        filterUserDropOptions('district', id, "#cohort_district_id");
+        filterImportDropOptions('district', id, "#cohort_district_id");
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
@@ -1263,7 +1289,7 @@ $(document).ready(function () {
 
     $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
-        filterUserDropOptions('district', id, "#district_id_single");
+        filterImportDropOptions('district', id, "#district_id_single");
     });
 });
 function addToSSO(){
