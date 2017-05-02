@@ -2,7 +2,7 @@
 from .models import ReportViews
 from .models import reporting_store
 
-school_year_collection = ['UserView', 'UserCourseView', 'PDPlannerView']
+school_year_collection = ['UserView', 'UserCourseView', 'PepRegTrainingView']
 
 
 def report_has_school_year(columns):
