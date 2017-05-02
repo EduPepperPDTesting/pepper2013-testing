@@ -1269,10 +1269,10 @@ def download_calendar_pdf(request):
                 c.drawCentredString(60, ty + tr_height - 20, training_desc)
 
         if (training.training_date):
-            c.drawCentredString(175, ty + tr_height - 15, training.training_date)
+            c.drawCentredString(175, ty + tr_height - 15, 'training.training_date')
 
         if (training.training_time_start):
-            c.drawCentredString(280, ty + tr_height - 15, training.training_time_start)
+            c.drawCentredString(280, ty + tr_height - 15, 'training.training_time_start')
 
         if (training_loc):
             training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
