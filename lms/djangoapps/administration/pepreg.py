@@ -1246,10 +1246,10 @@ def download_calendar_pdf(request):
             except:
                 raise Exception(training_id + ' No Training')
 
-        c.rect(10, ty, 115, tr_height, fill=0)
-        c.rect(115, ty, 115, tr_height, fill=0)
-        c.rect(220, ty, 115, tr_height, fill=0)
-        c.rect(325, ty, 115, tr_height, fill=0)
+        c.rect(30, ty, 138, tr_height, fill=0)
+        c.rect(168, ty, 138, tr_height, fill=0)
+        c.rect(306, ty, 138, tr_height, fill=0)
+        c.rect(444, ty, 138, tr_height, fill=0)
     #
     #     if (training_info):
     #         training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
@@ -1304,6 +1304,7 @@ def download_calendar_pdf(request):
                 c.setFont("Helvetica", base_font_size)
 
             training_index += 1
+            ty -= tr_height
 
     c.save()
 
