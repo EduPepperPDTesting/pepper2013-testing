@@ -1280,9 +1280,9 @@ def download_calendar_pdf(request):
                 start_index = 0
                 while(num < num_string):
                     if (len(str(training_desc)) > int(training_desc_length)):
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[start_index: int(training_desc_length)]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[int(start_index): int(training_desc_length)]))
                     else:
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[start_index:]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[int(start_index):]))
                     start_index += training_desc_length
                     training_desc_length = training_desc_length + training_desc_length
                     num += 1
@@ -1318,9 +1318,9 @@ def download_calendar_pdf(request):
                 start_index = 0
                 while (num < num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[start_index: int(training_geo_length)]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index): int(training_geo_length)]))
                     else:
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[start_index:]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index):]))
                     start_index += training_geo_length
                     training_geo_length = training_geo_length + training_geo_length
                     num += 1
