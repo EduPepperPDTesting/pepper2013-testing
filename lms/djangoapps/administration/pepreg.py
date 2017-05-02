@@ -1245,13 +1245,16 @@ def download_calendar_pdf(request):
                 long_text = training_desc if info_text_width >= loc_text_width else training_geo
                 long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
                 if (long_text_width > 130):
-                    tr_height += 10
+                    num_lines = (long_text_width / 130)  # number of lines to fit
+                    if (round(num_lines) < num_lines):  # round up
+                        num_lines += 1
+                    tr_height += 10 * num_lines
                     if(not after_long_text):
-                        ty -= 10
+                        ty -= 10 * num_lines
                     after_long_text = 1
                 elif(after_long_text):
                     after_long_text = 0
-                    ty += 10
+                    ty += 10 * num_lines
                 else:
                     after_long_text = 0
             except:
@@ -1276,14 +1279,14 @@ def download_calendar_pdf(request):
                     else:
                         training_desc_length += 1 #add to end index to increase line size
 
-                c.drawString(34, ty + tr_height - 3, str(training_name))
+                c.drawString(34, ty + tr_height - 5, str(training_name))
                 num = 1
                 start_index = 0
                 while(num <= num_string):
                     if (len(str(training_desc)) > int(training_desc_length)):
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[int(start_index): int(training_desc_length)]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 5), str(training_desc[int(start_index): int(training_desc_length)]))
                     else:
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[int(start_index):]))
+                        c.drawString(34, ty + tr_height - ((10 * num) + 5), str(training_desc[int(start_index):]))
                     start_index += training_desc_length
                     training_desc_length = training_desc_length + training_desc_length
                     num += 1
@@ -1313,14 +1316,14 @@ def download_calendar_pdf(request):
                         training_geo_length += 1 #add to end index to increase line size
 
                 if(len(training_room) > 0):
-                    c.drawString(448, ty + tr_height - 3, str(training_room))
+                    c.drawString(448, ty + tr_height - 5, str(training_room))
                 num = 1
                 start_index = 0
                 while (num <= num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
-                        c.drawString(448, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index): int(training_geo_length)]))
+                        c.drawString(448, ty + tr_height - ((10 * num) + 5), str(training_geo[int(start_index): int(training_geo_length)]))
                     else:
-                        c.drawString(448, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index):]))
+                        c.drawString(448, ty + tr_height - ((10 * num) + 5), str(training_geo[int(start_index):]))
                     start_index += training_geo_length
                     training_geo_length = training_geo_length + training_geo_length
                     num += 1
