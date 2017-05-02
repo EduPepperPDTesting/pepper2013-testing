@@ -1193,7 +1193,7 @@ def download_calendar_pdf(request):
     # ------------------------------------------------------------------------------------head
     c.setFillColor(colors.lawngreen)
 
-    base_table_y = 600
+    base_table_y = 650
     c.rect(30, base_table_y, 138, 30, fill=1)
     c.rect(168, base_table_y, 138, 30, fill=1)
     c.rect(306, base_table_y, 138, 30, fill=1)
@@ -1210,46 +1210,46 @@ def download_calendar_pdf(request):
     c.drawCentredString(513, base_table_y + 10, "Location")
 
     # ------------------------------------------------------------------------------------tr
-    # base_font_size = 8
-    # ty = base_table_y
-    # training_index = 0
-    # training_list = json.loads(traininglistObj)
-    # lastpos = len(training_list) - 1
-    #
-    # table_style = styleSheet['BodyText']
-    # table_style.fontName = "Helvetica"
-    # table_style.fontSize = base_font_size
-    # table_style.leading = 10
-    # c.setFont("Helvetica", base_font_size)
-    #
-    # for training_id in training_list:
-    #     tr_height = 30
-    #
-    #     if (training_id):
-    #         try:
-    #             training = PepRegTraining.objects.get(id=training_id)
-    #
-    #             training_name = training.name
-    #             training_desc = training.description
-    #             training_info = training_name + training_desc
-    #             info_cell_width = int(len(training_info) / 3)
-    #
-    #             training_room = training.classroom
-    #             training_geo = training.geo_location
-    #             training_loc = training_room + training_geo
-    #             loc_cell_width = int(len(training_loc) / 3)
-    #
-    #             long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
-    #             long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-    #             if (long_cell_width > 105):
-    #                 tr_height += 10
-    #         except:
-    #             raise Exception(training_id + ' No Training')
-    #
-    #     c.rect(10, ty, 115, tr_height, fill=0)
-    #     c.rect(115, ty, 115, tr_height, fill=0)
-    #     c.rect(220, ty, 115, tr_height, fill=0)
-    #     c.rect(325, ty, 115, tr_height, fill=0)
+    base_font_size = 8
+    ty = base_table_y
+    training_index = 0
+    training_list = json.loads(traininglistObj)
+    lastpos = len(training_list) - 1
+
+    table_style = styleSheet['BodyText']
+    table_style.fontName = "Helvetica"
+    table_style.fontSize = base_font_size
+    table_style.leading = 10
+    c.setFont("Helvetica", base_font_size)
+
+    for training_id in training_list:
+        tr_height = 30
+
+        if (training_id):
+            try:
+                training = PepRegTraining.objects.get(id=training_id)
+
+                training_name = training.name
+                training_desc = training.description
+                training_info = training_name + training_desc
+                info_cell_width = int(len(training_info) / 3)
+
+                training_room = training.classroom
+                training_geo = training.geo_location
+                training_loc = training_room + training_geo
+                loc_cell_width = int(len(training_loc) / 3)
+
+                long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+                long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
+                if (long_cell_width > 105):
+                    tr_height += 10
+            except:
+                raise Exception(training_id + ' No Training')
+
+        c.rect(10, ty, 115, tr_height, fill=0)
+        c.rect(115, ty, 115, tr_height, fill=0)
+        c.rect(220, ty, 115, tr_height, fill=0)
+        c.rect(325, ty, 115, tr_height, fill=0)
     #
     #     if (training_info):
     #         training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
@@ -1293,18 +1293,18 @@ def download_calendar_pdf(request):
     #             c.drawCentredString(385, ty + tr_height - 10, training_room)
     #             c.drawCentredString(385, ty + tr_height - 20, training_geo)
     #
-    #     if training_index == lastpos:
-    #         c.showPage()
-    #     else:
-    #         if (ty < 60):
-    #             ty = 790
-    #             c.showPage()
-    #             c.setStrokeColor(colors.black)
-    #             c.setFillColor(colors.black)
-    #             c.setFont("Helvetica", base_font_size)
-    #
-    #         training_index += 1
-    c.showPage()
+        if training_index == lastpos:
+            c.showPage()
+        else:
+            if (ty < 60):
+                ty = 790
+                c.showPage()
+                c.setStrokeColor(colors.black)
+                c.setFillColor(colors.black)
+                c.setFont("Helvetica", base_font_size)
+
+            training_index += 1
+
     c.save()
 
     pdf = buffer.getvalue()
