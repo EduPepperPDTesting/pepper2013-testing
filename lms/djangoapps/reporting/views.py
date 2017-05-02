@@ -12,6 +12,7 @@ from django.db.models import Q, Max
 import sys
 import json
 import time
+import logging
 from .aggregation_config import AggregationConfig
 from student.views import study_time_format
 from .treatment_filters import get_mongo_filters
@@ -23,6 +24,7 @@ from datetime import datetime
 from django.http import HttpResponse
 from school_year import report_has_school_year, get_school_year_item, get_query_school_year
 from xmodule.remindstore import myactivitystore
+log = logging.getLogger("tracking")
 
 def postpone(function):
     """
@@ -560,6 +562,9 @@ def create_report_collection(request, report, selected_view, columns, filters, r
     aggregate_config = AggregationConfig[selected_view.view.collection]
     aggregate_query = aggregate_query_format(request, aggregate_config['query'], report, columns, filters, report_id)
     rs = reporting_store()
+    log.debug("111111111111111111111111111111111111")
+    log.debug(aggregate_query)
+    log.debug("111111111111111111111111111111111111")
     rs.get_aggregate(aggregate_config['collection'], aggregate_query, report.distinct)
 
 
