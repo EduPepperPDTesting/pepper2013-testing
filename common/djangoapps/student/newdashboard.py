@@ -779,6 +779,15 @@ def submit_new_comment(request):
     store = dashboard_feeding_store()
     post_id = request.POST.get('post_id', '')
     content = request.POST.get('content')
+
+    postPublisher_id = int(store.get_feeding(post_id)['user_id'])
+    rs = myactivitystore()
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"postPublisher_id": postPublisher_id},
+    "TokenValues": {"postPublisher_id":postPublisher_id}, 
+    "LogoValues": {"postPublisher_id": postPublisher_id}}
+    rs.insert_item(my_activity)
+
     _id = store.create(user_id=request.user.id,
                        type="comment",
                        content=content,
