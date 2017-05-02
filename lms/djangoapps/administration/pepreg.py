@@ -1230,16 +1230,16 @@ def download_calendar_pdf(request):
             try:
                 training = PepRegTraining.objects.get(id=training_id)
 
-                training_name = training.name
-                training_desc = training.description
+                training_name = str(training.name)
+                training_desc = str(training.description)
                 info_text_width = int(len(training_desc) / 2)
 
-                training_date = training.training_date
+                training_date = str(training.training_date)
 
-                training_time = training.training_time_start
+                training_time = str(training.training_time_start)
 
-                training_room = training.classroom
-                training_geo = training.geo_location
+                training_room = str(training.classroom)
+                training_geo = str(training.geo_location)
                 loc_text_width = int(len(training_geo) / 2)
 
                 long_text = training_desc if info_text_width >= loc_text_width else training_geo
@@ -1264,59 +1264,49 @@ def download_calendar_pdf(request):
 
         if (training_name):
             training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
-            # if (training_desc_length > 130):
-            #     training_desc_length = round((int(len(training_desc) / 2)), 0)
-            #     while 1:
-            #         training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
-            #         if (training_desc_length > 130):
-            #             break
-            #         else:
-            #             training_desc_length += 1
-            #
-            #     c.drawString(34, ty + tr_height - 3, training_name)
-            #     c.drawString(34, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
-            #     c.drawString(34, ty + tr_height - 23, training_desc[int(training_desc_length):])
-            # else:
-            #     c.drawCentredString(99, ty + tr_height - 10, training_name)
-            #     if(len(training_desc) > 0):
-            #         c.drawCentredString(99, ty + tr_height - 20, training_desc)
+            if (training_desc_length > 130):
+                training_desc_length = round((int(len(training_desc) / 2)), 0)
+                while 1:
+                    training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
+                    if (training_desc_length > 130):
+                        break
+                    else:
+                        training_desc_length += 1
 
-            c.drawCentredString(99, ty + tr_height - 10, str(training_name))
-            if (len(training_desc) > 0):
-                c.drawCentredString(99, ty + tr_height - 20, 'training_desc')
-
+                c.drawString(34, ty + tr_height - 3, training_name)
+                c.drawString(34, ty + tr_height - 13, training_desc[0: int(training_desc_length)])
+                c.drawString(34, ty + tr_height - 23, training_desc[int(training_desc_length):])
+            else:
+                c.drawCentredString(99, ty + tr_height - 10, training_name)
+                if(len(training_desc) > 0):
+                    c.drawCentredString(99, ty + tr_height - 20, training_desc)
 
         if (training_date):
-            c.drawCentredString(237, ty + tr_height - 15, str(training_date))
+            c.drawCentredString(237, ty + tr_height - 15, training_date)
 
         if (training_time):
-            c.drawCentredString(375, ty + tr_height - 15, 'training_time')
+            c.drawCentredString(375, ty + tr_height - 15, training_time)
 
         if (training_room or training_geo):
             training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
-            # if (training_geo_length > 130):
-            #     training_geo_length = round((int(len(training_geo) / 2)), 0)
-            #     while 1:
-            #         training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
-            #         if (training_geo_length > 130):
-            #             break
-            #         else:
-            #             training_geo_length += 1
-            #
-            #     if(len(training_room) > 0):
-            #         c.drawString(448, ty + tr_height - 3, training_room)
-            #     c.drawString(448, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
-            #     c.drawString(448, ty + tr_height - 23, training_geo[int(training_geo_length):])
-            # else:
-            #     if(len(training_room) > 0):
-            #         c.drawCentredString(513, ty + tr_height - 10, training_room)
-            #     if(len(training_geo) > 0):
-            #         c.drawCentredString(513, ty + tr_height - 20, training_geo)
+            if (training_geo_length > 130):
+                training_geo_length = round((int(len(training_geo) / 2)), 0)
+                while 1:
+                    training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
+                    if (training_geo_length > 130):
+                        break
+                    else:
+                        training_geo_length += 1
 
-            if (len(training_room) > 0):
-                c.drawCentredString(513, ty + tr_height - 10, 'training_room')
-            if (len(training_geo) > 0):
-                c.drawCentredString(513, ty + tr_height - 20, 'training_geo')
+                if(len(training_room) > 0):
+                    c.drawString(448, ty + tr_height - 3, training_room)
+                c.drawString(448, ty + tr_height - 13, training_geo[0: int(training_geo_length)])
+                c.drawString(448, ty + tr_height - 23, training_geo[int(training_geo_length):])
+            else:
+                if(len(training_room) > 0):
+                    c.drawCentredString(513, ty + tr_height - 10, training_room)
+                if(len(training_geo) > 0):
+                    c.drawCentredString(513, ty + tr_height - 20, training_geo)
 
         if training_index == lastpos:
             c.showPage()
