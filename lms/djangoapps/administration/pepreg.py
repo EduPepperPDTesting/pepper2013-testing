@@ -1241,6 +1241,7 @@ def download_calendar_pdf(request):
                 long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
                 if (long_cell_width > 130):
                     tr_height += 10
+                    ty -= 10
             except:
                 raise Exception(training_id + ' No Training')
 
