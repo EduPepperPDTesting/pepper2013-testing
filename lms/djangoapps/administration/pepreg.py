@@ -1254,9 +1254,9 @@ def download_calendar_pdf(request):
                     old_num_lines = num_lines
 
                     if(not after_long_text):
-                        ty -= 10
+                        ty -= 10 * num_lines
                     else:
-                        ty -= 10 * old_num_lines
+                        ty -= 10 
 
                     after_long_text = 1
 
