@@ -1193,20 +1193,21 @@ def download_calendar_pdf(request):
     # ------------------------------------------------------------------------------------head
     c.setFillColor(colors.lawngreen)
 
-    base_table_y = 510
-    c.rect(10, base_table_y, 115, 30, fill=1)
-    c.rect(115, base_table_y, 115, 30, fill=1)
-    c.rect(220, base_table_y, 115, 30, fill=1)
-    c.rect(325, base_table_y, 115, 30, fill=1)
+    base_table_y = 300
+    c.rect(10, base_table_y, 158, 30, fill=1)
+    c.rect(168, base_table_y, 158, 30, fill=1)
+    c.rect(326, base_table_y, 158, 30, fill=1)
+    c.rect(484, base_table_y, 158, 30, fill=1)
 
     c.setStrokeColor(colors.black)
     c.setFillColor(colors.black)
     c.setFont("Helvetica", 10)
 
-    c.drawCentredString(50, base_table_y + 10, "Training Name and description")
-    c.drawCentredString(155, base_table_y + 10, "Training Date")
-    c.drawCentredString(260, base_table_y + 10, "Start Time")
-    c.drawCentredString(365, base_table_y + 10, "Location")
+    c.drawCentredString(89, base_table_y + 5, "Training Name")
+    c.drawCentredString(89, base_table_y + 15, "and description")
+    c.drawCentredString(247, base_table_y + 10, "Training Date")
+    c.drawCentredString(405, base_table_y + 10, "Start Time")
+    c.drawCentredString(563, base_table_y + 10, "Location")
 
     # ------------------------------------------------------------------------------------tr
     # base_font_size = 8
