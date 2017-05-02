@@ -1242,13 +1242,14 @@ def download_calendar_pdf(request):
                 long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
                 if (long_text_width > 130):
                     tr_height += 10
-                    ty -= 10
+                    if(not after_long_text):
+                        ty -= 10
                     after_long_text = 1
                 elif(after_long_text):
                     after_long_text = 0
                     ty += 10
                 else:
-                    after_long_text = 0                     
+                    after_long_text = 0
             except:
                 raise Exception(training_id + ' No Training')
 
