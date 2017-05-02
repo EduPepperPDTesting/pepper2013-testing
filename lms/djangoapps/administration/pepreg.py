@@ -1298,8 +1298,9 @@ def download_calendar_pdf(request):
                 ty = 790
                 c.showPage()
 
+                c.setFillColor(colors.lawngreen)
                 c.setStrokeColor(colors.black)
-                c.setFillColor(colors.black)
+
                 c.setFont("Helvetica", 10)
 
                 c.rect(30, ty, 138, 30, fill=1)
@@ -1307,18 +1308,22 @@ def download_calendar_pdf(request):
                 c.rect(306, ty, 138, 30, fill=1)
                 c.rect(444, ty, 138, 30, fill=1)
 
-                c.drawCentredString(99, base_table_y + 15, "Training Name")
-                c.drawCentredString(99, base_table_y + 5, "and description")
-                c.drawCentredString(237, base_table_y + 10, "Training Date")
-                c.drawCentredString(375, base_table_y + 10, "Start Time")
-                c.drawCentredString(513, base_table_y + 10, "Location")
-                 
-                ty += 30
+                c.setFillColor(colors.black)
+
+                c.drawCentredString(99, ty + 15, "Training Name")
+                c.drawCentredString(99, ty + 5, "and description")
+                c.drawCentredString(237, ty + 10, "Training Date")
+                c.drawCentredString(375, ty + 10, "Start Time")
+                c.drawCentredString(513, ty + 10, "Location")
+
+                ty -= 30
 
                 c.setFont("Helvetica", base_font_size)
+            else:
+                ty -= tr_height
 
             training_index += 1
-            ty -= tr_height
+
 
     c.save()
 
