@@ -1265,7 +1265,7 @@ def download_calendar_pdf(request):
         if (training_name):
             training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_desc and training_desc_length > 130):
-                training_desc_length = round((int(len(training_desc) / 2)), 0)
+                training_desc_length = round((int(len(str(training_desc)) / 2)), 0)
                 # while 1:
                 #     training_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
                 #     if (training_desc_length > 130):
@@ -1294,7 +1294,7 @@ def download_calendar_pdf(request):
         if (training_room or training_geo):
             training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
             if (training_geo and training_geo_length > 130):
-                training_geo_length = round((int(len(training_geo) / 2)), 0)
+                training_geo_length = round((int(len(str(training_geo)) / 2)), 0)
                 # while 1:
                 #     training_geo_length = stringWidth(training_desc[0: int(training_geo_length)], "Helvetica", base_font_size)
                 #     if (training_geo_length > 130):
