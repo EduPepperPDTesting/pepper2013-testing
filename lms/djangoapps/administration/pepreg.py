@@ -1211,7 +1211,7 @@ def download_calendar_pdf(request):
 
     # ------------------------------------------------------------------------------------tr
     base_font_size = 8
-    ty = base_table_y
+    ty = base_table_y - 30
     training_index = 0
     training_list = json.loads(traininglistObj)
     lastpos = len(training_list) - 1
@@ -1231,17 +1231,15 @@ def download_calendar_pdf(request):
 
                 training_name = training.name
                 training_desc = training.description
-                training_info = training_name + training_desc
-                info_cell_width = int(len(training_info) / 3)
+                info_cell_width = int(len(training_desc) / 2)
 
                 training_room = training.classroom
                 training_geo = training.geo_location
-                training_loc = training_room + training_geo
-                loc_cell_width = int(len(training_loc) / 3)
+                loc_cell_width = int(len(training_geo) / 2)
 
-                long_cell = training_info if info_cell_width >= loc_cell_width else training_loc
+                long_cell = training_desc if info_cell_width >= loc_cell_width else training_geo
                 long_cell_width = stringWidth(long_cell, "Helvetica", base_font_size)
-                if (long_cell_width > 105):
+                if (long_cell_width > 130):
                     tr_height += 10
             except:
                 raise Exception(training_id + ' No Training')
@@ -1299,8 +1297,24 @@ def download_calendar_pdf(request):
             if (ty < 60):
                 ty = 790
                 c.showPage()
+
                 c.setStrokeColor(colors.black)
                 c.setFillColor(colors.black)
+                c.setFont("Helvetica", 10)
+
+                c.rect(30, ty, 138, 30, fill=1)
+                c.rect(168, ty, 138, 30, fill=1)
+                c.rect(306, ty, 138, 30, fill=1)
+                c.rect(444, ty, 138, 30, fill=1)
+
+                c.drawCentredString(99, base_table_y + 15, "Training Name")
+                c.drawCentredString(99, base_table_y + 5, "and description")
+                c.drawCentredString(237, base_table_y + 10, "Training Date")
+                c.drawCentredString(375, base_table_y + 10, "Start Time")
+                c.drawCentredString(513, base_table_y + 10, "Location")
+                 
+                ty += 30
+
                 c.setFont("Helvetica", base_font_size)
 
             training_index += 1
