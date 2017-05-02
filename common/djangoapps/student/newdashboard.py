@@ -320,7 +320,7 @@ def get_displayInfo(data):
             return info
 
         displayInfo_values[dt['key_name']] = value
-    info = replace_values(data["DisplayInfo"],displayInfo_values,dt['db'])
+    info = replace_values(data["DisplayInfo"],displayInfo_values)
     return info
 
 def get_logoInfo(data,ma_dict):
@@ -362,11 +362,8 @@ def get_logoInfo(data,ma_dict):
     if not logo_list:
         ma_dict['logoUrl'] = data["Logo"]
 
-def replace_values(body, values, dbtype):
-    if dbtype == 'mysql':
-        return re.sub("{[\w |,.()]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
-    else:
-        return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
+def replace_values(body, values):
+    return re.sub("{[\w |,.()'_/]*,([\w ]*)}", lambda x: str(values.get(x.group(1))), body)
 
 def create_filter_key(filter_con):
     filter_key = {"UsrCre":filter_con["user_id"]}
@@ -782,6 +779,15 @@ def submit_new_comment(request):
     store = dashboard_feeding_store()
     post_id = request.POST.get('post_id', '')
     content = request.POST.get('content')
+
+    postPublisher_id = int(store.get_feeding(post_id)['user_id'])
+    rs = myactivitystore()
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_commentPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"postPublisher_id": postPublisher_id},
+    "TokenValues": {"postPublisher_id":postPublisher_id}, 
+    "LogoValues": {"postPublisher_id": postPublisher_id}}
+    rs.insert_item(my_activity)
+
     _id = store.create(user_id=request.user.id,
                        type="comment",
                        content=content,
@@ -839,7 +845,14 @@ def submit_new_post(request):
             else:
                 data["embed"] = 0
             images.append(data)
-
+    
+    rs = myactivitystore()
+    my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_publishPost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+    "URLValues": {"postPublisher_id": request.user.id},
+    "TokenValues": {"postPublisher_id":request.user.id}, 
+    "LogoValues": {"postPublisher_id": request.user.id}}
+    rs.insert_item(my_activity)
+    
     _id = store.create(type=type, user_id=request.user.id, content=content,
                        receivers=get_receivers(request.user, type), date=datetime.datetime.utcnow(),
                        expiration_date=expiration_date, images=images)
