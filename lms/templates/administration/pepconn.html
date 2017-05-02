@@ -393,10 +393,7 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-schools" data-column="2" id="School_district_select">
-                    <option class="null_case" value="">Select District</option>
-                    %for item in District.objects.all():
-                        <option parent-class="${item.state.id}" value="${item.name}" value="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
 
                 <input placeholder="Search Schools" class="search-schools" type="search" data-column="1" id="School_search">
@@ -466,16 +463,10 @@ f.close()
                     %endfor
                 </select>
                 <select type="search" class="search-users" data-column="4" id="User_district_select">
-                    <option value="" class="null_case">Select District</option>
-                    %for item in District.objects.all().order_by('name'):
-                        <option parent-class="${item.state.id}" value="${item.name}" class="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
                 <select type="search" class="search-users" data-column="3" id="User_school_select">
-                    <option value="" class="null_case">Select School</option>
-                    %for item in School.objects.all().order_by('name'):
-                        <option parent-class="${item.district_id}" value='${item.name}' class="${item.id}">${item.name}</option>
-                    %endfor
+
                 </select>
                 <select type="search" class="search-users" data-column="10" id="User_registration_select">
                     <option value="" class="null_case">Select Registration Status</option>
@@ -799,6 +790,7 @@ function submitUserEdit(){
     }, function(r){
         if(r.success == 'true'){
             $("#userEditMessage").text("Updated Successfully.").css("color", "green");
+            $("#user_table_init").trigger("pagerUpdate");
         }else{
             $("#userEditMessage").text(r.error).css("color", "red");
         }
@@ -860,6 +852,15 @@ function cleanInput(input){
 }
 
 $(document).ready(function () {
+    $("#User_state_select").change(function () {
+       var id = $("#User_state_select :selected").attr("class");
+        filterUserDropOptions('district', id, '#User_district_select');
+    });
+
+    $("#User_district_select").change(function () {
+       var id = $("#User_district_select :selected").attr("class");
+        filterUserDropOptions('school', id, '#User_school_select');
+    });
     var custom_email_loaded = [false, false, false];
 
     $("input[id^=cec-]").change(function(){
@@ -1142,6 +1143,7 @@ $(document).ready(function () {
                 $(".user_select_box:checked").each(function () {
                     var identify = $(this).val();
                     $("#user_" + identify).hide();
+                    $("#user_table_init").trigger("pagerUpdate");
                 });
             } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.error);
         });
@@ -1179,6 +1181,7 @@ $(document).ready(function () {
                 }, function (r) {
                     if (r.success) {
                         self.taskId = r.taskId;
+                        $("#user_table_init").trigger("pagerUpdate");
                     }
                 });
             }
@@ -1218,6 +1221,30 @@ $(document).ready(function () {
             $(select).html('');
         }
     }
+    function filterUserDropOptions(item, id, select) {
+        if (id != 'null_case') {
+            var url = '';
+            var data = {};
+            if (item == 'state') {
+                url = "${reverse('pepper_utilities_drop_states')}";
+            } else if (item == 'district') {
+                url = "${reverse('pepper_utilities_drop_districts')}";
+                data['state'] = id;
+            } else if (item == 'school') {
+                url = "${reverse('pepper_utilities_drop_schools')}";
+                data['district'] = id;
+            }
+            $.get(url, data, function (r) {
+                var options = '<option value="null_case" selected>Select ' + item[0].toUpperCase() + item.substr(1) + '</option>';
+                $.each(r, function (k, v) {
+                    options += '<option value="' + v.name + '" class="' + v.id + '">' + v.name + '</option>';
+                });
+                $(select).html(options);
+            });
+        } else {
+            $(select).html('');
+        }
+    }
     function filterOptionsByAttribute(select, attribute, value) {
         var data = {};
         data[attribute] = value;
@@ -1229,15 +1256,6 @@ $(document).ready(function () {
             $(select).html(options);
         });
     }
-
-    $("#User_state_select").change(function () {
-        var id = $(this).children(":selected").attr("class");
-        //console.log('Parent: ' + id);
-        $("#User_district_select > option").each(function() {
-            filterOptions(this, id)
-        });
-        $("#User_district_select").trigger('change');
-    });
     $("#user_state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
         $("#user_district_id > option").each(function() {
@@ -1252,9 +1270,7 @@ $(document).ready(function () {
     });
     $("#School_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
-        $("#School_district_select > option").each(function() {
-            filterOptions(this, id)
-        });
+        filterUserDropOptions('district', id, '#School_district_select')
     });
     $("#Cohort_state_select").change(function () {
         var id = $(this).children(":selected").attr("class");
@@ -1262,12 +1278,7 @@ $(document).ready(function () {
             filterOptions(this, id)
         });
     });
-    $("#User_district_select").change(function () {
-        var id = $(this).children(":selected").attr("class");
-        $("#User_school_select > option").each(function () {
-            filterOptions(this, id)
-        });
-    });
+
     $("#state_single").change(function () {
         var id = $(this).children(":selected").attr("class");
         $("#district_id_single > option").each(function() {
@@ -1332,6 +1343,7 @@ function submitAddToCohort() {
                 //console.log(r.message);
                 if (r.message = "success") {
                     $("#cohortAddSuccess").html("Added successfully to Cohort");
+                    $("#user_table_init").trigger("pagerUpdate");
                 } else new Dialog($('#dialog')).show("Error", "The following error has occurred: " + r.message);
             });
 
@@ -1350,7 +1362,7 @@ function submitRemoveFromCohort() {
                 id: $checkbox.val()
             }, function (r) {
                 if (r.message = "success") {
-
+                    $("#user_table_init").trigger("pagerUpdate");
                 } else {
                     finished_good = false;
                 }
