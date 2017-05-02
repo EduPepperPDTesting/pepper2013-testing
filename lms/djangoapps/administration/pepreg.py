@@ -1287,8 +1287,6 @@ def download_calendar_pdf(request):
                     start_index += training_desc_length
                     training_desc_length = training_desc_length + training_desc_length
                     num += 1
-                    # c.drawString(34, ty + tr_height - 13, str(training_desc[0: int(string_desc_length)]))
-                    # c.drawString(34, ty + tr_height - 23, str(training_desc[int(string_desc_length):]))
             else:
                 c.drawCentredString(99, ty + tr_height - 10, str(training_name))
                 if(len(training_desc) > 0):
@@ -1320,14 +1318,12 @@ def download_calendar_pdf(request):
                 start_index = 0
                 while (num <= num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index): int(training_geo_length)]))
+                        c.drawString(448, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index): int(training_geo_length)]))
                     else:
-                        c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index):]))
+                        c.drawString(448, ty + tr_height - ((10 * num) + 3), str(training_geo[int(start_index):]))
                     start_index += training_geo_length
                     training_geo_length = training_geo_length + training_geo_length
                     num += 1
-                    # c.drawString(448, ty + tr_height - 13, str(training_geo[0: int(string_geo_length)]))
-                    # c.drawString(448, ty + tr_height - 23, str(training_geo[int(string_geo_length):]))
             else:
                 if(len(training_room) > 0):
                     c.drawCentredString(513, ty + tr_height - 10, str(training_room))
