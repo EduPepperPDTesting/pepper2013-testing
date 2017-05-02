@@ -16,7 +16,11 @@
 <script type="text/javascript" src="/static/js/tablesorter/js/extras/jquery.tablesorter.pager.min.js"></script>
 <script type="text/javascript" src="/static/js/tablesorter/js/widgets/widget-filter.min.js"></script>
 <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
+<script>
 
+	
+	
+</script>
 <link rel="stylesheet" href="/static/css/admin_ui_controls.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/js/tablesorter/css/theme.blue.min.css" media="screen"/>
 <link rel="stylesheet" href="/static/js/tablesorter/css/jquery.tablesorter.pager.min.css" media="screen" />
@@ -84,6 +88,8 @@
 	.organizational_dashboard_menu_btn input{margin-top:7px;}
 	
 	.organizational_dashboard_menu_body1 fieldset {float:left; border: 1px solid #c0c0c0 !important; margin: 10px 2px !important; padding: 10px 0 10px 40px !important; display:none;}
+	
+	.organizational_dashboard_demo1{color:#ccc !important;}
 </style>
 
 <div class="organization_main1" style="margin-bottom:20px; margin-top:20px;">
@@ -187,7 +193,7 @@
                     	<table id="organization-table2" class="organization-table">
                             <thead><tr><th>Name</th><th><input type="checkbox" value="" id="organization-table2_all"></th></tr></thead>
                             <tbody>
-                                <tr>
+                                <!--<tr>
                                     <td width="300"><span class="org_table_menu1 org_icon_up" id="org_top_menu">Top Menu</span></td>
                                     <td class="check-column"><input type="checkbox" value="" child_check="org_top_menu" class="org_parent_menu organization-item-select"></td>
                                 </tr>
@@ -215,7 +221,6 @@
                                     <td><span class="org_table_menu_child1 org_top_menu">Notifications</span></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_tm_notifications"></td>
                                 </tr>
-                                <!--Tools menu-->
                                 <tr>
                                     <td><span class="org_table_menu1 org_icon_up" id="org_tools_menu">Tools menu</span></td>
                                     <td class="check-column"><input type="checkbox" value="" child_check="org_tools_menu" class="org_parent_menu organization-item-select"></td>
@@ -271,7 +276,7 @@
                                 <tr class="org_table_tr_menu">
                                     <td><span class="org_table_menu_child1 org_tools_menu">Portfolio Settings</span></td>
                                     <td><input type="checkbox" class="organization-item-select" id="org_tsm_portfolio_settings"></td>
-                                </tr>
+                                </tr>-->
                                 <tr>
                                     <td width="300"><span class="org_table_menu1 org_icon_up" id="org_registration_page">Registration Page</span></td>
                                     <td class="check-column"><input type="checkbox" child_check="org_registration_page" class="org_parent_menu organization-item-select"></td>
@@ -387,49 +392,49 @@
                 <td colspan="3" class="org_td1">
                 	<label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="0" checked="checked" />All Words</label>
                     <label style="margin-right:20px;"><input type="radio" name="organizational_dashboard_is_icon" value="1" />All Icons</label>
-                    <label><input type="checkbox" name="organizational_dashboard_is_icon_text" />Text Below Icons</label>
+                    <label class="org_td1_demo2"><input type="checkbox" name="organizational_dashboard_is_icon_text" />Text Below Icons</label>
                 </td>
             </tr>
             <tr>
-                <td class="org_td1">Menu Text Settings: </td>
+                <td class="org_td1 org_td1_demo">Menu Text Settings: </td>
                 <td></td>
                 <td></td>
             </tr>
             <tr>
-                <td class="org_td1" style="padding-left:30px;">Color: </td>
+                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Color: </td>
                 <td><input id="organizational_dashboard_menu_text_color" type="color" /> </td>
                 <td></td>
             </tr>
             <tr>
-                <td class="org_td1" style="padding-left:30px;">Font: </td>
+                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Font: </td>
                 <td>
                 	<select id="organizational_dashboard_menu_text_font">
-                        <option value="Arial, Helvetica, sans-serif;">Arial</option>
-                        <option value="Arial Black’, Gadget, sans-serif;">Arial Black</option>
-                        <option value="Arial Narrow’, sans-serif;">Arial Narrow</option>
-                        <option value="Verdana, Geneva, sans-serif;">Verdana</option>
-                        <option value="Georgia, serif;">Georgia</option>
-                        <option value="'Times New Roman', Times, serif;">Times New Roman</option>
-                        <option value="'Trebuchet MS', Helvetica, sans-serif;">Trebuchet MS</option>
-                        <option value="'Courier New', Courier, monospace;">Courier New</option>
-                        <option value="Impact, Charcoal, sans-serif;">Impact</option>
-                        <option value="'Comic Sans MS', cursive;">Comic Sans MS</option>
-                        <option value="Tahoma, Geneva, sans-serif;">Tahoma</option>
-                        <option value="Courier, monospace;">Courier</option>
-                        <option value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif;">Lucida Sans Unicode</option>
-                        <option value="'Lucida Console', Monaco, monospace;">Lucida Console</option>
-                        <option value="Garamond, serif;">Garamond</option>
-                        <option value="'MS Sans Serif', Geneva, sans-serif;">MS Sans Serif</option>
-                        <option value="'MS Serif', 'New York', sans-serif;">MS Serif</option>
-                        <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif;">Palatino Linotype</option>
-                        <option value="Symbol, sans-serif;">Symbol</option>
-                        <option value="'Bookman Old Style', serif;">Bookman Old Style</option>
+                        <option value="Arial, Helvetica, sans-serif">Arial</option>
+                        <option value="Arial Black’, Gadget, sans-serif">Arial Black</option>
+                        <option value="Arial Narrow’, sans-serif">Arial Narrow</option>
+                        <option value="Verdana, Geneva, sans-serif">Verdana</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                        <option value="'Trebuchet MS', Helvetica, sans-serif">Trebuchet MS</option>
+                        <option value="'Courier New', Courier, monospace">Courier New</option>
+                        <option value="Impact, Charcoal, sans-serif">Impact</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                        <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+                        <option value="Courier, monospace">Courier</option>
+                        <option value="'Lucida Sans Unicode', 'Lucida Grande', sans-serif">Lucida Sans Unicode</option>
+                        <option value="'Lucida Console', Monaco, monospace">Lucida Console</option>
+                        <option value="Garamond, serif">Garamond</option>
+                        <option value="'MS Sans Serif', Geneva, sans-serif">MS Sans Serif</option>
+                        <option value="'MS Serif', 'New York', sans-serif">MS Serif</option>
+                        <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino Linotype</option>
+                        <option value="Symbol, sans-serif">Symbol</option>
+                        <option value="'Bookman Old Style', serif">Bookman Old Style</option>
                     </select>
                 </td>
                 <td></td>
             </tr>
             <tr>
-                <td class="org_td1" style="padding-left:30px;">Size: </td>
+                <td class="org_td1 org_td1_demo" style="padding-left:30px;">Size: </td>
                 <td><select id="organizational_dashboard_menu_text_size"></select></td>
                 <td></td>
             </tr>
@@ -441,6 +446,13 @@
                     <input type="button" id="organizational_dashboard_space_between_plus" value="+" class="small_btn" />
                 </td>
                 <td></td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                	<div id="organizational_dashboard_demo_div" style="float:left; width:975px; height:76px; border: 1px solid #c0c0c0; ">
+                    </div>
+                    <input type="button" onclick="organizational_dashboard_demo_div_reload()" value="Reload" class="small_btn" style="float:left; margin:50px 0 0 10px;" />
+                </td>
             </tr>
             <tr>
                 <td class="org_td1">Menu Items: </td>
@@ -909,14 +921,20 @@
 										$("#organizational_menu_color").val(r["Menu Color"]);
 									}
 									$("input[name='organizational_dashboard_is_icon'][value='" + r["Is Icon"] + "']").attr("checked", "checked");
-									if(r["Is Icon With Text"] == "1")	$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");
+
+									if(r["Is Icon With Text"] == "1"){
+										$("input[name='organizational_dashboard_is_icon_text']").attr("checked", "checked");										
+									}									
+									
+									$("input[name='organizational_dashboard_is_icon']").change();
 									if(r["Text Color"]){
 										$("#organizational_dashboard_menu_text_color").val(r["Text Color"]);
 									}
+									
 									$("#organizational_dashboard_menu_text_font").val(r["Text Font"]);
 									$("#organizational_dashboard_menu_text_size").val(r["Text Size"]);
 									$("#organizational_dashboard_space_between").val(r["Space Betwwen Items"]);
-									
+												
 									//----------
 									$(".organizational_dashboard_menu_body1").each(function(i){
 										if(i > 0){
@@ -1058,6 +1076,8 @@
 								alert("error: " + r.Error);
 							}
 							loadwin.hide();
+							organizational_dashboard_demo_div_reload();
+							isIconChange($("input[name='organizational_dashboard_is_icon']:checked").val());
 						});
 					});
 				}
@@ -1344,6 +1364,61 @@
 				});*/
 			}
 			$(el).val("-");
+		}
+	}
+	
+	//-----------------------------------------------------------------------organizational_dashboard_demo_div_reload
+	function organizational_dashboard_demo_div_reload(){
+		try{
+		$("#organizational_dashboard_demo_div").empty();
+		var menu_color = $("#organizational_menu_color").val();
+		$("#organizational_dashboard_demo_div").css("backgroundColor", menu_color);
+		var logo = $("#organizational_base_home_logo_p").next().find("img").clone(true);
+		if(logo.length > 0){
+			logo.removeAttr("width");
+			logo.attr("height", 58);
+			logo.css({
+				"float": "left",
+				"margin": "8px 0 0 5px"
+			});
+			$("#organizational_dashboard_demo_div").append(logo);
+		}
+		var is_icon = $("input[name='organizational_dashboard_is_icon']:checked").val();
+		var is_icon_width_text = ($("input[name='organizational_dashboard_is_icon_text']").attr("checked")) ? "1" : "0";
+		var space = $("#organizational_dashboard_space_between").val();
+		var menu_text_color = $("#organizational_dashboard_menu_text_color").val();
+		var menu_text_font = $("#organizational_dashboard_menu_text_font").val();
+		var menu_text_size = $("#organizational_dashboard_menu_text_size").val();
+		
+		$(".menu_items_menu_item").each(function(){
+			if($(this).val() != ""){
+				var tmp_item;				
+				if(is_icon == "1"){
+					var img_src = "";
+					var el_tmp1 = $(this).parent().parent().find(".organizational_dashboard_menu_icon_view");
+					if(el_tmp1.html() != ""){
+						var el_tmp2 = el_tmp1.find("img");
+						if(el_tmp2.length > 0){
+							img_src = el_tmp2.attr("src");
+						}
+					}
+					tmp_item = $("<span><img src='" + img_src + "' title='" + $(this).val() + "' width='45' height='45' /></span>");
+					tmp_item.css({
+						"float": "right",
+						"margin": "15px " + space + "px 0 0",
+						"width": "45px",
+						"height": "45px"
+					});
+				}else{
+					tmp_item = $("<span>" + $(this).val() + "</span>");
+					tmp_item.css("cssText", "float:right; color:" + menu_text_color + "; margin:28px " + space + "px 0 0;font-size:" + menu_text_size + "px; font-family:" + menu_text_font + " !important;");
+				}
+				$("#organizational_dashboard_demo_div").prepend(tmp_item);
+			}
+		});
+		
+		}catch(e1){
+			alert(e1);
 		}
 	}
 	
@@ -1752,10 +1827,10 @@
 			
 			//---------------------------------------------------specific_items
 			var specific_items = "{";
-			$(".organization-item-select").each(function(){
+			/*$(".organization-item-select").each(function(){
 				if($(this).attr('checked'))	specific_items += ",'" + $(this).attr("id") + "': true";
 			});			
-			specific_items = specific_items.replace(",", "");
+			specific_items = specific_items.replace(",", "");*/
 			specific_items += "}";
 			if(specific_items == "{}")	specific_items = "";
 			
@@ -1982,7 +2057,35 @@
 				$(tmp_body1).parent().find(".sub_menu_btn:last").val("+");
 			}
 		});
+		
+		//--------------------------organizational_dashboard_is_icon change
+		$("input[name='organizational_dashboard_is_icon']").change(function(){
+			isIconChange($(this).val());
+		});
     });	
+	
+	//--------------------------isIconChange
+	function isIconChange(is_icon){
+		if(is_icon == "1"){
+			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", false);
+			
+			$("#organizational_dashboard_menu_text_color").attr("disabled", true);
+			$("#organizational_dashboard_menu_text_font").attr("disabled", true);
+			$("#organizational_dashboard_menu_text_size").attr("disabled", true);
+
+			$(".org_td1_demo2").removeClass("organizational_dashboard_demo1");
+			$(".org_td1_demo").addClass("organizational_dashboard_demo1");
+		}else{
+			$("input[name='organizational_dashboard_is_icon_text']").attr("disabled", true);
+			
+			$("#organizational_dashboard_menu_text_color").attr("disabled", false);
+			$("#organizational_dashboard_menu_text_font").attr("disabled", false);
+			$("#organizational_dashboard_menu_text_size").attr("disabled", false);			
+			
+			$(".org_td1_demo2").addClass("organizational_dashboard_demo1");
+			$(".org_td1_demo").removeClass("organizational_dashboard_demo1");
+		}
+	}
 	
 	//--------------------------filterStr
 	function filterStr(str){
