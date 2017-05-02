@@ -735,6 +735,14 @@ def submit_new_like(request):
     if store.is_like(feeding_id, user_id):
         store.remove_like(feeding_id, request.user.id)
     else:
+        postPublisher_id = int(store.get_feeding(feeding_id)['user_id'])
+        rs = myactivitystore()
+        my_activity = {"GroupType": "MyFeed", "EventType": "myFeed_likePost", "ActivityDateTime": datetime.datetime.utcnow(), "UsrCre": request.user.id, 
+        "URLValues": {"postPublisher_id": postPublisher_id},
+        "TokenValues": {"postPublisher_id":postPublisher_id}, 
+        "LogoValues": {"postPublisher_id": postPublisher_id}}
+        rs.insert_item(my_activity)
+        
         date = datetime.datetime.utcnow()
         store.add_like(feeding_id, request.user.id, date)
         
