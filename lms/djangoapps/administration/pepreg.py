@@ -1265,7 +1265,9 @@ def download_calendar_pdf(request):
         if (training_name):
             training_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_desc and training_desc_length > 130):
-                string_desc_length = round((int(len(str(training_desc)) / 2)), 0)
+                num_string = (training_desc_length / 130)
+                num_string = num_string if(round(num_string) == num_string) else num_string + 1
+                string_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
                 while 1:
                     training_desc_length = stringWidth(training_desc[0: int(string_desc_length)], "Helvetica", base_font_size)
                     if (training_desc_length == 130):
@@ -1274,8 +1276,13 @@ def download_calendar_pdf(request):
                         string_desc_length += 1
 
                 c.drawString(34, ty + tr_height - 3, str(training_name))
-                c.drawString(34, ty + tr_height - 13, str(training_desc[0: int(string_desc_length)]))
-                c.drawString(34, ty + tr_height - 23, str(training_desc[int(string_desc_length):]))
+                num = 0
+                while(num < num_string):
+                    c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_desc[0: int(string_desc_length)]))
+                    string_desc_length += 130
+                    num += 1
+                    # c.drawString(34, ty + tr_height - 13, str(training_desc[0: int(string_desc_length)]))
+                    # c.drawString(34, ty + tr_height - 23, str(training_desc[int(string_desc_length):]))
             else:
                 c.drawCentredString(99, ty + tr_height - 10, str(training_name))
                 if(len(training_desc) > 0):
@@ -1290,7 +1297,9 @@ def download_calendar_pdf(request):
         if (training_room or training_geo):
             training_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
             if (training_geo and training_geo_length > 130):
-                string_geo_length = round((int(len(str(training_geo)) / 2)), 0)
+                num_string = (training_geo_length / 130)
+                num_string = num_string if (round(num_string) == num_string) else num_string + 1
+                string_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
                 while 1:
                     training_geo_length = stringWidth(training_desc[0: int(string_geo_length)], "Helvetica", base_font_size)
                     if (training_geo_length == 130):
@@ -1300,8 +1309,13 @@ def download_calendar_pdf(request):
 
                 if(len(training_room) > 0):
                     c.drawString(448, ty + tr_height - 3, str(training_room))
-                c.drawString(448, ty + tr_height - 13, str(training_geo[0: int(string_geo_length)]))
-                c.drawString(448, ty + tr_height - 23, str(training_geo[int(string_geo_length):]))
+                num = 0
+                while (num < num_string):
+                    c.drawString(34, ty + tr_height - ((10 * num) + 3), str(training_geo[0: int(string_geo_length)]))
+                    string_geo_length += 130
+                    num += 1
+                    # c.drawString(448, ty + tr_height - 13, str(training_geo[0: int(string_geo_length)]))
+                    # c.drawString(448, ty + tr_height - 23, str(training_geo[int(string_geo_length):]))
             else:
                 if(len(training_room) > 0):
                     c.drawCentredString(513, ty + tr_height - 10, str(training_room))
