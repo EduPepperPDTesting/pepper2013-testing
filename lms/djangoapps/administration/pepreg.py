@@ -1253,10 +1253,10 @@ def download_calendar_pdf(request):
                     tr_height += 10 * num_lines
                     old_num_lines = num_lines
 
-                    if(not after_long_text):
-                        ty -= 10
-                    else:
-                        ty -= 10 * old_num_lines
+                    # if(not after_long_text):
+                    #     ty -= 10
+                    # else:
+                    #     ty -= 10 * old_num_lines
 
                     after_long_text = 1
 
