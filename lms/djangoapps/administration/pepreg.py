@@ -1281,13 +1281,13 @@ def download_calendar_pdf(request):
             #     if(len(training_desc) > 0):
             #         c.drawCentredString(99, ty + tr_height - 20, training_desc)
 
-            c.drawCentredString(99, ty + tr_height - 10, 'training_name')
+            c.drawCentredString(99, ty + tr_height - 10, str(training_name))
             if (len(training_desc) > 0):
                 c.drawCentredString(99, ty + tr_height - 20, 'training_desc')
 
 
         if (training_date):
-            c.drawCentredString(237, ty + tr_height - 15, 'training_date')
+            c.drawCentredString(237, ty + tr_height - 15, str(training_date))
 
         if (training_time):
             c.drawCentredString(375, ty + tr_height - 15, 'training_time')
