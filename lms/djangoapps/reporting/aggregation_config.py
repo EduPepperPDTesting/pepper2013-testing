@@ -26,7 +26,7 @@ AggregationConfig = {
         "collection": "user_info"
     },
     "PDPlannerView": {
-        "collection": "PDPlannerView"
+        "collection": "PepRegTrainingView"
     }
 }
 
