@@ -233,13 +233,13 @@ def get_user_rows(request):
                2: ['user__first_name', '__icontains', 'str'],
                3: ['school__name', '__iexact', 'str'],
                4: ['district__name', '__iexact', 'str'],
-               5: ['district__state__name', '__iexact', 'str'],
-               6: ['cohort__code', '__icontains', 'str'],
+               5: ['cohort__code', '__icontains', 'str'],
+               6: ['district__state__name', '__iexact', 'str'],
                7: ['user__email', '__icontains', 'str'],
                8: ['sso_type', '__icontains', 'str'],
                9: ['sso_idp', '__icontains', 'str'],
                10: ['subscription_status', '__iexact', 'str'],
-               11: ['user__date_joined', '__icontains', False]}
+               12: ['user__date_joined', '__icontains', False]}
     # Parse the sort data passed in.
     sorts = get_post_array(request.GET, 'col')
     # Parse the filter data passed in.
