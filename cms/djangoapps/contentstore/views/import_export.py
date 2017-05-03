@@ -49,7 +49,7 @@ from pytz import UTC
 
 
 
-__all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course']
+__all__ = ['import_course', 'generate_export_course', 'export_course', 'sync_course', 'dest_course_exists']
 
 log = logging.getLogger(__name__)
 
@@ -563,7 +563,7 @@ def sync_course(request):
 
     dest_id = int(request.POST.get("dest", ""))
     d = settings.COURSE_SYNC_DEST[dest_id]
-    
+
     task = AsyncTask()
     task.type = "sync course"
     task.create_user = request.user
@@ -576,7 +576,39 @@ def sync_course(request):
     db.transaction.commit()
 
     connection.close()
-        
+
     do_sync_course(task, org, course, name, d, request.user)
     return HttpResponse(json.dumps({'success': True, 'taskId': task.id}), content_type="application/json")
+
+
+@login_required
+def dest_course_exists(request):
+    org = request.POST.get("id_org", "")
+    course = request.POST.get("id_course", "")
+    name = request.POST.get("id_name", "")
+    dest_id = int(request.POST.get("dest", ""))
+    d = settings.COURSE_SYNC_DEST[dest_id]
+    error = None
+    exists = False
+    try:
+        server = SSHTunnelForwarder(
+            d['host'],
+            ssh_port=d['ssh_port'],
+            ssh_username=d['ssh_username'],
+            ssh_password=d['ssh_password'],
+            remote_bind_address=('127.0.0.1', d['mongo_port']),
+        )
+        server.start()
+
+        dest = MongoClient('127.0.0.1', server.local_bind_port)
+        exists = dest["xmodule"]["modulestore"].find({"_id.category": "course", "_id.org": org, "_id.course": course, "_id.name": name}).count() > 0
+
+        dest.close()
+        server.stop()
+
+    except Exception as e:
+        error = e
+
+    return HttpResponse(json.dumps({'success': error is None, 'exists': exists, "error": str(error)}), content_type="application/json")
+
     
