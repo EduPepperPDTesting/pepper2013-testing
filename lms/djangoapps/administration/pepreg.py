@@ -1272,10 +1272,10 @@ def download_calendar_pdf(request):
             except:
                 raise Exception('No Training ' + str(training_id))
 
-        c.rect(30, base_table_y, 172, 30, fill=1)
-        c.rect(202, base_table_y, 104, 30, fill=1)
-        c.rect(306, base_table_y, 104, 30, fill=1)
-        c.rect(410, base_table_y, 172, 30, fill=1)
+        c.rect(30, ty, 172, tr_height, fill=0)
+        c.rect(202, ty, 104, tr_height, fill=0)
+        c.rect(306, ty, 104, tr_height, fill=0)
+        c.rect(410, ty, 172, tr_height, fill=0)
 
         if (training_name):
             c.drawCentredString(116, ty + tr_height - 10, str(training_name))
