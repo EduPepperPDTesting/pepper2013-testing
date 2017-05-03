@@ -1245,7 +1245,8 @@ def download_calendar_pdf(request):
                 long_text = training_desc if info_text_width >= loc_text_width else training_geo
                 long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
 
-                if(num_lines): old_num_lines = num_lines
+                if (num_lines):
+                    old_num_lines = num_lines
                 if (long_text_width > 130):
 
                     num_lines = (long_text_width / 130)  # number of lines to fit
@@ -1268,7 +1269,7 @@ def download_calendar_pdf(request):
                 else:
                     after_long_text = 0
             except:
-                raise Exception(training_id + ' No Training')
+                raise Exception('No Training ' + str(training_id))
 
         c.rect(30, ty, 138, tr_height, fill=0)
         c.rect(168, ty, 138, tr_height, fill=0)
