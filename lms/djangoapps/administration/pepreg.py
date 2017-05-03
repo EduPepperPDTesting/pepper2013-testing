@@ -1194,10 +1194,10 @@ def download_calendar_pdf(request):
     c.setFillColor(colors.lawngreen)
 
     base_table_y = 650
-    c.rect(30, base_table_y, 138, 30, fill=1)
-    c.rect(168, base_table_y, 138, 30, fill=1)
-    c.rect(306, base_table_y, 138, 30, fill=1)
-    c.rect(444, base_table_y, 138, 30, fill=1)
+    c.rect(30, base_table_y, 172, 30, fill=1)
+    c.rect(168, base_table_y, 104, 30, fill=1)
+    c.rect(306, base_table_y, 104, 30, fill=1)
+    c.rect(444, base_table_y, 172, 30, fill=1)
 
     c.setStrokeColor(colors.black)
     c.setFillColor(colors.black)
@@ -1245,12 +1245,12 @@ def download_calendar_pdf(request):
                 long_text = training_desc if info_text_width >= loc_text_width else training_geo
                 long_text_width = stringWidth(long_text, "Helvetica", base_font_size)
 
-                if (long_text_width > 130):
+                if (long_text_width > 170):
 
                     if(after_long_text):
                         old_num = num_lines
 
-                    num_lines = (long_text_width / 130)  # number of lines to fit
+                    num_lines = (long_text_width / 170)  # number of lines to fit
                     if (round(num_lines) < num_lines):  # round up
                         num_lines += 1
 
@@ -1272,22 +1272,22 @@ def download_calendar_pdf(request):
             except:
                 raise Exception('No Training ' + str(training_id))
 
-        c.rect(30, ty, 138, tr_height, fill=0)
-        c.rect(168, ty, 138, tr_height, fill=0)
-        c.rect(306, ty, 138, tr_height, fill=0)
-        c.rect(444, ty, 138, tr_height, fill=0)
+        c.rect(30, ty, 172, tr_height, fill=0)
+        c.rect(168, ty, 134, tr_height, fill=0)
+        c.rect(306, ty, 134, tr_height, fill=0)
+        c.rect(444, ty, 172, tr_height, fill=0)
 
         if (training_name):
             c.drawCentredString(99, ty + tr_height - 10, str(training_name))
             string_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
-            if (training_desc and string_desc_length > 130):
-                num_string = (string_desc_length / 130) #number of lines to draw
+            if (training_desc and string_desc_length > 160):
+                num_string = (string_desc_length / 160) #number of lines to draw
                 if(round(num_string) < num_string): #round up
                     num_string += 1
                 training_desc_length = round((int(len(str(training_desc)) / num_string)), 0)
                 while 1: #get first line size
                     string_desc_length = stringWidth(training_desc[0: int(training_desc_length)], "Helvetica", base_font_size)
-                    if (string_desc_length >= 130):
+                    if (string_desc_length >= 160):
                         break
                     else:
                         training_desc_length += 1 #add to end index to increase line size
@@ -1299,7 +1299,7 @@ def download_calendar_pdf(request):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
                         start_index = end_index + 1
-                        training_desc_length = start_index + 130
+                        training_desc_length = start_index + 160
                     else:
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
                     num += 1
@@ -1327,14 +1327,14 @@ def download_calendar_pdf(request):
             if(len(training_room) > 0):
                     c.drawCentredString(513, ty + tr_height - 10, str(training_room))
             string_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
-            if (training_geo and string_geo_length > 130):
-                num_string = (string_geo_length / 130) #number of lines to draw
+            if (training_geo and string_geo_length > 160):
+                num_string = (string_geo_length / 160) #number of lines to draw
                 if (round(num_string) < num_string): #round up
                     num_string += 1
                 training_geo_length = round((int(len(str(training_geo)) / num_string)), 0)
                 while 1: #get first line size
                     string_geo_length = stringWidth(training_geo[0: int(training_geo_length)], "Helvetica", base_font_size)
-                    if (string_geo_length >= 130):
+                    if (string_geo_length >= 160):
                         break
                     else:
                         training_geo_length += 1 #add to end index to increase line size
@@ -1346,7 +1346,7 @@ def download_calendar_pdf(request):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
                         start_index = end_index + 1
-                        training_geo_length = start_index + 130
+                        training_geo_length = start_index + 160
                     else:
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
                     num += 1
