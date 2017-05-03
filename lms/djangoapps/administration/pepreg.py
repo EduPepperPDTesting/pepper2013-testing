@@ -1195,19 +1195,19 @@ def download_calendar_pdf(request):
 
     base_table_y = 650
     c.rect(30, base_table_y, 172, 30, fill=1)
-    c.rect(168, base_table_y, 104, 30, fill=1)
+    c.rect(202, base_table_y, 104, 30, fill=1)
     c.rect(306, base_table_y, 104, 30, fill=1)
-    c.rect(444, base_table_y, 172, 30, fill=1)
+    c.rect(410, base_table_y, 172, 30, fill=1)
 
     c.setStrokeColor(colors.black)
     c.setFillColor(colors.black)
     c.setFont("Helvetica", 10)
 
-    c.drawCentredString(99, base_table_y + 15, "Training Name")
-    c.drawCentredString(99, base_table_y + 5, "and description")
-    c.drawCentredString(237, base_table_y + 10, "Training Date")
-    c.drawCentredString(375, base_table_y + 10, "Start Time")
-    c.drawCentredString(513, base_table_y + 10, "Location")
+    c.drawCentredString(116, base_table_y + 15, "Training Name")
+    c.drawCentredString(116, base_table_y + 5, "and description")
+    c.drawCentredString(254, base_table_y + 10, "Training Date")
+    c.drawCentredString(358, base_table_y + 10, "Start Time")
+    c.drawCentredString(496, base_table_y + 10, "Location")
 
     # ------------------------------------------------------------------------------------tr
     base_font_size = 8
@@ -1272,13 +1272,13 @@ def download_calendar_pdf(request):
             except:
                 raise Exception('No Training ' + str(training_id))
 
-        c.rect(30, ty, 172, tr_height, fill=0)
-        c.rect(168, ty, 134, tr_height, fill=0)
-        c.rect(306, ty, 134, tr_height, fill=0)
-        c.rect(444, ty, 172, tr_height, fill=0)
+        c.rect(30, base_table_y, 172, 30, fill=1)
+        c.rect(202, base_table_y, 104, 30, fill=1)
+        c.rect(306, base_table_y, 104, 30, fill=1)
+        c.rect(410, base_table_y, 172, 30, fill=1)
 
         if (training_name):
-            c.drawCentredString(99, ty + tr_height - 10, str(training_name))
+            c.drawCentredString(116, ty + tr_height - 10, str(training_name))
             string_desc_length = stringWidth(training_desc, "Helvetica", base_font_size)
             if (training_desc and string_desc_length > 160):
                 num_string = (string_desc_length / 160) #number of lines to draw
@@ -1301,13 +1301,13 @@ def download_calendar_pdf(request):
                         start_index = end_index + 1
                         training_desc_length = start_index + 160
                     else:
-                        c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
+                        c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
                     num += 1
             elif(len(training_desc) > 0):
-                c.drawCentredString(99, ty + tr_height - 20, str(training_desc))
+                c.drawCentredString(116, ty + tr_height - 20, str(training_desc))
 
         if (training_date):
-            c.drawCentredString(237, ty + tr_height - 15, str(training_date))
+            c.drawCentredString(254, ty + tr_height - 15, str(training_date))
 
         if (training_time):
             get_hour_str = str(training_time)[0: 2]
@@ -1321,11 +1321,11 @@ def download_calendar_pdf(request):
                 else:
                     hour_str = get_hour_str
 
-            c.drawCentredString(375, ty + tr_height - 15, hour_str + str(training_time)[2: -3] + ampm_str)
+            c.drawCentredString(358, ty + tr_height - 15, hour_str + str(training_time)[2: -3] + ampm_str)
 
         if (training_room or training_geo):
             if(len(training_room) > 0):
-                    c.drawCentredString(513, ty + tr_height - 10, str(training_room))
+                    c.drawCentredString(496, ty + tr_height - 10, str(training_room))
             string_geo_length = stringWidth(training_geo, "Helvetica", base_font_size)
             if (training_geo and string_geo_length > 160):
                 num_string = (string_geo_length / 160) #number of lines to draw
@@ -1344,14 +1344,14 @@ def download_calendar_pdf(request):
                 while (num <= num_string):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
-                        c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
+                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
                         start_index = end_index + 1
                         training_geo_length = start_index + 160
                     else:
-                        c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
+                        c.drawString(415, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
                     num += 1
             elif(len(training_geo) > 0):
-                c.drawCentredString(513, ty + tr_height - 20, str(training_geo))
+                c.drawCentredString(496, ty + tr_height - 20, str(training_geo))
 
         if training_index == lastpos:
             c.showPage()
