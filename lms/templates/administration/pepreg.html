@@ -2325,7 +2325,7 @@
             });
         });
 
-        $("#calendar-month").on("click", "#download_calendar_pdf", function () {
+        $(".cal_pdf").on("click", "#download_calendar_pdf", function () {
             $.getJSON("/pepreg/getCalendarMonth", {year: _sys_calendar_year, month: _sys_calendar_month, day: _sys_calendar_day,
             year_n: _sys_calendar_year_now, month_n: _sys_calendar_month_now, day_n: _sys_calendar_day_now, daterange: $("#calendar_select_range").val(),
             catype: $("#calendar_select_categories").val(), calview: _cal_view, printpdf: 'true'}, function(trainingList){
