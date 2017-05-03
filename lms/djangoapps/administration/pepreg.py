@@ -500,7 +500,7 @@ def getCalendarMonth(request):
     if(request.GET.get('printpdf') == 'true'):
         array_length = len(all_occurrences)
         training_list=[]
-        training_keys = list(range(array_length)) #['name', 'info', 'date', 'time', 'room', 'geo']
+
         training_dict = {}
         i = 0
 
@@ -514,15 +514,32 @@ def getCalendarMonth(request):
             # training_list[i].append(training_start_time)
             # training_list[i].append(item.classroom)
             # training_list[i].append(item.geo_location)
+            arrive = "1" if datetime.now(UTC).date() >= item.training_date else "0"
+            allow = "1" if item.allow_registration else "0"
+            r_l = "1" if reach_limit(item) else "0"
+            allow_student_attendance = "1" if item.allow_student_attendance else "0"
+            status = ""
+            try:
+                userObj = request.session.get('user_obj', None)
+                if PepRegStudent.objects.filter(student=userObj, training=item).exists():
+                    status = PepRegStudent.objects.get(student=userObj, training=item).student_status
+            except:
+                status = ""
 
-            training_list.append(item.id)
+            if (arrive == "0" and (allow == "0" and (_catype == "0" or _catype == "4")) or (allow == "1" and ((status == "" and r_l == "1" and (_catype == "0" or _catype == "5")) or
+                                                                                                                  (status == "Registered" and (_catype == "0" or _catype == "3")) or (_catype == "0" or _catype == "2")))) or \
+                    (arrive == "1" and allow_student_attendance == "1" and (((status == "Attended" or status == "Validated") and (_catype == "0" or _catype == "1")) or (_catype == "0" or _catype == "3"))):
+                training_list.append(item.id)
+            else:
+                array_length -= 1
+
+        training_keys = list(range(array_length))  # ['name', 'info', 'date', 'time', 'room', 'geo']
 
         training_dict = {tr_key: tr_val for tr_key, tr_val in zip(training_keys, training_list)}
 
             # if (i < array_length - 1):
             #     i += 1
             #     training_list.append([])
-
 
         return HttpResponse(json.dumps(training_dict), content_type="application/json")
 
