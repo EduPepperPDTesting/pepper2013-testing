@@ -1258,8 +1258,11 @@ def download_calendar_pdf(request):
 
                     if(not after_long_text):
                         ty -= 10 * num_lines
-                    # else:
-                    #     ty += 10
+                    else:
+                        ty = ty_old - num_lines
+                        #ty += 10
+
+                    ty_old = ty
 
                     after_long_text = 1
 
@@ -1298,7 +1301,7 @@ def download_calendar_pdf(request):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
-                        start_index = end_index + 1
+                        start_index = end_index + 2
                         training_desc_length = start_index + 160
                     else:
                         c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
@@ -1372,11 +1375,11 @@ def download_calendar_pdf(request):
 
                 c.setFillColor(colors.black)
 
-                c.drawCentredString(99, ty + 15, "Training Name")
-                c.drawCentredString(99, ty + 5, "and description")
-                c.drawCentredString(237, ty + 10, "Training Date")
-                c.drawCentredString(375, ty + 10, "Start Time")
-                c.drawCentredString(513, ty + 10, "Location")
+                c.drawCentredString(116, ty + 15, "Training Name")
+                c.drawCentredString(116, ty + 5, "and description")
+                c.drawCentredString(254, ty + 10, "Training Date")
+                c.drawCentredString(358, ty + 10, "Start Time")
+                c.drawCentredString(496, ty + 10, "Location")
 
                 ty -= 30
 
