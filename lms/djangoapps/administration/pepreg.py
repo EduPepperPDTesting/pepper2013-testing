@@ -1298,8 +1298,8 @@ def download_calendar_pdf(request):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
-                        start_index = end_index
-                        training_desc_length = end_index + 130
+                        start_index = end_index + 1
+                        training_desc_length = start_index + 130
                     else:
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
                     num += 1
@@ -1310,7 +1310,18 @@ def download_calendar_pdf(request):
             c.drawCentredString(237, ty + tr_height - 15, str(training_date))
 
         if (training_time):
-            c.drawCentredString(375, ty + tr_height - 15, str(training_time)[0: -3])
+            get_hour_str = str(training_time)[0: 3]
+            if(int(get_hour_str) < 12):
+                ampm_str = " AM"
+                hour_str = get_hour_str
+            else:
+                ampm_str = " PM"
+                if(int(get_hour_str) > 12):
+                    hour_str = str(int(get_hour_str) - 12)
+                else:
+                    hour_str = get_hour_str
+
+            c.drawCentredString(375, ty + tr_height - 15, hour_str + str(training_time)[3: -3] + ampm_str)
 
         if (training_room or training_geo):
             if(len(training_room) > 0):
@@ -1334,8 +1345,8 @@ def download_calendar_pdf(request):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
-                        start_index = end_index
-                        training_geo_length = end_index + 130
+                        start_index = end_index + 1
+                        training_geo_length = start_index + 130
                     else:
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
                     num += 1
