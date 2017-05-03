@@ -1259,7 +1259,7 @@ def download_calendar_pdf(request):
                     if(not after_long_text):
                         ty -= 10 * num_lines
                     else:
-                        ty = ty_old + num_lines
+                        ty = ty_old - (10 * num_lines)
                         #ty += 10
 
                     ty_old = ty
@@ -1301,7 +1301,7 @@ def download_calendar_pdf(request):
                     if (len(str(training_desc)) > int(training_desc_length)):
                         end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
-                        start_index = end_index + 2
+                        start_index = end_index + 1
                         training_desc_length = start_index + 160
                     else:
                         c.drawString(35, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
