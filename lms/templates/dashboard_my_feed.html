@@ -273,7 +273,7 @@ from permissions.utils import check_access_level, check_user_perms
   </div>
   <div class='comment-section' style="display:{is_announcement?none;};width:97.3% !important;">
   {sub_html}
-  {comment_disabled!<img src='/user_photo/{user_id}' class='comment-profile-image'> </img>}
+  {comment_disabled!<img src='/user_photo/${request.user.id}' class='comment-profile-image'> </img>}
   {comment_disabled!<textarea class='add-comment-text' placeholder='Add a comment...'></textarea>}
   </div>
   <div class='ds-post-end_line'></div>
