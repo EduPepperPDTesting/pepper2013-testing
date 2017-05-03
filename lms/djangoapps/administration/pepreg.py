@@ -1296,9 +1296,9 @@ def download_calendar_pdf(request):
                 start_index = 0
                 while(num <= num_string):
                     if (len(str(training_desc)) > int(training_desc_length)):
-                        end_index = str(training_geo[int(start_index): int(training_desc_length)]).rfind(" ")
+                        end_index = str(training_desc[int(start_index): int(training_desc_length)]).rfind(" ")
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index): int(end_index)]))
-                        start_index += training_desc_length
+                        start_index = end_index
                         training_desc_length = end_index + training_desc_length
                     else:
                         c.drawString(32, ty + tr_height - ((10 * num) + 10), str(training_desc[int(start_index):]))
@@ -1336,7 +1336,7 @@ def download_calendar_pdf(request):
                     if(len(str(training_geo)) > int(training_geo_length)):
                         end_index = str(training_geo[int(start_index): int(training_geo_length)]).rfind(" ")
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index): int(end_index)]))
-                        start_index += training_geo_length
+                        start_index = end_index
                         training_geo_length = end_index + training_geo_length
                     else:
                         c.drawString(446, ty + tr_height - ((10 * num) + 10), str(training_geo[int(start_index):]))
