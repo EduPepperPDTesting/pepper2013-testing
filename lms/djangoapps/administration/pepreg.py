@@ -1292,7 +1292,6 @@ def download_calendar_pdf(request):
                     else:
                         training_desc_length += 1 #add to end index to increase line size
 
-                c.drawCentredString(32, ty + tr_height - 10, str(training_name))
                 num = 1
                 start_index = 0
                 while(num <= num_string):
@@ -1311,7 +1310,7 @@ def download_calendar_pdf(request):
             c.drawCentredString(237, ty + tr_height - 15, str(training_date))
 
         if (training_time):
-            c.drawCentredString(375, ty + tr_height - 15, str(training_time))
+            c.drawCentredString(375, ty + tr_height - 15, str(training_time[0: -3]))
 
         if (training_room or training_geo):
             if(len(training_room) > 0):
@@ -1329,8 +1328,6 @@ def download_calendar_pdf(request):
                     else:
                         training_geo_length += 1 #add to end index to increase line size
 
-                if(len(training_room) > 0):
-                    c.drawString(446, ty + tr_height - 10, str(training_room))
                 num = 1
                 start_index = 0
                 while (num <= num_string):
