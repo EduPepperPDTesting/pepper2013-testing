@@ -1310,7 +1310,7 @@ def download_calendar_pdf(request):
             c.drawCentredString(237, ty + tr_height - 15, str(training_date))
 
         if (training_time):
-            get_hour_str = str(training_time)[0: 3]
+            get_hour_str = str(training_time)[0: 2]
             if(int(get_hour_str) < 12):
                 ampm_str = " AM"
                 hour_str = get_hour_str
@@ -1321,7 +1321,7 @@ def download_calendar_pdf(request):
                 else:
                     hour_str = get_hour_str
 
-            c.drawCentredString(375, ty + tr_height - 15, hour_str + str(training_time)[3: -3] + ampm_str)
+            c.drawCentredString(375, ty + tr_height - 15, hour_str + str(training_time)[2: -3] + ampm_str)
 
         if (training_room or training_geo):
             if(len(training_room) > 0):
