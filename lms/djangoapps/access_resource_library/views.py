@@ -187,7 +187,7 @@ def index_list(request):
     courses = get_courses(request.user, request.META.get('HTTP_HOST'))
     courses = sort_by_custom(courses)
 
-    if request.user.id == 24:
+    if (request.user.id == 24) or (request.user.id == 1041) or (request.user.id == 342):
         return render_to_response('temporary.html')
 
     for course in courses:

@@ -796,7 +796,7 @@ Add info that you would like to share about yourself here:
 <section class="my-courses">
   <header style="width:886px;height:246px;margin:auto;position:relative;border-bottom:none;margin-bottom:30px;">
     <div style="position:absolute;
-    %if request.user.id == 24:
+    %if (request.user.id == 24) or (request.user.id == 1041) or (request.user.id == 342):
     background:url(${static.url('images/for24.png')});
     %else:
     background:url(${static.url('images/p15.png')});
@@ -835,7 +835,7 @@ Add info that you would like to share about yourself here:
     <header>
       <h2>${_("MY LEARNING PLAN")}</h2>
     </header>
-    % if request.user.id == 24:
+    % if (request.user.id == 24) or (request.user.id == 1041) or (request.user.id == 342):
       <article class="my-course">
           <a target="_blank" href="https://cms-demo.pepperpd.com/module/grade-6-module-1" class="cover" style="cursor:pointer;">
               <img src="/static/images/Paths to College and Career.png" style="width:200px;height:104px;" alt="Paths to College and Career" />
