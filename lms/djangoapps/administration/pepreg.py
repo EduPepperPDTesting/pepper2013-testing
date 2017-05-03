@@ -1258,8 +1258,8 @@ def download_calendar_pdf(request):
 
                     if(not after_long_text):
                         ty -= 10 * num_lines
-                    else:
-                        ty += 10
+                    # else:
+                    #     ty += 10
 
                     after_long_text = 1
 
@@ -1365,10 +1365,10 @@ def download_calendar_pdf(request):
 
                 c.setFont("Helvetica", 10)
 
-                c.rect(30, ty, 138, 30, fill=1)
-                c.rect(168, ty, 138, 30, fill=1)
-                c.rect(306, ty, 138, 30, fill=1)
-                c.rect(444, ty, 138, 30, fill=1)
+                c.rect(30, ty, 172, 30, fill=1)
+                c.rect(202, ty, 104, 30, fill=1)
+                c.rect(306, ty, 104, 30, fill=1)
+                c.rect(410, ty, 172, 30, fill=1)
 
                 c.setFillColor(colors.black)
 
